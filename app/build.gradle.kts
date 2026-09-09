@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.marotidev.citole"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
