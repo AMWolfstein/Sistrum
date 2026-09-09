@@ -77,6 +77,20 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
+    //workmanager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    //metadata reading
+    implementation(libs.taglib)
+    implementation(libs.jaudiotagger)
+
+    //networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.okhttp)
+
     //plugins
     implementation(libs.coil.compose)
     implementation(libs.material.kolor)
