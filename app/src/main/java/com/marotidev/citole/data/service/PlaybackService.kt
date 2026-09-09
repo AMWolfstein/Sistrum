@@ -20,6 +20,7 @@ package com.marotidev.citole.data.service
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -36,6 +37,7 @@ import com.marotidev.citole.data.repository.RecommendationRepository
 import com.marotidev.citole.data.repository.TrackLogRepository
 import com.marotidev.citole.data.state.PlaybackStateHolder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,7 +54,10 @@ class PlaybackService : MediaSessionService() {
     @Inject lateinit var playbackStateHolder: PlaybackStateHolder
     @Inject lateinit var audioService: AudioService
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e("PlaybackService", "Unhandled exception in serviceScope", throwable)
+    }
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main + exceptionHandler)
 
     private var mediaSession: MediaSession? = null
     private var player: Player? = null

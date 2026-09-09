@@ -40,6 +40,7 @@ import coil3.asDrawable
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
+import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.marotidev.citole.data.local.PlaylistTrack
 import com.marotidev.citole.data.repository.PlaylistRepository
@@ -94,6 +95,10 @@ class PlayerViewModel @Inject constructor(
     var progress by mutableLongStateOf(0L)
 
     private var player : MediaController? = null
+    private val controllerFuture: ListenableFuture<MediaController> = MediaController.Builder(
+        application,
+        SessionToken(application, ComponentName(application, PlaybackService::class.java))
+    ).buildAsync()
 
     var repeatMode by mutableIntStateOf(Player.REPEAT_MODE_OFF)
 
@@ -146,11 +151,6 @@ class PlayerViewModel @Inject constructor(
     }
 
     init {
-        val sessionToken = SessionToken(
-            application,
-            ComponentName(application, PlaybackService::class.java)
-        )
-        val controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
         controllerFuture.addListener(
             {
                 player = controllerFuture.get()
@@ -460,6 +460,7 @@ class PlayerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        player?.release()
+        MediaController.releaseFuture(controllerFuture)
+        imageLoader.shutdown()
     }
 }

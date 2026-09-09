@@ -18,10 +18,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.marotidev.citole.data.repository
 
+import android.util.Log
 import androidx.room.Transaction
 import com.marotidev.citole.data.local.TrackPlayLog
 import com.marotidev.citole.data.local.TrackPlayLogDao
 import com.marotidev.citole.data.service.AudioService
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -55,7 +57,10 @@ class TrackLogRepository @Inject constructor(
         it?.let { trackPlayLogDao.getAllByQueueId(it.queueId) }
     }
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e("TrackLogRepository", "Unhandled exception in serviceScope", throwable)
+    }
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + exceptionHandler)
 
     fun addInitialEmptyQueueLog(queueId: Long, tracks: List<AudioService.TrackData>) {
         serviceScope.launch {

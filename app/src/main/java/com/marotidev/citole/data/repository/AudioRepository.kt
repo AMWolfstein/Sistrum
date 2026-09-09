@@ -23,9 +23,11 @@ import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.marotidev.citole.data.service.AudioService
 import com.marotidev.citole.data.service.AudioService.AudioType
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -42,7 +44,10 @@ class AudioRepository @Inject constructor(
     var allAlbums: MutableStateFlow<List<AudioService.AlbumData>> = MutableStateFlow(emptyList())
     var allArtists: MutableStateFlow<List<AudioService.ArtistData>> = MutableStateFlow(emptyList())
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e("AudioRepository", "Unhandled exception in serviceScope", throwable)
+    }
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + exceptionHandler)
 
     fun List<AudioService.TrackData>.determineArtists(): Pair<List<String>, List<String>> {
         val artistFrequency : MutableMap<String, Int> = mutableMapOf()
