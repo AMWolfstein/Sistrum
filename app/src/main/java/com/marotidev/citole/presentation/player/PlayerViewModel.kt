@@ -53,8 +53,8 @@ import com.materialkolor.ktx.themeColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -211,7 +211,7 @@ class PlayerViewModel @Inject constructor(
     private fun startProgressUpdate() {
         progressJob?.cancel()
         progressJob = viewModelScope.launch {
-            while (NonCancellable.isActive) {
+            while (isActive) {
                 progress = player?.currentPosition ?: 0
                 delay(500.milliseconds)
             }
