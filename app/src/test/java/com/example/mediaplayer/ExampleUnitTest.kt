@@ -1,4 +1,4 @@
-package com.marotidev.citole
+package com.amwolfstein.sistrum
 
 import org.junit.Test
 

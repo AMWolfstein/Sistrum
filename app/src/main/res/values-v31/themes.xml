@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme.NoActionBarLaunch" parent="Theme.Citole">
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_citole_icon</item>
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.Sistrum">
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenBackground">#0E2A38</item>
     </style>
 </resources>

@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.marotidev.citole"
+    namespace = "com.amwolfstein.sistrum"
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
@@ -15,11 +15,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.marotidev.citole"
+        applicationId = "com.amwolfstein.sistrum"
         minSdk = 24
         targetSdk = 36
-        versionCode = 39
-        versionName = "0.3.4"
+        versionCode = 1
+        versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

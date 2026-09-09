@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Citole"
+rootProject.name = "Sistrum"
 include(":app")
