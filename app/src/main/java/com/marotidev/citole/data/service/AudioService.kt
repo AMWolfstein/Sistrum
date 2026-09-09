@@ -31,7 +31,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.internal.toLongOrDefault
 
 class AudioService {
     private val artistSplitterRegex = Regex(
@@ -138,7 +137,7 @@ class AudioService {
 
     fun MediaItem.toAudioData() : TrackData {
         return TrackData(
-            id = mediaId.toLongOrDefault(0),
+            id = mediaId.toLongOrNull() ?: 0,
             uri = localConfiguration?.uri ?: Uri.EMPTY,
             artworkUri = mediaMetadata.artworkUri ?: Uri.EMPTY,
             name = mediaMetadata.title.toString(),

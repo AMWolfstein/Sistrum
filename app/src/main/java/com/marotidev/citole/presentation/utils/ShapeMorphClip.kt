@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.Morph
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.marotidev.citole.R
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt

@@ -35,9 +35,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.ImageLoader
+import coil3.asDrawable
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
 import com.google.common.util.concurrent.MoreExecutors
 import com.marotidev.citole.data.local.PlaylistTrack
 import com.marotidev.citole.data.repository.PlaylistRepository
@@ -133,7 +135,7 @@ class PlayerViewModel @Inject constructor(
         if (result is SuccessResult) {
 
             val seedColor = withContext(Dispatchers.Default) {
-                val bitmap = result.drawable.toBitmap().asImageBitmap()
+                val bitmap = result.image.asDrawable(context.resources).toBitmap().asImageBitmap()
                 bitmap.themeColor(fallback = systemPrimaryColor)
             }
             _themeColor.value = seedColor

@@ -90,7 +90,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.marotidev.citole.R
 import com.marotidev.citole.data.service.AudioService
 import com.marotidev.citole.data.state.QueueItem

@@ -82,7 +82,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.marotidev.citole.R
 import com.marotidev.citole.data.state.QueueItem
 import com.marotidev.citole.presentation.utils.tintedPainter

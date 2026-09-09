@@ -42,7 +42,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.internal.toLongOrDefault
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -132,7 +131,7 @@ class PlaybackService : MediaSessionService() {
                         val finalPositionMs = oldPosition.positionMs
 
                         trackLogRepository.updateLogTimeValues(playbackStateHolder.queueId.value,
-                            finishedTrack.mediaId.toLongOrDefault(0),
+                            finishedTrack.mediaId.toLongOrNull() ?: 0,
                             playbackEndedMs = System.currentTimeMillis(), playbackDurationMs = finalPositionMs)
                     }
                 }

@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.marotidev.citole.R
 import com.marotidev.citole.data.service.AudioService
 import com.marotidev.citole.presentation.app.AlbumViewDestination
