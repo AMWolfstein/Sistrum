@@ -70,6 +70,14 @@ android {
     }
 }
 
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("Sistrum-v${android.defaultConfig.versionName}.apk")
+        }
+    }
+}
+
 dependencies {
     //standard material
     implementation(libs.androidx.core.ktx)
