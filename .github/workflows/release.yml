@@ -1,0 +1,181 @@
+name: Release
+
+# Triggered by every push to master, but a normal commit does nothing here -
+# the "Check for a versionName bump" step below is what actually decides
+# whether a release happens. workflow_dispatch is kept as a manual escape
+# hatch (e.g. to retry a failed release) and always proceeds regardless of
+# whether versionName changed in the most recent commit.
+on:
+  push:
+    branches: [master]
+    paths: [app/build.gradle.kts]
+  workflow_dispatch: {}
+
+# Needed to push the release tag and create the GitHub Release with the
+# default GITHUB_TOKEN.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Check for a versionName bump
+        id: version_check
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manually triggered - proceeding regardless of whether versionName changed."
+            CHANGED=true
+          else
+            # Only the most recent commit's own change to versionName counts -
+            # matches the intended workflow of "commit a version bump by itself".
+            if git rev-parse --verify -q HEAD~1 >/dev/null; then
+              if git diff HEAD~1 HEAD -- app/build.gradle.kts | grep -qE '^[+-].*versionName\s*='; then
+                CHANGED=true
+              else
+                CHANGED=false
+              fi
+            else
+              # No parent commit to diff against (shouldn't happen in practice) -
+              # fail safe by treating it as a version bump rather than silently
+              # skipping a possible first release.
+              echo "HEAD~1 does not exist, cannot diff - treating as changed."
+              CHANGED=true
+            fi
+          fi
+
+          # `|| true` so a non-match doesn't trigger `set -e` and skip the
+          # explicit, more helpful error below.
+          VERSION=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts || true)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not extract versionName from app/build.gradle.kts"
+            exit 1
+          fi
+
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "versionName is $VERSION (changed in this push: $CHANGED)"
+
+      - name: Set up JDK 21
+        if: steps.version_check.outputs.changed == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        if: steps.version_check.outputs.changed == 'true'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Decode release keystore
+        if: steps.version_check.outputs.changed == 'true'
+        id: keystore
+        run: |
+          set -euo pipefail
+          KEYSTORE_PATH="$RUNNER_TEMP/sistrum-release.keystore"
+          echo "${{ secrets.SISTRUM_KEYSTORE_BASE64 }}" | base64 --decode > "$KEYSTORE_PATH"
+          echo "path=$KEYSTORE_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed release APK
+        if: steps.version_check.outputs.changed == 'true'
+        env:
+          # These map directly onto the SISTRUM_* Gradle properties that
+          # app/build.gradle.kts's signingConfigs block already reads via
+          # providers.gradleProperty(...) - Gradle automatically exposes any
+          # ORG_GRADLE_PROJECT_<name> env var as project property <name>, so
+          # no gradle.properties file or command-line -P flags are needed.
+          # The existing gradle.taskGraph.whenReady guard only enforces these
+          # for release-signing tasks, so this has no effect on debug builds.
+          ORG_GRADLE_PROJECT_SISTRUM_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
+          ORG_GRADLE_PROJECT_SISTRUM_KEYSTORE_PASSWORD: ${{ secrets.SISTRUM_KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_SISTRUM_KEY_ALIAS: ${{ secrets.SISTRUM_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_SISTRUM_KEY_PASSWORD: ${{ secrets.SISTRUM_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: Locate built APK
+        if: steps.version_check.outputs.changed == 'true'
+        id: apk
+        run: |
+          set -euo pipefail
+          # The actual output filename is Sistrum-v<versionName>.apk, set by
+          # the androidComponents.onVariants block in app/build.gradle.kts -
+          # not the AGP default app-release.apk - so it's located by pattern
+          # rather than hardcoded, staying correct even if the version
+          # changes between now and whenever this workflow is next read.
+          APK_PATH=$(find app/build/outputs/apk/release -maxdepth 1 -name "*.apk" | head -n1)
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::No APK found under app/build/outputs/apk/release/"
+            exit 1
+          fi
+          echo "Found APK: $APK_PATH"
+          echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push release tag
+        if: steps.version_check.outputs.changed == 'true'
+        id: tag
+        run: |
+          set -euo pipefail
+          TAG="v${{ steps.version_check.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # -f so a workflow_dispatch retry of an already-tagged version
+          # re-points the tag rather than failing outright.
+          git tag -f -a "$TAG" -m "Sistrum $TAG"
+          git push origin "$TAG" --force
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog
+        if: steps.version_check.outputs.changed == 'true'
+        id: changelog
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)
+          CHANGELOG_PATH="$RUNNER_TEMP/changelog.md"
+
+          # Written straight to a file rather than passed through
+          # $GITHUB_OUTPUT and re-interpolated into a later step's shell
+          # command - commit subjects are free-form text, and directly
+          # embedding a multi-line ${{ }} value into a run: command is a
+          # known script-injection gotcha if it ever contains shell
+          # metacharacters. --notes-file below reads it safely instead.
+          if [ -n "$PREV_TAG" ]; then
+            echo "Changes since $PREV_TAG:" > "$CHANGELOG_PATH"
+            echo "" >> "$CHANGELOG_PATH"
+            git log "$PREV_TAG..HEAD" --oneline --pretty=format:"- %s" >> "$CHANGELOG_PATH"
+          else
+            echo "Initial release. All commits:" > "$CHANGELOG_PATH"
+            echo "" >> "$CHANGELOG_PATH"
+            git log HEAD --oneline --pretty=format:"- %s" >> "$CHANGELOG_PATH"
+          fi
+          echo "" >> "$CHANGELOG_PATH"
+
+          echo "path=$CHANGELOG_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: steps.version_check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          gh release create "$TAG" \
+            "${{ steps.apk.outputs.path }}" \
+            --title "$TAG" \
+            --notes-file "${{ steps.changelog.outputs.path }}"
+
+      - name: Delete decoded keystore
+        if: always()
+        run: |
+          KEYSTORE_PATH="${{ steps.keystore.outputs.path }}"
+          if [ -n "$KEYSTORE_PATH" ] && [ -f "$KEYSTORE_PATH" ]; then
+            shred -u "$KEYSTORE_PATH" 2>/dev/null || rm -f "$KEYSTORE_PATH"
+          fi
