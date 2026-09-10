@@ -6,6 +6,13 @@ plugins {
     alias(libs.plugins.kotlin.hilt)
 }
 
+val releaseSigningPropertyNames = listOf(
+    "SISTRUM_KEYSTORE_PATH",
+    "SISTRUM_KEYSTORE_PASSWORD",
+    "SISTRUM_KEY_ALIAS",
+    "SISTRUM_KEY_PASSWORD"
+)
+
 android {
     namespace = "com.amwolfstein.sistrum"
     compileSdk {
@@ -28,8 +35,24 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Read lazily/optionally here so builds that don't need release
+            // signing (e.g. assembleDebug on a machine without a release
+            // keystore) never fail at configuration time. Absence is only
+            // treated as an error if a release-signing task actually ends up
+            // in the task graph - see the gradle.taskGraph.whenReady block
+            // below.
+            providers.gradleProperty("SISTRUM_KEYSTORE_PATH").orNull?.let { storeFile = file(it) }
+            storePassword = providers.gradleProperty("SISTRUM_KEYSTORE_PASSWORD").orNull
+            keyAlias = providers.gradleProperty("SISTRUM_KEY_ALIAS").orNull
+            keyPassword = providers.gradleProperty("SISTRUM_KEY_PASSWORD").orNull
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -107,4 +130,24 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// Only enforce SISTRUM_* signing properties when a task that actually builds
+// a signed release (assembleRelease, bundleRelease, ...) is in the requested
+// task graph - debug builds must work for anyone who clones this repo
+// without a release keystore.
+val releaseSigningTaskRegex = Regex("^(assemble|bundle|package).*Release", RegexOption.IGNORE_CASE)
+
+gradle.taskGraph.whenReady {
+    val needsReleaseSigning = allTasks.any { releaseSigningTaskRegex.matches(it.name) }
+    if (needsReleaseSigning) {
+        val missing = releaseSigningPropertyNames.filter { providers.gradleProperty(it).orNull == null }
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                "Cannot build a signed release: missing Gradle propert${if (missing.size == 1) "y" else "ies"} " +
+                missing.joinToString(", ") + ". Set ${if (missing.size == 1) "it" else "them"} in your " +
+                "machine-level ~/.gradle/gradle.properties (never in this project)."
+            )
+        }
+    }
 }
