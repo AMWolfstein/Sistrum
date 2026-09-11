@@ -144,9 +144,10 @@ jobs:
           # Written straight to a file rather than passed through
           # $GITHUB_OUTPUT and re-interpolated into a later step's shell
           # command - commit subjects are free-form text, and directly
-          # embedding a multi-line ${{ }} value into a run: command is a
-          # known script-injection gotcha if it ever contains shell
-          # metacharacters. --notes-file below reads it safely instead.
+          # embedding a multi-line GitHub Actions expression value into a
+          # run: command is a known script-injection gotcha if it ever
+          # contains shell metacharacters. --notes-file below reads it
+          # safely instead.
           if [ -n "$PREV_TAG" ]; then
             echo "Changes since $PREV_TAG:" > "$CHANGELOG_PATH"
             echo "" >> "$CHANGELOG_PATH"
