@@ -1,5 +1,9 @@
 package me.misa198.airmedy.ui.components
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
@@ -7,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -20,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
@@ -40,6 +42,7 @@ import kotlin.math.roundToInt
 
 private data class AnchoredPopupMenuRequest(
     val id: Any,
+    val anchorLeftPx: Float,
     val anchorRightPx: Float,
     val anchorTopPx: Float,
     val anchorBottomPx: Float,
@@ -59,6 +62,7 @@ private class AnchoredPopupMenuHostState {
         if (
             current == null ||
             current.id !== request.id ||
+            current.anchorLeftPx != request.anchorLeftPx ||
             current.anchorRightPx != request.anchorRightPx ||
             current.anchorTopPx != request.anchorTopPx ||
             current.anchorBottomPx != request.anchorBottomPx ||
@@ -144,7 +148,14 @@ private fun AnchoredPopupMenuOverlay(
         val offsetX = with(density) { activeRequest.offset.x.roundToPx() }
         val offsetY = with(density) { activeRequest.offset.y.roundToPx() }
         var menuHeightPx by remember(activeRequest.id) { mutableStateOf(0) }
-        val preferredX = (activeRequest.anchorRightPx - menuWidthPx + offsetX).roundToInt()
+        // Anchor bounds are physical (root coordinates). The menu aligns to the anchor's end
+        // edge, which is its left edge in RTL, and the horizontal offset mirrors with it.
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val preferredX = if (isRtl) {
+            (activeRequest.anchorLeftPx - offsetX).roundToInt()
+        } else {
+            (activeRequest.anchorRightPx - menuWidthPx + offsetX).roundToInt()
+        }
         val maxX = (hostWidthPx - menuWidthPx - edgeInsetPx).coerceAtLeast(edgeInsetPx)
         val constrainedX = preferredX.coerceIn(edgeInsetPx, maxX)
         val belowY = (activeRequest.anchorBottomPx + offsetY).roundToInt()
@@ -155,8 +166,8 @@ private fun AnchoredPopupMenuOverlay(
         val constrainedY = preferredY.coerceIn(edgeInsetPx, maxY)
         Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset {
+                .align(AbsoluteAlignment.TopLeft)
+                .absoluteOffset {
                     IntOffset(constrainedX, constrainedY)
                 }
                 .width(activeRequest.width)
@@ -165,7 +176,7 @@ private fun AnchoredPopupMenuOverlay(
                     alpha = progress.value
                     scaleX = 0.94f + (0.06f * progress.value)
                     scaleY = 0.94f + (0.06f * progress.value)
-                    transformOrigin = TransformOrigin(1f, if (renderAbove) 1f else 0f)
+                    transformOrigin = TransformOrigin(if (isRtl) 0f else 1f, if (renderAbove) 1f else 0f)
                 }
                 .clip(activeRequest.shape)
                 .liquidGlassBackground(
@@ -212,6 +223,7 @@ fun AnchoredPopupMenu(
             host.show(
                 AnchoredPopupMenuRequest(
                     id = id,
+                    anchorLeftPx = bounds.left,
                     anchorRightPx = bounds.right,
                     anchorTopPx = bounds.top,
                     anchorBottomPx = bounds.bottom,

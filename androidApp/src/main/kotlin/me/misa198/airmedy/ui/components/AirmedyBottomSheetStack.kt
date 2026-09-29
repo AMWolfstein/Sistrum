@@ -1,5 +1,7 @@
 package me.misa198.airmedy.ui.components
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -107,17 +109,19 @@ internal fun <T> AirmedyBottomSheetStack(
             }
         },
     ) {
+        // Horizontal slide offsets are physical: forward pages enter from the layout's end side.
+        val slideDirection = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
         AnimatedContent(
             targetState = page,
             transitionSpec = {
                 if (stack.pushedLast) {
-                    (slideInHorizontally { it } togetherWith
-                        slideOutHorizontally { -it / 4 }).apply {
+                    (slideInHorizontally { it * slideDirection } togetherWith
+                        slideOutHorizontally { -it / 4 * slideDirection }).apply {
                         targetContentZIndex = 1f
                     }.using(null)
                 } else {
-                    (slideInHorizontally { -it / 4 } togetherWith
-                        slideOutHorizontally { it }).apply {
+                    (slideInHorizontally { -it / 4 * slideDirection } togetherWith
+                        slideOutHorizontally { it * slideDirection }).apply {
                         targetContentZIndex = 0f
                     }.using(null)
                 }

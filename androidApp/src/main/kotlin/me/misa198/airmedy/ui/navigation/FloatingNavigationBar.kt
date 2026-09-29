@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -53,11 +54,13 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import me.misa198.airmedy.AppDestination
 import me.misa198.airmedy.ui.components.liquidGlassBackground
 import me.misa198.airmedy.ui.components.MaterialSymbol
+import me.misa198.airmedy.ui.components.towardsEnd
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 
 internal val FloatingNavigationHeight = 72.dp
@@ -122,6 +125,7 @@ internal fun FloatingNavigationBar(
                             translationY = contentTranslationY,
                         ),
                 ) {
+            val layoutDirection = LocalLayoutDirection.current
             val itemWidth = maxWidth / AppDestination.entries.size
             val maxIndicatorOffset = maxWidth - itemWidth
             var isDragging by remember { mutableStateOf(false) }
@@ -138,7 +142,7 @@ internal fun FloatingNavigationBar(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(itemWidth, maxIndicatorOffset, selectedDestination) {
+                    .pointerInput(itemWidth, maxIndicatorOffset, selectedDestination, layoutDirection) {
                         detectDragGestures(
                             onDragStart = {
                                 isDragging = true
@@ -162,7 +166,9 @@ internal fun FloatingNavigationBar(
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
-                                dragOffset = (dragOffset + dragAmount.x.toDp())
+                                // The indicator offset runs from the layout's start edge, so a
+                                // physical drag moves it the other way in right-to-left layouts.
+                                dragOffset = (dragOffset + dragAmount.x.towardsEnd(layoutDirection).toDp())
                                     .coerceIn(0.dp, maxIndicatorOffset)
                             },
                         )
@@ -184,6 +190,7 @@ internal fun FloatingNavigationBar(
                         .navigationForegroundMask(
                             indicatorOffset = indicatorOffset,
                             itemWidth = itemWidth,
+                            layoutDirection = layoutDirection,
                             clipOp = ClipOp.Difference,
                         ),
                 )
@@ -195,6 +202,7 @@ internal fun FloatingNavigationBar(
                         .navigationForegroundMask(
                             indicatorOffset = indicatorOffset,
                             itemWidth = itemWidth,
+                            layoutDirection = layoutDirection,
                             clipOp = ClipOp.Intersect,
                         ),
                 )
@@ -244,11 +252,12 @@ private fun CompactNavigationTarget(
 private fun Modifier.navigationForegroundMask(
     indicatorOffset: Dp,
     itemWidth: Dp,
+    layoutDirection: LayoutDirection,
     clipOp: ClipOp,
 ): Modifier = drawWithContent {
     val contentDrawScope = this
-    val pillLeft = indicatorOffset.roundToPx().toFloat()
     val pillWidth = itemWidth.roundToPx().toFloat()
+    val pillLeft = navigationPillLeftPx(indicatorOffset.roundToPx().toFloat(), pillWidth, size.width, layoutDirection)
     val pillRadius = InnerPillRadius.roundToPx().toFloat()
     val pillPath = Path().apply {
         addRoundRect(
@@ -264,6 +273,17 @@ private fun Modifier.navigationForegroundMask(
     }
     clipPath(pillPath, clipOp = clipOp) { contentDrawScope.drawContent() }
 }
+
+/**
+ * Drawing coordinates are physical, while the indicator offset is measured from the layout's
+ * start edge (as `Modifier.offset` places it), so right-to-left layouts count from the right.
+ */
+internal fun navigationPillLeftPx(
+    startOffsetPx: Float,
+    pillWidthPx: Float,
+    containerWidthPx: Float,
+    layoutDirection: LayoutDirection,
+): Float = if (layoutDirection == LayoutDirection.Rtl) containerWidthPx - startOffsetPx - pillWidthPx else startOffsetPx
 
 @Composable
 private fun FloatingNavigationVisuals(

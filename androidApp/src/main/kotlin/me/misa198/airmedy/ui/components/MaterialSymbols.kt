@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -109,6 +110,26 @@ object MaterialSymbols {
     const val Folder = "folder"
 }
 
+/**
+ * Glyphs that point along the reading direction and are flipped in right-to-left layouts,
+ * following Material's auto-mirrored icons. Media transport glyphs (play, skip) and
+ * symmetric icons are deliberately absent. The volume speakers are listed so they face the
+ * right way in RTL text; inside the left-to-right player controls they stay unflipped.
+ */
+internal val MirroredInRtlSymbols: Set<String> = setOf(
+    MaterialSymbols.ChevronLeft,
+    MaterialSymbols.ChevronRight,
+    MaterialSymbols.QueueMusic,
+    MaterialSymbols.PlaylistAdd,
+    MaterialSymbols.PlaylistRemove,
+    MaterialSymbols.QueuePlayNext,
+    MaterialSymbols.ViewList,
+    MaterialSymbols.Label,
+    MaterialSymbols.Chat,
+    MaterialSymbols.VolumeDown,
+    MaterialSymbols.VolumeUp,
+)
+
 @Composable
 fun MaterialSymbol(
     symbol: String,
@@ -129,8 +150,10 @@ fun MaterialSymbol(
         // The glyph is drawn from ligature text ("search", "more_vert"). Replace the text's
         // semantics so screen readers announce only the description, or nothing for a
         // decorative icon, never the ligature name.
-        modifier = modifier.clearAndSetSemantics {
-            if (contentDescription != null) this.contentDescription = contentDescription
-        },
+        modifier = modifier
+            .then(if (symbol in MirroredInRtlSymbols && isLayoutRtl()) Modifier.graphicsLayer { scaleX = -1f } else Modifier)
+            .clearAndSetSemantics {
+                if (contentDescription != null) this.contentDescription = contentDescription
+            },
     )
 }

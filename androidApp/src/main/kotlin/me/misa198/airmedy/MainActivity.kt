@@ -3,6 +3,7 @@ package me.misa198.airmedy
 import android.os.Bundle
 import android.os.Build
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.Intent
@@ -49,6 +50,7 @@ import me.misa198.airmedy.lyrics.AndroidLyricsService
 import me.misa198.airmedy.lyrics.LyricsPreferences
 import kotlin.math.roundToInt
 import me.misa198.airmedy.ui.screens.runPlaylistWrite
+import me.misa198.airmedy.ui.components.withLatinDigits
 import me.misa198.airmedy.ui.screens.LibraryTracksViewModel
 import me.misa198.airmedy.ui.screens.LibraryArtistsViewModel
 import me.misa198.airmedy.ui.screens.LibraryAlbumsViewModel
@@ -118,6 +120,11 @@ class MainActivity : ComponentActivity() {
     }
     private val composerDetailsViewModel: ComposerDetailsViewModel by viewModels {
         ComposerDetailsViewModel.Factory(AndroidSyncRuntime.syncStore(), AndroidPlaybackRuntime.controller())
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        // Keep numbers in Western digits in every locale (see LatinDigits.kt).
+        super.attachBaseContext(newBase.withLatinDigits())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

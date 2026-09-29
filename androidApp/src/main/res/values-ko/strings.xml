@@ -40,9 +40,15 @@
     <string name="insight_no_top_tracks">재생된 트랙이 아직 없습니다.</string>
     <string name="insight_show_more">더 보기</string>
     <string name="insight_show_less">간략히 보기</string>
-    <string name="insight_days_value">%1$d일</string>
-    <string name="insight_plays_value">%1$d회 재생</string>
-    <string name="insight_attempts_value">%1$d회 시도</string>
+    <plurals name="insight_days_value">
+        <item quantity="other">%1$d일</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="other">%1$d회 재생</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="other">%1$d회 시도</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">이전 기간 대비 %1$+.0f%%</string>
     <string name="insight_duration_days_hours">%1$d일 %2$d시간</string>
@@ -141,7 +147,9 @@
     <string name="song_transition_title">곡 전환</string>
     <string name="playback_crossfade">크로스페이드</string>
     <string name="playback_crossfade_duration">크로스페이드 시간</string>
-    <string name="playback_crossfade_duration_value">%1$d초</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="other">%1$d초</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1초</string>
     <string name="playback_crossfade_maximum">12초</string>
     <string name="playback_blend_artwork_during_crossfade">아트워크 및 배경 블렌딩</string>

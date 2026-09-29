@@ -28,8 +28,15 @@ class LibraryTracksViewModelTest {
     fun homeSectionsUseOnlyTheRowsTheirTracksNeed() {
         assertEquals(1, homeTrackSectionRows(1))
         assertEquals(2, homeTrackSectionRows(2))
-        assertEquals(182.dp, homeTrackSectionHeight(1))
-        assertEquals(384.dp, homeTrackSectionHeight(2))
+        assertEquals(182.dp, homeTrackSectionHeight(1, cardHeight = 182.dp))
+        assertEquals(384.dp, homeTrackSectionHeight(2, cardHeight = 182.dp))
+    }
+
+    @Test
+    fun homeSectionsGrowWithTheirCards() {
+        // Larger font scales (and taller scripts) make taller cards; the grid must not clip them.
+        assertEquals(220.dp, homeTrackSectionHeight(1, cardHeight = 220.dp))
+        assertEquals(460.dp, homeTrackSectionHeight(2, cardHeight = 220.dp))
     }
 
     private val sampleTracks = listOf(

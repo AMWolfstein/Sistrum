@@ -40,9 +40,18 @@
     <string name="insight_no_top_tracks">Noch keine gespielten Titel vorhanden.</string>
     <string name="insight_show_more">Mehr anzeigen</string>
     <string name="insight_show_less">Weniger anzeigen</string>
-    <string name="insight_days_value">%1$d Tage</string>
-    <string name="insight_plays_value">%1$d Wiedergaben</string>
-    <string name="insight_attempts_value">%1$d Versuche</string>
+    <plurals name="insight_days_value">
+        <item quantity="one">%1$d Tage</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="one">%1$d Wiedergaben</item>
+        <item quantity="other">%1$d Wiedergaben</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="one">%1$d Versuche</item>
+        <item quantity="other">%1$d Versuche</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% ggü. Vorperiode</string>
     <string name="insight_duration_days_hours">%1$d T. %2$d Std.</string>
@@ -142,7 +151,10 @@
     <string name="song_transition_title">Titelübergang</string>
     <string name="playback_crossfade">Überblenden</string>
     <string name="playback_crossfade_duration">Überblenddauer</string>
-    <string name="playback_crossfade_duration_value">%1$d Sekunden</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="one">%1$d Sekunden</item>
+        <item quantity="other">%1$d Sekunden</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1s</string>
     <string name="playback_crossfade_maximum">12s</string>
     <string name="playback_blend_artwork_during_crossfade">Cover und Hintergrund überblenden</string>

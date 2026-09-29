@@ -1,5 +1,8 @@
 package me.misa198.airmedy.ui.screens
 
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -41,13 +44,16 @@ internal fun CrossfadeDurationSlider(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalAirmedyColors.current
+    // The slider fills from the layout's start edge, so it runs right to left in RTL.
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val value = seconds.coerceIn(1, 12).toFloat()
     val range = 1f..12f
     val fraction = (value - range.start) / (range.endInclusive - range.start)
     fun updateAt(x: Float, width: Float) {
         if (enabled && width > 0f) {
+            val startX = if (isRtl) width - x else x
             val selectedSeconds = range.start +
-                (range.endInclusive - range.start) * (x / width).coerceIn(0f, 1f)
+                (range.endInclusive - range.start) * (startX / width).coerceIn(0f, 1f)
             onSecondsChanged(selectedSeconds.roundToInt().coerceIn(1, 12))
         }
     }
@@ -69,7 +75,7 @@ internal fun CrossfadeDurationSlider(
                     true
                 }
             }
-            .pointerInput(enabled) {
+            .pointerInput(enabled, isRtl) {
                 if (!enabled) return@pointerInput
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -83,11 +89,13 @@ internal fun CrossfadeDurationSlider(
             contentAlignment = Alignment.Center,
         ) {
             Canvas(modifier = Modifier.fillMaxWidth().height(48.dp)) {
-                drawCrossfadeTrack(
-                    fraction = fraction,
-                    trackColor = colors.buttonSecondary,
-                    fillColor = colors.primary,
-                )
+                scale(scaleX = if (isRtl) -1f else 1f, scaleY = 1f) {
+                    drawCrossfadeTrack(
+                        fraction = fraction,
+                        trackColor = colors.buttonSecondary,
+                        fillColor = colors.primary,
+                    )
+                }
             }
         }
         Row(

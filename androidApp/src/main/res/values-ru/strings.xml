@@ -40,9 +40,24 @@
     <string name="insight_no_top_tracks">Пока нет воспроизведенных треков.</string>
     <string name="insight_show_more">Показать больше</string>
     <string name="insight_show_less">Показать меньше</string>
-    <string name="insight_days_value">%1$d дн</string>
-    <string name="insight_plays_value">%1$d воспр.</string>
-    <string name="insight_attempts_value">%1$d попыток</string>
+    <plurals name="insight_days_value">
+        <item quantity="one">%1$d дн</item>
+        <item quantity="few">%1$d дн</item>
+        <item quantity="many">%1$d дн</item>
+        <item quantity="other">%1$d дн</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="one">%1$d воспр.</item>
+        <item quantity="few">%1$d воспр.</item>
+        <item quantity="many">%1$d воспр.</item>
+        <item quantity="other">%1$d воспр.</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="one">%1$d попыток</item>
+        <item quantity="few">%1$d попыток</item>
+        <item quantity="many">%1$d попыток</item>
+        <item quantity="other">%1$d попыток</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% к прошлому периоду</string>
     <string name="insight_duration_days_hours">%1$d д %2$d ч</string>
@@ -144,7 +159,12 @@
     <string name="song_transition_title">Переход между треками</string>
     <string name="playback_crossfade">Плавный переход</string>
     <string name="playback_crossfade_duration">Длительность перехода</string>
-    <string name="playback_crossfade_duration_value">%1$d сек</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="one">%1$d сек</item>
+        <item quantity="few">%1$d сек</item>
+        <item quantity="many">%1$d сек</item>
+        <item quantity="other">%1$d сек</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1 с</string>
     <string name="playback_crossfade_maximum">12 с</string>
     <string name="playback_blend_artwork_during_crossfade">Смешивать обложку и фон</string>

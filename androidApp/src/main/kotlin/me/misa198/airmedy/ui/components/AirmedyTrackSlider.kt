@@ -28,14 +28,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import me.misa198.airmedy.ui.theme.AirmedyColors
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
@@ -64,6 +67,9 @@ fun AirmedyTrackSlider(
     trackAlignment: Alignment = Alignment.Center,
 ) {
     val colors = LocalAirmedyColors.current
+    // The track fills from the layout's start edge. The player keeps its seek and volume
+    // sliders in a left-to-right island; elsewhere (equalizer bands) they mirror in RTL.
+    val layoutDirection = LocalLayoutDirection.current
     var isInteracting by remember { mutableStateOf(false) }
     var dragPreviewValue by remember { mutableStateOf<Float?>(null) }
     val animatedTrackHeight by animateDpAsState(
@@ -112,7 +118,7 @@ fun AirmedyTrackSlider(
     }
     val updateValueFromDrag: (Float, Float, Float) -> Unit = { startValue, horizontalDistance, width ->
         if (enabled && width > 0f) {
-            val nextValue = (startValue + rangeSize * (horizontalDistance / width))
+            val nextValue = (startValue + rangeSize * (horizontalDistance.towardsEnd(layoutDirection) / width))
                 .coerceIn(valueRange.start, valueRange.endInclusive)
             dragPreviewValue = nextValue
             currentOnValueChange.value(nextValue)
@@ -132,7 +138,7 @@ fun AirmedyTrackSlider(
                     }
                 }
             }
-            .pointerInput(enabled, valueRange) {
+            .pointerInput(enabled, valueRange, layoutDirection) {
                 if (!enabled) return@pointerInput
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -187,7 +193,9 @@ fun AirmedyTrackSlider(
             // A disabled control remains discoverable; only its interaction and
             // filled value are muted, never the frosted-glass track itself.
             if (enabled) {
-                drawTrack(filledTrackColor, fraction)
+                scale(scaleX = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f, scaleY = 1f) {
+                    drawTrack(filledTrackColor, fraction)
+                }
             }
         }
     }

@@ -189,7 +189,7 @@ internal fun TagSeparatorsContent(modifier: Modifier = Modifier) {
                 Text(
                     text = when {
                         scanState.isScanning -> stringResource(R.string.scan_running)
-                        scanState.completed && !needsRescan -> stringResource(R.string.scan_complete, scanState.tracks, scanState.albums, scanState.artists)
+                        scanState.completed && !needsRescan -> scanCompleteSummary(scanState.tracks, scanState.albums, scanState.artists)
                         else -> stringResource(R.string.tag_separators_rescan_notice)
                     },
                     color = colors.textMuted,

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -59,16 +60,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import dev.chrisbanes.haze.HazeState
 import me.misa198.airmedy.R
 import me.misa198.airmedy.ui.components.AirmedyMarqueeText
 import me.misa198.airmedy.ui.components.AnimatedPlayPauseSymbol
 import me.misa198.airmedy.ui.components.AnimatedSkipSymbol
+import me.misa198.airmedy.ui.components.LeftToRight
 import me.misa198.airmedy.ui.components.MaterialSymbol
 import me.misa198.airmedy.ui.components.MaterialSymbols
 import me.misa198.airmedy.player.PlaybackItem
@@ -76,6 +80,7 @@ import me.misa198.airmedy.player.PlaybackQueueSnapshot
 import me.misa198.airmedy.player.PlaybackState
 import me.misa198.airmedy.ui.components.liquidGlassBackground
 import me.misa198.airmedy.ui.components.rememberArtworkThumbnail
+import me.misa198.airmedy.ui.components.towardsEnd
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 import kotlin.math.absoluteValue
 import kotlin.math.abs
@@ -119,6 +124,7 @@ internal fun MiniPlayer(
     val artwork = rememberArtworkThumbnail(item.artworkPath, item.audioPath)
     val density = LocalDensity.current
     val hapticFeedback = LocalHapticFeedback.current
+    val layoutDirection = LocalLayoutDirection.current
     val configuration = LocalConfiguration.current
     val dragOffset = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -339,7 +345,7 @@ internal fun MiniPlayer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clipToBounds()
-                    .pointerInput(metadataSwipeMaximumPx, metadataSwipeThresholdPx) {
+                    .pointerInput(metadataSwipeMaximumPx, metadataSwipeThresholdPx, layoutDirection) {
                     detectHorizontalDragGestures(
                         onDragStart = {
                             // Never carry an in-flight spring animation into the next
@@ -366,7 +372,9 @@ internal fun MiniPlayer(
                             val velocityPxPerMs = completedDragOffset / durationMs
                             val shouldChangeTrack = completedDragOffset.absoluteValue >= metadataSwipeThresholdPx ||
                                 velocityPxPerMs.absoluteValue >= MetadataSwipeVelocityPxPerMs
-                            val swipeDirection = completedDragOffset.compareTo(0f)
+                            // Negative = towards the layout's start, which reveals the next track
+                            // (leftwards in LTR, rightwards in RTL).
+                            val swipeDirection = completedDragOffset.towardsEnd(layoutDirection).compareTo(0f)
                             isMetadataDragging = false
                             metadataDragOffset = 0f
 
@@ -386,7 +394,8 @@ internal fun MiniPlayer(
                 },
             ) {
                 Column(
-                    modifier = Modifier.offset { IntOffset(displayedMetadataDragOffset.roundToInt(), 0) },
+                    // The drag offset is physical, so place it without RTL mirroring to follow the finger.
+                    modifier = Modifier.absoluteOffset { IntOffset(displayedMetadataDragOffset.roundToInt(), 0) },
                 ) {
                     AirmedyMarqueeText(
                         item.title,
@@ -398,6 +407,15 @@ internal fun MiniPlayer(
                 }
             }
         }
+        // The buttons are nudged towards the pill's end edge to tighten their spacing. In RTL
+        // that edge is on the left, so shift the whole group by the widest nudge.
+        val controlShift = when {
+            layoutDirection != LayoutDirection.Rtl -> 0.dp
+            compact -> (-8).dp
+            else -> (-16).dp
+        }
+        LeftToRight {
+        Row(verticalAlignment = Alignment.CenterVertically) {
         AnimatedVisibility(
             visible = !compact,
             enter = fadeIn(animationSpec = tween(160)),
@@ -407,7 +425,7 @@ internal fun MiniPlayer(
                 symbol = MaterialSymbols.SkipPrevious,
                 label = stringResource(R.string.player_previous),
                 onClick = onPreviousClick,
-                horizontalOffset = 16.dp,
+                horizontalOffset = 16.dp + controlShift,
                 skipForward = false,
                 enabled = canNavigatePrevious,
             )
@@ -416,16 +434,19 @@ internal fun MiniPlayer(
             label = stringResource(if (isPlaying) R.string.player_pause else R.string.player_play),
             onClick = onPlayPauseClick,
             enabled = !isPreparing,
-            horizontalOffset = 8.dp,
+            horizontalOffset = 8.dp + controlShift,
             isPlaying = isPlaying,
         )
         MiniPlayerControl(
             symbol = MaterialSymbols.SkipNext,
             label = stringResource(R.string.player_next),
             onClick = onNextClick,
+            horizontalOffset = controlShift,
             skipForward = true,
             enabled = canNavigateNext,
         )
+        }
+        }
         }
         }
     }

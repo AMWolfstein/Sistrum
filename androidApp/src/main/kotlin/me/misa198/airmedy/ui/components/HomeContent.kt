@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import me.misa198.airmedy.R
 import me.misa198.airmedy.player.PlaybackQueueSnapshot
@@ -134,7 +135,7 @@ private fun HomeTrackSection(
     onTrackAlbumClick: (LibraryTrack) -> Unit,
     onTrackArtistClick: (TrackContextArtist) -> Unit,
     onTrackContextBottomSheet: (TrackContextBottomSheetRequest) -> Unit,
-    titleHorizontalPadding: androidx.compose.ui.unit.Dp,
+    titleHorizontalPadding: Dp,
 ) {
     if (tracks.isEmpty()) return
 
@@ -151,10 +152,10 @@ private fun HomeTrackSection(
             rows = GridCells.Fixed(homeTrackSectionRows(tracks.size)),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(homeTrackSectionHeight(tracks.size)),
+                .height(homeTrackSectionHeight(tracks.size, discCardHeight(HomeCardWidth))),
             contentPadding = PaddingValues(horizontal = titleHorizontalPadding),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(HomeCardSpacing),
+            verticalArrangement = Arrangement.spacedBy(HomeCardSpacing),
         ) {
             items(tracks.size, key = { index -> tracks[index].id }) { index ->
                 val track = tracks[index]
@@ -162,7 +163,7 @@ private fun HomeTrackSection(
                     track = track,
                     expanded = contextTrack?.id == track.id,
                     onDismiss = { if (contextTrack?.id == track.id) contextTrack = null },
-                    modifier = Modifier.width(128.dp),
+                    modifier = Modifier.width(HomeCardWidth),
                     playbackQueue = playbackQueue,
                     onPlayNext = onTrackPlayNext,
                     onAddToQueue = onTrackAddToQueue,
@@ -186,6 +187,16 @@ private fun HomeTrackSection(
     }
 }
 
+private val HomeCardWidth = 128.dp
+private val HomeCardSpacing = 20.dp
+
 internal fun homeTrackSectionRows(trackCount: Int) = minOf(trackCount, 2)
 
-internal fun homeTrackSectionHeight(trackCount: Int) = if (homeTrackSectionRows(trackCount) == 1) 182.dp else 384.dp
+/**
+ * The grid is as tall as its rows of cards. [cardHeight] comes from the card's text metrics at
+ * the current font scale; a fixed height clipped the artist line of larger or Arabic text.
+ */
+internal fun homeTrackSectionHeight(trackCount: Int, cardHeight: Dp): Dp {
+    val rows = homeTrackSectionRows(trackCount)
+    return cardHeight * rows + HomeCardSpacing * (rows - 1).coerceAtLeast(0)
+}

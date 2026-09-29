@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import java.io.File
@@ -113,12 +114,7 @@ internal fun LibraryScanContent(
             }
             uiState.completed -> {
                 Text(
-                    text = stringResource(
-                        R.string.scan_complete,
-                        uiState.tracks,
-                        uiState.albums,
-                        uiState.artists,
-                    ),
+                    text = scanCompleteSummary(uiState.tracks, uiState.albums, uiState.artists),
                     color = colors.textMuted,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -150,6 +146,15 @@ private fun ScanButton(
         modifier = modifier,
     )
 }
+
+/** "729 tracks, 235 albums, 71 artists", with each count in its plural form. */
+@Composable
+internal fun scanCompleteSummary(tracks: Int, albums: Int, artists: Int): String = stringResource(
+    R.string.scan_complete,
+    pluralStringResource(R.plurals.scan_complete_tracks, tracks, tracks),
+    pluralStringResource(R.plurals.scan_complete_albums, albums, albums),
+    pluralStringResource(R.plurals.scan_complete_artists, artists, artists),
+)
 
 internal fun launchScan(scope: CoroutineScope, context: Context, onResult: (LibraryScanUiState) -> Unit) {
     scope.launch {

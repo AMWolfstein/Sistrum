@@ -19,12 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import me.misa198.airmedy.R
@@ -34,17 +37,20 @@ import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 @Composable
 internal fun LufsTargetSlider(targetLufs: Float, enabled: Boolean, onTargetChanged: (Float) -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalAirmedyColors.current
+    // The slider fills from the layout's start edge, so it runs right to left in RTL.
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val range = -30f..-5f
     val value = targetLufs.coerceIn(range.start, range.endInclusive)
     fun updateAt(x: Float, width: Float) {
-        if (enabled && width > 0f) onTargetChanged((range.start + (range.endInclusive - range.start) * (x / width).coerceIn(0f, 1f)).roundToInt().toFloat())
+        val startX = if (isRtl) width - x else x
+        if (enabled && width > 0f) onTargetChanged((range.start + (range.endInclusive - range.start) * (startX / width).coerceIn(0f, 1f)).roundToInt().toFloat())
     }
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Box(
             modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().height(48.dp).semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(value, range, 0)
                 if (enabled) setProgress { requested -> onTargetChanged(requested.roundToInt().toFloat().coerceIn(range.start, range.endInclusive)); true }
-            }.pointerInput(enabled) {
+            }.pointerInput(enabled, isRtl) {
                 if (!enabled) return@pointerInput
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -54,14 +60,14 @@ internal fun LufsTargetSlider(targetLufs: Float, enabled: Boolean, onTargetChang
             },
             contentAlignment = Alignment.Center,
         ) {
-            Canvas(Modifier.fillMaxWidth().height(48.dp)) {
+            Canvas(Modifier.fillMaxWidth().height(48.dp)) { scale(scaleX = if (isRtl) -1f else 1f, scaleY = 1f) {
                 val fraction = (value - range.start) / (range.endInclusive - range.start)
                 val height = 6.dp.toPx(); val centerY = 24.dp.toPx(); val radius = height / 2f
                 drawRoundRect(colors.buttonSecondary, Offset(0f, centerY - radius), Size(size.width, height), CornerRadius(radius, radius))
                 val thumbX = size.width * fraction
                 drawRoundRect(colors.primary, Offset(0f, centerY - radius), Size(thumbX, height), CornerRadius(radius, radius))
                 drawCircle(colors.primary, radius = 10.dp.toPx(), center = Offset(thumbX, centerY))
-            }
+            } }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(stringResource(R.string.playback_normalization_target_minimum), style = MaterialTheme.typography.labelSmall, color = colors.textMuted)

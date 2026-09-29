@@ -17,16 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.roundToInt
 
@@ -60,7 +63,8 @@ fun AirmedyMarqueeText(
         val density = LocalDensity.current
         val textMeasurer = rememberTextMeasurer()
         val availableWidthPx = with(density) { maxWidth.roundToPx() }
-        val textWidthPx = remember(text, style, density, inlineContent) {
+        val layoutDirection = LocalLayoutDirection.current
+        val measured = remember(text, style, density, inlineContent, layoutDirection) {
             textMeasurer.measure(
                 text = text,
                 style = style,
@@ -68,15 +72,17 @@ fun AirmedyMarqueeText(
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 placeholders = text.inlinePlaceholders(inlineContent),
-            ).size.width
+                layoutDirection = layoutDirection,
+            ).let { layout -> layout.size.width to (layout.getParagraphDirection(0) == ResolvedTextDirection.Rtl) }
         }
+        val (textWidthPx, isRtlText) = measured
         val travelDistancePx = (textWidthPx - availableWidthPx).coerceAtLeast(0)
         if (travelDistancePx == 0) {
             // Text fits: stay static. An infinite transition here would still tick every
             // frame (animating 0 -> 0) and keep the app redrawing at 60 fps while idle.
-            MarqueeTextLine(text, color, style, inlineContent, translationX = { 0f })
+            MarqueeTextLine(text, color, style, inlineContent, Alignment.Start, translationX = { 0f })
         } else {
-            ScrollingMarqueeTextLine(text, color, style, inlineContent, travelDistancePx, animate)
+            ScrollingMarqueeTextLine(text, color, style, inlineContent, travelDistancePx, isRtlText, animate)
         }
     }
 }
@@ -98,9 +104,13 @@ private fun ScrollingMarqueeTextLine(
     style: TextStyle,
     inlineContent: Map<String, InlineTextContent>,
     travelDistancePx: Int,
+    isRtlText: Boolean,
     animate: Boolean,
 ) {
-    val targetOffset = -travelDistancePx.toFloat()
+    // Overflowing text starts at its own reading start (the right edge for Arabic or Hebrew,
+    // whatever the app's direction) and travels towards its end.
+    val align = if (isRtlText) AbsoluteAlignment.Right else AbsoluteAlignment.Left
+    val targetOffset = if (isRtlText) travelDistancePx.toFloat() else -travelDistancePx.toFloat()
     val totalDurationMs = ((travelDistancePx / 20f + 4f) * 1000f).roundToInt().coerceAtLeast(4_000)
     val pauseStartMs = (totalDurationMs * 0.15f).roundToInt()
     val moveEndMs = (totalDurationMs * 0.45f).roundToInt()
@@ -130,7 +140,7 @@ private fun ScrollingMarqueeTextLine(
             ),
             label = "airmedy-marquee-translation",
         )
-        MarqueeTextLine(text, color, style, inlineContent, translationX = { translationX.also { lastOffset[0] = it } })
+        MarqueeTextLine(text, color, style, inlineContent, align, translationX = { translationX.also { lastOffset[0] = it } })
     } else {
         // Paused: settle back to the start, then stay still (no frames drawn).
         val settle = remember { Animatable(lastOffset[0]) }
@@ -138,7 +148,7 @@ private fun ScrollingMarqueeTextLine(
             settle.animateTo(0f, tween(400, easing = FastOutSlowInEasing))
             lastOffset[0] = 0f
         }
-        MarqueeTextLine(text, color, style, inlineContent, translationX = { settle.value })
+        MarqueeTextLine(text, color, style, inlineContent, align, translationX = { settle.value })
     }
 }
 
@@ -148,12 +158,13 @@ private fun MarqueeTextLine(
     color: Color,
     style: TextStyle,
     inlineContent: Map<String, InlineTextContent>,
+    align: Alignment.Horizontal,
     translationX: () -> Float,
 ) {
     Text(
         text = text,
         modifier = Modifier
-            .wrapContentWidth(align = Alignment.Start, unbounded = true)
+            .wrapContentWidth(align = align, unbounded = true)
             .graphicsLayer { this.translationX = translationX() },
         color = color,
         style = style,

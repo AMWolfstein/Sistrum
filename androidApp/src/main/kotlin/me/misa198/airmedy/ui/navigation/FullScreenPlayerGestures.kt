@@ -20,10 +20,12 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
+import me.misa198.airmedy.ui.components.towardsEnd
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 
 private val FullScreenPlayerDragHandleShape = RoundedCornerShape(2.dp)
@@ -73,6 +75,7 @@ internal fun FullScreenPlayerSwipeTarget(
     content: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
     val hapticFeedback = LocalHapticFeedback.current
     val latestOnPrevious by rememberUpdatedState(onPrevious)
     val latestOnNext by rememberUpdatedState(onNext)
@@ -83,7 +86,7 @@ internal fun FullScreenPlayerSwipeTarget(
     val velocityMinimumPx = with(density) { FullScreenPlayerSwipeVelocityMinimum.toPx() }
     Box(
         modifier = modifier.fillMaxWidth().semantics { this.testTag = testTag }
-            .pointerInput(maximumOffsetPx, thresholdPx, velocityMinimumPx) {
+            .pointerInput(maximumOffsetPx, thresholdPx, velocityMinimumPx, layoutDirection) {
                 detectHorizontalDragGestures(
                     onDragStart = {
                         swipeState.dragOffset = 0f
@@ -100,7 +103,8 @@ internal fun FullScreenPlayerSwipeTarget(
                     onDragCancel = { swipeState.reset() },
                     onDragEnd = {
                         val durationMs = (android.os.SystemClock.uptimeMillis() - swipeState.dragStartedAtMs).coerceAtLeast(1L)
-                        val direction = swipeState.gestureHorizontalOffset.compareTo(0f)
+                        // Negative = towards the layout's start, which reveals the next track.
+                        val direction = swipeState.gestureHorizontalOffset.towardsEnd(layoutDirection).compareTo(0f)
                         val dispatch = shouldDispatchFullScreenSwipe(
                             swipeState.gestureHorizontalOffset,
                             swipeState.verticalDragOffset,

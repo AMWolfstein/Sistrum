@@ -1,5 +1,11 @@
 package me.misa198.airmedy.ui.navigation
 
+import me.misa198.airmedy.ui.components.isRtlText
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -477,6 +483,9 @@ private fun SyncedLyricRow(
     val opacity by animateFloatAsState(targetOpacity, tween(300, easing = FastOutSlowInEasing), label = "synced-lyric-opacity")
     val animatedBlur by animateDpAsState(targetBlur, tween(300, easing = FastOutSlowInEasing), label = "synced-lyric-blur")
     val scale by animateFloatAsState(if (distance == 0) 1.04f else 1f, tween(300, easing = FastOutSlowInEasing), label = "synced-lyric-scale")
+    // Each line keeps its own direction and alignment (Arabic right, Latin left) in either
+    // UI direction, so the active-line growth starts from that line's own start edge.
+    val primaryIsRtl = isRtlText(line.primary, LocalLayoutDirection.current)
     val activeOffsetPx = with(LocalDensity.current) { 4.dp.toPx() }
     val lyricTapSlopPx = with(LocalDensity.current) { 20.dp.toPx() }
     val animatedTranslationY by animateFloatAsState(
@@ -487,9 +496,10 @@ private fun SyncedLyricRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            // Reserve room for active-line scaling without changing wrapping
-            // only when the active state changes.
-            .padding(top = 10.dp, bottom = 10.dp, end = 16.dp)
+            // Reserve room at the line's end for active-line scaling without changing
+            // wrapping only when the active state changes.
+            .padding(top = 10.dp, bottom = 10.dp)
+            .absolutePadding(left = if (primaryIsRtl) 16.dp else 0.dp, right = if (primaryIsRtl) 0.dp else 16.dp)
             .blur(animatedBlur, edgeTreatment = BlurredEdgeTreatment.Unbounded)
             // Transform after text layout so the active line grows subtly
             // without changing its wrapping or displacing adjacent lyrics.
@@ -497,7 +507,7 @@ private fun SyncedLyricRow(
                 scaleX = scale
                 scaleY = scale
                 translationY = animatedTranslationY
-                transformOrigin = TransformOrigin(0f, 0.5f)
+                transformOrigin = TransformOrigin(if (primaryIsRtl) 1f else 0f, 0.5f)
                 clip = false
             }
             .onSizeChanged { onRowHeightChanged(it.height) }
@@ -525,7 +535,8 @@ private fun SyncedLyricRow(
         Text(
             text = line.primary,
             color = colors.onPrimary.copy(alpha = opacity),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.lyricLineStyle(),
+            modifier = Modifier.fillMaxWidth(),
             // Keep glyph metrics stable when the line becomes active; changing
             // weight here would re-wrap the same text during scale animation.
             fontWeight = FontWeight.Bold,
@@ -537,8 +548,8 @@ private fun SyncedLyricRow(
             Text(
                 text = it,
                 color = colors.foregroundSubtle.copy(alpha = opacity),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 4.dp),
+                style = MaterialTheme.typography.bodyLarge.lyricLineStyle(),
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                 onTextLayout = { layout ->
                     onTrailingLineHeightChanged((layout.getLineBottom(layout.lineCount - 1) - layout.getLineTop(layout.lineCount - 1)).roundToInt())
                 },
@@ -547,15 +558,18 @@ private fun SyncedLyricRow(
     }
 }
 
+/** A full-width lyric line takes its direction from its own text and aligns to that start. */
+private fun TextStyle.lyricLineStyle(): TextStyle = copy(textDirection = TextDirection.Content, textAlign = TextAlign.Start)
+
 @Composable
 private fun PlainLyricsList(lines: List<PlayerLyricLine>, modifier: Modifier) {
     val colors = LocalAirmedyColors.current
     LazyColumn(modifier = modifier.testTag("plain_lyrics_list")) {
         itemsIndexed(lines, key = { index, _ -> index }) { _, line ->
             Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Text(text = line.primary, color = colors.onPrimary, style = MaterialTheme.typography.bodyLarge)
+                Text(text = line.primary, color = colors.onPrimary, style = MaterialTheme.typography.bodyLarge.lyricLineStyle(), modifier = Modifier.fillMaxWidth())
                 line.secondary?.let {
-                    Text(text = it, color = colors.foregroundSubtle, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 2.dp))
+                    Text(text = it, color = colors.foregroundSubtle, style = MaterialTheme.typography.bodyMedium.lyricLineStyle(), modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
                 }
             }
         }

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import java.text.NumberFormat
+import me.misa198.airmedy.ui.components.displayLocale
 import me.misa198.airmedy.R
 import me.misa198.airmedy.ui.components.Card
 import me.misa198.airmedy.ui.components.MaterialSymbol
@@ -106,7 +107,7 @@ internal fun BreakdownRow(label: String, value: Int, total: Int, color: Color, d
 
 @Composable internal fun SectionHeader(titleRes: Int, modifier: Modifier = Modifier) = Text(stringResource(titleRes), modifier, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, color = LocalAirmedyColors.current.textMain)
 @Composable internal fun EmptyInsightText(textRes: Int, modifier: Modifier = Modifier) = Text(stringResource(textRes), modifier.fillMaxWidth().padding(vertical = 36.dp), style = MaterialTheme.typography.bodyMedium, color = LocalAirmedyColors.current.textMuted)
-internal fun number(value: Int): String = NumberFormat.getIntegerInstance().format(value)
+internal fun number(value: Int): String = NumberFormat.getIntegerInstance(displayLocale()).format(value)
 
 @Composable
 internal fun formatDuration(seconds: Int): String {

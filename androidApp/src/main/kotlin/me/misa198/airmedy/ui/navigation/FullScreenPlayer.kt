@@ -45,7 +45,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
@@ -199,6 +201,7 @@ internal fun FullScreenPlayer(
     )
     var lyricsSeekPositionMs by remember(item.trackId) { mutableStateOf<Long?>(null) }
     var lyricsSeekRequestId by remember(item.trackId) { mutableLongStateOf(0L) }
+    val layoutDirection = LocalLayoutDirection.current
     val horizontalSwipeState = remember { FullScreenPlayerSwipeState() }
     val displayedHorizontalSwipeOffset by animateFloatAsState(
         targetValue = if (horizontalSwipeState.isDragging) horizontalSwipeState.dragOffset else 0f,
@@ -321,7 +324,11 @@ internal fun FullScreenPlayer(
                             .graphicsLayer {
                                 scaleX = artworkScale
                                 scaleY = artworkScale
-                                transformOrigin = TransformOrigin(artworkTransformOrigin, artworkTransformOrigin)
+                                // The origin is physical; the compact artwork sits at the start edge.
+                                transformOrigin = TransformOrigin(
+                                    if (layoutDirection == LayoutDirection.Rtl) 1f - artworkTransformOrigin else artworkTransformOrigin,
+                                    artworkTransformOrigin,
+                                )
                             },
                     )
                     androidx.compose.animation.AnimatedVisibility(
