@@ -5,12 +5,14 @@ sync removed). Repository: AMWolfstein/Sistrum, main branch `main`. GPL-3.0.
 Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
 
 ## Modules
+
 - `androidApp` — Compose UI, ViewModels, player, MediaStore scan, Room.
 - `sharedLogic` — Kotlin Multiplatform module, Android-only target (iOS removed).
 - Flavors `dev` / `prod`. Dev application id: `me.misa198.airmedy.dev`.
 - minSdk 31, targetSdk 36, JDK 21.
 
 ## Build and test
+
 - `./gradlew :androidApp:assembleDevDebug`
 - `./gradlew :androidApp:assembleDevRelease` (unsigned unless MOBILE_KEYSTORE_* env vars are set;
   sign locally with zipalign + apksigner and `~/.android/debug.keystore`; don't edit signingConfigs)
@@ -23,6 +25,7 @@ Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
   connected* tasks: they uninstall the app afterwards.
 
 ## Local, untracked build inputs
+
 - `local.properties`: `sdk.dir=...` and `python3=<venv python>` (fonttools + brotli).
   The icon font `androidApp/src/main/res/font/material_symbols_rounded.ttf` is generated
   at build time by `tools/font-subset/subset_font.py` from the glyphs used in
@@ -31,13 +34,20 @@ Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
   fails with "FFmpeg artifacts are missing", run `bash scripts/build-ffmpeg-android.sh arm64-v8a`.
 - The repo has no .gitignore; build outputs are ignored through `.git/info/exclude`.
   Stage files by explicit path only.
+- Graphify: only `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json` are
+  tracked. Everything else in `graphify-out/` (cache/, manifest.json, .graphify_root, lock
+  and temp files) is machine-local and never committed.
 
 ## Playback
-- Still on the native FFmpeg engine (`player/FfmpegDecoder.kt`, `androidApp/src/main/cpp`,
-  NDK/CMake). A later phase replaces it with Media3/ExoPlayer. Until then, don't change
-  `player/` or native code except for compile fixes.
+
+- Currently on the native FFmpeg engine (`player/FfmpegDecoder.kt`, `androidApp/src/main/cpp`,
+  NDK/CMake; FFmpeg decodes every format, native player outputs float PCM to AAudio).
+- The Media3/ExoPlayer migration is active. `player/` and native code may change ONLY
+  through migration tasks defined in `specs/` and following
+  `.specify/memory/constitution.md`. Outside those tasks: compile fixes only.
 
 ## Library scan
+
 - MediaStore-based: `sync/MediaStoreLibraryScanner.kt`, `sync/EmbeddedTagReader.kt`.
   Room database in `sync/SyncDatabase.kt`.
 - Bump `CurrentMetadataSchemaVersion` whenever parsing behavior changes for
@@ -46,6 +56,7 @@ Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
 - For untagged files MediaStore reports the folder name ("Music") as album; intentional.
 
 ## Known state
+
 - Instrumented suite has a set of test-side failures (missing menu host, stale text
   expectations, tests that set content twice, chart library crashing on empty data).
   Only fix newly failing tests.
@@ -54,8 +65,12 @@ Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
 - Cast / output-switcher button is hidden below Android 14 on purpose.
 - Lock screen can show "Unknown artist" for a track (PlaybackService metadata);
   deferred to the Media3 phase.
+- Volume normalization and Mood Radio are currently broken: fixing them needs changes
+  in the FFmpeg/native layer, so they are deferred to the Media3 phase and fixed there
+  on the new engine. Don't patch them on the native engine.
 
 ## Localization
+
 - `values/strings.xml` is the source. `values-ar` must stay complete
   (`ArabicTranslationCompletenessTest`); the other locales are allowed to lag.
 - Counts use `<plurals>`; Arabic needs zero/one/two/few/many/other.
@@ -66,6 +81,136 @@ Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
   (`LeftToRight`). Directional icon glyphs are listed in `MirroredInRtlSymbols`.
   Physical drag deltas and graphics-layer x values need `towardsEnd()`; `Modifier.offset` already mirrors.
 
+## Workflow
+
+- Work on a feature branch, never directly on `main`. For the playback migration use
+  `feature/media3-migration` (create it from `main` if it doesn't exist).
+- Commit on the feature branch and push it normally (`git push -u origin <branch>`
+  the first time, then `git push`). Push after each verified task commit.
+- Never push to `main`, and never merge into `main`: merging is the owner's decision.
+- Record the current branch in `HANDOFF.md`; at session start, check out that branch.
+
 ## Don't
-- Don't read or port anything from koiverse/ArchiveTune (its NO_AI policy).
+
 - Don't change the Room schema/version without a migration plan.
+
+---
+
+# Delegated workflow (orchestrator + coder)
+
+## Roles
+
+**Claude Code (you) = orchestrator.** Discovery, Graphify analysis, specs,
+architecture decisions, task breakdown, delegation briefs, review, running
+tests/builds, verification, commits.
+
+**OpenCode (via `opencode-delegate`) = coder only.** Implements one bounded task
+per brief. Never decides architecture, API contracts, scope, feature removal,
+or when legacy code is deleted. Never commits.
+
+## Rules
+
+- Feature code is written ONLY through `opencode-delegate`. Do NOT use Spec Kit's
+  `implement` command. You may make trivial review fixes (imports, typos) yourself
+  when re-delegating costs more; say so in the status report.
+- Always pass `--model <cheap/flash model>`. Use `--resume-last` / `--session`
+  for review follow-ups on the same task.
+- Max 3 review rounds per task; then stop, record the problem in `HANDOFF.md`, ask the user.
+- A task is DONE only after: diff reviewed against the brief, architecture checked
+  against the spec/ADRs, relevant tests run, build run. Never on the coder's word,
+  "it compiles", or "looks right".
+- Never invent test, build, or Graphify results. Not run = say NOT RUN and why.
+
+## Testing split
+
+- **You decide what is tested.** Test cases and acceptance criteria come from the
+  spec and go in the brief. The coder never chooses its own acceptance tests.
+- **The coder writes and runs tests.** Every brief lists the tests to write/update
+  and the exact command. The coder runs them, fixes failures, and reports results
+  before returning.
+- **You re-run the final gate yourself** before any commit: the task's tests plus
+  the build. Read only the summary and failures (`-q`, `tail`, grep for FAILED),
+  not full logs. The coder's report is never sufficient on its own.
+- **Review test diffs for cheating:** deleted or skipped tests, weakened assertions,
+  changed expected values, `@Ignore`, tests edited to match new behavior without a
+  spec reason. Any of these = NEEDS CHANGES.
+- **Tests first for high-risk areas** (crossfade, queue, state flows, normalization):
+  delegate the tests as their own task before implementation, review and commit
+  them, then delegate the implementation with "make these tests pass without
+  modifying them" in MUST NOT.
+- Instrumented tests: run them with the adb method above only if a device is connected.
+  Anything needing real listening or hardware (Bluetooth, headset, audio focus,
+  process death) goes on the manual checklist for the owner. Never mark it PASS yourself.
+- If an architectural problem appears mid-task: stop delegating, analyze, update
+  the spec/ADR, then resume.
+
+## Context discipline
+
+- Never read the whole repository. Graphify + targeted search first, then only
+  files on the direct path of the current task.
+- One phase or milestone per session. End every session by updating
+  `specs/<feature>/HANDOFF.md` (phase, done, open issues, exact next step);
+  start every session by reading it.
+- Save useful Graphify summaries as Markdown under `specs/<feature>/research/` (committed).
+
+## Graph updates
+
+- The Graphify graph lives in the repo and must match the code at every commit.
+- After a task passes verification and before committing, refresh the graph with
+  exactly: `graphify extract androidApp/src/main --code-only --out .`
+  (incremental, code-only, no LLM). Do NOT use `graphify update .` (widens the graph
+  to the whole repo) or `graphify update` without a path (writes a second graph into
+  `androidApp/src/main/graphify-out/`). Stage `graphify-out/graph.json` and
+  `graphify-out/.graphify_analysis.json` by explicit path, in the same commit as the
+  task's files.
+- Never commit Graphify's cache. Never hand-edit graph files.
+- Don't review graph diffs line by line; they are generated. The `.gitattributes`
+  entry marks them as generated so diffs stay collapsed.
+- The coder never runs or edits Graphify; exclude graph files from its briefs.
+  The Graphify hook note that asks to include the graphify rule in subagent prompts
+  does not apply to `opencode-delegate` briefs.
+
+## Delegation brief template
+
+```
+TASK: <id> — <one line>
+OBJECTIVE: <what must exist after this task>
+RELEVANT FILES: <exact paths; read only these unless blocked>
+CONTEXT: <interfaces/contracts to use, with paths>
+MUST: <bullets>
+MUST NOT: <bullets — always: no commits; no git staging; no branch switching; no push; no files outside the list
+          without stating why; no feature removal; no Room schema/version
+          changes unless this brief explicitly specifies them together with
+          the Room migration>
+TESTS: <tests to add/update, or existing tests that must pass unmodified;
+       exact command; run them and include results in REPORT>
+ACCEPTANCE: <objective, checkable criteria>
+REPORT: files changed, commands run with results, anything left undone.
+```
+
+Briefs must be self-contained: the coder has no chat history.
+
+## Commits
+
+- One task = one atomic, reviewable, buildable commit. Stage by explicit path.
+- Format: `<type>(playback): <short description>`, task id in the body.
+- Commit only after verification passes.
+
+## Status format (end of every phase / milestone)
+
+```
+CURRENT PHASE:
+OBJECTIVE:
+FILES ANALYZED:
+FILES EXCLUDED:
+FINDINGS:
+GRAPHIFY:
+SPEC STATUS:
+DELEGATED TASK: <id or NONE>
+VERIFICATION: <what ran and results; NOT RUN items with reason>
+MANUAL CHECKS FOR OWNER: <list or NONE>
+RESULT: PASS / BLOCKED / NEEDS CHANGES
+NEXT STEP:
+```
+
+Do not move on unless RESULT is PASS.
