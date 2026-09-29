@@ -45,7 +45,7 @@ import com.patrykandpatrick.vico.compose.pie.PieChart
 import com.patrykandpatrick.vico.compose.pie.PieChartHost
 import com.patrykandpatrick.vico.compose.pie.PieSize
 import com.patrykandpatrick.vico.compose.pie.data.PieChartModelProducer
-import com.patrykandpatrick.vico.compose.pie.data.pieSeries
+import com.patrykandpatrick.vico.compose.pie.data.pieModel
 import com.patrykandpatrick.vico.compose.pie.rememberPieChart
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 
@@ -138,7 +138,7 @@ internal fun InsightDonut(
         innerSize = PieSize.Inner.fixed(82.dp),
     )
     LaunchedEffect(values) {
-        modelProducer.runTransaction { pieSeries { series(chartValues) } }
+        modelProducer.runTransaction { pieModel { series(chartValues) } }
     }
     Box(modifier, contentAlignment = Alignment.Center) {
         PieChartHost(

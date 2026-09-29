@@ -5,12 +5,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.HazePerformanceMode
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.blur.HazeBlurStyle
 import dev.chrisbanes.haze.blur.HazeColorEffect
-import dev.chrisbanes.haze.blur.blurEffect
-import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.blur.hazeBlur
 import me.misa198.airmedy.ui.theme.AirmedyColors
+
+/** Downsampling makes small glass surfaces look pixelated after upscaling, so sample at full resolution. */
+internal val LiquidGlassPerformanceMode: HazePerformanceMode = HazePerformanceMode.Quality
 
 /** The shared backdrop treatment for the persistent navigation and page header. */
 fun Modifier.liquidGlassBackground(
@@ -21,12 +25,12 @@ fun Modifier.liquidGlassBackground(
 ): Modifier = if (hazeState == null) {
     background(colors.glassOpaque)
 } else {
-    hazeEffect(hazeState) {
-        // Downsampling makes small glass surfaces look pixelated after upscaling.
-        inputScale = HazeInputScale.None
-        blurEffect {
-            blurRadius = hazeBlurRadius
-            colorEffects = listOf(HazeColorEffect.tint(glassTint ?: colors.glass))
-        }
-    }.background(glassTint ?: colors.glass)
+    hazeBlur(
+        input = HazeInput.Sources(hazeState),
+        style = HazeBlurStyle {
+            blurRadius(hazeBlurRadius)
+            colorEffects(listOf(HazeColorEffect.tint(glassTint ?: colors.glass)))
+        },
+        performanceMode = LiquidGlassPerformanceMode,
+    ).background(glassTint ?: colors.glass)
 }
