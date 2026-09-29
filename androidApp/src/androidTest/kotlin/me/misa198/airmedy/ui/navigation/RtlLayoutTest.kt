@@ -12,8 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeLeft
-import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.rememberHazeState
@@ -47,8 +46,8 @@ class RtlLayoutTest {
         assertTrue("previous left of pause", previous.center.x < pause.center.x)
         assertTrue("pause left of next", pause.center.x < next.center.x)
         // The rest of the pill mirrors: the title sits to the right of the controls.
-        val title = composeTestRule.onNodeWithText(item.title).fetchSemanticsNode().boundsInRoot
-        assertTrue("title on the start (right) side", title.left > next.right)
+        val title = composeTestRule.onNodeWithText(item.title, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertTrue("title $title on the start (right) side of next $next", title.left > next.right)
     }
 
     @Test
@@ -56,7 +55,9 @@ class RtlLayoutTest {
         val calls = mutableListOf<String>()
         composeTestRule.setContent { Rtl { MiniPlayerChrome(onPrevious = { calls += "previous" }, onNext = { calls += "next" }) } }
 
-        composeTestRule.onNodeWithText(item.title).performTouchInput { swipeRight() }
+        // An explicit, fast swipe: the node-relative swipeRight() only spans the short title,
+        // which stays under the metadata swipe's distance and velocity thresholds.
+        composeTestRule.onNodeWithText(item.title, useUnmergedTree = true).performTouchInput { swipe(center - Offset(90f, 0f), center + Offset(90f, 0f), durationMillis = 100) }
         composeTestRule.waitUntil(timeoutMillis = 2_000) { calls.isNotEmpty() }
 
         assertEquals(listOf("next"), calls)
@@ -67,7 +68,8 @@ class RtlLayoutTest {
         val calls = mutableListOf<String>()
         composeTestRule.setContent { Rtl { MiniPlayerChrome(onPrevious = { calls += "previous" }, onNext = { calls += "next" }) } }
 
-        composeTestRule.onNodeWithText(item.artist).performTouchInput { swipeLeft() }
+        // Start on the text itself: just to its right is the artwork, outside the swipe area.
+        composeTestRule.onNodeWithText(item.artist, useUnmergedTree = true).performTouchInput { swipe(center, center - Offset(180f, 0f), durationMillis = 100) }
         composeTestRule.waitUntil(timeoutMillis = 2_000) { calls.isNotEmpty() }
 
         assertEquals(listOf("previous"), calls)
