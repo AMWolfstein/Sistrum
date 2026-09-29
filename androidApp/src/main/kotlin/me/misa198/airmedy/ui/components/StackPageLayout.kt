@@ -1,5 +1,7 @@
 package me.misa198.airmedy.ui.components
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -199,6 +201,8 @@ fun StackPageHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // Horizontal slide offsets are physical: forward pages enter from the layout's end side.
+            val slideDirection = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
             AnimatedContent(
                 targetState = HeaderTitle(stackKey = titleStackKey, text = title),
                 modifier = Modifier.weight(1f),
@@ -208,7 +212,7 @@ fun StackPageHeader(
                     // interpolation, so a longer title never uses an old width.
                     if (animateChanges) {
                         (
-                            (slideInHorizontally(animationSpec = tween(200)) { width -> if (isForward) width / 3 else -width / 3 } + fadeIn(animationSpec = tween(200)))
+                            (slideInHorizontally(animationSpec = tween(200)) { width -> (if (isForward) width / 3 else -width / 3) * slideDirection } + fadeIn(animationSpec = tween(200)))
                                 togetherWith ExitTransition.None
                         ).using(null)
                     } else {

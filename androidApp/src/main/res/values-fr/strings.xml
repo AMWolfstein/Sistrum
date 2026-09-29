@@ -40,9 +40,21 @@
     <string name="insight_no_top_tracks">Aucun morceau écouté pour le moment.</string>
     <string name="insight_show_more">Afficher plus</string>
     <string name="insight_show_less">Afficher moins</string>
-    <string name="insight_days_value">%1$d jours</string>
-    <string name="insight_plays_value">%1$d lectures</string>
-    <string name="insight_attempts_value">%1$d tentatives</string>
+    <plurals name="insight_days_value">
+        <item quantity="one">%1$d jours</item>
+        <item quantity="many">%1$d jours</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="one">%1$d lectures</item>
+        <item quantity="many">%1$d lectures</item>
+        <item quantity="other">%1$d lectures</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="one">%1$d tentatives</item>
+        <item quantity="many">%1$d tentatives</item>
+        <item quantity="other">%1$d tentatives</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% par rapport à la période précédente</string>
     <string name="insight_duration_days_hours">%1$d j %2$d h</string>
@@ -142,7 +154,11 @@
     <string name="song_transition_title">Transition des morceaux</string>
     <string name="playback_crossfade">Fondu enchaîné</string>
     <string name="playback_crossfade_duration">Durée du fondu</string>
-    <string name="playback_crossfade_duration_value">%1$d secondes</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="one">%1$d secondes</item>
+        <item quantity="many">%1$d secondes</item>
+        <item quantity="other">%1$d secondes</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1s</string>
     <string name="playback_crossfade_maximum">12s</string>
     <string name="playback_blend_artwork_during_crossfade">Fondre la pochette et l\'arrière-plan</string>

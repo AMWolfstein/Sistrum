@@ -21,8 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 
@@ -87,20 +91,43 @@ fun DiscCard(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = discCardTextStyle().copy(fontWeight = FontWeight.SemiBold),
             color = colors.textMain,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 8.dp, start = 2.dp, end = 2.dp),
+            modifier = Modifier.padding(top = DiscCardTitleGap, start = 2.dp, end = 2.dp),
         )
 
         Text(
             text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
+            style = discCardTextStyle(),
             color = colors.textMuted,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 2.dp, start = 2.dp, end = 2.dp),
+            modifier = Modifier.padding(top = DiscCardSubtitleGap, start = 2.dp, end = 2.dp, bottom = DiscCardBottomAllowance),
         )
     }
+}
+
+private val DiscCardTitleGap = 8.dp
+private val DiscCardSubtitleGap = 2.dp
+
+/** Room below the subtitle for glyphs that reach past the line box, such as Arabic descenders. */
+private val DiscCardBottomAllowance = 4.dp
+
+/**
+ * One fixed line box per text line. Fallback fonts for scripts such as Arabic have taller
+ * ascent and descent than Latin, so without it a card's height depended on the script of its
+ * title and artist, and the fixed-height grids that hold the cards clipped the last line.
+ */
+@Composable
+private fun discCardTextStyle(): TextStyle = MaterialTheme.typography.bodyMedium.copy(
+    lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None),
+)
+
+/** The height of a [DiscCard] of [width]: square artwork, one title line and one subtitle line. */
+@Composable
+internal fun discCardHeight(width: Dp): Dp {
+    val lineHeight = with(LocalDensity.current) { discCardTextStyle().lineHeight.toDp() }
+    return width + DiscCardTitleGap + lineHeight + DiscCardSubtitleGap + lineHeight + DiscCardBottomAllowance
 }

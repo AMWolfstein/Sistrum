@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +36,7 @@ import me.misa198.airmedy.R
 import me.misa198.airmedy.ui.components.DiscCard
 import me.misa198.airmedy.ui.components.MaterialSymbols
 import me.misa198.airmedy.ui.components.TrackRow
+import me.misa198.airmedy.ui.components.discCardHeight
 import me.misa198.airmedy.ui.components.formatFileSize
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 
@@ -100,7 +104,7 @@ internal fun InsightContent(
         item { ListeningHero(state.listening) }
         item {
             MetricPair(
-                R.string.insight_streak to stringResource(R.string.insight_days_value, state.listening.streakDays),
+                R.string.insight_streak to pluralStringResource(R.plurals.insight_days_value, state.listening.streakDays, state.listening.streakDays),
                 R.string.insight_average_session to formatDuration(state.listening.averageSessionSeconds),
             )
         }
@@ -128,7 +132,7 @@ internal fun InsightContent(
                             subtitle = formatDuration(artist.listenedSeconds),
                             artworkPath = artist.artworkPath,
                             artworkShape = CircleShape,
-                            modifier = Modifier.size(112.dp, 168.dp),
+                            modifier = Modifier.width(112.dp).height(discCardHeight(112.dp)),
                             fallbackSymbol = MaterialSymbols.People,
                             onClick = { onArtistClick(artist.id) },
                         )
@@ -151,7 +155,7 @@ internal fun InsightContent(
                             trailingContent = {
                                 Column(horizontalAlignment = Alignment.End) {
                                     Text(formatDuration(item.listenedSeconds), style = MaterialTheme.typography.labelMedium, color = LocalAirmedyColors.current.textMuted)
-                                    Text(stringResource(R.string.insight_plays_value, item.playCount), style = MaterialTheme.typography.labelSmall, color = LocalAirmedyColors.current.textMuted)
+                                    Text(pluralStringResource(R.plurals.insight_plays_value, item.playCount, item.playCount), style = MaterialTheme.typography.labelSmall, color = LocalAirmedyColors.current.textMuted)
                                 }
                             },
                         )
@@ -192,7 +196,7 @@ private fun ListeningHero(state: ListeningInsightState) {
                     Text(stringResource(R.string.insight_change_value, it), style = MaterialTheme.typography.labelMedium, color = LocalAirmedyColors.current.textMuted)
                 }
             }
-            Text(stringResource(R.string.insight_plays_value, state.plays), style = MaterialTheme.typography.labelLarge, color = LocalAirmedyColors.current.textMuted)
+            Text(pluralStringResource(R.plurals.insight_plays_value, state.plays, state.plays), style = MaterialTheme.typography.labelLarge, color = LocalAirmedyColors.current.textMuted)
         }
         if (state.listenedSeconds > 0) {
             InsightBarChart(state.activity, stringResource(R.string.insight_activity_description), Modifier.padding(top = 20.dp))
@@ -237,7 +241,7 @@ private fun OutcomeCard(state: ListeningInsightState) {
     ChartCard(R.string.insight_playback_outcomes, MaterialSymbols.MusicNote) {
         if (total == 0) EmptyInsightText(R.string.insight_no_outcomes)
         else {
-            InsightDonut(values.mapIndexed { index, value -> value.second to palette[index] }, stringResource(R.string.insight_attempts_value, total), stringResource(R.string.insight_outcomes_description))
+            InsightDonut(values.mapIndexed { index, value -> value.second to palette[index] }, pluralStringResource(R.plurals.insight_attempts_value, total, total), stringResource(R.string.insight_outcomes_description))
             values.forEachIndexed { index, value -> BreakdownRow(value.first, value.second, total, palette[index]) }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -254,7 +255,7 @@ internal fun SongTransitionContent(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            text = stringResource(R.string.playback_crossfade_duration_value, displayedSeconds),
+                            text = pluralStringResource(R.plurals.playback_crossfade_duration_value, displayedSeconds, displayedSeconds),
                             style = MaterialTheme.typography.labelMedium,
                             color = me.misa198.airmedy.ui.theme.LocalAirmedyColors.current.textMuted,
                         )

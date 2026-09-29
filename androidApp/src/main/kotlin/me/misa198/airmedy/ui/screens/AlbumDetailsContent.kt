@@ -16,7 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -69,15 +69,15 @@ internal fun AlbumDetailsContent(
     val colors = LocalAirmedyColors.current
     var contextTrack by remember { mutableStateOf<String?>(null) }
     var albumMenuExpanded by remember(album.id) { mutableStateOf(false) }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val trackCount = pluralStringResource(R.plurals.album_details_track_count, uiState.tracks.size, uiState.tracks.size)
     val totalDurationSeconds = remember(uiState.tracks) { albumTotalDurationSeconds(uiState.tracks) }
     val duration = formatAlbumTotalDuration(
         totalDurationSeconds,
-        day = { context.getString(R.string.playlist_duration_day, it) },
-        hour = { context.getString(R.string.playlist_duration_hour, it) },
-        minute = { context.getString(R.string.playlist_duration_minute, it) },
-        second = { context.getString(R.string.playlist_duration_second, it) },
+        day = { resources.getString(R.string.playlist_duration_day, it) },
+        hour = { resources.getString(R.string.playlist_duration_hour, it) },
+        minute = { resources.getString(R.string.playlist_duration_minute, it) },
+        second = { resources.getString(R.string.playlist_duration_second, it) },
     )
     val metadata = if (album.year > 0) {
         stringResource(R.string.album_details_metadata_with_year, album.year, trackCount, duration)

@@ -40,9 +40,15 @@
     <string name="insight_no_top_tracks">Chưa có bài hát nào được phát.</string>
     <string name="insight_show_more">Xem thêm</string>
     <string name="insight_show_less">Thu gọn</string>
-    <string name="insight_days_value">%1$d ngày</string>
-    <string name="insight_plays_value">%1$d lượt phát</string>
-    <string name="insight_attempts_value">%1$d lần thử</string>
+    <plurals name="insight_days_value">
+        <item quantity="other">%1$d ngày</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="other">%1$d lượt phát</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="other">%1$d lần thử</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% so với kỳ trước</string>
     <string name="insight_duration_days_hours">%1$d ngày %2$d giờ</string>
@@ -141,7 +147,9 @@
     <string name="song_transition_title">Chuyển tiếp bài hát</string>
     <string name="playback_crossfade">Chuyển mượt</string>
     <string name="playback_crossfade_duration">Thời lượng chuyển mượt</string>
-    <string name="playback_crossfade_duration_value">%1$d giây</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="other">%1$d giây</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1 giây</string>
     <string name="playback_crossfade_maximum">12 giây</string>
     <string name="playback_blend_artwork_during_crossfade">Hòa trộn ảnh bìa và hình nền</string>

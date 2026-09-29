@@ -1,12 +1,19 @@
 package me.misa198.airmedy.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.isSystemInDarkTheme
 import me.misa198.airmedy.settings.ThemeMode
 
@@ -115,7 +122,40 @@ fun AirmedyTheme(
         )
     }
 
+    val layoutDirection = LocalLayoutDirection.current
+    val baseTypography = MaterialTheme.typography
+    val typography = remember(baseTypography, layoutDirection) { baseTypography.withNaturalTextDirection(layoutDirection) }
     CompositionLocalProvider(LocalAirmedyColors provides colors) {
-        MaterialTheme(colorScheme = colorScheme, content = content)
+        MaterialTheme(colorScheme = colorScheme, typography = typography, content = content)
     }
+}
+
+/**
+ * Every string takes its own direction (TextDirection.Content): an Arabic title inside the
+ * English UI is laid out right to left and a Latin title or folder path inside the Arabic UI
+ * left to right, so punctuation and inline badges land correctly. Compose would otherwise lay
+ * out all text in the layout direction. Alignment stays at the layout's start edge, so lists
+ * keep one edge whatever the script of each title; text that needs its own alignment (lyrics)
+ * sets it explicitly.
+ */
+private fun Typography.withNaturalTextDirection(layoutDirection: LayoutDirection): Typography {
+    val align = if (layoutDirection == LayoutDirection.Rtl) TextAlign.Right else TextAlign.Left
+    fun TextStyle.natural() = copy(textDirection = TextDirection.Content, textAlign = align)
+    return copy(
+        displayLarge = displayLarge.natural(),
+        displayMedium = displayMedium.natural(),
+        displaySmall = displaySmall.natural(),
+        headlineLarge = headlineLarge.natural(),
+        headlineMedium = headlineMedium.natural(),
+        headlineSmall = headlineSmall.natural(),
+        titleLarge = titleLarge.natural(),
+        titleMedium = titleMedium.natural(),
+        titleSmall = titleSmall.natural(),
+        bodyLarge = bodyLarge.natural(),
+        bodyMedium = bodyMedium.natural(),
+        bodySmall = bodySmall.natural(),
+        labelLarge = labelLarge.natural(),
+        labelMedium = labelMedium.natural(),
+        labelSmall = labelSmall.natural(),
+    )
 }

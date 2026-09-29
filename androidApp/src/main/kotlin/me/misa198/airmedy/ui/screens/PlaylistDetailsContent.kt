@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -105,15 +105,15 @@ internal fun PlaylistDetailsContent(
             haptics.performHapticFeedback(HapticFeedbackType.Confirm)
         }
     }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val count = pluralStringResource(R.plurals.playlist_details_track_count, uiState.tracks.size, uiState.tracks.size)
     val totalDurationSeconds = remember(uiState.tracks) { playlistTotalDurationSeconds(uiState.tracks) }
     val duration = formatPlaylistTotalDuration(
         totalDurationSeconds,
-        day = { context.getString(R.string.playlist_duration_day, it) },
-        hour = { context.getString(R.string.playlist_duration_hour, it) },
-        minute = { context.getString(R.string.playlist_duration_minute, it) },
-        second = { context.getString(R.string.playlist_duration_second, it) },
+        day = { resources.getString(R.string.playlist_duration_day, it) },
+        hour = { resources.getString(R.string.playlist_duration_hour, it) },
+        minute = { resources.getString(R.string.playlist_duration_minute, it) },
+        second = { resources.getString(R.string.playlist_duration_second, it) },
     )
     val name = if (playlist.id == FavoritesPlaylistId) stringResource(R.string.library_favorites) else playlist.name
     val trackIds = remember(uiState.tracks) { uiState.tracks.map { it.id } }

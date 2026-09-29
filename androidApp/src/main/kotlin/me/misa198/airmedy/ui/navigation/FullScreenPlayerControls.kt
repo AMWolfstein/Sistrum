@@ -35,6 +35,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -65,9 +67,11 @@ import me.misa198.airmedy.sync.LibraryTrack
 import me.misa198.airmedy.ui.components.AirmedyTrackSlider
 import me.misa198.airmedy.ui.components.AnimatedPlayPauseSymbol
 import me.misa198.airmedy.ui.components.AnimatedSkipSymbol
+import me.misa198.airmedy.ui.components.LeftToRight
 import me.misa198.airmedy.ui.components.MaterialSymbol
 import me.misa198.airmedy.ui.components.MaterialSymbols
 import me.misa198.airmedy.ui.components.TrackAudioQuality
+import me.misa198.airmedy.ui.components.formatDisplay
 import me.misa198.airmedy.ui.components.sliderFilledTrackColor
 import me.misa198.airmedy.ui.components.trackAudioQuality
 import me.misa198.airmedy.ui.components.trackInfoValues
@@ -128,6 +132,7 @@ internal fun FullScreenPlayerControls(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalAirmedyColors.current
+    val appLayoutDirection = LocalLayoutDirection.current
     val seekLabel = stringResource(R.string.player_seek)
     val volumeLabel = stringResource(R.string.player_volume)
     var restingHeightPx by remember { mutableIntStateOf(0) }
@@ -194,6 +199,9 @@ internal fun FullScreenPlayerControls(
             slideOutVertically(tween(QueueReorderTransitionDurationMs, easing = FastOutSlowInEasing)) { it },
     ) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly) {
+            // The seek bar, its time labels, the transport buttons and the volume slider stay
+            // left to right in RTL locales, like standard music players.
+            LeftToRight {
             Column {
                 AirmedyTrackSlider(
                     value = pendingSeekFraction ?: if (durationMs > 0) currentPositionMs.toFloat() / durationMs else 0f,
@@ -225,8 +233,13 @@ internal fun FullScreenPlayerControls(
                             .then(if (qualityVisible) Modifier.clickable(role = Role.Button, interactionSource = remember { MutableInteractionSource() }, indication = null) { qualityDialogVisible = true } else Modifier)
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     ) {
-                        MaterialSymbol(qualitySlot.second, null, size = 12.dp, tint = colors.foregroundSubtle)
-                        Text(stringResource(qualitySlot.first), color = colors.foregroundSubtle, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium))
+                        // The badge is a label, not part of the timeline, so it keeps the app's direction.
+                        CompositionLocalProvider(LocalLayoutDirection provides appLayoutDirection) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                MaterialSymbol(qualitySlot.second, null, size = 12.dp, tint = colors.foregroundSubtle)
+                                Text(stringResource(qualitySlot.first), color = colors.foregroundSubtle, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium))
+                            }
+                        }
                     }
                     Text(
                         text = displayedDurationMs?.let(::formatPlaybackTime) ?: "--:--",
@@ -236,14 +249,18 @@ internal fun FullScreenPlayerControls(
                             .semantics { testTag = FullScreenPlayerDurationTestTag },
                     )
                 }
-                if (qualityDialogVisible && qualityBadge != null) FullScreenQualityDialog(qualityBadge.first, qualityBadge.second, qualityDetails) { qualityDialogVisible = false }
             }
+            }
+            if (qualityDialogVisible && qualityBadge != null) FullScreenQualityDialog(qualityBadge.first, qualityBadge.second, qualityDetails) { qualityDialogVisible = false }
+            LeftToRight {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
                 FullScreenTransportButton(MaterialSymbols.SkipPrevious, stringResource(R.string.player_previous), onPrevious, enabled = canNavigatePrevious, iconSize = 36.dp, skipForward = false)
                 FullScreenTransportButton(label = stringResource(if (isPlaying) R.string.player_pause else R.string.player_play), onClick = onPlayPause, enabled = !isPreparing, iconSize = 48.dp, isPlaying = isPlaying)
                 FullScreenTransportButton(MaterialSymbols.SkipNext, stringResource(R.string.player_next), onNext, enabled = canNavigateNext, iconSize = 36.dp, skipForward = true)
             }
+            }
             Column {
+                LeftToRight {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     MaterialSymbol(MaterialSymbols.VolumeDown, null, tint = volumeColor, size = 20.dp, filled = true, modifier = Modifier.offset(x = -volumeOffset))
                     Spacer(Modifier.width(10.dp))
@@ -251,6 +268,7 @@ internal fun FullScreenPlayerControls(
                         modifier = Modifier.weight(1f).semantics { contentDescription = volumeLabel })
                     Spacer(Modifier.width(10.dp))
                     MaterialSymbol(MaterialSymbols.VolumeUp, null, tint = volumeColor, size = 20.dp, filled = true, modifier = Modifier.offset(x = volumeOffset))
+                }
                 }
                 Spacer(Modifier.height(4.dp))
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -335,5 +353,5 @@ internal fun FullScreenTransportButton(
 
 private fun formatPlaybackTime(timeMs: Long): String {
     val seconds = (timeMs.coerceAtLeast(0L) / 1000).toInt()
-    return "%d:%02d".format(seconds / 60, seconds % 60)
+    return formatDisplay("%d:%02d", seconds / 60, seconds % 60)
 }

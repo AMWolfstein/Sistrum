@@ -445,7 +445,10 @@ class AppNavigationTest {
         composeTestRule.onNodeWithContentDescription(string(R.string.song_transition_title)).performClick()
         val expectedContentLeft = with(composeTestRule.density) { 40.dp.toPx() }
         val durationLeft = composeTestRule
-            .onNodeWithText(string(R.string.playback_crossfade_duration_value, 4))
+            .onNodeWithText(
+                InstrumentationRegistry.getInstrumentation().targetContext.resources
+                    .getQuantityString(R.plurals.playback_crossfade_duration_value, 4, 4),
+            )
             .fetchSemanticsNode()
             .boundsInRoot
             .left

@@ -40,9 +40,18 @@
     <string name="insight_no_top_tracks">No played tracks yet.</string>
     <string name="insight_show_more">Show more</string>
     <string name="insight_show_less">Show less</string>
-    <string name="insight_days_value">%1$d days</string>
-    <string name="insight_plays_value">%1$d plays</string>
-    <string name="insight_attempts_value">%1$d attempts</string>
+    <plurals name="insight_days_value">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="one">%1$d play</item>
+        <item quantity="other">%1$d plays</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="one">%1$d attempt</item>
+        <item quantity="other">%1$d attempts</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% from previous period</string>
     <string name="insight_duration_days_hours">%1$d d %2$d hr</string>
@@ -142,7 +151,10 @@
     <string name="song_transition_title">Song Transition</string>
     <string name="playback_crossfade">Crossfade</string>
     <string name="playback_crossfade_duration">Crossfade duration</string>
-    <string name="playback_crossfade_duration_value">%1$d seconds</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1s</string>
     <string name="playback_crossfade_maximum">12s</string>
     <string name="playback_blend_artwork_during_crossfade">Blend artwork and background</string>

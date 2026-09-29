@@ -40,9 +40,21 @@
     <string name="insight_no_top_tracks">Aún no hay pistas reproducidas.</string>
     <string name="insight_show_more">Mostrar más</string>
     <string name="insight_show_less">Mostrar menos</string>
-    <string name="insight_days_value">%1$d días</string>
-    <string name="insight_plays_value">%1$d reproducciones</string>
-    <string name="insight_attempts_value">%1$d intentos</string>
+    <plurals name="insight_days_value">
+        <item quantity="one">%1$d días</item>
+        <item quantity="many">%1$d días</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="one">%1$d reproducciones</item>
+        <item quantity="many">%1$d reproducciones</item>
+        <item quantity="other">%1$d reproducciones</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="one">%1$d intentos</item>
+        <item quantity="many">%1$d intentos</item>
+        <item quantity="other">%1$d intentos</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% respecto al período anterior</string>
     <string name="insight_duration_days_hours">%1$d d %2$d h</string>
@@ -142,7 +154,11 @@
     <string name="song_transition_title">Transición de canciones</string>
     <string name="playback_crossfade">Fundido cruzado</string>
     <string name="playback_crossfade_duration">Duración del fundido cruzado</string>
-    <string name="playback_crossfade_duration_value">%1$d segundos</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="one">%1$d segundos</item>
+        <item quantity="many">%1$d segundos</item>
+        <item quantity="other">%1$d segundos</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1s</string>
     <string name="playback_crossfade_maximum">12s</string>
     <string name="playback_blend_artwork_during_crossfade">Fundir portada y fondo</string>

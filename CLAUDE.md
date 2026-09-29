@@ -56,7 +56,15 @@ Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
   deferred to the Media3 phase.
 
 ## Localization
-- `values/strings.xml` is the source; the other locales are allowed to lag.
+- `values/strings.xml` is the source. `values-ar` must stay complete
+  (`ArabicTranslationCompletenessTest`); the other locales are allowed to lag.
+- Counts use `<plurals>`; Arabic needs zero/one/two/few/many/other.
+- Numbers use Western digits in every locale: `MainActivity` wraps its context with
+  `-u-nu-latn`, and non-resource formatting goes through `formatDisplay()` (ui/components/LatinDigits.kt).
+- RTL: text takes its own direction (theme typography sets `TextDirection.Content`) and aligns to
+  the layout's start edge. Media transport controls, the seek bar and the volume slider stay LTR
+  (`LeftToRight`). Directional icon glyphs are listed in `MirroredInRtlSymbols`.
+  Physical drag deltas and graphics-layer x values need `towardsEnd()`; `Modifier.offset` already mirrors.
 
 ## Don't
 - Don't read or port anything from koiverse/ArchiveTune (its NO_AI policy).

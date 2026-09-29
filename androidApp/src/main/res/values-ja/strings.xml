@@ -40,9 +40,15 @@
     <string name="insight_no_top_tracks">再生されたトラックがありません。</string>
     <string name="insight_show_more">もっと見る</string>
     <string name="insight_show_less">折りたたむ</string>
-    <string name="insight_days_value">%1$d日</string>
-    <string name="insight_plays_value">%1$d回再生</string>
-    <string name="insight_attempts_value">%1$d回の試行</string>
+    <plurals name="insight_days_value">
+        <item quantity="other">%1$d日</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="other">%1$d回再生</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="other">%1$d回の試行</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">前期間比 %1$+.0f%%</string>
     <string name="insight_duration_days_hours">%1$d日 %2$d時間</string>
@@ -141,7 +147,9 @@
     <string name="song_transition_title">曲の切り替え</string>
     <string name="playback_crossfade">クロスフェード</string>
     <string name="playback_crossfade_duration">クロスフェード時間</string>
-    <string name="playback_crossfade_duration_value">%1$d秒</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="other">%1$d秒</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1秒</string>
     <string name="playback_crossfade_maximum">12秒</string>
     <string name="playback_blend_artwork_during_crossfade">アートワークと背景をブレンド</string>

@@ -40,9 +40,15 @@
     <string name="insight_no_top_tracks">ยังไม่มีเพลงที่เล่น</string>
     <string name="insight_show_more">แสดงเพิ่มเติม</string>
     <string name="insight_show_less">แสดงน้อยลง</string>
-    <string name="insight_days_value">%1$d วัน</string>
-    <string name="insight_plays_value">เล่น %1$d ครั้ง</string>
-    <string name="insight_attempts_value">%1$d ครั้ง</string>
+    <plurals name="insight_days_value">
+        <item quantity="other">%1$d วัน</item>
+    </plurals>
+    <plurals name="insight_plays_value">
+        <item quantity="other">เล่น %1$d ครั้ง</item>
+    </plurals>
+    <plurals name="insight_attempts_value">
+        <item quantity="other">%1$d ครั้ง</item>
+    </plurals>
     <string name="insight_percent_value">%1$d%%</string>
     <string name="insight_change_value">%1$+.0f%% จากช่วงก่อนหน้า</string>
     <string name="insight_duration_days_hours">%1$d ว %2$d ชม</string>
@@ -141,7 +147,9 @@
     <string name="song_transition_title">การเปลี่ยนเพลง</string>
     <string name="playback_crossfade">ครอสเฟด</string>
     <string name="playback_crossfade_duration">ระยะเวลาครอสเฟด</string>
-    <string name="playback_crossfade_duration_value">%1$d วินาที</string>
+    <plurals name="playback_crossfade_duration_value">
+        <item quantity="other">%1$d วินาที</item>
+    </plurals>
     <string name="playback_crossfade_minimum">1 วินาที</string>
     <string name="playback_crossfade_maximum">12 วินาที</string>
     <string name="playback_blend_artwork_during_crossfade">ผสมผสานภาพหน้าปกและพื้นหลัง</string>
