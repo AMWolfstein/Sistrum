@@ -1,0 +1,3 @@
+# graphify knowledge graph: generated, keep diffs collapsed.
+graphify-out/graph.json linguist-generated=true -diff
+graphify-out/.graphify_analysis.json linguist-generated=true -diff
