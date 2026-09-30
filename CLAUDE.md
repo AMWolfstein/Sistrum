@@ -110,8 +110,15 @@ or when legacy code is deleted. Never commits.
 
 ## Rules
 
-- Feature code is written ONLY through `opencode-delegate`. Do NOT use Spec Kit's
-  `implement` command. You may make trivial review fixes (imports, typos) yourself
+- Spec Kit (`specs/`, `.specify/`) is the planning source: spec, plan and tasks come from
+  the `speckit-*` skills (specify, clarify, plan, tasks, analyze).
+- Don't use superpowers' planning, execution or subagent skills for this migration
+  (brainstorming, writing-plans, executing-plans, subagent-driven-development,
+  dispatching-parallel-agents, test-driven-development, using-git-worktrees,
+  finishing-a-development-branch). Its debugging and verification skills
+  (systematic-debugging, verification-before-completion) are fine.
+- Feature code is written ONLY through `opencode-delegate`, via `/delegate-task`. Do NOT
+  use Spec Kit's `implement` command. You may make trivial review fixes (imports, typos) yourself
   when re-delegating costs more; say so in the status report.
 - Always pass `--model` with a model chosen per the Models section below. Use
   `--resume-last` / `--session` for review follow-ups on the same task.
@@ -126,6 +133,21 @@ or when legacy code is deleted. Never commits.
   against the spec/ADRs, relevant tests run, build run. Never on the coder's word,
   "it compiles", or "looks right".
 - Never invent test, build, or Graphify results. Not run = say NOT RUN and why.
+
+## Tooling (`.claude/`, tracked)
+
+- `/delegate-task <id>`: builds the brief from `tasks.md`, picks the model, dispatches through
+  `.claude/skills/delegate-task/scripts/dispatch.sh` (always sets `OPENCODE_DISABLE_CLAUDE_CODE=1`,
+  refuses banned models). Use it for every dispatch and follow-up.
+- `/verify-task <id>`: diff review, `migration-guard` when needed, then
+  `.claude/skills/verify-task/scripts/verify.sh` (tests, build, optional device tests, graph refresh).
+- `migration-guard` agent: read-only test-integrity + contract review; only for tasks that touch
+  tests, `player/PlaybackController.kt`, or Room.
+- Hooks (`.claude/hooks/git_hooks.py`, PreToolUse on Bash): `guard` blocks `git add -A`/`.`/`-u`,
+  `commit -a`, `stash`, `clean`, `reset --hard`, force pushes, pushes to or merges into `main`,
+  `gh pr merge`; `graph` refreshes the graph before a commit when app code changed and blocks
+  until `graphify-out/graph.json` and `.graphify_analysis.json` are staged.
+- context7 MCP (`.mcp.json`, pinned): current Media3/ExoPlayer and AndroidX docs.
 
 ## Models
 
