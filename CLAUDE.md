@@ -113,13 +113,21 @@ or when legacy code is deleted. Never commits.
 - Feature code is written ONLY through `opencode-delegate`. Do NOT use Spec Kit's
   `implement` command. You may make trivial review fixes (imports, typos) yourself
   when re-delegating costs more; say so in the status report.
-- Always pass `--model <cheap/flash model>`. Use `--resume-last` / `--session`
-  for review follow-ups on the same task.
+- Always pass `--model` with a model chosen per the Models section below. Use
+  `--resume-last` / `--session` for review follow-ups on the same task.
 - Max 3 review rounds per task; then stop, record the problem in `HANDOFF.md`, ask the user.
 - A task is DONE only after: diff reviewed against the brief, architecture checked
   against the spec/ADRs, relevant tests run, build run. Never on the coder's word,
   "it compiles", or "looks right".
 - Never invent test, build, or Graphify results. Not run = say NOT RUN and why.
+
+## Models
+
+- Default: `opencode-go/deepseek-v4.1-flash`.
+- Fallback, if the default fails twice on a task: `opencode-go/glm-5.3-flash`.
+- Hard tasks only (crossfade, MediaSession, anything flagged high-risk in `tasks.md`):
+  `opencode-go/deepseek-v4-pro`.
+- Never use `opencode/*-free` models or `opencode-go/glm-5.3`.
 
 ## Testing split
 
