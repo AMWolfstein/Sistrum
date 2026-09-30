@@ -4,6 +4,10 @@ Android music player. Hard fork of misa198/airmedy, local-library only (desktop
 sync removed). Repository: AMWolfstein/Sistrum, main branch `main`. GPL-3.0.
 Kotlin + Jetpack Compose (Compose Multiplatform artifacts).
 
+Built for all users, not only the owner: the owner's library and the CPH2307 are test
+samples, not the scope. Never assume the owner's formats, tagging tools, library mix or
+device (constitution Principle 10).
+
 ## Modules
 
 - `androidApp` — Compose UI, ViewModels, player, MediaStore scan, Room.
@@ -241,6 +245,11 @@ to another OpenCode run.
 - One task = one atomic, reviewable, buildable commit. Stage by explicit path.
 - Format: `<type>(playback): <short description>`, task id in the body.
 - Commit only after verification passes.
+- Planning/docs changes: record decisions in the constitution or `HANDOFF.md` as they happen,
+  but don't commit after every answer. Commit granularity:
+  - All pre-plan docs (discovery, constitution decisions, spec, clarify) = one commit.
+  - The plan phase = its own commit.
+  - After that, one commit per task.
 
 ## Status format (end of every phase / milestone)
 
