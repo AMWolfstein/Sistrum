@@ -1,24 +1,51 @@
 #!/usr/bin/env bash
-# Final gate for a delegated task: unit tests, build, optional instrumented classes, graph refresh.
-# Prints only summaries and failures; full logs stay in the log directory it prints.
+# Final gate for a delegated task: scope check, unit tests, build, optional instrumented classes,
+# graph refresh. Prints only summaries and failures; full logs stay in the log directory it prints.
 #
-# Usage: verify.sh [--tests '<gradle --tests filter>']... [--lint]
+# Usage: verify.sh --files '<path> <path> ...' [--tests '<gradle --tests filter>']... [--lint]
 #                  [--instrumented <FQCN>[,<FQCN>...]]
+#   --files         REQUIRED: the task's file list (the brief's RELEVANT FILES plus the test files it
+#                   names), repo-relative, space-separated. Any modified, deleted or new Kotlin file
+#                   outside this list makes the gate refuse to run (exit 3).
 #   --tests         restrict the unit-test run (repeatable); default: the full unit suites
 #   --lint          also run :androidApp:lintDevDebug and print the error count
 #   --instrumented  device tests to run one class at a time, only if a device is connected
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-filters=() lint=0 instrumented=""
+files="" files_given=0 filters=() lint=0 instrumented=""
 while [ $# -gt 0 ]; do
   case "$1" in
+    --files) files="$2"; files_given=1; shift 2 ;;
     --tests) filters+=(--tests "$2"); shift 2 ;;
     --lint) lint=1; shift ;;
     --instrumented) instrumented="$2"; shift 2 ;;
     *) echo "verify: unknown argument $1" >&2; exit 2 ;;
   esac
 done
+
+# Scope check: refuse to verify while Kotlin files outside the task's list are changed.
+if [ "$files_given" = 0 ]; then
+  echo "verify: REFUSED — pass the task's file list with --files '<path> ...'" >&2
+  exit 3
+fi
+read -r -a allowed <<< "$files"
+changed_kotlin=$( { git diff --name-only --no-renames HEAD -- '*.kt' '*.kts'
+                    git ls-files --others --exclude-standard -- '*.kt' '*.kts'; } | sort -u )
+outside=()
+while IFS= read -r path; do
+  [ -z "$path" ] && continue
+  in_list=0
+  for a in "${allowed[@]}"; do [ "$path" = "$a" ] && in_list=1 && break; done
+  [ "$in_list" = 0 ] && outside+=("$path")
+done <<< "$changed_kotlin"
+if [ "${#outside[@]}" -gt 0 ]; then
+  echo "verify: REFUSED — Kotlin files changed outside the task's file list:" >&2
+  printf '  %s\n' "${outside[@]}" >&2
+  echo "Review them: revert them, or send a delta brief. Do not run the gate until only task files change." >&2
+  exit 3
+fi
+echo "scope          PASS     only task files changed (${#allowed[@]} listed)"
 
 logs=$(mktemp -d "${TMPDIR:-/tmp}/verify-task.XXXXXX")
 overall=PASS

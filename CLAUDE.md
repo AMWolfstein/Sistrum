@@ -140,7 +140,9 @@ or when legacy code is deleted. Never commits.
   `.claude/skills/delegate-task/scripts/dispatch.sh` (always sets `OPENCODE_DISABLE_CLAUDE_CODE=1`,
   refuses banned models). Use it for every dispatch and follow-up.
 - `/verify-task <id>`: diff review, `migration-guard` when needed, then
-  `.claude/skills/verify-task/scripts/verify.sh` (tests, build, optional device tests, graph refresh).
+  `.claude/skills/verify-task/scripts/verify.sh --files '<task files>'` (refuses when Kotlin files
+  outside the task's list changed; then tests, build, optional device tests, graph refresh).
+- New machine: `docs/dev-setup.md`.
 - `migration-guard` agent: read-only test-integrity + contract review; only for tasks that touch
   tests, `player/PlaybackController.kt`, or Room.
 - Hooks (`.claude/hooks/git_hooks.py`, PreToolUse on Bash): `guard` blocks `git add -A`/`.`/`-u`,

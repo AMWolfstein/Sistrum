@@ -22,9 +22,16 @@ A task is DONE only when this gate passes. The coder's report never counts as ev
 
 ## 2. Run the gate yourself
 ```bash
-bash .claude/skills/verify-task/scripts/verify.sh [--tests '<filter>'] [--lint] \
-  [--instrumented <FQCN>[,<FQCN>]]
+bash .claude/skills/verify-task/scripts/verify.sh \
+  --files '<RELEVANT FILES and test files from the brief, space-separated>' \
+  [--tests '<filter>'] [--lint] [--instrumented <FQCN>[,<FQCN>]]
 ```
+- `--files` is required. If any Kotlin file outside that list is modified, deleted or new, the
+  script prints `REFUSED`, lists the files and exits 3 without running anything. Then STOP:
+  do not continue this skill, do not stage or commit. Treat it as NEEDS CHANGES: review the
+  extra files, and either revert them (`git checkout -- <file>` for tracked, delete untracked
+  ones the coder created) or send a delta brief, then run `/verify-task` again. Never widen
+  `--files` just to make the check pass; a file belongs in the list only if the brief names it.
 - Use the TESTS from the brief as `--tests` filters, plus the full suites before a
   milestone commit. Pass `--instrumented` only for device tests the spec requires.
 - It prints one line per step (PASS / FAIL / NOT RUN) and `GATE: PASS|FAIL`, then refreshes
