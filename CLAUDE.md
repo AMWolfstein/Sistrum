@@ -115,6 +115,12 @@ or when legacy code is deleted. Never commits.
   when re-delegating costs more; say so in the status report.
 - Always pass `--model` with a model chosen per the Models section below. Use
   `--resume-last` / `--session` for review follow-ups on the same task.
+- Run EVERY relay invocation with `OPENCODE_DISABLE_CLAUDE_CODE=1` in its environment:
+  fresh runs and `--resume-last` / `--session` follow-ups alike, e.g.
+  `OPENCODE_DISABLE_CLAUDE_CODE=1 node <skill-dir>/scripts/relay.mjs --brief … --model …`.
+  It stops OpenCode from loading this CLAUDE.md and every `.claude/skills` folder
+  (`opencode-delegate`, `graphify`), so the coder can't re-delegate or run Graphify.
+  The coder's own instructions are in `AGENTS.md`.
 - Max 3 review rounds per task; then stop, record the problem in `HANDOFF.md`, ask the user.
 - A task is DONE only after: diff reviewed against the brief, architecture checked
   against the spec/ADRs, relevant tests run, build run. Never on the coder's word,
@@ -181,6 +187,11 @@ or when legacy code is deleted. Never commits.
 ## Delegation brief template
 
 ```
+ROLE: You are the IMPLEMENTER (coder), not the orchestrator. The "Delegated workflow"
+      section in CLAUDE.md describes the orchestrator's job and does NOT apply to you.
+      Do not load or use the opencode-delegate skill, do not run `opencode`, `relay.mjs`
+      or any other agent, and do not write brief files. Make the changes yourself with
+      your own file-editing tools, then report.
 TASK: <id> — <one line>
 OBJECTIVE: <what must exist after this task>
 RELEVANT FILES: <exact paths; read only these unless blocked>
@@ -196,7 +207,10 @@ ACCEPTANCE: <objective, checkable criteria>
 REPORT: files changed, commands run with results, anything left undone.
 ```
 
-Briefs must be self-contained: the coder has no chat history.
+Briefs must be self-contained: the coder has no chat history. Always keep the ROLE
+block as a second guard next to the `OPENCODE_DISABLE_CLAUDE_CODE=1` rule: without
+both, OpenCode can load this CLAUDE.md and the delegate skill and re-delegate the brief
+to another OpenCode run.
 
 ## Commits
 
