@@ -1,0 +1,5 @@
+# Track only the portable graph; the cache and machine-specific files stay local.
+*
+!.gitignore
+!graph.json
+!.graphify_analysis.json
