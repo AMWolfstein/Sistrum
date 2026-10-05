@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Final gate for a delegated task: scope check, unit tests, build, optional instrumented classes,
-# graph refresh. Prints only summaries and failures; full logs stay in the log directory it prints.
+# graph refresh (only for source changes in the graph scope). Prints only summaries and failures; full logs stay in the log directory it prints.
 #
 # Usage: verify.sh --files '<path> <path> ...' [--tests '<gradle --tests filter>']... [--lint]
 #                  [--instrumented <FQCN>[,<FQCN>...]] [--expect-fail <FQCN>[,<FQCN>...]]
@@ -203,10 +203,11 @@ if [ -n "$instrumented" ]; then
   fi
 fi
 
-# Graph refresh (CLAUDE.md "Graph updates")
+# Graph refresh (CLAUDE.md "Graph updates"): only when source code in the graph scope changed; a refresh
+# that only rewrites built_at_commit is reset to HEAD (.claude/hooks/graph_refresh.py).
 if command -v graphify >/dev/null; then
-  if graphify extract androidApp/src/main --code-only --out . > "$logs/graphify.log" 2>&1; then
-    report "graph" PASS "$(grep -o '[0-9]* nodes, [0-9]* edges' "$logs/graphify.log" | tail -1)"
+  if python3 .claude/hooks/graph_refresh.py auto > "$logs/graphify.log" 2>&1; then
+    report "graph" PASS "$(tail -1 "$logs/graphify.log" | sed 's/^graph: //')"
   else
     report "graph" FAIL "see $logs/graphify.log"
   fi

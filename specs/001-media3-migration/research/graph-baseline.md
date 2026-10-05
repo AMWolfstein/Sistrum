@@ -68,7 +68,7 @@ service, the controller and the UI. `GlobalDspConfig` is shared by EqualizerPref
 
 ## Notes for later phases
 
-- After each task, refresh with `graphify extract androidApp/src/main --code-only --out .` and compare
+- After each task, refresh with `python3 .claude/hooks/graph_refresh.py auto` (scope since 2026-10-05: main + test code and sharedLogic, `.graphifyignore`) and compare
   degrees of PlaybackService/FfmpegDecoder: the service's degree should drop as engine calls move behind
   the abstraction, and `FfmpegDecoder` should end up with a single dependant (`LegacyNativeEngine`).
 - Name clash: the native struct is already called `PlaybackEngine` (cpp:86). A Kotlin interface with the

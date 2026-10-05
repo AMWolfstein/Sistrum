@@ -2,8 +2,10 @@
 """Claude Code PreToolUse hooks for Bash commands in this repo.
 
   git_hooks.py guard  Block git commands the workflow forbids (see CLAUDE.md "Workflow").
-  git_hooks.py graph  Before `git commit` with changed app code, refresh the Graphify graph
-                      and require the refreshed graph files to be staged in the same commit.
+  git_hooks.py graph  Before `git commit` with changed source code in the graph scope (graph_refresh.py),
+                      refresh the Graphify graph and require the refreshed graph files to be staged in
+                      the same commit. A refresh that only changes `built_at_commit` resets the graph
+                      files to HEAD instead, so nothing is staged.
 
 Input: the hook JSON on stdin (tool_input.command, cwd). A block exits with code 2 and a
 message on stderr, which Claude Code shows to the model. Anything unparsable is allowed.
@@ -16,10 +18,9 @@ import shutil
 import subprocess
 import sys
 
-GRAPH_FILES = ["graphify-out/graph.json", "graphify-out/.graphify_analysis.json"]
-GRAPH_SOURCE = "androidApp/src/main"
-GRAPH_CODE_EXTENSIONS = (".kt", ".kts", ".java", ".c", ".cc", ".cpp", ".h", ".hpp")
-GRAPH_REFRESH = ["graphify", "extract", GRAPH_SOURCE, "--code-only", "--out", "."]
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import graph_refresh  # noqa: E402  (scope + refresh shared with verify.sh)
+
 OPERATORS = {";", "&&", "||", "|", "&", "\n"}
 HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n.*?\n\s*\2\s*(?:\n|$)", re.S)
 
@@ -99,24 +100,24 @@ def graph(command, cwd):
     root = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=cwd, capture_output=True, text=True).stdout.strip()
     if not root:
         return
-    status = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all", "--", GRAPH_SOURCE],
-                            cwd=root, capture_output=True, text=True).stdout
-    changed = [line[3:] for line in status.splitlines() if line[3:].endswith(GRAPH_CODE_EXTENSIONS)]
-    if not changed:
-        return
+    if not graph_refresh.needs_refresh(root):
+        return  # docs, specs, scripts etc. never refresh the graph
     if shutil.which("graphify") is None:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "additionalContext":
               "graphify is not installed, so the graph could not be refreshed for this commit."}}))
         return
-    refresh = subprocess.run(GRAPH_REFRESH, cwd=root, capture_output=True, text=True, timeout=110)
-    if refresh.returncode != 0:
-        block("Blocked: graph refresh failed (`" + " ".join(GRAPH_REFRESH) + "`):\n" + refresh.stderr[-800:])
+    try:
+        changed, _ = graph_refresh.refresh(root)
+    except (RuntimeError, subprocess.TimeoutExpired) as error:
+        block(f"Blocked: graph refresh failed: {error}")
+    if not changed:
+        return
     added = {a for args in git_segments(command) if args[0] == "add" for a in args[1:]}
-    stale = [f for f in GRAPH_FILES
+    stale = [f for f in graph_refresh.GRAPH_FILES
              if subprocess.run(["git", "diff", "--quiet", "--", f], cwd=root).returncode != 0 and f not in added]
     if stale:
-        block("Blocked: app code changed, so the Graphify graph was refreshed. Stage it by path in this "
-              "commit and commit again:\n  git add " + " ".join(stale))
+        block("Blocked: source code in the graph scope changed, so the Graphify graph was refreshed. Stage it "
+              "by path in this commit and commit again:\n  git add " + " ".join(stale))
 
 
 def main():

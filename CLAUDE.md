@@ -45,7 +45,7 @@ device (constitution Principle 10).
 - The repo has no .gitignore; build outputs are ignored through `.git/info/exclude`.
   Stage files by explicit path only.
 - Graphify: only `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json` are
-  tracked. Everything else in `graphify-out/` (cache/, manifest.json, .graphify_root, lock
+  tracked. Everything else in `graphify-out/` (build/, cache/, manifest.json, .graphify_root, lock
   and temp files) is machine-local and never committed.
 
 ## Playback
@@ -205,13 +205,24 @@ or when legacy code is deleted. Never commits.
 ## Graph updates
 
 - The Graphify graph lives in the repo and must match the code at every commit.
-- After a task passes verification and before committing, refresh the graph with
-  exactly: `graphify extract androidApp/src/main --code-only --out .`
-  (incremental, code-only, no LLM). Do NOT use `graphify update .` (widens the graph
-  to the whole repo) or `graphify update` without a path (writes a second graph into
-  `androidApp/src/main/graphify-out/`). Stage `graphify-out/graph.json` and
-  `graphify-out/.graphify_analysis.json` by explicit path, in the same commit as the
-  task's files.
+- Scope: source code in `androidApp/src/main`, `androidApp/src/test`, `androidApp/src/androidTest`
+  and `sharedLogic/src` (main and test code; node `source_file`s are repo-relative, so
+  `androidApp/src/test/…` and `sharedLogic/src/commonTest/…` mark test code). The repo-root
+  `.graphifyignore` (allowlist) excludes everything else: docs, specs, scripts, tools, resources,
+  `jniLibs`, build outputs and generated code. Scope list duplicated in `.claude/hooks/graph_refresh.py`;
+  change both together.
+- Refresh with exactly `python3 .claude/hooks/graph_refresh.py auto` (no LLM, ~7–8 s). It refreshes only
+  when a source file in the scope (or `.graphifyignore`) differs from HEAD; docs/specs/scripts never
+  trigger it. It runs `graphify extract . --code-only --out graphify-out/build` after deleting that build
+  dir's previous graph (extract otherwise "heals" from the old graph.json and never prunes external stub
+  nodes, so in-place refreshes drift), keeps the AST cache warm there, and copies `graph.json` and
+  `.graphify_analysis.json` into `graphify-out/`. Same sources → same graph.
+  If the refreshed graph equals HEAD's except the top-level `built_at_commit` field (graphify writes
+  the current HEAD there on every run), it resets both graph files to HEAD so nothing is staged.
+  `verify.sh` and the commit hook both call it. Do NOT use `graphify update` (with or without a path)
+  or `graphify extract androidApp/src/main` (the old, narrower scope).
+- When it reports `graph: changed`, stage `graphify-out/graph.json` and
+  `graphify-out/.graphify_analysis.json` by explicit path, in the same commit as the task's files.
 - Never commit Graphify's cache. Never hand-edit graph files.
 - Don't review graph diffs line by line; they are generated. The `.gitattributes`
   entry marks them as generated so diffs stay collapsed.
