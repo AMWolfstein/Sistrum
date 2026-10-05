@@ -22,7 +22,6 @@ import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
-import java.io.File
 import java.util.UUID
 import android.util.LruCache
 import kotlinx.coroutines.CompletableDeferred
@@ -53,6 +52,10 @@ import me.misa198.airmedy.device.DeviceIdentity
 import me.misa198.airmedy.mood.MoodRadioBatchSize
 import me.misa198.airmedy.mood.MoodRadioRefillThreshold
 import me.misa198.airmedy.mood.selectMoodRadio
+import me.misa198.airmedy.player.engine.EngineEvent
+import me.misa198.airmedy.player.engine.EngineFactory
+import me.misa198.airmedy.player.engine.ItemGain
+import me.misa198.airmedy.player.engine.PlayerEngine
 
 /** Owns Android transport; queue semantics are delegated to sharedLogic. */
 class PlaybackService : Service() {
@@ -61,8 +64,10 @@ class PlaybackService : Service() {
     private val restored = CompletableDeferred<Unit>()
     private lateinit var restoreJob: Job
     private val queue = PlaybackQueue()
-    private var decoder: FfmpegDecoder? = null
+    private var engine: PlayerEngine? = null
     private var preloadedItem: PlaybackItem? = null
+    private var outputDisconnected = false
+    private var endedPending = false
     private lateinit var sessionStore: PlaybackSessionStore
     private lateinit var playbackPreferences: PlaybackPreferences
     private lateinit var equalizerPreferences: EqualizerPreferences
@@ -122,7 +127,7 @@ class PlaybackService : Service() {
                     if (!settings.blendArtworkDuringCrossfade) clearArtworkCrossfade()
                     // A preference update must never change a fade already
                     // running, but it does refresh the idle source afterward.
-                    if (decoder?.isCrossfading() != true) preloadNext()
+                    if (engine?.isCrossfading() != true) preloadNext()
                 }
             }
         }
@@ -130,7 +135,7 @@ class PlaybackService : Service() {
             equalizerPreferences.settings.collectLatest { settings ->
                 commandMutex.withLock {
                     equalizerSettings = settings
-                    decoder?.setGlobalDspConfig(equalizerDspConfig(settings))
+                    engine?.setDsp(settings)
                 }
             }
         }
@@ -209,14 +214,15 @@ class PlaybackService : Service() {
                     if (playing != null) enqueueListening(listeningTracker.tick(
                         playing.positionMs, playing.durationMs, System.currentTimeMillis(), SystemClock.elapsedRealtime(),
                     ))
-                    consumeNativeTransition()
-                    if (listeningFadeOutgoing != null && decoder?.isCrossfading() != true) finishListeningCrossfade()
-                    if (decoder?.isCrossfading() != true) clearArtworkCrossfade()
-                    if (audioOutputDisconnectRequiresRecovery(decoder?.isOutputDisconnected() == true)) {
+                    pollEngineEvents()
+                    if (listeningFadeOutgoing != null && engine?.isCrossfading() != true) finishListeningCrossfade()
+                    if (engine?.isCrossfading() != true) clearArtworkCrossfade()
+                    if (audioOutputDisconnectRequiresRecovery(outputDisconnected)) {
                         recoverAfterOutputDisconnect()
                     } else if (maybeStartCrossfade()) {
-                        consumeNativeTransition()
-                    } else if (decoder?.isFinished() == true && state.value is PlaybackState.Playing) {
+                        pollEngineEvents()
+                    } else if (endedPending && state.value is PlaybackState.Playing) {
+                        endedPending = false
                         handleTransition(queue.next(), PlaybackEndReason.COMPLETED)
                         publishQueue()
                     }
@@ -224,7 +230,7 @@ class PlaybackService : Service() {
                     // A crossfade occupies both native source slots. Once its
                     // callback retires the outgoing item, populate that slot
                     // with the queue's new immediate successor.
-                    if (canPreloadNext(decoder?.isCrossfading() == true)) preloadNext()
+                    if (canPreloadNext(engine?.isCrossfading() == true)) preloadNext()
                 }
             }
         }
@@ -278,7 +284,9 @@ class PlaybackService : Service() {
             withTimeoutOrNull(2_000) { listeningWriter.join() }
         }
         runBlocking { sessionStore.save(currentSession()) }
-        decoder?.close()
+        engine?.close()
+        outputDisconnected = false
+        endedPending = false
         preferencesJob?.cancel()
         moodRadioJob?.cancel()
         unregisterReceiver(noisyAudioReceiver)
@@ -301,7 +309,7 @@ class PlaybackService : Service() {
     ) = scope.launch {
         restored.await()
         commandMutex.withLock {
-            consumeNativeTransition()
+            pollEngineEvents()
             Log.d(PlaybackLogTag, "Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
             if (action in MoodRadioStoppingActions) stopMoodRadio()
             when (action) {
@@ -325,7 +333,7 @@ class PlaybackService : Service() {
                 ActionClearQueue -> handleTransition(queue.clear())
                 ActionNext -> handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
                 ActionPrevious -> {
-                    if ((decoder?.positionMs() ?: 0L) > PreviousRestartThresholdMs) seekCurrent(0L)
+                    if ((engine?.positionMs() ?: 0L) > PreviousRestartThresholdMs) seekCurrent(0L)
                     else handleTransition(queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
                 }
                 ActionSeek -> seekCurrent(positionMs)
@@ -341,9 +349,9 @@ class PlaybackService : Service() {
             if (action in PreloadResyncActions) {
                 // The old source must not remain part of a fade whose queued
                 // successor has just changed.
-                if (decoder?.isCrossfading() == true) {
+                if (engine?.isCrossfading() == true) {
                     clearArtworkCrossfade()
-                    decoder?.snapCrossfade()
+                    engine?.snapCrossfade()
                 }
                 preloadNext()
             }
@@ -417,36 +425,36 @@ class PlaybackService : Service() {
         if (audioManager.requestAudioFocus(focusRequest) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) return fail(trackId, "Audio focus was not granted")
         restoreFocusGain()
         try {
-            decoder?.close()
+            engine?.close()
             // A normalization lookup can suspend. Do not leave a closed decoder
             // reachable while a queued session write may read playback state.
-            decoder = null
-            val preparedDecoder = FfmpegDecoder()
+            engine = null
+            outputDisconnected = false
+            endedPending = false
+            val gainDb = normalizationGain(item, queue.peekNext())
+            val preparedEngine = EngineFactory.create()
             try {
-                preparedDecoder.setGlobalDspConfig(equalizerDspConfig(equalizerSettings))
-                preparedDecoder.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-                preparedDecoder.prepare(File(item.audioPath), normalizationGain(item, queue.peekNext()))
-                if (startPositionMs > 0L) preparedDecoder.seekTo(clampSeekPosition(startPositionMs, preparedDecoder.durationMs()))
+                preparedEngine.setDsp(equalizerSettings)
+                preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
+                preparedEngine.prepare(item, ItemGain(gainDb), startPositionMs, startPaused)
                 if (startPaused) {
-                    preparedDecoder.pause()
-                    state.value = PlaybackState.Paused(item, preparedDecoder.positionMs(), preparedDecoder.durationMs())
-                    publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, preparedDecoder.positionMs(), preparedDecoder.durationMs())
+                    state.value = PlaybackState.Paused(item, preparedEngine.positionMs(), preparedEngine.durationMs())
+                    publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, preparedEngine.positionMs(), preparedEngine.durationMs())
                 } else {
-                    preparedDecoder.play()
-                    state.value = PlaybackState.Playing(item, preparedDecoder.positionMs(), preparedDecoder.durationMs())
-                    publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PLAYING, preparedDecoder.positionMs(), preparedDecoder.durationMs())
+                    state.value = PlaybackState.Playing(item, preparedEngine.positionMs(), preparedEngine.durationMs())
+                    publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PLAYING, preparedEngine.positionMs(), preparedEngine.durationMs())
                 }
-                decoder = preparedDecoder
-                lastFm.startPlayback(item.trackId, preparedDecoder.positionMs())
-                if (!startPaused && startTracking) enqueueListening(listeningTracker.start(item.trackId, preparedDecoder.positionMs(), System.currentTimeMillis(), SystemClock.elapsedRealtime()))
+                engine = preparedEngine
+                lastFm.startPlayback(item.trackId, preparedEngine.positionMs())
+                if (!startPaused && startTracking) enqueueListening(listeningTracker.start(item.trackId, preparedEngine.positionMs(), System.currentTimeMillis(), SystemClock.elapsedRealtime()))
                 if (!startPaused && !startTracking) listeningTracker.resumeAfterInterruption(SystemClock.elapsedRealtime())
             } catch (error: Throwable) {
-                preparedDecoder.close()
+                preparedEngine.close()
                 throw error
             }
             preloadNext()
             showForeground(item)
-            Log.d(PlaybackLogTag, "Playback started id=$trackId durationMs=${decoder?.durationMs()}")
+            Log.d(PlaybackLogTag, "Playback started id=$trackId durationMs=${engine?.durationMs()}")
         } catch (error: Throwable) {
             fail(trackId, error.message ?: "Unable to decode audio")
         }
@@ -460,22 +468,24 @@ class PlaybackService : Service() {
         // Publish the retained item before FFmpeg opens it, so Compose can mount the mini player.
         state.value = PlaybackState.Paused(item, savedPositionMs.coerceAtLeast(0L), durationMs = 0L)
         try {
-            decoder?.close()
-            decoder = FfmpegDecoder().also {
-                it.setGlobalDspConfig(equalizerDspConfig(equalizerSettings))
-                it.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-                it.prepare(File(item.audioPath), normalizationGain(item, queue.peekNext()))
-                val positionMs = clampSeekPosition(savedPositionMs, it.durationMs())
-                if (positionMs > 0L) it.seekTo(positionMs)
-                it.pause()
-                state.value = PlaybackState.Paused(item, positionMs, it.durationMs())
-                publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, positionMs, it.durationMs())
-                lastFm.startPlayback(item.trackId, positionMs)
-            }
+            engine?.close()
+            engine = null
+            outputDisconnected = false
+            endedPending = false
+            val gain = normalizationGain(item, queue.peekNext())
+            val preparedEngine = EngineFactory.create()
+            preparedEngine.setDsp(equalizerSettings)
+            preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
+            preparedEngine.prepare(item, ItemGain(gain), savedPositionMs, startPaused = true)
+            val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
+            engine = preparedEngine
+            state.value = PlaybackState.Paused(item, positionMs, preparedEngine.durationMs())
+            publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, positionMs, preparedEngine.durationMs())
+            lastFm.startPlayback(item.trackId, positionMs)
             preloadNext()
             showForeground(item)
             publishQueue()
-            Log.d(PlaybackLogTag, "Restored paused playback id=$trackId positionMs=${decoder?.positionMs()}")
+            Log.d(PlaybackLogTag, "Restored paused playback id=$trackId positionMs=${engine?.positionMs()}")
         } catch (error: Throwable) {
             Log.w(PlaybackLogTag, "Unable to restore playback id=$trackId; clearing session", error)
             clearRestoredSession()
@@ -485,10 +495,10 @@ class PlaybackService : Service() {
     private fun pauseCurrent() {
         finishListeningCrossfade()
         clearArtworkCrossfade()
-        decoder?.pause()
+        engine?.pause()
         enqueueListening(listeningTracker.pause(System.currentTimeMillis(), SystemClock.elapsedRealtime()))
         (state.value as? PlaybackState.Playing)?.let { current ->
-            val positionMs = decoder?.positionMs() ?: current.positionMs
+            val positionMs = engine?.positionMs() ?: current.positionMs
             state.value = PlaybackState.Paused(current.item, positionMs, current.durationMs)
             publishNowPlaying(current.item, AndroidMediaPlaybackState.STATE_PAUSED, positionMs, current.durationMs)
         }
@@ -503,12 +513,12 @@ class PlaybackService : Service() {
 
     private fun duckForFocusLoss() {
         isDucked = true
-        decoder?.setFocusGain(DuckedFocusGain)
+        engine?.setFocusGain(DuckedFocusGain)
     }
 
     private fun restoreFocusGain() {
         isDucked = false
-        decoder?.setFocusGain(1f)
+        engine?.setFocusGain(1f)
     }
 
     private suspend fun restoreAfterFocusGain() {
@@ -520,15 +530,17 @@ class PlaybackService : Service() {
 
     private suspend fun resumeCurrent() {
         val paused = state.value as? PlaybackState.Paused
-        val currentDecoder = decoder
-        if (paused != null && shouldRestartQueueOnResume(paused.positionMs, paused.durationMs, currentDecoder != null)) {
+        val currentEngine = engine
+        if (paused != null && shouldRestartQueueOnResume(paused.positionMs, paused.durationMs, currentEngine != null)) {
             handleTransition(queue.restart())
             return
         }
-        if (paused == null || currentDecoder == null || currentDecoder.isOutputDisconnected()) {
-            if (currentDecoder?.isOutputDisconnected() == true) {
-                currentDecoder.close()
-                decoder = null
+        if (paused == null || currentEngine == null || outputDisconnected) {
+            if (outputDisconnected) {
+                currentEngine?.close()
+                engine = null
+                outputDisconnected = false
+                endedPending = false
             }
             playCurrent(paused?.positionMs ?: 0L)
             return
@@ -538,8 +550,8 @@ class PlaybackService : Service() {
             return
         }
         restoreFocusGain()
-        currentDecoder.play()
-        val positionMs = currentDecoder.positionMs()
+        currentEngine.play()
+        val positionMs = currentEngine.positionMs()
         if (listeningTracker.activeTrackId == paused.item.trackId) {
             listeningTracker.resume(System.currentTimeMillis(), SystemClock.elapsedRealtime())
         } else {
@@ -559,10 +571,12 @@ class PlaybackService : Service() {
      */
     private suspend fun recoverAfterOutputDisconnect() {
         val current = state.value as? PlaybackState.Playing ?: return
-        val positionMs = decoder?.positionMs() ?: current.positionMs
+        val positionMs = engine?.positionMs() ?: current.positionMs
         listeningTracker.suspendForInterruption(SystemClock.elapsedRealtime())
-        decoder?.close()
-        decoder = null
+        engine?.close()
+        engine = null
+        outputDisconnected = false
+        endedPending = false
         Log.w(PlaybackLogTag, "Audio output changed; recreating stream id=${current.item.trackId} positionMs=$positionMs")
         playCurrent(positionMs, startTracking = false)
     }
@@ -588,7 +602,8 @@ class PlaybackService : Service() {
         val targetPositionMs = clampSeekPosition(requestedPositionMs, durationMs)
         finishListeningCrossfade()
         clearArtworkCrossfade()
-        decoder?.seekTo(targetPositionMs) ?: return
+        engine?.seekTo(targetPositionMs) ?: return
+        endedPending = false
         lastFm.seek(targetPositionMs)
         if (playing) {
             state.value = PlaybackState.Playing(item, targetPositionMs, durationMs)
@@ -604,8 +619,10 @@ class PlaybackService : Service() {
         finishListeningCrossfade()
         enqueueListening(listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
         clearArtworkCrossfade()
-        decoder?.snapCrossfade()
-        decoder?.close(); decoder = null; preloadedItem = null
+        engine?.snapCrossfade()
+        engine?.close(); engine = null; preloadedItem = null
+        outputDisconnected = false
+        endedPending = false
         audioManager.abandonAudioFocusRequest(focusRequest)
         state.value = PlaybackState.Idle
         mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_STOPPED, 0L))
@@ -631,8 +648,10 @@ class PlaybackService : Service() {
         }
         enqueueListening(listeningTracker.finish(reason, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
         clearArtworkCrossfade()
-        decoder?.snapCrossfade()
-        decoder?.close(); decoder = null
+        engine?.snapCrossfade()
+        engine?.close(); engine = null
+        outputDisconnected = false
+        endedPending = false
         audioManager.abandonAudioFocusRequest(focusRequest)
         val positionMs = stoppedCurrentPosition(reason, durationMs)
         state.value = PlaybackState.Paused(item, positionMs, durationMs)
@@ -646,7 +665,9 @@ class PlaybackService : Service() {
         finishListeningCrossfade()
         enqueueListening(listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
         clearArtworkCrossfade()
-        decoder?.close(); decoder = null; preloadedItem = null
+        engine?.close(); engine = null; preloadedItem = null
+        outputDisconnected = false
+        endedPending = false
         state.value = PlaybackState.Failed(trackId, reason)
         mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_ERROR, 0L))
         mediaSession.isActive = false
@@ -679,15 +700,17 @@ class PlaybackService : Service() {
 
     private fun currentSession(snapshot: PlaybackQueueSnapshot = queue.snapshot()): PlaybackSession {
         val positionMs = when (val current = state.value) {
-            is PlaybackState.Playing -> decoder?.positionMs() ?: current.positionMs
-            is PlaybackState.Paused -> decoder?.positionMs() ?: current.positionMs
+            is PlaybackState.Playing -> engine?.positionMs() ?: current.positionMs
+            is PlaybackState.Paused -> engine?.positionMs() ?: current.positionMs
             else -> 0L
         }
         return PlaybackSession(snapshot, positionMs.coerceAtLeast(0L))
     }
 
     private suspend fun clearRestoredSession() {
-        decoder?.close(); decoder = null; preloadedItem = null
+        engine?.close(); engine = null; preloadedItem = null
+        outputDisconnected = false
+        endedPending = false
         queue.clear()
         queueState.value = queue.snapshot()
         mediaSession.setQueue(emptyList())
@@ -701,12 +724,12 @@ class PlaybackService : Service() {
     /** Keep native idle slot aligned with the queue's immediate next item. */
     private suspend fun preloadNext() {
         val nextId = queue.peekNext()
-        val currentDecoder = decoder ?: return
-        if (nextId == preloadedItem?.trackId && currentDecoder.hasPreloaded()) return
-        currentDecoder.clearPreloaded()
+        val currentEngine = engine ?: return
+        if (nextId == preloadedItem?.trackId && currentEngine.hasPreloaded()) return
+        currentEngine.clearPreloaded()
         preloadedItem = nextId?.let { id -> AndroidPlaybackRuntime.controller().resolve(id) }
         preloadedItem?.let { item ->
-            runCatching { currentDecoder.preload(File(item.audioPath), normalizationGain(item, queue.peekNext())) }
+            runCatching { currentEngine.preloadNext(item, ItemGain(normalizationGain(item, queue.peekNext()))); currentEngine.hasPreloaded() }
                 .onSuccess { loaded ->
                     if (!loaded) preloadedItem = null
                 }
@@ -718,19 +741,36 @@ class PlaybackService : Service() {
     }
 
     /** Native promotes audio first; this service transaction promotes queue/UI metadata. */
-    private suspend fun consumeNativeTransition() {
-        val transition = decoder?.consumeTransition() ?: return
-        val incoming = preloadedItem ?: return
+    private suspend fun pollEngineEvents() {
+        val events = engine?.pollEvents() ?: return
+        for (event in events) {
+            when (event) {
+                is EngineEvent.GaplessAdvanced -> consumeEngineTransition(event)
+                is EngineEvent.TransitionStarted -> consumeEngineTransition(event)
+                EngineEvent.OutputDisconnected -> outputDisconnected = true
+                EngineEvent.Ended -> endedPending = true
+                is EngineEvent.Error -> Unit // handled in T032
+            }
+        }
+    }
+
+    private suspend fun consumeEngineTransition(event: EngineEvent) {
+        if (preloadedItem == null) return
+        val incoming = when (event) {
+            is EngineEvent.GaplessAdvanced -> event.incoming
+            is EngineEvent.TransitionStarted -> event.incoming
+            else -> return
+        }
         val queueTransition = queue.next()
         if (queueTransition !is QueueTransition.Play || queueTransition.trackId != incoming.trackId) {
             fail(incoming.trackId, "Native transition no longer matches the playback queue")
             return
         }
         preloadedItem = null
-        val currentDecoder = decoder ?: return
-        val positionMs = currentDecoder.positionMs()
-        val durationMs = currentDecoder.durationMs()
-        if (transition == NativeTransition.CrossfadeStarted) {
+        val currentEngine = engine ?: return
+        val positionMs = currentEngine.positionMs()
+        val durationMs = currentEngine.durationMs()
+        if (event is EngineEvent.TransitionStarted) {
             listeningFadeOutgoing = (state.value as? PlaybackState.Playing)?.item?.trackId
             listeningFadeStartedAt = System.currentTimeMillis()
             listeningFadeStartedElapsed = SystemClock.elapsedRealtime()
@@ -745,9 +785,9 @@ class PlaybackService : Service() {
         // During a crossfade both native slots are live (incoming + outgoing).
         // Loading i+2 here would reuse the outgoing slot and cut i off instead
         // of letting it fade out. The ticker reloads after the fade completes.
-        if (canPreloadNext(currentDecoder.isCrossfading())) preloadNext()
+        if (canPreloadNext(currentEngine.isCrossfading())) preloadNext()
         publishQueue()
-        Log.d(PlaybackLogTag, "Consumed native transition=$transition id=${incoming.trackId}")
+        Log.d(PlaybackLogTag, "Consumed native transition=$event id=${incoming.trackId}")
     }
 
     private suspend fun normalizationGain(item: PlaybackItem, nextId: String?): Float {
@@ -773,28 +813,27 @@ class PlaybackService : Service() {
             else -> null
         } ?: return
         val nextId = queue.peekNext()
-        decoder?.setNormalizationGains(normalizationGain(current, nextId), preloadedItem?.let { normalizationGain(it, queue.peekNext()) } ?: 0f)
+        engine?.setGains(ItemGain(normalizationGain(current, nextId)), preloadedItem?.let { ItemGain(normalizationGain(it, queue.peekNext())) })
     }
 
     private fun maybeStartCrossfade(): Boolean {
         val current = state.value as? PlaybackState.Playing ?: return false
-        val currentDecoder = decoder ?: return false
+        val currentEngine = engine ?: return false
         val incoming = preloadedItem ?: return false
-        if (currentDecoder.isCrossfading()) return false
+        if (currentEngine.isCrossfading()) return false
         if (!shouldStartCrossfade(
                 crossfadeSeconds = crossfadeSeconds.value,
-                positionMs = currentDecoder.positionMs(),
+                positionMs = currentEngine.positionMs(),
                 durationMs = current.durationMs,
-                hasPreloadedNext = preloadedItem != null && currentDecoder.hasPreloaded(),
+                hasPreloadedNext = preloadedItem != null && currentEngine.hasPreloaded(),
             )
         ) return false
         val effectiveDurationMs = crossfadeDurationMs(
             crossfadeSeconds = crossfadeSeconds.value,
-            positionMs = currentDecoder.positionMs(),
+            positionMs = currentEngine.positionMs(),
             durationMs = current.durationMs,
         )
-        currentDecoder.beginCrossfade(effectiveDurationMs)
-        if (currentDecoder.isCrossfading()) {
+        if (currentEngine.beginCrossfade(effectiveDurationMs)) {
             nextArtworkCrossfadeId += 1
             artworkCrossfade.value = ArtworkCrossfadeTransition(
                 id = nextArtworkCrossfadeId,
@@ -855,10 +894,10 @@ class PlaybackService : Service() {
     private fun updateNowPlayingTransportState() {
         when (val current = state.value) {
             is PlaybackState.Playing -> mediaSession.setPlaybackState(
-                androidPlaybackState(AndroidMediaPlaybackState.STATE_PLAYING, decoder?.positionMs() ?: current.positionMs),
+                androidPlaybackState(AndroidMediaPlaybackState.STATE_PLAYING, engine?.positionMs() ?: current.positionMs),
             )
             is PlaybackState.Paused -> mediaSession.setPlaybackState(
-                androidPlaybackState(AndroidMediaPlaybackState.STATE_PAUSED, decoder?.positionMs() ?: current.positionMs),
+                androidPlaybackState(AndroidMediaPlaybackState.STATE_PAUSED, engine?.positionMs() ?: current.positionMs),
             )
             else -> Unit
         }
@@ -866,7 +905,7 @@ class PlaybackService : Service() {
 
     private fun refreshPlaybackPosition() {
         val current = state.value as? PlaybackState.Playing ?: return
-        val positionMs = decoder?.positionMs()?.let { clampSeekPosition(it, current.durationMs) } ?: return
+        val positionMs = engine?.positionMs()?.let { clampSeekPosition(it, current.durationMs) } ?: return
         if (positionMs == current.positionMs) return
         state.value = current.copy(positionMs = positionMs)
         mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_PLAYING, positionMs))

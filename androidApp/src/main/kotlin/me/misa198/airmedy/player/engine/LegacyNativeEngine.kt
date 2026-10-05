@@ -88,7 +88,7 @@ internal class LegacyNativeEngine(
     private val pendingEvents = ArrayDeque<EngineEvent>()
 
     /** Drains native state and returns every buffered event exactly once, in order. */
-    fun pollEvents(): List<EngineEvent> {
+    override fun pollEvents(): List<EngineEvent> {
         drain()
         port?.let { current ->
             val disconnected = current.isOutputDisconnected()

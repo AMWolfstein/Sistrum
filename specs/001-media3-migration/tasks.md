@@ -210,7 +210,7 @@ owner parity pass on `.qa`.
     order; two transitions within one poll interval → two events; no event twice); `GATE`. migration-guard.
   - Accept: `FfmpegDecoder.kt` and native code untouched (`git diff --stat`).
 
-- [ ] T011 [US1] Route `A/player/PlaybackService.kt` through `PlayerEngine` with `A/player/engine/EngineFactory.kt` (always native for now) {hard} [HIGH-RISK]
+- [x] T011 [US1] Route `A/player/PlaybackService.kt` through `PlayerEngine` with `A/player/engine/EngineFactory.kt` (always native for now); `pollEvents()` moves onto the interface in `A/player/engine/PlayerEngine.kt` / `A/player/engine/LegacyNativeEngine.kt` (contract refinement) {hard} [HIGH-RISK]
   - Do: replace every direct `FfmpegDecoder` use (`decoder` field, `FfmpegDecoder()` at prepare/restore,
     `consumeNativeTransition`) by `PlayerEngine` calls; behaviour identical, including timing of the 200 ms ticker.
   - Tests: `GATE` (T008 + all existing tests unmodified); `graphify query "who depends on FfmpegDecoder"` shows only

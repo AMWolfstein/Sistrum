@@ -285,6 +285,7 @@ Do these when convenient; Claude never marks them PASS.
 | T008 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T008/brief-1.md` (session `ses_ef293bccafferManCrqv1f4aqD`) | run-1 accepted; 36 tests; migration-guard PASS; gate PASS (full suites, build). **Review rounds: 0** | DONE |
 | T009 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T009/brief-1.md` (session `ses_ef2917293ffeKez148R4f8hPKD`) | run-1 accepted; signatures match `contracts/player-engine.md`; gate PASS. **Review rounds: 0** | DONE |
 | T010 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T010/brief-1.md`, `brief-2.md` (session `ses_ef27e7545ffevjrOgyBMR1N1jq`) | run-1: migration-guard NEEDS CHANGES (4 weak test cases + engine bug: buffered events dropped after a failed prepare); round 1 fixed all; migration-guard PASS; gate PASS (437 tests). **Review rounds: 1** | DONE |
+| T011 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T011/brief-1.md` (session `ses_ef2715228ffeh9OyRSlYEVslh3`) | run-1 accepted after line-by-line review; gate PASS (unit, build, lint 71 = MissingTranslation only); only `LegacyNativeEngine` depends on `FfmpegDecoder`. Contract refinement: `pollEvents()` on `PlayerEngine` (contracts/player-engine.md). Reviewed differences, none regressions: `restoreCurrent` no longer leaks a decoder on failure nor exposes a closed decoder to `onDestroy`'s `currentSession()`; the end of track is read at the tick's poll (an end in the few ms between poll and the chain is handled one tick later, ≤200 ms); log text interpolates the EngineEvent. **Review rounds: 0** | DONE |
 
 ### Notes for T011 (switching PlaybackService to the engine)
 
@@ -301,4 +302,4 @@ Do these when convenient; Claude never marks them PASS.
 
 ## Exact next step
 
-M2: `/delegate-task T011` (route PlaybackService through PlayerEngine; hard, deepseek-v4-pro). Read "Notes for T011" first.
+M2: `/delegate-task T012` (extract PlaybackCoordinator; hard).

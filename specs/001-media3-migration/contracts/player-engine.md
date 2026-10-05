@@ -7,6 +7,7 @@ command consumer (FR-081); implementations are not required to be thread-safe be
 interface PlayerEngine : Closeable {
     val kind: EngineKind                       // Native | Media3
     val events: Flow<EngineEvent>
+    fun pollEvents(): List<EngineEvent>        // synchronous drain on the command consumer (refined at T011)
 
     suspend fun prepare(item: PlaybackItem, gain: ItemGain, startPositionMs: Long, startPaused: Boolean)
     suspend fun preloadNext(item: PlaybackItem, gain: ItemGain)   // gapless candidate; Media3 may defer B (ADR-003)
@@ -36,6 +37,13 @@ sealed interface EngineEvent {
 ```
 
 Rules:
+- `pollEvents()` (refinement 2026-10-05, T011; ADR-001 "events on the service ticker"): the service's single
+  command consumer drains buffered events synchronously, in order, each exactly once, so transitions are
+  handled inside the command lock as today. An implementation never delivers the same event through both
+  `pollEvents()` and `events`. `LegacyNativeEngine`: everything via `pollEvents()`, `events` empty. Media3
+  (T018+) decides whether its events also go through `pollEvents()` (preferred: one path) — amend here then.
+- `Ended` and `OutputDisconnected` are edge events (once per occurrence, re-armed by `prepare`); the service keeps
+  its own pending flags where it needs today's level checks.
 - Exactly one `TransitionStarted` or `GaplessAdvanced` per automatic advance, in order (FR-089).
 - `prepare` failure throws after releasing anything it created (FR-086); "playing" only after output started
   (FR-090).

@@ -39,6 +39,12 @@ internal interface PlayerEngine : Closeable {
     val events: Flow<EngineEvent>
 
     /**
+     * Drains buffered events synchronously on the command consumer, in order, each exactly once (FR-089).
+     * An implementation never delivers the same event through both [pollEvents] and [events].
+     */
+    fun pollEvents(): List<EngineEvent>
+
+    /**
      * Opens [item] as the current source. Throws after releasing anything it
      * created on failure (FR-086).
      */
