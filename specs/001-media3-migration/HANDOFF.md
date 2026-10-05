@@ -315,6 +315,27 @@ Do these when convenient; Claude never marks them PASS.
   `scrobble.startPlayback` again, which resets the scrobble tracker; a route change after the threshold can scrobble twice.
 - Proposal: add these to the shared service-path fixes (FR-080…092 group) at M2 approval; owner decides placement.
 
+### T017 — US1 parity pass (MANUAL, owner) — prepared 2026-10-06
+
+Automated part, done: `git diff main -- '**/PlaybackQueue.kt' '**/ListeningTracker.kt'` is empty (SC-010); full unit suites
+green unmodified at every M2 commit (SC-001, US1 sc3; androidApp 507 + sharedLogic 35 tests at `c4ee2b2`).
+`.qa` build of `c4ee2b2` installed on the CPH2307 ("Sistrum QA", `me.misa198.airmedy.dev.qa`). Baseline = the daily app
+(pre-migration code). Use normal volume; nothing here needs max volume. Tick each item or note the difference:
+
+1. [ ] Album gapless, crossfade OFF (Settings → Playback): play a gapless album across 2–3 track joins — no gap/click,
+       same as the daily app. Now-playing, queue highlight and lock screen switch to the next track at the join.
+2. [ ] Crossfade 6 s: let a track end — fade starts ~6 s before the end, sounds like the daily app; artwork blends and the
+       title/queue switch at the START of the fade. Skip/pause during a fade: no stuck double audio.
+3. [ ] EQ on (any preset with obvious bass change): audible, same as the daily app; toggling off restores.
+4. [ ] Focus: start a video in another app → Sistrum QA pauses; a notification sound/navigation prompt → ducks briefly and
+       comes back; a phone call (or voice note) → pauses and resumes after.
+5. [ ] Lock screen / notification: title, artwork, play/pause/next/previous work; ("Unknown artist" is a known issue, US4).
+6. [ ] Statistics: after listening > half of a track, it shows in Stats in the QA app as in the daily app.
+7. [ ] Last.fm (only if you log in to Last.fm in the QA app): now-playing appears and the scrobble arrives once.
+8. [ ] Lyrics sync: synced lyrics follow the song as smoothly as in the daily app.
+Known, not regressions: Volume normalization and Mood Radio are broken on the native engine (fixed on Media3).
+Reply with the ticks, or "T017 ok" if all match; any difference → describe it and I will investigate before M3.
+
 ## Exact next step
 
-M2: T017 is [MANUAL] (owner parity pass on `.qa`); then Checkpoint M2 status report and owner approval.
+M2: waiting for the owner's T017 checklist (above) and Checkpoint M2 approval (incl. where to fix the three coordinator defects). Then M3: `/delegate-task T018`.
