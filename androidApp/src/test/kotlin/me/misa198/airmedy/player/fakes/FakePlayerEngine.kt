@@ -178,11 +178,15 @@ internal class FakeEngineFactory(
     /** Applied to every created engine before it is returned. */
     var emitTransitionOnCrossfade: Boolean = false
 
+    /** Applied to every created engine before it is returned; used to force prepare failures. */
+    var failPrepare: Throwable? = null
+
     val current: FakePlayerEngine get() = created.last()
 
     override fun invoke(): PlayerEngine = FakePlayerEngine(durationFor).also { engine ->
         engine.onPrepare = onPrepare
         engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
+        engine.failPrepare = failPrepare
         created += engine
     }
 }

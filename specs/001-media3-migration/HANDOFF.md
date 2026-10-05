@@ -290,6 +290,7 @@ Do these when convenient; Claude never marks them PASS.
 | T013 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T013/brief-1.md` (session `ses_ef24da0c3ffe9tYahe3ugMjLtf`) | run-1 accepted; dispatch, Mood Radio start/refill/stop, focus pause/restore, command lock and restore gate moved verbatim into the coordinator; substitutions only: `PlaybackService.ActionX` qualified names, `store.*` → `LibraryPort.libraryAnalysisEnabled()/moodRadioTracks()`, `Log.d(tag, …)` → `log.d(…)`, flows via `PlaybackFlows`; `tick()` lost its lambda. Focus action constants now `internal`. Service 483 lines (target ≈450; rest is adapters/notification glue). No android imports in coordinator/ports; gate PASS. **Review rounds: 0** | DONE |
 | T014 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T014/brief-1.md`, `brief-2.md` (session `ses_ef24293edffelHlT6YUM7LjCsQ`) | 27 tests in `PlaybackCoordinatorQueueCharacterizationTest`; reusable `FakePlayerEngine`/`FakeEngineFactory`, fake ports and `PlaybackCoordinatorHarness` in `AT/player/fakes/`. migration-guard NEEDS CHANGES round 1: repeat-One and reorder-preload tests could not detect a regression, several loose matchers, fake `beginCrossfade` ignored the contract's no-preload/fade-running no-op; all fixed in run-2 and checked. Observed: `ActionShuffle` reshuffles and selects the first item (only `ActionSetShuffle` keeps the current track). No production change; gate PASS. **Review rounds: 1** | DONE |
 | T015 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T015/brief-1.md`, `brief-2.md` (session `ses_ef237b962ffe1Una7gG3cmCpB8`) | 19 tests in `PlaybackCoordinatorCrossfadeCharacterizationTest`; fake engine gains opt-in `emitTransitionOnCrossfade` (successful `beginCrossfade` queues `TransitionStarted` and retires the preloaded slot) and a `crossfades` record. migration-guard NEEDS CHANGES round 1: manual next/select tests never ticked, effective-duration fixture coincided with the raw setting, loose `Failed` matcher; fixed in run-2 and checked. Note: the coordinator does not call `snapCrossfade` on pause/seek (native engine handles it); tests do not pin either way. No production change; gate PASS. **Review rounds: 1** | DONE |
+| T016 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T016/brief-1.md`, `brief-2.md` (session `ses_ef228d16cffeUcLVy8wfLdrMnV`) | 24 tests in `PlaybackCoordinatorSessionCharacterizationTest` (restore, restore gate, focus/duck, output recovery, Last.fm, listening finish reasons); harness gains `markRestoredOnInit`, `restore()`, `advance()`; factory `failPrepare`. migration-guard NEEDS CHANGES round 1: three tests pinned spec-contradicting native defects (duck reset on new track, wrong-track restore, Last.fm restart on recovery) — removed/neutralized, defects recorded below; no-split recovery test strengthened; exact matchers. No production change; gate PASS. **Review rounds: 1** | DONE |
 
 ### Notes for T011 (switching PlaybackService to the engine)
 
@@ -304,6 +305,16 @@ Do these when convenient; Claude never marks them PASS.
 - Open design point: add `pollEvents()` to the `PlayerEngine` interface (uniform synchronous drain for Media3
   too) vs. a flow. Decide in T011/T013; contract amendment needed either way.
 
+### Existing coordinator defects found by T016 review (not pinned by tests; fix on the shared path)
+
+- **Duck lost on a new track** (FR-022/FR-035): `playCurrent` calls `restoreFocusGain()` before creating the engine, so a
+  manual next while another app ducks us plays at full volume. Natural fix point: the focus-duck factor of T026/T027.
+- **Restore picks the wrong track** (FR-013): `queueForAvailableTracks` filters ids but keeps `currentIndex`, so a missing
+  track before the current one makes restore select a different track (and apply the saved position to it).
+- **Last.fm re-armed on output recovery** (FR-015, US1 sc6): `recoverAfterOutputDisconnect` → `playCurrent` calls
+  `scrobble.startPlayback` again, which resets the scrobble tracker; a route change after the threshold can scrobble twice.
+- Proposal: add these to the shared service-path fixes (FR-080…092 group) at M2 approval; owner decides placement.
+
 ## Exact next step
 
-M2: `/delegate-task T016` (restore/focus/output-recovery/statistics/Last.fm characterization on the T014 fakes; migration-guard), then T017.
+M2: T017 is [MANUAL] (owner parity pass on `.qa`); then Checkpoint M2 status report and owner approval.

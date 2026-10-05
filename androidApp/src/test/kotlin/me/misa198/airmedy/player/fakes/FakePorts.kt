@@ -199,12 +199,14 @@ internal class FakeResolver : PlaybackItemResolver {
 
 /**
  * Reusable harness wiring a [PlaybackCoordinator] to fake ports, an engine factory and a
- * deterministic queue. Call from inside `runTest`; `markRestored()` is invoked up front.
+ * deterministic queue. Call from inside `runTest`; `markRestored()` is invoked up front
+ * unless [markRestoredOnInit] is false, so restore-gate tests can control it.
  */
 internal class PlaybackCoordinatorHarness(
     private val scope: TestScope,
     val queue: PlaybackQueue = PlaybackQueue(Random(42)),
     durationFor: (PlaybackItem) -> Long = { FakePlayerEngine.DefaultDurationMs },
+    markRestoredOnInit: Boolean = true,
 ) {
     val flows = PlaybackFlows(
         state = MutableStateFlow<PlaybackState>(PlaybackState.Idle),
@@ -250,7 +252,7 @@ internal class PlaybackCoordinatorHarness(
     val engine: FakePlayerEngine get() = engines.current
 
     init {
-        coordinator.markRestored()
+        if (markRestoredOnInit) coordinator.markRestored()
     }
 
     suspend fun send(
@@ -267,6 +269,17 @@ internal class PlaybackCoordinatorHarness(
 
     suspend fun tick() {
         coordinator.tick()
+        scope.testScheduler.advanceUntilIdle()
+    }
+
+    /** Runs the service's restore transaction the way [PlaybackService] does. */
+    suspend fun restore(session: PlaybackSession, availableTrackIds: Set<String>) {
+        coordinator.withCommandLock { coordinator.restoreSaved(session, availableTrackIds) }
+        scope.testScheduler.advanceUntilIdle()
+    }
+
+    /** Runs queued tasks without issuing a command; used by the restore-gate test. */
+    fun advance() {
         scope.testScheduler.advanceUntilIdle()
     }
 }

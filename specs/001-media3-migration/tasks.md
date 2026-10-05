@@ -250,7 +250,7 @@ owner parity pass on `.qa`.
   - Tests: `UT me.misa198.airmedy.player.PlaybackCoordinatorCrossfadeCharacterizationTest`; `GATE`. migration-guard.
   - Accept: green without production changes.
 
-- [ ] T016 [P] [US1] Characterize restore, focus, output recovery, statistics and Last.fm in `AT/player/PlaybackCoordinatorSessionCharacterizationTest.kt` {default}
+- [x] T016 [P] [US1] Characterize restore, focus, output recovery, statistics and Last.fm in `AT/player/PlaybackCoordinatorSessionCharacterizationTest.kt` {default}
   - Do: restore paused at saved position, never auto-plays, drops missing tracks, a new Play cancels restore; focus
     pause / transient pause + resume / duck 0.2 / restore; noisy → pause; output disconnect → recreate at the same
     position without splitting statistics; Last.fm start on every start incl. restore, seek, progress per tick.
