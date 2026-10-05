@@ -194,7 +194,7 @@ owner parity pass on `.qa`.
   - Tests: `UT me.misa198.airmedy.player.PlaybackPolicyCharacterizationTest`; `GATE`. migration-guard.
   - Accept: green on the unchanged production code; no production file in the diff.
 
-- [ ] T009 [P] [US1] Define the seam types in `A/player/engine/PlayerEngine.kt` and `A/player/engine/EngineEvent.kt` per `contracts/player-engine.md` {default}
+- [x] T009 [P] [US1] Define the seam types in `A/player/engine/PlayerEngine.kt` and `A/player/engine/EngineEvent.kt` per `contracts/player-engine.md` {default}
   - Do: `PlayerEngine` (with `setNormalization(settings)`, `ItemGain` native-only, as in the contract), `EngineKind`,
     `EngineEvent` (TransitionStarted, GaplessAdvanced, Ended, OutputDisconnected, Error(provider, format, cause)),
     `ItemGain`. No callers yet.

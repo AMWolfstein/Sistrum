@@ -283,7 +283,8 @@ Do these when convenient; Claude never marks them PASS.
 |---|---|---|---|---|
 | T007 | orchestrator (tooling, no delegation) | — | 5 acceptance cases with throwaway probe classes (assertion → PASS; `IllegalStateException`, `TODO()`, passing → FAIL; assertion class + other failing classes → FAIL) + missing class → FAIL + full-suite path PASS; probes removed. **Review rounds: n/a** | DONE |
 | T008 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T008/brief-1.md` (session `ses_ef293bccafferManCrqv1f4aqD`) | run-1 accepted; 36 tests; migration-guard PASS; gate PASS (full suites, build). **Review rounds: 0** | DONE |
+| T009 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T009/brief-1.md` (session `ses_ef2917293ffeKez148R4f8hPKD`) | run-1 accepted; signatures match `contracts/player-engine.md`; gate PASS. **Review rounds: 0** | DONE |
 
 ## Exact next step
 
-M2: `/delegate-task T009`.
+M2: `/delegate-task T010` (LegacyNativeEngine). Session paused by the owner after T009.
