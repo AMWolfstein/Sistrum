@@ -217,7 +217,7 @@ owner parity pass on `.qa`.
     `LegacyNativeEngine`.
   - Accept: zero behaviour change by review against discovery §2 Q4/Q8; diff limited to the two files.
 
-- [ ] T012 [US1] Extract the playback path into `A/player/PlaybackCoordinator.kt` behind ports in `A/player/PlaybackPorts.kt`; `A/player/PlaybackService.kt` delegates (ADR-001 amendment "Host testability") {hard} [HIGH-RISK]
+- [x] T012 [US1] Extract the playback path into `A/player/PlaybackCoordinator.kt` behind ports in `A/player/PlaybackPorts.kt`; `A/player/PlaybackService.kt` delegates (ADR-001 amendment "Host testability") {hard} [HIGH-RISK]
   - Do: move `playCurrent`, `restoreCurrent`, `preloadNext`, transition handling, `maybeStartCrossfade`, the ticker
     body, pause/resume/seek/stop/fail, listening + Last.fm calls into `PlaybackCoordinator` (plain Kotlin, no Android
     types). Ports: `NowPlayingPort` (session/notification/foreground), `FocusPort`, `ListeningSink`, `ScrobbleSink`,

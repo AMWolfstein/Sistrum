@@ -44,6 +44,7 @@ import kotlinx.coroutines.sync.withLock
 import me.misa198.airmedy.MainActivity
 import me.misa198.airmedy.R
 import me.misa198.airmedy.sync.AndroidSyncRuntime
+import me.misa198.airmedy.sync.LibraryTrack
 import me.misa198.airmedy.sync.decodeArtworkBitmaps
 import me.misa198.airmedy.lastfm.AndroidLastFmRuntime
 import me.misa198.airmedy.lastfm.LastFmService
@@ -52,10 +53,7 @@ import me.misa198.airmedy.device.DeviceIdentity
 import me.misa198.airmedy.mood.MoodRadioBatchSize
 import me.misa198.airmedy.mood.MoodRadioRefillThreshold
 import me.misa198.airmedy.mood.selectMoodRadio
-import me.misa198.airmedy.player.engine.EngineEvent
 import me.misa198.airmedy.player.engine.EngineFactory
-import me.misa198.airmedy.player.engine.ItemGain
-import me.misa198.airmedy.player.engine.PlayerEngine
 
 /** Owns Android transport; queue semantics are delegated to sharedLogic. */
 class PlaybackService : Service() {
@@ -64,10 +62,7 @@ class PlaybackService : Service() {
     private val restored = CompletableDeferred<Unit>()
     private lateinit var restoreJob: Job
     private val queue = PlaybackQueue()
-    private var engine: PlayerEngine? = null
-    private var preloadedItem: PlaybackItem? = null
-    private var outputDisconnected = false
-    private var endedPending = false
+    private lateinit var coordinator: PlaybackCoordinator
     private lateinit var sessionStore: PlaybackSessionStore
     private lateinit var playbackPreferences: PlaybackPreferences
     private lateinit var equalizerPreferences: EqualizerPreferences
@@ -76,18 +71,11 @@ class PlaybackService : Service() {
     private lateinit var listeningTracker: ListeningTracker
     private val listeningWrites = Channel<ListeningWrite>(64)
     private lateinit var listeningWriter: Job
-    private var listeningFadeOutgoing: String? = null
-    private var listeningFadeStartedAt = 0L
-    private var listeningFadeStartedElapsed = 0L
-    private var listeningFadeMaxMs = 0L
-    private var normalizationSettings = NormalizationSettings()
-    private var equalizerSettings = EqualizerSettings()
     private var preferencesJob: Job? = null
     private var moodRadioJob: Job? = null
     private var moodRadioSeedId: String? = null
     private var moodRadioLastRefillAttempt: Pair<String?, Int>? = null
     private var resumeOnFocusGain = false
-    private var isDucked = false
     private lateinit var audioManager: AudioManager
     private lateinit var mediaSession: MediaSession
     private lateinit var focusRequest: AudioFocusRequest
@@ -119,34 +107,6 @@ class PlaybackService : Service() {
                 if (!enabled) commandMutex.withLock { stopMoodRadio() }
             }
         }
-        preferencesJob = scope.launch {
-            playbackPreferences.settings.collectLatest { settings ->
-                commandMutex.withLock {
-                    crossfadeSeconds.value = settings.seconds
-                    blendArtworkDuringCrossfade.value = settings.blendArtworkDuringCrossfade
-                    if (!settings.blendArtworkDuringCrossfade) clearArtworkCrossfade()
-                    // A preference update must never change a fade already
-                    // running, but it does refresh the idle source afterward.
-                    if (engine?.isCrossfading() != true) preloadNext()
-                }
-            }
-        }
-        scope.launch {
-            equalizerPreferences.settings.collectLatest { settings ->
-                commandMutex.withLock {
-                    equalizerSettings = settings
-                    engine?.setDsp(settings)
-                }
-            }
-        }
-        scope.launch {
-            normalizationPreferences.settings.collectLatest { settings ->
-                commandMutex.withLock {
-                    normalizationSettings = settings
-                    refreshNormalizationGains()
-                }
-            }
-        }
         audioManager = getSystemService(AudioManager::class.java)
         registerNoisyAudioReceiver()
         focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -168,7 +128,7 @@ class PlaybackService : Service() {
                 override fun onSkipToNext() { dispatch(ActionNext) }
                 override fun onSkipToPrevious() { dispatch(ActionPrevious) }
                 override fun onSkipToQueueItem(id: Long) {
-                    queue.snapshot().activeTrackIds.getOrNull(id.toInt())?.let { dispatch(ActionSelect, trackIds = listOf(it)) }
+                    coordinator.queue.snapshot().activeTrackIds.getOrNull(id.toInt())?.let { dispatch(ActionSelect, trackIds = listOf(it)) }
                 }
                 override fun onSeekTo(pos: Long) { dispatch(ActionSeek, positionMs = pos) }
                 override fun onStop() { dispatch(ActionStop) }
@@ -182,24 +142,59 @@ class PlaybackService : Service() {
             isActive = false
         }
         AndroidPlaybackSession.publish(mediaSession.sessionToken)
+
+        coordinator = PlaybackCoordinator(
+            scope = scope,
+            queue = queue,
+            flows = PlaybackFlows(state, queueState, crossfadeSeconds, blendArtworkDuringCrossfade, artworkCrossfade, moodRadioActive),
+            engineFactory = EngineFactory::create,
+            resolver = PlaybackItemResolver { id -> AndroidPlaybackRuntime.controller().resolve(id) },
+            library = LibraryAdapter(),
+            nowPlaying = NowPlayingAdapter(),
+            focus = FocusAdapter(),
+            listening = ListeningAdapter(),
+            scrobble = ScrobbleAdapter(),
+            sessionStore = SessionStoreAdapter(),
+            clock = ClockAdapter(),
+            log = PlaybackLogAdapter(),
+            listeningTracker = listeningTracker,
+            nextArtworkCrossfadeId = { ++nextArtworkCrossfadeId },
+        )
+
+        preferencesJob = scope.launch {
+            playbackPreferences.settings.collectLatest { settings ->
+                commandMutex.withLock {
+                    coordinator.onPlaybackSettings(settings.seconds, settings.blendArtworkDuringCrossfade)
+                }
+            }
+        }
+        scope.launch {
+            equalizerPreferences.settings.collectLatest { settings ->
+                commandMutex.withLock {
+                    coordinator.onEqualizerSettings(settings)
+                }
+            }
+        }
+        scope.launch {
+            normalizationPreferences.settings.collectLatest { settings ->
+                commandMutex.withLock {
+                    coordinator.onNormalizationSettings(settings)
+                }
+            }
+        }
+
         restoreJob = scope.launch {
             try {
                 sessionStore.load()?.let { session ->
-                    val saved = session.queue
-                    val availableTrackIds = AndroidPlaybackRuntime.availableTrackIds(saved.originalTrackIds)
+                    val availableTrackIds = AndroidPlaybackRuntime.availableTrackIds(session.queue.originalTrackIds)
                     commandMutex.withLock {
-                        if (availableTrackIds.isEmpty()) {
-                            clearRestoredSession()
-                            return@withLock
-                        }
-                        queue.restore(queueForAvailableTracks(saved, availableTrackIds))
-                        restoreCurrent(session.positionMs)
+                        coordinator.restoreSaved(session, availableTrackIds)
                     }
                 }
             } catch (error: Throwable) {
                 if (error !is kotlinx.coroutines.CancellationException) {
                     Log.w(PlaybackLogTag, "Unable to restore playback session; clearing it", error)
-                    commandMutex.withLock { clearRestoredSession() }
+                    commandMutex.withLock { coordinator.clearRestoredSession() }
                 }
             } finally {
                 restored.complete(Unit)
@@ -209,28 +204,7 @@ class PlaybackService : Service() {
             while (true) {
                 delay(200)
                 commandMutex.withLock {
-                    refreshPlaybackPosition()
-                    val playing = state.value as? PlaybackState.Playing
-                    if (playing != null) enqueueListening(listeningTracker.tick(
-                        playing.positionMs, playing.durationMs, System.currentTimeMillis(), SystemClock.elapsedRealtime(),
-                    ))
-                    pollEngineEvents()
-                    if (listeningFadeOutgoing != null && engine?.isCrossfading() != true) finishListeningCrossfade()
-                    if (engine?.isCrossfading() != true) clearArtworkCrossfade()
-                    if (audioOutputDisconnectRequiresRecovery(outputDisconnected)) {
-                        recoverAfterOutputDisconnect()
-                    } else if (maybeStartCrossfade()) {
-                        pollEngineEvents()
-                    } else if (endedPending && state.value is PlaybackState.Playing) {
-                        endedPending = false
-                        handleTransition(queue.next(), PlaybackEndReason.COMPLETED)
-                        publishQueue()
-                    }
-                    if (refillMoodRadioIfNeeded()) publishQueue()
-                    // A crossfade occupies both native source slots. Once its
-                    // callback retires the outgoing item, populate that slot
-                    // with the queue's new immediate successor.
-                    if (canPreloadNext(engine?.isCrossfading() == true)) preloadNext()
+                    coordinator.tick { refillMoodRadioIfNeeded() }
                 }
             }
         }
@@ -278,15 +252,13 @@ class PlaybackService : Service() {
 
     override fun onDestroy() {
         runBlocking {
-            finishListeningCrossfade()
-            enqueueListening(listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
+            coordinator.finishListeningCrossfade()
+            coordinator.enqueueListening(coordinator.listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
             listeningWrites.close()
             withTimeoutOrNull(2_000) { listeningWriter.join() }
         }
-        runBlocking { sessionStore.save(currentSession()) }
-        engine?.close()
-        outputDisconnected = false
-        endedPending = false
+        runBlocking { sessionStore.save(coordinator.currentSession()) }
+        coordinator.closeEngine()
         preferencesJob?.cancel()
         moodRadioJob?.cancel()
         unregisterReceiver(noisyAudioReceiver)
@@ -294,7 +266,7 @@ class PlaybackService : Service() {
         mediaSession.release()
         audioManager.abandonAudioFocusRequest(focusRequest)
         scope.cancel()
-        clearArtworkCrossfade()
+        coordinator.clearArtworkCrossfade()
         state.value = PlaybackState.Idle
         super.onDestroy()
     }
@@ -309,53 +281,53 @@ class PlaybackService : Service() {
     ) = scope.launch {
         restored.await()
         commandMutex.withLock {
-            pollEngineEvents()
-            Log.d(PlaybackLogTag, "Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
+            coordinator.pollEngineEvents()
+            Log.d(PlaybackLogTag, "Handling action=$action queueSize=${coordinator.queue.snapshot().activeTrackIds.size}")
             if (action in MoodRadioStoppingActions) stopMoodRadio()
             when (action) {
-                ActionPlay -> handleTransition(runCatching { queue.play(PlaybackRequest(trackIds, startIndex)) }
+                ActionPlay -> coordinator.handleTransition(runCatching { coordinator.queue.play(PlaybackRequest(trackIds, startIndex)) }
                     .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
-                ActionShuffle -> handleTransition(runCatching { queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
+                ActionShuffle -> coordinator.handleTransition(runCatching { coordinator.queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
                     .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
                 ActionPause -> {
                     resumeOnFocusGain = false
-                    restoreFocusGain()
-                    pauseCurrent()
+                    coordinator.restoreFocusGain()
+                    coordinator.pauseCurrent()
                 }
                 ActionPauseForTransientFocusLoss -> pauseForTransientFocusLoss()
-                ActionDuck -> duckForFocusLoss()
+                ActionDuck -> coordinator.duckForFocusLoss()
                 ActionRestoreFocus -> restoreAfterFocusGain()
                 ActionResume -> {
                     resumeOnFocusGain = false
-                    resumeCurrent()
+                    coordinator.resumeCurrent()
                 }
-                ActionStop -> stopPlayback()
-                ActionClearQueue -> handleTransition(queue.clear())
-                ActionNext -> handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+                ActionStop -> coordinator.stopPlayback()
+                ActionClearQueue -> coordinator.handleTransition(coordinator.queue.clear())
+                ActionNext -> coordinator.handleTransition(coordinator.queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
                 ActionPrevious -> {
-                    if ((engine?.positionMs() ?: 0L) > PreviousRestartThresholdMs) seekCurrent(0L)
-                    else handleTransition(queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+                    if (coordinator.positionMs() > PreviousRestartThresholdMs) coordinator.seekCurrent(0L)
+                    else coordinator.handleTransition(coordinator.queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
                 }
-                ActionSeek -> seekCurrent(positionMs)
-                ActionSetShuffle -> handleTransition(queue.setShuffle(enabled))
-                ActionSetRepeat -> repeat?.let(queue::setRepeatMode)
-                ActionPlayNext -> queue.playNext(trackIds)
-                ActionAppend -> queue.append(trackIds)
+                ActionSeek -> coordinator.seekCurrent(positionMs)
+                ActionSetShuffle -> coordinator.handleTransition(coordinator.queue.setShuffle(enabled))
+                ActionSetRepeat -> repeat?.let(coordinator.queue::setRepeatMode)
+                ActionPlayNext -> coordinator.queue.playNext(trackIds)
+                ActionAppend -> coordinator.queue.append(trackIds)
                 ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
-                ActionSelect -> trackIds.firstOrNull()?.let { handleTransition(queue.select(it), PlaybackEndReason.SKIPPED) }
-                ActionRemove -> trackIds.firstOrNull()?.let { handleTransition(queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
-                ActionReorder -> queue.reorderQueue(trackIds)
+                ActionSelect -> trackIds.firstOrNull()?.let { coordinator.handleTransition(coordinator.queue.select(it), PlaybackEndReason.SKIPPED) }
+                ActionRemove -> trackIds.firstOrNull()?.let { coordinator.handleTransition(coordinator.queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
+                ActionReorder -> coordinator.queue.reorderQueue(trackIds)
             }
             if (action in PreloadResyncActions) {
                 // The old source must not remain part of a fade whose queued
                 // successor has just changed.
-                if (engine?.isCrossfading() == true) {
-                    clearArtworkCrossfade()
-                    engine?.snapCrossfade()
+                if (coordinator.isCrossfading()) {
+                    coordinator.clearArtworkCrossfade()
+                    coordinator.snapCrossfade()
                 }
-                preloadNext()
+                coordinator.preloadNext()
             }
-            publishQueue()
+            coordinator.publishQueue()
         }
     }
 
@@ -374,14 +346,14 @@ class PlaybackService : Service() {
         moodRadioSeedId = seedId
         moodRadioLastRefillAttempt = null
         moodRadioActive.value = true
-        if (queue.snapshot().currentTrackId == seedId) queue.replaceKeepingCurrent(listOf(seedId) + selected.map { it.id })
-        else handleTransition(queue.play(PlaybackRequest(listOf(seedId) + selected.map { it.id })), PlaybackEndReason.SKIPPED)
-        Log.d(PlaybackLogTag, "Mood Radio started seed=$seedId added=${selected.size} queueSize=${queue.snapshot().activeTrackIds.size}")
+        if (coordinator.queue.snapshot().currentTrackId == seedId) coordinator.queue.replaceKeepingCurrent(listOf(seedId) + selected.map { it.id })
+        else coordinator.handleTransition(coordinator.queue.play(PlaybackRequest(listOf(seedId) + selected.map { it.id })), PlaybackEndReason.SKIPPED)
+        Log.d(PlaybackLogTag, "Mood Radio started seed=$seedId added=${selected.size} queueSize=${coordinator.queue.snapshot().activeTrackIds.size}")
     }
 
     private suspend fun refillMoodRadioIfNeeded(): Boolean {
         val seedId = moodRadioSeedId ?: return false
-        val snapshot = queue.snapshot()
+        val snapshot = coordinator.queue.snapshot()
         if (snapshot.activeTrackIds.size - snapshot.currentIndex - 1 >= MoodRadioRefillThreshold) return false
         val attempt = snapshot.currentTrackId to snapshot.activeTrackIds.size
         if (attempt == moodRadioLastRefillAttempt) return false
@@ -390,477 +362,24 @@ class PlaybackService : Service() {
         if (!store.libraryAnalysisEnabled.first()) return false
         val selected = selectMoodRadio(seedId, store.moodRadioTracks(), snapshot.activeTrackIds.toSet(), MoodRadioBatchSize)
         if (selected.isEmpty()) return false
-        queue.append(selected.map { it.id })
-        Log.d(PlaybackLogTag, "Mood Radio refilled seed=$seedId added=${selected.size} queueSize=${queue.snapshot().activeTrackIds.size}")
+        coordinator.queue.append(selected.map { it.id })
+        Log.d(PlaybackLogTag, "Mood Radio refilled seed=$seedId added=${selected.size} queueSize=${coordinator.queue.snapshot().activeTrackIds.size}")
         return true
     }
 
     private fun stopMoodRadio() { moodRadioSeedId = null; moodRadioLastRefillAttempt = null; moodRadioActive.value = false }
 
-    private suspend fun handleTransition(
-        transition: QueueTransition,
-        previousReason: PlaybackEndReason = PlaybackEndReason.STOPPED,
-        preservePlaybackState: Boolean = false,
-    ) {
-        when (transition) {
-            is QueueTransition.Play -> {
-                finishListeningCrossfade()
-                enqueueListening(listeningTracker.finish(previousReason, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-                playCurrent(startPaused = preservePlaybackState && state.value is PlaybackState.Paused)
-            }
-            QueueTransition.StopAtCurrent -> stopAtCurrentTrack(previousReason)
-            QueueTransition.Stop -> stopPlayback()
-            QueueTransition.Unchanged -> Unit
-        }
-    }
-
-    private suspend fun playCurrent(startPositionMs: Long = 0L, startPaused: Boolean = false, startTracking: Boolean = true) {
-        finishListeningCrossfade()
-        clearArtworkCrossfade()
-        val trackId = queue.snapshot().currentTrackId ?: return stopPlayback()
-        Log.d(PlaybackLogTag, "Preparing current queue track id=$trackId")
-        val item = AndroidPlaybackRuntime.controller().resolve(trackId) ?: return fail(trackId, "Audio asset is not available")
-        state.value = PlaybackState.Preparing(item)
-        publishNowPlaying(item, AndroidMediaPlaybackState.STATE_BUFFERING, positionMs = 0L, durationMs = 0L)
-        if (audioManager.requestAudioFocus(focusRequest) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) return fail(trackId, "Audio focus was not granted")
-        restoreFocusGain()
-        try {
-            engine?.close()
-            // A normalization lookup can suspend. Do not leave a closed decoder
-            // reachable while a queued session write may read playback state.
-            engine = null
-            outputDisconnected = false
-            endedPending = false
-            val gainDb = normalizationGain(item, queue.peekNext())
-            val preparedEngine = EngineFactory.create()
-            try {
-                preparedEngine.setDsp(equalizerSettings)
-                preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-                preparedEngine.prepare(item, ItemGain(gainDb), startPositionMs, startPaused)
-                if (startPaused) {
-                    state.value = PlaybackState.Paused(item, preparedEngine.positionMs(), preparedEngine.durationMs())
-                    publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, preparedEngine.positionMs(), preparedEngine.durationMs())
-                } else {
-                    state.value = PlaybackState.Playing(item, preparedEngine.positionMs(), preparedEngine.durationMs())
-                    publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PLAYING, preparedEngine.positionMs(), preparedEngine.durationMs())
-                }
-                engine = preparedEngine
-                lastFm.startPlayback(item.trackId, preparedEngine.positionMs())
-                if (!startPaused && startTracking) enqueueListening(listeningTracker.start(item.trackId, preparedEngine.positionMs(), System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-                if (!startPaused && !startTracking) listeningTracker.resumeAfterInterruption(SystemClock.elapsedRealtime())
-            } catch (error: Throwable) {
-                preparedEngine.close()
-                throw error
-            }
-            preloadNext()
-            showForeground(item)
-            Log.d(PlaybackLogTag, "Playback started id=$trackId durationMs=${engine?.durationMs()}")
-        } catch (error: Throwable) {
-            fail(trackId, error.message ?: "Unable to decode audio")
-        }
-    }
-
-    /** Restores the selected item paused, so reopening the app never starts audio by itself. */
-    private suspend fun restoreCurrent(savedPositionMs: Long) {
-        val trackId = queue.snapshot().currentTrackId ?: return clearRestoredSession()
-        val item = AndroidPlaybackRuntime.controller().resolve(trackId)
-            ?: return clearRestoredSession()
-        // Publish the retained item before FFmpeg opens it, so Compose can mount the mini player.
-        state.value = PlaybackState.Paused(item, savedPositionMs.coerceAtLeast(0L), durationMs = 0L)
-        try {
-            engine?.close()
-            engine = null
-            outputDisconnected = false
-            endedPending = false
-            val gain = normalizationGain(item, queue.peekNext())
-            val preparedEngine = EngineFactory.create()
-            preparedEngine.setDsp(equalizerSettings)
-            preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-            preparedEngine.prepare(item, ItemGain(gain), savedPositionMs, startPaused = true)
-            val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
-            engine = preparedEngine
-            state.value = PlaybackState.Paused(item, positionMs, preparedEngine.durationMs())
-            publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, positionMs, preparedEngine.durationMs())
-            lastFm.startPlayback(item.trackId, positionMs)
-            preloadNext()
-            showForeground(item)
-            publishQueue()
-            Log.d(PlaybackLogTag, "Restored paused playback id=$trackId positionMs=${engine?.positionMs()}")
-        } catch (error: Throwable) {
-            Log.w(PlaybackLogTag, "Unable to restore playback id=$trackId; clearing session", error)
-            clearRestoredSession()
-        }
-    }
-
-    private fun pauseCurrent() {
-        finishListeningCrossfade()
-        clearArtworkCrossfade()
-        engine?.pause()
-        enqueueListening(listeningTracker.pause(System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        (state.value as? PlaybackState.Playing)?.let { current ->
-            val positionMs = engine?.positionMs() ?: current.positionMs
-            state.value = PlaybackState.Paused(current.item, positionMs, current.durationMs)
-            publishNowPlaying(current.item, AndroidMediaPlaybackState.STATE_PAUSED, positionMs, current.durationMs)
-        }
-        updateNotification()
-    }
-
     private fun pauseForTransientFocusLoss() {
         resumeOnFocusGain = state.value is PlaybackState.Playing
-        restoreFocusGain()
-        pauseCurrent()
-    }
-
-    private fun duckForFocusLoss() {
-        isDucked = true
-        engine?.setFocusGain(DuckedFocusGain)
-    }
-
-    private fun restoreFocusGain() {
-        isDucked = false
-        engine?.setFocusGain(1f)
+        coordinator.restoreFocusGain()
+        coordinator.pauseCurrent()
     }
 
     private suspend fun restoreAfterFocusGain() {
-        restoreFocusGain()
+        coordinator.restoreFocusGain()
         if (!resumeOnFocusGain) return
         resumeOnFocusGain = false
-        resumeCurrent()
-    }
-
-    private suspend fun resumeCurrent() {
-        val paused = state.value as? PlaybackState.Paused
-        val currentEngine = engine
-        if (paused != null && shouldRestartQueueOnResume(paused.positionMs, paused.durationMs, currentEngine != null)) {
-            handleTransition(queue.restart())
-            return
-        }
-        if (paused == null || currentEngine == null || outputDisconnected) {
-            if (outputDisconnected) {
-                currentEngine?.close()
-                engine = null
-                outputDisconnected = false
-                endedPending = false
-            }
-            playCurrent(paused?.positionMs ?: 0L)
-            return
-        }
-        if (audioManager.requestAudioFocus(focusRequest) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            fail(paused.item.trackId, "Audio focus was not granted")
-            return
-        }
-        restoreFocusGain()
-        currentEngine.play()
-        val positionMs = currentEngine.positionMs()
-        if (listeningTracker.activeTrackId == paused.item.trackId) {
-            listeningTracker.resume(System.currentTimeMillis(), SystemClock.elapsedRealtime())
-        } else {
-            enqueueListening(listeningTracker.start(paused.item.trackId, positionMs, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        }
-        state.value = PlaybackState.Playing(paused.item, positionMs, paused.durationMs)
-        publishNowPlaying(paused.item, AndroidMediaPlaybackState.STATE_PLAYING, positionMs, paused.durationMs)
-        updateNotification()
-        Log.d(PlaybackLogTag, "Playback resumed id=${paused.item.trackId} positionMs=$positionMs")
-    }
-
-    /**
-     * A manual route change invalidates the old AAudio stream without being a
-     * user pause. Recreate it on the new route and retain its rendered position.
-     * A real device removal sends ACTION_AUDIO_BECOMING_NOISY, whose queued
-     * pause action wins and leaves playback paused instead.
-     */
-    private suspend fun recoverAfterOutputDisconnect() {
-        val current = state.value as? PlaybackState.Playing ?: return
-        val positionMs = engine?.positionMs() ?: current.positionMs
-        listeningTracker.suspendForInterruption(SystemClock.elapsedRealtime())
-        engine?.close()
-        engine = null
-        outputDisconnected = false
-        endedPending = false
-        Log.w(PlaybackLogTag, "Audio output changed; recreating stream id=${current.item.trackId} positionMs=$positionMs")
-        playCurrent(positionMs, startTracking = false)
-    }
-
-    private fun seekCurrent(requestedPositionMs: Long) {
-        val current = state.value
-        val item: PlaybackItem
-        val durationMs: Long
-        val playing: Boolean
-        when (current) {
-            is PlaybackState.Playing -> {
-                item = current.item
-                durationMs = current.durationMs
-                playing = true
-            }
-            is PlaybackState.Paused -> {
-                item = current.item
-                durationMs = current.durationMs
-                playing = false
-            }
-            else -> return
-        }
-        val targetPositionMs = clampSeekPosition(requestedPositionMs, durationMs)
-        finishListeningCrossfade()
-        clearArtworkCrossfade()
-        engine?.seekTo(targetPositionMs) ?: return
-        endedPending = false
-        lastFm.seek(targetPositionMs)
-        if (playing) {
-            state.value = PlaybackState.Playing(item, targetPositionMs, durationMs)
-            publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PLAYING, targetPositionMs, durationMs)
-        } else {
-            state.value = PlaybackState.Paused(item, targetPositionMs, durationMs)
-            publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, targetPositionMs, durationMs)
-        }
-        Log.d(PlaybackLogTag, "Seek requested id=${item.trackId} targetMs=$targetPositionMs playing=$playing")
-    }
-
-    private fun stopPlayback() {
-        finishListeningCrossfade()
-        enqueueListening(listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        clearArtworkCrossfade()
-        engine?.snapCrossfade()
-        engine?.close(); engine = null; preloadedItem = null
-        outputDisconnected = false
-        endedPending = false
-        audioManager.abandonAudioFocusRequest(focusRequest)
-        state.value = PlaybackState.Idle
-        mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_STOPPED, 0L))
-        mediaSession.isActive = false
-        stopForeground(STOP_FOREGROUND_REMOVE)
-    }
-
-    /** Retains the final item when repeat-off playback or manual navigation exhausts the queue. */
-    private fun stopAtCurrentTrack(reason: PlaybackEndReason = PlaybackEndReason.COMPLETED) {
-        val current = state.value
-        val item: PlaybackItem
-        val durationMs: Long
-        when (current) {
-            is PlaybackState.Playing -> {
-                item = current.item
-                durationMs = current.durationMs
-            }
-            is PlaybackState.Paused -> {
-                item = current.item
-                durationMs = current.durationMs
-            }
-            else -> return stopPlayback()
-        }
-        enqueueListening(listeningTracker.finish(reason, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        clearArtworkCrossfade()
-        engine?.snapCrossfade()
-        engine?.close(); engine = null
-        outputDisconnected = false
-        endedPending = false
-        audioManager.abandonAudioFocusRequest(focusRequest)
-        val positionMs = stoppedCurrentPosition(reason, durationMs)
-        state.value = PlaybackState.Paused(item, positionMs, durationMs)
-        publishNowPlaying(item, AndroidMediaPlaybackState.STATE_PAUSED, positionMs, durationMs)
-        updateNotification()
-        Log.d(PlaybackLogTag, "Playback stopped at final queue track id=${item.trackId} positionMs=$positionMs")
-    }
-
-    private fun fail(trackId: String?, reason: String) {
-        Log.e(PlaybackLogTag, "Playback failed id=$trackId reason=$reason")
-        finishListeningCrossfade()
-        enqueueListening(listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        clearArtworkCrossfade()
-        engine?.close(); engine = null; preloadedItem = null
-        outputDisconnected = false
-        endedPending = false
-        state.value = PlaybackState.Failed(trackId, reason)
-        mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_ERROR, 0L))
-        mediaSession.isActive = false
-        stopForeground(STOP_FOREGROUND_REMOVE)
-    }
-
-    private suspend fun publishQueue() {
-        val snapshot = queue.snapshot()
-        queueState.value = snapshot
-        val tracks = AndroidSyncRuntime.syncStore().tracks.first().associateBy { it.id }
-        mediaSession.setQueue(snapshot.activeTrackIds.mapIndexedNotNull { index, trackId ->
-            tracks[trackId]?.let { track ->
-                MediaSession.QueueItem(
-                    MediaDescription.Builder()
-                        .setMediaId(track.id)
-                        .setTitle(track.title)
-                        .setSubtitle(track.artists)
-                        .setDescription(track.album)
-                        .build(),
-                    index.toLong(),
-                )
-            }
-        })
-        updateNowPlayingTransportState()
-        // Capture before the asynchronous DataStore write. A later command can
-        // close the decoder, but cannot change this immutable session snapshot.
-        val session = currentSession(snapshot)
-        scope.launch { sessionStore.save(session) }
-    }
-
-    private fun currentSession(snapshot: PlaybackQueueSnapshot = queue.snapshot()): PlaybackSession {
-        val positionMs = when (val current = state.value) {
-            is PlaybackState.Playing -> engine?.positionMs() ?: current.positionMs
-            is PlaybackState.Paused -> engine?.positionMs() ?: current.positionMs
-            else -> 0L
-        }
-        return PlaybackSession(snapshot, positionMs.coerceAtLeast(0L))
-    }
-
-    private suspend fun clearRestoredSession() {
-        engine?.close(); engine = null; preloadedItem = null
-        outputDisconnected = false
-        endedPending = false
-        queue.clear()
-        queueState.value = queue.snapshot()
-        mediaSession.setQueue(emptyList())
-        state.value = PlaybackState.Idle
-        mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_NONE, 0L))
-        mediaSession.isActive = false
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        sessionStore.clear()
-    }
-
-    /** Keep native idle slot aligned with the queue's immediate next item. */
-    private suspend fun preloadNext() {
-        val nextId = queue.peekNext()
-        val currentEngine = engine ?: return
-        if (nextId == preloadedItem?.trackId && currentEngine.hasPreloaded()) return
-        currentEngine.clearPreloaded()
-        preloadedItem = nextId?.let { id -> AndroidPlaybackRuntime.controller().resolve(id) }
-        preloadedItem?.let { item ->
-            runCatching { currentEngine.preloadNext(item, ItemGain(normalizationGain(item, queue.peekNext()))); currentEngine.hasPreloaded() }
-                .onSuccess { loaded ->
-                    if (!loaded) preloadedItem = null
-                }
-                .onFailure { error ->
-                    Log.w(PlaybackLogTag, "Unable to preload next id=${item.trackId}", error)
-                    preloadedItem = null
-                }
-        }
-    }
-
-    /** Native promotes audio first; this service transaction promotes queue/UI metadata. */
-    private suspend fun pollEngineEvents() {
-        val events = engine?.pollEvents() ?: return
-        for (event in events) {
-            when (event) {
-                is EngineEvent.GaplessAdvanced -> consumeEngineTransition(event)
-                is EngineEvent.TransitionStarted -> consumeEngineTransition(event)
-                EngineEvent.OutputDisconnected -> outputDisconnected = true
-                EngineEvent.Ended -> endedPending = true
-                is EngineEvent.Error -> Unit // handled in T032
-            }
-        }
-    }
-
-    private suspend fun consumeEngineTransition(event: EngineEvent) {
-        if (preloadedItem == null) return
-        val incoming = when (event) {
-            is EngineEvent.GaplessAdvanced -> event.incoming
-            is EngineEvent.TransitionStarted -> event.incoming
-            else -> return
-        }
-        val queueTransition = queue.next()
-        if (queueTransition !is QueueTransition.Play || queueTransition.trackId != incoming.trackId) {
-            fail(incoming.trackId, "Native transition no longer matches the playback queue")
-            return
-        }
-        preloadedItem = null
-        val currentEngine = engine ?: return
-        val positionMs = currentEngine.positionMs()
-        val durationMs = currentEngine.durationMs()
-        if (event is EngineEvent.TransitionStarted) {
-            listeningFadeOutgoing = (state.value as? PlaybackState.Playing)?.item?.trackId
-            listeningFadeStartedAt = System.currentTimeMillis()
-            listeningFadeStartedElapsed = SystemClock.elapsedRealtime()
-            listeningFadeMaxMs = artworkCrossfade.value?.durationMs ?: 0L
-        }
-        state.value = PlaybackState.Playing(incoming, positionMs, durationMs)
-        enqueueListening(listeningTracker.finish(PlaybackEndReason.COMPLETED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        enqueueListening(listeningTracker.start(incoming.trackId, positionMs, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-        lastFm.startPlayback(incoming.trackId, positionMs)
-        publishNowPlaying(incoming, AndroidMediaPlaybackState.STATE_PLAYING, positionMs, durationMs)
-        updateNotification()
-        // During a crossfade both native slots are live (incoming + outgoing).
-        // Loading i+2 here would reuse the outgoing slot and cut i off instead
-        // of letting it fade out. The ticker reloads after the fade completes.
-        if (canPreloadNext(currentEngine.isCrossfading())) preloadNext()
-        publishQueue()
-        Log.d(PlaybackLogTag, "Consumed native transition=$event id=${incoming.trackId}")
-    }
-
-    private suspend fun normalizationGain(item: PlaybackItem, nextId: String?): Float {
-        val analyses = AndroidSyncRuntime.syncStore().activeAnalyses()
-        if (analyses.isEmpty()) {
-            if (normalizationSettings.enabled) normalizationPreferences.disable()
-            return 0f
-        }
-        val next = nextId?.let { AndroidPlaybackRuntime.controller().resolve(it) }
-        val continuousAlbum = normalizationSettings.mode == NormalizationMode.Album &&
-            item.albumId.isNotEmpty() && item.albumId == next?.albumId
-        val albumAnalyses = if (continuousAlbum) {
-            AndroidSyncRuntime.syncStore().tracks.first().filter { it.albumId == item.albumId }.mapNotNull { analyses[it.id] }
-        } else emptyList()
-        return normalizationGainDb(normalizationSettings, item.analysis, albumAnalyses, continuousAlbum)
-    }
-
-    private suspend fun refreshNormalizationGains() {
-        val current = when (val value = state.value) {
-            is PlaybackState.Playing -> value.item
-            is PlaybackState.Paused -> value.item
-            is PlaybackState.Preparing -> value.item
-            else -> null
-        } ?: return
-        val nextId = queue.peekNext()
-        engine?.setGains(ItemGain(normalizationGain(current, nextId)), preloadedItem?.let { ItemGain(normalizationGain(it, queue.peekNext())) })
-    }
-
-    private fun maybeStartCrossfade(): Boolean {
-        val current = state.value as? PlaybackState.Playing ?: return false
-        val currentEngine = engine ?: return false
-        val incoming = preloadedItem ?: return false
-        if (currentEngine.isCrossfading()) return false
-        if (!shouldStartCrossfade(
-                crossfadeSeconds = crossfadeSeconds.value,
-                positionMs = currentEngine.positionMs(),
-                durationMs = current.durationMs,
-                hasPreloadedNext = preloadedItem != null && currentEngine.hasPreloaded(),
-            )
-        ) return false
-        val effectiveDurationMs = crossfadeDurationMs(
-            crossfadeSeconds = crossfadeSeconds.value,
-            positionMs = currentEngine.positionMs(),
-            durationMs = current.durationMs,
-        )
-        if (currentEngine.beginCrossfade(effectiveDurationMs)) {
-            nextArtworkCrossfadeId += 1
-            artworkCrossfade.value = ArtworkCrossfadeTransition(
-                id = nextArtworkCrossfadeId,
-                fromArtworkPath = current.item.artworkPath,
-                toArtworkPath = incoming.artworkPath,
-                durationMs = effectiveDurationMs.coerceAtLeast(1L),
-            )
-        }
-        return true
-    }
-
-    private fun clearArtworkCrossfade() {
-        artworkCrossfade.value = null
-    }
-
-    private fun showForeground(item: PlaybackItem) {
-        createChannel()
-        startForeground(NotificationId, notification(item), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-    }
-
-    private fun updateNotification() {
-        val item = when (val current = state.value) {
-            is PlaybackState.Playing -> current.item
-            is PlaybackState.Paused -> current.item
-            else -> return
-        }
-        getSystemService(NotificationManager::class.java).notify(NotificationId, notification(item))
+        coordinator.resumeCurrent()
     }
 
     private fun registerNoisyAudioReceiver() {
@@ -873,59 +392,108 @@ class PlaybackService : Service() {
         }
     }
 
-    /** Publishes metadata and transport state to Android System Now Playing surfaces. */
-    private fun publishNowPlaying(item: PlaybackItem, state: Int, positionMs: Long, durationMs: Long) {
-        mediaSession.isActive = true
-        val metadata = MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, item.trackId)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, item.title)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, item.artist)
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, durationMs)
-        loadNowPlayingArtwork(item)?.let { artwork ->
-            metadata.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, artwork)
-            metadata.putBitmap(MediaMetadata.METADATA_KEY_ART, artwork)
-            metadata.putBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON, artwork)
+    private fun transportStateToAndroid(state: TransportState): Int = when (state) {
+        TransportState.None -> AndroidMediaPlaybackState.STATE_NONE
+        TransportState.Buffering -> AndroidMediaPlaybackState.STATE_BUFFERING
+        TransportState.Playing -> AndroidMediaPlaybackState.STATE_PLAYING
+        TransportState.Paused -> AndroidMediaPlaybackState.STATE_PAUSED
+        TransportState.Stopped -> AndroidMediaPlaybackState.STATE_STOPPED
+        TransportState.Error -> AndroidMediaPlaybackState.STATE_ERROR
+    }
+
+    private inner class NowPlayingAdapter : NowPlayingPort {
+        override fun publishNowPlaying(item: PlaybackItem, state: TransportState, positionMs: Long, durationMs: Long, activeQueueItemId: Long) {
+            mediaSession.isActive = true
+            val metadata = MediaMetadata.Builder()
+                    .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, item.trackId)
+                    .putString(MediaMetadata.METADATA_KEY_TITLE, item.title)
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST, item.artist)
+                    .putLong(MediaMetadata.METADATA_KEY_DURATION, durationMs)
+            loadNowPlayingArtwork(item)?.let { artwork ->
+                metadata.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, artwork)
+                metadata.putBitmap(MediaMetadata.METADATA_KEY_ART, artwork)
+                metadata.putBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON, artwork)
+            }
+            mediaSession.setMetadata(metadata.build())
+            mediaSession.setPlaybackState(androidPlaybackState(transportStateToAndroid(state), positionMs, activeQueueItemId))
+            Log.d(PlaybackLogTag, "Published Android Now Playing id=${item.trackId} state=$state")
         }
-        mediaSession.setMetadata(metadata.build())
-        mediaSession.setPlaybackState(androidPlaybackState(state, positionMs))
-        Log.d(PlaybackLogTag, "Published Android Now Playing id=${item.trackId} state=$state")
-    }
 
-    private fun updateNowPlayingTransportState() {
-        when (val current = state.value) {
-            is PlaybackState.Playing -> mediaSession.setPlaybackState(
-                androidPlaybackState(AndroidMediaPlaybackState.STATE_PLAYING, engine?.positionMs() ?: current.positionMs),
-            )
-            is PlaybackState.Paused -> mediaSession.setPlaybackState(
-                androidPlaybackState(AndroidMediaPlaybackState.STATE_PAUSED, engine?.positionMs() ?: current.positionMs),
-            )
-            else -> Unit
+        override fun setTransportState(state: TransportState, positionMs: Long, activeQueueItemId: Long) {
+            mediaSession.setPlaybackState(androidPlaybackState(transportStateToAndroid(state), positionMs, activeQueueItemId))
+        }
+
+        override fun deactivate() {
+            mediaSession.isActive = false
+        }
+
+        override suspend fun publishQueue(snapshot: PlaybackQueueSnapshot) {
+            val tracks = AndroidSyncRuntime.syncStore().tracks.first().associateBy { it.id }
+            mediaSession.setQueue(snapshot.activeTrackIds.mapIndexedNotNull { index, trackId ->
+                tracks[trackId]?.let { track ->
+                    MediaSession.QueueItem(
+                        MediaDescription.Builder()
+                            .setMediaId(track.id)
+                            .setTitle(track.title)
+                            .setSubtitle(track.artists)
+                            .setDescription(track.album)
+                            .build(),
+                        index.toLong(),
+                    )
+                }
+            })
+        }
+
+        override fun showForeground(item: PlaybackItem) {
+            createChannel()
+            startForeground(NotificationId, notification(item), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        }
+
+        override fun updateNotification(item: PlaybackItem) {
+            getSystemService(NotificationManager::class.java).notify(NotificationId, notification(item))
+        }
+
+        override fun stopForeground() {
+            stopForeground(STOP_FOREGROUND_REMOVE)
         }
     }
 
-    private fun refreshPlaybackPosition() {
-        val current = state.value as? PlaybackState.Playing ?: return
-        val positionMs = engine?.positionMs()?.let { clampSeekPosition(it, current.durationMs) } ?: return
-        if (positionMs == current.positionMs) return
-        state.value = current.copy(positionMs = positionMs)
-        mediaSession.setPlaybackState(androidPlaybackState(AndroidMediaPlaybackState.STATE_PLAYING, positionMs))
-        lastFm.reportPlayback(current.item.toLastFmTrack(), positionMs, current.durationMs)
+    private inner class FocusAdapter : FocusPort {
+        override fun request(): Boolean = audioManager.requestAudioFocus(focusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        override fun abandon() { audioManager.abandonAudioFocusRequest(focusRequest) }
     }
 
-    private fun enqueueListening(writes: List<ListeningWrite>) {
-        writes.forEach { write ->
-            if (listeningWrites.trySend(write).isFailure) Log.w(PlaybackLogTag, "Listening write queue is full")
-        }
+    private inner class ListeningAdapter : ListeningSink {
+        override fun offer(write: ListeningWrite): Boolean = listeningWrites.trySend(write).isSuccess
     }
 
-    private fun finishListeningCrossfade() {
-        val outgoing = listeningFadeOutgoing ?: return
-        val elapsed = (SystemClock.elapsedRealtime() - listeningFadeStartedElapsed).coerceAtLeast(0).coerceAtMost(listeningFadeMaxMs)
-        enqueueListening(listeningTracker.splitCrossfadeOverlap(outgoing, listeningFadeStartedAt, elapsed))
-        listeningFadeOutgoing = null
-        listeningFadeStartedAt = 0
-        listeningFadeStartedElapsed = 0
-        listeningFadeMaxMs = 0
+    private inner class ScrobbleAdapter : ScrobbleSink {
+        override fun startPlayback(trackId: String, positionMs: Long) = lastFm.startPlayback(trackId, positionMs)
+        override fun seek(positionMs: Long) = lastFm.seek(positionMs)
+        override fun reportPlayback(item: PlaybackItem, positionMs: Long, durationMs: Long) = lastFm.reportPlayback(item.toLastFmTrack(), positionMs, durationMs)
+    }
+
+    private inner class SessionStoreAdapter : SessionStorePort {
+        override suspend fun load(): PlaybackSession? = sessionStore.load()
+        override suspend fun save(session: PlaybackSession) = sessionStore.save(session)
+        override suspend fun clear() = sessionStore.clear()
+    }
+
+    private inner class ClockAdapter : Clock {
+        override fun nowMs(): Long = System.currentTimeMillis()
+        override fun elapsedMs(): Long = SystemClock.elapsedRealtime()
+    }
+
+    private inner class PlaybackLogAdapter : PlaybackLog {
+        override fun d(message: String) { Log.d(PlaybackLogTag, message) }
+        override fun w(message: String, error: Throwable?) { Log.w(PlaybackLogTag, message, error) }
+        override fun e(message: String) { Log.e(PlaybackLogTag, message) }
+    }
+
+    private inner class LibraryAdapter : LibraryPort {
+        override suspend fun activeAnalyses(): Map<String, TrackAnalysis> = AndroidSyncRuntime.syncStore().activeAnalyses()
+        override suspend fun tracks(): List<LibraryTrack> = AndroidSyncRuntime.syncStore().tracks.first()
+        override suspend fun disableNormalization() = normalizationPreferences.disable()
     }
 
     private fun PlaybackItem.toLastFmTrack() = LastFmTrack(
@@ -937,7 +505,7 @@ class PlaybackService : Service() {
         trackNumber = trackNumber,
     )
 
-    private fun androidPlaybackState(state: Int, positionMs: Long): AndroidMediaPlaybackState =
+    private fun androidPlaybackState(state: Int, positionMs: Long, activeQueueItemId: Long): AndroidMediaPlaybackState =
         AndroidMediaPlaybackState.Builder()
             .setActions(
                 AndroidMediaPlaybackState.ACTION_PLAY or
@@ -948,7 +516,7 @@ class PlaybackService : Service() {
                     AndroidMediaPlaybackState.ACTION_SEEK_TO or
                     AndroidMediaPlaybackState.ACTION_STOP,
             )
-            .setActiveQueueItemId(activeQueueItemId(queue.snapshot()))
+            .setActiveQueueItemId(activeQueueItemId)
             .setState(state, positionMs, if (state == AndroidMediaPlaybackState.STATE_PLAYING) 1f else 0f)
             .build()
 
@@ -1016,7 +584,6 @@ class PlaybackService : Service() {
         internal const val EnabledExtra = "enabled"
         internal const val RepeatModeExtra = "repeat_mode"
         private const val PreviousRestartThresholdMs = 3_000L
-        private const val DuckedFocusGain = 0.2f
         private const val ChannelId = "playback"
         private const val NotificationId = 2002
         private const val NowPlayingArtworkSizePx = 512
