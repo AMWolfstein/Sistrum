@@ -172,7 +172,7 @@ R1–R12), the external reports in `research/` (leads, Principle 7), and the des
 | S2 | Shared session + limiter-only DP: both tracks on one output thread, summed tones limited, overshoot, hi-res direct output (SC-015) | **PARTIAL** (T003): shared session only with re-apply-after-ready + check; chain on the MIXER music thread; 24/96 stays on mixer. Limiter level, SC-011, DP-disabled mute: **NOT MEASURED** → T003b |
 | S3 | Memory/CPU with the second-player lifetime (FR-033, SC-013); processor CPU at track rate vs output rate | **PASS** (T004): pre-buffer 5 s; second player ≤ +6 % memory; process at track rate; processor chain cost (+12…+20 CPU points, naive) → bulk + bypass-when-neutral requirement (ADR-004 "S3 result") |
 | S4 | Platform audio decoders on the CPH2307 | **DONE** (codec XMLs; no ALAC): `research/platform-codecs-cph2307.md`. Instrumented probe **PASS** on `.qa` (T001, 2026-10-05): confirms no ALAC |
-| S5 | Opus header gain applied once by the platform decoder (FR-041) | **BLOCKED**: needs corpus + `.qa` |
+| S5 | Opus header gain applied once by the platform decoder (FR-041) | **PASS** (T005): `c2.android.opus.decoder` applies it exactly once (+6.00 / −6.00 dB); `GainProcessor` never adds it (ADR-005) |
 | S6 | MediaSession approach | Desk **DONE** (D6), owner confirmed (framework session in 001) |
 | S7 | Rhythm / Choir sources fit | Desk **DONE** (D3, D8, D9) |
 

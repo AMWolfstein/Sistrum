@@ -1,6 +1,6 @@
 # ADR-005 — Tag-based normalization and the gain source
 
-Status: Accepted (owner, 2026-10-05); **pending device spike S5** (Opus header gain) · Date: 2026-10-05 · Spec: US6, FR-040…047a, SC-004 ·
+Status: Accepted (owner, 2026-10-05); **S5 PASS 2026-10-05 (T005)**: platform decoder applies the Opus header gain once · Date: 2026-10-05 · Spec: US6, FR-040…047a, SC-004 ·
 Research: D9
 
 ## Context
@@ -24,6 +24,12 @@ engine. Later, on-device analysis becomes a second source.
   Rhythm's knee compressor is not ported; the session limiter does that job.
 - Opus header output gain: verified on device (S5) that the platform decoder applies it exactly once; if it
   doesn't, `GainProcessor` adds it (FR-041).
+- **S5 result (2026-10-05, T005, CPH2307, `.qa`)**: fixtures identical except the OpusHead output-gain field
+  (`scripts/spikes/opus-header-gain.py`); decoded by ExoPlayer through `c2.android.opus.decoder`: 0 dB header →
+  −26.00 dBFS RMS, +6 dB → −20.00 (+6.00), −6 dB → −32.00 (−6.00); identical to ffmpeg's reference decode.
+  **Decision: the platform decoder applies the header gain exactly once; `GainProcessor` never adds it** and applies
+  only the converted tag gain (R128 + 5 dB). Principle 10: other devices may use another Opus decoder; T052 logs the
+  active decoder name and re-runs this check (`OpusHeaderGainSpikeTest`) whenever the decoder is not `c2.android.opus*`.
 - Settings: enabled only with the new engine selected (FR-045); `NormalizationPreferences` + untagged pre-amp.
 
 ## Reference loudness (owner decision, 2026-10-05)

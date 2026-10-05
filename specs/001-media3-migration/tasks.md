@@ -122,7 +122,7 @@ test corpus on the device.
   - Accept: numbers per mode in ADR-004; pre-buffer length chosen (ADR-003 "≈5 s, tuned in S3"); decision on
     track-rate vs fixed output-rate processing. Two format mixes (Opus-heavy and FLAC/hi-res) per Principle 10.
 
-- [ ] T005 [P] [MANUAL] Spike S5 — Opus header output gain applied once, decision into `specs/001-media3-migration/adr/ADR-005-normalization-gain-source.md`; harness in `AI/spikes/OpusHeaderGainSpikeTest.kt`, fixture tool `scripts/spikes/opus-header-gain.py` {default}
+- [x] T005 [P] [MANUAL] Spike S5 — Opus header output gain applied once, decision into `specs/001-media3-migration/adr/ADR-005-normalization-gain-source.md`; harness in `AI/spikes/OpusHeaderGainSpikeTest.kt`, fixture tool `scripts/spikes/opus-header-gain.py` {default}
   - Do: the script encodes a 1 kHz −20 dBFS tone to Opus with ffmpeg, then writes copies with OpusHead output gain
     0 and +6 dB (Q7.8 at byte offset 16, Ogg page CRC recomputed); pushed to the device cache by the test setup.
     The test decodes both through ExoPlayer with a `TeeAudioProcessor` and compares RMS.
@@ -506,7 +506,8 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 - [ ] T052 [US6] Implement gain ramps in `A/player/dsp/GainProcessor.kt` and gain resolution in `A/player/media3/Media3Engine.kt` {hard} [HIGH-RISK]
   - Do: on each player's track format, `TagGainSource` → `itemGainDb` → `GainProcessor` target; `setNormalization`
-    retargets the current and prepared player with ramps; Opus header gain per T005's decision.
+    retargets the current and prepared player with ramps; Opus header gain per T005's decision: never added by
+    `GainProcessor` (the platform decoder applies it once); log the active Opus decoder name.
   - Tests: `GainRampTest` passes without modifying it; `GATE`.
 
 - [ ] T053 [US6] Normalization settings on the engine switch in `A/player/NormalizationPreferences.kt`, `A/ui/screens/PlaybackSettingsContent.kt`, `A/MainActivity.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
