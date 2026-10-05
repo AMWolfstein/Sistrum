@@ -284,7 +284,21 @@ Do these when convenient; Claude never marks them PASS.
 | T007 | orchestrator (tooling, no delegation) | — | 5 acceptance cases with throwaway probe classes (assertion → PASS; `IllegalStateException`, `TODO()`, passing → FAIL; assertion class + other failing classes → FAIL) + missing class → FAIL + full-suite path PASS; probes removed. **Review rounds: n/a** | DONE |
 | T008 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T008/brief-1.md` (session `ses_ef293bccafferManCrqv1f4aqD`) | run-1 accepted; 36 tests; migration-guard PASS; gate PASS (full suites, build). **Review rounds: 0** | DONE |
 | T009 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T009/brief-1.md` (session `ses_ef2917293ffeKez148R4f8hPKD`) | run-1 accepted; signatures match `contracts/player-engine.md`; gate PASS. **Review rounds: 0** | DONE |
+| T010 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T010/brief-1.md`, `brief-2.md` (session `ses_ef27e7545ffevjrOgyBMR1N1jq`) | run-1: migration-guard NEEDS CHANGES (4 weak test cases + engine bug: buffered events dropped after a failed prepare); round 1 fixed all; migration-guard PASS; gate PASS (437 tests). **Review rounds: 1** | DONE |
+
+### Notes for T011 (switching PlaybackService to the engine)
+
+- `LegacyNativeEngine.pollEvents()` delivers events synchronously (its `events` flow is empty). It drains
+  pending native transitions before prepare/preloadNext/clearPreloaded/beginCrossfade (the native slot is
+  single and overwritable). Call it wherever the service calls `consumeNativeTransition()` today.
+- `Ended` / `OutputDisconnected` fire once per false→true edge (re-armed by prepare). Today the ticker re-checks
+  `isFinished()` every tick but only acts while Playing: the service must not drop an `Ended` it receives in
+  another state (keep it until Playing, or handle it), or behaviour changes.
+- `preloadNext` rethrows preload exceptions; today's service wraps the call in `runCatching` (keep that at the
+  call site). The engine does not call `clearPreloaded()` inside `preloadNext`; the service still does first.
+- Open design point: add `pollEvents()` to the `PlayerEngine` interface (uniform synchronous drain for Media3
+  too) vs. a flow. Decide in T011/T013; contract amendment needed either way.
 
 ## Exact next step
 
-M2: `/delegate-task T010` (LegacyNativeEngine). Session paused by the owner after T009.
+M2: `/delegate-task T011` (route PlaybackService through PlayerEngine; hard, deepseek-v4-pro). Read "Notes for T011" first.

@@ -201,7 +201,7 @@ owner parity pass on `.qa`.
   - Tests: `GATE`.
   - Accept: compiles; signatures match the contract; KDoc states the FR-089/FR-086/FR-090 rules.
 
-- [ ] T010 [US1] Implement `A/player/engine/LegacyNativeEngine.kt` (wraps `FfmpegDecoder` 1:1 through an internal `NativeDecoderPort`) with `AT/player/engine/LegacyNativeEngineTest.kt` {default}
+- [x] T010 [US1] Implement `A/player/engine/LegacyNativeEngine.kt` (wraps `FfmpegDecoder` 1:1 through an internal `NativeDecoderPort`) with `AT/player/engine/LegacyNativeEngineTest.kt` {default}
   - Do: `FfmpegDecoderPort` adapts `FfmpegDecoder` (unchanged); `pollEvents()` (called from the service ticker)
     turns `consumeTransition` / `isFinished` / `isOutputDisconnected` into events exactly once each; `ItemGain` →
     existing native dB parameter; `setDsp` → `GlobalDspConfig`; dead APIs (`finishCrossfade`, `stop`,
