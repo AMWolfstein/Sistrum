@@ -146,6 +146,7 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
 | T004 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T004/brief-1.md` | run-1 accepted, gate PASS; 80-min measurement done (session `ses_ef30d95eaffeOhRK0atiEF7J3p`). **Review rounds: 0** | DONE: S3 PASS (ADR-004 "S3 result") |
 | T005 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T005/brief-1.md` | run-1 accepted (session `ses_ef306333affek0as11Gvi0fYpX`); fixtures independently checked with ffmpeg (−26/−20/−32 dB = ±6 dB); device run PASS (after the owner approved a Play Protect prompt for the QA install). **Review rounds: 0** | DONE: S5 PASS (ADR-005) |
 | T006 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T006/brief-1.md` | run-1 accepted (session `ses_ef2ffc3fdffec6cR0qadqLACm8`); regenerated + verified by the orchestrator; gains cross-checked vs ffmpeg ebur128 (5 forms exact); 47 files pushed to `/sdcard/Music/SistrumTestCorpus`, 46 indexed by MediaStore (`.wv` not indexed — 002 NOTES). **Review rounds: 0** | DONE |
+| T003b | orchestrator (no delegation) | — | steps 1–3 below | **STOPPED — owner decision (condition 3)** |
 
 T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
 `debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
@@ -179,6 +180,26 @@ Options for the owner:
   `dumpsys media.audio_flinger` (post-mix HAL power, no Visualizer, no permission), plus the DP-disabled mute check.
 - B: same new task now, before T004.
 - C: owner listening check of limiter on/off (deferred list).
+
+## T003b (2026-10-05) — stopped: dumpsys power history cannot measure the limiter
+
+Done by the orchestrator, no code changes (host-side parsing of `dumpsys media.audio_flinger`; the S2 test unchanged).
+- Step 1: the speaker thread (`AudioOut_1D`, 24-bit HAL, `AUDIO_DEVICE_OUT_SPEAKER`) has a post-mix "Signal power
+  history" at 1000 ms and 50 ms resolution. The DP descriptor says **"volume mgmt: implements control"** (AudioFlinger
+  hands the stream volume to the effect, so the limiter sees the pre-volume full-scale sum). A vendor **Dolby DAP**
+  effect is enabled on the output mix (session 0) after our session chain; the power history is measured after it.
+- Step 2: one dump after a run: the 50 ms ring holds only ~100 samples; the 1000 ms ring has one entry per DP-on
+  phase and none for DP-off phases.
+- Step 3: polled dumps (~0.2 s apart, 200 dumps) during a run: still only 8 samples of 50 ms power inside the 3 s
+  `singleOn` window; the log records short bursts per stream start, not continuous power. **(a) and (b) cannot be
+  measured this way.**
+- Consistent observation (3 independent sources: output-mix Visualizer, 1000 ms ring, polled 50 ms ring): **no output
+  power is ever logged in a DP-disabled phase, although our track is listed active** (`singleOff`). Strong hint, not
+  proof, that disabling the DP mutes the session on this device (plausible because it implements volume control).
+
+Design hedge that does not depend on the measurement (proposed, for the owner): never use `DynamicsProcessing.enabled
+= false` as "limiter off"; keep the effect enabled and make it neutral (limiter stage `inUse`/`enabled` false or
+threshold 0 dB, ratio 1), and treat losing control of the effect (FR-055) as a possible mute to detect and handle.
 
 ## Deferred owner checks (owner prefers minimal live testing, 2026-10-05)
 

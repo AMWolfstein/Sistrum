@@ -156,6 +156,8 @@ test corpus on the device.
   - Accept: (a)–(c) answered with numbers in ADR-004. If the dumpsys method cannot measure them either, STOP and ask
     the owner before trying anything else; fallback = owner listening check (option C).
   - **Blocks M5** (T042–T048) together with T004.
+  - Status 2026-10-05: **STOPPED** (owner condition 3): the post-mix power history is too sparse to measure (a)/(b);
+    (c) hinted (no power logged with the DP disabled while the track is active). See `HANDOFF.md` "T003b".
 
 **Checkpoint M1** — status report; ADR-003/004/005 statuses updated from "pending spike"; owner approval.
 
