@@ -1,6 +1,10 @@
 package me.misa198.airmedy.player.fakes
 
 import kotlin.random.Random
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import me.misa198.airmedy.mood.MoodRadioTrack
@@ -185,7 +189,15 @@ internal class FakeLibrary : LibraryPort {
 internal class FakeResolver : PlaybackItemResolver {
     val missing = mutableSetOf<String>()
 
+    /** When set, [resolve] throws it (FR-084: a throwing resolver during play). */
+    var failWith: Throwable? = null
+
+    /** When true, [resolve] suspends forever until the caller is cancelled (FR-084). */
+    var suspendForever: Boolean = false
+
     override suspend fun resolve(trackId: String): PlaybackItem? {
+        failWith?.let { throw it }
+        if (suspendForever) awaitCancellation()
         if (trackId in missing) return null
         return PlaybackItem(
             trackId = trackId,
@@ -207,6 +219,7 @@ internal class PlaybackCoordinatorHarness(
     val queue: PlaybackQueue = PlaybackQueue(Random(42)),
     durationFor: (PlaybackItem) -> Long = { FakePlayerEngine.DefaultDurationMs },
     markRestoredOnInit: Boolean = true,
+    coordinatorScope: CoroutineScope = scope,
 ) {
     val flows = PlaybackFlows(
         state = MutableStateFlow<PlaybackState>(PlaybackState.Idle),
@@ -232,7 +245,7 @@ internal class PlaybackCoordinatorHarness(
     private var artworkCrossfadeId = 0L
 
     val coordinator = PlaybackCoordinator(
-        scope = scope,
+        scope = coordinatorScope,
         queue = queue,
         flows = flows,
         engineFactory = { engines() },
@@ -281,5 +294,23 @@ internal class PlaybackCoordinatorHarness(
     /** Runs queued tasks without issuing a command; used by the restore-gate test. */
     fun advance() {
         scope.testScheduler.advanceUntilIdle()
+    }
+}
+
+/**
+ * Dispatcher that stores dispatched [Runnable]s and runs them last-in-first-out on demand. Used by
+ * FR-081/FR-084 command-path tests to prove arrival order: with today's per-command `scope.launch`,
+ * two commands run in reverse order here, which the FR-081 tests must reject.
+ */
+internal class ReversingDispatcher : CoroutineDispatcher() {
+    private val pending = ArrayDeque<Runnable>()
+
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        pending.addLast(block)
+    }
+
+    /** Runs stored runnables last-in-first-out, repeatedly until none remain. */
+    fun runAll() {
+        while (pending.isNotEmpty()) pending.removeLast().run()
     }
 }

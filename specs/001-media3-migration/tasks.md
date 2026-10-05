@@ -272,7 +272,7 @@ inactive on Media3, constitution sequencing exception); the shared service path 
 **Independent test**: Media3 selected → playback-contract tests + corpus pass (US2); switching mid-track never
 interrupts (US3); lock screen shows the right artist (US4).
 
-- [ ] T018 [US2] [TESTS-FIRST] Command-path tests in `AT/player/PlaybackCommandPathTest.kt`, defect tests in `AT/player/PlaybackCoordinatorDefectTest.kt`, already-passing guards in `AT/player/PlaybackCommandPathGuardTest.kt`; minimal seams in `A/player/engine/EngineEvent.kt`, `A/player/PlaybackCoordinator.kt`, fakes in `AT/player/fakes/` {hard} [HIGH-RISK]
+- [x] T018 [US2] [TESTS-FIRST] Command-path tests in `AT/player/PlaybackCommandPathTest.kt`, defect tests in `AT/player/PlaybackCoordinatorDefectTest.kt`, already-passing guards in `AT/player/PlaybackCommandPathGuardTest.kt`; minimal seams in `A/player/engine/EngineEvent.kt`, `A/player/PlaybackCoordinator.kt`, fakes in `AT/player/fakes/` {hard} [HIGH-RISK]
   - Do: on the coordinator + fake engine: FR-081 strict arrival order (focus loss then gain never swap; shown with a
     test dispatcher that runs launched coroutines in reverse order), FR-091 media-session queue selection goes through
     the command path (`selectQueueItem(index): Job`, index resolved at execution), FR-084 a throwing tick/command →
@@ -341,14 +341,21 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 - [ ] T026 [US2] Serialized command path in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackService.kt` (FR-081, FR-084, FR-091) {hard} [HIGH-RISK]
   - Do: one `Channel<Command>` with a single consumer; ticker and media-session callbacks enqueue commands;
-    `CoroutineExceptionHandler` + per-command catch → failed/skip, rethrow `CancellationException`.
+    `CoroutineExceptionHandler` + per-command catch → failed/skip, rethrow `CancellationException`. The catch also
+    wraps `coordinator.tick()` itself (FR-084 test calls `tick()` directly). `dispatch(...)` keeps its signature and its
+    `Job` completes when the command has been handled; `selectQueueItem(index)` becomes a command whose index is
+    resolved when it runs, and the service's `onSkipToQueueItem` calls it.
   - Tests: make the FR-081/084/091 tests of `PlaybackCommandPathTest` pass without modifying them; `GATE`.
     migration-guard (service command path).
   - Accept: T014–T016 still green unmodified.
 
 - [ ] T027 [US2] Focus, release and truthful state on the shared path in `A/player/PlaybackCoordinator.kt`, `A/player/engine/LegacyNativeEngine.kt` (FR-085, FR-086, FR-089, FR-090; defects FR-022/FR-035 duck across a track change, FR-015 no Last.fm restart on output recovery) {hard} [HIGH-RISK]
   - Do: the native engine emits `OutputStarted` after a successful unpaused prepare / `play()` (no native change); the
-    coordinator reports Playing on it.
+    coordinator reports Playing on it, draining `pollEvents()` inside the same command right after an unpaused prepare
+    or `play()` (and after output recovery in `tick()`), so engines that report start synchronously (native, the fake)
+    show Playing within the command and T014–T016 stay green. `EngineEvent.Error` before `OutputStarted` → the failed
+    path (`fail()`, FR-090(c)); T032 later extends the Error path (log, skip) without breaking that test. Gapless
+    advances do not wait for `OutputStarted` (guard FR-089).
   - Tests: remaining `PlaybackCommandPathTest` cases and the duck + Last.fm cases of `PlaybackCoordinatorDefectTest` pass
     without modifying them; `GATE`.
   - Accept: whole `PlaybackCommandPathTest` green; characterization tests unmodified.

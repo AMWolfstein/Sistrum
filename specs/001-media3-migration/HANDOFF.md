@@ -348,7 +348,8 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 
 | Task | Model | Brief / session | Result | Status |
 |---|---|---|---|---|
+| T018 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T018/brief-1.md`, `brief-2.md` (session `ses_ef1e5cb7effe6Ujo4ZVBomBUik`) | Tests first: `PlaybackCommandPathTest` 14 + `PlaybackCoordinatorDefectTest` 3 fail on assertions today (`verify.sh --expect-fail` PASS); `PlaybackCommandPathGuardTest` 6 already-holding guards (FR-084c, FR-085 a/d/f, FR-086a, FR-089). Seams: `EngineEvent.OutputStarted` (no-op arm), `selectQueueItem` stub; fakes: `autoOutputStarted` (default on), `failPosition`, resolver `failWith`/`suspendForever`, `coordinatorScope`, `ReversingDispatcher`. migration-guard NEEDS CHANGES round 1: FR-091 ordering test did not race, `join()` on custom-scope Jobs could time out; fixed in run-2; I replaced one remaining `join()` myself (trivial). Reviewer notes folded into T026/T027 task text (drain events in the command; Error before OutputStarted → fail; catch inside `tick()`). **Review rounds: 1** | DONE |
 
 ## Exact next step
 
-M3: `/delegate-task T018` (tests-first command path + defect tests). Then T019 onward per the dependency notes in tasks.md.
+M3: `/delegate-task T019` (Media3 dependencies), then T020 → T021, T022, T023 → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].

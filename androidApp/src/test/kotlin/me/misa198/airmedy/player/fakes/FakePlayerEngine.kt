@@ -38,6 +38,16 @@ internal class FakePlayerEngine(
     var failPreload: Throwable? = null
 
     /**
+     * When true (default), an unpaused [prepare] and every [play] queue
+     * [EngineEvent.OutputStarted] for the next [pollEvents]. Tests of FR-090 set
+     * this false so the fake no longer reports output started on its own.
+     */
+    var autoOutputStarted: Boolean = true
+
+    /** When set, [positionMs] throws it (FR-084: a throwing position tick). */
+    var failPosition: Throwable? = null
+
+    /**
      * Opt-in: when a successful [beginCrossfade] should mimic the native engine by
      * promoting the preloaded item and reporting [EngineEvent.TransitionStarted] on the
      * next [pollEvents]. The preloaded slot is retired (hasPreloaded becomes false) until
@@ -81,6 +91,7 @@ internal class FakePlayerEngine(
         position = startPositionMs
         playing = !startPaused
         prepareCalls += PrepareCall(item, gain, startPositionMs, startPaused)
+        if (!startPaused && autoOutputStarted) pendingEvents += EngineEvent.OutputStarted
     }
 
     override suspend fun preloadNext(item: PlaybackItem, gain: ItemGain) {
@@ -99,6 +110,7 @@ internal class FakePlayerEngine(
     override fun play() {
         calls += "play"
         playing = true
+        if (autoOutputStarted) pendingEvents += EngineEvent.OutputStarted
     }
 
     override fun pause() {
@@ -112,7 +124,10 @@ internal class FakePlayerEngine(
         position = positionMs
     }
 
-    override fun positionMs(): Long = position
+    override fun positionMs(): Long {
+        failPosition?.let { throw it }
+        return position
+    }
 
     override fun durationMs(): Long = duration
 
@@ -181,12 +196,20 @@ internal class FakeEngineFactory(
     /** Applied to every created engine before it is returned; used to force prepare failures. */
     var failPrepare: Throwable? = null
 
+    /** Applied to every created engine before it is returned; false disables auto OutputStarted. */
+    var autoOutputStarted: Boolean = true
+
+    /** Applied to every created engine before it is returned; makes [FakePlayerEngine.positionMs] throw. */
+    var failPosition: Throwable? = null
+
     val current: FakePlayerEngine get() = created.last()
 
     override fun invoke(): PlayerEngine = FakePlayerEngine(durationFor).also { engine ->
         engine.onPrepare = onPrepare
         engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
         engine.failPrepare = failPrepare
+        engine.autoOutputStarted = autoOutputStarted
+        engine.failPosition = failPosition
         created += engine
     }
 }

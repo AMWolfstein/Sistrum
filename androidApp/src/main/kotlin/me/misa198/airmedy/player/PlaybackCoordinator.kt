@@ -161,6 +161,9 @@ internal class PlaybackCoordinator(
 
     internal fun stopMoodRadio() { moodRadioSeedId = null; moodRadioLastRefillAttempt = null; flows.moodRadioActive.value = false }
 
+    /** FR-091: media-session skip-to-queue-item; T026 routes it through the command path. */
+    fun selectQueueItem(index: Long): Job = Job().apply { complete() }
+
     private fun pauseForTransientFocusLoss() {
         resumeOnFocusGain = flows.state.value is PlaybackState.Playing
         restoreFocusGain()
@@ -565,6 +568,7 @@ internal class PlaybackCoordinator(
                 is EngineEvent.TransitionStarted -> consumeEngineTransition(event)
                 EngineEvent.OutputDisconnected -> outputDisconnected = true
                 EngineEvent.Ended -> endedPending = true
+                EngineEvent.OutputStarted -> Unit // reported as Playing in T027
                 is EngineEvent.Error -> Unit // handled in T032
             }
         }

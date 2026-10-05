@@ -20,6 +20,12 @@ internal sealed interface EngineEvent {
     /** The audio output route was disconnected. */
     data object OutputDisconnected : EngineEvent
 
+    /**
+     * Audio output actually started after an unpaused prepare or play() (FR-090).
+     * The coordinator reports Playing only after it.
+     */
+    data object OutputStarted : EngineEvent
+
     /** Playback failed for [format] from [provider] with [cause]. */
     data class Error(val provider: String, val format: String, val cause: Throwable) : EngineEvent
 }
