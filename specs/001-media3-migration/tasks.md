@@ -242,7 +242,7 @@ owner parity pass on `.qa`.
   - Tests: `UT me.misa198.airmedy.player.PlaybackCoordinatorQueueCharacterizationTest`; `GATE`. migration-guard.
   - Accept: green without production changes.
 
-- [ ] T015 [P] [US1] Characterize crossfade orchestration in `AT/player/PlaybackCoordinatorCrossfadeCharacterizationTest.kt` {hard} [HIGH-RISK]
+- [x] T015 [P] [US1] Characterize crossfade orchestration in `AT/player/PlaybackCoordinatorCrossfadeCharacterizationTest.kt` {hard} [HIGH-RISK]
   - Do: Q8 item 5–6 on the fake engine: fade starts only on automatic advance inside the window; queue, state,
     Last.fm `startPlayback` and listening switch at fade **start**; artwork event id/from/to/duration; overlap split
     (`splitCrossfadeOverlap`); i+2 preloaded only after the fade; snap on pause/seek/stop/queue edit; manual change

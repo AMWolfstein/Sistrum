@@ -37,6 +37,14 @@ internal class FakePlayerEngine(
     var failPrepare: Throwable? = null
     var failPreload: Throwable? = null
 
+    /**
+     * Opt-in: when a successful [beginCrossfade] should mimic the native engine by
+     * promoting the preloaded item and reporting [EngineEvent.TransitionStarted] on the
+     * next [pollEvents]. The preloaded slot is retired (hasPreloaded becomes false) until
+     * the coordinator preloads again, matching the native slot becoming the outgoing source.
+     */
+    var emitTransitionOnCrossfade: Boolean = false
+
     /** Invoked inside [prepare] before any state changes, so tests can observe the coordinator mid-prepare. */
     var onPrepare: (() -> Unit)? = null
 
@@ -46,6 +54,7 @@ internal class FakePlayerEngine(
     val prepareCalls = mutableListOf<PrepareCall>()
     val calls = mutableListOf<String>()
     val seeks = mutableListOf<Long>()
+    val crossfades = mutableListOf<Long>()
     val focusGains = mutableListOf<Float>()
     var closed: Boolean = false
 
@@ -109,8 +118,14 @@ internal class FakePlayerEngine(
 
     override fun beginCrossfade(durationMs: Long): Boolean {
         calls += "beginCrossfade"
+        crossfades += durationMs
         if (!beginCrossfadeResult || !hasPreloaded() || crossfading) return false
         crossfading = true
+        if (emitTransitionOnCrossfade) {
+            val incoming = preloadedItem
+            preloadedItem = null
+            if (incoming != null) pendingEvents += EngineEvent.TransitionStarted(incoming, durationMs)
+        }
         return true
     }
 
@@ -160,10 +175,14 @@ internal class FakeEngineFactory(
     /** Applied to every created engine before it is returned. */
     var onPrepare: (() -> Unit)? = null
 
+    /** Applied to every created engine before it is returned. */
+    var emitTransitionOnCrossfade: Boolean = false
+
     val current: FakePlayerEngine get() = created.last()
 
     override fun invoke(): PlayerEngine = FakePlayerEngine(durationFor).also { engine ->
         engine.onPrepare = onPrepare
+        engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
         created += engine
     }
 }
