@@ -41,8 +41,13 @@ Rules:
 - `pollEvents()` (refinement 2026-10-05, T011; ADR-001 "events on the service ticker"): the service's single
   command consumer drains buffered events synchronously, in order, each exactly once, so transitions are
   handled inside the command lock as today. An implementation never delivers the same event through both
-  `pollEvents()` and `events`. `LegacyNativeEngine`: everything via `pollEvents()`, `events` empty. Media3
-  (T018+) decides whether its events also go through `pollEvents()` (preferred: one path) — amend here then.
+  `pollEvents()` and `events`. `LegacyNativeEngine`: everything via `pollEvents()`, `events` empty. `Media3Engine`
+  (decided 2026-10-06, T020): also everything via `pollEvents()`, `events` empty — player listeners run on the
+  engine's playback looper and append to a thread-safe buffer that `pollEvents()` drains; level checks that need the
+  player (e.g. output started) are evaluated inside `pollEvents()` on the playback looper.
+- Threading (`Media3Engine`, T020): every ExoPlayer is built on one process-wide playback `HandlerThread` looper
+  (`Media3PlayerFactory`); seam calls arrive on the command consumer's thread and are marshalled onto that looper
+  synchronously (bounded wait), so the seam stays synchronous as for the native engine.
 - `OutputStarted` (refinement 2026-10-06, T018; FR-090 and the "playing only after output started" rule below): emitted
   once per start of output (after an unpaused `prepare` or a `play()`), through `pollEvents()`. The coordinator reports
   `Playing` only after it. `LegacyNativeEngine` has no native signal and emits it right after a successful unpaused

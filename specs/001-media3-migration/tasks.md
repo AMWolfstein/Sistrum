@@ -297,7 +297,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `GATE`.
   - Accept: no FFmpeg Media3 extension; APK still arm64-only.
 
-- [ ] T020 [US2] Implement the single-player core of `A/player/media3/Media3Engine.kt` and `A/player/media3/Media3PlayerFactory.kt` with `AI/player/media3/Media3EngineCoreTest.kt` {hard} [HIGH-RISK]
+- [x] T020 [US2] Implement the single-player core of `A/player/media3/Media3Engine.kt` and `A/player/media3/Media3PlayerFactory.kt` with `AI/player/media3/Media3EngineCoreTest.kt` {hard} [HIGH-RISK]
   - Do: `file://` MediaItems from absolute paths; offload disabled; `handleAudioFocus = false`; prepare / play /
     pause / seek / position / duration; `Ended`; `Error(provider = "platform", format, cause)`; failing prepare
     releases the player (FR-086); output-started signal for FR-090 (`onIsPlayingChanged` after first rendered

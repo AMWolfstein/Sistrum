@@ -353,7 +353,32 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 |---|---|---|---|---|
 | T018 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T018/brief-1.md`, `brief-2.md` (session `ses_ef1e5cb7effe6Ujo4ZVBomBUik`) | Tests first: `PlaybackCommandPathTest` 14 + `PlaybackCoordinatorDefectTest` 3 fail on assertions today (`verify.sh --expect-fail` PASS); `PlaybackCommandPathGuardTest` 6 already-holding guards (FR-084c, FR-085 a/d/f, FR-086a, FR-089). Seams: `EngineEvent.OutputStarted` (no-op arm), `selectQueueItem` stub; fakes: `autoOutputStarted` (default on), `failPosition`, resolver `failWith`/`suspendForever`, `coordinatorScope`, `ReversingDispatcher`. migration-guard NEEDS CHANGES round 1: FR-091 ordering test did not race, `join()` on custom-scope Jobs could time out; fixed in run-2; I replaced one remaining `join()` myself (trivial). Reviewer notes folded into T026/T027 task text (drain events in the command; Error before OutputStarted → fail; catch inside `tick()`). **Review rounds: 1** | DONE |
 | T019 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T019/brief-1.md` | Media3 exoplayer/common 1.11.1 → `implementation`, `media3-test-utils` → `testImplementation`, androidTest lines dropped, notices updated. The coder's run was killed by the OS memory reaper after its edits (before its own test run); diff reviewed complete. Gate PASS with `--expect-fail` (T018 classes), assembleDevQaAndroidTest PASS; runtime classpath: core media3 modules only, no FFmpeg/decoder extension; abiFilters unchanged. **Review rounds: 0** | DONE |
+| T020 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T020/brief-1.md` … `brief-5.md` (session `ses_ef1b447f3ffeZSrv7tsGzK5l9P`) | `Media3Engine` single-player core + `Media3PlayerFactory` (shared `sistrum-player` looper, synchronous marshalling, live-player count); `Media3EngineCoreTest` 12/12 on the CPH2307 `.qa` build (3 runs). Contract: Media3 events via `pollEvents()`, looper threading. Orchestrator fixes: `check(!closed)` in prepare; dynamic scheduling off (root cause of coarse positions). Not selectable yet. **Review rounds: 4** (3 + 1 owner-approved; see "T020 stop") | DONE |
+
+### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
+
+Uncommitted: `A/player/media3/Media3Engine.kt`, `A/player/media3/Media3PlayerFactory.kt`,
+`AI/player/media3/Media3EngineCoreTest.kt`, and the contract amendment in `contracts/player-engine.md` (Media3 events via
+`pollEvents()`, playback-looper threading). Session `ses_ef1b447f3ffeZSrv7tsGzK5l9P`, briefs 1–4.
+Host gate PASS (`--expect-fail` T018 classes), builds PASS. Device (CPH2307, `.qa`): 11/12 instrumented tests PASS.
+Rounds: (1) my brief used `flac_malformed.flac` (only a bad RG tag, valid audio) and a per-step minimum → fixed with
+generated garbage/empty files; (2) real finding: ExoPlayer's `currentPosition` moves in ~250 ms steps on this device
+(some 200 ms ticks unchanged) → engine now extrapolates while playing (monotonic, capped 500 ms, reset on prepare/
+pause/seek); zero-delta ticks gone; (3) the freshness test (|Δposition − Δwall| ≤ 150 ms from OutputStarted) still fails:
+3 reruns show the position advancing slowly for ~200 ms after the first rendered advance, then at normal speed ~200 ms
+behind wall time (e.g. t=1012 ms → p=798 ms; t=202 → p=21). That is the audio pipeline's start-up: the position follows
+the audio actually rendered, which is the right reference for lyrics sync, so the engine looks correct and the test's
+"wall time from the first advance" assumption is wrong.
+Resolution: owner approved a 4th round (warm-up freshness test); it still showed a stalled tick in steady state. Root
+cause found: Media3 1.11.1 enables *dynamic scheduling* by default (`ExoPlayer.Builder.dynamicSchedulingEnabled = true`,
+read from the bytecode), so the playback loop sleeps ~250 ms between position updates. Orchestrator one-line fix:
+`.experimentalSetDynamicSchedulingEnabled(false)` in `Media3PlayerFactory` (trade-off: more playback-thread wake-ups,
+comparable to the native engine's continuous audio thread). Result: readings track wall time within ±7 ms at every
+200 ms tick; Media3EngineCoreTest 12/12 on the device, three consecutive runs. The engine's extrapolation stays (harmless
+safety net; revisit if it ever masks a stall). Earlier proposal (kept for the record): accept the engine; change the test to measure freshness after a 1 s warm-up (per-tick: strictly increasing,
+step ≤ 450 ms, |Δp − Δt| ≤ 150 ms between consecutive readings) — one more delegated round (needs owner OK, max rounds
+reached) or an orchestrator test edit.
 
 ## Exact next step
 
-M3: `/delegate-task T020` (Media3Engine core), then T021 → T021, T022, T023 → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].
+M3: `/delegate-task T021` (Media3 gapless preload), then → T021, T022, T023 → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].
