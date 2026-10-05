@@ -277,7 +277,7 @@ Do these when convenient; Claude never marks them PASS.
 - [ ] S1 snaps by ear (T002): rerun with `-e snapAt 0.3 -e snapKind pause|seek`, `-e snapAt 0.7 -e snapKind next`
   (commands in ADR-003 "S1 result" / tasks T002).
 
-## M2 — in progress
+## M2 — DONE, approved by the owner 2026-10-06 (T017 ok)
 
 | Task | Model | Brief | Runs / review rounds | Status |
 |---|---|---|---|---|
@@ -313,7 +313,9 @@ Do these when convenient; Claude never marks them PASS.
   track before the current one makes restore select a different track (and apply the saved position to it).
 - **Last.fm re-armed on output recovery** (FR-015, US1 sc6): `recoverAfterOutputDisconnect` → `playCurrent` calls
   `scrobble.startPlayback` again, which resets the scrobble tracker; a route change after the threshold can scrobble twice.
-- Proposal: add these to the shared service-path fixes (FR-080…092 group) at M2 approval; owner decides placement.
+- Owner decision 2026-10-06: duck defect → T026/T027 (placed in T027, focus); restore defect → T030 (session/restore,
+  `PlaybackModels.kt`); Last.fm defect → T027 (output recovery). Each gets a test first: `PlaybackCoordinatorDefectTest`
+  in T018 (`--expect-fail`), fixed "without modifying them".
 
 ### T017 — US1 parity pass (MANUAL, owner) — prepared 2026-10-06
 
@@ -336,6 +338,17 @@ green unmodified at every M2 commit (SC-001, US1 sc3; androidApp 507 + sharedLog
 Known, not regressions: Volume normalization and Mood Radio are broken on the native engine (fixed on Media3).
 Reply with the ticks, or "T017 ok" if all match; any difference → describe it and I will investigate before M3.
 
+## M3 — in progress (started 2026-10-06)
+
+Contract refinements decided at T018 (no ADR change; same kind as the T011 `pollEvents` refinement):
+- `EngineEvent.OutputStarted` (FR-090): the coordinator reports Playing only after it (contracts/player-engine.md).
+- `PlaybackCoordinator.selectQueueItem(index): Job` (FR-091): the media session's skip-to-queue-item goes through the
+  command path; the index is resolved when the command runs. T018 adds a no-op stub; T026 implements it.
+- `dispatch(...)` keeps its signature; after T026 its `Job` completes when the command has been handled (tests `join()` it).
+
+| Task | Model | Brief / session | Result | Status |
+|---|---|---|---|---|
+
 ## Exact next step
 
-M2: waiting for the owner's T017 checklist (above) and Checkpoint M2 approval (incl. where to fix the three coordinator defects). Then M3: `/delegate-task T018`.
+M3: `/delegate-task T018` (tests-first command path + defect tests). Then T019 onward per the dependency notes in tasks.md.

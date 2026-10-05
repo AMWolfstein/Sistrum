@@ -258,10 +258,10 @@ owner parity pass on `.qa`.
   - Tests: `UT me.misa198.airmedy.player.PlaybackCoordinatorSessionCharacterizationTest`; `GATE`. migration-guard.
   - Accept: green without production changes.
 
-- [ ] T017 [US1] [MANUAL] {orchestrator} US1 parity pass on `.qa` (native engine): album gapless, 6 s crossfade, EQ on, focus, lock screen, statistics, Last.fm, lyrics sync vs the pre-migration build; `git diff main -- '**/PlaybackQueue.kt' '**/ListeningTracker.kt'` empty; record in `specs/001-media3-migration/HANDOFF.md`
+- [x] T017 [US1] [MANUAL] {orchestrator} US1 parity pass on `.qa` (native engine): album gapless, 6 s crossfade, EQ on, focus, lock screen, statistics, Last.fm, lyrics sync vs the pre-migration build; `git diff main -- '**/PlaybackQueue.kt' '**/ListeningTracker.kt'` empty; record in `specs/001-media3-migration/HANDOFF.md`
   - Accept: owner checklist signed off (US1 scenarios 1–3); SC-001 and SC-010 hold.
 
-**Checkpoint M2** — status report; owner approval.
+**Checkpoint M2** — status report; owner approval. **Approved by the owner 2026-10-06** (T017 ok).
 
 ---
 
@@ -272,16 +272,24 @@ inactive on Media3, constitution sequencing exception); the shared service path 
 **Independent test**: Media3 selected → playback-contract tests + corpus pass (US2); switching mid-track never
 interrupts (US3); lock screen shows the right artist (US4).
 
-- [ ] T018 [US2] [TESTS-FIRST] Command-path tests in `AT/player/PlaybackCommandPathTest.kt` {hard} [HIGH-RISK]
-  - Do: on the coordinator + fake engine: FR-081 strict arrival order (focus loss then gain never swap), FR-091
-    media-session queue selection goes through the command path, FR-084 a throwing tick/command → failed state or
-    skip, no crash, cancellation propagates; FR-085 focus requested only when audio starts (not for a paused
-    restore), abandoned on failure/stop, pending resume cleared by stop and user pause; FR-086 a failing `prepare`
-    leaves no engine resources (fake counts open/close); FR-089 two automatic transitions in one tick → two ordered
-    deliveries, queue and playing item in sync; FR-090 `Playing` only after the engine reports output started; start
-    failure → `Failed`.
-  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.PlaybackCommandPathTest'`. migration-guard.
-  - Accept: each FR has ≥ 1 named test; failures are for missing behaviour, not compile errors.
+- [ ] T018 [US2] [TESTS-FIRST] Command-path tests in `AT/player/PlaybackCommandPathTest.kt`, defect tests in `AT/player/PlaybackCoordinatorDefectTest.kt`, already-passing guards in `AT/player/PlaybackCommandPathGuardTest.kt`; minimal seams in `A/player/engine/EngineEvent.kt`, `A/player/PlaybackCoordinator.kt`, fakes in `AT/player/fakes/` {hard} [HIGH-RISK]
+  - Do: on the coordinator + fake engine: FR-081 strict arrival order (focus loss then gain never swap; shown with a
+    test dispatcher that runs launched coroutines in reverse order), FR-091 media-session queue selection goes through
+    the command path (`selectQueueItem(index): Job`, index resolved at execution), FR-084 a throwing tick/command →
+    failed state or skip, no crash (recorded via a CoroutineExceptionHandler), cancellation propagates; FR-085 focus
+    requested only when audio starts (not for a paused restore or a paused track change), abandoned on failure/stop,
+    pending resume cleared by stop and user pause; FR-086 a failing `prepare` (play or restore) leaves no engine
+    resources (fake counts open/close); FR-089 two automatic transitions in one tick → two ordered deliveries, queue and
+    playing item in sync; FR-090 `Playing` only after the engine reports `EngineEvent.OutputStarted`; start failure →
+    error published, the failed item never reported Playing. Defects found at T016 (owner 2026-10-06): duck kept across
+    a manual track change (FR-022/FR-035), restore selects the saved track when an earlier track is missing (FR-013),
+    output recovery does not restart Last.fm (FR-015, US1 sc6).
+  - Seams (no behaviour change): `EngineEvent.OutputStarted` (contract refinement) with a no-op arm in the coordinator;
+    `selectQueueItem` stub (returns a finished Job, does nothing); fake engine auto-emits `OutputStarted` on an unpaused
+    prepare and on `play()` by default (opt-out flag), so T014–T016 stay green.
+  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.PlaybackCommandPathTest,me.misa198.airmedy.player.PlaybackCoordinatorDefectTest'`
+    (the guard class must pass). migration-guard.
+  - Accept: each FR has ≥ 1 named test (in the expect-fail or the guard class); expect-fail failures are assertions only.
 
 - [ ] T019 [US2] Add Media3 to the app in `gradle/libs.versions.toml`, `androidApp/build.gradle.kts`, `THIRD-PARTY-NOTICES` {default}
   - Do: `implementation` `media3-exoplayer` + `media3-common` 1.11.1; `testImplementation` `media3-test-utils`; notices
@@ -338,8 +346,11 @@ interrupts (US3); lock screen shows the right artist (US4).
     migration-guard (service command path).
   - Accept: T014–T016 still green unmodified.
 
-- [ ] T027 [US2] Focus, release and truthful state on the shared path in `A/player/PlaybackCoordinator.kt` (FR-085, FR-086, FR-089, FR-090) {hard} [HIGH-RISK]
-  - Tests: remaining `PlaybackCommandPathTest` cases pass without modifying them; `GATE`.
+- [ ] T027 [US2] Focus, release and truthful state on the shared path in `A/player/PlaybackCoordinator.kt`, `A/player/engine/LegacyNativeEngine.kt` (FR-085, FR-086, FR-089, FR-090; defects FR-022/FR-035 duck across a track change, FR-015 no Last.fm restart on output recovery) {hard} [HIGH-RISK]
+  - Do: the native engine emits `OutputStarted` after a successful unpaused prepare / `play()` (no native change); the
+    coordinator reports Playing on it.
+  - Tests: remaining `PlaybackCommandPathTest` cases and the duck + Last.fm cases of `PlaybackCoordinatorDefectTest` pass
+    without modifying them; `GATE`.
   - Accept: whole `PlaybackCommandPathTest` green; characterization tests unmodified.
 
 - [ ] T028 [US2] In-process queue handoff (FR-083) in `A/player/PlaybackController.kt`, `A/player/QueueHandoff.kt`, `A/player/PlaybackService.kt` with `AT/player/QueueHandoffTest.kt` {hard} [HIGH-RISK]
@@ -358,9 +369,10 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Accept: `[MANUAL]` on `.qa`: `adb shell am start-foreground-service` with pause/seek/stop to a cold service → no
     crash, no `ForegroundServiceDidNotStartInTimeException` in logcat (US4 sc6).
 
-- [ ] T030 [US2] Session publishing without whole-library loads, coalesced seeks, ordered saves (FR-087) in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackSessionStore.kt` with `AT/player/SessionPublishingTest.kt` {hard} [HIGH-RISK]
+- [ ] T030 [US2] Session publishing without whole-library loads, coalesced seeks, ordered saves (FR-087), restore keeps the saved track (FR-013 defect) in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackSessionStore.kt`, `A/player/PlaybackModels.kt` with `AT/player/SessionPublishingTest.kt` {hard} [HIGH-RISK]
   - Tests: `UT me.misa198.airmedy.player.SessionPublishingTest` (resolver call count per command bounded by queue
-    window, 50 seek commands → ≤ 2 engine seeks, saves land in command order); `GATE`.
+    window, 50 seek commands → ≤ 2 engine seeks, saves land in command order); the restore case of
+    `PlaybackCoordinatorDefectTest` passes without modifying it; `GATE`.
   - Accept: no full-library resolve per command.
 
 - [ ] T031 [P] [US2] Preference churn (FR-092) in `A/player/EqualizerPreferences.kt`, `A/player/PlaybackPreferences.kt`, `A/player/PlaybackCoordinator.kt` with `AT/player/PreferenceChurnTest.kt` {default}

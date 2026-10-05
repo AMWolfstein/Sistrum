@@ -32,6 +32,7 @@ sealed interface EngineEvent {
     data class GaplessAdvanced(val incoming: PlaybackItem) : EngineEvent
     data object Ended : EngineEvent                                  // current item ended, nothing preloaded
     data object OutputDisconnected : EngineEvent
+    data object OutputStarted : EngineEvent                          // audio actually started (FR-090), refined at T018
     data class Error(val provider: String, val format: String, val cause: Throwable) : EngineEvent
 }
 ```
@@ -42,6 +43,10 @@ Rules:
   handled inside the command lock as today. An implementation never delivers the same event through both
   `pollEvents()` and `events`. `LegacyNativeEngine`: everything via `pollEvents()`, `events` empty. Media3
   (T018+) decides whether its events also go through `pollEvents()` (preferred: one path) — amend here then.
+- `OutputStarted` (refinement 2026-10-06, T018; FR-090 and the "playing only after output started" rule below): emitted
+  once per start of output (after an unpaused `prepare` or a `play()`), through `pollEvents()`. The coordinator reports
+  `Playing` only after it. `LegacyNativeEngine` has no native signal and emits it right after a successful unpaused
+  prepare / `play()` (T027, no native change); Media3 emits it on the first advance of the rendered position (T020).
 - `Ended` and `OutputDisconnected` are edge events (once per occurrence, re-armed by `prepare`); the service keeps
   its own pending flags where it needs today's level checks.
 - Exactly one `TransitionStarted` or `GaplessAdvanced` per automatic advance, in order (FR-089).
