@@ -24,11 +24,13 @@ device (constitution Principle 10).
 - `./gradlew :androidApp:lintDevDebug`
 - **Never run instrumentation, install test APKs, or force-stop anything against the owner's daily
   app `me.misa198.airmedy.dev`** (or its `.test` instrumentation package). All on-device tests use the
-  separate test-build application ID only (constitution "Test builds"; e.g. a `.qa` suffix). If that
-  build doesn't exist yet, stop and tell the owner. `verify.sh --instrumented` enforces this.
-- With the test build: `./gradlew :androidApp:assembleDevDebugAndroidTest`, check both APKs' IDs
-  (`aapt2 dump packagename <apk>`), install them with `adb install -r`, and run classes one at a time:
-  `adb shell am instrument -w -r -e class <Class> <test-build test package>/androidx.test.runner.AndroidJUnitRunner`
+  separate test build `me.misa198.airmedy.dev.qa` (build type `qa`, label "Sistrum QA"; ADR-007) and
+  its instrumentation package `me.misa198.airmedy.dev.qa.test`. `verify.sh --instrumented` enforces this.
+  Never install `devDebug` on the device: it has the daily app's ID.
+- With the test build: `./gradlew :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest`
+  (`testBuildType = "qa"`), check both APKs' IDs (`aapt2 dump packagename <apk>`), install them with
+  `adb install -r` (`-t` for the test APK), and run classes one at a time:
+  `adb shell am instrument -w -r -e class <Class> me.misa198.airmedy.dev.qa.test/androidx.test.runner.AndroidJUnitRunner`
   Keep the screen awake (`adb shell svc power stayon usb`). Don't use Gradle
   connected* tasks: they uninstall the app afterwards.
 

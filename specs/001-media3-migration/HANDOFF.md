@@ -136,6 +136,18 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
   green unmodified); US7 sc4 tolerance + "no click on EQ change" recorded as an intentional deviation.
 - Owner request: report review rounds per task in every status report.
 
+## M1 — in progress
+
+| Task | Model | Brief | Runs / review rounds | Status |
+|---|---|---|---|---|
+| T001 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T001/brief-1.md` (session `ses_ef3c61449ffec4zSY8gEWw8APM`) | run-1 failed before dispatch (OpenCode postinstall missing; fixed with the owner's OK, 1.18.34); run-2 accepted. **Review rounds: 0** | DONE (gate PASS); SC-009 owner confirmation pending |
+
+T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
+`debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
+unit tests ran, 0 failures). Device has a pre-existing `me.misa198.airmedy.dev.test` package from before this session;
+left alone (no uninstalls). T001 orchestrator part: CLAUDE.md adb section, verify.sh (QA APKs; allowlist: only `.qa` / `.qa.test`
+may be installed), tasks.md T001 file list (manifest overlay for the label).
+
 ## Exact next step
 
 M1: `/delegate-task T001` (`.qa` build).

@@ -81,9 +81,9 @@ if [ -n "$instrumented" ]; then
   if ! "$adb" get-state >/dev/null 2>&1; then
     report "instrumented" "NOT RUN" "no device connected"
   else
-    ./gradlew -q :androidApp:assembleDevDebugAndroidTest > "$logs/androidtest-build.log" 2>&1
-    app_apk=androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk
-    test_apk=androidApp/build/outputs/apk/androidTest/dev/debug/androidApp-dev-debug-androidTest.apk
+    ./gradlew -q :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest > "$logs/androidtest-build.log" 2>&1
+    app_apk=androidApp/build/outputs/apk/dev/qa/androidApp-dev-qa.apk
+    test_apk=androidApp/build/outputs/apk/androidTest/dev/qa/androidApp-dev-qa-androidTest.apk
     aapt2="$(ls -d "$sdk"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)"
     app_id="$("$aapt2" dump packagename "$app_apk" 2>/dev/null)"
     test_id="$("$aapt2" dump packagename "$test_apk" 2>/dev/null)"
@@ -92,8 +92,9 @@ if [ -n "$instrumented" ]; then
     if [ -z "$app_id" ] || [ -z "$test_id" ]; then
       report "instrumented" BLOCKED "could not read the APK application IDs (aapt2: ${aapt2:-not found})"
       classes=()
-    elif [ "$app_id" = "$daily_id" ] || [ "$test_id" = "$daily_id.test" ]; then
-      report "instrumented" BLOCKED "no separate test-build application ID yet ($app_id); refusing to touch the daily app"
+    elif [ "$app_id" != "$daily_id.qa" ] || [ "$test_id" != "$daily_id.qa.test" ]; then
+      # Allowlist: only the .qa test build (ADR-007) may be installed or instrumented.
+      report "instrumented" BLOCKED "APK IDs are $app_id / $test_id, not the .qa test build; refusing to install"
       classes=()
     else
       "$adb" install -r "$app_apk" > /dev/null

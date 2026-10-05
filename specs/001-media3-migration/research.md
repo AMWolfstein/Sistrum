@@ -171,7 +171,7 @@ R1–R12), the external reports in `research/` (leads, Principle 7), and the des
 | S1 | Fade method: per-sample processor (chosen) vs timer-stepped `player.volume` (12 s fade, snaps) | Desk analysis done (D4); owner chose the processor fade. Device listening **pending**: first task after the `.qa` build |
 | S2 | Shared session + limiter-only DP: both tracks on one output thread, summed tones limited, overshoot, hi-res direct output (SC-015) | DP availability **DONE** (present). Routing/limiting **BLOCKED**: needs `.qa` |
 | S3 | Memory/CPU with the second-player lifetime (FR-033, SC-013); processor CPU at track rate vs output rate | **BLOCKED**: needs `.qa` |
-| S4 | Platform audio decoders on the CPH2307 | **DONE** (codec XMLs; no ALAC): `research/platform-codecs-cph2307.md`. Instrumented probe committed, NOT RUN (needs `.qa`) |
+| S4 | Platform audio decoders on the CPH2307 | **DONE** (codec XMLs; no ALAC): `research/platform-codecs-cph2307.md`. Instrumented probe **PASS** on `.qa` (T001, 2026-10-05): confirms no ALAC |
 | S5 | Opus header gain applied once by the platform decoder (FR-041) | **BLOCKED**: needs corpus + `.qa` |
 | S6 | MediaSession approach | Desk **DONE** (D6), owner confirmed (framework session in 001) |
 | S7 | Rhythm / Choir sources fit | Desk **DONE** (D3, D8, D9) |

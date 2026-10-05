@@ -1,5 +1,6 @@
 import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.android.build.api.variant.HasUnitTestBuilder
 import java.util.Properties
 import javax.inject.Inject
 
@@ -181,7 +182,16 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("qa") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".qa"
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+            matchingFallbacks += listOf("debug")
+        }
     }
+    testBuildType = "qa"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
@@ -198,5 +208,16 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+    }
+}
+
+dependencies {
+    "qaImplementation"(libs.compose.uiTooling)
+    "qaImplementation"(libs.compose.uiTestManifest)
+}
+
+androidComponents {
+    beforeVariants(selector().withBuildType("debug")) { variantBuilder ->
+        (variantBuilder as HasUnitTestBuilder).enableUnitTest = true
     }
 }

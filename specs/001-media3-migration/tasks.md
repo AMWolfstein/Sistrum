@@ -67,10 +67,11 @@ before the next milestone starts.
 **Goal**: a safe `.qa` build next to the daily app; ADR-003/004/005 confirmed or stopped by device evidence; the
 test corpus on the device.
 
-- [ ] T001 [US9] Add the `.qa` test build (ADR-007) in `androidApp/build.gradle.kts`, `androidApp/src/qa/res/values/strings.xml`, `androidApp/src/qa/res/values/colors.xml` {default}
+- [x] T001 [US9] Add the `.qa` test build (ADR-007) in `androidApp/build.gradle.kts`, `androidApp/src/qa/AndroidManifest.xml`, `androidApp/src/qa/res/values/ic_launcher_background.xml` {default}
   - Do: build type `qa` = `initWith(debug)`, `applicationIdSuffix = ".qa"`, `isDebuggable = true`, no minify,
-    `matchingFallbacks += "debug"`; `testBuildType = "qa"`; `app_name` = "Sistrum QA" and a distinct
-    `ic_launcher_background` colour in the `qa` source set (the adaptive icon uses `@color/ic_launcher_background`).
+    `matchingFallbacks += "debug"`; `testBuildType = "qa"`; `qaImplementation` of ui-tooling/ui-test-manifest; label
+    "Sistrum QA" through a `qa` manifest overlay (`tools:replace="android:label"`; `app_name` exists in 14 locales, so a
+    resource override would lose) and a distinct `ic_launcher_background` colour in the `qa` source set.
     `signingConfigs` untouched. `{orchestrator}` part in the same commit: CLAUDE.md adb section (`assembleDevQa`,
     `assembleDevQaAndroidTest`, package `me.misa198.airmedy.dev.qa.test`), `.claude/skills/verify-task/scripts/verify.sh`
     (QA APK paths `apk/dev/qa/…`, `apk/androidTest/dev/qa/…`, gradle task names), `docs/dev-setup.md`, `quickstart.md`.
