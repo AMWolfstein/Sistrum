@@ -139,6 +139,13 @@ or when legacy code is deleted. Never commits.
   (`opencode-delegate`, `graphify`), so the coder can't re-delegate or run Graphify.
   The coder's own instructions are in `AGENTS.md`.
 - Max 3 review rounds per task; then stop, record the problem in `HANDOFF.md`, ask the user.
+- Run a milestone's tasks back to back (`/delegate-task` → `/verify-task` → commit → push → next task), without
+  pausing between tasks. Stop ONLY when: (1) a milestone ends (status report + owner approval), (2) a MANUAL
+  task needs the owner or the device, (3) a task fails 3 review rounds, (4) an architectural problem requires
+  changing an ADR or the spec, (5) the model quota runs out, (6) anything would touch the owner's daily app.
+  Runtime behaviour changes (e.g. T011) are not a reason to stop: characterization tests, `migration-guard` and
+  the milestone parity pass cover them. Log each task's result and review rounds in `HANDOFF.md` instead of
+  reporting to the owner per task (owner, 2026-10-05).
 - A task is DONE only after: diff reviewed against the brief, architecture checked
   against the spec/ADRs, relevant tests run, build run. Never on the coder's word,
   "it compiles", or "looks right".
