@@ -185,7 +185,7 @@ owner parity pass on `.qa`.
   - Accept: only the assertion-failure class is accepted; the other three make the script report FAIL; any other
     failing test reports FAIL.
 
-- [ ] T008 [US1] Characterize the pure playback policies in `AT/player/PlaybackPolicyCharacterizationTest.kt` {default}
+- [x] T008 [US1] Characterize the pure playback policies in `AT/player/PlaybackPolicyCharacterizationTest.kt` {default}
   - Do: pin today's results of `shouldStartCrossfade` (401 ms lower edge, `durationMs < 2000`, half-track clamp,
     no preloaded next), `crossfadeDurationMs`, `canPreloadNext`, `shouldRestartQueueOnResume`,
     `stoppedCurrentPosition`, `playbackActionReplacesRestoredQueue`, `audioOutputDisconnectRequiresRecovery`,
