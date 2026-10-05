@@ -170,7 +170,7 @@ R1–R12), the external reports in `research/` (leads, Principle 7), and the des
 |---|---|---|
 | S1 | Fade method: per-sample processor (chosen) vs timer-stepped `player.volume` (12 s fade, snaps) | **PASS** (T002): processor fade kept; curve + snap automated PASS; owner heard both modes smooth; snaps not checked by ear (deferred); outgoing lead 0.46–0.69 s must be compensated (ADR-003 "S1 result") |
 | S2 | Shared session + limiter-only DP: both tracks on one output thread, summed tones limited, overshoot, hi-res direct output (SC-015) | **PARTIAL** (T003): shared session only with re-apply-after-ready + check; chain on the MIXER music thread; 24/96 stays on mixer. Limiter level, SC-011, DP-disabled mute: **NOT MEASURED** → T003b |
-| S3 | Memory/CPU with the second-player lifetime (FR-033, SC-013); processor CPU at track rate vs output rate | **BLOCKED**: needs `.qa` |
+| S3 | Memory/CPU with the second-player lifetime (FR-033, SC-013); processor CPU at track rate vs output rate | **PASS** (T004): pre-buffer 5 s; second player ≤ +6 % memory; process at track rate; processor chain cost (+12…+20 CPU points, naive) → bulk + bypass-when-neutral requirement (ADR-004 "S3 result") |
 | S4 | Platform audio decoders on the CPH2307 | **DONE** (codec XMLs; no ALAC): `research/platform-codecs-cph2307.md`. Instrumented probe **PASS** on `.qa` (T001, 2026-10-05): confirms no ALAC |
 | S5 | Opus header gain applied once by the platform decoder (FR-041) | **BLOCKED**: needs corpus + `.qa` |
 | S6 | MediaSession approach | Desk **DONE** (D6), owner confirmed (framework session in 001) |

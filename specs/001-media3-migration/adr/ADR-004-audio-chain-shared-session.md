@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not yet measured (T003b); **pending S3** · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not yet measured (T003b); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -54,6 +54,28 @@ input); on the output mix it read near-silence whenever the DP was disabled.
 **Withdrawn claims** (from earlier S2 runs, both wrong): "DP on the mixer thread with both players" (it was an orphan
 chain on an idle in-call thread) and "the limiter acts before volume" (the difference was two 10 Hz tones partly
 cancelling).
+
+## S3 result (2026-10-05, T004, CPH2307, `.qa`) — resources
+
+Harness: `androidTest/.../spikes/ResourceSpikeTest.kt` + `SpikeLoadProcessors.kt`; 10 min per mode; 60 s cycles,
+12 s fade, 5 s pre-buffer (worst case: a transition every minute); process CPU from `Process.getElapsedCpuTime()`,
+PSS from `Debug.getMemoryInfo` (batterystats unusable while on USB power; SC-013 proper is measured in M8 vs native).
+
+| Mode | Opus (12 tracks) CPU / PSS mean | FLAC+WAV+MP3 (9 tracks) CPU / PSS mean |
+|---|---|---|
+| single player | 20.6 % / 92 MB | 19.3 % / 107 MB |
+| A/B cycle (B created at fade + 5 s, released after) | 28.0 % / 98 MB | 24.3 % / 107 MB |
+| A/B + Gain/Width/EQ(10 biquads)/preamp per player | 47.6 % / 96 MB | 36.1 % / 107 MB |
+| … + resample to the 48 kHz output rate first | 47.3 % / 97 MB | 39.9 % / 107 MB |
+
+- Second-player lifetime behaves as designed: mean live players 1.28 = (12 + 5) / 60; 5 s pre-buffer always enough;
+  memory cost ≤ +6 %. **Pre-buffer = 5 s** (ADR-003).
+- **Decision: process at the track's own rate** (no fixed-output-rate resampling): +4 CPU points for 44.1 kHz content,
+  no benefit to band-centre exactness; shapes match the native engine at 48 kHz content (research D5).
+- **Risk → requirement:** the spike's naive per-sample processors cost +12…+20 CPU points. Production processors MUST
+  process float arrays in bulk (no per-sample `ByteBuffer` get/put), MUST report inactive / bypass when neutral (flat
+  EQ bands skipped as in the native engine, preamp 0 dB, width 1, gain 1 outside fades/ramps), and T045 measures the
+  chain's CPU cost on device against a no-processor baseline.
 
 ## Consequences
 

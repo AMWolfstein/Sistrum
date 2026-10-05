@@ -113,7 +113,7 @@ test corpus on the device.
   - Result (2026-10-05): **PARTIAL** — shared session (with re-apply + check) and routing confirmed; limiter level,
     SC-011 and the DP-disabled mute question moved to T003b (owner decision, option A). 3 review rounds.
 
-- [ ] T004 [P] [MANUAL] Spike S3 — memory/CPU of the second-player lifetime and processor rate, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md` and `ADR-003-dual-player-crossfade.md`; harness in `AI/spikes/ResourceSpikeTest.kt` {default}
+- [x] T004 [P] [MANUAL] Spike S3 — memory/CPU of the second-player lifetime and processor rate, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md` and `ADR-003-dual-player-crossfade.md`; harness in `AI/spikes/ResourceSpikeTest.kt` {default}
   - Do: 10-minute loops on `.qa`: (a) one player; (b) one player + B created at fade + 5 s and released after the
     fade, every 60 s; (c) as (b) with four pass-through processors per player; (d) processors after a resampler to
     the output rate. Sample `dumpsys meminfo me.misa198.airmedy.dev.qa` and `dumpsys batterystats --charged` (CPU,
@@ -450,14 +450,17 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 - [ ] T044 [US7] Implement `A/player/dsp/BiquadEqualizer.kt`, `A/player/dsp/EqualizerProcessor.kt`, `A/player/dsp/StereoWidthProcessor.kt`, `A/player/dsp/PreampProcessor.kt` {hard} [HIGH-RISK]
   - Do: pure-Kotlin DSP core + Media3 `AudioProcessor` wrappers (ADR-004 order 2–4; width via
-    `ChannelMixingAudioProcessor` matrix); coefficient changes crossfaded over a short block, no state reset.
+    `ChannelMixingAudioProcessor` matrix); coefficient changes crossfaded over a short block, no state reset; bulk
+    float-array processing (no per-sample `ByteBuffer` access); inactive/bypassed when neutral (flat bands skipped as
+    native, preamp 0 dB, width 1) — ADR-004 "S3 result".
   - Tests: T043 classes pass without modifying them; `GATE`.
 
 - [ ] T045 [US7] Per-player processor chain and DSP wiring in `A/player/media3/Media3PlayerFactory.kt`, `A/player/media3/Media3Engine.kt`, `A/player/dsp/GainProcessor.kt` (unity pass-through placeholder) with `AI/player/media3/Media3DspTest.kt` {hard} [HIGH-RISK]
   - Do: `buildAudioSink` override: Gain → Width → EQ → Preamp; `setDsp` from `EqualizerPreferences` reaches every live
     player; processing rate per T004's decision.
-  - Tests: `QA-I me.misa198.airmedy.player.media3.Media3DspTest` (tee capture: band-centre tones vs golden ±0.1 dB);
-    `GATE`.
+  - Tests: `QA-I me.misa198.airmedy.player.media3.Media3DspTest` (tee capture: band-centre tones vs golden ±0.1 dB;
+    process CPU with the full chain active vs neutral vs no chain over 2 min each, reported; neutral chain within
+    +1 CPU point of no chain); `GATE`.
 
 - [ ] T046 [US7] Shared session and limiter in `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AT/player/media3/LimiterConfigTest.kt` {hard} [HIGH-RISK]
   - Do: one audio session id per engine lifetime, reused for every player (FR-036); limiter-only DynamicsProcessing

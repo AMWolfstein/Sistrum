@@ -14,7 +14,7 @@ statistics; artwork event.
 
 - **Players**: player A is current. Gapless (crossfade off or too short): the next item is appended to A's
   two-item playlist. Crossfade on: player B is created and prepared with the next item when remaining time ≤
-  fade length + pre-buffer (≈5 s, tuned in S3), and released right after the fade (FR-033). With crossfade
+  fade length + pre-buffer (**5 s**, confirmed in S3: always ready, memory ≤ +6 %, ADR-004 "S3 result"), and released right after the fade (FR-033). With crossfade
   off, B never exists.
 - **Shared session**: B is built with A's audio session id and identical `AudioAttributes`; offload disabled on
   both; the session id survives B's recreation (ADR-004).
