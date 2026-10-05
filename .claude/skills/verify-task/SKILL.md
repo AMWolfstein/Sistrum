@@ -43,6 +43,9 @@ bash .claude/skills/verify-task/scripts/verify.sh \
   `:sharedLogic:testAndroidHostTest` separately (it must pass). On PASS it prints
   `Expected-fail: <classes>`: copy that line into the commit message. The following implementation
   task runs the gate without `--expect-fail` and must turn those classes green without modifying them.
+- An entry may also be `<FQCN>#<test method name>`: only that test must fail on an assertion and the class's
+  other tests must pass. Use it while an implementation turns a tests-first class green in stages (each later
+  task lists the tests still owned by later tasks; a bare class entry means the whole class).
 - It prints one line per step (PASS / FAIL / NOT RUN) and `GATE: PASS|FAIL`, then refreshes
   the graph. Read only that output; open a log only for a FAIL.
 - Anything that needs real listening or hardware (Bluetooth, headset, audio focus, process

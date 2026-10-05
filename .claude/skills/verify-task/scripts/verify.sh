@@ -10,10 +10,12 @@
 #   --tests         restrict the unit-test run (repeatable); default: the full unit suites
 #   --lint          also run :androidApp:lintDevDebug and print the error count
 #   --instrumented  device tests to run one class at a time, only if a device is connected
-#   --expect-fail   [TESTS-FIRST] tasks: androidApp host-test classes that must compile and in which EVERY test
-#                   fails on an assertion (AssertionError, AssertionFailedError, ComparisonFailure); a pass, a skip,
-#                   or any other exception (crash, TODO(), IllegalStateException, timeout) fails the gate. All
-#                   other tests in the run must pass. Prints an "Expected-fail:" line for the commit message.
+#   --expect-fail   [TESTS-FIRST] tasks: androidApp host tests that must compile and fail on an assertion
+#                   (AssertionError, AssertionFailedError, ComparisonFailure); a pass, a skip, or any other exception
+#                   (crash, TODO(), IllegalStateException, timeout) fails the gate. Entries are comma-separated:
+#                   `<FQCN>` (every test in the class) or `<FQCN>#<method name>` (that test only; the class's other
+#                   tests must pass). All other tests in the run must pass. Prints an "Expected-fail:" line for the
+#                   commit message.
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
@@ -79,7 +81,7 @@ else
   app_results=androidApp/build/test-results/testDevDebugUnitTest
   IFS=, read -r -a expect_classes <<< "$expect_fail"
   if [ "${#filters[@]}" -gt 0 ]; then
-    for cls in "${expect_classes[@]}"; do filters+=(--tests "$cls"); done
+    for cls in "${expect_classes[@]}"; do filters+=(--tests "${cls%%#*}"); done
   fi
   rm -rf "$app_results"   # no stale XML: missing results mean "did not compile or run"
   ./gradlew :androidApp:testDevDebugUnitTest "${filters[@]}" --continue > "$logs/unit.log" 2>&1
@@ -87,7 +89,14 @@ else
 import glob, os, sys
 import xml.etree.ElementTree as ET
 
-expected = [c.strip() for c in sys.argv[1].split(",") if c.strip()]
+entries = [c.strip() for c in sys.argv[1].split(",") if c.strip()]
+expected = sorted({e.split("#", 1)[0] for e in entries})          # classes with expected failures
+methods = {}                                                      # class -> set of methods (absent = whole class)
+for e in entries:
+    cls, _, method = e.partition("#")
+    if method:
+        methods.setdefault(cls, set()).add(method)
+whole = {e for e in entries if "#" not in e}                      # a bare class entry wins over method entries
 # Assertion failures about missing behaviour. Everything else (errors, crashes, TODO(), timeouts) is rejected.
 allowed = {
     "java.lang.AssertionError",
@@ -116,13 +125,22 @@ for results in sys.argv[2:]:
             cases.setdefault(cls, []).append((name, outcome, detail))
 
 problems = []
+total = 0
 for cls in expected:
     if not cases.get(cls):
         problems.append(f"{cls}: no results (did not compile, has no tests, or was not run)")
         continue
+    wanted = None if cls in whole else methods.get(cls, set())
+    names = {name for name, _, _ in cases[cls]}
+    for method in sorted((wanted or set()) - names):
+        problems.append(f"{cls}#{method}: no such test result")
     for name, outcome, detail in cases[cls]:
-        if outcome != "assertion":
-            problems.append(f"{cls}.{name}: expected an assertion failure, got {outcome} {detail}".rstrip())
+        if wanted is None or name in wanted:
+            total += 1
+            if outcome != "assertion":
+                problems.append(f"{cls}.{name}: expected an assertion failure, got {outcome} {detail}".rstrip())
+        elif outcome != "passed":
+            problems.append(f"{cls}.{name}: not in --expect-fail but {outcome} ({detail})")
 for cls, items in sorted(cases.items()):
     if cls in expected:
         continue
@@ -130,11 +148,10 @@ for cls, items in sorted(cases.items()):
         if outcome in ("error", "assertion", "exception"):
             problems.append(f"{cls}.{name}: not in --expect-fail but failed ({detail})")
 
-total = sum(len(cases.get(c, [])) for c in expected)
 if problems:
     print("\n".join(problems))
     sys.exit(1)
-print(f"{total} test(s) in {len(expected)} class(es) fail on assertions; all other tests pass")
+print(f"{total} expected test(s) in {len(expected)} class(es) fail on assertions; all other tests pass")
 PY
   then
     report "unit tests" PASS "expected-fail: $(tail -1 "$logs/expect-fail.txt")"
