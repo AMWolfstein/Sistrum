@@ -232,7 +232,7 @@ owner parity pass on `.qa`.
   - Tests: `GATE` unmodified.
   - Accept: service ≤ ~450 lines; every `PlaybackController` action maps to one coordinator call.
 
-- [ ] T014 [US1] Fake engine + fake ports and queue/transport characterization in `AT/player/fakes/FakePlayerEngine.kt`, `AT/player/fakes/FakePorts.kt`, `AT/player/PlaybackCoordinatorQueueCharacterizationTest.kt` {default}
+- [x] T014 [US1] Fake engine + fake ports and queue/transport characterization in `AT/player/fakes/FakePlayerEngine.kt`, `AT/player/fakes/FakePorts.kt`, `AT/player/PlaybackCoordinatorQueueCharacterizationTest.kt` {default}
   - Do: pin discovery §2 Q8 items 1–3 on the native-engine contract: play/pause/resume/stop, next/previous (> 3 s
     restarts, keep paused), shuffle order, repeat Off/One/All, play-next/append/remove/reorder/select/clear,
     stop-at-end keeps last item `Paused` at duration, manual exhaustion → 0, resume after natural end restarts the
