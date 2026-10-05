@@ -140,13 +140,20 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
 
 | Task | Model | Brief | Runs / review rounds | Status |
 |---|---|---|---|---|
-| T001 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T001/brief-1.md` (session `ses_ef3c61449ffec4zSY8gEWw8APM`) | run-1 failed before dispatch (OpenCode postinstall missing; fixed with the owner's OK, 1.18.34); run-2 accepted. **Review rounds: 0** | DONE (gate PASS); SC-009 owner confirmation pending |
+| T001 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T001/brief-1.md` (session `ses_ef3c61449ffec4zSY8gEWw8APM`) | run-1 failed before dispatch (OpenCode postinstall missing; fixed with the owner's OK, 1.18.34); run-2 accepted. **Review rounds: 0** | DONE (gate PASS); SC-009 confirmed by the owner 2026-10-05 |
+| T002 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T002/brief-1.md`, `brief-2.md` (session `ses_ef3bcdfc7ffe2zlMyWtL8UFIul`) | run-1: device test failed (player built off its looper thread); round 1 (fix + outgoing-lead measurement) accepted. **Review rounds: 1** | DONE: S1 PASS, processor fade kept (ADR-003); snaps not checked by ear |
 
 T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
 `debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
 unit tests ran, 0 failures). Device has a pre-existing `me.misa198.airmedy.dev.test` package from before this session;
 left alone (no uninstalls). T001 orchestrator part: CLAUDE.md adb section, verify.sh (QA APKs; allowlist: only `.qa` / `.qa.test`
 may be installed), tasks.md T001 file list (manifest overlay for the label).
+
+## Deferred owner checks (owner prefers minimal live testing, 2026-10-05)
+
+Do these when convenient; Claude never marks them PASS.
+- [ ] S1 snaps by ear (T002): rerun with `-e snapAt 0.3 -e snapKind pause|seek`, `-e snapAt 0.7 -e snapKind next`
+  (commands in ADR-003 "S1 result" / tasks T002).
 
 ## Exact next step
 

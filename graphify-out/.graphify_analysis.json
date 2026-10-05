@@ -3008,6 +3008,17 @@
       "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `playlistMoveAnchors()` unexpectedly reaches hub `PlaylistDetailsContent()`"
     },
     {
+      "source": "LibraryAlbumsViewModel",
+      "target": "matchesLibraryTextFilter()",
+      "source_files": [
+        "kotlin/me/misa198/airmedy/ui/screens/LibraryAlbumsViewModel.kt",
+        "kotlin/me/misa198/airmedy/ui/screens/LibraryTextSearch.kt"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
       "source": "PlaybackService",
       "target": "EqualizerSettings",
       "source_files": [
@@ -3019,22 +3030,11 @@
       "why": "inferred connection - not explicitly stated in source; bridges separate communities"
     },
     {
-      "source": "LibraryAlbumsContent()",
-      "target": "AlbumDetailsUiState",
+      "source": "equalizerDspConfig()",
+      "target": "GlobalDspConfig",
       "source_files": [
-        "kotlin/me/misa198/airmedy/ui/screens/LibraryAlbumsContent.kt",
-        "kotlin/me/misa198/airmedy/ui/screens/AlbumDetailsViewModel.kt"
-      ],
-      "confidence": "INFERRED",
-      "relation": "calls",
-      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
-    },
-    {
-      "source": "albumCollectionTrackIdsFor()",
-      "target": "AlbumDetailsUiState",
-      "source_files": [
-        "kotlin/me/misa198/airmedy/ui/screens/LibraryAlbumsViewModel.kt",
-        "kotlin/me/misa198/airmedy/ui/screens/AlbumDetailsViewModel.kt"
+        "kotlin/me/misa198/airmedy/player/EqualizerPreferences.kt",
+        "kotlin/me/misa198/airmedy/player/FfmpegDecoder.kt"
       ],
       "confidence": "INFERRED",
       "relation": "calls",

@@ -37,6 +37,8 @@ crossfade, queue/state, normalization and the EQ match, and every task carries i
   not delegated.
 - `[MANUAL]` = needs the device (`.qa` build) and/or the owner's ears; device parts are run by Claude Code via adb
   on `.qa`, listening/hardware parts go to the owner's checklist and are never marked PASS by Claude.
+  Owner decision 2026-10-05: minimal live testing. Prefer automated device measurements; listening/hardware parts
+  are not run live but collected in `HANDOFF.md` "Deferred owner checks" and the task completes on automated evidence.
 - `[TESTS-FIRST]` = tests committed before their implementation task. They fail when committed, for the reason
   stated (missing implementation), and are verified with `verify.sh --expect-fail '<classes>'` (added in T007;
   owner-approved 2026-10-05): the named classes must compile, and **every test in them must fail on an assertion
@@ -82,7 +84,7 @@ test corpus on the device.
     identical before/after; no uninstall issued. `[MANUAL]` owner confirms the daily app's library, statistics and
     settings are unchanged (SC-009).
 
-- [ ] T002 [MANUAL] Spike S1 — processor fade vs `player.volume` stepping, decision into `specs/001-media3-migration/adr/ADR-003-dual-player-crossfade.md`; harness in `AI/spikes/FadeSpikeTest.kt`, `AI/spikes/SpikeFadeProcessor.kt` {hard} [HIGH-RISK]
+- [x] T002 [MANUAL] Spike S1 — processor fade vs `player.volume` stepping, decision into `specs/001-media3-migration/adr/ADR-003-dual-player-crossfade.md`; harness in `AI/spikes/FadeSpikeTest.kt`, `AI/spikes/SpikeFadeProcessor.kt` {hard} [HIGH-RISK]
   - Do: androidTest-only harness (not app code): two ExoPlayers with one shared audio session id and identical
     `AudioAttributes`, offload off, `handleAudioFocus = false`; A plays track A, B prepared with track B; mode
     `processor` = per-sample equal-power gain processor (outgoing `cos(t·π/2)`, incoming `sin(t·π/2)`, keyed to
@@ -514,7 +516,8 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 - [ ] T056 [P] [US5] [TESTS-FIRST] Fade curve tests in `AT/player/dsp/EqualPowerFadeTest.kt` {hard} [HIGH-RISK]
   - Do: per-frame gain = native formula (`phase = at/total·π/2`, out `cos`, in `sin`); multiplies with normalization
-    (FR-035); snap forces incoming 1.0 and outgoing 0 at once; 12 s fade has no step above ε.
+    (FR-035); snap forces incoming 1.0 and outgoing 0 at once; 12 s fade has no step above ε; the outgoing curve can
+    start at a frame offset in the past/future (lead compensation, ADR-003 "S1 result").
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.dsp.EqualPowerFadeTest'`. migration-guard.
 
 - [ ] T057 [US5] Implement `A/player/media3/TransitionController.kt` {hard} [HIGH-RISK]
@@ -529,7 +532,8 @@ interrupts (US3); lock screen shows the right artist (US4).
     position; B released after the fade; port of Rhythm `RhythmPlayerEngine`/`TransitionController` mechanics
     (`ef16e7b`, attribution) without its curves, sessions or playlists.
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3CrossfadeTest` (event once per fade, one player when crossfade
-    off, B gone after fade, tee curve check); `GATE`.
+    off, B gone after fade, tee curve check, both curves' audible starts within 50 ms after lead compensation — ADR-003
+    "S1 result"); `GATE`.
 
 - [ ] T060 [US5] Crossfade orchestration on the shared path in `A/player/PlaybackCoordinator.kt` with `AT/player/PlaybackCoordinatorCrossfadeMedia3Test.kt` {hard} [HIGH-RISK]
   - Do: next/previous during a fade per FR-031; Mood Radio refill during a fade; artwork event and overlap split for

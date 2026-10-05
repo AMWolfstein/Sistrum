@@ -109,6 +109,8 @@ dependencies {
     testImplementation(libs.room.testing)
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.compose.uiTestJunit4)
+    androidTestImplementation(libs.media3.exoplayer)
+    androidTestImplementation(libs.media3.common)
     debugImplementation(libs.compose.uiTooling)
     debugImplementation(libs.compose.uiTestManifest)
 }

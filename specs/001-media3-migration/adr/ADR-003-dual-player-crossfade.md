@@ -1,6 +1,6 @@
 # ADR-003 — Dual-player crossfade on Media3
 
-Status: Accepted (owner, 2026-10-05); **pending device spike S1** (first task after ADR-007's `.qa` build) · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S1 PASS 2026-10-05 (T002): processor fade kept** · Date: 2026-10-05 ·
 Spec: US5, FR-030…036, FR-046, SC-007, SC-013 · Research: D2, D3, D4
 
 ## Context
@@ -34,6 +34,25 @@ statistics; artwork event.
   the 16 ms `delay` loop (unless S1 picks volume stepping).
 - **Future settings stay possible** (FR-031): crossfade on manual skip = a snap trigger that starts a fade
   instead; repeat-one toggle = a flag on the Scheduled step; fractional seconds = ms already.
+
+## S1 result (2026-10-05, T002, CPH2307, `.qa`)
+
+Harness: `androidTest/.../spikes/` (two ExoPlayers, one shared session, per-player fade processor + tee).
+- Curve: per-frame gains equal the native formula (`phase = at/total·π/2`, float), 16-bit within ±1 LSB — automated PASS.
+- Snap: after pause/seek/next with the incoming flush (`seekTo(currentPosition)`), no tee buffer after the flush is
+  faded (peak within 0.5 dB of unfaded) — automated PASS.
+- Listening (owner): 12 s fade Lose Yourself → Lighters (FLAC), processor vs `player.volume` stepping: **both smooth,
+  no audible difference**. Snap runs (pause/seek at 30 %, next at 70 %) were played but **not checked by ear**
+  (owner unavailable; deferred owner check).
+- Timing: incoming start offset (play → first processed buffer) 17–49 ms. **Outgoing processing lead** (frames processed
+  ahead of the audible position when the fade starts) **459–686 ms** on FLAC (83 ms on a fresh 48 kHz WAV): the outgoing
+  curve is applied to audio that is heard up to ~0.7 s later, so the outgoing fade audibly starts that much after the
+  incoming one. Not audible on a 12 s fade, but it exceeds SC-007's 200 ms and matters for short fades.
+- **Decision**: keep the per-sample processor fade (owner decision stands; no contradiction). **Requirement for the
+  implementation (T056/T058/T059)**: key both curves to the *audible* timeline, i.e. start the outgoing curve at the
+  frame that will be audible at fade start (current processed frame − lead, using the sink's position/latency) or
+  delay the incoming start by the same lead, so the two curves start within 50 ms of each other; measured by the
+  Media3 crossfade instrumented test.
 
 ## Consequences
 
