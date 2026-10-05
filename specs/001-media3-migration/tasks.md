@@ -291,7 +291,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     (the guard class must pass). migration-guard.
   - Accept: each FR has ≥ 1 named test (in the expect-fail or the guard class); expect-fail failures are assertions only.
 
-- [ ] T019 [US2] Add Media3 to the app in `gradle/libs.versions.toml`, `androidApp/build.gradle.kts`, `THIRD-PARTY-NOTICES` {default}
+- [x] T019 [US2] Add Media3 to the app in `gradle/libs.versions.toml`, `androidApp/build.gradle.kts`, `THIRD-PARTY-NOTICES` {default}
   - Do: `implementation` `media3-exoplayer` + `media3-common` 1.11.1; `testImplementation` `media3-test-utils`; notices
     entry checked.
   - Tests: `GATE`.

@@ -2,9 +2,9 @@ Third-party notices for Sistrum
 
 --------------------------------------------------------------------------------
 
-AndroidX Media3 (androidx.media3: media3-exoplayer, media3-common) 1.11.1
+AndroidX Media3 (androidx.media3: media3-exoplayer, media3-common, media3-test-utils) 1.11.1
 License: Apache License 2.0
 Source: https://github.com/androidx/media
-Note: used by instrumented spike tests (androidTest); app use follows in a later task.
+Note: media3-exoplayer and media3-common are app runtime dependencies; media3-test-utils is test-only.
 
 --------------------------------------------------------------------------------

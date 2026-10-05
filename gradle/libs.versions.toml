@@ -60,6 +60,7 @@ reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reo
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
 media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
+media3-test-utils = { module = "androidx.media3:media3-test-utils", version.ref = "media3" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
