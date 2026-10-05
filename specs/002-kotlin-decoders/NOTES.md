@@ -10,6 +10,29 @@ Port WaxFlow's Go decoders to Kotlin, one codec at a time, as Decoder Registry p
 No Go and no NDK in the app. Together with 001 this restores format parity on `main`; nothing merges before
 001 and 002 are both done.
 
+## Top-level design item: a scan path for formats the device doesn't know (owner, 2026-10-05)
+
+Decoders alone are not enough. On the CPH2307 (Android 15), MediaStore did not index `wavpack_lossless.wv` as audio
+(46 of 47 corpus files indexed in 001 T006; the WavPack file is the only one missing from `MediaStore.Audio.Media`).
+Sistrum's library scan is MediaStore-based (`sync/MediaStoreLibraryScanner.kt`), so formats the platform doesn't
+classify as audio may **never reach our scanner**, with either engine. 002 MUST design a scan path for them (e.g. a
+file-system/`MediaStore.Files` pass for the registry's extensions within the user's chosen folders, with the same
+tag reader and skip summary as 001 FR-065/066), not just decoders. Check MediaStore behaviour for each new format on
+other devices / Android versions before deciding the mechanism (Principle 10: one device is a sample).
+
+## Validation without real samples (owner, 2026-10-05)
+
+The owner supplies no real APE or DSD files.
+- **APE**: validated only against the WaxFlow oracle on WaxFlow's own `testdata/`, like WavPack.
+- **DSD (DSF/DFF)**: no external samples. The tests generate synthetic DSF/DFF files from known signals (e.g. a
+  sigma-delta-modulated sine / silence pattern, written with exact DSF/DFF headers), and **Flick's Rust
+  `dsd_engine` is the oracle** for the Kotlin port: bit-exact, or within a tolerance stated in 002's spec before the
+  port starts (float decimation filters may differ in the last bits).
+- Real-world format problems get fixed from user reports. 001 FR-064a adds an exportable decode-failure log (time,
+  file name, format, codec, provider, error) in settings, so a user can send it together with the failing file;
+  every 002 provider MUST write its failures there with its provider name and a specific error (refusals by name,
+  see below).
+
 ## Source and oracle
 
 - Port source: the owner's WaxFlow fork at the pin in `docs/waxflow/ORACLE.md` (WaxFlow is not vendored).
@@ -21,7 +44,7 @@ No Go and no NDK in the app. Together with 001 this restores format parity on `m
 - Oracle: `scripts/waxflow-oracle.sh` builds WaxFlow's CLI on the dev machine/CI and decodes a pinned corpus
   to golden PCM checksums and loudness numbers (small committed fixtures, no audio in git). Corpus: WaxFlow's
   `testdata/`, the official WavPack decoder test suite (wavpack.com/downloads.html), and Sistrum's test
-  corpus. **Every Kotlin decoder must be bit-exact against it.**
+  corpus. **Every Kotlin decoder must be bit-exact against it** (DSD: against Flick's `dsd_engine`, see above).
 
 ## Media3 wiring (`pure-kotlin-formats.md`)
 
@@ -84,11 +107,3 @@ into normalization (001 treats them as untagged).
 ## Never use
 
 JustDSD (no license), JMAC (license unclear: LGPL vs GPL-2 reports), MediaChest (no license).
-
-## Device fact (2026-10-05, from 001 T006 corpus push)
-
-On the CPH2307 (Android 15), MediaStore did not index `wavpack_lossless.wv` as audio (46 of 47 corpus files indexed;
-the WavPack file is the only one missing from `MediaStore.Audio.Media`). Sistrum's library scan is MediaStore-based, so
-WavPack files are invisible to it on this device with either engine. Before 002's WavPack provider and its performance
-gate, check MediaStore behaviour for `.wv` on other devices / Android versions and decide whether the scan needs a
-file-system fallback for formats MediaStore does not classify as audio (Principle 10: one device is a sample).

@@ -138,12 +138,13 @@ test corpus on the device.
     WavPack, WMA, untagged copies of each, malformed/out-of-range/non-finite tags, several forms in one file, short
     tracks < 2 s, a gapless album, hi-res 24/96 and 24/192, multichannel); `corpus.tsv` lists file, format, codec,
     bit depth/rate, tag forms, expected gain dB (per spec rules), expected registry outcome in 001. No faked formats:
-    APE/DSF/DFF rows are `owner-supplied` and the script copies them from `$SISTRUM_REAL_SAMPLES` when present.
+    APE/DSF/DFF are not in the corpus (owner decision 2026-10-05: no real samples; 002 validates APE against the
+    WaxFlow oracle on WaxFlow's testdata and DSD on synthetic DSF/DFF with Flick's `dsd_engine` as oracle).
     `push-corpus.sh` pushes to `/sdcard/Music/SistrumTestCorpus` (no `.nomedia`), never touches app data. No audio in git.
   - Tests: `bash scripts/test-corpus/generate-corpus.sh --out "$SCRATCH/corpus" && bash scripts/test-corpus/generate-corpus.sh --verify "$SCRATCH/corpus"`
     (ffprobe confirms each file's real codec matches `corpus.tsv`).
-  - Accept: every row generated or marked owner-supplied; push done on the device. `[MANUAL]` owner supplies real APE
-    and DSF/DFF samples (HANDOFF open item) and blocklists the folder in the daily app.
+  - Accept: every row generated; push done on the device. `[MANUAL]` owner blocklists the folder in the daily app
+    (owner, 2026-10-05).
 
 - [ ] T003b [MANUAL] {orchestrator} Spike S2 follow-up — limiter level via AudioFlinger's post-mix power history, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md`; harness steps in `AI/spikes/SharedSessionLimiterSpikeTest.kt`
   - Owner decision 2026-10-05: done by the orchestrator itself or as small steps (T003 used 3 review rounds), not one
@@ -155,11 +156,15 @@ test corpus on the device.
     (c) does disabling the limiter stage, or the whole DP effect, mute or attenuate the session (FR-053/055).
   - Accept: (a)–(c) answered with numbers in ADR-004. If the dumpsys method cannot measure them either, STOP and ask
     the owner before trying anything else; fallback = owner listening check (option C).
-  - **Blocks M5** (T042–T048) together with T004.
   - Status 2026-10-05: **STOPPED** (owner condition 3): the post-mix power history is too sparse to measure (a)/(b);
     (c) hinted (no power logged with the DP disabled while the track is active). See `HANDOFF.md` "T003b".
+  - Owner decision 2026-10-05 (M1 approval): effect-state hedge approved (ADR-004: never `enabled = false`; neutral
+    limiter for "off"; control loss = possible mute). (c) → owner listening check on `.qa`, normal volume, Dolby off.
+    (a)+(b) → owner recording via USB-C audio dongle into the laptop, analysed by the orchestrator; if not possible,
+    `[MANUAL]` in T048. Steps for both in `HANDOFF.md` "T003b". No max-volume headphone tests.
+  - **Gates T046's completion** (not M5's start): T046 cannot close until (a)–(c) pass.
 
-**Checkpoint M1** — status report; ADR-003/004/005 statuses updated from "pending spike"; owner approval.
+**Checkpoint M1** — status report; ADR-003/004/005 statuses updated from "pending spike"; owner approval. **Approved by the owner 2026-10-05** (T003b open as above; it gates only T046).
 
 ---
 
@@ -366,6 +371,14 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Do: `EngineEvent.Error` → normal error state, log line with provider id and format, skip to next; no engine retry.
   - Tests: `UT me.misa198.airmedy.player.EngineErrorPathTest`; `GATE`.
 
+- [ ] T032b [US2] Exportable decode-failure log (FR-064a, SC-014) in `A/player/DecodeFailureLog.kt`, `A/player/PlaybackCoordinator.kt`, `A/ui/screens/SettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` with `AT/player/DecodeFailureLogTest.kt` {default}
+  - Do: bounded log (last 200 entries; JSON lines in `filesDir`, not Room) of time, file name, format, codec, provider,
+    error; T032's error path appends to it; settings entry "Decode-failure log": export as text via the share sheet
+    (`ACTION_SEND`, `EXTRA_TEXT`) or save via `ACTION_CREATE_DOCUMENT` (no FileProvider, no manifest change), clear.
+    No paths beyond the file name, no other library data.
+  - Tests: `UT me.misa198.airmedy.player.DecodeFailureLogTest` (append, bound, persistence across instances, export
+    text format, clear); `ArabicTranslationCompletenessTest`; `GATE`.
+
 - [ ] T033 [US4] Fix lock-screen "Unknown artist" in `A/player/PlaybackService.kt` with `AT/player/NowPlayingMetadataTest.kt` {hard} [HIGH-RISK]
   - Do: `{orchestrator}` first investigates the metadata path and writes the root cause into the brief and
     `HANDOFF.md`; then pure `nowPlayingMetadata(item)` sets TITLE, ARTIST, ALBUM, ALBUM_ARTIST (+ DISPLAY_* if the
@@ -429,7 +442,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 ---
 
-## Milestone M5 — Phase 7: DSP chain and session limiter (US7) — needs T003, T003b, T004
+## Milestone M5 — Phase 7: DSP chain and session limiter (US7) — needs T003, T004; T046 closes only after T003b (a)–(c)
 
 **Goal**: EQ/preamp/width on Media3 match the native filters; limiter on the shared session.
 **Independent test**: golden checks green; band-centre tones on device match; SC-015.
@@ -471,13 +484,20 @@ interrupts (US3); lock screen shows the right artist (US4).
     otherwise (FR-036, ADR-004 "S2 result");
     creation failure → `LimiterState(available = false)` (FR-053); open/close effect-control broadcasts with session id
     and package (FR-054); `OnControlStatusChangeListener` → `LimiterState.controlled` (FR-055).
+    Effect-state hedge (ADR-004): the effect is never set `enabled = false`; clip prevention off = neutral limiter
+    parameters (ratio 1, threshold 0 dBFS, gains 0 dB); released only with the session. Control loss (or an
+    `enabled` change we did not make) = possible mute: check the session is still audible, otherwise release our
+    effect, show the FR-053 state, re-create on regain.
   - Tests: `UT me.misa198.airmedy.player.media3.LimiterConfigTest` (pure config builder: all stages but limiter off,
-    neutral gains, threshold ≈ −1 dBFS); `GATE`.
+    neutral gains, threshold ≈ −1 dBFS; the "off" config keeps the limiter in the chain with neutral parameters and
+    the controller never calls `setEnabled(false)`; control-loss state machine: lost → check → release/keep → regain
+    → re-create); `GATE`.
+  - Closes only after T003b (a)–(c) pass (recording analysis or T048's manual check).
 
 - [ ] T047 [P] [US7] Limiter state note in the clip-prevention setting in `A/ui/screens/PlaybackSettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ), extreme EQ by ear vs native (owner)
+- [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); T003b (a)/(b) here as a manual check if the dongle recording was not possible
 
 **Checkpoint M5** — status report; owner approval.
 
@@ -539,13 +559,17 @@ interrupts (US3); lock screen shows the right artist (US4).
 - [ ] T056 [P] [US5] [TESTS-FIRST] Fade curve tests in `AT/player/dsp/EqualPowerFadeTest.kt` {hard} [HIGH-RISK]
   - Do: per-frame gain = native formula (`phase = at/total·π/2`, out `cos`, in `sin`); multiplies with normalization
     (FR-035); snap forces incoming 1.0 and outgoing 0 at once; 12 s fade has no step above ε; the outgoing curve can
-    start at a frame offset in the past/future (lead compensation, ADR-003 "S1 result").
+    start at a frame offset in the past/future (lead compensation, ADR-003 "S1 result"); the same holds for every
+    processor fade, including fades on pause/skip: a pause after a fade-out is released only at the fade's audible
+    end (fade length + lead), and a snap on pause/seek/skip leaves no frame at the old gain after the flush.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.dsp.EqualPowerFadeTest'`. migration-guard.
 
 - [ ] T057 [US5] Implement `A/player/media3/TransitionController.kt` {hard} [HIGH-RISK]
   - Tests: `TransitionControllerTest` passes without modifying it; `GATE`.
 
 - [ ] T058 [US5] Implement the fade in `A/player/dsp/GainProcessor.kt` {hard} [HIGH-RISK]
+  - Do: curves keyed to the audible timeline (processed frame − sink lead, 0.46–0.69 s measured in S1) for the
+    crossfade and for fades on pause/skip (ADR-003 "S1 result").
   - Tests: `EqualPowerFadeTest` and `GainRampTest` pass without modifying them; `GATE`.
 
 - [ ] T059 [US5] Dual-player crossfade in `A/player/media3/Media3Engine.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AI/player/media3/Media3CrossfadeTest.kt` {hard} [HIGH-RISK]
@@ -555,7 +579,8 @@ interrupts (US3); lock screen shows the right artist (US4).
     (`ef16e7b`, attribution) without its curves, sessions or playlists.
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3CrossfadeTest` (event once per fade, one player when crossfade
     off, B gone after fade, tee curve check, both curves' audible starts within 50 ms after lead compensation — ADR-003
-    "S1 result"); `GATE`.
+    "S1 result"; pause and skip during/after a fade: no audible frame at the old gain after the snap, pause lands at
+    the fade's audible end); `GATE`.
 
 - [ ] T060 [US5] Crossfade orchestration on the shared path in `A/player/PlaybackCoordinator.kt` with `AT/player/PlaybackCoordinatorCrossfadeMedia3Test.kt` {hard} [HIGH-RISK]
   - Do: next/previous during a fade per FR-031; Mood Radio refill during a fade; artwork event and overlap split for
@@ -581,8 +606,8 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 ## Dependencies
 
-- M1 → everything. T001 blocks all device work and T002–T006. T002 (S1) blocks M7; T003/T003b/T004 (S2/S3) block M5
-  and M7; T005 (S5) blocks M6. T003b runs right after T006.
+- M1 → everything. T001 blocks all device work and T002–T006. T002 (S1) blocks M7; T003/T004 (S2/S3) block M5
+  and M7; T003b (a)–(c) gates T046's completion (owner decision 2026-10-05); T005 (S5) blocks M6. T032 → T032b.
 - M2 order: T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → (T015 ∥ T016) → T017. No fake-engine test
   before T013 (needs the coordinator).
 - M3: T018 before T026/T027; T019 → T020 → T021 → T034; T023 → T024 → T025; T026 → T027 → T028 → T029 → T030

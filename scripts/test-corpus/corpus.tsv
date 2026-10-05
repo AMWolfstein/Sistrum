@@ -46,7 +46,3 @@ gapless_flac_3.flac	flac	flac	48000	16	2	-20	rg_vorbis	generated	1.9	1.9	platfor
 gapless_mp3_1.mp3	mp3	mp3	48000		2	-20	rg_txxx	generated	2.1	2.1	platform	gapless-album:mp3:1; LAME gapless headers
 gapless_mp3_2.mp3	mp3	mp3	48000		2	-20	rg_txxx	generated	2.6	2.6	platform	gapless-album:mp3:2
 gapless_mp3_3.mp3	mp3	mp3	48000		2	-20	rg_txxx	generated	2.2	2.2	platform	gapless-album:mp3:3
-real_ape_tagged.ape	ape	ape					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real APE with APEv2 ReplayGain ($SISTRUM_REAL_SAMPLES)
-real_ape_untagged.ape	ape	ape					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real APE untagged
-real_dsf.dsf	dsf	dsd					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real DSF
-real_dff.dff	dff	dsd					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real DFF

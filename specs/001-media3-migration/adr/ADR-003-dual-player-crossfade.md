@@ -53,6 +53,14 @@ Harness: `androidTest/.../spikes/` (two ExoPlayers, one shared session, per-play
   frame that will be audible at fade start (current processed frame − lead, using the sink's position/latency) or
   delay the incoming start by the same lead, so the two curves start within 50 ms of each other; measured by the
   Media3 crossfade instrumented test.
+- **Lead compensation applies to every processor fade, not only the crossfade (owner, 2026-10-05).** The processor
+  works 0.46–0.69 s ahead of the audible output, so every gain change it applies is heard that much later:
+  - snaps on pause/seek/skip/stop/queue edit: the flush must discard the already-processed frames in the sink (as the
+    S1 snap test checks), otherwise up to ~0.7 s of the old gain plays after the snap;
+  - any fade on pause or skip (e.g. the future crossfade-on-manual-skip, FR-031, or a pause fade-out): the curve is
+    keyed to the audible timeline, and a pause that follows a fade-out waits for the fade's *audible* end (fade length
+    + lead) before pausing the player, otherwise the unfaded buffered audio plays and is cut off with a click.
+  Tested in T056 (curve offsets), T058 (processor) and T059 (device timing, pause/skip included).
 
 ## Consequences
 

@@ -2,9 +2,8 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** 3 — Tasks (generated and analyzed 2026-10-05, uncommitted; awaiting owner review)
-**Last commit:** docs(playback): add migration plan, ADRs and research (plan-phase commit; the WaxFlow
-vendoring and its revert were squashed away, WaxFlow is pinned as an oracle, not vendored)
+**Phase:** M2 — Characterization and the engine seam (M1 approved by the owner 2026-10-05; T003b open, gates T046 only)
+**Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
 ## Spec Kit feature directory
 
@@ -49,10 +48,9 @@ vendoring and its revert were squashed away, WaxFlow is pinned as an oracle, not
 
 ## Still open
 
-- APE and DSD test files: ffmpeg can't encode them and no `mac` (Monkey's Audio) encoder is installed here.
-  Need from the owner: either install Monkey's Audio `mac` + a DSD encoder (e.g. sox-dsd / a DSF writer),
-  or supply a few real APE/DSF/DFF samples (ideally with and without ReplayGain tags).
-  WavPack (`wavpack`), WMA (`wmav2`), AIFF, ALAC, FLAC can be generated locally.
+- *(Closed 2026-10-05, owner: no real APE/DSD samples. 002 validates APE against the WaxFlow oracle on WaxFlow's
+  testdata and DSD on synthetic DSF/DFF with Flick's `dsd_engine` as oracle; the corpus has no APE/DSD rows.
+  Real-world problems are fixed from user reports via the exportable decode-failure log, FR-064a / T032b.)*
 
 - Library inventory DONE 2026-10-01 on CPH2307 (MediaStore, scanner selection; app folder filter not applied):
   729 tracks = Opus 702 (all with R128_TRACK_GAIN), AIFF 5 (PCM 16/24-bit), FLAC 5, WAV 5 (PCM 16/24-bit),
@@ -136,7 +134,7 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
   green unmodified); US7 sc4 tolerance + "no click on EQ change" recorded as an intentional deviation.
 - Owner request: report review rounds per task in every status report.
 
-## M1 — in progress
+## M1 — DONE, approved by the owner 2026-10-05 (T003b open: gates T046 only)
 
 | Task | Model | Brief | Runs / review rounds | Status |
 |---|---|---|---|---|
@@ -146,7 +144,7 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
 | T004 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T004/brief-1.md` | run-1 accepted, gate PASS; 80-min measurement done (session `ses_ef30d95eaffeOhRK0atiEF7J3p`). **Review rounds: 0** | DONE: S3 PASS (ADR-004 "S3 result") |
 | T005 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T005/brief-1.md` | run-1 accepted (session `ses_ef306333affek0as11Gvi0fYpX`); fixtures independently checked with ffmpeg (−26/−20/−32 dB = ±6 dB); device run PASS (after the owner approved a Play Protect prompt for the QA install). **Review rounds: 0** | DONE: S5 PASS (ADR-005) |
 | T006 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T006/brief-1.md` | run-1 accepted (session `ses_ef2ffc3fdffec6cR0qadqLACm8`); regenerated + verified by the orchestrator; gains cross-checked vs ffmpeg ebur128 (5 forms exact); 47 files pushed to `/sdcard/Music/SistrumTestCorpus`, 46 indexed by MediaStore (`.wv` not indexed — 002 NOTES). **Review rounds: 0** | DONE |
-| T003b | orchestrator (no delegation) | — | steps 1–3 below | **STOPPED — owner decision (condition 3)** |
+| T003b | orchestrator (no delegation) | — | steps 1–3 below | **STOPPED** (dumpsys can't measure); owner split it 2026-10-05: (c) listening check, (a)/(b) dongle recording or MANUAL in T048 |
 
 T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
 `debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
@@ -201,15 +199,84 @@ Design hedge that does not depend on the measurement (proposed, for the owner): 
 = false` as "limiter off"; keep the effect enabled and make it neutral (limiter stage `inUse`/`enabled` false or
 threshold 0 dB, ratio 1), and treat losing control of the effect (FR-055) as a possible mute to detect and handle.
 
+### Owner decisions at M1 approval (2026-10-05)
+
+1. Effect-state hedge approved → ADR-004 "Decision — effect-state hedge", FR-053/FR-055, T046: never
+   `DynamicsProcessing.enabled = false` for "off"; neutral limiter instead; control loss = possible mute, detected and
+   handled.
+2. Measurement split: (c) owner listening check (steps below); (a)+(b) dongle recording analysed by Claude (procedure
+   below), else `[MANUAL]` in T048. M5 may start; **T046 cannot close until (a)–(c) pass.** No max-volume headphone tests.
+3. Fade lead (0.46–0.69 s) compensated for every processor fade incl. pause/skip → ADR-003 "S1 result", T056/T058/T059.
+4. 002 NOTES: top-level design item "scan path for formats the device doesn't know" (MediaStore skips `.wv` here).
+5. Owner blocklists `/sdcard/Music/SistrumTestCorpus` in the daily app (owner, 2026-10-05).
+6. No APE/DSD samples: corpus rows removed; 002 validation via the WaxFlow oracle (APE) and synthetic DSF/DFF + Flick
+   `dsd_engine` (DSD); exportable decode-failure log added (spec FR-064a, SC-014; task T032b; 002 NOTES).
+
+### T003b (c) — listening check (owner, ~1 minute, phone speaker, no headphones)
+
+1. Phone on USB as usual. Turn **Dolby Atmos off** (Settings → Sound & vibration → Dolby Atmos). Media volume at your
+   normal listening level. Nothing plugged into the headphone/USB-C audio path.
+2. On the laptop (the `.qa` build and its test APK are already installed):
+   ```
+   adb shell svc power stayon usb
+   adb shell am instrument -w -e class me.misa198.airmedy.spikes.SharedSessionLimiterSpikeTest me.misa198.airmedy.dev.qa.test/androidx.test.runner.AndroidJUnitRunner
+   ```
+3. What plays (about 40 s, all generated test tones, each block ~4 s with a short gap between blocks):
+   - ~5 s silence;
+   - **block 1**: 1 kHz tone, limiter effect **on**;
+   - **block 2**: the same 1 kHz tone, effect **disabled** ← the question;
+   - blocks 3/4: a soft two-tone chord, effect on / disabled;
+   - blocks 5/6: a louder two-tone chord, effect on / disabled;
+   - block 7: a short tone (hi-res file), effect on.
+4. Tell Claude: is block 2 **as loud as block 1 / quieter / silent**? Same question for blocks 4 and 6 vs 3 and 5.
+   (Optional, if you have a moment: the same run with Dolby Atmos on — earlier automated runs had Dolby on.)
+
+### T003b (a)+(b) — recording procedure (only if you have the hardware; otherwise say so → T048 MANUAL)
+
+Hardware: a USB-C audio dongle (USB-C → 3.5 mm) on the phone, and a cable from the dongle to the laptop's 3.5 mm
+jack. This laptop (`HD-Audio Generic`, ALC236, card 1) has a **combo headset jack (mono mic input)**: use a stereo-to-
+TRRS cable wired for mic, or a headset splitter (mic plug) — a plain stereo TRS-TRS cable is detected as headphones and
+records nothing. **No headphones anywhere**; the phone's output only goes into the laptop.
+
+1. Wireless adb (the dongle takes the phone's only USB-C port). While still on USB:
+   `adb tcpip 5555`, then `adb shell ip -f inet addr show wlan0` (note the IP), unplug, plug in the dongle,
+   `adb connect <IP>:5555`, `adb devices` shows one device. (adb stays open on the network until you run `adb usb`
+   or reboot — do that afterwards.)
+2. Phone: Dolby Atmos off; note the dongle model.
+3. Laptop input, no boost, no processing:
+   `amixer -c 1 sset 'Mic Boost' 0` and `amixer -c 1 sset 'Capture' 40%`.
+4. Level check (one run, nothing saved): start the meter
+   `arecord -D hw:1,0 -f S16_LE -r 48000 -c 2 -V stereo /dev/null`
+   (if it says "busy", use `-D default`), run the instrumentation command from (c) step 2 with `adb -s <IP>:5555 shell …`,
+   and watch block 1. Adjust the **phone's media volume** (and `Capture` only if needed) until block 1 peaks around
+   **−12 dB** (meter about 25 %) and nothing ever hits 100 %. Ctrl-C the meter. Note the phone volume step.
+5. Two recordings, ~75 s each, files in `~/sistrum-limiter/`:
+   ```
+   mkdir -p ~/sistrum-limiter && cd ~/sistrum-limiter
+   adb logcat -c; adb logcat -v epoch -s S2 > run1.log &
+   arecord -D hw:1,0 -f S16_LE -r 48000 -c 2 -d 75 run1.wav &
+   sleep 2; adb shell am instrument -w -e class me.misa198.airmedy.spikes.SharedSessionLimiterSpikeTest me.misa198.airmedy.dev.qa.test/androidx.test.runner.AndroidJUnitRunner > run1-instr.txt
+   wait; kill %1
+   ```
+   Run 1 at the volume from step 4; run 2 (`run2.*`) at the highest volume step where the meter still stayed below
+   100 % in step 4 (try 2–3 steps up; skip run 2 if it clips).
+6. Send Claude: the folder path (`~/sistrum-limiter/`: `run*.wav`, `run*.log`, `run*-instr.txt`), the phone volume
+   step for each run, the dongle model, and whether Dolby was off. Afterwards: `adb usb` (or reboot).
+
+What Claude will measure: calibration from block 1 (known −3 dBFS tone) → phone-dBFS per block; (a) block 5's peak vs
+the unlimited sum (+3 dBFS expected, ≈ −1 dBFS when limited) and flat-topping/distortion in block 6; (b) block 3 vs
+block 4 and vs the calibrated expectation (within 0.1 dB, SC-011); (c) block 2 vs block 1 (recording answers it too,
+so the listening check becomes a cross-check).
+
 ## Deferred owner checks (owner prefers minimal live testing, 2026-10-05)
 
 Do these when convenient; Claude never marks them PASS.
-- [ ] **Blocklist `/sdcard/Music/SistrumTestCorpus` in the daily app before its next library scan** (corpus pushed 2026-10-05).
-- [ ] Supply real APE (tagged + untagged) and DSF/DFF samples: put them in a folder, set `SISTRUM_REAL_SAMPLES` to it
-  (file names in `scripts/test-corpus/corpus.tsv`), or just tell Claude the folder.
+- [x] Blocklist `/sdcard/Music/SistrumTestCorpus` in the daily app (owner, 2026-10-05).
+- [ ] T003b (c) listening check (steps above).
+- [ ] T003b (a)+(b) dongle recording (procedure above), or tell Claude it isn't possible → T048 MANUAL.
 - [ ] S1 snaps by ear (T002): rerun with `-e snapAt 0.3 -e snapKind pause|seek`, `-e snapAt 0.7 -e snapKind next`
   (commands in ADR-003 "S1 result" / tasks T002).
 
 ## Exact next step
 
-M1: `/delegate-task T001` (`.qa` build).
+M2: T007 (`verify.sh --expect-fail`, orchestrator task, assertion-only failure rule), then `/delegate-task T008`.

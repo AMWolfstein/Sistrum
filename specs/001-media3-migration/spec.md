@@ -543,11 +543,16 @@ and the daily app's library, statistics and settings are untouched.
   match the real output buffer duration.
 - **FR-053**: If the session limiter can't be created, playback, EQ, preamp and width MUST continue; only
   the limiter is lost, and the clip-prevention setting MUST show that state clearly (no crash, no silent
-  no-op).
+  no-op). The app MUST NOT disable the DynamicsProcessing effect to turn clip prevention off: the effect stays
+  enabled for the session's lifetime and "off" sets the limiter stage to neutral parameters (ADR-004 effect-state
+  hedge; on the test device a disabled effect appeared to mute the session).
 - **FR-054**: The app MUST broadcast the open/close audio-effect-control-session events with the shared
   session id and its package name when the session starts and ends.
 - **FR-055**: When another app takes control of the session effect, the app MUST show that its limiter is
-  not active, and restore it when control returns. The in-app EQ is unaffected.
+  not active, and restore it when control returns. The in-app EQ is unaffected. Losing control MUST be
+  treated as a possible mute: the app MUST detect whether the session is still audible and, if it can't
+  confirm it, release its own effect and continue without the limiter (FR-053 state shown) until control
+  returns (ADR-004).
 - **FR-056**: Equalizer, preamp and width changes MUST be click-free (no filter-state reset; coefficient or
   gain changes ramped or crossfaded).
 
@@ -562,6 +567,10 @@ and the daily app's library, statistics and settings are untouched.
   against the same files.
 - **FR-064**: A provider's decode failure MUST show the normal playback error, be logged with the provider
   name and the file's format, and skip to the next track. No retry on another engine.
+- **FR-064a**: Decode failures MUST be kept in a bounded on-device decode-failure log (time, file name,
+  format, codec, provider, error; no other library data) that the user can export from settings (share
+  sheet as text, or save as a text file) and clear, so a user can send it with the failing file. Real-world
+  format problems are fixed from these reports (owner decision 2026-10-05).
 - **FR-065**: With the new engine selected, the library scan MUST admit a file only if the registry has a
   provider for its format; other files MUST NOT be tag-read or added to the library. With the current
   engine selected, the scan admits files as today (User Story 1). Changing the engine switch MUST trigger
@@ -685,8 +694,9 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   memory use (from `dumpsys meminfo`) are no higher than the current engine's with crossfade disabled
   (0 %), and at most 10 % higher with crossfade enabled, measured with the second-player lifetime of FR-033.
   Raw battery percentage is not used.
-- **SC-014**: Every decode failure in the test runs is logged with its provider name; zero unexplained
-  decode failures remain on corpus files when the default flips to the new engine.
+- **SC-014**: Every decode failure in the test runs is logged with its format, codec, provider name and
+  error, and appears in the exported decode-failure log (FR-064a); zero unexplained decode failures remain
+  on corpus files when the default flips to the new engine.
 - **SC-015**: On the test device, `dumpsys media.audio_flinger` shows both players' tracks on the same
   output thread with the session limiter enabled during a crossfade, and two overlapping test tones that
   clip only when summed come out limited. Hi-res corpus files are checked for direct-output routing.

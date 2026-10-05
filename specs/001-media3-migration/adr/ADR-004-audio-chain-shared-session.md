@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not yet measured (T003b); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not yet measured (T003b: (c) owner listening check, (a)/(b) recording or MANUAL in M5; T046 cannot close before they pass); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -28,6 +28,7 @@ post-gain, both channels in one link group, `setPreferredFrameDuration` = real s
 - Creation failure → no limiter; EQ/preamp/width unaffected; clip-prevention setting shows a note (FR-053).
 - `ACTION_OPEN/CLOSE_AUDIO_EFFECT_CONTROL_SESSION` broadcast with the session id and package (FR-054).
 - Control loss (`OnControlStatusChangeListener`) → note "limiter not active"; restored on regain (FR-055).
+  Control loss is also treated as a **possible mute** (hedge below).
 - The current engine is untouched (its native DSP stays as is).
 
 ## S2 result (2026-10-05, T003, CPH2307, `.qa`, Media3 1.11.1) — PARTIAL
@@ -50,6 +51,27 @@ Passed:
 "no reduction below threshold" check, and whether disabling the limiter or the whole DP mutes or attenuates the
 session (FR-053/055). The Visualizer could not measure them: on the session it is inserted first (reads the DP
 input); on the output mix it read near-silence whenever the DP was disabled.
+
+**Measurement split (owner decision 2026-10-05, after T003b stopped):**
+- (c) mute/attenuation when the DP is disabled: owner listening check on `.qa` at normal volume with Dolby off
+  (steps in `HANDOFF.md` "T003b").
+- (a) limiting of a summed overlap that would clip, and (b) SC-011 (no reduction below threshold): recorded from the
+  phone's output through a USB-C audio dongle into the dev laptop's input and analysed by the orchestrator
+  (procedure in `HANDOFF.md` "T003b"); if that recording is not possible, a `[MANUAL]` check inside M5 (T048). M5
+  may start; **T046 cannot close until (a)–(c) pass.** No max-volume headphone tests.
+
+**Decision — effect-state hedge (owner-approved 2026-10-05; holds whatever (a)–(c) show).** The DP descriptor says
+"volume mgmt: implements control" (AudioFlinger hands the stream volume to the effect), and in every DP-disabled
+phase of T003/T003b no output power was logged although our track was active (three independent sources). So:
+- Sistrum **never disables the DynamicsProcessing effect** (`enabled = false`) to turn the limiter off. The effect
+  stays enabled for the session's lifetime; "clip prevention off" = the limiter stage made neutral (ratio 1,
+  threshold 0 dBFS, post-gain 0 dB, input gain 0 dB). Disabling only the limiter stage (`inUse`/`enabled` false) is
+  allowed only if (c) shows it is safe; until then, neutral parameters. The effect is released only together with
+  the session (engine release).
+- **Losing control of the effect (FR-055) is treated as a possible mute.** On `onControlStatusChange(false)` (or an
+  `enabled` change we did not make) Sistrum detects whether the session is still audible and, if it cannot confirm
+  it, recovers: release its own effect instance and continue without the limiter (FR-053 note shown), re-creating it
+  when control returns. The detection method and its device verification are part of T046/T048.
 
 **Withdrawn claims** (from earlier S2 runs, both wrong): "DP on the mixer thread with both players" (it was an orphan
 chain on an idle in-call thread) and "the limiter acts before volume" (the difference was two 10 Hz tones partly
@@ -85,7 +107,8 @@ PSS from `Debug.getMemoryInfo` (batterystats unusable while on USB power; SC-013
 
 - Per-player = on-the-mix exactly for linear stages (fade before EQ, ADR-003). Shapes identical when the track
   rate equals the native output rate; band-centre gains identical always (research D5 exactness note).
-- Limiter feed-forward without lookahead: bounded overshoot on loud overlaps, measured in S2 (SC-011).
+- Limiter feed-forward without lookahead: bounded overshoot on loud overlaps, measured in T003b (a)/(b) (SC-011).
+- The DP effect stays enabled for the whole session; "off" is neutral parameters, never `enabled = false`.
 - Direct-output routes (some hi-res) bypass session effects: EQ still applies (in-app), only the limiter is lost
   there (S2 checks the corpus).
 - CPU: four small processors per player; two players only during fades (S3).
