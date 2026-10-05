@@ -23,6 +23,17 @@ the native engine and `PlaybackQueue` / `ListeningTracker` untouched.
 - Engine selection: a DataStore preference read at each playback start (FR-002); default native on the branch.
   Hidden developer setting, unlocked by a gesture (decided in the task; e.g. 7 taps on the version row).
 
+## Amendment — host testability (approved by the owner 2026-10-05: pure move, no logic change; T017's parity pass confirms it)
+
+`PlaybackService` cannot run in host tests (no Robolectric; framework `MediaSession`, notifications and
+`Service` stubs return null). To characterize service behaviour on a fake `PlayerEngine` (plan phase 3), the
+orchestration moves, mechanically and without logic change, into a plain-Kotlin `PlaybackCoordinator`
+(`player/PlaybackCoordinator.kt`) behind small ports (`player/PlaybackPorts.kt`: now-playing/session,
+focus, listening sink, scrobble sink, session store, clock, item resolver). `PlaybackService` keeps the Android
+glue: intents, MediaSession callbacks, notification, focus listener, noisy receiver, lifecycle. The command
+channel of ADR-006 (FR-081) then lives in the coordinator. Tasks T012/T013 do the move; T014–T016 add the
+fake-engine characterization tests.
+
 ## Consequences
 
 - Characterization tests pin today's service behaviour with a fake `PlayerEngine` once the seam exists;

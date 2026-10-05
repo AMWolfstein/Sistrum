@@ -32,6 +32,10 @@ post-gain, both channels in one link group, `setPreferredFrameDuration` = real s
 
 ## Consequences
 
+- Order vs the native engine (fade → EQ → preamp/width → focus duck, `ffmpeg_player.cpp:375-400`): the EQ is
+  linear and identical on both channels, so it commutes with the width matrix and the scalar preamp; gain/fade stay
+  before the EQ in both. Output equals the native chain up to float rounding (`DspLinearityTest`, T043).
+
 - Per-player = on-the-mix exactly for linear stages (fade before EQ, ADR-003). Shapes identical when the track
   rate equals the native output rate; band-centre gains identical always (research D5 exactness note).
 - Limiter feed-forward without lookahead: bounded overshoot on loud overlaps, measured in S2 (SC-011).

@@ -19,7 +19,8 @@ No Room schema or version change (FR-074). New persistent state lives in DataSto
 | FormatKey | format, codec | From scanner labels (`audioFormatOf`, `realCodec`). |
 | DecoderProvider | id, availability, extractors, renderers, refusal | Contract: `contracts/decoder-registry.md`. |
 | GainInfo | track/album gain (dB vs −18), track/album peak, form | Contract: `contracts/gain-source.md`. |
-| ItemGain | target dB, current dB (ramping) | Per player; ramps 100–300 ms from the current value (FR-046a). |
+| ItemGain | gain dB | Native engine only: the service's analysis-based gain, passed to the native dB parameter. |
+| GainProcessor state | target dB, current dB (ramping), fade curve | Media3, per player; gain resolved by the engine from `GainSource` when the track format is known; ramps 100–300 ms from the current value (FR-046a). |
 | TransitionState | Idle, Scheduled, Preparing, Transitioning(startedAt, fadeMs), Cleanup | Media3 engine only (ADR-003). Snap from any state → Cleanup. |
 | EngineEvent | TransitionStarted, GaplessAdvanced, Ended, OutputDisconnected, Error(provider, format, cause) | Contract: `contracts/player-engine.md`. |
 | LimiterState | available, controlled (by us / another app) | Drives the clip-prevention note (FR-053/055). |

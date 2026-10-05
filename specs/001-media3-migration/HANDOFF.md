@@ -2,7 +2,7 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** 2 — Plan (in progress, uncommitted), after the 2026-10-05 plan revision
+**Phase:** 3 — Tasks (generated and analyzed 2026-10-05, uncommitted; awaiting owner review)
 **Last commit:** docs(playback): add migration plan, ADRs and research (plan-phase commit; the WaxFlow
 vendoring and its revert were squashed away, WaxFlow is pinned as an oracle, not vendored)
 
@@ -124,7 +124,18 @@ Owner decisions at STOP 2: processor fade; framework MediaSession in 001 (Media3
 001 + 002); FR-080…092 in the shared service incl. native failure cases; honour `REPLAYGAIN_REFERENCE_LOUDNESS`;
 ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa` build. See `plan.md`.
 
+## Phase 3 — Tasks: generated + analyzed (2026-10-05), NOT committed
+
+- `tasks.md`: 64 tasks in milestones M1–M8 (T001 `.qa` build, T002–T005 spikes S1/S2/S3/S5, T006 corpus first).
+- `/speckit-analyze` fixes applied: spec FR-080…092 preamble (shared path), US7 sc4 (float-rounding tolerance,
+  steady-state match), data-model `ItemGain`, ADR-004 order note, plan phase 3, contract gain resolution (Media3
+  resolves its own gain; `setNormalization`).
+- Owner approvals (2026-10-05): ADR-001 amendment (`PlaybackCoordinator`, pure move, T017 confirms);
+  `verify.sh --expect-fail` (each expected-fail test must fail on an assertion about the missing behaviour, not a
+  crash/exception; verify.sh checks the failure type; commit message lists the classes; the next task turns them
+  green unmodified); US7 sc4 tolerance + "no click on EQ change" recorded as an intentional deviation.
+- Owner request: report review rounds per task in every status report.
+
 ## Exact next step
 
-`/speckit-tasks` for 001, **only when the owner says so**. First tasks: ADR-007 `.qa` test build (+ corpus), then
-device spikes S1, S2, S3, S5.
+M1: `/delegate-task T001` (`.qa` build).

@@ -315,8 +315,11 @@ listening and by measuring test tones at the band centres.
 3. **Given** preamp and stereo width are changed during playback, **Then** the change is heard within
    a moment and without clicks.
 4. **Given** the same band, preamp and width settings, **Then** the new engine's response matches the
-   current engine's exactly: same filter design and, at the same sample rate, identical coefficients; a
-   test-tone sweep agrees within 0.1 dB from 20 Hz to 20 kHz.
+   current engine's exactly: same filter design and formula and, at the same sample rate, the same
+   coefficients up to float rounding (≤ 1e-6 relative; bit identity is not testable across C and JVM math
+   libraries); a test-tone sweep agrees within 0.1 dB from 20 Hz to 20 kHz. "Exactly" means the steady-state
+   response: the current engine resets filter state on every EQ change (clicks), the new engine must not (FR-056).
+   **Intentional deviation from the current engine (owner, 2026-10-05): no click on EQ change.**
 5. **Given** a device where the session limiter can't be created, **Then** playback, EQ, preamp and width
    work as usual; only the limiter is missing, and the clip-prevention setting shows a clear note.
 6. **Given** an EQ app (e.g. Wavelet, Poweramp EQ) is installed, **Then** it is told about Sistrum's audio
@@ -585,8 +588,9 @@ and the daily app's library, statistics and settings are untouched.
 
 **Robustness of the playback service (from code review 2026-10, Part 2)**
 
-Each requirement names the review finding it prevents. They apply to the new engine and its service
-path; the current engine is not modified (FR-006).
+Each requirement names the review finding it prevents. They apply to the shared playback service path, so
+they cover both engines, including the current engine's failure cases (Clarifications 2026-10-05, ADR-006); the
+current engine itself, its native code and `FfmpegDecoder` are not modified (FR-006).
 
 - **FR-080** (foreground start): Every path that starts the playback service as a foreground service MUST
   reach foreground state in time, including commands sent to a cold service with an empty queue and early

@@ -114,8 +114,9 @@ are separate units with their own tests; the scanner change is one gate call.
 2. **Characterization (tests only)** — pure policies (`shouldStartCrossfade`, `crossfadeDurationMs`,
    `audioFocusChangeAction`, …); must not assert normalization/Mood Radio, the 1000-track truncation, or any
    faulty behaviour FR-080…092 correct (FR-073).
-3. **Seam** — `PlayerEngine`, `LegacyNativeEngine`, events, engine switch (default native); service-level
-   characterization with a fake engine. US1/US3.
+3. **Seam** — `PlayerEngine`, `LegacyNativeEngine`, events, engine switch (default native); orchestration moved
+   from `PlaybackService` into a plain-Kotlin `PlaybackCoordinator` (ADR-001 amendment, host testability), then
+   service-level characterization with a fake engine. US1/US3.
 4. **Media3 core** — single player, gapless via two-item playlist, events, errors with provider name; service
    robustness FR-080…092 on the shared command path (both engines). US2, US4 (framework session fed from state;
    Unknown artist fix).

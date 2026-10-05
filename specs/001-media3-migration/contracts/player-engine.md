@@ -22,7 +22,8 @@ interface PlayerEngine : Closeable {
 
     fun setFocusGain(gain: Float)                  // 1.0 or 0.2, ramped inside the engine
     fun setDsp(settings: EqualizerSettings)        // 10 bands, preamp, width
-    fun setGains(current: ItemGain, preloaded: ItemGain?)   // ramped (FR-046a)
+    fun setGains(current: ItemGain, preloaded: ItemGain?)   // native only: service-side analysis gain
+    fun setNormalization(settings: NormalizationSettings)  // Media3: retargets both players, ramped (FR-046a)
 }
 
 sealed interface EngineEvent {
@@ -40,4 +41,7 @@ Rules:
   (FR-090).
 - `LegacyNativeEngine`: `ItemGain` → the existing native dB parameter; `setDsp` → `GlobalDspConfig`;
   events from polls. No behaviour change.
-- `Media3Engine`: `ItemGain` → `GainProcessor`; `setDsp` → per-player processors; limiter on the session.
+- `Media3Engine`: ignores `ItemGain`; resolves each item's gain itself when the track's `Format` is known
+  (`GainSource` → `itemGainDb`, contracts/gain-source.md) and applies it in `GainProcessor`; `setNormalization`
+  retargets the current and prepared players with ramps; `setDsp` → per-player processors; limiter on the session.
+  (Amended 2026-10-05 at `/speckit-tasks`: the service cannot read tags before the engine parses the file.)
