@@ -175,7 +175,7 @@ today's behaviour is pinned by host tests on a fake engine.
 **Independent test (US1)**: all existing tests unchanged + new characterization tests green, native engine selected;
 owner parity pass on `.qa`.
 
-- [ ] T007 {orchestrator} Add `--expect-fail '<classes>'` to `.claude/skills/verify-task/scripts/verify.sh` for `[TESTS-FIRST]` tasks; document it in `.claude/skills/verify-task/SKILL.md`
+- [x] T007 {orchestrator} Add `--expect-fail '<classes>'` to `.claude/skills/verify-task/scripts/verify.sh` for `[TESTS-FIRST]` tasks; document it in `.claude/skills/verify-task/SKILL.md`
   - Do: run the named classes separately; parse the JUnit XML results: each test in them must fail with an assertion
     failure type (`java.lang.AssertionError`, `junit.framework.AssertionFailedError`, `org.junit.ComparisonFailure`,
     `kotlin.test` assertion errors); any pass, error (`<error>`), crash or other exception type → FAIL. All other tests

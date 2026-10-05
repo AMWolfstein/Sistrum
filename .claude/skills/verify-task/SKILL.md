@@ -34,6 +34,15 @@ bash .claude/skills/verify-task/scripts/verify.sh \
   `--files` just to make the check pass; a file belongs in the list only if the brief names it.
 - Use the TESTS from the brief as `--tests` filters, plus the full suites before a
   milestone commit. Pass `--instrumented` only for device tests the spec requires.
+- `[TESTS-FIRST]` tasks (tests committed before their implementation) use
+  `--expect-fail '<FQCN>,<FQCN>'` (androidApp host-test classes). The classes must compile and
+  **every test in them must fail on an assertion** about the missing behaviour
+  (`AssertionError`, `AssertionFailedError`, `ComparisonFailure`); a pass, a skip, a crash, `TODO()`,
+  `IllegalStateException`, a timeout or any other exception fails the gate, and so does any failing
+  test outside the named classes. The script judges the run from the JUnit XML and runs
+  `:sharedLogic:testAndroidHostTest` separately (it must pass). On PASS it prints
+  `Expected-fail: <classes>`: copy that line into the commit message. The following implementation
+  task runs the gate without `--expect-fail` and must turn those classes green without modifying them.
 - It prints one line per step (PASS / FAIL / NOT RUN) and `GATE: PASS|FAIL`, then refreshes
   the graph. Read only that output; open a log only for a FAIL.
 - Anything that needs real listening or hardware (Bluetooth, headset, audio focus, process

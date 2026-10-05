@@ -277,6 +277,12 @@ Do these when convenient; Claude never marks them PASS.
 - [ ] S1 snaps by ear (T002): rerun with `-e snapAt 0.3 -e snapKind pause|seek`, `-e snapAt 0.7 -e snapKind next`
   (commands in ADR-003 "S1 result" / tasks T002).
 
+## M2 — in progress
+
+| Task | Model | Brief | Runs / review rounds | Status |
+|---|---|---|---|---|
+| T007 | orchestrator (tooling, no delegation) | — | 5 acceptance cases with throwaway probe classes (assertion → PASS; `IllegalStateException`, `TODO()`, passing → FAIL; assertion class + other failing classes → FAIL) + missing class → FAIL + full-suite path PASS; probes removed. **Review rounds: n/a** | DONE |
+
 ## Exact next step
 
-M2: T007 (`verify.sh --expect-fail`, orchestrator task, assertion-only failure rule), then `/delegate-task T008`.
+M2: `/delegate-task T008` (characterize the pure playback policies).
