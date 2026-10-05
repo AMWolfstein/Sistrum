@@ -142,12 +142,40 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
 |---|---|---|---|---|
 | T001 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T001/brief-1.md` (session `ses_ef3c61449ffec4zSY8gEWw8APM`) | run-1 failed before dispatch (OpenCode postinstall missing; fixed with the owner's OK, 1.18.34); run-2 accepted. **Review rounds: 0** | DONE (gate PASS); SC-009 confirmed by the owner 2026-10-05 |
 | T002 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T002/brief-1.md`, `brief-2.md` (session `ses_ef3bcdfc7ffe2zlMyWtL8UFIul`) | run-1: device test failed (player built off its looper thread); round 1 (fix + outgoing-lead measurement) accepted. **Review rounds: 1** | DONE: S1 PASS, processor fade kept (ADR-003); snaps not checked by ear |
+| T003 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T003/brief-1..4.md` (session `ses_ef3919481ffeGH6Cbfh1VVnSH3`) | **Review rounds: 3 (limit reached)** + one orchestrator one-line fix (Visualizer → output mix, session 0). See "T003 blocked" below | DONE as **PARTIAL** (owner option A, 2026-10-05); remainder → T003b (orchestrator / small steps), blocks M5 |
 
 T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
 `debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
 unit tests ran, 0 failures). Device has a pre-existing `me.misa198.airmedy.dev.test` package from before this session;
 left alone (no uninstalls). T001 orchestrator part: CLAUDE.md adb section, verify.sh (QA APKs; allowlist: only `.qa` / `.qa.test`
 may be installed), tasks.md T001 file list (manifest overlay for the label).
+
+## T003 (2026-10-05) — S2 partially answered; owner chose option A
+
+Confirmed on the CPH2307 (`.qa`, Media3 1.11.1):
+- **Shared session works only if re-applied after the player is ready.** `ExoPlayer.setAudioSessionId` is async and the
+  player's own initial session can overwrite it (rounds 1–2: tracks on 4873/4881, DP/Visualizer orphaned on 4865).
+  With `ensureSharedSession` (re-set + poll `player.audioSessionId` after STATE_READY, before play) both players and
+  their tracks use the shared session. → Requirement for T046/T059 (and the T002 rig has the same race; S1 results
+  don't depend on it).
+- **The session's effect chain runs on the MIXER music thread** (`AudioOut_1D`) during the two-player overlap, and a
+  24-bit/96 kHz WAV also stays on that mixer thread (no direct output on this device).
+- DP limiter-only config is accepted; frame duration used 4 ms (`PROPERTY_OUTPUT_FRAMES_PER_BUFFER`/rate).
+
+Not established:
+- **Limiter output level / overshoot (SC-011) and "no reduction below threshold".** Visualizer is unusable here: on
+  the shared session it is inserted *first* (measures the DP input: quiet sum −3.4 dBFS, loud sum +2.6 dBFS); on the
+  output mix it reads near-silence (RMS ≈ −95 dB) whenever the DP is disabled and −50…−60 dB peaks otherwise.
+- Open question raised by that anomaly: does disabling the DP mute the session? (Relevant to FR-053/055.)
+
+Withdrawn: earlier S2 readings ("DP on mixer with both players", "limiter acts pre-volume").
+
+Options for the owner:
+- **A (recommended)**: accept S2 as partial now (session + routing PASS), continue M1 (T004, T005, T006); measure the
+  limiter later with a new short task that reads AudioFlinger's per-stream "Signal power history" from
+  `dumpsys media.audio_flinger` (post-mix HAL power, no Visualizer, no permission), plus the DP-disabled mute check.
+- B: same new task now, before T004.
+- C: owner listening check of limiter on/off (deferred list).
 
 ## Deferred owner checks (owner prefers minimal live testing, 2026-10-05)
 

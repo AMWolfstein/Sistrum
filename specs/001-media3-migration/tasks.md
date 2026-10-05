@@ -99,7 +99,7 @@ test corpus on the device.
     stop and update ADR-003) with date and evidence written into ADR-003 "Status"; measured incoming start offset (ms)
     recorded (SC-007 budget 200 ms).
 
-- [ ] T003 [P] [MANUAL] Spike S2 — shared session routing + limiter-only DynamicsProcessing, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md`; harness in `AI/spikes/SharedSessionLimiterSpikeTest.kt` {default}
+- [x] T003 [P] [MANUAL] Spike S2 — shared session routing + limiter-only DynamicsProcessing, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md`; harness in `AI/spikes/SharedSessionLimiterSpikeTest.kt` {default}
   - Do: two ExoPlayers on one session play generated sine WAVs (written to the app cache by the test) that clip only
     when summed (each −3 dBFS, same frequency, in phase); one `DynamicsProcessing` on the session, limiter stage only
     (input/output gain 0, pre-EQ/MBC/post-EQ off, threshold −1 dBFS, attack 1 ms, explicit release/ratio/post-gain,
@@ -110,6 +110,8 @@ test corpus on the device.
     `adb shell dumpsys media.audio_flinger` (both tracks on one output thread, DP enabled).
   - Accept: ADR-004 records: same thread yes/no, peak with/without limiter, overshoot bound (feeds SC-011), hi-res
     route (mixer vs direct), chosen limiter parameters. Contradiction → stop for owner.
+  - Result (2026-10-05): **PARTIAL** — shared session (with re-apply + check) and routing confirmed; limiter level,
+    SC-011 and the DP-disabled mute question moved to T003b (owner decision, option A). 3 review rounds.
 
 - [ ] T004 [P] [MANUAL] Spike S3 — memory/CPU of the second-player lifetime and processor rate, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md` and `ADR-003-dual-player-crossfade.md`; harness in `AI/spikes/ResourceSpikeTest.kt` {default}
   - Do: 10-minute loops on `.qa`: (a) one player; (b) one player + B created at fade + 5 s and released after the
@@ -142,6 +144,18 @@ test corpus on the device.
     (ffprobe confirms each file's real codec matches `corpus.tsv`).
   - Accept: every row generated or marked owner-supplied; push done on the device. `[MANUAL]` owner supplies real APE
     and DSF/DFF samples (HANDOFF open item) and blocklists the folder in the daily app.
+
+- [ ] T003b [MANUAL] {orchestrator} Spike S2 follow-up — limiter level via AudioFlinger's post-mix power history, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md`; harness steps in `AI/spikes/SharedSessionLimiterSpikeTest.kt`
+  - Owner decision 2026-10-05: done by the orchestrator itself or as small steps (T003 used 3 review rounds), not one
+    delegation. Measurement source: `dumpsys media.audio_flinger` per-stream "Signal power history" of the output
+    thread carrying the shared session (post-mix, post-effect HAL power; no Visualizer, no permission), sampled per
+    phase, with the session's tracks verified on that thread.
+  - Must answer: (a) does the limiter reduce a summed overlap that would clip (two-tone loud sum, DP on vs off);
+    (b) no reduction below threshold (quiet sum and single tone, DP on vs off within 0.1 dB, SC-011);
+    (c) does disabling the limiter stage, or the whole DP effect, mute or attenuate the session (FR-053/055).
+  - Accept: (a)–(c) answered with numbers in ADR-004. If the dumpsys method cannot measure them either, STOP and ask
+    the owner before trying anything else; fallback = owner listening check (option C).
+  - **Blocks M5** (T042–T048) together with T004.
 
 **Checkpoint M1** — status report; ADR-003/004/005 statuses updated from "pending spike"; owner approval.
 
@@ -413,7 +427,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 ---
 
-## Milestone M5 — Phase 7: DSP chain and session limiter (US7) — needs T003, T004
+## Milestone M5 — Phase 7: DSP chain and session limiter (US7) — needs T003, T003b, T004
 
 **Goal**: EQ/preamp/width on Media3 match the native filters; limiter on the shared session.
 **Independent test**: golden checks green; band-centre tones on device match; SC-015.
@@ -447,7 +461,9 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 - [ ] T046 [US7] Shared session and limiter in `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AT/player/media3/LimiterConfigTest.kt` {hard} [HIGH-RISK]
   - Do: one audio session id per engine lifetime, reused for every player (FR-036); limiter-only DynamicsProcessing
-    with every parameter set explicitly from T003's decision, linked channels, frame duration = sink buffer (FR-052);
+    with every parameter set explicitly from T003/T003b's decision, linked channels, frame duration = sink buffer (FR-052);
+    every player verified on the shared session after ready and before play, re-applied if needed, never started
+    otherwise (FR-036, ADR-004 "S2 result");
     creation failure → `LimiterState(available = false)` (FR-053); open/close effect-control broadcasts with session id
     and package (FR-054); `OnControlStatusChangeListener` → `LimiterState.controlled` (FR-055).
   - Tests: `UT me.misa198.airmedy.player.media3.LimiterConfigTest` (pure config builder: all stages but limiter off,
@@ -559,8 +575,8 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 ## Dependencies
 
-- M1 → everything. T001 blocks all device work and T002–T006. T002 (S1) blocks M7; T003/T004 (S2/S3) block M5 and
-  M7; T005 (S5) blocks M6.
+- M1 → everything. T001 blocks all device work and T002–T006. T002 (S1) blocks M7; T003/T003b/T004 (S2/S3) block M5
+  and M7; T005 (S5) blocks M6. T003b runs right after T006.
 - M2 order: T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → (T015 ∥ T016) → T017. No fake-engine test
   before T013 (needs the coordinator).
 - M3: T018 before T026/T027; T019 → T020 → T021 → T034; T023 → T024 → T025; T026 → T027 → T028 → T029 → T030

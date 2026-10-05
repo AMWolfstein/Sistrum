@@ -97,7 +97,8 @@ if [ -n "$instrumented" ]; then
       report "instrumented" BLOCKED "APK IDs are $app_id / $test_id, not the .qa test build; refusing to install"
       classes=()
     else
-      "$adb" install -r "$app_apk" > /dev/null
+      # -g: grant the .qa build's runtime permissions at install (shell grants are blocked on some OEM builds).
+      "$adb" install -r -g "$app_apk" > /dev/null
       "$adb" install -r -t "$test_apk" > /dev/null
       "$adb" shell svc power stayon usb
       runner="$test_id/androidx.test.runner.AndroidJUnitRunner"

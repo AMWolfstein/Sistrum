@@ -480,7 +480,11 @@ and the daily app's library, statistics and settings are untouched.
 - **FR-035**: Per player, the gains MUST multiply, never overwrite each other: user volume × focus duck ×
   fade curve × normalization gain.
 - **FR-036**: Both players MUST use identical audio attributes and share one audio session id, which MUST
-  be kept when the outgoing player is recreated. Audio offload MUST stay disabled on the new engine.
+  be kept when the outgoing player is recreated. Audio offload MUST stay disabled on the new engine. Because the
+  player applies a session id asynchronously and may overwrite it with its own (S2, ADR-004), every player MUST be
+  checked after it is ready and before it plays: if its session is not the shared one, the id is re-applied and
+  re-checked; a player that does not reach the shared session MUST NOT start (otherwise the limiter would silently
+  miss it), and the failure is logged and handled like a prepare failure.
 
 **Normalization (tag-based, stage 1)**
 

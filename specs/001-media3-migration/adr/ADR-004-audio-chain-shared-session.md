@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **pending device spikes S2, S3** (first tasks after ADR-007's `.qa` build) · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not yet measured (T003b); **pending S3** · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -29,6 +29,31 @@ post-gain, both channels in one link group, `setPreferredFrameDuration` = real s
 - `ACTION_OPEN/CLOSE_AUDIO_EFFECT_CONTROL_SESSION` broadcast with the session id and package (FR-054).
 - Control loss (`OnControlStatusChangeListener`) → note "limiter not active"; restored on regain (FR-055).
 - The current engine is untouched (its native DSP stays as is).
+
+## S2 result (2026-10-05, T003, CPH2307, `.qa`, Media3 1.11.1) — PARTIAL
+
+Harness: `androidTest/.../spikes/SharedSessionLimiterSpikeTest.kt`.
+
+Passed:
+- **Shared session — only with re-apply after ready + check (requirement).** `ExoPlayer.setAudioSessionId` is applied
+  asynchronously and the player's own initial session can land later and overwrite it: without the check both
+  players ran on their own sessions (4873, 4881) while the DP sat orphaned on the shared one, i.e. the limiter would
+  silently have covered neither or only one player. With "after STATE_READY, before play: if
+  `player.audioSessionId != shared` re-set it and poll until equal (≤ 3 s), else fail" both players and their
+  AudioTracks used the shared session. **Every player creation/preparation in `Media3Engine` MUST do this check, and
+  a player not on the shared session MUST NOT start** (spec FR-036).
+- **Routing:** during the two-player overlap the session's effect chain runs on the normal MIXER music thread
+  (`AudioOut_1D`); a 24-bit/96 kHz WAV also stays on that mixer thread (no direct output on this device).
+- The limiter-only DP config is accepted (frame duration 4 ms from `PROPERTY_OUTPUT_FRAMES_PER_BUFFER`/rate).
+
+**Not yet measured (T003b, blocks M5):** whether the limiter reduces a summed overlap that would clip, the SC-011
+"no reduction below threshold" check, and whether disabling the limiter or the whole DP mutes or attenuates the
+session (FR-053/055). The Visualizer could not measure them: on the session it is inserted first (reads the DP
+input); on the output mix it read near-silence whenever the DP was disabled.
+
+**Withdrawn claims** (from earlier S2 runs, both wrong): "DP on the mixer thread with both players" (it was an orphan
+chain on an idle in-call thread) and "the limiter acts before volume" (the difference was two 10 Hz tones partly
+cancelling).
 
 ## Consequences
 
