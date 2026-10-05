@@ -1,0 +1,52 @@
+file	format	codec	rate_hz	bits	channels	loudness_target_lufs	tag_forms	source	expected_track_gain_db	expected_album_gain_db	expected_registry_001	notes
+mp3_rg_txxx.mp3	mp3	mp3	48000		2	-14	rg_txxx	generated	-3.7	-3.7	platform	ID3v2.3 TXXX ReplayGain track+album+peaks
+mp3_rg_lowercase.mp3	mp3	mp3	48000		2	-20	rg_lowercase	generated	2.3	2.3	platform	ID3v2.3 TXXX lower-case replaygain_* keys
+mp3_untagged.mp3	mp3	mp3	48000		2	-10	none	generated			platform	no gain tags
+mp3_rg_txxx_itunnorm.mp3	mp3	mp3	48000		2	-24	rg_txxx,itunnorm	generated	6.3	6.3	platform	TXXX ReplayGain plus iTunNORM COMM; ReplayGain precedence wins
+flac_rg_vorbis.flac	flac	flac	48000	16	2	-14	rg_vorbis	generated	-4.0	-4.0	platform	Vorbis REPLAYGAIN_* track+album+peaks
+flac_rg_reference_loudness.flac	flac	flac	48000	16	2	-10	rg_vorbis,rg_reference_loudness	generated	-8.0	-8.0	platform	REPLAYGAIN_REFERENCE_LOUDNESS=-14.0 LUFS; effective gain = tag + (-18 - reference)
+flac_untagged.flac	flac	flac	48000	16	2	-20	none	generated			platform	no gain tags
+flac_24_96.flac	flac	flac	96000	24	2	-24	none	generated			platform	hi-res 24-bit/96 kHz
+flac_24_192.flac	flac	flac	192000	24	2	-24	none	generated			platform	hi-res 24-bit/192 kHz
+flac_5_1.flac	flac	flac	48000	16	6	-20	none	generated			platform	5.1 multichannel
+ogg_rg.ogg	ogg	vorbis	48000		2	-14	rg_vorbis	generated	-4.0	-4.0	platform	Vorbis REPLAYGAIN_* track+album
+ogg_untagged.ogg	ogg	vorbis	48000		2	-20	none	generated			platform	no gain tags
+opus_r128.opus	opus	opus	48000		2	-14	r128	generated	-4.0	-4.0	platform	R128 track+album, OpusHead output gain 0
+opus_r128_header_plus4.opus	opus	opus	48000		2	-10	r128,opus_header_gain	generated	-8.0	-8.0	platform	R128 plus patched OpusHead output gain +4.0 dB
+opus_header_plus4.opus	opus	opus	48000		2	-20	opus_header_gain	generated			platform	OpusHead +4.0 dB, no R128 tags; app sees untagged, decoder applies the header gain once
+opus_untagged.opus	opus	opus	48000		2	-24	none	generated			platform	no gain tags, OpusHead output gain 0
+m4a_aac_itunnorm.m4a	m4a	aac	48000		2	-14	itunnorm	generated	-4.0		platform	iTunes Sound Check (freeform iTunNORM)
+m4a_aac_rg_freeform.m4a	m4a	aac	48000		2	-10	itunes_rg_freeform	generated	-8.0	-8.0	platform	freeform com.apple.iTunes:replaygain_*
+m4a_aac_both.m4a	m4a	aac	48000		2	-20	itunnorm,itunes_rg_freeform	generated	2.0	2.0	platform	both forms present; ReplayGain precedence wins
+m4a_aac_untagged.m4a	m4a	aac	48000		2	-24	none	generated			platform	no gain tags
+m4a_alac_rg_freeform.m4a	m4a	alac	48000	16	2	-14	itunes_rg_freeform	generated	-4.0	-4.0	device-dependent:alac	ALAC freeform ReplayGain; no platform ALAC decoder on the CPH2307
+m4a_alac_untagged.m4a	m4a	alac	48000	16	2	-20	none	generated			device-dependent:alac	ALAC untagged
+wav_pcm16_48.wav	wav	pcm_s16	48000	16	2	-14	none	generated			platform	PCM 16-bit/48 kHz
+wav_pcm24_96.wav	wav	pcm_s24	96000	24	2	-20	none	generated			platform	PCM 24-bit/96 kHz
+wav_pcm_f32.wav	wav	pcm_f32	48000		2	-10	none	generated			platform	32-bit float
+wav_adpcm_ms.wav	wav	adpcm_ms	48000		2	-24	none	generated			decode-failure-path	MS-ADPCM in WAV; scanner sees wav/pcm, decoder fails
+wav_adpcm_ima.wav	wav	adpcm_ima	48000		2	-14	none	generated			decode-failure-path	IMA-ADPCM in WAV; scanner sees wav/pcm, decoder fails
+aiff_none_8.aiff	aiff	pcm_s8	48000	8	2	-14	none	generated			kotlin-aiff	AIFF compressionType NONE, signed 8-bit
+aiff_none_16.aiff	aiff	pcm_s16be	48000	16	2	-20	none	generated			kotlin-aiff	AIFF (NONE) 16-bit big-endian
+aiff_none_24.aiff	aiff	pcm_s24be	48000	24	2	-10	none	generated			kotlin-aiff	AIFF (NONE) 24-bit big-endian
+aiff_none_32.aiff	aiff	pcm_s32be	48000	32	2	-24	none	generated			kotlin-aiff	AIFF (NONE) 32-bit big-endian
+aifc_sowt_16.aifc	aifc	sowt	48000	16	2	-14	none	generated			kotlin-aiff	AIFF-C sowt little-endian 16-bit
+aifc_twos_16.aifc	aifc	twos	48000	16	2	-20	none	generated			kotlin-aiff	AIFF-C compressionType twos big-endian 16-bit
+aifc_fl32.aifc	aifc	fl32	48000		2	-10	none	generated			skipped:refused float AIFF-C	float AIFF-C refused by name by kotlin-aiff
+aifc_ima4.aifc	aifc	ima4	48000		2	-24	none	generated			skipped:refused compressed AIFF-C	compressed AIFF-C refused by name by kotlin-aiff
+wavpack_lossless.wv	wv	wavpack	48000	16	2	-14	none	generated			skipped:unsupported-format-002	WavPack lossless; no 001 provider
+wma_v2.wma	wma	wmav2	48000		2	-20	none	generated			skipped:unsupported-format-002	WMA v2; no 001 provider
+flac_malformed.flac	flac	flac	48000	16	2	-14	malformed	generated			platform	REPLAYGAIN_TRACK_GAIN=abc -> unparseable, treated as untagged
+flac_out_of_range.flac	flac	flac	48000	16	2	-14	out_of_range	generated	20.0		platform	REPLAYGAIN_TRACK_GAIN=+50.00 dB -> clamped to the +20.0 dB sane-range bound
+flac_non_finite.flac	flac	flac	48000	16	2	-14	non_finite	generated			platform	REPLAYGAIN_TRACK_GAIN=nan dB -> non-finite, treated as untagged
+flac_missing_unit.flac	flac	flac	48000	16	2	-14	missing_unit	generated	-4.0		platform	REPLAYGAIN_TRACK_GAIN bare number, unit optional
+gapless_flac_1.flac	flac	flac	48000	16	2	-20	rg_vorbis	generated	1.8	1.8	platform	gapless-album:flac:1; album ReplayGain, sample-exact cut from a 105 s signal
+gapless_flac_2.flac	flac	flac	48000	16	2	-20	rg_vorbis	generated	2.3	2.3	platform	gapless-album:flac:2
+gapless_flac_3.flac	flac	flac	48000	16	2	-20	rg_vorbis	generated	1.9	1.9	platform	gapless-album:flac:3
+gapless_mp3_1.mp3	mp3	mp3	48000		2	-20	rg_txxx	generated	2.1	2.1	platform	gapless-album:mp3:1; LAME gapless headers
+gapless_mp3_2.mp3	mp3	mp3	48000		2	-20	rg_txxx	generated	2.6	2.6	platform	gapless-album:mp3:2
+gapless_mp3_3.mp3	mp3	mp3	48000		2	-20	rg_txxx	generated	2.2	2.2	platform	gapless-album:mp3:3
+real_ape_tagged.ape	ape	ape					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real APE with APEv2 ReplayGain ($SISTRUM_REAL_SAMPLES)
+real_ape_untagged.ape	ape	ape					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real APE untagged
+real_dsf.dsf	dsf	dsd					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real DSF
+real_dff.dff	dff	dsd					none	owner-supplied			skipped:unsupported-format-002	owner-supplied real DFF

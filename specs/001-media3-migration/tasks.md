@@ -131,7 +131,7 @@ test corpus on the device.
   - Accept: ADR-005 records the measured difference (≈6 dB = applied once by the platform decoder → `GainProcessor`
     adds nothing; ≈0 dB → `GainProcessor` adds it; anything else → stop for owner).
 
-- [ ] T006 [US9] Test corpus generator in `scripts/test-corpus/generate-corpus.sh`, `scripts/test-corpus/corpus.tsv`, `scripts/test-corpus/push-corpus.sh` {default}
+- [x] T006 [US9] Test corpus generator in `scripts/test-corpus/generate-corpus.sh`, `scripts/test-corpus/generate_corpus.py`, `scripts/test-corpus/corpus.tsv`, `scripts/test-corpus/push-corpus.sh`, `scripts/test-corpus/README.md` {default}
   - Do: generates locally every format/tag form available (MP3 ID3 TXXX, FLAC/Ogg Vorbis REPLAYGAIN_* incl. lower-case
     keys and `REPLAYGAIN_REFERENCE_LOUDNESS`, Opus R128_* with/without header gain, M4A AAC with iTunNORM and freeform
     replaygain atoms, M4A ALAC, WAV PCM 16/24/float, AIFF/AIFF-C NONE/twos/sowt 8–32 bit, float/compressed AIFF-C,

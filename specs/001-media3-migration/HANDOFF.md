@@ -145,7 +145,7 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
 | T003 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T003/brief-1..4.md` (session `ses_ef3919481ffeGH6Cbfh1VVnSH3`) | **Review rounds: 3 (limit reached)** + one orchestrator one-line fix (Visualizer → output mix, session 0). See "T003 blocked" below | DONE as **PARTIAL** (owner option A, 2026-10-05); remainder → T003b (orchestrator / small steps), blocks M5 |
 | T004 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T004/brief-1.md` | run-1 accepted, gate PASS; 80-min measurement done (session `ses_ef30d95eaffeOhRK0atiEF7J3p`). **Review rounds: 0** | DONE: S3 PASS (ADR-004 "S3 result") |
 | T005 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T005/brief-1.md` | run-1 accepted (session `ses_ef306333affek0as11Gvi0fYpX`); fixtures independently checked with ffmpeg (−26/−20/−32 dB = ±6 dB); device run PASS (after the owner approved a Play Protect prompt for the QA install). **Review rounds: 0** | DONE: S5 PASS (ADR-005) |
-| T006 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T006/brief-1.md` | run-1 dispatched (Python generator + mutagen venv; tags derived from measured loudness) | in progress |
+| T006 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T006/brief-1.md` | run-1 accepted (session `ses_ef2ffc3fdffec6cR0qadqLACm8`); regenerated + verified by the orchestrator; gains cross-checked vs ffmpeg ebur128 (5 forms exact); 47 files pushed to `/sdcard/Music/SistrumTestCorpus`, 46 indexed by MediaStore (`.wv` not indexed — 002 NOTES). **Review rounds: 0** | DONE |
 
 T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
 `debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
@@ -183,6 +183,9 @@ Options for the owner:
 ## Deferred owner checks (owner prefers minimal live testing, 2026-10-05)
 
 Do these when convenient; Claude never marks them PASS.
+- [ ] **Blocklist `/sdcard/Music/SistrumTestCorpus` in the daily app before its next library scan** (corpus pushed 2026-10-05).
+- [ ] Supply real APE (tagged + untagged) and DSF/DFF samples: put them in a folder, set `SISTRUM_REAL_SAMPLES` to it
+  (file names in `scripts/test-corpus/corpus.tsv`), or just tell Claude the folder.
 - [ ] S1 snaps by ear (T002): rerun with `-e snapAt 0.3 -e snapKind pause|seek`, `-e snapAt 0.7 -e snapKind next`
   (commands in ADR-003 "S1 result" / tasks T002).
 

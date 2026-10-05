@@ -84,3 +84,11 @@ into normalization (001 treats them as untagged).
 ## Never use
 
 JustDSD (no license), JMAC (license unclear: LGPL vs GPL-2 reports), MediaChest (no license).
+
+## Device fact (2026-10-05, from 001 T006 corpus push)
+
+On the CPH2307 (Android 15), MediaStore did not index `wavpack_lossless.wv` as audio (46 of 47 corpus files indexed;
+the WavPack file is the only one missing from `MediaStore.Audio.Media`). Sistrum's library scan is MediaStore-based, so
+WavPack files are invisible to it on this device with either engine. Before 002's WavPack provider and its performance
+gate, check MediaStore behaviour for `.wv` on other devices / Android versions and decide whether the scan needs a
+file-system fallback for formats MediaStore does not classify as audio (Principle 10: one device is a sample).
