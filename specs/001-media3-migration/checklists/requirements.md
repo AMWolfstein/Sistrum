@@ -31,12 +31,14 @@
 
 ## Notes
 
-- Clarifications resolved 2026-10-01: Q1 = C (fallback to the current engine during the migration,
-  logged and visible, one retry only; normal error afterwards) → US8 scenarios 3–4, FR-062a, SC-012.
+- Clarifications resolved 2026-10-01: Q1 = C (fallback to the current engine during the migration)
+  → superseded 2026-10-05: no per-track routing, no retry on native; decode failures show the normal
+  error, are logged with the provider name and skip (FR-064, SC-014).
   Q2 = A for all files (tagged peaks reduce gain + transparent end-of-chain limiter that never engages
   below threshold) → FR-044, SC-011. Owner accepted the Assumptions as written.
 - Implementation-detail items pass with a caveat: this is an architectural migration whose technology
-  (Media3, Jellyfin decoder, Rhythm ports, platform equalizer) is mandated by the constitution. Those names
+  (Media3, Decoder Registry with platform + Kotlin providers, Choir AIFF port, Rhythm ports,
+  DynamicsProcessing on a shared session) is mandated by the constitution. Those names
   are confined to the Assumptions section as constraints, and requirements describe observable behaviour.
   Tag names (REPLAYGAIN_*, R128_*, iTunNORM), the corpus path and the app-ID suffix are user/owner-visible
   facts, not design choices.

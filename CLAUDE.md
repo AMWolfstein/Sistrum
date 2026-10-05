@@ -22,9 +22,13 @@ device (constitution Principle 10).
   sign locally with zipalign + apksigner and `~/.android/debug.keystore`; don't edit signingConfigs)
 - `./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest`
 - `./gradlew :androidApp:lintDevDebug`
-- `./gradlew :androidApp:assembleDevDebugAndroidTest`, then install both APKs with
-  `adb install -r` and run classes one at a time:
-  `adb shell am instrument -w -r -e class <Class> me.misa198.airmedy.dev.test/androidx.test.runner.AndroidJUnitRunner`
+- **Never run instrumentation, install test APKs, or force-stop anything against the owner's daily
+  app `me.misa198.airmedy.dev`** (or its `.test` instrumentation package). All on-device tests use the
+  separate test-build application ID only (constitution "Test builds"; e.g. a `.qa` suffix). If that
+  build doesn't exist yet, stop and tell the owner. `verify.sh --instrumented` enforces this.
+- With the test build: `./gradlew :androidApp:assembleDevDebugAndroidTest`, check both APKs' IDs
+  (`aapt2 dump packagename <apk>`), install them with `adb install -r`, and run classes one at a time:
+  `adb shell am instrument -w -r -e class <Class> <test-build test package>/androidx.test.runner.AndroidJUnitRunner`
   Keep the screen awake (`adb shell svc power stayon usb`). Don't use Gradle
   connected* tasks: they uninstall the app afterwards.
 
@@ -180,7 +184,8 @@ or when legacy code is deleted. Never commits.
   delegate the tests as their own task before implementation, review and commit
   them, then delegate the implementation with "make these tests pass without
   modifying them" in MUST NOT.
-- Instrumented tests: run them with the adb method above only if a device is connected.
+- Instrumented tests: run them with the adb method above only if a device is connected and the
+  test-build application ID exists (never against the daily app).
   Anything needing real listening or hardware (Bluetooth, headset, audio focus,
   process death) goes on the manual checklist for the owner. Never mark it PASS yourself.
 - If an architectural problem appears mid-task: stop delegating, analyze, update

@@ -2,7 +2,9 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** 0 — Discovery + Graphify baseline — **DONE** (2026-09-30)
+**Phase:** 2 — Plan (in progress, uncommitted), after the 2026-10-05 plan revision
+**Last commit:** docs(playback): add migration plan, ADRs and research (plan-phase commit; the WaxFlow
+vendoring and its revert were squashed away, WaxFlow is pinned as an oracle, not vendored)
 
 ## Spec Kit feature directory
 
@@ -22,7 +24,7 @@
 
 ## Owner decisions (2026-10-01) — recorded in `.specify/memory/constitution.md`
 
-1. Additive migration: Media3 + Jellyfin `media3-ffmpeg-decoder` next to the native player; native
+1. *(Superseded 2026-10-05, see below.)* Additive migration: Media3 + an FFmpeg decoder extension next to the native player; native
    player and FFmpeg build stay and remain selectable. Deleting the native player is not a migration task.
 2. Normalization stage 1 = tag-based gain (port Rhythm's ReplayGainAudioProcessor/ReplayGainUtil; handle
    R128_* for Opus, avoid double Opus output gain). Stage 2 (on-device analyzer) is a later feature.
@@ -30,7 +32,7 @@
 3. Mood Radio revival is out of scope (returns with the analyzer); its machinery must keep working on Media3.
 4. Crossfade = port Rhythm's dual-ExoPlayer A/B technique; the plan spike validates it, doesn't redesign it.
 5. Equalizer added to no-feature-loss: `audiofx.Equalizer` on the audio session; preamp/width to be planned.
-6. AIFF/APE/WavPack/DSD/WMA deferred; they keep playing through the native player meanwhile.
+6. *(Superseded 2026-10-05.)* AIFF/APE/WavPack/DSD/WMA deferred; they keep playing through the native player meanwhile.
 7. Crossfade/EQ/normalization may be inactive on the Media3 path on this branch; nothing merges until restored.
 8. References: cromaguy/Rhythm (primary), PixelPlayerOSS (GPL-3.0, porting with attribution).
 9. Test device: CPH2307.
@@ -82,11 +84,47 @@
    wakelock time, meminfo for memory.
 5. Live setting changes: immediate 100–300 ms ramp from the actual current gain; limiter always on.
 
-Native-routed path decided (owner, 2026-10-01): FR-049 = no limiter there; tagged peak ≤ 0 dBFS, else
+*(Superseded 2026-10-05: no native-routed path.)* Native-routed path decided (owner, 2026-10-01): FR-049 = no limiter there; tagged peak ≤ 0 dBFS, else
 total gain capped at 0 dB. FR-046b = ramp emulated from Kotlin (~10 steps / ~200 ms); instant step
 accepted if audibly steppy. APEv2 / DSF/DFF / ASF gain tags out of scope (treated as untagged). All
 temporary, tied to the deferred-formats decision. Checklist: 16/16.
 
+## Plan revision (owner, 2026-10-05) — constitution and spec updated
+
+- Three features: **001** Media3 + Decoder Registry (platform + Kotlin AIFF from Choir); **002**
+  Kotlin ports of WaxFlow's decoders (+ Flick DSD), WaxFlow as oracle (`specs/002-kotlin-decoders/NOTES.md`);
+  **003** remove native player + FFmpeg build, then the NDK (`specs/003-native-removal/NOTES.md`).
+  Nothing merges into `main` until 001 and 002 are done.
+- No Jellyfin/FFmpeg decoder in Media3; no per-track routing to native (FR-046b/048/049/061/062a removed).
+- WaxFlow is NOT vendored: the owner's fork github.com/AMWolfstein/WaxFlow is pinned at `446ca31` as port
+  source and test oracle (`docs/waxflow/ORACLE.md`, `scripts/waxflow-oracle.sh`).
+- Shared audio session for A/B; EQ, preamp and width in-app per player with the native filters (exact match);
+  DynamicsProcessing on the session for the limiter only; equal-power fade.
+- Engine-dependent scan filter; SC-011 relaxed; no MPD 20 s rule (future setting); 002 adds Musepack, ADPCM,
+  G.711; a full format inventory gates 003.
+- Research reports moved into `research/` (index: `research/README.md`).
+
+## Pre-v1.0 review phase
+
+`docs/review/2026-10-code-review.md` (static review, 2026-10, unverified claims). Decision: no code fixes
+from it until all three features are done; a full review-and-fix phase runs before v1.0. Part 2 findings
+for the playback path are already 001 requirements (FR-080…FR-092). Known bug: PlaybackQueue keeps only
+1000 tracks and clamps the start index (Part 3 blocker); characterization tests must not assert it.
+
+## Phase 2 — Plan: DONE (2026-10-05)
+
+- `plan.md`, `research.md` (D1–D11 + spike table), `adr/ADR-001…007`, `contracts/` (player-engine,
+  decoder-registry, gain-source), `data-model.md`, `quickstart.md`.
+- Parts F and B done: `specs/002-kotlin-decoders/NOTES.md`, `specs/003-native-removal/NOTES.md`,
+  `research/analyzer-future.md`, `future-settings.md`, `home-mixes.md`.
+- Device facts: DynamicsProcessing present on the CPH2307; no ALAC decoder.
+- Spikes S1–S3, S5 BLOCKED: no `.qa` test-build application ID yet (CLAUDE.md rule: never the daily app).
+
+Owner decisions at STOP 2: processor fade; framework MediaSession in 001 (Media3 session = own feature after
+001 + 002); FR-080…092 in the shared service incl. native failure cases; honour `REPLAYGAIN_REFERENCE_LOUDNESS`;
+ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa` build. See `plan.md`.
+
 ## Exact next step
 
-`/speckit-plan` for `specs/001-media3-migration`.
+`/speckit-tasks` for 001, **only when the owner says so**. First tasks: ADR-007 `.qa` test build (+ corpus), then
+device spikes S1, S2, S3, S5.

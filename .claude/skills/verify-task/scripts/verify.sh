@@ -82,11 +82,26 @@ if [ -n "$instrumented" ]; then
     report "instrumented" "NOT RUN" "no device connected"
   else
     ./gradlew -q :androidApp:assembleDevDebugAndroidTest > "$logs/androidtest-build.log" 2>&1
-    "$adb" install -r androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk > /dev/null
-    "$adb" install -r -t androidApp/build/outputs/apk/androidTest/dev/debug/androidApp-dev-debug-androidTest.apk > /dev/null
-    "$adb" shell svc power stayon usb
-    runner=me.misa198.airmedy.dev.test/androidx.test.runner.AndroidJUnitRunner
-    IFS=, read -r -a classes <<< "$instrumented"
+    app_apk=androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk
+    test_apk=androidApp/build/outputs/apk/androidTest/dev/debug/androidApp-dev-debug-androidTest.apk
+    aapt2="$(ls -d "$sdk"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)"
+    app_id="$("$aapt2" dump packagename "$app_apk" 2>/dev/null)"
+    test_id="$("$aapt2" dump packagename "$test_apk" 2>/dev/null)"
+    # The owner's daily app. Never install over it, instrument it or force-stop it (CLAUDE.md).
+    daily_id=me.misa198.airmedy.dev
+    if [ -z "$app_id" ] || [ -z "$test_id" ]; then
+      report "instrumented" BLOCKED "could not read the APK application IDs (aapt2: ${aapt2:-not found})"
+      classes=()
+    elif [ "$app_id" = "$daily_id" ] || [ "$test_id" = "$daily_id.test" ]; then
+      report "instrumented" BLOCKED "no separate test-build application ID yet ($app_id); refusing to touch the daily app"
+      classes=()
+    else
+      "$adb" install -r "$app_apk" > /dev/null
+      "$adb" install -r -t "$test_apk" > /dev/null
+      "$adb" shell svc power stayon usb
+      runner="$test_id/androidx.test.runner.AndroidJUnitRunner"
+      IFS=, read -r -a classes <<< "$instrumented"
+    fi
     for cls in "${classes[@]}"; do
       "$adb" shell input keyevent KEYCODE_WAKEUP
       out=$("$adb" shell am instrument -w -e class "$cls" "$runner" 2>&1)
