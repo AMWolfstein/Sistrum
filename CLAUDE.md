@@ -205,11 +205,12 @@ or when legacy code is deleted. Never commits.
 ## Graph updates
 
 - The Graphify graph lives in the repo and must match the code at every commit.
-- Scope: source code in `androidApp/src/main`, `androidApp/src/test`, `androidApp/src/androidTest`
-  and `sharedLogic/src` (main and test code; node `source_file`s are repo-relative, so
-  `androidApp/src/test/…` and `sharedLogic/src/commonTest/…` mark test code). The repo-root
-  `.graphifyignore` (allowlist) excludes everything else: docs, specs, scripts, tools, resources,
-  `jniLibs`, build outputs and generated code. Scope list duplicated in `.claude/hooks/graph_refresh.py`;
+- Scope: source code of every source set under `androidApp/src/` and `sharedLogic/src/` (today
+  main, test, androidTest, qa — no code — commonMain, commonTest; future dev/prod/debug/… sets are
+  included automatically). Node `source_file`s are repo-relative, so `androidApp/src/test/…`,
+  `androidApp/src/androidTest/…` and `sharedLogic/src/commonTest/…` mark test code. The repo-root
+  `.graphifyignore` (allowlist) excludes everything else: docs, specs, scripts, tools, `res`,
+  `resources`, `assets`, `composeResources`, `jniLibs`, `cpp/third_party`, build outputs and generated code. Scope list duplicated in `.claude/hooks/graph_refresh.py`;
   change both together.
 - Refresh with exactly `python3 .claude/hooks/graph_refresh.py auto` (no LLM, ~7–8 s). It refreshes only
   when a source file in the scope (or `.graphifyignore`) differs from HEAD; docs/specs/scripts never

@@ -8,7 +8,8 @@
                              otherwise print "graph: not needed".
 
 Scope (keep in sync with the repo-root `.graphifyignore`, which tells graphify the same thing):
-androidApp/src/{main,test,androidTest} and sharedLogic/src source files. Docs, specs, scripts, tools,
+source files of every source set under androidApp/src and sharedLogic/src (minus res, jniLibs,
+resources, assets, composeResources, third_party, build and generated directories). Docs, specs, scripts, tools,
 resources and build outputs never trigger a refresh.
 
 Clean build: `graphify extract` "heals" from an existing graph.json in its output directory and never
@@ -28,8 +29,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCOPE = ("androidApp/src/main/", "androidApp/src/test/", "androidApp/src/androidTest/", "sharedLogic/src/")
-EXCLUDED_PARTS = ("/res/", "/jniLibs/", "/build/", "/generated/", "/resources/", "/assets/", "/.cxx/")
+SCOPE = ("androidApp/src/", "sharedLogic/src/")  # every source set (main, test, androidTest, qa, dev, ...)
+EXCLUDED_PARTS = ("/res/", "/jniLibs/", "/build/", "/generated/", "/resources/", "/assets/", "/.cxx/",
+                  "/composeResources/", "/third_party/")
 CODE_EXTENSIONS = (".kt", ".kts", ".java", ".c", ".cc", ".cpp", ".h", ".hpp")
 TRIGGERS = (".graphifyignore",)  # a scope change is a graph change
 GRAPH_FILES = ("graphify-out/graph.json", "graphify-out/.graphify_analysis.json")

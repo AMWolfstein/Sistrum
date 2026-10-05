@@ -1,25 +1,25 @@
-# Graphify scope (allowlist). Graph = app + test source code only:
-#   androidApp/src/{main,test,androidTest}, sharedLogic/src/**.
+# Graphify scope (allowlist). Graph = source code of every source set:
+#   androidApp/src/<set>/ and sharedLogic/src/<set>/ (main, test, androidTest, qa, commonMain, commonTest,
+#   and any future set such as dev/prod/debug/release/testDev).
 # Everything else (docs, specs, scripts, tools, build outputs, generated code, resources) is excluded.
 # gitignore semantics: a path can only be re-included if its parent directory is not excluded.
+# Keep in sync with SCOPE/EXCLUDED_PARTS in .claude/hooks/graph_refresh.py.
 /*
 !/androidApp/
 /androidApp/*
 !/androidApp/src/
-/androidApp/src/*
-!/androidApp/src/main/
-!/androidApp/src/test/
-!/androidApp/src/androidTest/
 !/sharedLogic/
 /sharedLogic/*
 !/sharedLogic/src/
 
 # Not source code: resources, prebuilt native libraries, generated/build outputs.
-/androidApp/src/main/res/
-/androidApp/src/main/jniLibs/
+/androidApp/src/*/res/
+/androidApp/src/*/jniLibs/
 /androidApp/src/*/resources/
 /androidApp/src/*/assets/
-/androidApp/src/main/cpp/third_party/
+/androidApp/src/*/cpp/third_party/
+/sharedLogic/src/*/resources/
+composeResources/
 build/
 generated/
 .cxx/

@@ -83,7 +83,7 @@ Do NOT run `graphify install --project`: the skill (`.claude/skills/graphify/`) 
 tracked `CLAUDE.md`. Don't run `graphify hook install` either (no git hooks). The graph
 itself (`graphify-out/graph.json`) is tracked; refresh it with
 `python3 .claude/hooks/graph_refresh.py auto` (scope: the repo-root `.graphifyignore`, i.e.
-`androidApp/src/{main,test,androidTest}` and `sharedLogic/src`; it only refreshes when source in that
+every source set under `androidApp/src` and `sharedLogic/src`; it only refreshes when source in that
 scope changed). It builds in `graphify-out/build/` (machine-local, never committed) from scratch on
 every refresh, so a new machine with an empty cache produces the same graph as everyone else; only
 the first run is slower (no AST cache yet). Never run `graphify extract`/`update` with `--out .`:
