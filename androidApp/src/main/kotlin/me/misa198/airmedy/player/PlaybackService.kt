@@ -24,7 +24,6 @@ import android.os.SystemClock
 import android.util.Log
 import java.util.UUID
 import android.util.LruCache
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -39,8 +38,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import me.misa198.airmedy.MainActivity
 import me.misa198.airmedy.R
 import me.misa198.airmedy.sync.AndroidSyncRuntime
@@ -50,16 +47,12 @@ import me.misa198.airmedy.lastfm.AndroidLastFmRuntime
 import me.misa198.airmedy.lastfm.LastFmService
 import me.misa198.airmedy.lastfm.LastFmTrack
 import me.misa198.airmedy.device.DeviceIdentity
-import me.misa198.airmedy.mood.MoodRadioBatchSize
-import me.misa198.airmedy.mood.MoodRadioRefillThreshold
-import me.misa198.airmedy.mood.selectMoodRadio
+import me.misa198.airmedy.mood.MoodRadioTrack
 import me.misa198.airmedy.player.engine.EngineFactory
 
 /** Owns Android transport; queue semantics are delegated to sharedLogic. */
 class PlaybackService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val commandMutex = Mutex()
-    private val restored = CompletableDeferred<Unit>()
     private lateinit var restoreJob: Job
     private val queue = PlaybackQueue()
     private lateinit var coordinator: PlaybackCoordinator
@@ -73,15 +66,12 @@ class PlaybackService : Service() {
     private lateinit var listeningWriter: Job
     private var preferencesJob: Job? = null
     private var moodRadioJob: Job? = null
-    private var moodRadioSeedId: String? = null
-    private var moodRadioLastRefillAttempt: Pair<String?, Int>? = null
-    private var resumeOnFocusGain = false
     private lateinit var audioManager: AudioManager
     private lateinit var mediaSession: MediaSession
     private lateinit var focusRequest: AudioFocusRequest
     private val noisyAudioReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (audioBecomingNoisyRequiresPause(intent.action)) dispatch(ActionPause)
+            if (audioBecomingNoisyRequiresPause(intent.action)) coordinator.dispatch(ActionPause)
         }
     }
 
@@ -104,7 +94,7 @@ class PlaybackService : Service() {
         normalizationPreferences = NormalizationPreferences(applicationContext)
         moodRadioJob = scope.launch {
             AndroidSyncRuntime.syncStore().libraryAnalysisEnabled.collectLatest { enabled ->
-                if (!enabled) commandMutex.withLock { stopMoodRadio() }
+                if (!enabled) coordinator.withCommandLock { coordinator.stopMoodRadio() }
             }
         }
         audioManager = getSystemService(AudioManager::class.java)
@@ -113,25 +103,25 @@ class PlaybackService : Service() {
             .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
             .setOnAudioFocusChangeListener { change ->
                 when (audioFocusChangeAction(change)) {
-                    AudioFocusChangeAction.Pause -> dispatch(ActionPause)
-                    AudioFocusChangeAction.PauseAndResumeOnGain -> dispatch(ActionPauseForTransientFocusLoss)
-                    AudioFocusChangeAction.Duck -> dispatch(ActionDuck)
-                    AudioFocusChangeAction.Restore -> dispatch(ActionRestoreFocus)
+                    AudioFocusChangeAction.Pause -> coordinator.dispatch(ActionPause)
+                    AudioFocusChangeAction.PauseAndResumeOnGain -> coordinator.dispatch(ActionPauseForTransientFocusLoss)
+                    AudioFocusChangeAction.Duck -> coordinator.dispatch(ActionDuck)
+                    AudioFocusChangeAction.Restore -> coordinator.dispatch(ActionRestoreFocus)
                     AudioFocusChangeAction.Ignore -> Unit
                 }
             }
             .build()
         mediaSession = MediaSession(this, "AirmedyPlayback").apply {
             setCallback(object : MediaSession.Callback() {
-                override fun onPlay() { dispatch(ActionResume) }
-                override fun onPause() { dispatch(ActionPause) }
-                override fun onSkipToNext() { dispatch(ActionNext) }
-                override fun onSkipToPrevious() { dispatch(ActionPrevious) }
+                override fun onPlay() { coordinator.dispatch(ActionResume) }
+                override fun onPause() { coordinator.dispatch(ActionPause) }
+                override fun onSkipToNext() { coordinator.dispatch(ActionNext) }
+                override fun onSkipToPrevious() { coordinator.dispatch(ActionPrevious) }
                 override fun onSkipToQueueItem(id: Long) {
-                    coordinator.queue.snapshot().activeTrackIds.getOrNull(id.toInt())?.let { dispatch(ActionSelect, trackIds = listOf(it)) }
+                    coordinator.queue.snapshot().activeTrackIds.getOrNull(id.toInt())?.let { coordinator.dispatch(ActionSelect, trackIds = listOf(it)) }
                 }
-                override fun onSeekTo(pos: Long) { dispatch(ActionSeek, positionMs = pos) }
-                override fun onStop() { dispatch(ActionStop) }
+                override fun onSeekTo(pos: Long) { coordinator.dispatch(ActionSeek, positionMs = pos) }
+                override fun onStop() { coordinator.dispatch(ActionStop) }
             })
             setPlaybackToLocal(
                 AudioAttributes.Builder()
@@ -163,21 +153,21 @@ class PlaybackService : Service() {
 
         preferencesJob = scope.launch {
             playbackPreferences.settings.collectLatest { settings ->
-                commandMutex.withLock {
+                coordinator.withCommandLock {
                     coordinator.onPlaybackSettings(settings.seconds, settings.blendArtworkDuringCrossfade)
                 }
             }
         }
         scope.launch {
             equalizerPreferences.settings.collectLatest { settings ->
-                commandMutex.withLock {
+                coordinator.withCommandLock {
                     coordinator.onEqualizerSettings(settings)
                 }
             }
         }
         scope.launch {
             normalizationPreferences.settings.collectLatest { settings ->
-                commandMutex.withLock {
+                coordinator.withCommandLock {
                     coordinator.onNormalizationSettings(settings)
                 }
             }
@@ -187,24 +177,24 @@ class PlaybackService : Service() {
             try {
                 sessionStore.load()?.let { session ->
                     val availableTrackIds = AndroidPlaybackRuntime.availableTrackIds(session.queue.originalTrackIds)
-                    commandMutex.withLock {
+                    coordinator.withCommandLock {
                         coordinator.restoreSaved(session, availableTrackIds)
                     }
                 }
             } catch (error: Throwable) {
                 if (error !is kotlinx.coroutines.CancellationException) {
                     Log.w(PlaybackLogTag, "Unable to restore playback session; clearing it", error)
-                    commandMutex.withLock { coordinator.clearRestoredSession() }
+                    coordinator.withCommandLock { coordinator.clearRestoredSession() }
                 }
             } finally {
-                restored.complete(Unit)
+                coordinator.markRestored()
             }
         }
         scope.launch {
             while (true) {
                 delay(200)
-                commandMutex.withLock {
-                    coordinator.tick { refillMoodRadioIfNeeded() }
+                coordinator.withCommandLock {
+                    coordinator.tick()
                 }
             }
         }
@@ -216,17 +206,17 @@ class PlaybackService : Service() {
             // particular, do not delay its Preparing state (and mini-player)
             // behind DataStore I/O and validation of every saved queue entry.
             restoreJob.cancel()
-            restored.complete(Unit)
+            coordinator.markRestored()
         }
         when (intent?.action) {
-            ActionPlay, ActionShuffle -> dispatch(
+            ActionPlay, ActionShuffle -> coordinator.dispatch(
                 action = intent.action!!,
                 trackIds = intent.getStringArrayExtra(TrackIdsExtra).orEmpty().toList(),
                 startIndex = intent.getIntExtra(StartIndexExtra, 0),
             )
-            ActionSeek -> dispatch(ActionSeek, positionMs = intent.getLongExtra(PositionMsExtra, 0L))
-            ActionSetShuffle -> dispatch(ActionSetShuffle, enabled = intent.getBooleanExtra(EnabledExtra, false))
-            ActionSetRepeat -> dispatch(
+            ActionSeek -> coordinator.dispatch(ActionSeek, positionMs = intent.getLongExtra(PositionMsExtra, 0L))
+            ActionSetShuffle -> coordinator.dispatch(ActionSetShuffle, enabled = intent.getBooleanExtra(EnabledExtra, false))
+            ActionSetRepeat -> coordinator.dispatch(
                 ActionSetRepeat,
                 repeat = intent.getStringExtra(RepeatModeExtra)?.let { value -> runCatching { RepeatMode.valueOf(value) }.getOrNull() },
             )
@@ -235,15 +225,15 @@ class PlaybackService : Service() {
                     intent.getIntExtra(CrossfadeSecondsExtra, CrossfadeDisabledSeconds),
                 )
             }
-            ActionPlayNext, ActionAppend, ActionReorder -> dispatch(
+            ActionPlayNext, ActionAppend, ActionReorder -> coordinator.dispatch(
                 action = intent.action!!,
                 trackIds = intent.getStringArrayExtra(TrackIdsExtra).orEmpty().toList(),
             )
-            ActionStartMoodRadio -> dispatch(ActionStartMoodRadio, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
-            ActionSelect -> dispatch(ActionSelect, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
-            ActionRemove -> dispatch(ActionRemove, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
+            ActionStartMoodRadio -> coordinator.dispatch(ActionStartMoodRadio, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
+            ActionSelect -> coordinator.dispatch(ActionSelect, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
+            ActionRemove -> coordinator.dispatch(ActionRemove, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
             null -> Unit
-            else -> dispatch(intent.action!!)
+            else -> coordinator.dispatch(intent.action!!)
         }
         return START_NOT_STICKY
     }
@@ -269,117 +259,6 @@ class PlaybackService : Service() {
         coordinator.clearArtworkCrossfade()
         state.value = PlaybackState.Idle
         super.onDestroy()
-    }
-
-    private fun dispatch(
-        action: String,
-        positionMs: Long = 0L,
-        trackIds: List<String> = emptyList(),
-        startIndex: Int = 0,
-        enabled: Boolean = false,
-        repeat: RepeatMode? = null,
-    ) = scope.launch {
-        restored.await()
-        commandMutex.withLock {
-            coordinator.pollEngineEvents()
-            Log.d(PlaybackLogTag, "Handling action=$action queueSize=${coordinator.queue.snapshot().activeTrackIds.size}")
-            if (action in MoodRadioStoppingActions) stopMoodRadio()
-            when (action) {
-                ActionPlay -> coordinator.handleTransition(runCatching { coordinator.queue.play(PlaybackRequest(trackIds, startIndex)) }
-                    .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
-                ActionShuffle -> coordinator.handleTransition(runCatching { coordinator.queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
-                    .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
-                ActionPause -> {
-                    resumeOnFocusGain = false
-                    coordinator.restoreFocusGain()
-                    coordinator.pauseCurrent()
-                }
-                ActionPauseForTransientFocusLoss -> pauseForTransientFocusLoss()
-                ActionDuck -> coordinator.duckForFocusLoss()
-                ActionRestoreFocus -> restoreAfterFocusGain()
-                ActionResume -> {
-                    resumeOnFocusGain = false
-                    coordinator.resumeCurrent()
-                }
-                ActionStop -> coordinator.stopPlayback()
-                ActionClearQueue -> coordinator.handleTransition(coordinator.queue.clear())
-                ActionNext -> coordinator.handleTransition(coordinator.queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
-                ActionPrevious -> {
-                    if (coordinator.positionMs() > PreviousRestartThresholdMs) coordinator.seekCurrent(0L)
-                    else coordinator.handleTransition(coordinator.queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
-                }
-                ActionSeek -> coordinator.seekCurrent(positionMs)
-                ActionSetShuffle -> coordinator.handleTransition(coordinator.queue.setShuffle(enabled))
-                ActionSetRepeat -> repeat?.let(coordinator.queue::setRepeatMode)
-                ActionPlayNext -> coordinator.queue.playNext(trackIds)
-                ActionAppend -> coordinator.queue.append(trackIds)
-                ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
-                ActionSelect -> trackIds.firstOrNull()?.let { coordinator.handleTransition(coordinator.queue.select(it), PlaybackEndReason.SKIPPED) }
-                ActionRemove -> trackIds.firstOrNull()?.let { coordinator.handleTransition(coordinator.queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
-                ActionReorder -> coordinator.queue.reorderQueue(trackIds)
-            }
-            if (action in PreloadResyncActions) {
-                // The old source must not remain part of a fade whose queued
-                // successor has just changed.
-                if (coordinator.isCrossfading()) {
-                    coordinator.clearArtworkCrossfade()
-                    coordinator.snapCrossfade()
-                }
-                coordinator.preloadNext()
-            }
-            coordinator.publishQueue()
-        }
-    }
-
-    private suspend fun startMoodRadio(seedId: String) {
-        val store = AndroidSyncRuntime.syncStore()
-        if (!store.libraryAnalysisEnabled.first()) {
-            Log.d(PlaybackLogTag, "Mood Radio ignored: library analysis is disabled")
-            return
-        }
-        val tracks = store.moodRadioTracks()
-        val selected = selectMoodRadio(seedId, tracks, emptySet(), MoodRadioBatchSize)
-        if (selected.isEmpty()) {
-            Log.d(PlaybackLogTag, "Mood Radio has no candidates seed=$seedId analyzed=${tracks.count { it.energy != null && it.danceability != null && it.brightness != null && it.tempo != null }}")
-            return
-        }
-        moodRadioSeedId = seedId
-        moodRadioLastRefillAttempt = null
-        moodRadioActive.value = true
-        if (coordinator.queue.snapshot().currentTrackId == seedId) coordinator.queue.replaceKeepingCurrent(listOf(seedId) + selected.map { it.id })
-        else coordinator.handleTransition(coordinator.queue.play(PlaybackRequest(listOf(seedId) + selected.map { it.id })), PlaybackEndReason.SKIPPED)
-        Log.d(PlaybackLogTag, "Mood Radio started seed=$seedId added=${selected.size} queueSize=${coordinator.queue.snapshot().activeTrackIds.size}")
-    }
-
-    private suspend fun refillMoodRadioIfNeeded(): Boolean {
-        val seedId = moodRadioSeedId ?: return false
-        val snapshot = coordinator.queue.snapshot()
-        if (snapshot.activeTrackIds.size - snapshot.currentIndex - 1 >= MoodRadioRefillThreshold) return false
-        val attempt = snapshot.currentTrackId to snapshot.activeTrackIds.size
-        if (attempt == moodRadioLastRefillAttempt) return false
-        moodRadioLastRefillAttempt = attempt
-        val store = AndroidSyncRuntime.syncStore()
-        if (!store.libraryAnalysisEnabled.first()) return false
-        val selected = selectMoodRadio(seedId, store.moodRadioTracks(), snapshot.activeTrackIds.toSet(), MoodRadioBatchSize)
-        if (selected.isEmpty()) return false
-        coordinator.queue.append(selected.map { it.id })
-        Log.d(PlaybackLogTag, "Mood Radio refilled seed=$seedId added=${selected.size} queueSize=${coordinator.queue.snapshot().activeTrackIds.size}")
-        return true
-    }
-
-    private fun stopMoodRadio() { moodRadioSeedId = null; moodRadioLastRefillAttempt = null; moodRadioActive.value = false }
-
-    private fun pauseForTransientFocusLoss() {
-        resumeOnFocusGain = state.value is PlaybackState.Playing
-        coordinator.restoreFocusGain()
-        coordinator.pauseCurrent()
-    }
-
-    private suspend fun restoreAfterFocusGain() {
-        coordinator.restoreFocusGain()
-        if (!resumeOnFocusGain) return
-        resumeOnFocusGain = false
-        coordinator.resumeCurrent()
     }
 
     private fun registerNoisyAudioReceiver() {
@@ -494,6 +373,8 @@ class PlaybackService : Service() {
         override suspend fun activeAnalyses(): Map<String, TrackAnalysis> = AndroidSyncRuntime.syncStore().activeAnalyses()
         override suspend fun tracks(): List<LibraryTrack> = AndroidSyncRuntime.syncStore().tracks.first()
         override suspend fun disableNormalization() = normalizationPreferences.disable()
+        override suspend fun libraryAnalysisEnabled(): Boolean = AndroidSyncRuntime.syncStore().libraryAnalysisEnabled.first()
+        override suspend fun moodRadioTracks(): List<MoodRadioTrack> = AndroidSyncRuntime.syncStore().moodRadioTracks()
     }
 
     private fun PlaybackItem.toLastFmTrack() = LastFmTrack(
@@ -560,9 +441,9 @@ class PlaybackService : Service() {
         internal const val ActionPlay = "me.misa198.airmedy.player.PLAY"
         internal const val ActionShuffle = "me.misa198.airmedy.player.SHUFFLE"
         internal const val ActionPause = "me.misa198.airmedy.player.PAUSE"
-        private const val ActionPauseForTransientFocusLoss = "me.misa198.airmedy.player.PAUSE_FOR_TRANSIENT_FOCUS_LOSS"
-        private const val ActionDuck = "me.misa198.airmedy.player.DUCK"
-        private const val ActionRestoreFocus = "me.misa198.airmedy.player.RESTORE_FOCUS"
+        internal const val ActionPauseForTransientFocusLoss = "me.misa198.airmedy.player.PAUSE_FOR_TRANSIENT_FOCUS_LOSS"
+        internal const val ActionDuck = "me.misa198.airmedy.player.DUCK"
+        internal const val ActionRestoreFocus = "me.misa198.airmedy.player.RESTORE_FOCUS"
         internal const val ActionResume = "me.misa198.airmedy.player.RESUME"
         internal const val ActionStop = "me.misa198.airmedy.player.STOP"
         internal const val ActionClearQueue = "me.misa198.airmedy.player.CLEAR_QUEUE"
@@ -583,17 +464,10 @@ class PlaybackService : Service() {
         internal const val PositionMsExtra = "position_ms"
         internal const val EnabledExtra = "enabled"
         internal const val RepeatModeExtra = "repeat_mode"
-        private const val PreviousRestartThresholdMs = 3_000L
         private const val ChannelId = "playback"
         private const val NotificationId = 2002
         private const val NowPlayingArtworkSizePx = 512
         private const val ListeningRetentionMs = 180L * 24 * 60 * 60 * 1_000
-        private val PreloadResyncActions = setOf(
-            ActionSetShuffle, ActionSetRepeat, ActionPlayNext, ActionRemove, ActionReorder, ActionStartMoodRadio,
-        )
-        private val MoodRadioStoppingActions = setOf(
-            ActionPlay, ActionShuffle, ActionStop, ActionClearQueue, ActionPlayNext, ActionAppend, ActionRemove, ActionReorder,
-        )
         private val nowPlayingArtworkCache = LruCache<String, Bitmap>(20)
         internal val state = MutableStateFlow<PlaybackState>(PlaybackState.Idle)
         internal val queueState = MutableStateFlow(PlaybackQueueSnapshot())

@@ -1,6 +1,7 @@
 package me.misa198.airmedy.player
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import me.misa198.airmedy.mood.MoodRadioTrack
 import me.misa198.airmedy.sync.LibraryTrack
 
 internal enum class TransportState { None, Buffering, Playing, Paused, Stopped, Error }
@@ -39,6 +40,8 @@ internal interface LibraryPort {
     suspend fun activeAnalyses(): Map<String, TrackAnalysis>
     suspend fun tracks(): List<LibraryTrack>
     suspend fun disableNormalization()
+    suspend fun libraryAnalysisEnabled(): Boolean
+    suspend fun moodRadioTracks(): List<MoodRadioTrack>
 }
 
 internal class PlaybackFlows(

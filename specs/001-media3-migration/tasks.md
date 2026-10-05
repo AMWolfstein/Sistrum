@@ -226,7 +226,7 @@ owner parity pass on `.qa`.
   - Accept: `PlaybackCoordinator` has no `android.*` imports except annotations; diff is a move (review with
     `git diff --color-moved`).
 
-- [ ] T013 [US1] Move command dispatch (queue ops, shuffle/repeat, Mood Radio start/refill/stop, focus actions) from `A/player/PlaybackService.kt` into `A/player/PlaybackCoordinator.kt` {hard} [HIGH-RISK]
+- [x] T013 [US1] Move command dispatch (queue ops, shuffle/repeat, Mood Radio start/refill/stop, focus actions) from `A/player/PlaybackService.kt` into `A/player/PlaybackCoordinator.kt` {hard} [HIGH-RISK]
   - Do: `PlaybackService` keeps only Android glue: intent parsing → coordinator calls, MediaSession callbacks,
     notification, focus listener registration, noisy receiver, lifecycle. No logic change.
   - Tests: `GATE` unmodified.

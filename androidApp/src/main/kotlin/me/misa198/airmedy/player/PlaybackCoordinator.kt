@@ -1,12 +1,30 @@
 package me.misa198.airmedy.player
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import me.misa198.airmedy.mood.MoodRadioBatchSize
+import me.misa198.airmedy.mood.MoodRadioRefillThreshold
+import me.misa198.airmedy.mood.selectMoodRadio
 import me.misa198.airmedy.player.engine.EngineEvent
 import me.misa198.airmedy.player.engine.ItemGain
 import me.misa198.airmedy.player.engine.PlayerEngine
 
 private const val DuckedFocusGain = 0.2f
+private const val PreviousRestartThresholdMs = 3_000L
+
+private val PreloadResyncActions = setOf(
+    PlaybackService.ActionSetShuffle, PlaybackService.ActionSetRepeat, PlaybackService.ActionPlayNext,
+    PlaybackService.ActionRemove, PlaybackService.ActionReorder, PlaybackService.ActionStartMoodRadio,
+)
+
+private val MoodRadioStoppingActions = setOf(
+    PlaybackService.ActionPlay, PlaybackService.ActionShuffle, PlaybackService.ActionStop, PlaybackService.ActionClearQueue,
+    PlaybackService.ActionPlayNext, PlaybackService.ActionAppend, PlaybackService.ActionRemove, PlaybackService.ActionReorder,
+)
 
 internal class PlaybackCoordinator(
     private val scope: CoroutineScope,
@@ -25,6 +43,12 @@ internal class PlaybackCoordinator(
     val listeningTracker: ListeningTracker,
     private val nextArtworkCrossfadeId: () -> Long,
 ) {
+    private val commandMutex = Mutex()
+    private val restored = CompletableDeferred<Unit>()
+    private var moodRadioSeedId: String? = null
+    private var moodRadioLastRefillAttempt: Pair<String?, Int>? = null
+    private var resumeOnFocusGain = false
+
     private var engine: PlayerEngine? = null
     private var preloadedItem: PlaybackItem? = null
     private var outputDisconnected = false
@@ -37,7 +61,120 @@ internal class PlaybackCoordinator(
     private var equalizerSettings = EqualizerSettings()
     private var isDucked = false
 
-    internal suspend fun tick(refillMoodRadio: suspend () -> Boolean) {
+    fun markRestored() { restored.complete(Unit) }
+
+    suspend fun <T> withCommandLock(block: suspend () -> T): T = commandMutex.withLock { block() }
+
+    fun dispatch(
+        action: String,
+        positionMs: Long = 0L,
+        trackIds: List<String> = emptyList(),
+        startIndex: Int = 0,
+        enabled: Boolean = false,
+        repeat: RepeatMode? = null,
+    ): Job = scope.launch {
+        restored.await()
+        commandMutex.withLock {
+            pollEngineEvents()
+            log.d("Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
+            if (action in MoodRadioStoppingActions) stopMoodRadio()
+            when (action) {
+                PlaybackService.ActionPlay -> handleTransition(runCatching { queue.play(PlaybackRequest(trackIds, startIndex)) }
+                    .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
+                PlaybackService.ActionShuffle -> handleTransition(runCatching { queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
+                    .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
+                PlaybackService.ActionPause -> {
+                    resumeOnFocusGain = false
+                    restoreFocusGain()
+                    pauseCurrent()
+                }
+                PlaybackService.ActionPauseForTransientFocusLoss -> pauseForTransientFocusLoss()
+                PlaybackService.ActionDuck -> duckForFocusLoss()
+                PlaybackService.ActionRestoreFocus -> restoreAfterFocusGain()
+                PlaybackService.ActionResume -> {
+                    resumeOnFocusGain = false
+                    resumeCurrent()
+                }
+                PlaybackService.ActionStop -> stopPlayback()
+                PlaybackService.ActionClearQueue -> handleTransition(queue.clear())
+                PlaybackService.ActionNext -> handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+                PlaybackService.ActionPrevious -> {
+                    if (positionMs() > PreviousRestartThresholdMs) seekCurrent(0L)
+                    else handleTransition(queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+                }
+                PlaybackService.ActionSeek -> seekCurrent(positionMs)
+                PlaybackService.ActionSetShuffle -> handleTransition(queue.setShuffle(enabled))
+                PlaybackService.ActionSetRepeat -> repeat?.let(queue::setRepeatMode)
+                PlaybackService.ActionPlayNext -> queue.playNext(trackIds)
+                PlaybackService.ActionAppend -> queue.append(trackIds)
+                PlaybackService.ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
+                PlaybackService.ActionSelect -> trackIds.firstOrNull()?.let { handleTransition(queue.select(it), PlaybackEndReason.SKIPPED) }
+                PlaybackService.ActionRemove -> trackIds.firstOrNull()?.let { handleTransition(queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
+                PlaybackService.ActionReorder -> queue.reorderQueue(trackIds)
+            }
+            if (action in PreloadResyncActions) {
+                // The old source must not remain part of a fade whose queued
+                // successor has just changed.
+                if (isCrossfading()) {
+                    clearArtworkCrossfade()
+                    snapCrossfade()
+                }
+                preloadNext()
+            }
+            publishQueue()
+        }
+    }
+
+    private suspend fun startMoodRadio(seedId: String) {
+        if (!library.libraryAnalysisEnabled()) {
+            log.d("Mood Radio ignored: library analysis is disabled")
+            return
+        }
+        val tracks = library.moodRadioTracks()
+        val selected = selectMoodRadio(seedId, tracks, emptySet(), MoodRadioBatchSize)
+        if (selected.isEmpty()) {
+            log.d("Mood Radio has no candidates seed=$seedId analyzed=${tracks.count { it.energy != null && it.danceability != null && it.brightness != null && it.tempo != null }}")
+            return
+        }
+        moodRadioSeedId = seedId
+        moodRadioLastRefillAttempt = null
+        flows.moodRadioActive.value = true
+        if (queue.snapshot().currentTrackId == seedId) queue.replaceKeepingCurrent(listOf(seedId) + selected.map { it.id })
+        else handleTransition(queue.play(PlaybackRequest(listOf(seedId) + selected.map { it.id })), PlaybackEndReason.SKIPPED)
+        log.d("Mood Radio started seed=$seedId added=${selected.size} queueSize=${queue.snapshot().activeTrackIds.size}")
+    }
+
+    private suspend fun refillMoodRadioIfNeeded(): Boolean {
+        val seedId = moodRadioSeedId ?: return false
+        val snapshot = queue.snapshot()
+        if (snapshot.activeTrackIds.size - snapshot.currentIndex - 1 >= MoodRadioRefillThreshold) return false
+        val attempt = snapshot.currentTrackId to snapshot.activeTrackIds.size
+        if (attempt == moodRadioLastRefillAttempt) return false
+        moodRadioLastRefillAttempt = attempt
+        if (!library.libraryAnalysisEnabled()) return false
+        val selected = selectMoodRadio(seedId, library.moodRadioTracks(), snapshot.activeTrackIds.toSet(), MoodRadioBatchSize)
+        if (selected.isEmpty()) return false
+        queue.append(selected.map { it.id })
+        log.d("Mood Radio refilled seed=$seedId added=${selected.size} queueSize=${queue.snapshot().activeTrackIds.size}")
+        return true
+    }
+
+    internal fun stopMoodRadio() { moodRadioSeedId = null; moodRadioLastRefillAttempt = null; flows.moodRadioActive.value = false }
+
+    private fun pauseForTransientFocusLoss() {
+        resumeOnFocusGain = flows.state.value is PlaybackState.Playing
+        restoreFocusGain()
+        pauseCurrent()
+    }
+
+    private suspend fun restoreAfterFocusGain() {
+        restoreFocusGain()
+        if (!resumeOnFocusGain) return
+        resumeOnFocusGain = false
+        resumeCurrent()
+    }
+
+    internal suspend fun tick() {
         refreshPlaybackPosition()
         val playing = flows.state.value as? PlaybackState.Playing
         if (playing != null) enqueueListening(listeningTracker.tick(
@@ -55,7 +192,7 @@ internal class PlaybackCoordinator(
             handleTransition(queue.next(), PlaybackEndReason.COMPLETED)
             publishQueue()
         }
-        if (refillMoodRadio()) publishQueue()
+        if (refillMoodRadioIfNeeded()) publishQueue()
         // A crossfade occupies both native source slots. Once its
         // callback retires the outgoing item, populate that slot
         // with the queue's new immediate successor.
