@@ -9,6 +9,7 @@ No Room schema or version change (FR-074). New persistent state lives in DataSto
 | EngineSelection | `engine: Native \| Media3` | Default Native on the branch, Media3 before merge (FR-002/003). Read at playback start and at scan. Change → rescan (FR-065). Hidden setting. |
 | NormalizationSettings (existing `NormalizationPreferences`) | enabled, targetLufs, mode (Track/Album), preventClip; **+ untaggedPreampDb** (default 0) | Enabled in UI only with Media3 selected (FR-045). targetLufs → global pre-amp = target + 18 dB. |
 | EqualizerSettings (existing `EqualizerPreferences`) | 10 band gains (dB), preamp (dB), width | Unchanged storage and UI (FR-050). |
+| Track visibility (FR-065a) | `sync_tracks.unavailableReason: String?` (Room column, v14) | null = available. Set by a Media3-engine scan for a file with no decoder on this device (the skip reason). Hidden rows keep their data and play count; every library read, playback resolve and search excludes them; the prior-scan state and play-count merge include them. Cleared by any scan that admits the file. |
 | SkippedFilesSummary | scanAt, entries: list of (format, codec, reason, count) | Written at the end of each Media3-engine scan; empty with the native engine. Shown after scan and in settings (FR-066). |
 | Session snapshot (existing `PlaybackSessionStore`) | queue, index, position | Unchanged; saves ordered (FR-087). |
 

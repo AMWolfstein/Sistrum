@@ -21,7 +21,7 @@ fixes (ADR-006). A separate `.qa` test build comes first (ADR-007), then the dev
 **Primary Dependencies**: new `androidx.media3:media3-exoplayer` 1.11.1 (+ `media3-common`; `media3-extractor`
 via exoplayer). Existing: coroutines 1.11.0, DataStore 1.2.1, Room 2.8.5. No FFmpeg in Media3, no NDK changes.
 
-**Storage**: DataStore for engine selection, untagged pre-amp, skipped-files summary; Room unchanged (FR-074)
+**Storage**: DataStore for engine selection, untagged pre-amp, skipped-files summary; Room: one additive column `sync_tracks.unavailableReason`, version 13 → 14 with a migration (FR-065a, FR-074)
 
 **Testing**: JUnit host tests (`testDevDebugUnitTest`, `sharedLogic:testAndroidHostTest`), instrumented tests on the
 `.qa` build only, device spikes S1–S3/S5 on the `.qa` build, owner's manual checklist for hardware/listening
@@ -34,7 +34,7 @@ via exoplayer). Existing: coroutines 1.11.0, DataStore 1.2.1, Room 2.8.5. No FFm
 (on); SC-003 gapless ≤ 10 ms; SC-007 fade start within 200 ms of native
 
 **Constraints**: `PlaybackQueue.kt` / `ListeningTracker.kt` zero changes; native code and `FfmpegDecoder` untouched;
-no Room change; offload disabled on Media3; never touch the daily app on device
+Room: only the FR-065a column (+ migration); offload disabled on Media3; never touch the daily app on device
 
 **Scale/Scope**: libraries of 20 000+ tracks (FR-083); every format FFmpeg plays today reaches parity with 002
 

@@ -346,7 +346,7 @@ compare the skipped-files summary with the corpus formats that have no provider.
 1. **Given** the new engine is selected, **When** an AIFF/AIFF-C (PCM) track plays, **Then** it plays through
    the Kotlin AIFF provider, with crossfade, EQ and normalization like any other track.
 2. **Given** a corpus with formats that have no provider (e.g. DSD, APE, WavPack, WMA in 001), **When** a
-   scan finishes, **Then** those files are not in the library, their tags are not read, and a short summary
+   scan finishes, **Then** those files are hidden from the library (kept with their history, FR-065a), their tags are not read, and a short summary
    says how many were skipped and why (e.g. "12 files skipped: unsupported format (DSD)"), after the scan
    and in settings.
 3. **Given** a provider is registered for a previously skipped format, **When** the library is rescanned,
@@ -572,9 +572,16 @@ and the daily app's library, statistics and settings are untouched.
   sheet as text, or save as a text file) and clear, so a user can send it with the failing file. Real-world
   format problems are fixed from these reports (owner decision 2026-10-05).
 - **FR-065**: With the new engine selected, the library scan MUST admit a file only if the registry has a
-  provider for its format; other files MUST NOT be tag-read or added to the library. With the current
-  engine selected, the scan admits files as today (User Story 1). Changing the engine switch MUST trigger
-  a rescan for the newly selected engine.
+  provider for its format; other files MUST NOT be tag-read, and are kept as hidden rows (FR-065a). With the
+  current engine selected, the scan admits files as today (User Story 1). Changing the engine switch MUST
+  trigger a rescan for the newly selected engine.
+- **FR-065a** (owner decision 2026-10-06): A file the registry skips MUST be HIDDEN, not deleted. Its library row,
+  play count, listening statistics and history, favorites, playlist membership and lyrics MUST be kept, and the row
+  is marked with the reason it has no decoder on this device. Hidden tracks MUST be left out of every library view,
+  queue, playback request, restore and search. When a decoder becomes available (a later provider, another device,
+  or a rescan with the other engine), the track MUST reappear with its history intact. A hidden file's tags are not
+  read: it keeps the values from its last admitted scan, or gets MediaStore's values only if it was never admitted.
+  Codec support differs per device, so this applies beyond the migration.
 - **FR-066**: After each scan, and in settings, the app MUST show a short summary of skipped files by
   format and reason (e.g. "12 files skipped: unsupported format (DSD)"). A newly registered provider MUST
   make its format appear after a rescan, with no scanner change.
@@ -597,7 +604,10 @@ and the daily app's library, statistics and settings are untouched.
   assert that normalization or Mood Radio work on the current engine, nor assert the known PlaybackQueue
   1000-track truncation (wrong start track in queues over 1000 tracks) as preserved behaviour, nor any
   faulty behaviour that FR-080…FR-092 correct (these apply to the shared service path for both engines).
-- **FR-074**: No Room schema or version change is part of this feature.
+- **FR-074**: The only Room change in this feature is one additive, nullable column, `sync_tracks.unavailableReason`
+  (FR-065a), with database version 13 → 14 and `Migration13To14` (`ALTER TABLE sync_tracks ADD COLUMN
+  unavailableReason TEXT`). Existing rows read as available. No other schema or version change (amended by owner
+  decision 2026-10-06; was "no Room change").
 
 **Robustness of the playback service (from code review 2026-10, Part 2)**
 
@@ -666,7 +676,8 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
 - **SC-001**: With the current engine selected, 100 % of the existing automated tests pass unmodified,
   and the characterization tests pass before and after the seam.
 - **SC-002**: With the new engine selected, 100 % of the admitted test-corpus files play from start to end,
-  and 100 % of corpus files without a provider appear in the skipped-files summary and not in the library.
+  and 100 % of corpus files without a provider appear in the skipped-files summary and are hidden from every
+  library view, queue and search, with their rows and play counts kept (FR-065a).
 - **SC-003**: Gapless joins on the new engine add no audible gap: measured silence between consecutive
   tracks of a gapless album is ≤ 10 ms.
 - **SC-004**: With normalization on, tagged corpus tracks of every tag form play within ±1 dB of each
@@ -719,7 +730,7 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   track gain against −18 LUFS.
 - Normalization stays off by default; untagged pre-amp defaults to 0 dB.
 - Engine selection, the untagged pre-amp and the skipped-files summary are stored outside the Room database
-  (preferences or a small file), so FR-074 holds.
+  (preferences or a small file); the only Room change is the FR-065a visibility column (FR-074).
 - Only arm64-v8a is supported, as today.
 - Device-only checks (listening, Bluetooth, headset, focus, process death, audio_flinger routing) are done by
   the owner on the test device (CPH2307) and ideally a second device; they are samples, not the target

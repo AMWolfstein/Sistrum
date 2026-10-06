@@ -417,7 +417,7 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 amendment (2026-10-06). M3 DONE: T035 owner checklist ok; **Checkpoint M3 approved (owner, 2026-10-06)**.
 
-M4 started (owner: run to the end per the stop rules). T035a, T036–T041a done; T041 device parts run (below). Open: the owner's AIFF listening check (T041) → Checkpoint M4.
+M4 started (owner: run to the end per the stop rules). T035a, T036–T041a done; T041 done (owner AIFF listening ok). **Checkpoint M4 approved (owner, 2026-10-06), effective after T039a/T039b.** Next → T039a (tests first), T039b, then M5.
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
@@ -490,16 +490,16 @@ existing ordered saver), so a process kill keeps recent progress. Parity issue, 
 7. Unplug headphones → pauses. Switch output in the output switcher (Android 14+) → continues at the same position.
 
 
-### Note for the default-engine flip (from the T039 review, 2026-10-06)
+### Decision: skipped files are hidden, not deleted (owner, 2026-10-06)
 
-With Media3 selected, a scan deletes the library rows of files the registry skips. Their `sync_tracks.playCount`
-(and anything else keyed to the row, e.g. playlist entries if reaped) is lost, and a later Native rescan re-adds them
-from zero. This is the same as today for files that drop out of the library (e.g. the folder filter). Insight
-statistics live in `daily_track_listening_stats` and survive. It matters only while some format still has no
-provider: Media3 is behind the hidden developer switch, and 001 cannot merge without 002 (FR-003). Before the
-default flips (003), either every format the app plays today has a provider, or skipped rows' play counts must be
-kept.
-
+Replaces the earlier "note for the default-engine flip". A file the registry skips on this device keeps its library
+row, play count, statistics, history, favorites, playlist membership and lyrics, marked with the reason
+(`sync_tracks.unavailableReason`), and is left out of every library view, queue, playback request, restore and search.
+It reappears with its history when a decoder becomes available (002, another device, a rescan). Spec: FR-065
+amended, new FR-065a, FR-074 amended (one additive column, v13 → 14, `Migration13To14`), SC-002 and US8 sc2 reworded;
+plan and data-model updated. Tasks: T039a (tests first) → T039b (implementation, high-risk). Checkpoint M4 approved
+by the owner, effective after T039b; M5 starts after it. Owner asked to be reminded of the exact T003b listening steps
+when M5 reaches T046.
 
 ### T041 — Corpus scan and playback on `.qa` with Media3 (2026-10-06, orchestrator, adb only)
 

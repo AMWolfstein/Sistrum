@@ -489,7 +489,18 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3ErrorAttributionTest` (PCM WAV then an ima4 AIFF-C preloaded:
     the Error names kotlin-aiff and the second file's format); `GATE`.
 
-- [ ] T041 [US8] [MANUAL] {orchestrator} Corpus scan on `.qa` with Media3: SC-002, SC-016, US8 scenarios 1–5 (adb + logcat provider names); owner listens to AIFF variants
+- [ ] T039a [US8] TESTS FIRST for hidden (not deleted) skipped tracks (FR-065a, FR-074) in `AI/sync/HiddenTracksTest.kt`, `AT/sync/HiddenTrackBasisTest.kt`, `sharedLogic/.../LocalLibraryTest.kt`, with compile-only stubs in `A/sync/SyncDatabase.kt`, `A/sync/MediaStoreLibraryScanner.kt`, `sharedLogic/.../LocalLibrary.kt` {default}
+  - Do (owner decision 2026-10-06): tests that fail until T039b. Stubs only so they compile (no behaviour, DB version
+    unchanged, migration not registered).
+  - Tests: `QA-I me.misa198.airmedy.sync.HiddenTracksTest`; `UT me.misa198.airmedy.sync.HiddenTrackBasisTest`; LocalLibraryTest additions.
+
+- [ ] T039b [US8] Hidden skipped tracks in `A/sync/SyncDatabase.kt` (column + Migration13To14 + query filters), `A/sync/MediaStoreLibraryScanner.kt`, `sharedLogic/.../LocalLibrary.kt` {hard} [HIGH-RISK]
+  - Do: make T039a's tests pass without modifying them. Skipped files become hidden rows (no tag read; prior values
+    when the file is unchanged, else MediaStore values with schema version 0); `unavailableReason` set; every library
+    read, resolve, count and search excludes hidden rows; prior state, play-count merge and lyrics keep them.
+  - Tests: T039a's tests unchanged; full unit suites; HiddenTracksTest + the existing sync androidTests on `.qa`; `GATE`.
+
+- [x] T041 [US8] [MANUAL] {orchestrator} Corpus scan on `.qa` with Media3: SC-002, SC-016, US8 scenarios 1–5 (adb + logcat provider names); owner listens to AIFF variants
 
 **Checkpoint M4** — status report; owner approval.
 
