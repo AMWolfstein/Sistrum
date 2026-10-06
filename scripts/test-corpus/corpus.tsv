@@ -25,7 +25,7 @@ wav_pcm16_48.wav	wav	pcm_s16	48000	16	2	-14	none	generated			platform	PCM 16-bit
 wav_pcm24_96.wav	wav	pcm_s24	96000	24	2	-20	none	generated			platform	PCM 24-bit/96 kHz
 wav_pcm_f32.wav	wav	pcm_f32	48000		2	-10	none	generated			platform	32-bit float
 wav_adpcm_ms.wav	wav	adpcm_ms	48000		2	-24	none	generated			decode-failure-path	MS-ADPCM in WAV; scanner sees wav/pcm, decoder fails
-wav_adpcm_ima.wav	wav	adpcm_ima	48000		2	-14	none	generated			decode-failure-path	IMA-ADPCM in WAV; scanner sees wav/pcm, decoder fails
+wav_adpcm_ima.wav	wav	adpcm_ima	48000		2	-14	none	generated			platform	IMA-ADPCM in WAV; scanner sees wav/wav. Media3 WavExtractor decodes IMA ADPCM itself, so it plays (T041, 2026-10-06)
 aiff_none_8.aiff	aiff	pcm_s8	48000	8	2	-14	none	generated			kotlin-aiff	AIFF compressionType NONE, signed 8-bit
 aiff_none_16.aiff	aiff	pcm_s16be	48000	16	2	-20	none	generated			kotlin-aiff	AIFF (NONE) 16-bit big-endian
 aiff_none_24.aiff	aiff	pcm_s24be	48000	24	2	-10	none	generated			kotlin-aiff	AIFF (NONE) 24-bit big-endian
@@ -34,7 +34,7 @@ aifc_sowt_16.aifc	aifc	sowt	48000	16	2	-14	none	generated			kotlin-aiff	AIFF-C s
 aifc_twos_16.aifc	aifc	twos	48000	16	2	-20	none	generated			kotlin-aiff	AIFF-C compressionType twos big-endian 16-bit
 aifc_fl32.aifc	aifc	fl32	48000		2	-10	none	generated			skipped:refused float AIFF-C	float AIFF-C refused by name by kotlin-aiff
 aifc_ima4.aifc	aifc	ima4	48000		2	-24	none	generated			skipped:refused compressed AIFF-C	compressed AIFF-C refused by name by kotlin-aiff
-wavpack_lossless.wv	wv	wavpack	48000	16	2	-14	none	generated			skipped:unsupported-format-002	WavPack lossless; no 001 provider
+wavpack_lossless.wv	wv	wavpack	48000	16	2	-14	none	generated			skipped:unsupported-format-002	WavPack lossless; no 001 provider; MediaStore does not index .wv, so no scan sees it (T041)
 wma_v2.wma	wma	wmav2	48000		2	-20	none	generated			skipped:unsupported-format-002	WMA v2; no 001 provider
 flac_malformed.flac	flac	flac	48000	16	2	-14	malformed	generated			platform	REPLAYGAIN_TRACK_GAIN=abc -> unparseable, treated as untagged
 flac_out_of_range.flac	flac	flac	48000	16	2	-14	out_of_range	generated	20.0		platform	REPLAYGAIN_TRACK_GAIN=+50.00 dB -> clamped to the +20.0 dB sane-range bound

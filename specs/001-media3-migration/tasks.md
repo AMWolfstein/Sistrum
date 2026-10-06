@@ -482,6 +482,13 @@ interrupts (US3); lock screen shows the right artist (US4).
     digits via `formatDisplay()`.
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
+- [x] T041a [US8] Decode-error attribution after a gapless advance in `A/player/media3/Media3Engine.kt` with `AI/player/media3/Media3ErrorAttributionTest.kt` {default}
+  - Do (found by T041, 2026-10-06): `currentItem` is set only in `prepare` and never on an AUTO media-item transition,
+    so an error after a gapless advance reports the FIRST track's format and a stale provider (seen: wav_adpcm_ms
+    reported as `format=aifc provider=platform`). Set `currentItem` to the incoming item on the transition.
+  - Tests: `QA-I me.misa198.airmedy.player.media3.Media3ErrorAttributionTest` (PCM WAV then an ima4 AIFF-C preloaded:
+    the Error names kotlin-aiff and the second file's format); `GATE`.
+
 - [ ] T041 [US8] [MANUAL] {orchestrator} Corpus scan on `.qa` with Media3: SC-002, SC-016, US8 scenarios 1–5 (adb + logcat provider names); owner listens to AIFF variants
 
 **Checkpoint M4** — status report; owner approval.

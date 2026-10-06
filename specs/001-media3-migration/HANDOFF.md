@@ -378,6 +378,7 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 | T038 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T038/brief-1.md`, `brief-2.md` (session `ses_eedd4205cffeaVPY7cAVmRqM4L`) | `defaultDecoderProviders(probe)` shared by the registry and `Media3PlayerFactory` (new `providers` param; `DefaultMediaSourceFactory(ProviderExtractorsFactory)`: Media3's defaults first, then provider extractors; each tagged so `ProviderRecorder` maps URI → provider id on sniff success; provider audio renderers appended in one merged renderers factory, today's path when there are none). `Media3Engine` errors carry the recorded provider id (fallback "platform"). Orchestrator fix: `tagSniff` forwards `getSniffFailureDetails`. Unit `ProviderExtractorsFactoryTest` (4); instrumented `Media3RegistryTest` on `.qa.test`: **OK (3)**: AIFF via kotlin-aiff, ima4 refused by name (path: prepare threw, FR-086), PCM WAV via platform. Round 1 (guard + device run): the WAV fixture wrote big-endian RIFF fields ("Top bit not zero") → little-endian; an unverified "observed" comment replaced by a logged path. migration-guard NEEDS CHANGES → fixed; gate PASS incl. device. **Review rounds: 1** | DONE |
 | T039 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T039/brief-1.md` (session `ses_eedc38a9cffehovAMG9tvzlXWA`) | `sync/ScanGate.kt`: `AdmitAllGate` (Native) / `RegistryScanGate` (Media3: registry resolve, then a header refusal only for providers with `refusalHeaderBytes > 0`; never throws, fails open), `SkippedFilesCounter`; `SkippedFilesSummaryStore` (DataStore `skipped_files`). Scanner: format/codec moved before the gate and the tag read; a skipped file is never tag-read or added. Runner: the gate follows the engine selection; the summary is saved on each written scan (empty with Native). No Room change; schema version not bumped (parsing unchanged, guard agreed). `ScanGateTest` (8). Orchestrator fix: `readHeaderBytes` reads min(n, length), so a short AIFF-C is still refused. migration-guard PASS; gate PASS. **Review rounds: 0** | DONE |
 | T040 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T040/brief-1.md` (session `ses_eedbbcea2ffe0zWKvoFjq7RPt8`) | Skipped-files summary on the scan page (after a scan and when idle) and on the scan-filter settings page ("No files were skipped…" when empty). `SkipReason` + `parseSkipReason` in DecoderRegistry.kt generate and parse the reason text in one place (byte-identical), so the two generated forms are localized and provider refusals show as is. Plural `scan_skipped_files` EN + AR. `SkippedSummaryLinesTest` (5). Orchestrator fixes: the composable renamed to `SkippedFilesSummaryText` (it clashed with the data class name); Arabic zero/one/two forms rewritten to the file's convention (ملف واحد / ملفين; the coder's dual "ملفًا" was the 11–99 form). migration-guard PASS; gate PASS. **Review rounds: 0** | DONE |
+| T041a | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T041a/brief-1.md` (session `ses_eed99757affeHOwG6gNJ8j7zM5`) | Found by T041: `Media3Engine.currentItem` was set only in prepare, so an error after a gapless advance named the first track (wav_adpcm_ms logged as `provider=platform format=aifc`). Fix: the AUTO transition sets `currentItem = incoming`. Instrumented `Media3ErrorAttributionTest` on `.qa.test`: **OK (2)** (WAV → ima4 AIFF-C error names kotlin-aiff + "aifc"; WAV → WAV control, no error); `Media3RegistryTest` OK (3). migration-guard PASS: it confirmed from the 1.11.1 bytecode that ExoPlayer emits the transition before the error for prepare and renderer failures, and that `audioFormat` is null by then. Open, existing: `format` mixes a MIME type and a file extension (`DecodeFailureEntry.codec`), a pre-v1.0 cleanup. **Review rounds: 0** | DONE |
 
 ### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
 
@@ -416,7 +417,7 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 amendment (2026-10-06). M3 DONE: T035 owner checklist ok; **Checkpoint M3 approved (owner, 2026-10-06)**.
 
-M4 started (owner: run to the end per the stop rules). T035a, T036–T040 done. Next → T041 [MANUAL] (corpus scan on `.qa` with Media3; adb parts by the orchestrator), then Checkpoint M4.
+M4 started (owner: run to the end per the stop rules). T035a, T036–T041a done; T041 device parts run (below). Open: the owner's AIFF listening check (T041) → Checkpoint M4.
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
@@ -498,3 +499,24 @@ statistics live in `daily_track_listening_stats` and survive. It matters only wh
 provider: Media3 is behind the hidden developer switch, and 001 cannot merge without 002 (FR-003). Before the
 default flips (003), either every format the app plays today has a provider, or skipped rows' play counts must be
 kept.
+
+
+### T041 — Corpus scan and playback on `.qa` with Media3 (2026-10-06, orchestrator, adb only)
+
+Build `assembleDevQa` at `8cd3d52`, ID checked, `adb install -r`; engine = Media3 (set in T035). Daily app untouched
+(no session; its process unchanged). Media volume was lowered with volume keys for the 22-min run and restored to
+50/160 afterwards.
+
+| Check | Result | Evidence |
+|---|---|---|
+| US8 sc2 / SC-016 skipped summary | PASS | Scan page: "6 files skipped: no decoder on this device (ALAC)" (2 corpus + 4 owner-library ALAC; the CPH2307 has no ALAC decoder), "1 file skipped: compressed AIFF-C (ima4)", "1 … float AIFF-C (fl32)", "1 … unsupported format (WMA)". Log `Skipped 9 file(s)`. Library 775 → 766. Each file counted once. |
+| SC-002 part 2 (skipped not in library) | PASS | 41 of 46 corpus rows remain; none of the skipped files has a row. |
+| WavPack | NOTE | `wavpack_lossless.wv` is on disk but MediaStore does not index `.wv`, so no scan (either engine) ever sees it; out of the gate's reach (scanner is MediaStore-based). corpus.tsv annotated. |
+| SC-002 part 1 (admitted files play start to end) | PASS with 1 expected failure | All 41 admitted files ran through in one queue (1360 s; ended "Playback stopped at final queue track"). AIFF ×6 played via kotlin-aiff. `wav_adpcm_ms` → decode failure → skipped to the next track (US8 sc4, expected `decode-failure-path`). |
+| `wav_adpcm_ima` | Better than expected | Plays fully: Media3's WavExtractor decodes IMA ADPCM itself. corpus.tsv expectation updated to `platform`. |
+| US8 sc4 attribution | FAIL → fixed in **T041a** | The failure was logged as `provider=platform format=aifc` for a WAV: `Media3Engine.currentItem` isn't updated on a gapless advance, so errors name the first track of the run. |
+| US8 sc3 (new provider appears after rescan), sc5 (provider order) | Unit-level | No new provider exists in 001; covered by `DecoderRegistryTest` (order as a table change) and the registry/scan-gate design (a new table row admits the format with no scanner change). |
+| US8 sc1 crossfade/EQ/normalization on AIFF | N/A at M4 | Those are no-ops on Media3 until M5+. |
+
+**Owner check (T041):** with the engine on Media3, listen to the six AIFF corpus files (aiff_none_8/16/24/32,
+aifc_sowt_16, aifc_twos_16): each should sound like a clean tone/signal, with no noise, distortion or wrong pitch.

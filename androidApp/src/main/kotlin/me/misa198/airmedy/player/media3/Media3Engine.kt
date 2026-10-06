@@ -58,6 +58,7 @@ internal class Media3Engine(
             val mediaId = mediaItem?.mediaId
             val incoming = if (mediaId != null) preloadedByMediaId[mediaId] else null
             if (incoming != null) {
+                currentItem = incoming
                 pendingEvents += EngineEvent.GaplessAdvanced(incoming)
             }
             endedArmed = true
