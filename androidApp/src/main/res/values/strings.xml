@@ -292,6 +292,11 @@
     <string name="about_sponsor_kofi">Ko-fi</string>
     <string name="about_sponsor_bmac">Buy Me a Coffee</string>
     <string name="about_sponsor_patreon">Patreon</string>
+    <string name="developer_title">Developer</string>
+    <string name="developer_engine">Playback engine</string>
+    <string name="developer_engine_native">Native (FFmpeg)</string>
+    <string name="developer_engine_media3">Media3</string>
+    <string name="developer_engine_note">Applies at the next playback start.</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>

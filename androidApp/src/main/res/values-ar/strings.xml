@@ -323,6 +323,11 @@
     <string name="about_sponsor_kofi">Ko-fi</string>
     <string name="about_sponsor_bmac">Buy Me a Coffee</string>
     <string name="about_sponsor_patreon">Patreon</string>
+    <string name="developer_title">المطوّر</string>
+    <string name="developer_engine">محرّك التشغيل</string>
+    <string name="developer_engine_native">الأصلي (FFmpeg)</string>
+    <string name="developer_engine_media3">Media3</string>
+    <string name="developer_engine_note">يُطبَّق عند بدء التشغيل التالي.</string>
     <string name="theme_system">النظام</string>
     <string name="theme_light">فاتح</string>
     <string name="theme_dark">داكن</string>

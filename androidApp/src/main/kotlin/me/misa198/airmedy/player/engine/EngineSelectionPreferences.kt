@@ -1,6 +1,7 @@
 package me.misa198.airmedy.player.engine
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.map
 internal val Context.enginePreferencesDataStore by preferencesDataStore(name = "engine_preferences")
 
 private val EngineKey = stringPreferencesKey("engine")
+private val DeveloperUnlockedKey = booleanPreferencesKey("developer_unlocked")
 
 /** Exact enum name maps to its kind; null or anything unknown falls back to [EngineKind.Native]. */
 internal fun parseEngineKind(value: String?): EngineKind =
@@ -21,7 +23,15 @@ internal class EngineSelectionPreferences(private val context: Context) {
         parseEngineKind(preferences[EngineKey])
     }
 
+    val developerUnlocked: Flow<Boolean> = context.enginePreferencesDataStore.data.map { preferences ->
+        preferences[DeveloperUnlockedKey] ?: false
+    }
+
     suspend fun setEngine(kind: EngineKind) {
         context.enginePreferencesDataStore.edit { it[EngineKey] = kind.name }
+    }
+
+    suspend fun setDeveloperUnlocked(unlocked: Boolean) {
+        context.enginePreferencesDataStore.edit { it[DeveloperUnlockedKey] = unlocked }
     }
 }

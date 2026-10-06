@@ -328,7 +328,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     next start → new engine; fresh install → Native).
   - Accept: SC-008 logic covered on the host.
 
-- [ ] T024 [US3] Hidden developer setting in `A/ui/screens/AboutContent.kt`, `A/ui/screens/DeveloperContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` with `AT/ui/screens/DeveloperUnlockTest.kt` {default}
+- [x] T024 [US3] Hidden developer setting in `A/ui/screens/AboutContent.kt`, `A/ui/screens/DeveloperContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` with `AT/ui/screens/DeveloperUnlockTest.kt` {default}
   - Do: 7 taps on the version row unlock a "Developer" entry (state in DataStore) with the engine picker and a note
     that the change applies at the next playback start; Arabic strings complete; no other locale required.
   - Tests: `UT me.misa198.airmedy.ui.screens.DeveloperUnlockTest` (pure tap counter); `ArabicTranslationCompletenessTest`; `GATE`.

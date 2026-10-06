@@ -1,5 +1,6 @@
 package me.misa198.airmedy.ui.navigation
 
+import android.os.SystemClock
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -23,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -51,6 +54,8 @@ import me.misa198.airmedy.ui.components.HomeContent
 import me.misa198.airmedy.ui.components.StackPageLayout
 import me.misa198.airmedy.ui.screens.AboutContent
 import me.misa198.airmedy.ui.screens.AppearanceContent
+import me.misa198.airmedy.ui.screens.DeveloperContent
+import me.misa198.airmedy.ui.screens.DeveloperUnlockCounter
 import me.misa198.airmedy.ui.screens.LibraryContent
 import me.misa198.airmedy.ui.screens.LibraryScanContent
 import me.misa198.airmedy.ui.screens.ScanFilterContent
@@ -78,6 +83,8 @@ import me.misa198.airmedy.ui.screens.LibraryTracksUiState
 import me.misa198.airmedy.ui.screens.HomeUiState
 import me.misa198.airmedy.ui.screens.TrackSortOption
 import me.misa198.airmedy.player.PlaybackQueueSnapshot
+import me.misa198.airmedy.player.engine.EngineKind
+import me.misa198.airmedy.player.engine.EngineSelectionPreferences
 import me.misa198.airmedy.ui.screens.LibraryArtistsContent
 import me.misa198.airmedy.ui.screens.LibraryArtistsUiState
 import me.misa198.airmedy.ui.screens.AlbumSortOption
@@ -467,12 +474,43 @@ internal fun AppDestinationContent(
                                 modifier = settingsPageModifier,
                             )
                             AppStackPage.SettingsLyrics -> LyricsContent(lyricsSettings, onLrclibChanged, onKugouChanged, onEmbeddedChanged, onSidecarChanged, settingsPageModifier)
-                            AppStackPage.SettingsAbout -> AboutContent(
-                                modifier = settingsPageModifier,
-                                onOpenExternalUrl = { url ->
-                                    onIntent(AppIntent.OpenExternalUrl(url))
-                                },
-                            )
+                            AppStackPage.SettingsAbout -> {
+                                val context = LocalContext.current.applicationContext
+                                val preferences = remember { EngineSelectionPreferences(context) }
+                                val developerUnlocked by preferences.developerUnlocked
+                                    .collectAsState(initial = false)
+                                val unlockCounter = remember { DeveloperUnlockCounter() }
+                                val scope = rememberCoroutineScope()
+                                AboutContent(
+                                    developerUnlocked = developerUnlocked,
+                                    onVersionTapped = {
+                                        if (unlockCounter.tap(SystemClock.uptimeMillis())) {
+                                            scope.launch { preferences.setDeveloperUnlocked(true) }
+                                        }
+                                    },
+                                    onDeveloperSelected = {
+                                        onIntent(AppIntent.OpenPage(AppStackPage.SettingsDeveloper))
+                                    },
+                                    modifier = settingsPageModifier,
+                                    onOpenExternalUrl = { url ->
+                                        onIntent(AppIntent.OpenExternalUrl(url))
+                                    },
+                                )
+                            }
+                            AppStackPage.SettingsDeveloper -> {
+                                val context = LocalContext.current.applicationContext
+                                val preferences = remember { EngineSelectionPreferences(context) }
+                                val engine by preferences.engine
+                                    .collectAsState(initial = EngineKind.Native)
+                                val scope = rememberCoroutineScope()
+                                DeveloperContent(
+                                    engine = engine,
+                                    onEngineSelected = { kind ->
+                                        scope.launch { preferences.setEngine(kind) }
+                                    },
+                                    modifier = settingsPageModifier,
+                                )
+                            }
                             else -> SettingsContent(
                                 modifier = settingsPageModifier,
                                 onAppearanceSelected = {
