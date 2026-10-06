@@ -408,7 +408,7 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 ## Exact next step
 
-M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 amendment (2026-10-06). T033, T033a, T034 done. Next → T035 [MANUAL] (device parts via adb on `.qa`, then owner checklist), then Checkpoint M3.
+M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 amendment (2026-10-06). T033, T033a, T034 done. T035 device parts run (below); owner checklist open. Next → owner checklist, then Checkpoint M3 approval.
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
@@ -438,3 +438,44 @@ SystemUI media dump, QA library DB copied via `run-as`):
   - Tests in `EmbeddedTagReaderTest` and the scanner tests. ADR-006 is amended to match.
   - Needs the owner's OK: an ADR change, scan code outside `player/`, and a full tag re-read on the next scan.
 
+
+
+### T035 — Media3 pass on `.qa`, device parts (2026-10-06, orchestrator, adb only)
+
+Build `assembleDevQa` at `c5ef6cb`, APK id checked (`me.misa198.airmedy.dev.qa`), `adb install -r`. Daily app
+`me.misa198.airmedy.dev` untouched: no session, no log lines during the run, its process unchanged (running since the
+previous day). The developer page is now unlocked on `.qa` and the engine is set to **Media3** (left that way for the
+owner checklist).
+
+| Scenario | Result | Evidence |
+|---|---|---|
+| US3 sc3 setting hidden | PASS | Settings list has no Developer row before unlock; 7 taps on About → Version show "Developer". |
+| US3 sc2 default Native | PASS (partial) | Never-set install shows "Native (FFmpeg)". A fresh install was NOT RUN (no uninstalls); `parseEngineKind(null)` is covered by a unit test. |
+| US3 sc1 switch mid-track | PASS | Native (AAudio) playing; switched to Media3; position 52.6 s → 58.7 s over 6 s with no restart. The next start used Media3 (`ExoPlayerImpl Init [AndroidXMedia3/1.11.1]`, `c2.android.opus.decoder`, AudioTrack). |
+| US3 sc4 rescan on switch | PASS | All 775 rows at schema 7 after the switch; playback uninterrupted. |
+| US2 sc1 start from album | PASS | Session PLAYING with title, artist and album; queue size 2 = the album. |
+| US2 sc2 previous rule | PASS | Past 3 s: 28.9 s → 1.7 s, same item. Within 3 s on item 1 → item 0. |
+| US2 sc3 end with repeat off | PASS | "Repeat off". Last track ended: PAUSED at 256.0 s on the last item, UI 4:16/4:16 with Play, log "Playback stopped at final queue track"; Play → item 0. |
+| US2 sc4 restore | PASS, with a gap | Pause at 14.97 s → force-stop → relaunch: "Restored paused playback positionMs=14970", no audio by itself. Gap (same on Native and on `main`): a hard kill **while playing** restores the position from the last state publish (here 0), because the session is saved only on publish and `onDestroy`; there is no periodic save. → proposed task below. |
+| US4 sc1 lock-screen artist | PASS | SystemUI `MediaData(artist=Tamer Hosny, song=في جمال كده)` = the app. |
+| SC-005 | PASS | After the rescan, WAV `local:779` and `local:785` have their artists (and albums via the folder-name rule). Remaining empty artists: only the 46 untagged files in `SistrumTestCorpus` (the corpus writes no artist tags). |
+| US4 sc2 artwork | PARTIAL | SystemUI artwork = 960×960 bitmap. Visual match with the app → owner. |
+| US4 sc6 command to a stopped service | PASS (partial) | QA force-stopped; media keys and `cmd media_session dispatch pause` → no crash, no FGS timeout, the app is not woken (no media-button session). The service is `exported=false`, so an empty-queue intent can't be sent from adb; covered by ForegroundPolicyTest / PlaybackCoordinatorShutdownTest. |
+| US2 sc5 lyrics sync, sc6 stats/Last.fm once | OWNER | Needs listening and a Last.fm account; double scrobble covered by unit tests. |
+| US2 sc7 Mood Radio | NOT RUN | No on-device analyzer data (spec: supplied by tests); unit tests cover it. |
+| US2 sc8 20 000-track request | NOT RUN on device | The library has 775 tracks; QueueHandoff unit tests cover the Binder limit. |
+| US4 sc3 focus, sc4 unplug/route, output switcher | OWNER | Hardware/listening. |
+| US4 sc5 crossfade | N/A at M3 | Crossfade is a no-op on Media3 until M5. |
+
+Proposed task (needs owner OK, not in tasks.md yet): a periodic session save while playing (e.g. every 10 s via the
+existing ordered saver), so a process kill keeps recent progress. Parity issue, present on both engines.
+
+**Owner checklist (T035, `.qa`, engine = Media3):**
+1. Play a few albums: audio sounds right; gapless between album tracks.
+2. Synced lyrics: the highlighted line follows the audio about as well as on Native.
+3. Listen to one track past the completion threshold: one play in Insight; one Last.fm scrobble (if logged in).
+4. Lock screen + notification: title, artist, artwork the same as the app; play/pause/next/previous/seek work.
+5. Bluetooth or wired headset: play/pause/next buttons work.
+6. Focus: start a video in another app (pauses); a call or alarm (pauses, then resumes); a navigation prompt (ducks
+   smoothly, then restores).
+7. Unplug headphones → pauses. Switch output in the output switcher (Android 14+) → continues at the same position.
