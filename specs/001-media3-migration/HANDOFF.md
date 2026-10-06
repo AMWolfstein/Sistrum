@@ -403,4 +403,33 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 ## Exact next step
 
-M3: T032b done. Next → T033 (orchestrator root-cause investigation first), T034, T035 [MANUAL].
+M3: T032b done. T033 root cause found (below); **stopped for owner decision (stop rule 4: ADR-006 / T033 scope change)**. Then T033, T034, T035 [MANUAL].
+
+### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
+
+Evidence (QA build `me.misa198.airmedy.dev.qa` only; daily app untouched; `dumpsys media_session`,
+SystemUI media dump, QA library DB copied via `run-as`):
+- The session metadata path is correct. Live session for a tagged track: `description=<title>, Mohamed Hamaki`.
+  SystemUI's `MediaData(artist=Mohamed Hamaki, ...)` matches the in-app player. ARTIST, the notification text and the
+  queue subtitle all come from the same `item.artist`.
+- In the QA library, only 2 of 729 tracks show "Unknown artist": `local:779` and `local:785`. Both are **WAV**
+  copies of tracks whose AAC/AIFF/FLAC/ALAC/MP3 copies have the right artist. Their rows have `artists: []`,
+  `album_artists: []` and album "Music" (MediaStore's untagged fallback). They still have year, label, ISRC and
+  copyright, which `EmbeddedTagReader` read from the WAV `id3 ` chunk.
+- SystemUI showed those items as `Lighters (feat. Bruno Mars), Unknown artist, Music`.
+- **Root cause:** MediaStore does not read artist, album or album-artist tags from WAV files. The scanner takes
+  artist, album artist and album only from MediaStore. `EmbeddedTagReader` already parses the WAV/AIFF ID3 chunk,
+  but returns only date, year, BPM, label, ISRC, copyright and explicit; it never takes TPE1/TPE2/TALB. The app
+  itself shows "Unknown artist" for these tracks, so the lock screen is consistent with the app, and the defect is
+  in the scan, not in `PlaybackService`.
+- **Consequence:** ADR-006 ("Unknown artist is fixed in `publishNowPlaying`") and the T033 task line
+  (`PlaybackService.kt` only) are wrong about where the fix goes. Proposed:
+  - T033 keeps the pure `nowPlayingMetadata(item)` part (TITLE, ARTIST, ALBUM, ALBUM_ARTIST; FR-020) with
+    `NowPlayingMetadataTest`.
+  - New task T033a (`sync/EmbeddedTagReader.kt`, `sync/MediaStoreLibraryScanner.kt`): read TPE1/TPE2/TALB (and
+    the title) from embedded ID3/Vorbis/MP4 tags, and use them as a fallback when MediaStore reports none. The
+    fallback must not be WAV-specific (Principle 10).
+  - Bump `CurrentMetadataSchemaVersion`. That re-reads tags for every file on the next scan.
+  - Tests in `EmbeddedTagReaderTest` and the scanner tests. ADR-006 is amended to match.
+  - Needs the owner's OK: an ADR change, scan code outside `player/`, and a full tag re-read on the next scan.
+
