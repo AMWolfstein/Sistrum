@@ -120,6 +120,7 @@ object LocalLibraryJson {
         if (track.tagAlbumArtist.isNotBlank()) put("tag_album_artist", track.tagAlbumArtist)
         if (track.tagAlbum.isNotBlank()) put("tag_album", track.tagAlbum)
         if (track.explicit) put("explicit", true)
+        if (track.decoderUnavailable.isNotBlank()) put("decoder_unavailable", track.decoderUnavailable)
         if (track.album.copyright.isNotBlank()) put("copyright", track.album.copyright)
         if (track.schemaVersion > 0) put("schema_version", track.schemaVersion)
         put("artists", buildJsonArray {

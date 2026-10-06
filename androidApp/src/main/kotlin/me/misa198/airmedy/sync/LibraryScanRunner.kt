@@ -91,10 +91,12 @@ internal object LibraryScanRunner {
                         Log.i("AirmedyScan", "Skipped $total file(s) by reason: $byReason")
                     }
                     separatorPreferences.setAppliedSignature(separators.signature)
-                    val albums = result.snapshot.tracks.map { it.album.id }.distinct().size
-                    val artists = result.snapshot.tracks.flatMap { it.artists }.map { it.id }.distinct().size
+                    // FR-065a: hidden tracks (no decoder on this device) are kept but not shown, so they don't count.
+                    val visibleTracks = result.snapshot.tracks.filter { it.decoderUnavailable.isBlank() }
+                    val albums = visibleTracks.map { it.album.id }.distinct().size
+                    val artists = visibleTracks.flatMap { it.artists }.map { it.id }.distinct().size
                     LibraryScanOutcome.Completed(
-                        tracks = result.snapshot.tracks.size,
+                        tracks = visibleTracks.size,
                         albums = albums,
                         artists = artists,
                     )

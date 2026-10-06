@@ -208,29 +208,45 @@ internal class MediaStoreLibraryScanner(
                 val priorTrack = prior.tracksByTrackId[trackId]
                 val format = audioFormatOf(mime, data)
                 val codec = reusableCodec(priorTrack, newIdentityHash) ?: realCodec(format, mime, data)
-                // FR-065: with the Media3 engine a file is admitted only when the
-                // decoder registry has a provider for its format/codec; a skipped
-                // file's tags are never read and it joins nothing in the library.
+                // FR-065a: with the Media3 engine a file is admitted only when the
+                // decoder registry has a provider for its format/codec. A skipped file is
+                // hidden, not deleted: its tags are never read, but its row is kept so it
+                // reappears with its history intact once a decoder becomes available.
                 val admission = gate.admit(format, codec) { count -> readHeaderBytes(data, count) }
-                if (admission is Admission.Skipped) {
-                    skipped.add(admission)
-                    continue
-                }
+                if (admission is Admission.Skipped) skipped.add(admission)
+                val skipReason = (admission as? Admission.Skipped)?.reason
+                val hidden = skipReason != null
+                val hiddenBasis = if (hidden) hiddenTrackBasis(priorTrack, newIdentityHash) else HiddenTrackBasis(false, 0)
                 // Skip re-parsing embedded tags (the expensive file-read work) when the
                 // file itself hasn't changed and it was already parsed at the current
                 // schema version; otherwise a bumped schema forces one full re-parse so
-                // newly added fields get backfilled without a manual rescan.
-                val unchanged = priorTrack != null &&
+                // newly added fields get backfilled without a manual rescan. A hidden file
+                // is never parsed at all: it reuses its prior values when unchanged.
+                val unchanged = !hidden &&
+                    priorTrack != null &&
                     priorTrack.identityHash == newIdentityHash &&
                     priorTrack.schemaVersion >= CurrentMetadataSchemaVersion
-                val embeddedTags = if (unchanged) null else EmbeddedTagReader.embeddedTrackTags(data)
+                val embeddedTags = if (hidden || unchanged) null else EmbeddedTagReader.embeddedTrackTags(data)
                 // MediaStore reports no artist/album-artist/album for some containers (e.g.
                 // WAV with an `id3 ` chunk), so fall back to the file's own tags when
                 // MediaStore has no value. The raw tag values are persisted (see LocalTrack)
                 // so an unchanged file keeps the fallback without another file read.
-                val tagArtist = if (unchanged) priorTrack.tagArtist else embeddedTags?.artist.orEmpty()
-                val tagAlbumArtist = if (unchanged) priorTrack.tagAlbumArtist else embeddedTags?.albumArtist.orEmpty()
-                val tagAlbum = if (unchanged) priorTrack.tagAlbum else embeddedTags?.album.orEmpty()
+                val reusePrior = unchanged || hiddenBasis.usePrior
+                val tagArtist = when {
+                    reusePrior -> priorTrack?.tagArtist.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.artist.orEmpty()
+                }
+                val tagAlbumArtist = when {
+                    reusePrior -> priorTrack?.tagAlbumArtist.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.albumArtist.orEmpty()
+                }
+                val tagAlbum = when {
+                    reusePrior -> priorTrack?.tagAlbum.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.album.orEmpty()
+                }
                 val tagFields = scanTagFields(
                     mediaStoreArtist = tag(ColumnArtist),
                     mediaStoreAlbumArtist = tag(ColumnAlbumArtist),
@@ -247,13 +263,41 @@ internal class MediaStoreLibraryScanner(
                 val key = albumKey(if (tagFields.albumFromTag) null else number(ColumnAlbumId), albumArtistName, albumName)
                 val artworkKey = albumArtworkKey(key)
 
-                val year = if (unchanged) priorTrack.year else embeddedTags?.year ?: 0
-                val releaseDate = if (unchanged) priorTrack.releaseDate else embeddedTags?.releaseDate.orEmpty()
-                val bpm = if (unchanged) priorTrack.bpm else embeddedTags?.bpm ?: 0
-                val label = if (unchanged) priorTrack.label else embeddedTags?.label.orEmpty()
-                val isrc = if (unchanged) priorTrack.isrc else embeddedTags?.isrc.orEmpty()
-                val copyright = if (unchanged) priorTrack.copyright else embeddedTags?.copyright.orEmpty()
-                val explicit = if (unchanged) priorTrack.explicit else embeddedTags?.explicit == true
+                val year = when {
+                    reusePrior -> priorTrack?.year ?: 0
+                    hidden -> 0
+                    else -> embeddedTags?.year ?: 0
+                }
+                val releaseDate = when {
+                    reusePrior -> priorTrack?.releaseDate.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.releaseDate.orEmpty()
+                }
+                val bpm = when {
+                    reusePrior -> priorTrack?.bpm ?: 0
+                    hidden -> 0
+                    else -> embeddedTags?.bpm ?: 0
+                }
+                val label = when {
+                    reusePrior -> priorTrack?.label.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.label.orEmpty()
+                }
+                val isrc = when {
+                    reusePrior -> priorTrack?.isrc.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.isrc.orEmpty()
+                }
+                val copyright = when {
+                    reusePrior -> priorTrack?.copyright.orEmpty()
+                    hidden -> ""
+                    else -> embeddedTags?.copyright.orEmpty()
+                }
+                val explicit = when {
+                    reusePrior -> priorTrack?.explicit ?: false
+                    hidden -> false
+                    else -> embeddedTags?.explicit == true
+                }
 
                 // Some OEMs report MediaStore.Audio.Media.TRACK as discNumber * 1000 +
                 // trackNumber instead of the plain track number (e.g. 1001..1009 for a
@@ -268,14 +312,16 @@ internal class MediaStoreLibraryScanner(
                         size = size,
                     )
                 }
-                albumRepresentatives.putIfAbsent(
-                    key,
-                    AlbumArtworkCandidate(
-                        mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId),
-                        absolutePath = data,
-                        unchanged = unchanged,
-                    ),
-                )
+                if (!hidden) {
+                    albumRepresentatives.putIfAbsent(
+                        key,
+                        AlbumArtworkCandidate(
+                            mediaUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId),
+                            absolutePath = data,
+                            unchanged = unchanged,
+                        ),
+                    )
+                }
                 tracks += LocalTrack(
                     id = trackId,
                     title = title,
@@ -313,10 +359,11 @@ internal class MediaStoreLibraryScanner(
                     label = label,
                     isrc = isrc,
                     explicit = explicit,
-                    schemaVersion = CurrentMetadataSchemaVersion,
+                    schemaVersion = if (hidden) hiddenBasis.schemaVersion else CurrentMetadataSchemaVersion,
                     tagArtist = tagArtist,
                     tagAlbumArtist = tagAlbumArtist,
                     tagAlbum = tagAlbum,
+                    decoderUnavailable = skipReason.orEmpty(),
                 )
             }
         }
@@ -599,11 +646,14 @@ internal class MediaStoreLibraryScanner(
 internal fun reusableCodec(prior: PriorTrackScanState?, identityHash: String): String? =
     prior?.codec?.takeIf { prior.identityHash == identityHash && it.isNotBlank() }
 
-/** TODO T039b: whether a hidden file should reuse its prior scan values (tags are not re-read). */
+/** Whether a hidden file should reuse its prior scan values (tags are not re-read). */
 internal data class HiddenTrackBasis(val usePrior: Boolean, val schemaVersion: Int)
 
-internal fun hiddenTrackBasis(prior: PriorTrackScanState?, identityHash: String): HiddenTrackBasis =
-    HiddenTrackBasis(false, -1) // TODO T039b
+internal fun hiddenTrackBasis(prior: PriorTrackScanState?, identityHash: String): HiddenTrackBasis {
+    val usePrior = prior != null && prior.identityHash == identityHash
+    val schemaVersion = if (usePrior) prior.schemaVersion else 0
+    return HiddenTrackBasis(usePrior, schemaVersion)
+}
 
 /**
  * A MediaStore tag column's value, or null when the file has no such tag. MediaStore

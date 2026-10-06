@@ -88,6 +88,7 @@ internal data class SyncTrackEntity(
     val trackNumber: Int = 0,
     val syncOrder: Int = 0,
     val rawJson: String,
+    val unavailableReason: String? = null,
 )
 
 internal data class TrackPlayCountRow(val trackId: String, val playCount: Int)
@@ -299,7 +300,7 @@ internal interface SyncDao {
         INNER JOIN sync_plans p ON p.planId = t.planId
         LEFT JOIN sync_assets a ON a.planId = t.planId AND (a.assetId = t.artworkKey OR a.assetId = ('artwork:' || t.artworkKey))
         LEFT JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = ('audio:' || t.trackId)
-        WHERE p.active = 1
+        WHERE p.active = 1 AND t.unavailableReason IS NULL
         ORDER BY t.syncOrder
     """)
     fun observeTracks(): Flow<List<LibraryTrackRow>>
@@ -323,7 +324,7 @@ internal interface SyncDao {
         INNER JOIN sync_plans p ON p.planId = t.planId
         LEFT JOIN sync_assets a ON a.planId = t.planId AND (a.assetId = t.artworkKey OR a.assetId = ('artwork:' || t.artworkKey))
         LEFT JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = ('audio:' || t.trackId)
-        WHERE p.active = 1 AND t.trackId = :id
+        WHERE p.active = 1 AND t.trackId = :id AND t.unavailableReason IS NULL
         LIMIT 1
     """)
     suspend fun trackRow(id: String): LibraryTrackRow?
@@ -339,8 +340,11 @@ internal interface SyncDao {
     """)
     suspend fun activeTrackScanState(): List<PriorTrackScanRow>
 
-    @Query("SELECT COUNT(*) FROM sync_tracks t INNER JOIN sync_plans p ON p.planId = t.planId WHERE p.active = 1")
+    @Query("SELECT COUNT(*) FROM sync_tracks t INNER JOIN sync_plans p ON p.planId = t.planId WHERE p.active = 1 AND t.unavailableReason IS NULL")
     suspend fun activeTrackCount(): Int
+
+    @Query("SELECT COUNT(*) FROM sync_tracks t INNER JOIN sync_plans p ON p.planId = t.planId WHERE p.active = 1")
+    suspend fun activeTrackRowCount(): Int
 
     @Query("""
         SELECT a.assetId AS assetId, a.sha256 AS sha256, a.size AS size, a.relativePath AS relativePath
@@ -383,7 +387,7 @@ internal interface SyncDao {
 
 @Database(
     entities = [SyncPlanEntity::class, SyncAssetEntity::class, SyncTrackEntity::class, SyncPlaylistEntity::class, LibrarySearchDocumentEntity::class, PlaylistMutationEntity::class, LocalPlaylistEntity::class, PlaylistArtworkStagingEntity::class, ArtistArtworkStagingEntity::class, SyncDocumentEntity::class, ProviderLyricEntity::class, ListeningSessionEntity::class, PlaybackAttemptEntity::class, DailyTrackListeningStatEntity::class, DailyPlaybackAttemptStatEntity::class],
-    version = 13,
+    version = 14,
     exportSchema = false,
 )
 internal abstract class SyncDatabase : RoomDatabase() {
@@ -453,6 +457,12 @@ internal abstract class SyncDatabase : RoomDatabase() {
             }
         }
 
+        internal val Migration13To14 = object : Migration(13, 14) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE sync_tracks ADD COLUMN unavailableReason TEXT")
+            }
+        }
+
         internal val AllMigrations: Array<Migration> = arrayOf(
             Migration2To3,
             Migration3To4,
@@ -465,13 +475,8 @@ internal abstract class SyncDatabase : RoomDatabase() {
             Migration10To11,
             Migration11To12,
             Migration12To13,
+            Migration13To14,
         )
-
-        internal val Migration13To14 = object : Migration(13, 14) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // TODO T039b
-            }
-        }
     }
 }
 
@@ -872,7 +877,7 @@ internal class AndroidLibrarySyncStore(
         val planId = "local-${UUID.randomUUID()}"
         val artworkKeys = artworkRows.mapTo(mutableSetOf(), LocalScanArtwork::artworkKey)
         val written = database.withTransaction {
-            if (snapshot.tracks.isEmpty() && dao.activeTrackCount() > 0) return@withTransaction null
+            if (snapshot.tracks.isEmpty() && dao.activeTrackRowCount() > 0) return@withTransaction null
             dao.insertPlan(SyncPlanEntity(planId, LocalDesktopId, localLibraryManifest(planId), "staging", false))
             val playCounts = dao.trackPlayCounts().associate { it.trackId to it.playCount }
             dao.insertAssets(buildList {
@@ -902,11 +907,12 @@ internal class AndroidLibrarySyncStore(
                     trackNumber = track.trackNumber,
                     syncOrder = index,
                     rawJson = LocalLibraryJson.trackDocumentJson(effectiveTrack),
+                    unavailableReason = track.decoderUnavailable.takeIf { it.isNotBlank() },
                 )
             }
             dao.insertTracks(trackEntities)
             dao.deleteSearchDocuments(planId)
-            dao.insertSearchDocuments(searchDocumentsFor(planId, trackEntities, emptyList()))
+            dao.insertSearchDocuments(searchDocumentsFor(planId, trackEntities.filter { it.unavailableReason == null }, emptyList()))
             dao.deactivatePlans()
             dao.activatePlan(planId)
             val active = dao.assetPaths(planId).toSet()

@@ -494,7 +494,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     unchanged, migration not registered).
   - Tests: `QA-I me.misa198.airmedy.sync.HiddenTracksTest`; `UT me.misa198.airmedy.sync.HiddenTrackBasisTest`; LocalLibraryTest additions.
 
-- [ ] T039b [US8] Hidden skipped tracks in `A/sync/SyncDatabase.kt` (column + Migration13To14 + query filters), `A/sync/MediaStoreLibraryScanner.kt`, `sharedLogic/.../LocalLibrary.kt` {hard} [HIGH-RISK]
+- [x] T039b [US8] Hidden skipped tracks in `A/sync/SyncDatabase.kt` (column + Migration13To14 + query filters), `A/sync/MediaStoreLibraryScanner.kt`, `sharedLogic/.../LocalLibrary.kt` {hard} [HIGH-RISK]
   - Do: make T039a's tests pass without modifying them. Skipped files become hidden rows (no tag read; prior values
     when the file is unchanged, else MediaStore values with schema version 0); `unavailableReason` set; every library
     read, resolve, count and search excludes hidden rows; prior state, play-count merge and lyrics keep them.
