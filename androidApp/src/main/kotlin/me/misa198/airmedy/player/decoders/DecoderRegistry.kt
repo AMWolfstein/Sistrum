@@ -146,9 +146,14 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
     ),
 )
 
-/** The table-backed registry with the platform provider. T037 adds the AIFF provider here. */
+/**
+ * The decoder providers the app runs: the platform (Media3/MediaCodec) provider and
+ * the bundled ones. Shared by [defaultDecoderRegistry] and the Media3 player factory
+ * (T038) so the table lookup and the player's extractors cannot drift apart.
+ */
+fun defaultDecoderProviders(probe: CodecProbe): List<DecoderProvider> =
+    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinAiffProvider())
+
+/** The table-backed registry over [defaultDecoderProviders]. */
 fun defaultDecoderRegistry(probe: CodecProbe): DecoderRegistry =
-    TableDecoderRegistry(
-        DefaultDecoderTable,
-        listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinAiffProvider()),
-    )
+    TableDecoderRegistry(DefaultDecoderTable, defaultDecoderProviders(probe))

@@ -75,7 +75,10 @@ internal class Media3Engine(
             if (prepared) {
                 val extension = currentItem?.audioPath?.substringAfterLast('.', "") ?: ""
                 val format = player?.audioFormat?.sampleMimeType ?: extension.ifEmpty { "unknown" }
-                pendingEvents += EngineEvent.Error("platform", format, error)
+                val provider = currentItem?.let { item ->
+                    factory.providerRecorder.providerFor(Uri.fromFile(File(item.audioPath)).toString())
+                } ?: "platform"
+                pendingEvents += EngineEvent.Error(provider, format, error)
             }
         }
     }

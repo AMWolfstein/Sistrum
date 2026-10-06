@@ -11,13 +11,20 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import me.misa198.airmedy.player.decoders.DecoderProvider
+import me.misa198.airmedy.player.decoders.ProcessCodecProbe
+import me.misa198.airmedy.player.decoders.defaultDecoderProviders
 
 /**
  * Process-wide playback [HandlerThread], lazily started and shared by every
@@ -36,12 +43,16 @@ private val playbackThread: HandlerThread by lazy {
 @OptIn(UnstableApi::class)
 internal class Media3PlayerFactory(
     private val context: Context,
+    private val providers: List<DecoderProvider> = defaultDecoderProviders(ProcessCodecProbe),
     private val audioProcessors: () -> Array<AudioProcessor> = { emptyArray() },
 ) {
 
     private val looper: Looper = playbackThread.looper
     private val handler = Handler(looper)
     private val livePlayerCount = AtomicInteger(0)
+
+    /** Names the provider whose extractor accepted a URI, for [Media3Engine] errors. */
+    val providerRecorder = ProviderRecorder()
 
     /** Number of players created by [newPlayer] and not yet released. */
     val livePlayers: Int get() = livePlayerCount.get()
@@ -98,7 +109,8 @@ internal class Media3PlayerFactory(
             )
         }
         val processors = audioProcessors()
-        val renderersFactory = if (processors.isEmpty()) {
+        val providerRenderers = providers.flatMap { it.audioRenderers(context) }
+        val renderersFactory = if (processors.isEmpty() && providerRenderers.isEmpty()) {
             null
         } else {
             object : DefaultRenderersFactory(context) {
@@ -106,11 +118,38 @@ internal class Media3PlayerFactory(
                     context: Context,
                     enableFloatOutput: Boolean,
                     enableAudioOutputPlaybackParams: Boolean,
-                ): AudioSink = DefaultAudioSink.Builder(context)
-                    .setAudioProcessors(processors)
-                    .setEnableFloatOutput(enableFloatOutput)
-                    .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
-                    .build()
+                ): AudioSink = if (processors.isEmpty()) {
+                    super.buildAudioSink(context, enableFloatOutput, enableAudioOutputPlaybackParams)!!
+                } else {
+                    DefaultAudioSink.Builder(context)
+                        .setAudioProcessors(processors)
+                        .setEnableFloatOutput(enableFloatOutput)
+                        .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
+                        .build()
+                }
+
+                override fun buildAudioRenderers(
+                    context: Context,
+                    extensionRendererMode: Int,
+                    mediaCodecSelector: MediaCodecSelector,
+                    enableDecoderFallback: Boolean,
+                    audioSink: AudioSink,
+                    eventHandler: Handler,
+                    eventListener: AudioRendererEventListener,
+                    out: ArrayList<Renderer>,
+                ) {
+                    super.buildAudioRenderers(
+                        context,
+                        extensionRendererMode,
+                        mediaCodecSelector,
+                        enableDecoderFallback,
+                        audioSink,
+                        eventHandler,
+                        eventListener,
+                        out,
+                    )
+                    out.addAll(providerRenderers)
+                }
             }
         }
         val builder = ExoPlayer.Builder(context)
@@ -118,6 +157,12 @@ internal class Media3PlayerFactory(
             .setTrackSelector(trackSelector)
             .setAudioAttributes(attributes, false)
             .setHandleAudioBecomingNoisy(false)
+            .setMediaSourceFactory(
+                DefaultMediaSourceFactory(
+                    context,
+                    ProviderExtractorsFactory(providers, recorder = providerRecorder),
+                )
+            )
             // On by default in 1.11: the playback loop then sleeps ~250 ms between updates, so the position the
             // coordinator reads at its 200 ms tick goes stale (FR-012, lyrics sync). Measured on the CPH2307 (T020).
             .experimentalSetDynamicSchedulingEnabled(false)
