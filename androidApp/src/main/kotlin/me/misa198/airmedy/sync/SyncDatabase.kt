@@ -391,7 +391,7 @@ internal abstract class SyncDatabase : RoomDatabase() {
 
     companion object {
         fun create(context: Context): SyncDatabase = Room.databaseBuilder(context, SyncDatabase::class.java, "library-sync.db")
-            .addMigrations(Migration2To3, Migration3To4, Migration4To5, Migration5To6, Migration6To7, Migration7To8, Migration8To9, Migration9To10, Migration10To11, Migration11To12, Migration12To13)
+            .addMigrations(*AllMigrations)
             .fallbackToDestructiveMigration()
             .build()
 
@@ -450,6 +450,26 @@ internal abstract class SyncDatabase : RoomDatabase() {
         private val Migration12To13 = object : Migration(12, 13) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS artist_artwork_staging (artistId TEXT NOT NULL PRIMARY KEY, sha256 TEXT NOT NULL, mime TEXT NOT NULL, size INTEGER NOT NULL, relativePath TEXT NOT NULL)")
+            }
+        }
+
+        internal val AllMigrations: Array<Migration> = arrayOf(
+            Migration2To3,
+            Migration3To4,
+            Migration4To5,
+            Migration5To6,
+            Migration6To7,
+            Migration7To8,
+            Migration8To9,
+            Migration9To10,
+            Migration10To11,
+            Migration11To12,
+            Migration12To13,
+        )
+
+        internal val Migration13To14 = object : Migration(13, 14) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // TODO T039b
             }
         }
     }

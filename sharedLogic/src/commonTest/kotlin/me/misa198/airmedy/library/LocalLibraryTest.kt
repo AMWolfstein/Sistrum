@@ -166,6 +166,22 @@ class LocalLibraryTest {
         assertNull(document["tag_album_artist"])
         assertNull(document["tag_album"])
     }
+
+    @Test
+    fun writesDecoderUnavailableReasonWhenSet() {
+        val document = LocalLibraryJson.trackDocument(
+            sampleTrack().copy(decoderUnavailable = "unsupported format (WMA)"),
+        )
+        assertEquals("unsupported format (WMA)", document.string("decoder_unavailable"))
+    }
+
+    @Test
+    fun omitsDecoderUnavailableReasonWhenBlank() {
+        val document = LocalLibraryJson.trackDocument(
+            sampleTrack().copy(decoderUnavailable = "  "),
+        )
+        assertNull(document["decoder_unavailable"])
+    }
 }
 
 private fun JsonObject.string(key: String): String? = this[key]?.jsonPrimitive?.content

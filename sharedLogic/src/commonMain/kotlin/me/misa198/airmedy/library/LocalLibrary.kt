@@ -81,6 +81,7 @@ data class LocalTrack(
     val tagArtist: String = "",
     val tagAlbumArtist: String = "",
     val tagAlbum: String = "",
+    val decoderUnavailable: String = "",
 )
 
 data class LocalLibrarySnapshot(

@@ -599,6 +599,12 @@ internal class MediaStoreLibraryScanner(
 internal fun reusableCodec(prior: PriorTrackScanState?, identityHash: String): String? =
     prior?.codec?.takeIf { prior.identityHash == identityHash && it.isNotBlank() }
 
+/** TODO T039b: whether a hidden file should reuse its prior scan values (tags are not re-read). */
+internal data class HiddenTrackBasis(val usePrior: Boolean, val schemaVersion: Int)
+
+internal fun hiddenTrackBasis(prior: PriorTrackScanState?, identityHash: String): HiddenTrackBasis =
+    HiddenTrackBasis(false, -1) // TODO T039b
+
 /**
  * A MediaStore tag column's value, or null when the file has no such tag. MediaStore
  * reports a missing artist as the literal "<unknown>" (MediaStore.UNKNOWN_STRING), which

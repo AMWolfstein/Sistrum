@@ -489,7 +489,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3ErrorAttributionTest` (PCM WAV then an ima4 AIFF-C preloaded:
     the Error names kotlin-aiff and the second file's format); `GATE`.
 
-- [ ] T039a [US8] TESTS FIRST for hidden (not deleted) skipped tracks (FR-065a, FR-074) in `AI/sync/HiddenTracksTest.kt`, `AT/sync/HiddenTrackBasisTest.kt`, `sharedLogic/.../LocalLibraryTest.kt`, with compile-only stubs in `A/sync/SyncDatabase.kt`, `A/sync/MediaStoreLibraryScanner.kt`, `sharedLogic/.../LocalLibrary.kt` {default}
+- [x] T039a [US8] TESTS FIRST for hidden (not deleted) skipped tracks (FR-065a, FR-074) in `AI/sync/HiddenTracksTest.kt`, `AT/sync/HiddenTrackBasisTest.kt`, `sharedLogic/.../LocalLibraryTest.kt`, with compile-only stubs in `A/sync/SyncDatabase.kt`, `A/sync/MediaStoreLibraryScanner.kt`, `sharedLogic/.../LocalLibrary.kt` {default}
   - Do (owner decision 2026-10-06): tests that fail until T039b. Stubs only so they compile (no behaviour, DB version
     unchanged, migration not registered).
   - Tests: `QA-I me.misa198.airmedy.sync.HiddenTracksTest`; `UT me.misa198.airmedy.sync.HiddenTrackBasisTest`; LocalLibraryTest additions.
