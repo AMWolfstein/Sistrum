@@ -449,7 +449,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     window restarts after a full save, coalescing); `UT me.misa198.airmedy.player.PlaybackSessionStoreTest` (pure merge); `GATE`.
   - Accept: a process kill while playing restores within ~10 s of the real position; no full-session write from the periodic path.
 
-- [ ] T036 [US8] Registry in `A/player/decoders/DecoderRegistry.kt`, `A/player/decoders/DecoderProvider.kt`, `A/player/decoders/PlatformProvider.kt`, `A/player/decoders/CodecProbe.kt` with `AT/player/decoders/DecoderRegistryTest.kt` {default}
+- [x] T036 [US8] Registry in `A/player/decoders/DecoderRegistry.kt`, `A/player/decoders/DecoderProvider.kt`, `A/player/decoders/PlatformProvider.kt`, `A/player/decoders/CodecProbe.kt` with `AT/player/decoders/DecoderRegistryTest.kt` {default}
   - Do: per `contracts/decoder-registry.md`; the full table from the scanner's labels (`audioFormatOf`,
     `realCodec` in `A/sync/MediaStoreLibraryScanner.kt`); `PlatformProvider` available when a default extractor
     reads the container and `CodecProbe` (MediaCodecList, probed once per process) has a decoder for the MIME.

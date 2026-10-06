@@ -17,7 +17,10 @@ interface DecoderRegistry {
 }
 ```
 
-Table (001), in order per key — illustrative, the task writes the full one from the scanner's labels:
+Table (001), in order per key — illustrative. Keys are the scanner's labels: `realCodec` sniffs a codec only for
+m4a/mp4 (aac, alac, flac, opus, mpeg, ac3, eac3, …); every other format's codec equals the format (ogg/ogg covers Ogg
+Vorbis and Ogg Opus, wav/wav and aiff/aiff cover all PCM variants). The authoritative table is
+`DefaultDecoderTable` in `player/decoders/DecoderRegistry.kt` (T036):
 
 | format / codec | providers |
 |---|---|
