@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.first
 
 /**
  * Builds the engine for the persisted [EngineKind] selection, read fresh on every
- * [create] so a running engine is never swapped (SC-008). Media3 joins the map in T034.
+ * [create] so a running engine is never swapped (SC-008). Media3 is in the map,
+ * wired by T034.
  */
 internal class EngineFactory(
     private val selection: Flow<EngineKind>,
@@ -22,3 +23,16 @@ internal class EngineFactory(
         return builder()
     }
 }
+
+/**
+ * The engine builders the service selects between at each playback start: Native to
+ * [native] and Media3 to [media3]. Each builder runs only when its kind is selected, so
+ * the Media3 lambda (and its player factory) is never touched while Native is active.
+ */
+internal fun playbackEngineBuilders(
+    native: () -> PlayerEngine,
+    media3: () -> PlayerEngine,
+): Map<EngineKind, () -> PlayerEngine> = mapOf(
+    EngineKind.Native to native,
+    EngineKind.Media3 to media3,
+)

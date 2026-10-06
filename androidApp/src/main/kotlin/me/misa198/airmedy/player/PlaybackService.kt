@@ -55,9 +55,11 @@ import me.misa198.airmedy.lastfm.LastFmTrack
 import me.misa198.airmedy.device.DeviceIdentity
 import me.misa198.airmedy.mood.MoodRadioTrack
 import me.misa198.airmedy.player.engine.EngineFactory
-import me.misa198.airmedy.player.engine.EngineKind
 import me.misa198.airmedy.player.engine.EngineSelectionPreferences
 import me.misa198.airmedy.player.engine.LegacyNativeEngine
+import me.misa198.airmedy.player.engine.playbackEngineBuilders
+import me.misa198.airmedy.player.media3.Media3Engine
+import me.misa198.airmedy.player.media3.Media3PlayerFactory
 
 /**
  * Pure mapping from a [PlaybackItem] to the text keys of the MediaSession metadata.
@@ -89,6 +91,7 @@ class PlaybackService : Service() {
     private lateinit var listeningTracker: ListeningTracker
     private val listeningWrites = Channel<ListeningWrite>(64)
     private lateinit var listeningWriter: Job
+    private val media3PlayerFactory by lazy { Media3PlayerFactory(applicationContext) }
     private var preferencesJob: Job? = null
     private var moodRadioJob: Job? = null
     private var equalizerJob: Job? = null
@@ -173,7 +176,10 @@ class PlaybackService : Service() {
             flows = PlaybackFlows(state, queueState, crossfadeSeconds, blendArtworkDuringCrossfade, artworkCrossfade, moodRadioActive),
             engineFactory = EngineFactory(
                 selection = EngineSelectionPreferences(applicationContext).engine,
-                builders = mapOf(EngineKind.Native to { LegacyNativeEngine() }),
+                builders = playbackEngineBuilders(
+                    native = { LegacyNativeEngine() },
+                    media3 = { Media3Engine(media3PlayerFactory) },
+                ),
             )::create,
             resolver = PlaybackItemResolver { id -> AndroidPlaybackRuntime.controller().resolve(id) },
             library = LibraryAdapter(),

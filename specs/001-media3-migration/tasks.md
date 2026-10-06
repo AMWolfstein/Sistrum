@@ -419,7 +419,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.sync.EmbeddedTagReaderTest` (+ a pure fallback-merge test); `GATE`.
   - Accept: a WAV with an ID3 chunk carrying TPE1/TPE2/TALB scans with those values; a MediaStore value wins when present.
 
-- [ ] T034 [US2] Wire `Media3Engine` into `A/player/engine/EngineFactory.kt` so the switch selects it at the next playback start {default}
+- [x] T034 [US2] Wire `Media3Engine` into `A/player/engine/EngineFactory.kt` so the switch selects it at the next playback start {default}
   - Tests: `UT me.misa198.airmedy.player.engine.EngineFactoryTest`; `GATE`.
   - Accept: default still Native.
 

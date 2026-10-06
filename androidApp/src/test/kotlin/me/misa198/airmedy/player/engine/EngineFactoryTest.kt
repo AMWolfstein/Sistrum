@@ -1,6 +1,7 @@
 package me.misa198.airmedy.player.engine
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import me.misa198.airmedy.player.fakes.FakePlayerEngine
 import org.junit.Assert.assertEquals
@@ -104,5 +105,80 @@ class EngineFactoryTest {
             selection = MutableStateFlow(EngineKind.Native),
             builders = mapOf(EngineKind.Media3 to { FakePlayerEngine() }),
         )
+    }
+
+    @Test
+    fun `playbackEngineBuilders maps exactly Native and Media3 to their lambdas`() {
+        var nativeCalls = 0
+        var media3Calls = 0
+        val builders = playbackEngineBuilders(
+            native = { nativeCalls++; FakePlayerEngine() },
+            media3 = { media3Calls++; FakePlayerEngine() },
+        )
+
+        assertEquals(setOf(EngineKind.Native, EngineKind.Media3), builders.keys)
+
+        builders.getValue(EngineKind.Native)()
+        assertEquals(1, nativeCalls)
+        assertEquals(0, media3Calls)
+
+        builders.getValue(EngineKind.Media3)()
+        assertEquals(1, nativeCalls)
+        assertEquals(1, media3Calls)
+    }
+
+    @Test
+    fun `media3 selection through playbackEngineBuilders runs only the media3 lambda`() = runTest {
+        var nativeCalls = 0
+        var media3Calls = 0
+        val factory = EngineFactory(
+            selection = MutableStateFlow(EngineKind.Media3),
+            builders = playbackEngineBuilders(
+                native = { nativeCalls++; FakePlayerEngine() },
+                media3 = { media3Calls++; FakePlayerEngine() },
+            ),
+        )
+
+        factory.create()
+
+        assertEquals(0, nativeCalls)
+        assertEquals(1, media3Calls)
+    }
+
+    @Test
+    fun `native selection through playbackEngineBuilders runs only the native lambda`() = runTest {
+        var nativeCalls = 0
+        var media3Calls = 0
+        val factory = EngineFactory(
+            selection = MutableStateFlow(EngineKind.Native),
+            builders = playbackEngineBuilders(
+                native = { nativeCalls++; FakePlayerEngine() },
+                media3 = { media3Calls++; FakePlayerEngine() },
+            ),
+        )
+
+        factory.create()
+
+        assertEquals(1, nativeCalls)
+        assertEquals(0, media3Calls)
+    }
+
+    @Test
+    fun `default selection uses the native builder`() = runTest {
+        var nativeCalls = 0
+        var media3Calls = 0
+        val factory = EngineFactory(
+            selection = flowOf(parseEngineKind(null)),
+            builders = playbackEngineBuilders(
+                native = { nativeCalls++; FakePlayerEngine() },
+                media3 = { media3Calls++; FakePlayerEngine() },
+            ),
+        )
+
+        val engine = factory.create()
+
+        assertEquals(EngineKind.Native, engine.kind)
+        assertEquals(1, nativeCalls)
+        assertEquals(0, media3Calls)
     }
 }
