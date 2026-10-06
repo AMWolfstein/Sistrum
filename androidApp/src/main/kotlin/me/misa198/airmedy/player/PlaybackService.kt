@@ -24,6 +24,7 @@ import android.os.SystemClock
 import android.util.Log
 import java.util.UUID
 import android.util.LruCache
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -55,7 +56,9 @@ import me.misa198.airmedy.player.engine.LegacyNativeEngine
 
 /** Owns Android transport; queue semantics are delegated to sharedLogic. */
 class PlaybackService : Service() {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
+        Log.e(PlaybackLogTag, "Uncaught playback coroutine exception", throwable)
+    })
     private lateinit var restoreJob: Job
     private val queue = PlaybackQueue()
     private lateinit var coordinator: PlaybackCoordinator
@@ -121,7 +124,7 @@ class PlaybackService : Service() {
                 override fun onSkipToNext() { coordinator.dispatch(ActionNext) }
                 override fun onSkipToPrevious() { coordinator.dispatch(ActionPrevious) }
                 override fun onSkipToQueueItem(id: Long) {
-                    coordinator.queue.snapshot().activeTrackIds.getOrNull(id.toInt())?.let { coordinator.dispatch(ActionSelect, trackIds = listOf(it)) }
+                    coordinator.selectQueueItem(id)
                 }
                 override fun onSeekTo(pos: Long) { coordinator.dispatch(ActionSeek, positionMs = pos) }
                 override fun onStop() { coordinator.dispatch(ActionStop) }

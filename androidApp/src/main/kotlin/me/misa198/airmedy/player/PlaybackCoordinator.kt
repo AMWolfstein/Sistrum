@@ -1,11 +1,14 @@
 package me.misa198.airmedy.player
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import me.misa198.airmedy.mood.MoodRadioBatchSize
 import me.misa198.airmedy.mood.MoodRadioRefillThreshold
 import me.misa198.airmedy.mood.selectMoodRadio
@@ -43,7 +46,6 @@ internal class PlaybackCoordinator(
     val listeningTracker: ListeningTracker,
     private val nextArtworkCrossfadeId: () -> Long,
 ) {
-    private val commandMutex = Mutex()
     private val restored = CompletableDeferred<Unit>()
     private var moodRadioSeedId: String? = null
     private var moodRadioLastRefillAttempt: Pair<String?, Int>? = null
@@ -61,9 +63,175 @@ internal class PlaybackCoordinator(
     private var equalizerSettings = EqualizerSettings()
     private var isDucked = false
 
-    fun markRestored() { restored.complete(Unit) }
+    private val commandLock = Any()
+    private val commandQueue = ArrayDeque<Command>()
+    private val preRestoreCommands = ArrayDeque<Command>()
+    private var draining = false
 
-    suspend fun <T> withCommandLock(block: suspend () -> T): T = commandMutex.withLock { block() }
+    init {
+        scope.coroutineContext[Job]?.invokeOnCompletion { cancelAllPending() }
+    }
+
+    private sealed interface Command {
+        class Action(
+            val action: String,
+            val positionMs: Long,
+            val trackIds: List<String>,
+            val startIndex: Int,
+            val enabled: Boolean,
+            val repeat: RepeatMode?,
+            val job: CompletableJob,
+        ) : Command
+
+        class SelectIndex(val index: Long, val job: CompletableJob) : Command
+
+        class Block(val block: suspend () -> Any?, val result: CompletableDeferred<Any?>) : Command
+
+        fun cancel() {
+            when (this) {
+                is Action -> job.cancel()
+                is SelectIndex -> job.cancel()
+                is Block -> result.cancel()
+            }
+        }
+    }
+
+    fun markRestored() {
+        synchronized(commandLock) {
+            // Completed under the lock so no command can overtake the held ones.
+            if (!restored.complete(Unit)) return
+            if (preRestoreCommands.isNotEmpty()) {
+                commandQueue.addAll(preRestoreCommands)
+                preRestoreCommands.clear()
+            }
+            if (!draining && commandQueue.isNotEmpty()) startDrainerLocked()
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    suspend fun <T> withCommandLock(block: suspend () -> T): T {
+        currentCoroutineContext().ensureActive()
+        val result = CompletableDeferred<Any?>()
+        enqueue(Command.Block({ block() }, result))
+        try {
+            return result.await() as T
+        } catch (cancellation: CancellationException) {
+            result.cancel()
+            throw cancellation
+        }
+    }
+
+    private fun enqueue(command: Command) {
+        synchronized(commandLock) {
+            if (scope.coroutineContext[Job]?.isActive == false) {
+                command.cancel()
+                return
+            }
+            if (command is Command.Action || command is Command.SelectIndex) {
+                if (!restored.isCompleted) {
+                    preRestoreCommands.addLast(command)
+                    return
+                }
+            }
+            commandQueue.addLast(command)
+            if (!draining) startDrainerLocked()
+        }
+    }
+
+    /** Starts the single drainer; if the scope is already dead the completion handler cancels everything. */
+    private fun startDrainerLocked() {
+        draining = true
+        scope.launch { drain() }.invokeOnCompletion { cause ->
+            if (cause != null) cancelAllPending()
+        }
+    }
+
+    private suspend fun drain() {
+        try {
+            while (true) {
+                val command: Command? = synchronized(commandLock) {
+                    if (commandQueue.isEmpty()) {
+                        draining = false
+                        null
+                    } else {
+                        commandQueue.removeFirst()
+                    }
+                }
+                command ?: return
+                runCommand(command)
+            }
+        } catch (cancellation: CancellationException) {
+            cancelAllPending()
+            throw cancellation
+        }
+    }
+
+    private fun cancelAllPending() {
+        synchronized(commandLock) {
+            commandQueue.forEach { it.cancel() }
+            commandQueue.clear()
+            preRestoreCommands.forEach { it.cancel() }
+            preRestoreCommands.clear()
+            draining = false
+        }
+    }
+
+    private suspend fun runCommand(command: Command) {
+        when (command) {
+            is Command.Action -> runJobCommand(command.action, command.job) {
+                handleActionCommand(
+                    command.action,
+                    command.positionMs,
+                    command.trackIds,
+                    command.startIndex,
+                    command.enabled,
+                    command.repeat,
+                )
+            }
+            is Command.SelectIndex -> runJobCommand(PlaybackService.ActionSelect, command.job) {
+                val trackId = queue.snapshot().activeTrackIds.getOrNull(command.index.toInt())
+                if (trackId != null) handleActionCommand(PlaybackService.ActionSelect, trackIds = listOf(trackId))
+            }
+            is Command.Block -> runBlockCommand(command)
+        }
+    }
+
+    private suspend fun runJobCommand(action: String, job: CompletableJob, block: suspend () -> Unit) {
+        try {
+            block()
+            job.complete()
+        } catch (cancellation: CancellationException) {
+            if (!currentCoroutineContext().isActive) {
+                job.cancel()
+                throw cancellation
+            }
+            log.e("Command failed: action=$action error=${cancellation.message}")
+            runCatching { fail(queue.snapshot().currentTrackId, "$action failed: ${cancellation.message}") }
+            job.complete()
+        } catch (error: Throwable) {
+            log.e("Command failed: action=$action error=${error.message}")
+            runCatching { fail(queue.snapshot().currentTrackId, "$action failed: ${error.message}") }
+            job.complete()
+        }
+    }
+
+    private suspend fun runBlockCommand(command: Command.Block) {
+        if (command.result.isCancelled) return
+        val value = try {
+            command.block()
+        } catch (cancellation: CancellationException) {
+            if (!currentCoroutineContext().isActive) {
+                command.result.cancel()
+                throw cancellation
+            }
+            command.result.completeExceptionally(cancellation)
+            return
+        } catch (error: Throwable) {
+            command.result.completeExceptionally(error)
+            return
+        }
+        command.result.complete(value)
+    }
 
     fun dispatch(
         action: String,
@@ -72,57 +240,67 @@ internal class PlaybackCoordinator(
         startIndex: Int = 0,
         enabled: Boolean = false,
         repeat: RepeatMode? = null,
-    ): Job = scope.launch {
-        restored.await()
-        commandMutex.withLock {
-            pollEngineEvents()
-            log.d("Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
-            if (action in MoodRadioStoppingActions) stopMoodRadio()
-            when (action) {
-                PlaybackService.ActionPlay -> handleTransition(runCatching { queue.play(PlaybackRequest(trackIds, startIndex)) }
-                    .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
-                PlaybackService.ActionShuffle -> handleTransition(runCatching { queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
-                    .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
-                PlaybackService.ActionPause -> {
-                    resumeOnFocusGain = false
-                    restoreFocusGain()
-                    pauseCurrent()
-                }
-                PlaybackService.ActionPauseForTransientFocusLoss -> pauseForTransientFocusLoss()
-                PlaybackService.ActionDuck -> duckForFocusLoss()
-                PlaybackService.ActionRestoreFocus -> restoreAfterFocusGain()
-                PlaybackService.ActionResume -> {
-                    resumeOnFocusGain = false
-                    resumeCurrent()
-                }
-                PlaybackService.ActionStop -> stopPlayback()
-                PlaybackService.ActionClearQueue -> handleTransition(queue.clear())
-                PlaybackService.ActionNext -> handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
-                PlaybackService.ActionPrevious -> {
-                    if (positionMs() > PreviousRestartThresholdMs) seekCurrent(0L)
-                    else handleTransition(queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
-                }
-                PlaybackService.ActionSeek -> seekCurrent(positionMs)
-                PlaybackService.ActionSetShuffle -> handleTransition(queue.setShuffle(enabled))
-                PlaybackService.ActionSetRepeat -> repeat?.let(queue::setRepeatMode)
-                PlaybackService.ActionPlayNext -> queue.playNext(trackIds)
-                PlaybackService.ActionAppend -> queue.append(trackIds)
-                PlaybackService.ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
-                PlaybackService.ActionSelect -> trackIds.firstOrNull()?.let { handleTransition(queue.select(it), PlaybackEndReason.SKIPPED) }
-                PlaybackService.ActionRemove -> trackIds.firstOrNull()?.let { handleTransition(queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
-                PlaybackService.ActionReorder -> queue.reorderQueue(trackIds)
+    ): Job {
+        val job = Job()
+        enqueue(Command.Action(action, positionMs, trackIds, startIndex, enabled, repeat, job))
+        return job
+    }
+
+    private suspend fun handleActionCommand(
+        action: String,
+        positionMs: Long = 0L,
+        trackIds: List<String> = emptyList(),
+        startIndex: Int = 0,
+        enabled: Boolean = false,
+        repeat: RepeatMode? = null,
+    ) {
+        pollEngineEvents()
+        log.d("Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
+        if (action in MoodRadioStoppingActions) stopMoodRadio()
+        when (action) {
+            PlaybackService.ActionPlay -> handleTransition(runCatching { queue.play(PlaybackRequest(trackIds, startIndex)) }
+                .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
+            PlaybackService.ActionShuffle -> handleTransition(runCatching { queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
+                .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
+            PlaybackService.ActionPause -> {
+                resumeOnFocusGain = false
+                restoreFocusGain()
+                pauseCurrent()
             }
-            if (action in PreloadResyncActions) {
-                // The old source must not remain part of a fade whose queued
-                // successor has just changed.
-                if (isCrossfading()) {
-                    clearArtworkCrossfade()
-                    snapCrossfade()
-                }
-                preloadNext()
+            PlaybackService.ActionPauseForTransientFocusLoss -> pauseForTransientFocusLoss()
+            PlaybackService.ActionDuck -> duckForFocusLoss()
+            PlaybackService.ActionRestoreFocus -> restoreAfterFocusGain()
+            PlaybackService.ActionResume -> {
+                resumeOnFocusGain = false
+                resumeCurrent()
             }
-            publishQueue()
+            PlaybackService.ActionStop -> stopPlayback()
+            PlaybackService.ActionClearQueue -> handleTransition(queue.clear())
+            PlaybackService.ActionNext -> handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+            PlaybackService.ActionPrevious -> {
+                if (positionMs() > PreviousRestartThresholdMs) seekCurrent(0L)
+                else handleTransition(queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+            }
+            PlaybackService.ActionSeek -> seekCurrent(positionMs)
+            PlaybackService.ActionSetShuffle -> handleTransition(queue.setShuffle(enabled))
+            PlaybackService.ActionSetRepeat -> repeat?.let(queue::setRepeatMode)
+            PlaybackService.ActionPlayNext -> queue.playNext(trackIds)
+            PlaybackService.ActionAppend -> queue.append(trackIds)
+            PlaybackService.ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
+            PlaybackService.ActionSelect -> trackIds.firstOrNull()?.let { handleTransition(queue.select(it), PlaybackEndReason.SKIPPED) }
+            PlaybackService.ActionRemove -> trackIds.firstOrNull()?.let { handleTransition(queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
+            PlaybackService.ActionReorder -> queue.reorderQueue(trackIds)
         }
+        if (action in PreloadResyncActions) {
+            // The old source must not remain part of a fade whose queued
+            // successor has just changed.
+            if (isCrossfading()) {
+                clearArtworkCrossfade()
+                snapCrossfade()
+            }
+            preloadNext()
+        }
+        publishQueue()
     }
 
     private suspend fun startMoodRadio(seedId: String) {
@@ -161,8 +339,12 @@ internal class PlaybackCoordinator(
 
     internal fun stopMoodRadio() { moodRadioSeedId = null; moodRadioLastRefillAttempt = null; flows.moodRadioActive.value = false }
 
-    /** FR-091: media-session skip-to-queue-item; T026 routes it through the command path. */
-    fun selectQueueItem(index: Long): Job = Job().apply { complete() }
+    /** FR-091: media-session skip-to-queue-item; routed through the serialized command path. */
+    fun selectQueueItem(index: Long): Job {
+        val job = Job()
+        enqueue(Command.SelectIndex(index, job))
+        return job
+    }
 
     private fun pauseForTransientFocusLoss() {
         resumeOnFocusGain = flows.state.value is PlaybackState.Playing
@@ -178,28 +360,35 @@ internal class PlaybackCoordinator(
     }
 
     internal suspend fun tick() {
-        refreshPlaybackPosition()
-        val playing = flows.state.value as? PlaybackState.Playing
-        if (playing != null) enqueueListening(listeningTracker.tick(
-            playing.positionMs, playing.durationMs, clock.nowMs(), clock.elapsedMs(),
-        ))
-        pollEngineEvents()
-        if (listeningFadeOutgoing != null && engine?.isCrossfading() != true) finishListeningCrossfade()
-        if (engine?.isCrossfading() != true) clearArtworkCrossfade()
-        if (audioOutputDisconnectRequiresRecovery(outputDisconnected)) {
-            recoverAfterOutputDisconnect()
-        } else if (maybeStartCrossfade()) {
+        try {
+            refreshPlaybackPosition()
+            val playing = flows.state.value as? PlaybackState.Playing
+            if (playing != null) enqueueListening(listeningTracker.tick(
+                playing.positionMs, playing.durationMs, clock.nowMs(), clock.elapsedMs(),
+            ))
             pollEngineEvents()
-        } else if (endedPending && flows.state.value is PlaybackState.Playing) {
-            endedPending = false
-            handleTransition(queue.next(), PlaybackEndReason.COMPLETED)
-            publishQueue()
+            if (listeningFadeOutgoing != null && engine?.isCrossfading() != true) finishListeningCrossfade()
+            if (engine?.isCrossfading() != true) clearArtworkCrossfade()
+            if (audioOutputDisconnectRequiresRecovery(outputDisconnected)) {
+                recoverAfterOutputDisconnect()
+            } else if (maybeStartCrossfade()) {
+                pollEngineEvents()
+            } else if (endedPending && flows.state.value is PlaybackState.Playing) {
+                endedPending = false
+                handleTransition(queue.next(), PlaybackEndReason.COMPLETED)
+                publishQueue()
+            }
+            if (refillMoodRadioIfNeeded()) publishQueue()
+            // A crossfade occupies both native source slots. Once its
+            // callback retires the outgoing item, populate that slot
+            // with the queue's new immediate successor.
+            if (canPreloadNext(engine?.isCrossfading() == true)) preloadNext()
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (error: Throwable) {
+            log.e("Playback tick failed: ${error.message}")
+            runCatching { fail(queue.snapshot().currentTrackId, "tick failed: ${error.message}") }
         }
-        if (refillMoodRadioIfNeeded()) publishQueue()
-        // A crossfade occupies both native source slots. Once its
-        // callback retires the outgoing item, populate that slot
-        // with the queue's new immediate successor.
-        if (canPreloadNext(engine?.isCrossfading() == true)) preloadNext()
     }
 
     internal suspend fun onPlaybackSettings(seconds: Int, blendArtwork: Boolean) {

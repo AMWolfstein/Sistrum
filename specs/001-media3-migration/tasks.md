@@ -339,7 +339,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `GATE`.
   - Accept: playing track not interrupted (checked on device in T035).
 
-- [ ] T026 [US2] Serialized command path in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackService.kt` (FR-081, FR-084, FR-091) {hard} [HIGH-RISK]
+- [x] T026 [US2] Serialized command path in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackService.kt` (FR-081, FR-084, FR-091) {hard} [HIGH-RISK]
   - Do: one `Channel<Command>` with a single consumer; ticker and media-session callbacks enqueue commands;
     `CoroutineExceptionHandler` + per-command catch → failed/skip, rethrow `CancellationException`. The catch also
     wraps `coordinator.tick()` itself (FR-084 test calls `tick()` directly). `dispatch(...)` keeps its signature and its
