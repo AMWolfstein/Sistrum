@@ -315,7 +315,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     gapless pair ≤ 10 ms, SC-003 in-app part; event count).
   - Accept: one player only (FR-033 with crossfade off).
 
-- [ ] T022 [P] [US2] Focus duck ramp for Media3 in `A/player/media3/FocusVolumeRamp.kt` with `AT/player/media3/FocusVolumeRampTest.kt` {default}
+- [x] T022 [P] [US2] Focus duck ramp for Media3 in `A/player/media3/FocusVolumeRamp.kt` with `AT/player/media3/FocusVolumeRampTest.kt` {default}
   - Do: `setFocusGain(0.2|1.0)` → `player.volume` ramp, 120 ms down / 240 ms up (as native `next_focus_gain`),
     applied to every live player.
   - Tests: `UT me.misa198.airmedy.player.media3.FocusVolumeRampTest`.

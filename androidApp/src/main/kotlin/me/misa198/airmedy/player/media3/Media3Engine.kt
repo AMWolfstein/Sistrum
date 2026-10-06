@@ -1,6 +1,8 @@
 package me.misa198.airmedy.player.media3
 
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -91,6 +93,9 @@ internal class Media3Engine(
     @Volatile
     private var closed = false
     private val pendingEvents = ConcurrentLinkedQueue<EngineEvent>()
+    private val focusRamp = FocusVolumeRamp()
+    private var focusHandler: Handler? = null
+    private var focusStepper: Runnable? = null
 
     override suspend fun prepare(
         item: PlaybackItem,
@@ -117,6 +122,7 @@ internal class Media3Engine(
                 )
                 p.playWhenReady = false
                 p.prepare()
+                applyFocusGainOnLooper(SystemClock.uptimeMillis())
                 p
             }
         } catch (error: Throwable) {
@@ -254,7 +260,11 @@ internal class Media3Engine(
     override fun snapCrossfade() = Unit
 
     override fun setFocusGain(gain: Float) {
-        factory.call { player?.volume = gain }
+        factory.call {
+            val now = SystemClock.uptimeMillis()
+            focusRamp.setTarget(gain, now)
+            applyFocusGainOnLooper(now)
+        }
     }
 
     override fun setDsp(settings: EqualizerSettings) = Unit
@@ -286,6 +296,7 @@ internal class Media3Engine(
 
     private fun releaseCurrentPlayer() {
         val previous = factory.call {
+            cancelFocusStepper()
             val p = player
             player = null
             currentItem = null
@@ -296,6 +307,49 @@ internal class Media3Engine(
             p
         }
         if (previous != null) factory.release(previous)
+    }
+
+    /**
+     * Applies the focus ramp to the current player on the playback looper: sets
+     * `player.volume` to the ramp value now and, while the ramp has not settled, posts a
+     * stepper every [FOCUS_STEP_MS]. A retarget replaces any running stepper; a missing
+     * player just records the target so the next [prepare] seeds the new player.
+     */
+    private fun applyFocusGainOnLooper(nowMs: Long) {
+        val p = player
+        if (p == null) {
+            cancelFocusStepper()
+            return
+        }
+        p.volume = focusRamp.valueAt(nowMs)
+        if (focusRamp.isSettled(nowMs)) {
+            cancelFocusStepper()
+            return
+        }
+        scheduleFocusStep()
+    }
+
+    private fun scheduleFocusStep() {
+        cancelFocusStepper()
+        val handler = focusHandler ?: Handler(Looper.myLooper()!!).also { focusHandler = it }
+        val stepper = object : Runnable {
+            override fun run() {
+                focusStepper = null
+                val p = player ?: return
+                val now = SystemClock.uptimeMillis()
+                p.volume = focusRamp.valueAt(now)
+                if (focusRamp.isSettled(now)) return
+                focusStepper = this
+                handler.postDelayed(this, FOCUS_STEP_MS)
+            }
+        }
+        focusStepper = stepper
+        handler.postDelayed(stepper, FOCUS_STEP_MS)
+    }
+
+    private fun cancelFocusStepper() {
+        focusStepper?.let { focusHandler?.removeCallbacks(it) }
+        focusStepper = null
     }
 
     /** Removes every playlist item after the current one and forgets any preloaded mapping. */
@@ -311,5 +365,6 @@ internal class Media3Engine(
         const val PREPARE_TIMEOUT_MS = 10_000L
         const val PREPARE_POLL_MS = 10L
         const val MAX_EXTRAPOLATION_MS = 500L
+        const val FOCUS_STEP_MS = 10L
     }
 }
