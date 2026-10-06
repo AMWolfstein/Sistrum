@@ -386,7 +386,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Do: `distinctUntilChanged` on EQ/crossfade flows; re-prepare the next track only when a value affecting it changed.
   - Tests: `UT me.misa198.airmedy.player.PreferenceChurnTest`; `GATE`.
 
-- [ ] T032 [US2] Decode-error path (FR-064) in `A/player/PlaybackCoordinator.kt` with `AT/player/EngineErrorPathTest.kt` {default}
+- [x] T032 [US2] Decode-error path (FR-064) in `A/player/PlaybackCoordinator.kt` with `AT/player/EngineErrorPathTest.kt` {default}
   - Do: `EngineEvent.Error` → normal error state, log line with provider id and format, skip to next; no engine retry.
   - Tests: `UT me.misa198.airmedy.player.EngineErrorPathTest`; `GATE`.
 

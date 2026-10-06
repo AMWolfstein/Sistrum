@@ -19,6 +19,9 @@ import me.misa198.airmedy.player.engine.PlayerEngine
 private const val DuckedFocusGain = 0.2f
 private const val PreviousRestartThresholdMs = 3_000L
 
+/** FR-064: hard cap on synchronous decode-failure skips so a failing queue cannot nest unbounded. */
+private const val MaxConsecutiveDecodeSkips = 20
+
 private val PreloadResyncActions = setOf(
     PlaybackService.ActionSetShuffle, PlaybackService.ActionSetRepeat, PlaybackService.ActionPlayNext,
     PlaybackService.ActionRemove, PlaybackService.ActionReorder, PlaybackService.ActionStartMoodRadio,
@@ -68,6 +71,8 @@ internal class PlaybackCoordinator(
     private var appliedEqualizerSettings = EqualizerSettings()
     private var isDucked = false
     private var pendingStart: PendingStart? = null
+    // FR-064: consecutive decode failures within one queue visit; bounds skip-to-next looping.
+    private var consecutiveDecodeFailures = 0
 
     // FR-087: media-session queue window cache so a window republish does not re-resolve the library.
     private var lastQueueWindow: List<Pair<Int, String>> = emptyList()
@@ -332,6 +337,10 @@ internal class PlaybackCoordinator(
         repeat: RepeatMode? = null,
     ) {
         pollEngineEvents()
+        if (action == PlaybackService.ActionPlay || action == PlaybackService.ActionShuffle || action == PlaybackService.ActionSelect) {
+            // FR-064: a fresh user-driven play/select starts a new decode-failure budget.
+            consecutiveDecodeFailures = 0
+        }
         log.d("Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
         if (action in MoodRadioStoppingActions) stopMoodRadio()
         when (action) {
@@ -571,6 +580,9 @@ internal class PlaybackCoordinator(
                     pendingStart = PendingStart.Fresh(item, startTracking)
                     pollEngineEvents()
                     if (engine == null || flows.state.value is PlaybackState.Failed) return
+                    // FR-064: a decode failure during the start may have skipped the queue to a
+                    // successor; do not keep starting the item that was already replaced.
+                    if (engine !== preparedEngine || queue.snapshot().currentTrackId != trackId) return
                 }
             } catch (error: Throwable) {
                 preparedEngine.close()
@@ -676,6 +688,7 @@ internal class PlaybackCoordinator(
     }
 
     private fun onOutputStarted() {
+        consecutiveDecodeFailures = 0
         val pending = pendingStart ?: return
         pendingStart = null
         val currentEngine = engine ?: return
@@ -1022,11 +1035,46 @@ internal class PlaybackCoordinator(
                     endedPending = true
                 }
                 EngineEvent.OutputStarted -> onOutputStarted()
-                is EngineEvent.Error -> pendingStart?.let { pending ->
-                    fail(pending.item.trackId, "Output did not start: ${event.cause.message}")
-                }
+                is EngineEvent.Error -> if (handleEngineError(event)) return
             }
         }
+    }
+
+    /**
+     * FR-064: a provider decode failure logs the provider and format, reports the normal playback
+     * error to the media session, and skips to the next track. It never retries the same item on
+     * another engine. Returns true when the queue advanced, so the closed engine's remaining events
+     * in the current batch must be dropped.
+     */
+    private suspend fun handleEngineError(event: EngineEvent.Error): Boolean {
+        val failingId = pendingStart?.item?.trackId
+            ?: (flows.state.value as? PlaybackState.Playing)?.item?.trackId
+            ?: (flows.state.value as? PlaybackState.Preparing)?.item?.trackId
+            ?: (flows.state.value as? PlaybackState.Paused)?.item?.trackId
+            ?: queue.snapshot().currentTrackId
+        log.e(
+            "Decode failure provider=${event.provider} format=${event.format} id=$failingId " +
+                "error=${event.cause.javaClass.simpleName}: ${event.cause.message}",
+        )
+        val nextId = queue.peekNext()
+        val canSkip = failingId != null && nextId != null && nextId != failingId &&
+            consecutiveDecodeFailures < minOf(queue.snapshot().activeTrackIds.size, MaxConsecutiveDecodeSkips)
+        if (!canSkip) {
+            fail(failingId, "Decode failed (${event.format})")
+            return false
+        }
+        // A restored paused session has no pending start; retain the paused hold across the skip
+        // instead of starting audio. A user resume/fresh start has a pending start and keeps playing.
+        val pausedWithoutPendingResume = flows.state.value is PlaybackState.Paused && pendingStart == null
+        consecutiveDecodeFailures += 1
+        nowPlaying.setTransportState(TransportState.Error, 0L, activeQueueItemId(queue.snapshot()))
+        engine?.close()
+        engine = null
+        preloadedItem = null
+        pendingStart = null
+        handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = pausedWithoutPendingResume)
+        publishQueue()
+        return true
     }
 
     private suspend fun consumeEngineTransition(event: EngineEvent) {
