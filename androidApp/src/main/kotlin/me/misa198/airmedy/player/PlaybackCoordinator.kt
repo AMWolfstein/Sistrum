@@ -65,6 +65,16 @@ internal class PlaybackCoordinator(
     private var isDucked = false
     private var pendingStart: PendingStart? = null
 
+    // FR-087: media-session queue window cache so a window republish does not re-resolve the library.
+    private var lastQueueWindow: List<Pair<Int, String>> = emptyList()
+    private var queueWindowItems: Map<String, PlaybackItem> = emptyMap()
+
+    // FR-087: on-demand ordered session saver (no permanent coroutine).
+    private val saveLock = Any()
+    private var pendingSave: PlaybackSession? = null
+    private var saving = false
+    private var drained: CompletableDeferred<Unit>? = null
+
     private val commandLock = Any()
     private val commandQueue = ArrayDeque<Command>()
     private val preRestoreCommands = ArrayDeque<Command>()
@@ -188,11 +198,27 @@ internal class PlaybackCoordinator(
         try {
             while (true) {
                 val command: Command? = synchronized(commandLock) {
-                    if (commandQueue.isEmpty()) {
+                    var taken: Command? = if (commandQueue.isEmpty()) null else commandQueue.removeFirst()
+                    // FR-087: coalesce a run of consecutive seeks so only the last one reaches the engine.
+                    (taken as? Command.Action)?.takeIf { it.action == PlaybackService.ActionSeek }?.let { seek ->
+                        var current = seek
+                        while (true) {
+                            val next = commandQueue.firstOrNull()
+                            if (next is Command.Action && next.action == PlaybackService.ActionSeek) {
+                                commandQueue.removeFirst()
+                                current.job.complete()
+                                current = next
+                            } else {
+                                break
+                            }
+                        }
+                        taken = current
+                    }
+                    if (taken == null) {
                         draining = false
                         null
                     } else {
-                        commandQueue.removeFirst()
+                        taken
                     }
                 }
                 if (command == null) {
@@ -463,7 +489,11 @@ internal class PlaybackCoordinator(
             return
         }
         queue.restore(queueForAvailableTracks(session.queue, availableTrackIds))
-        restoreCurrent(session.positionMs)
+        // The saved position belongs to the saved current track; when restoration had to fall back to
+        // a different (or no) track, start that track from the beginning instead (FR-013).
+        val savedCurrentId = session.queue.activeTrackIds.getOrNull(session.queue.currentIndex)
+        val positionMs = if (savedCurrentId != null && savedCurrentId == queue.snapshot().currentTrackId) session.positionMs else 0L
+        restoreCurrent(positionMs)
     }
 
     internal fun positionMs(): Long = engine?.positionMs() ?: 0L
@@ -816,12 +846,109 @@ internal class PlaybackCoordinator(
     internal suspend fun publishQueue() {
         val snapshot = queue.snapshot()
         flows.queueState.value = snapshot
-        nowPlaying.publishQueue(snapshot)
+        val window = buildQueueWindow(snapshot)
+        val windowIds = window.map { it.index to it.item.trackId }
+        if (windowIds != lastQueueWindow) {
+            nowPlaying.publishQueue(snapshot, window)
+            lastQueueWindow = windowIds
+        }
         updateNowPlayingTransportState()
         // Capture before the asynchronous DataStore write. A later command can
         // close the decoder, but cannot change this immutable session snapshot.
-        val session = currentSession(snapshot)
-        scope.launch { sessionStore.save(session) }
+        queueSessionSave(currentSession(snapshot))
+    }
+
+    /**
+     * FR-087: builds the ≤100-entry window `[currentIndex - 25, currentIndex + 75)` around the
+     * current track, resolving each item through [resolver]. Items already resolved in the last
+     * window are reused; unresolvable ids are skipped and entries that leave the window are dropped.
+     */
+    private suspend fun buildQueueWindow(snapshot: PlaybackQueueSnapshot): List<QueueWindowEntry> {
+        val active = snapshot.activeTrackIds
+        val currentIndex = snapshot.currentIndex
+        val start: Int
+        val end: Int
+        if (currentIndex !in active.indices) {
+            // No current selection: expose the head of the queue like the pre-window publish did.
+            start = 0
+            end = 100.coerceAtMost(active.size)
+        } else {
+            start = (currentIndex - 25).coerceIn(0, active.size)
+            end = (currentIndex + 75).coerceIn(0, active.size)
+        }
+        val items = LinkedHashMap<String, PlaybackItem>()
+        val entries = ArrayList<QueueWindowEntry>(end - start)
+        for (index in start until end) {
+            val id = active[index]
+            val item = queueWindowItems[id] ?: resolver.resolve(id) ?: continue
+            items[id] = item
+            entries += QueueWindowEntry(index, item)
+        }
+        queueWindowItems = items
+        return entries
+    }
+
+    private fun queueSessionSave(session: PlaybackSession) {
+        synchronized(saveLock) {
+            pendingSave = session
+            if (!saving) {
+                saving = true
+                scope.launch { saveDrain() }
+            }
+        }
+    }
+
+    private suspend fun saveDrain() {
+        try {
+            while (true) {
+                val session = synchronized(saveLock) {
+                    val pending = pendingSave
+                    if (pending == null) {
+                        saving = false
+                        drained?.complete(Unit)
+                        drained = null
+                        null
+                    } else {
+                        pendingSave = null
+                        pending
+                    }
+                } ?: return
+                try {
+                    sessionStore.save(session)
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (error: Throwable) {
+                    log.e("Session save failed: ${error.message}")
+                }
+            }
+        } catch (cancellation: CancellationException) {
+            synchronized(saveLock) {
+                saving = false
+                drained?.complete(Unit)
+                drained = null
+            }
+            throw cancellation
+        }
+    }
+
+    /** Queues the current session and suspends until the saver has written it (or a newer one). */
+    internal suspend fun saveSessionNow() {
+        val session = currentSession()
+        if (scope.coroutineContext[Job]?.isActive != true) {
+            sessionStore.save(session)
+            return
+        }
+        val waiter = CompletableDeferred<Unit>()
+        synchronized(saveLock) {
+            pendingSave = session
+            drained?.complete(Unit)
+            drained = waiter
+            if (!saving) {
+                saving = true
+                scope.launch { saveDrain() }
+            }
+        }
+        waiter.await()
     }
 
     internal fun currentSession(snapshot: PlaybackQueueSnapshot = queue.snapshot()): PlaybackSession {
@@ -840,7 +967,9 @@ internal class PlaybackCoordinator(
         pendingStart = null
         queue.clear()
         flows.queueState.value = queue.snapshot()
-        nowPlaying.publishQueue(queue.snapshot())
+        lastQueueWindow = emptyList()
+        queueWindowItems = emptyMap()
+        nowPlaying.publishQueue(queue.snapshot(), emptyList())
         flows.state.value = PlaybackState.Idle
         nowPlaying.setTransportState(TransportState.None, 0L, activeQueueItemId(queue.snapshot()))
         nowPlaying.deactivate()

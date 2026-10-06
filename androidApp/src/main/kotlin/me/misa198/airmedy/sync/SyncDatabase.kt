@@ -304,6 +304,30 @@ internal interface SyncDao {
     """)
     fun observeTracks(): Flow<List<LibraryTrackRow>>
 
+    @Query("""
+        SELECT t.trackId AS id,
+               t.title AS title,
+               t.artists AS artists,
+               t.album AS album,
+               t.albumId AS albumId,
+               t.artworkKey AS artworkKey,
+               t.playCount AS playCount,
+               t.createdAt AS createdAt,
+               t.discNumber AS discNumber,
+               t.trackNumber AS trackNumber,
+               t.syncOrder AS syncOrder,
+               a.relativePath AS artworkPath,
+               audio.relativePath AS audioPath,
+               t.rawJson AS rawJson
+        FROM sync_tracks t
+        INNER JOIN sync_plans p ON p.planId = t.planId
+        LEFT JOIN sync_assets a ON a.planId = t.planId AND (a.assetId = t.artworkKey OR a.assetId = ('artwork:' || t.artworkKey))
+        LEFT JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = ('audio:' || t.trackId)
+        WHERE p.active = 1 AND t.trackId = :id
+        LIMIT 1
+    """)
+    suspend fun trackRow(id: String): LibraryTrackRow?
+
     @Query("SELECT trackId, playCount FROM sync_tracks") suspend fun trackPlayCounts(): List<TrackPlayCountRow>
 
     @Query("""
@@ -573,32 +597,12 @@ internal class AndroidLibrarySyncStore(
                 .getOrNull()?.takeIf { row.operation == PlaylistMutationOperation.SET_FAVORITE.name }
                 ?.let { it.trackId to it.isFavorite }
         }.toMap()
-        rows.map { row ->
-            val metadata = row.metadataObject()
-            LibraryTrack(
-                id = row.id,
-                title = trackDisplayTitle(row.title),
-                sortTitle = metadata?.string("sort_title").orEmpty(),
-                artists = trackDisplayArtists(row.artists),
-                sortArtists = metadata?.arraySortNames("artists").orEmpty(),
-                album = row.album,
-                albumId = row.albumId,
-                artworkKey = row.artworkKey,
-                playCount = row.playCount,
-                createdAt = row.createdAt,
-                updatedAt = metadata?.string("updated_at").orEmpty(),
-                discNumber = row.discNumber,
-                trackNumber = row.trackNumber,
-                syncOrder = row.syncOrder,
-                metadataJson = overrides[row.id]?.let { favorite ->
-                    val root = runCatching { LibrarySyncProtocol.json.parseToJsonElement(row.rawJson).jsonObject }.getOrDefault(JsonObject(emptyMap()))
-                    JsonObject(root + ("is_favorite" to JsonPrimitive(favorite))).toString()
-                } ?: row.rawJson,
-                artworkPath = row.artworkPath,
-                audioPath = row.audioPath,
-            )
-        }
+        rows.map { row -> row.toLibraryTrack(overrides[row.id]) }
     }.shareIn(snapshotScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
+
+    /** One-shot lookup used by playback resolution; favorite overrides are irrelevant to playback. */
+    suspend fun trackById(id: String): LibraryTrack? = dao.trackRow(id)?.toLibraryTrack(favoriteOverride = null)
+
     val artists: Flow<List<LibraryArtist>> = combine(
         activeTrackRows,
         artworkAssets,
@@ -1330,6 +1334,33 @@ private fun JsonObject.arraySortNames(name: String): String = ((this[name] as? J
 private fun LibraryTrackRow.metadataObject(): JsonObject? = runCatching {
     LibrarySyncProtocol.json.parseToJsonElement(rawJson) as? JsonObject
 }.getOrNull()
+
+/** Shared row → [LibraryTrack] mapping used by both the [AndroidLibrarySyncStore.tracks] flow and `trackById`. */
+private fun LibraryTrackRow.toLibraryTrack(favoriteOverride: Boolean?): LibraryTrack {
+    val metadata = metadataObject()
+    return LibraryTrack(
+        id = id,
+        title = trackDisplayTitle(title),
+        sortTitle = metadata?.string("sort_title").orEmpty(),
+        artists = trackDisplayArtists(artists),
+        sortArtists = metadata?.arraySortNames("artists").orEmpty(),
+        album = album,
+        albumId = albumId,
+        artworkKey = artworkKey,
+        playCount = playCount,
+        createdAt = createdAt,
+        updatedAt = metadata?.string("updated_at").orEmpty(),
+        discNumber = discNumber,
+        trackNumber = trackNumber,
+        syncOrder = syncOrder,
+        metadataJson = favoriteOverride?.let { favorite ->
+            val root = runCatching { LibrarySyncProtocol.json.parseToJsonElement(rawJson).jsonObject }.getOrDefault(JsonObject(emptyMap()))
+            JsonObject(root + ("is_favorite" to JsonPrimitive(favorite))).toString()
+        } ?: rawJson,
+        artworkPath = artworkPath,
+        audioPath = audioPath,
+    )
+}
 
 private fun searchDocumentsFor(
     planId: String,

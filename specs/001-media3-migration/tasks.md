@@ -376,7 +376,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Accept: `[MANUAL]` on `.qa`: `adb shell am start-foreground-service` with pause/seek/stop to a cold service → no
     crash, no `ForegroundServiceDidNotStartInTimeException` in logcat (US4 sc6).
 
-- [ ] T030 [US2] Session publishing without whole-library loads, coalesced seeks, ordered saves (FR-087), restore keeps the saved track (FR-013 defect) in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackSessionStore.kt`, `A/player/PlaybackModels.kt` with `AT/player/SessionPublishingTest.kt` {hard} [HIGH-RISK]
+- [x] T030 [US2] Session publishing without whole-library loads, coalesced seeks, ordered saves (FR-087), restore keeps the saved track (FR-013 defect) in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackSessionStore.kt`, `A/player/PlaybackModels.kt` with `AT/player/SessionPublishingTest.kt` {hard} [HIGH-RISK]
   - Tests: `UT me.misa198.airmedy.player.SessionPublishingTest` (resolver call count per command bounded by queue
     window, 50 seek commands → ≤ 2 engine seeks, saves land in command order); the restore case of
     `PlaybackCoordinatorDefectTest` passes without modifying it; `GATE`.

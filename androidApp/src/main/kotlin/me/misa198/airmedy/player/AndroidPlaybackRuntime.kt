@@ -24,7 +24,7 @@ internal object AndroidPlaybackRuntime {
         appContext = context.applicationContext
         this.syncStore = syncStore
         resolver = PlaybackItemResolver { trackId ->
-            val track = syncStore.tracks.first().firstOrNull { it.id == trackId }
+            val track = syncStore.trackById(trackId)
             if (track == null) {
                 Log.w(PlaybackLogTag, "Resolve failed: track is not in synced library id=$trackId")
                 null

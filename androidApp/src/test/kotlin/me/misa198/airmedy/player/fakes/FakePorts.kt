@@ -25,6 +25,7 @@ import me.misa198.airmedy.player.PlaybackQueue
 import me.misa198.airmedy.player.PlaybackQueueSnapshot
 import me.misa198.airmedy.player.PlaybackSession
 import me.misa198.airmedy.player.PlaybackState
+import me.misa198.airmedy.player.QueueWindowEntry
 import me.misa198.airmedy.player.RepeatMode
 import me.misa198.airmedy.player.ScrobbleSink
 import me.misa198.airmedy.player.SessionStorePort
@@ -39,6 +40,7 @@ internal class FakeNowPlaying : NowPlayingPort {
     val published = mutableListOf<Pair<PlaybackItem, TransportState>>()
     val publishedPositions = mutableListOf<Long>()
     val queues = mutableListOf<PlaybackQueueSnapshot>()
+    val windows = mutableListOf<List<QueueWindowEntry>>()
     val foregroundItems = mutableListOf<PlaybackItem>()
     val notifications = mutableListOf<PlaybackItem>()
     var foreground = 0
@@ -66,8 +68,9 @@ internal class FakeNowPlaying : NowPlayingPort {
         deactivated += 1
     }
 
-    override suspend fun publishQueue(snapshot: PlaybackQueueSnapshot) {
+    override suspend fun publishQueue(snapshot: PlaybackQueueSnapshot, window: List<QueueWindowEntry>) {
         queues += snapshot
+        windows += window
     }
 
     override fun showForeground(item: PlaybackItem) {
@@ -189,6 +192,9 @@ internal class FakeLibrary : LibraryPort {
 internal class FakeResolver : PlaybackItemResolver {
     val missing = mutableSetOf<String>()
 
+    /** Number of times [resolve] was invoked; FR-087 asserts no whole-library resolution. */
+    var resolveCalls = 0
+
     /** When set, [resolve] throws it (FR-084: a throwing resolver during play). */
     var failWith: Throwable? = null
 
@@ -196,6 +202,7 @@ internal class FakeResolver : PlaybackItemResolver {
     var suspendForever: Boolean = false
 
     override suspend fun resolve(trackId: String): PlaybackItem? {
+        resolveCalls += 1
         failWith?.let { throw it }
         if (suspendForever) awaitCancellation()
         if (trackId in missing) return null

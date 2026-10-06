@@ -299,7 +299,7 @@ class PlaybackService : Service() {
                 )
             }.onFailure { Log.w(PlaybackLogTag, "Listening finish failed", it) }
             if (restoredBeforeDestroy) {
-                runCatching { sessionStore.save(coordinator.currentSession()) }
+                runCatching { coordinator.saveSessionNow() }
                     .onFailure { Log.w(PlaybackLogTag, "Session save failed", it) }
             }
             runCatching { coordinator.closeEngine() }
@@ -415,20 +415,17 @@ class PlaybackService : Service() {
             mediaSession.isActive = false
         }
 
-        override suspend fun publishQueue(snapshot: PlaybackQueueSnapshot) {
-            val tracks = AndroidSyncRuntime.syncStore().tracks.first().associateBy { it.id }
-            mediaSession.setQueue(snapshot.activeTrackIds.mapIndexedNotNull { index, trackId ->
-                tracks[trackId]?.let { track ->
-                    MediaSession.QueueItem(
-                        MediaDescription.Builder()
-                            .setMediaId(track.id)
-                            .setTitle(track.title)
-                            .setSubtitle(track.artists)
-                            .setDescription(track.album)
-                            .build(),
-                        index.toLong(),
-                    )
-                }
+        override suspend fun publishQueue(snapshot: PlaybackQueueSnapshot, window: List<QueueWindowEntry>) {
+            mediaSession.setQueue(window.map { entry ->
+                MediaSession.QueueItem(
+                    MediaDescription.Builder()
+                        .setMediaId(entry.item.trackId)
+                        .setTitle(entry.item.title)
+                        .setSubtitle(entry.item.artist)
+                        .setDescription(entry.item.album)
+                        .build(),
+                    entry.index.toLong(),
+                )
             })
         }
 

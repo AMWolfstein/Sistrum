@@ -10,7 +10,7 @@ internal interface NowPlayingPort {
     fun publishNowPlaying(item: PlaybackItem, state: TransportState, positionMs: Long, durationMs: Long, activeQueueItemId: Long)
     fun setTransportState(state: TransportState, positionMs: Long, activeQueueItemId: Long)
     fun deactivate()
-    suspend fun publishQueue(snapshot: PlaybackQueueSnapshot)
+    suspend fun publishQueue(snapshot: PlaybackQueueSnapshot, window: List<QueueWindowEntry>)
     fun showForeground(item: PlaybackItem)
     fun updateNotification(item: PlaybackItem)
     fun stopForeground()
