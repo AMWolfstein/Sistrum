@@ -88,14 +88,14 @@ class DecoderRegistryTest {
 
     @Test
     fun `aiff resolves only when the bundled provider is registered`() {
-        val platformOnly = defaultDecoderRegistry(probeNone)
-        assertNull(platformOnly.resolve(FormatKey("aiff", "aiff")))
+        val registry = defaultDecoderRegistry(probeNone)
+        assertEquals("kotlin-aiff", registry.resolve(FormatKey("aiff", "aiff"))?.id)
 
-        val withAiff = TableDecoderRegistry(
+        val withoutAiff = TableDecoderRegistry(
             DefaultDecoderTable,
-            listOf(PlatformProvider(DefaultDecoderTable, probeNone), FakeProvider("kotlin-aiff", available = true)),
+            listOf(PlatformProvider(DefaultDecoderTable, probeNone)),
         )
-        assertEquals("kotlin-aiff", withAiff.resolve(FormatKey("aiff", "aiff"))?.id)
+        assertNull(withoutAiff.resolve(FormatKey("aiff", "aiff")))
     }
 
     @Test

@@ -457,7 +457,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     only; m4a/aac vs m4a/alac with and without an ALAC decoder; DSD/APE/WV/WMA → null + skip reason).
   - Accept: no format names outside the table.
 
-- [ ] T037 [US8] Port Choir's AIFF extractor to `A/player/decoders/aiff/AiffExtractor.kt` and add `A/player/decoders/aiff/KotlinAiffProvider.kt` with `AT/player/decoders/aiff/AiffExtractorTest.kt`; `THIRD-PARTY-NOTICES` entry {default}
+- [x] T037 [US8] Port Choir's AIFF extractor to `A/player/decoders/aiff/AiffExtractor.kt` and add `A/player/decoders/aiff/KotlinAiffProvider.kt` with `AT/player/decoders/aiff/AiffExtractorTest.kt`; `THIRD-PARTY-NOTICES` entry {default}
   - Do: port from AurielSolaris/Choir `f2e96fd`, `playback/AiffExtractor.kt` (GPL-3.0-or-later, SPDX + attribution
     header); AIFF and AIFF-C NONE/twos/sowt, 8/16/24/32-bit integer → `AUDIO_RAW`; float and compressed AIFF-C refused
     by name.

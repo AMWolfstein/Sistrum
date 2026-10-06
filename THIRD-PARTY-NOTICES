@@ -8,3 +8,10 @@ Source: https://github.com/androidx/media
 Note: media3-exoplayer and media3-common are app runtime dependencies; media3-test-utils is test-only.
 
 --------------------------------------------------------------------------------
+
+Choir AIFF extractor (AurielSolaris/Choir, commit f2e96fd322eba8d62d462c8d5af062e78e431c8d)
+License: GNU General Public License v3.0 or later
+Source: https://github.com/AurielSolaris/Choir
+Note: playback/AiffExtractor.kt ported to player/decoders/aiff/AiffExtractor.kt with changes (8-bit bias in both byte orders, named refusals).
+
+--------------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 package me.misa198.airmedy.player.decoders
 
+import me.misa198.airmedy.player.decoders.aiff.KotlinAiffProvider
+
 /** The `codec` of a [DecoderTableEntry] that matches any codec of its format. */
 const val AnyCodec: String = "*"
 
@@ -146,4 +148,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
 
 /** The table-backed registry with the platform provider. T037 adds the AIFF provider here. */
 fun defaultDecoderRegistry(probe: CodecProbe): DecoderRegistry =
-    TableDecoderRegistry(DefaultDecoderTable, listOf(PlatformProvider(DefaultDecoderTable, probe)))
+    TableDecoderRegistry(
+        DefaultDecoderTable,
+        listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinAiffProvider()),
+    )
