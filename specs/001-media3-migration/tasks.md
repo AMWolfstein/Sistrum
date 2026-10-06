@@ -382,7 +382,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     `PlaybackCoordinatorDefectTest` passes without modifying it; `GATE`.
   - Accept: no full-library resolve per command.
 
-- [ ] T031 [P] [US2] Preference churn (FR-092) in `A/player/EqualizerPreferences.kt`, `A/player/PlaybackPreferences.kt`, `A/player/PlaybackCoordinator.kt` with `AT/player/PreferenceChurnTest.kt` {default}
+- [x] T031 [P] [US2] Preference churn (FR-092) in `A/player/EqualizerPreferences.kt`, `A/player/PlaybackPreferences.kt`, `A/player/PlaybackCoordinator.kt` with `AT/player/PreferenceChurnTest.kt` {default}
   - Do: `distinctUntilChanged` on EQ/crossfade flows; re-prepare the next track only when a value affecting it changed.
   - Tests: `UT me.misa198.airmedy.player.PreferenceChurnTest`; `GATE`.
 

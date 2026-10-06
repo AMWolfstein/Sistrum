@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -89,7 +90,7 @@ internal class EqualizerPreferences(private val context: Context) {
             userProfiles = userProfiles,
             legacyOverrideGainsDb = parseGains(values[EqualizerOverrideKey]),
         )
-    }
+    }.distinctUntilChanged()
 
     suspend fun setEnabled(enabled: Boolean) = context.playbackPreferencesDataStore.edit { it[EqualizerEnabledKey] = enabled }
 

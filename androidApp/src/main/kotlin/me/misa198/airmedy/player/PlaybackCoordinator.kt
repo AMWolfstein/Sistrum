@@ -62,6 +62,10 @@ internal class PlaybackCoordinator(
     private var listeningFadeMaxMs = 0L
     private var normalizationSettings = NormalizationSettings()
     private var equalizerSettings = EqualizerSettings()
+    // FR-092: de-duplicate preference re-emissions. A shared DataStore re-emits every
+    // settings flow on any write, so remember the last applied values and skip repeats.
+    private var appliedPlaybackSettings: Pair<Int, Boolean>? = null
+    private var appliedEqualizerSettings = EqualizerSettings()
     private var isDucked = false
     private var pendingStart: PendingStart? = null
 
@@ -465,6 +469,11 @@ internal class PlaybackCoordinator(
     }
 
     internal suspend fun onPlaybackSettings(seconds: Int, blendArtwork: Boolean) {
+        // FR-092: a repeated write re-emits identical values; do not touch flows, artwork
+        // crossfade or the engine unless something that affects playback actually changed.
+        val requested = seconds to blendArtwork
+        if (appliedPlaybackSettings == requested) return
+        appliedPlaybackSettings = requested
         flows.crossfadeSeconds.value = seconds
         flows.blendArtworkDuringCrossfade.value = blendArtwork
         if (!blendArtwork) clearArtworkCrossfade()
@@ -474,7 +483,11 @@ internal class PlaybackCoordinator(
     }
 
     internal fun onEqualizerSettings(settings: EqualizerSettings) {
+        // equalizerSettings is still the source applied to new engines; the applied value
+        // also tracks what the live engine already received so repeats skip setDsp.
         equalizerSettings = settings
+        if (appliedEqualizerSettings == settings) return
+        appliedEqualizerSettings = settings
         engine?.setDsp(settings)
     }
 
