@@ -540,3 +540,9 @@ No answer was recorded.
 T046's limiter-parameter unit tests, and the effect-state hedge. Device-level measurement is an open follow-up, not
 a gate. T003b checked off. T046 no longer waits on it, so the T046 reminder about the listening steps is withdrawn.
 Next → M5 (T042 first) when the owner says to start.
+
+## M5 — DSP chain and session limiter (started 2026-10-06, owner: "start M5")
+
+| Task | Model | Rounds | Result |
+|---|---|---|---|
+| T042 golden generator | deepseek-v4.1-flash (`ses_eecff2515ffe4P21FRfLvFlqON`, brief `~/.local/state/sistrum-delegate/T042/brief-1.md`) | 1 | PASS. `tools/eq-golden/generate.sh` extracts `kEqBands`, `GlobalDspConfig`, `Biquad`, `kEqFrequenciesHz`, `configure_eq`, `filter_sample` and the preamp/width lines by marker, compiles with `c++ -O2 -ffp-contract=off`, writes `eq_golden.json` (5 rates × 15 gain sets: coefficients + 1/12-octave response; 125 width/preamp cases; source commit, sha256, line ranges). `--check` reproducible; renamed marker → exit 1. Coefficient spot-checked against an independent Python calculation. Gate PASS. |

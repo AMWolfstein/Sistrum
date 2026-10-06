@@ -1,0 +1,236 @@
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdio>
+#include <vector>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#include "meta.h"
+
+@EXTRACTED_STRUCTS@
+
+struct PlaybackEngine {
+    const GlobalDspConfig *applied_dsp_config = nullptr;
+    std::array<Biquad, kEqBands> eq_filters{};
+    int output_rate = 48000;
+};
+
+@EXTRACTED_CODE@
+
+void width_preamp(const GlobalDspConfig *dsp, float left, float right, float &outL, float &outR) {
+@WIDTH_PREAMP_CODE@
+    outL = (mid + side) * preamp;
+    outR = (mid - side) * preamp;
+}
+
+static void print_float(float value) {
+    std::printf("%.9g", static_cast<double>(value));
+}
+
+static void print_double(double value) {
+    std::printf("%.17g", value);
+}
+
+struct GainSet {
+    const char *name;
+    float gains[kEqBands];
+};
+
+static int build_impulse(PlaybackEngine &engine, std::vector<double> &h, int count) {
+    h.assign(count, 0.0);
+    int filled = 0;
+    for (int n = 0; n < count; ++n) {
+        float x = n == 0 ? 1.0f : 0.0f;
+        for (int b = 0; b < kEqBands; ++b) {
+            Biquad &filter = engine.eq_filters[b];
+            if (!filter.active) continue;
+            x = filter_sample(x, filter.left_z1, filter.left_z2, filter);
+        }
+        h[n] = static_cast<double>(x);
+        filled = n + 1;
+        if (n > 0 && x == 0.0f) {
+            bool quiescent = true;
+            for (int b = 0; b < kEqBands; ++b) {
+                const Biquad &filter = engine.eq_filters[b];
+                if (!filter.active) continue;
+                if (filter.left_z1 != 0.0f || filter.left_z2 != 0.0f) {
+                    quiescent = false;
+                    break;
+                }
+            }
+            if (quiescent) break;
+        }
+    }
+    return filled;
+}
+
+static double eval_response_db(const std::vector<double> &h, int filled, double hz, int rate) {
+    const double theta = -2.0 * M_PI * hz / static_cast<double>(rate);
+    const double wr = std::cos(theta);
+    const double wi = std::sin(theta);
+    double cr = 1.0;
+    double ci = 0.0;
+    double re = 0.0;
+    double im = 0.0;
+    for (int n = 0; n < filled; ++n) {
+        re += h[n] * cr;
+        im += h[n] * ci;
+        const double nr = cr * wr - ci * wi;
+        const double ni = cr * wi + ci * wr;
+        cr = nr;
+        ci = ni;
+    }
+    const double mag = std::sqrt(re * re + im * im);
+    return 20.0 * std::log10(mag);
+}
+
+int main() {
+    const int rates[5] = {44100, 48000, 88200, 96000, 192000};
+    const GainSet gain_sets[15] = {
+        {"flat_minus12", {-12.0f, -12.0f, -12.0f, -12.0f, -12.0f, -12.0f, -12.0f, -12.0f, -12.0f, -12.0f}},
+        {"flat_minus3", {-3.0f, -3.0f, -3.0f, -3.0f, -3.0f, -3.0f, -3.0f, -3.0f, -3.0f, -3.0f}},
+        {"flat_plus3", {3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f}},
+        {"flat_plus12", {12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 12.0f}},
+        {"mixed", {12.0f, -12.0f, 6.0f, -6.0f, 3.0f, -3.0f, 0.0f, 9.0f, -9.0f, 1.5f}},
+        {"single_band_0", {12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_1", {0.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_2", {0.0f, 0.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_3", {0.0f, 0.0f, 0.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_4", {0.0f, 0.0f, 0.0f, 0.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_5", {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_6", {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 12.0f, 0.0f, 0.0f, 0.0f}},
+        {"single_band_7", {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 12.0f, 0.0f, 0.0f}},
+        {"single_band_8", {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 12.0f, 0.0f}},
+        {"single_band_9", {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 12.0f}},
+    };
+    const int impulse_samples = 262144;
+
+    std::vector<double> freq_points;
+    for (int k = 0;; ++k) {
+        const double hz = 20.0 * std::pow(2.0, static_cast<double>(k) / 12.0);
+        if (hz > 20000.0) break;
+        freq_points.push_back(hz);
+    }
+
+    std::printf("{\n");
+    std::printf("  \"source\": {\n");
+    std::printf("    \"file\": \"" EQ_GOLDEN_SOURCE_FILE "\",\n");
+    std::printf("    \"commit\": \"" EQ_GOLDEN_COMMIT "\",\n");
+    std::printf("    \"sha256\": \"" EQ_GOLDEN_SHA256 "\",\n");
+    std::printf("    \"ranges\": {\n");
+    std::printf("      \"kEqBands\": \"" EQ_GOLDEN_RANGE_KEQBANDS "\",\n");
+    std::printf("      \"GlobalDspConfig\": \"" EQ_GOLDEN_RANGE_GLOBALDSPCONFIG "\",\n");
+    std::printf("      \"Biquad\": \"" EQ_GOLDEN_RANGE_BIQUAD "\",\n");
+    std::printf("      \"kEqFrequenciesHz\": \"" EQ_GOLDEN_RANGE_KEQFREQUENCIESHZ "\",\n");
+    std::printf("      \"configure_eq\": \"" EQ_GOLDEN_RANGE_CONFIGURE_EQ "\",\n");
+    std::printf("      \"filter_sample\": \"" EQ_GOLDEN_RANGE_FILTER_SAMPLE "\",\n");
+    std::printf("      \"width_preamp\": \"" EQ_GOLDEN_RANGE_WIDTH_PREAMP "\"\n");
+    std::printf("    }\n");
+    std::printf("  },\n");
+
+    std::printf("  \"frequenciesHz\": [");
+    for (int b = 0; b < kEqBands; ++b) {
+        if (b) std::printf(", ");
+        print_float(kEqFrequenciesHz[b]);
+    }
+    std::printf("],\n");
+    std::printf("  \"q\": 1.0,\n");
+
+    std::printf("  \"eq\": [");
+    bool first_entry = true;
+    for (int ri = 0; ri < 5; ++ri) {
+        for (int gi = 0; gi < 15; ++gi) {
+            GlobalDspConfig config;
+            for (int b = 0; b < kEqBands; ++b) config.eq_band_gains_db[b] = gain_sets[gi].gains[b];
+            PlaybackEngine engine;
+            engine.output_rate = rates[ri];
+            configure_eq(engine, &config);
+
+            std::vector<double> impulse;
+            const int filled = build_impulse(engine, impulse, impulse_samples);
+
+            std::printf("%s\n    {\n", first_entry ? "" : ",");
+            first_entry = false;
+            std::printf("      \"sampleRate\": %d,\n", rates[ri]);
+            std::printf("      \"gainSet\": \"%s\",\n", gain_sets[gi].name);
+            std::printf("      \"gainsDb\": [");
+            for (int b = 0; b < kEqBands; ++b) {
+                if (b) std::printf(", ");
+                print_float(config.eq_band_gains_db[b]);
+            }
+            std::printf("],\n");
+
+            std::printf("      \"bands\": [\n");
+            for (int b = 0; b < kEqBands; ++b) {
+                const Biquad &filter = engine.eq_filters[b];
+                std::printf("        { \"active\": %s, \"b0\": ", filter.active ? "true" : "false");
+                print_float(filter.b0);
+                std::printf(", \"b1\": ");
+                print_float(filter.b1);
+                std::printf(", \"b2\": ");
+                print_float(filter.b2);
+                std::printf(", \"a1\": ");
+                print_float(filter.a1);
+                std::printf(", \"a2\": ");
+                print_float(filter.a2);
+                std::printf(" }%s\n", b + 1 < kEqBands ? "," : "");
+            }
+            std::printf("      ],\n");
+
+            std::printf("      \"response\": [");
+            bool first_response = true;
+            for (double hz : freq_points) {
+                if (hz >= static_cast<double>(rates[ri]) / 2.0) continue;
+                std::printf("%s\n        { \"hz\": ", first_response ? "" : ",");
+                first_response = false;
+                print_double(hz);
+                std::printf(", \"db\": ");
+                print_double(eval_response_db(impulse, filled, hz, rates[ri]));
+                std::printf(" }");
+            }
+            std::printf("\n      ]\n");
+            std::printf("    }");
+        }
+    }
+    std::printf("\n  ],\n");
+
+    const float in_left[5] = {1.0f, 0.0f, 0.5f, 0.8f, -0.3f};
+    const float in_right[5] = {0.0f, 1.0f, -0.25f, 0.8f, 0.7f};
+    const float preamps[5] = {-12.0f, -3.0f, 0.0f, 3.0f, 12.0f};
+    const float widths[5] = {0.0f, 0.5f, 1.0f, 1.5f, 2.0f};
+
+    std::printf("  \"widthPreamp\": [");
+    bool first_width = true;
+    for (int i = 0; i < 5; ++i) {
+        for (int p = 0; p < 5; ++p) {
+            for (int w = 0; w < 5; ++w) {
+                GlobalDspConfig config;
+                config.preamp_gain_db = preamps[p];
+                config.stereo_width = widths[w];
+                float out_left = 0.0f;
+                float out_right = 0.0f;
+                width_preamp(&config, in_left[i], in_right[i], out_left, out_right);
+                std::printf("%s\n    { \"left\": ", first_width ? "" : ",");
+                first_width = false;
+                print_float(in_left[i]);
+                std::printf(", \"right\": ");
+                print_float(in_right[i]);
+                std::printf(", \"preampDb\": ");
+                print_float(preamps[p]);
+                std::printf(", \"width\": ");
+                print_float(widths[w]);
+                std::printf(", \"outLeft\": ");
+                print_float(out_left);
+                std::printf(", \"outRight\": ");
+                print_float(out_right);
+                std::printf(" }");
+            }
+        }
+    }
+    std::printf("\n  ]\n");
+    std::printf("}\n");
+    return 0;
+}

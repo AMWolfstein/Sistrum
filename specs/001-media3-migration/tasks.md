@@ -513,7 +513,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 **Goal**: EQ/preamp/width on Media3 match the native filters; limiter on the shared session.
 **Independent test**: golden checks green; band-centre tones on device match; SC-015.
 
-- [ ] T042 [US7] Golden generator in `tools/eq-golden/generate.sh`, `tools/eq-golden/harness.cpp.in` producing `androidApp/src/test/resources/golden/eq_golden.json` {default}
+- [x] T042 [US7] Golden generator in `tools/eq-golden/generate.sh`, `tools/eq-golden/harness.cpp.in` producing `androidApp/src/test/resources/golden/eq_golden.json` {default}
   - Do: the script extracts `kEqFrequenciesHz`, the body of `configure_eq` and `filter_sample` from
     `androidApp/src/main/cpp/ffmpeg_player.cpp` by marker (no copy-paste, native file untouched), compiles them with
     the host C++ compiler, and writes coefficients for 44.1/48/88.2/96/192 kHz × gain sets (−12, −3, +3, +12 dB, mixed),
