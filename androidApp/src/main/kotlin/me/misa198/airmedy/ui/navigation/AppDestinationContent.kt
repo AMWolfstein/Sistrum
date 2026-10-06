@@ -75,6 +75,7 @@ import me.misa198.airmedy.ui.screens.SongTransitionContent
 import me.misa198.airmedy.ui.screens.EqualizerContent
 import me.misa198.airmedy.lastfm.LastFmStatus
 import me.misa198.airmedy.sync.AndroidSyncRuntime
+import me.misa198.airmedy.sync.LibraryScanRunner
 import me.misa198.airmedy.sync.stageArtistArtwork
 import me.misa198.airmedy.ui.theme.LocalAirmedyColors
 
@@ -506,7 +507,12 @@ internal fun AppDestinationContent(
                                 DeveloperContent(
                                     engine = engine,
                                     onEngineSelected = { kind ->
-                                        scope.launch { preferences.setEngine(kind) }
+                                        if (kind != engine) {
+                                            scope.launch {
+                                                preferences.setEngine(kind)
+                                                LibraryScanRunner.scanInBackground(context)
+                                            }
+                                        }
                                     },
                                     modifier = settingsPageModifier,
                                 )

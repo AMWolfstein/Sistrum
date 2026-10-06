@@ -334,7 +334,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.ui.screens.DeveloperUnlockTest` (pure tap counter); `ArabicTranslationCompletenessTest`; `GATE`.
   - Accept: invisible without the gesture (US3 sc3).
 
-- [ ] T025 [US3] Rescan on engine change: move `performScan` from `A/ui/screens/LibraryScanContent.kt` into `A/sync/LibraryScanRunner.kt`; trigger it from `A/ui/screens/DeveloperContent.kt` on change {default}
+- [x] T025 [US3] Rescan on engine change: move `performScan` from `A/ui/screens/LibraryScanContent.kt` into `A/sync/LibraryScanRunner.kt`; trigger it from `A/ui/screens/DeveloperContent.kt` on change {default}
   - Do: scan runs off the main thread without touching playback; the UI scan button uses the same runner.
   - Tests: `GATE`.
   - Accept: playing track not interrupted (checked on device in T035).

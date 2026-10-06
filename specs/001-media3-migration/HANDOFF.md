@@ -358,6 +358,7 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 | T022 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T022/brief-1.md` (session `ses_ef17aabc7ffenJTcZXQOP5Ek16`) | `FocusVolumeRamp` (linear, full scale 120 ms down / 240 ms up as native `next_focus_gain`, retarget continues) + 7 host tests; Media3Engine drives `player.volume` through it with a 10 ms looper stepper, new players seeded from the ramp. Gate PASS; device regression Core 12/12, Gapless 7/7. **Review rounds: 0** | DONE |
 | T023 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T023/brief-1.md` (session `ses_ef1733959ffe6qaKEZWUPjyPd4`) | `EngineSelectionPreferences` (DataStore `engine_preferences`, default Native, unknown → Native); `EngineFactory` class reads the selection on every `create()` (suspend; coordinator `engineFactory` is now `suspend () -> PlayerEngine`), falls back to Native until T034 adds the Media3 builder. `EngineFactoryTest` green; characterization tests unmodified; gate PASS. **Review rounds: 0** | DONE |
 | T024 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T024/brief-1.md` (run killed by the memory reaper after writing every file; no session id) | Version row ×7 (≤1 s gaps) unlocks a persisted `developer_unlocked` flag in `engine_preferences`; Developer row/page (`AppStackPage.SettingsDeveloper`) only when unlocked; engine `Selection` Native/Media3 + "applies at next playback start" note; EN + AR strings. Diff reviewed, migration-guard PASS, gate PASS (expect-fail classes unchanged). **Review rounds: 0** | DONE |
+| T025 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T025/brief-1.md` (session `ses_eef6a72b8ffelioyl04eIE9vi4`) | `sync/LibraryScanRunner` (scan body moved verbatim from `performScan`; Mutex-serialized; `scanInBackground` on a process-lifetime scope, skipped without read-media permission) used by the Scan page, Tag separators (via `launchScan`) and the engine change. Trigger wired in `AppDestinationContent` (the engine callback lives there; `DeveloperContent` unchanged); same-engine selection is a no-op. Uninterrupted playback during the rescan is checked on device in T035. Gate PASS. **Review rounds: 0** | DONE |
 
 ### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
 
@@ -394,4 +395,4 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 ## Exact next step
 
-M3: T024 done. Next → T025 (rescan on engine change), then T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].
+M3: T025 done. Next → T026 (brief `~/.local/state/sistrum-delegate/T026/brief-1.md`, deepseek-v4-pro), then → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].

@@ -1,11 +1,7 @@
 package me.misa198.airmedy.ui.screens
 
-import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -26,17 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import me.misa198.airmedy.R
-import me.misa198.airmedy.sync.AndroidSyncRuntime
-import me.misa198.airmedy.sync.LocalLibraryScanResult
-import me.misa198.airmedy.sync.MediaStoreLibraryScanner
-import me.misa198.airmedy.sync.ScanFilterPreferences
-import me.misa198.airmedy.sync.TagSeparatorPreferences
+import me.misa198.airmedy.sync.LibraryScanOutcome
+import me.misa198.airmedy.sync.LibraryScanRunner
+import me.misa198.airmedy.sync.readMediaPermission as syncReadMediaPermission
 import me.misa198.airmedy.ui.components.ActionList
 import me.misa198.airmedy.ui.components.ActionListContainerStyle
 import me.misa198.airmedy.ui.components.ActionListItem
@@ -159,48 +150,18 @@ internal fun scanCompleteSummary(tracks: Int, albums: Int, artists: Int): String
 internal fun launchScan(scope: CoroutineScope, context: Context, onResult: (LibraryScanUiState) -> Unit) {
     scope.launch {
         onResult(LibraryScanUiState(isScanning = true))
-        onResult(performScan(context) ?: LibraryScanUiState())
+        onResult(
+            when (val outcome = LibraryScanRunner.scan(context)) {
+                is LibraryScanOutcome.Completed -> LibraryScanUiState(
+                    tracks = outcome.tracks,
+                    albums = outcome.albums,
+                    artists = outcome.artists,
+                    completed = true,
+                )
+                LibraryScanOutcome.NothingFound, LibraryScanOutcome.Failed -> LibraryScanUiState()
+            },
+        )
     }
 }
 
-internal fun readMediaPermission(): String =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_AUDIO
-    else Manifest.permission.READ_EXTERNAL_STORAGE
-
-private suspend fun performScan(context: Context): LibraryScanUiState? = withContext(Dispatchers.IO) {
-    runCatching {
-        val separatorPreferences = TagSeparatorPreferences(context)
-        val separators = separatorPreferences.current()
-        val scanner = MediaStoreLibraryScanner(
-            contentResolver = context.contentResolver,
-            artworkDir = File(context.filesDir, "artwork"),
-            separators = separators,
-        )
-        val syncStore = AndroidSyncRuntime.syncStore()
-        val filter = ScanFilterPreferences(context).currentFilter()
-        val result: LocalLibraryScanResult = scanner.scan(prior = syncStore.priorScanState(), filter = filter)
-        val written = syncStore.writeLocalLibrary(
-            snapshot = result.snapshot,
-            audioRows = result.audio,
-            artworkRows = result.artwork,
-        )
-        if (!written) {
-            // An empty result (most often an empty whitelist) would have replaced the whole
-            // library; writeLocalLibrary kept it instead, so tell the user why nothing changed.
-            Log.w("AirmedyScan", "Scan found no tracks; kept the existing library")
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context.applicationContext, R.string.scan_found_nothing_library_kept, Toast.LENGTH_LONG).show()
-            }
-            return@runCatching LibraryScanUiState()
-        }
-        separatorPreferences.setAppliedSignature(separators.signature)
-        val albums = result.snapshot.tracks.map { it.album.id }.distinct().size
-        val artists = result.snapshot.tracks.flatMap { it.artists }.map { it.id }.distinct().size
-        LibraryScanUiState(
-            tracks = result.snapshot.tracks.size,
-            albums = albums,
-            artists = artists,
-            completed = true,
-        )
-    }.onFailure { Log.w("AirmedyScan", "Library scan failed", it) }.getOrNull()
-}
+internal fun readMediaPermission(): String = syncReadMediaPermission()
