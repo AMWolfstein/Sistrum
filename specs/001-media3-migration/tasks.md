@@ -360,7 +360,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     without modifying them; `GATE`.
   - Accept: whole `PlaybackCommandPathTest` green; characterization tests unmodified.
 
-- [ ] T028 [US2] In-process queue handoff (FR-083) in `A/player/PlaybackController.kt`, `A/player/QueueHandoff.kt`, `A/player/PlaybackService.kt` with `AT/player/QueueHandoffTest.kt` {hard} [HIGH-RISK]
+- [x] T028 [US2] In-process queue handoff (FR-083) in `A/player/PlaybackController.kt`, `A/player/QueueHandoff.kt`, `A/player/PlaybackService.kt` with `AT/player/QueueHandoffTest.kt` {hard} [HIGH-RISK]
   - Do: track ids no longer travel in `TrackIdsExtra`; the intent carries a handoff token; public `PlaybackController`
     API and flows unchanged (Principle 2).
   - Tests: `UT me.misa198.airmedy.player.QueueHandoffTest` (20 000 ids round-trip, token consumed once, stale token

@@ -27,7 +27,7 @@ internal class PlaybackController(
         Log.d(PlaybackLogTag, "Queue play requested size=${request.trackIds.size} startIndex=${request.startIndex} startId=${request.trackIds[request.startIndex]}")
         context.startForegroundService(
             PlaybackService.intent(context, PlaybackService.ActionPlay)
-            .putExtra(PlaybackService.TrackIdsExtra, request.trackIds.toTypedArray())
+            .putExtra(PlaybackService.QueueTokenExtra, QueueHandoff.shared.put(request.trackIds))
             .putExtra(PlaybackService.StartIndexExtra, request.startIndex),
         )
     }
@@ -40,7 +40,7 @@ internal class PlaybackController(
     fun previous() = command(PlaybackService.ActionPrevious)
     fun shuffle(request: PlaybackRequest) = context.startForegroundService(
         PlaybackService.intent(context, PlaybackService.ActionShuffle)
-            .putExtra(PlaybackService.TrackIdsExtra, request.trackIds.toTypedArray())
+            .putExtra(PlaybackService.QueueTokenExtra, QueueHandoff.shared.put(request.trackIds))
             .putExtra(PlaybackService.StartIndexExtra, request.startIndex),
     )
     fun setShuffle(enabled: Boolean) = context.startForegroundService(
@@ -88,6 +88,6 @@ internal class PlaybackController(
 
     private fun command(action: String) = context.startForegroundService(PlaybackService.intent(context, action))
     private fun tracksCommand(action: String, trackIds: List<String>) = context.startForegroundService(
-        PlaybackService.intent(context, action).putExtra(PlaybackService.TrackIdsExtra, trackIds.toTypedArray()),
+        PlaybackService.intent(context, action).putExtra(PlaybackService.QueueTokenExtra, QueueHandoff.shared.put(trackIds)),
     )
 }

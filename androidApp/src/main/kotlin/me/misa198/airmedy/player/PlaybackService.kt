@@ -220,7 +220,7 @@ class PlaybackService : Service() {
         when (intent?.action) {
             ActionPlay, ActionShuffle -> coordinator.dispatch(
                 action = intent.action!!,
-                trackIds = intent.getStringArrayExtra(TrackIdsExtra).orEmpty().toList(),
+                trackIds = takeQueueToken(intent),
                 startIndex = intent.getIntExtra(StartIndexExtra, 0),
             )
             ActionSeek -> coordinator.dispatch(ActionSeek, positionMs = intent.getLongExtra(PositionMsExtra, 0L))
@@ -236,7 +236,7 @@ class PlaybackService : Service() {
             }
             ActionPlayNext, ActionAppend, ActionReorder -> coordinator.dispatch(
                 action = intent.action!!,
-                trackIds = intent.getStringArrayExtra(TrackIdsExtra).orEmpty().toList(),
+                trackIds = takeQueueToken(intent),
             )
             ActionStartMoodRadio -> coordinator.dispatch(ActionStartMoodRadio, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
             ActionSelect -> coordinator.dispatch(ActionSelect, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
@@ -278,6 +278,14 @@ class PlaybackService : Service() {
             @Suppress("DEPRECATION")
             registerReceiver(noisyAudioReceiver, filter)
         }
+    }
+
+    private fun takeQueueToken(intent: Intent): List<String> {
+        val trackIds = QueueHandoff.shared.take(intent.getStringExtra(QueueTokenExtra))
+        if (trackIds == null) {
+            Log.w(PlaybackLogTag, "Queue handoff token missing, unknown or expired action=${intent.action}")
+        }
+        return trackIds.orEmpty()
     }
 
     private fun transportStateToAndroid(state: TransportState): Int = when (state) {
@@ -467,7 +475,7 @@ class PlaybackService : Service() {
         internal const val ActionRemove = "me.misa198.airmedy.player.REMOVE"
         internal const val ActionReorder = "me.misa198.airmedy.player.REORDER"
         internal const val ActionStartMoodRadio = "me.misa198.airmedy.player.START_MOOD_RADIO"
-        internal const val TrackIdsExtra = "track_ids"
+        internal const val QueueTokenExtra = "queue_token"
         internal const val TrackIdExtra = "track_id"
         internal const val StartIndexExtra = "start_index"
         internal const val PositionMsExtra = "position_ms"
