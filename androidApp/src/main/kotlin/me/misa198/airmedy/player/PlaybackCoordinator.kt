@@ -23,6 +23,9 @@ private const val PreviousRestartThresholdMs = 3_000L
 /** FR-064: hard cap on synchronous decode-failure skips so a failing queue cannot nest unbounded. */
 private const val MaxConsecutiveDecodeSkips = 20
 
+/** T035a: how often a light, position-only save is queued while playing. */
+internal const val PeriodicPositionSaveIntervalMs = 10_000L
+
 private val PreloadResyncActions = setOf(
     PlaybackService.ActionSetShuffle, PlaybackService.ActionSetRepeat, PlaybackService.ActionPlayNext,
     PlaybackService.ActionRemove, PlaybackService.ActionReorder, PlaybackService.ActionStartMoodRadio,
@@ -83,8 +86,13 @@ internal class PlaybackCoordinator(
     // FR-087: on-demand ordered session saver (no permanent coroutine).
     private val saveLock = Any()
     private var pendingSave: PlaybackSession? = null
+    private var pendingPosition: SavedPosition? = null
     private var saving = false
     private var drained: CompletableDeferred<Unit>? = null
+
+    // T035a: elapsed timestamp of the last queued full/position save, so the periodic
+    // position saver restarts its 10 s window after any full session save.
+    private var lastSessionSaveElapsedMs: Long = 0L
 
     private val commandLock = Any()
     private val commandQueue = ArrayDeque<Command>()
@@ -451,9 +459,12 @@ internal class PlaybackCoordinator(
         try {
             refreshPlaybackPosition()
             val playing = flows.state.value as? PlaybackState.Playing
-            if (playing != null) enqueueListening(listeningTracker.tick(
-                playing.positionMs, playing.durationMs, clock.nowMs(), clock.elapsedMs(),
-            ))
+            if (playing != null) {
+                savePeriodicPositionIfDue(playing)
+                enqueueListening(listeningTracker.tick(
+                    playing.positionMs, playing.durationMs, clock.nowMs(), clock.elapsedMs(),
+                ))
+            }
             pollEngineEvents()
             if (listeningFadeOutgoing != null && engine?.isCrossfading() != true) finishListeningCrossfade()
             if (engine?.isCrossfading() != true) clearArtworkCrossfade()
@@ -916,9 +927,19 @@ internal class PlaybackCoordinator(
         return entries
     }
 
+    /** T035a: while playing, queue a light position-only save every 10 s since the last save. */
+    private fun savePeriodicPositionIfDue(playing: PlaybackState.Playing) {
+        if (clock.elapsedMs() - lastSessionSaveElapsedMs < PeriodicPositionSaveIntervalMs) return
+        val positionMs = (engine?.positionMs() ?: playing.positionMs).coerceAtLeast(0L)
+        queuePositionSave(SavedPosition(playing.item.trackId, positionMs))
+    }
+
     private fun queueSessionSave(session: PlaybackSession) {
         synchronized(saveLock) {
             pendingSave = session
+            // A full save writes the position store itself and is newer than any queued position.
+            pendingPosition = null
+            lastSessionSaveElapsedMs = clock.elapsedMs()
             if (!saving) {
                 saving = true
                 scope.launch { saveDrain() }
@@ -926,23 +947,48 @@ internal class PlaybackCoordinator(
         }
     }
 
+    private fun queuePositionSave(position: SavedPosition) {
+        synchronized(saveLock) {
+            pendingPosition = position
+            lastSessionSaveElapsedMs = clock.elapsedMs()
+            if (!saving) {
+                saving = true
+                scope.launch { saveDrain() }
+            }
+        }
+    }
+
+    private sealed interface SaveWork {
+        data class Session(val session: PlaybackSession) : SaveWork
+        data class Position(val position: SavedPosition) : SaveWork
+    }
+
     private suspend fun saveDrain() {
         try {
             while (true) {
-                val session = synchronized(saveLock) {
-                    val pending = pendingSave
-                    if (pending == null) {
-                        saving = false
-                        drained?.complete(Unit)
-                        drained = null
-                        null
-                    } else {
+                val work = synchronized(saveLock) {
+                    val session = pendingSave
+                    if (session != null) {
                         pendingSave = null
-                        pending
+                        SaveWork.Session(session)
+                    } else {
+                        val position = pendingPosition
+                        if (position != null) {
+                            pendingPosition = null
+                            SaveWork.Position(position)
+                        } else {
+                            saving = false
+                            drained?.complete(Unit)
+                            drained = null
+                            null
+                        }
                     }
                 } ?: return
                 try {
-                    sessionStore.save(session)
+                    when (work) {
+                        is SaveWork.Session -> sessionStore.save(work.session)
+                        is SaveWork.Position -> sessionStore.savePosition(work.position)
+                    }
                 } catch (cancellation: CancellationException) {
                     throw cancellation
                 } catch (error: Throwable) {
@@ -969,6 +1015,8 @@ internal class PlaybackCoordinator(
         val waiter = CompletableDeferred<Unit>()
         synchronized(saveLock) {
             pendingSave = session
+            pendingPosition = null
+            lastSessionSaveElapsedMs = clock.elapsedMs()
             drained?.complete(Unit)
             drained = waiter
             if (!saving) {

@@ -423,7 +423,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.player.engine.EngineFactoryTest`; `GATE`.
   - Accept: default still Native.
 
-- [ ] T035 [US2] [US3] [US4] [MANUAL] {orchestrator} Media3 pass on `.qa`: US2 scenarios 1–8 (incl. 20 000-track request), US3 1–4 (switch mid-track, rescan), US4 1–6 (lock screen, notification, Bluetooth/headset, focus, unplug, route change, output switcher on Android 14+ —
+- [x] T035 [US2] [US3] [US4] [MANUAL] {orchestrator} Media3 pass on `.qa`: US2 scenarios 1–8 (incl. 20 000-track request), US3 1–4 (switch mid-track, rescan), US4 1–6 (lock screen, notification, Bluetooth/headset, focus, unplug, route change, output switcher on Android 14+ —
   FR-023) over the corpus; SC-005 (0 "Unknown artist" on corpus tracks with a known artist)
   - Accept: device parts run via adb and recorded; owner checklist for listening/hardware; failures become tasks.
 
@@ -435,6 +435,19 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 **Goal**: on Media3, formats go through the registry; unsupported files are skipped with a summary.
 **Independent test**: Media3 selected, scan the corpus: admitted files play, skipped summary matches `corpus.tsv`.
+
+- [x] T035a [US2] Periodic position save while playing in `A/player/PlaybackCoordinator.kt`, `A/player/PlaybackPorts.kt`,
+  `A/player/PlaybackSessionStore.kt`, `A/player/PlaybackService.kt` (adapter only) with `AT/player/PeriodicSessionSaveTest.kt`,
+  `AT/player/PlaybackSessionStoreTest.kt` {default}
+  - Do (owner decision 2026-10-06, from T035): every ~10 s while Playing, save the position in the shared coordinator
+    (both engines), on top of today's saves on pause and track change. The write must be cheap: the full session
+    (queue ids) lives in one Preferences DataStore that is rewritten whole on every edit (~0.5 MB for 20 000 tracks).
+    So the periodic save writes only `(trackId, positionMs)` to a separate small DataStore (`playback_position`).
+    Full saves also update it. On load, its position wins when its track id equals the session's current track.
+    Both kinds of write go through the existing ordered, latest-wins saver (coalesced).
+  - Tests: `UT me.misa198.airmedy.player.PeriodicSessionSaveTest` (fake clock: 10 s cadence, none while paused,
+    window restarts after a full save, coalescing); `UT me.misa198.airmedy.player.PlaybackSessionStoreTest` (pure merge); `GATE`.
+  - Accept: a process kill while playing restores within ~10 s of the real position; no full-session write from the periodic path.
 
 - [ ] T036 [US8] Registry in `A/player/decoders/DecoderRegistry.kt`, `A/player/decoders/DecoderProvider.kt`, `A/player/decoders/PlatformProvider.kt`, `A/player/decoders/CodecProbe.kt` with `AT/player/decoders/DecoderRegistryTest.kt` {default}
   - Do: per `contracts/decoder-registry.md`; the full table from the scanner's labels (`audioFormatOf`,

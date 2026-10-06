@@ -26,9 +26,12 @@ internal interface ScrobbleSink {
     fun reportPlayback(item: PlaybackItem, positionMs: Long, durationMs: Long)
 }
 
+internal data class SavedPosition(val trackId: String, val positionMs: Long)
+
 internal interface SessionStorePort {
     suspend fun load(): PlaybackSession?
     suspend fun save(session: PlaybackSession)
+    suspend fun savePosition(position: SavedPosition)
     suspend fun clear()
 }
 

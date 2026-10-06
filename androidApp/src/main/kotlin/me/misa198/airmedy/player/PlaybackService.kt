@@ -482,6 +482,7 @@ class PlaybackService : Service() {
     private inner class SessionStoreAdapter : SessionStorePort {
         override suspend fun load(): PlaybackSession? = sessionStore.load()
         override suspend fun save(session: PlaybackSession) = sessionStore.save(session)
+        override suspend fun savePosition(position: SavedPosition) = sessionStore.savePosition(position)
         override suspend fun clear() = sessionStore.clear()
     }
 

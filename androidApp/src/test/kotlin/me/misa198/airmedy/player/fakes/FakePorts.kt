@@ -2,6 +2,7 @@ package me.misa198.airmedy.player.fakes
 
 import kotlin.random.Random
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
@@ -27,6 +28,7 @@ import me.misa198.airmedy.player.PlaybackSession
 import me.misa198.airmedy.player.PlaybackState
 import me.misa198.airmedy.player.QueueWindowEntry
 import me.misa198.airmedy.player.RepeatMode
+import me.misa198.airmedy.player.SavedPosition
 import me.misa198.airmedy.player.ScrobbleSink
 import me.misa198.airmedy.player.SessionStorePort
 import me.misa198.airmedy.player.TrackAnalysis
@@ -131,14 +133,24 @@ internal class FakeScrobble : ScrobbleSink {
 
 internal class FakeSessionStore : SessionStorePort {
     val saved = mutableListOf<PlaybackSession>()
+    val positionSaves = mutableListOf<SavedPosition>()
     var stored: PlaybackSession? = null
     var cleared = 0
+
+    /** When set, [save] and [savePosition] suspend here until it completes (drainer coalescing tests). */
+    var saveGate: CompletableDeferred<Unit>? = null
 
     override suspend fun load(): PlaybackSession? = stored
 
     override suspend fun save(session: PlaybackSession) {
+        saveGate?.await()
         stored = session
         saved += session
+    }
+
+    override suspend fun savePosition(position: SavedPosition) {
+        saveGate?.await()
+        positionSaves += position
     }
 
     override suspend fun clear() {
