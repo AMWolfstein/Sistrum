@@ -14,6 +14,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
 import java.io.File
+import java.io.RandomAccessFile
 import java.security.MessageDigest
 import java.text.Normalizer
 import java.time.Instant
@@ -61,6 +62,7 @@ internal data class LocalLibraryScanResult(
     val snapshot: LocalLibrarySnapshot,
     val audio: Map<String, LocalScanAudio>,
     val artwork: List<LocalScanArtwork>,
+    val skipped: SkippedFilesSummary = SkippedFilesSummary(0L, emptyList()),
 )
 
 /** A previously scanned track's identity/metadata, read back before a rescan so
@@ -166,11 +168,13 @@ internal class MediaStoreLibraryScanner(
     fun scan(
         prior: PriorLibraryScanState = PriorLibraryScanState(),
         filter: MediaScanFilter = MediaScanFilter(),
+        gate: ScanGate = AdmitAllGate,
     ): LocalLibraryScanResult {
         val genresByTrack = genresByTrackId()
         val audio = linkedMapOf<String, LocalScanAudio>()
         val tracks = mutableListOf<LocalTrack>()
         val albumRepresentatives = linkedMapOf<String, AlbumArtworkCandidate>()
+        val skipped = SkippedFilesCounter()
 
         queryWithAudioFormatFallback(deviceHasAudioFormatColumns()) { projection ->
             contentResolver.query(
@@ -202,6 +206,16 @@ internal class MediaStoreLibraryScanner(
 
                 val newIdentityHash = identityHash("$data|$size|$dateModified")
                 val priorTrack = prior.tracksByTrackId[trackId]
+                val format = audioFormatOf(mime, data)
+                val codec = reusableCodec(priorTrack, newIdentityHash) ?: realCodec(format, mime, data)
+                // FR-065: with the Media3 engine a file is admitted only when the
+                // decoder registry has a provider for its format/codec; a skipped
+                // file's tags are never read and it joins nothing in the library.
+                val admission = gate.admit(format, codec) { count -> readHeaderBytes(data, count) }
+                if (admission is Admission.Skipped) {
+                    skipped.add(admission)
+                    continue
+                }
                 // Skip re-parsing embedded tags (the expensive file-read work) when the
                 // file itself hasn't changed and it was already parsed at the current
                 // schema version; otherwise a bumped schema forces one full re-parse so
@@ -246,7 +260,6 @@ internal class MediaStoreLibraryScanner(
                 // single-disc, 12-track album).
                 val rawTrack = number(ColumnTrackNumber) ?: 0L
                 val trackNumber = if (rawTrack > 1000) (rawTrack % 1000).toInt() else rawTrack.toInt()
-                val format = audioFormatOf(mime, data)
                 if (size > 0L) {
                     audio[trackId] = LocalScanAudio(
                         trackId = trackId,
@@ -293,7 +306,7 @@ internal class MediaStoreLibraryScanner(
                     bitDepth = number(ColumnBitsPerSample)?.toInt() ?: 0,
                     // Sniffing an M4A's codec opens the file with MediaExtractor; an
                     // unchanged file keeps the codec found last time.
-                    codec = reusableCodec(priorTrack, newIdentityHash) ?: realCodec(format, mime, data),
+                    codec = codec,
                     fileSize = size,
                     releaseDate = releaseDate,
                     bpm = bpm,
@@ -334,8 +347,18 @@ internal class MediaStoreLibraryScanner(
             snapshot = LocalLibrarySnapshot(scannedAtMillis = System.currentTimeMillis(), tracks = sorted),
             audio = audio,
             artwork = artwork,
+            skipped = skipped.summary(System.currentTimeMillis()),
         )
     }
+
+    /** Up to the first [count] bytes of [path] (fewer for a shorter file), or null when it can't be read. */
+    private fun readHeaderBytes(path: String, count: Int): ByteArray? = runCatching {
+        RandomAccessFile(path, "r").use { file ->
+            val bytes = ByteArray(minOf(count.toLong(), file.length()).toInt())
+            file.readFully(bytes)
+            bytes
+        }
+    }.getOrNull()
 
     /** Some .opus encoders never finalize the Ogg granule/seek position, so MediaStore
      *  reports 0 (or an implausible sub-1s value) for DURATION; fall back to decoding

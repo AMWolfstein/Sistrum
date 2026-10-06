@@ -26,5 +26,11 @@ interface DecoderProvider {
 
     fun audioRenderers(context: Context): List<Renderer> = emptyList()
 
+    /**
+     * How many leading file bytes [refusal] needs to decide; 0 means the provider
+     * never refuses by header, so a scan never opens the file for it.
+     */
+    val refusalHeaderBytes: Int get() = 0
+
     fun refusal(header: ByteArray): String? = null
 }

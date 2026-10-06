@@ -468,7 +468,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3RegistryTest` (AIFF fixture plays through `kotlin-aiff`;
     decode error carries the provider id); `GATE`.
 
-- [ ] T039 [US8] Scan gate and skipped-files summary in `A/sync/MediaStoreLibraryScanner.kt`, `A/sync/ScanGate.kt`, `A/sync/SkippedFilesSummaryStore.kt`, `A/sync/LibraryScanRunner.kt`, `A/player/decoders/DecoderProvider.kt` + `aiff/KotlinAiffProvider.kt` (`refusalHeaderBytes`, so only providers that refuse by header cost a header read) with `AT/sync/ScanGateTest.kt` {default}
+- [x] T039 [US8] Scan gate and skipped-files summary in `A/sync/MediaStoreLibraryScanner.kt`, `A/sync/ScanGate.kt`, `A/sync/SkippedFilesSummaryStore.kt`, `A/sync/LibraryScanRunner.kt`, `A/player/decoders/DecoderProvider.kt` + `aiff/KotlinAiffProvider.kt` (`refusalHeaderBytes`, so only providers that refuse by header cost a header read) with `AT/sync/ScanGateTest.kt` {default}
   - Do: with Media3 selected, after the codec sniff and before any tag read, `registry.resolve(FormatKey(format,
     codec))`; null → skip and count by (format, codec, reason); store `SkippedFilesSummary(scanAt, entries)` in DataStore
     ("Written at the end of each Media3-engine scan; empty with the native engine"). Native: unchanged path. Room

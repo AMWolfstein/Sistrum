@@ -20,5 +20,7 @@ internal class KotlinAiffProvider : DecoderProvider {
 
     override fun extractors(): List<() -> Extractor> = listOf({ AiffExtractor() })
 
+    override val refusalHeaderBytes: Int get() = 4096
+
     override fun refusal(header: ByteArray): String? = aiffRefusal(header)
 }

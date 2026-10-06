@@ -12,11 +12,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.misa198.airmedy.R
+import me.misa198.airmedy.player.decoders.ProcessCodecProbe
+import me.misa198.airmedy.player.decoders.defaultDecoderRegistry
+import me.misa198.airmedy.player.engine.EngineKind
+import me.misa198.airmedy.player.engine.EngineSelectionPreferences
 
 internal sealed interface LibraryScanOutcome {
     data class Completed(val tracks: Int, val albums: Int, val artists: Int) : LibraryScanOutcome
@@ -44,7 +49,18 @@ internal object LibraryScanRunner {
                 )
                 val syncStore = AndroidSyncRuntime.syncStore()
                 val filter = ScanFilterPreferences(context).currentFilter()
-                val result: LocalLibraryScanResult = scanner.scan(prior = syncStore.priorScanState(), filter = filter)
+                // FR-065: the Media3 engine only admits files the decoder registry can play.
+                val engine = EngineSelectionPreferences(context).engine.first()
+                val gate = if (engine == EngineKind.Media3) {
+                    RegistryScanGate(defaultDecoderRegistry(ProcessCodecProbe))
+                } else {
+                    AdmitAllGate
+                }
+                val result: LocalLibraryScanResult = scanner.scan(
+                    prior = syncStore.priorScanState(),
+                    filter = filter,
+                    gate = gate,
+                )
                 val written = syncStore.writeLocalLibrary(
                     snapshot = result.snapshot,
                     audioRows = result.audio,
@@ -59,6 +75,21 @@ internal object LibraryScanRunner {
                     }
                     LibraryScanOutcome.NothingFound
                 } else {
+                    // FR-066: each completed scan stores its skipped-file summary; the
+                    // native engine stores an empty one (its scan admits everything).
+                    val summary = if (engine == EngineKind.Media3) {
+                        result.skipped
+                    } else {
+                        SkippedFilesSummary(scanAtMillis = System.currentTimeMillis(), entries = emptyList())
+                    }
+                    SkippedFilesSummaryStore(context).save(summary)
+                    if (engine == EngineKind.Media3) {
+                        val total = result.skipped.entries.sumOf { it.count }
+                        val byReason = result.skipped.entries
+                            .groupBy { it.reason }
+                            .mapValues { (_, entries) -> entries.sumOf { it.count } }
+                        Log.i("AirmedyScan", "Skipped $total file(s) by reason: $byReason")
+                    }
                     separatorPreferences.setAppliedSignature(separators.signature)
                     val albums = result.snapshot.tracks.map { it.album.id }.distinct().size
                     val artists = result.snapshot.tracks.flatMap { it.artists }.map { it.id }.distinct().size

@@ -376,6 +376,7 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 | T036 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T036/brief-1.md`, `brief-2.md` (session `ses_eedf6244bffeOAxuyVugvYglx3`) | `player/decoders/`: `FormatKey`, `DecoderProvider`, `DecoderTable`/`TableDecoderRegistry` (first available in table order; skip reasons "unsupported format (X)" / "no decoder on this device (X)"), `DefaultDecoderTable` = the only place format names and MIME types live, keyed by the scanner's labels (codec only sniffed for m4a/mp4); `PlatformProvider` (table + `CodecProbe`, raw PCM needs no codec); `MediaCodecProbe`/`ProcessCodecProbe` (MediaCodecList once per process). `DecoderRegistryTest` (15). Round 1 (guard notes, FR-060 / Principle 10): rows added for m4a/mp4 `*` (sniff fallback), WebM/WEBA, AMR, 3GP/3GA, AC-3, E-AC-3, MP2, E-AC-3 JOC; blank format → "unsupported format (unknown)". Contract's sample table note updated. migration-guard PASS; gate PASS. **Review rounds: 1** | DONE |
 | T037 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T037/brief-1.md`, `brief-2.md` (session `ses_eedec1164ffeizWr8X998uRYVs`; upstream copy in `T037/upstream/`) | Port of Choir `AiffExtractor` (f2e96fd, GPL-3.0-or-later; SPDX + attribution kept) to `player/decoders/aiff/`. Changes from upstream: the 8-bit signed→unsigned bias in both byte orders (upstream skipped it for `sowt`); named refusals via the pure `aiffRefusal(header)` and `ParserException.createForUnsupportedContainerFeature` ("float AIFF-C (fl32)", "compressed AIFF-C (ima4)", "unsupported AIFF sample size (n)"); Log swap. `KotlinAiffProvider` ("kotlin-aiff") is in `defaultDecoderRegistry`; THIRD-PARTY-NOTICES entry. `AiffExtractorTest` (17). Deviation: the coder edited the existing T036 test `aiff resolves only when the bundled provider is registered`, which asserted the old default (no AIFF); spec reason (T037 adds it), and coverage is equal (migration-guard confirmed). Round 1 (guard): the chunk walk overflowed on size 0x7FFFFFFF → Long compare; a partly present COMM gave a false refusal → null; the extractor now checks compression before sample size (same reason as `aiffRefusal`); fuzz + stereo-24 seek tests. Gate PASS. **Review rounds: 1** | DONE |
 | T038 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T038/brief-1.md`, `brief-2.md` (session `ses_eedd4205cffeaVPY7cAVmRqM4L`) | `defaultDecoderProviders(probe)` shared by the registry and `Media3PlayerFactory` (new `providers` param; `DefaultMediaSourceFactory(ProviderExtractorsFactory)`: Media3's defaults first, then provider extractors; each tagged so `ProviderRecorder` maps URI → provider id on sniff success; provider audio renderers appended in one merged renderers factory, today's path when there are none). `Media3Engine` errors carry the recorded provider id (fallback "platform"). Orchestrator fix: `tagSniff` forwards `getSniffFailureDetails`. Unit `ProviderExtractorsFactoryTest` (4); instrumented `Media3RegistryTest` on `.qa.test`: **OK (3)**: AIFF via kotlin-aiff, ima4 refused by name (path: prepare threw, FR-086), PCM WAV via platform. Round 1 (guard + device run): the WAV fixture wrote big-endian RIFF fields ("Top bit not zero") → little-endian; an unverified "observed" comment replaced by a logged path. migration-guard NEEDS CHANGES → fixed; gate PASS incl. device. **Review rounds: 1** | DONE |
+| T039 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T039/brief-1.md` (session `ses_eedc38a9cffehovAMG9tvzlXWA`) | `sync/ScanGate.kt`: `AdmitAllGate` (Native) / `RegistryScanGate` (Media3: registry resolve, then a header refusal only for providers with `refusalHeaderBytes > 0`; never throws, fails open), `SkippedFilesCounter`; `SkippedFilesSummaryStore` (DataStore `skipped_files`). Scanner: format/codec moved before the gate and the tag read; a skipped file is never tag-read or added. Runner: the gate follows the engine selection; the summary is saved on each written scan (empty with Native). No Room change; schema version not bumped (parsing unchanged, guard agreed). `ScanGateTest` (8). Orchestrator fix: `readHeaderBytes` reads min(n, length), so a short AIFF-C is still refused. migration-guard PASS; gate PASS. **Review rounds: 0** | DONE |
 
 ### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
 
@@ -414,7 +415,7 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 amendment (2026-10-06). M3 DONE: T035 owner checklist ok; **Checkpoint M3 approved (owner, 2026-10-06)**.
 
-M4 started (owner: run to the end per the stop rules). T035a, T036, T037, T038 done. Next → T039 (brief `~/.local/state/sistrum-delegate/T039/brief-1.md`), T040, T041 [MANUAL].
+M4 started (owner: run to the end per the stop rules). T035a, T036–T039 done. Next → T040 (brief `~/.local/state/sistrum-delegate/T040/brief-1.md`), T041 [MANUAL].
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
@@ -485,3 +486,14 @@ existing ordered saver), so a process kill keeps recent progress. Parity issue, 
 6. Focus: start a video in another app (pauses); a call or alarm (pauses, then resumes); a navigation prompt (ducks
    smoothly, then restores).
 7. Unplug headphones → pauses. Switch output in the output switcher (Android 14+) → continues at the same position.
+
+
+### Note for the default-engine flip (from the T039 review, 2026-10-06)
+
+With Media3 selected, a scan deletes the library rows of files the registry skips. Their `sync_tracks.playCount`
+(and anything else keyed to the row, e.g. playlist entries if reaped) is lost, and a later Native rescan re-adds them
+from zero. This is the same as today for files that drop out of the library (e.g. the folder filter). Insight
+statistics live in `daily_track_listening_stats` and survive. It matters only while some format still has no
+provider: Media3 is behind the hidden developer switch, and 001 cannot merge without 002 (FR-003). Before the
+default flips (003), either every format the app plays today has a provider, or skipped rows' play counts must be
+kept.
