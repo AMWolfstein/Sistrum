@@ -16,6 +16,7 @@ internal fun SettingsContent(
     onScanSelected: () -> Unit,
     onIntegrationSelected: () -> Unit,
     onAboutSelected: () -> Unit,
+    onDecodeFailuresSelected: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -45,6 +46,11 @@ internal fun SettingsContent(
                     R.string.settings_about,
                     leadingSymbol = MaterialSymbols.Info,
                     onClick = onAboutSelected,
+                ),
+                ActionListItem(
+                    R.string.decode_log_title,
+                    leadingSymbol = MaterialSymbols.Folder,
+                    onClick = onDecodeFailuresSelected,
                 ),
             ),
             containerStyle = ActionListContainerStyle.Card,

@@ -9,6 +9,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 import me.misa198.airmedy.mood.MoodRadioBatchSize
 import me.misa198.airmedy.mood.MoodRadioRefillThreshold
 import me.misa198.airmedy.mood.selectMoodRadio
@@ -48,6 +49,7 @@ internal class PlaybackCoordinator(
     private val log: PlaybackLog,
     val listeningTracker: ListeningTracker,
     private val nextArtworkCrossfadeId: () -> Long,
+    private val decodeFailures: DecodeFailureSink = DecodeFailureSink { },
 ) {
     private val restored = CompletableDeferred<Unit>()
     private var moodRadioSeedId: String? = null
@@ -1047,15 +1049,16 @@ internal class PlaybackCoordinator(
      * in the current batch must be dropped.
      */
     private suspend fun handleEngineError(event: EngineEvent.Error): Boolean {
-        val failingId = pendingStart?.item?.trackId
-            ?: (flows.state.value as? PlaybackState.Playing)?.item?.trackId
-            ?: (flows.state.value as? PlaybackState.Preparing)?.item?.trackId
-            ?: (flows.state.value as? PlaybackState.Paused)?.item?.trackId
-            ?: queue.snapshot().currentTrackId
+        val failingItem = pendingStart?.item
+            ?: (flows.state.value as? PlaybackState.Playing)?.item
+            ?: (flows.state.value as? PlaybackState.Preparing)?.item
+            ?: (flows.state.value as? PlaybackState.Paused)?.item
+        val failingId = failingItem?.trackId ?: queue.snapshot().currentTrackId
         log.e(
             "Decode failure provider=${event.provider} format=${event.format} id=$failingId " +
                 "error=${event.cause.javaClass.simpleName}: ${event.cause.message}",
         )
+        recordDecodeFailure(failingItem ?: failingId?.let { resolveForLog(it) }, event)
         val nextId = queue.peekNext()
         val canSkip = failingId != null && nextId != null && nextId != failingId &&
             consecutiveDecodeFailures < minOf(queue.snapshot().activeTrackIds.size, MaxConsecutiveDecodeSkips)
@@ -1075,6 +1078,32 @@ internal class PlaybackCoordinator(
         handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = pausedWithoutPendingResume)
         publishQueue()
         return true
+    }
+
+    private suspend fun resolveForLog(trackId: String): PlaybackItem? = try {
+        resolver.resolve(trackId)
+    } catch (cancellation: CancellationException) {
+        throw cancellation
+    } catch (_: Exception) {
+        null
+    }
+
+    /** FR-064a: append to the bounded on-device log; a failing write must never break playback. */
+    private fun recordDecodeFailure(item: PlaybackItem?, event: EngineEvent.Error) {
+        if (item == null) return
+        val audioFile = File(item.audioPath)
+        runCatching {
+            decodeFailures.record(
+                DecodeFailureEntry(
+                    timeMs = clock.nowMs(),
+                    fileName = audioFile.name,
+                    format = audioFile.extension.lowercase().ifEmpty { "unknown" },
+                    codec = event.format,
+                    provider = event.provider,
+                    error = "${event.cause.javaClass.simpleName}: ${event.cause.message}",
+                ),
+            )
+        }
     }
 
     private suspend fun consumeEngineTransition(event: EngineEvent) {

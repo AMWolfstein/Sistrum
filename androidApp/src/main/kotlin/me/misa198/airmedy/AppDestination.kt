@@ -35,6 +35,7 @@ enum class AppStackPage {
     SettingsLyrics,
     SettingsAbout,
     SettingsDeveloper,
+    SettingsDecodeFailures,
 }
 
 /** Identifies the visible page and its actual position in a destination stack. */
@@ -73,6 +74,7 @@ val AppStackPage.destination: AppDestination
         AppStackPage.SettingsLyrics,
         AppStackPage.SettingsAbout,
         AppStackPage.SettingsDeveloper,
+        AppStackPage.SettingsDecodeFailures,
         -> AppDestination.Settings
     }
 

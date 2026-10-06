@@ -54,6 +54,7 @@ import me.misa198.airmedy.ui.components.HomeContent
 import me.misa198.airmedy.ui.components.StackPageLayout
 import me.misa198.airmedy.ui.screens.AboutContent
 import me.misa198.airmedy.ui.screens.AppearanceContent
+import me.misa198.airmedy.ui.screens.DecodeFailureLogContent
 import me.misa198.airmedy.ui.screens.DeveloperContent
 import me.misa198.airmedy.ui.screens.DeveloperUnlockCounter
 import me.misa198.airmedy.ui.screens.LibraryContent
@@ -517,6 +518,9 @@ internal fun AppDestinationContent(
                                     modifier = settingsPageModifier,
                                 )
                             }
+                            AppStackPage.SettingsDecodeFailures -> DecodeFailureLogContent(
+                                modifier = settingsPageModifier,
+                            )
                             else -> SettingsContent(
                                 modifier = settingsPageModifier,
                                 onAppearanceSelected = {
@@ -533,6 +537,9 @@ internal fun AppDestinationContent(
                                 },
                                 onAboutSelected = {
                                     onIntent(AppIntent.OpenPage(AppStackPage.SettingsAbout))
+                                },
+                                onDecodeFailuresSelected = {
+                                    onIntent(AppIntent.OpenPage(AppStackPage.SettingsDecodeFailures))
                                 },
                             )
                             }

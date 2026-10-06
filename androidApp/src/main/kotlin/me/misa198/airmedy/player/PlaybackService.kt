@@ -172,6 +172,7 @@ class PlaybackService : Service() {
             log = PlaybackLogAdapter(),
             listeningTracker = listeningTracker,
             nextArtworkCrossfadeId = { ++nextArtworkCrossfadeId },
+            decodeFailures = DecodeFailureLog.forContext(applicationContext),
         )
         coordinator.onIdle = { if (serviceShouldStopWhenSettled(state.value)) mainHandler.post { settle() } }
 

@@ -390,7 +390,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Do: `EngineEvent.Error` → normal error state, log line with provider id and format, skip to next; no engine retry.
   - Tests: `UT me.misa198.airmedy.player.EngineErrorPathTest`; `GATE`.
 
-- [ ] T032b [US2] Exportable decode-failure log (FR-064a, SC-014) in `A/player/DecodeFailureLog.kt`, `A/player/PlaybackCoordinator.kt`, `A/ui/screens/SettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` with `AT/player/DecodeFailureLogTest.kt` {default}
+- [x] T032b [US2] Exportable decode-failure log (FR-064a, SC-014) in `A/player/DecodeFailureLog.kt`, `A/player/PlaybackCoordinator.kt`, `A/ui/screens/SettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` with `AT/player/DecodeFailureLogTest.kt` {default}
   - Do: bounded log (last 200 entries; JSON lines in `filesDir`, not Room) of time, file name, format, codec, provider,
     error; T032's error path appends to it; settings entry "Decode-failure log": export as text via the share sheet
     (`ACTION_SEND`, `EXTRA_TEXT`) or save via `ACTION_CREATE_DOCUMENT` (no FileProvider, no manifest change), clear.

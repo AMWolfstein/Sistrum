@@ -328,6 +328,20 @@
     <string name="developer_engine_native">الأصلي (FFmpeg)</string>
     <string name="developer_engine_media3">Media3</string>
     <string name="developer_engine_note">يُطبَّق عند بدء التشغيل التالي.</string>
+    <string name="decode_log_title">سجل فشل فك الترميز</string>
+    <string name="decode_log_description">ملفات تعذّر على المشغّل فك ترميزها. شارك هذا السجل أو احفظه وأرسله مع الملف الذي فشل للإبلاغ عن مشكلة.</string>
+    <plurals name="decode_log_count">
+        <item quantity="zero">لا توجد مدخلات</item>
+        <item quantity="one">مدخل واحد</item>
+        <item quantity="two">مدخلان</item>
+        <item quantity="few">%d مدخلات</item>
+        <item quantity="many">%d مدخلاً</item>
+        <item quantity="other">%d مدخل</item>
+    </plurals>
+    <string name="decode_log_empty">لم يُسجَّل أي فشل في فك الترميز.</string>
+    <string name="decode_log_share">مشاركة</string>
+    <string name="decode_log_save">حفظ كملف</string>
+    <string name="decode_log_clear">مسح</string>
     <string name="theme_system">النظام</string>
     <string name="theme_light">فاتح</string>
     <string name="theme_dark">داكن</string>
