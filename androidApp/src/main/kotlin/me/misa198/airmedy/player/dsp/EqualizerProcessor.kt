@@ -7,41 +7,26 @@ import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.util.UnstableApi
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.math.pow
-import kotlin.math.roundToInt
-
-internal object Preamp {
-    /** Linear gain for a decibel value: `10^(db/20)`, with `0 dB` returning exactly `1f`. */
-    fun linearGain(db: Float): Float {
-        if (db == 0f) return 1f
-        return 10f.pow(db / 20f)
-    }
-}
 
 /**
- * A [BaseAudioProcessor] applying a linear gain to every channel. Gain changes ramp linearly from
- * the current gain to the target gain over `RAMP_FRAMES` frames; a flush jumps straight to the
- * target. Always active for supported formats; a neutral gain (0 dB -> 0 dB) takes a fast path with
- * no gain math.
+ * A [BaseAudioProcessor] wrapping a [BiquadEqualizer]. Always active for supported formats so a
+ * later gain change never needs a reconfigure/flush (and the accompanying gap). When the equalizer
+ * is neutral the wrapped core skips its DSP math and the samples pass through untouched (16-bit
+ * input is still scaled to float).
  */
 @OptIn(UnstableApi::class)
-internal class PreampProcessor : BaseAudioProcessor() {
+internal class EqualizerProcessor : BaseAudioProcessor() {
 
     @Volatile
-    private var targetDb: Float = 0f
+    private var gainsTarget: FloatArray = FloatArray(BiquadDesign.FrequenciesHz.size)
 
-    private var currentGain: Float = 1f
-    private var rampStartGain: Float = 1f
-    private var rampTarget: Float = 1f
-    private var rampRemaining: Int = 0
-    private var rampTotal: Int = 0
-    private var rampFrames: Int = 0
-
+    private var equalizer: BiquadEqualizer? = null
     private var work = FloatArray(0)
     private var workShorts = ShortArray(0)
 
-    fun setPreampDb(db: Float) {
-        targetDb = db
+    fun setGains(gainsDb: FloatArray) {
+        require(gainsDb.size == BiquadDesign.FrequenciesHz.size)
+        gainsTarget = gainsDb.copyOf()
     }
 
     override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
@@ -61,6 +46,7 @@ internal class PreampProcessor : BaseAudioProcessor() {
     }
 
     override fun queueInput(inputBuffer: ByteBuffer) {
+        val eq = equalizer ?: return
         val format = inputAudioFormat
         val frames = inputBuffer.remaining() / format.bytesPerFrame
         if (frames == 0) return
@@ -70,53 +56,27 @@ internal class PreampProcessor : BaseAudioProcessor() {
         readToWork(inputBuffer, format.encoding, sampleCount)
         inputBuffer.position(inputBuffer.limit())
 
-        val targetGain = Preamp.linearGain(targetDb)
-        if (targetGain != rampTarget) {
-            rampStartGain = currentGain
-            rampTarget = targetGain
-            rampTotal = rampFrames
-            rampRemaining = rampTotal
-        }
-        if (currentGain != 1f || targetGain != 1f || rampRemaining > 0) {
-            for (f in 0 until frames) {
-                val gain = advanceGain()
-                val base = f * channels
-                for (c in 0 until channels) {
-                    work[base + c] *= gain
-                }
-            }
-        }
+        eq.setGains(gainsTarget)
+        eq.process(work, 0, frames)
 
         writeWork(sampleCount)
     }
 
     override fun onFlush(streamMetadata: AudioProcessor.StreamMetadata) {
-        rampFrames = maxOf(1, (0.02f * inputAudioFormat.sampleRate).roundToInt())
-        currentGain = Preamp.linearGain(targetDb)
-        rampTarget = currentGain
-        rampRemaining = 0
+        val current = equalizer
+        if (current == null ||
+            current.channelCount != inputAudioFormat.channelCount ||
+            current.sampleRate != inputAudioFormat.sampleRate
+        ) {
+            equalizer = BiquadEqualizer(inputAudioFormat.channelCount, inputAudioFormat.sampleRate)
+        } else {
+            current.reset()
+        }
+        equalizer!!.setGains(gainsTarget)
     }
 
     override fun onReset() {
-        rampFrames = 0
-        currentGain = 1f
-        rampStartGain = 1f
-        rampTarget = 1f
-        rampRemaining = 0
-        rampTotal = 0
-    }
-
-    private fun advanceGain(): Float {
-        if (rampRemaining > 0) {
-            rampRemaining--
-            if (rampRemaining == 0) {
-                currentGain = rampTarget
-            } else {
-                val progress = 1f - rampRemaining.toFloat() / rampTotal.toFloat()
-                currentGain = rampStartGain + (rampTarget - rampStartGain) * progress
-            }
-        }
-        return currentGain
+        equalizer = null
     }
 
     private fun ensureWork(sampleCount: Int) {

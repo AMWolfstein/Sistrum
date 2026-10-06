@@ -16,7 +16,7 @@ Per player (Media3 `AudioProcessor` chain, built by a `DefaultRenderersFactory.b
 2. `StereoWidthProcessor` — our own float `AudioProcessor` (not Media3's `ChannelMixingAudioProcessor`, see
    "Width stage amendment") applying the native mid/side width
    `L' = ((1+w)/2)L + ((1−w)/2)R`, `R' = ((1−w)/2)L + ((1+w)/2)R`; a width change ramps to the new value over a
-   short ramp without reconfiguring; inactive when w = 1 and no ramp is running.
+   short ramp without reconfiguring; DSP math bypassed when w = 1 and no ramp is running.
 3. `EqualizerProcessor` — 10 RBJ peaking biquads, Q = 1, at 32, 64, 125, 250, 500, 1k, 2k, 4k, 8k, 16 kHz, the
    native coefficient formula (`ffmpeg_player.cpp:321-339`), float state per channel; coefficient changes
    crossfaded over a short block, filter state never reset (FR-056).
@@ -121,7 +121,9 @@ PSS from `Debug.getMemoryInfo` (batterystats unusable while on USB power; SC-013
 - **Decision: process at the track's own rate** (no fixed-output-rate resampling): +4 CPU points for 44.1 kHz content,
   no benefit to band-centre exactness; shapes match the native engine at 48 kHz content (research D5).
 - **Risk → requirement:** the spike's naive per-sample processors cost +12…+20 CPU points. Production processors MUST
-  process float arrays in bulk (no per-sample `ByteBuffer` get/put), MUST report inactive / bypass when neutral (flat
+  process float arrays in bulk (no per-sample `ByteBuffer` get/put), MUST bypass the DSP math when neutral (stay configured as active and take a pass-through fast path:
+  Media3 decides `isActive` only at configure, so a processor reporting inactive could not be turned on again without a
+  flush — T044 note 2026-10-07) (flat
   EQ bands skipped as in the native engine, preamp 0 dB, width 1, gain 1 outside fades/ramps), and T045 measures the
   chain's CPU cost on device against a no-processor baseline.
 

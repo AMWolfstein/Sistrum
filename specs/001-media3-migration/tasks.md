@@ -529,7 +529,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     with the time-varying gain before the EQ (FR-051).
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.dsp.EqualizerGoldenTest,me.misa198.airmedy.player.dsp.StereoWidthPreampTest,me.misa198.airmedy.player.dsp.DspLinearityTest'`. migration-guard.
 
-- [ ] T044 [US7] Implement `A/player/dsp/BiquadEqualizer.kt`, `A/player/dsp/EqualizerProcessor.kt`, `A/player/dsp/StereoWidthProcessor.kt`, `A/player/dsp/PreampProcessor.kt` {hard} [HIGH-RISK]
+- [x] T044 [US7] Implement `A/player/dsp/BiquadEqualizer.kt`, `A/player/dsp/EqualizerProcessor.kt`, `A/player/dsp/StereoWidthProcessor.kt`, `A/player/dsp/PreampProcessor.kt` {hard} [HIGH-RISK]
   - Do: pure-Kotlin DSP core + Media3 `AudioProcessor` wrappers (ADR-004 order 2–4; width = own float processor with
     the mid/side matrix, ramped on change, ADR-004 "Width stage amendment" 2026-10-07); coefficient changes crossfaded
     over a short block, no state reset; preamp and width changes ramped (FR-056); bulk
