@@ -530,11 +530,14 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.dsp.EqualizerGoldenTest,me.misa198.airmedy.player.dsp.StereoWidthPreampTest,me.misa198.airmedy.player.dsp.DspLinearityTest'`. migration-guard.
 
 - [ ] T044 [US7] Implement `A/player/dsp/BiquadEqualizer.kt`, `A/player/dsp/EqualizerProcessor.kt`, `A/player/dsp/StereoWidthProcessor.kt`, `A/player/dsp/PreampProcessor.kt` {hard} [HIGH-RISK]
-  - Do: pure-Kotlin DSP core + Media3 `AudioProcessor` wrappers (ADR-004 order 2–4; width via
-    `ChannelMixingAudioProcessor` matrix); coefficient changes crossfaded over a short block, no state reset; bulk
+  - Do: pure-Kotlin DSP core + Media3 `AudioProcessor` wrappers (ADR-004 order 2–4; width = own float processor with
+    the mid/side matrix, ramped on change, ADR-004 "Width stage amendment" 2026-10-07); coefficient changes crossfaded
+    over a short block, no state reset; preamp and width changes ramped (FR-056); bulk
     float-array processing (no per-sample `ByteBuffer` access); inactive/bypassed when neutral (flat bands skipped as
     native, preamp 0 dB, width 1) — ADR-004 "S3 result".
-  - Tests: T043 classes pass without modifying them; `GATE`.
+  - Tests: T043 classes pass without modifying them; new `AT/player/dsp/DspProcessorRampTest.kt` (processor level:
+    width/preamp/EQ change mid-stream → no output step above a bound, reaches the target within the ramp; neutral →
+    `isActive` false); `GATE`.
 
 - [ ] T045 [US7] Per-player processor chain and DSP wiring in `A/player/media3/Media3PlayerFactory.kt`, `A/player/media3/Media3Engine.kt`, `A/player/dsp/GainProcessor.kt` (unity pass-through placeholder) with `AI/player/media3/Media3DspTest.kt` {hard} [HIGH-RISK]
   - Do: `buildAudioSink` override: Gain → Width → EQ → Preamp; `setDsp` from `EqualizerPreferences` reaches every live

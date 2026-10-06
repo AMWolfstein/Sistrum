@@ -83,6 +83,9 @@ Use a per-player Media3 ChannelMixingAudioProcessor with a custom
 ChannelMixingMatrix: L' = ((1+w)/2)L + ((1-w)/2)R, R' = ((1-w)/2)L + ((1+w)/2)R.
 Per-player processors run before the session chain, so the limiter still sees
 the widened sum.
+Superseded 2026-10-07 (ADR-004 "Width stage amendment"): ChannelMixingAudioProcessor
+applies a new matrix only at configure (flush) and does not ramp; the width stage is
+our own ramped float processor with the same matrix.
 
 ## Prior art
 No open-source player found that attaches one DP to a session shared by two

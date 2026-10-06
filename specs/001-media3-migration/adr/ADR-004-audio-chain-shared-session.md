@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below) · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -13,8 +13,10 @@ the limiter must see the sum of both players.
 Per player (Media3 `AudioProcessor` chain, built by a `DefaultRenderersFactory.buildAudioSink` override):
 
 1. `GainProcessor` — normalization gain × fade curve, per sample, with the 100–300 ms ramps of FR-046a inside.
-2. `StereoWidthProcessor` — Media3 `ChannelMixingAudioProcessor` with matrix
-   `L' = ((1+w)/2)L + ((1−w)/2)R`, `R' = ((1−w)/2)L + ((1+w)/2)R` (same as native mid/side).
+2. `StereoWidthProcessor` — our own float `AudioProcessor` (not Media3's `ChannelMixingAudioProcessor`, see
+   "Width stage amendment") applying the native mid/side width
+   `L' = ((1+w)/2)L + ((1−w)/2)R`, `R' = ((1−w)/2)L + ((1+w)/2)R`; a width change ramps to the new value over a
+   short ramp without reconfiguring; inactive when w = 1 and no ramp is running.
 3. `EqualizerProcessor` — 10 RBJ peaking biquads, Q = 1, at 32, 64, 125, 250, 500, 1k, 2k, 4k, 8k, 16 kHz, the
    native coefficient formula (`ffmpeg_player.cpp:321-339`), float state per channel; coefficient changes
    crossfaded over a short block, filter state never reset (FR-056).
@@ -122,6 +124,15 @@ PSS from `Debug.getMemoryInfo` (batterystats unusable while on USB power; SC-013
   process float arrays in bulk (no per-sample `ByteBuffer` get/put), MUST report inactive / bypass when neutral (flat
   EQ bands skipped as in the native engine, preamp 0 dB, width 1, gain 1 outside fades/ramps), and T045 measures the
   chain's CPU cost on device against a no-processor baseline.
+
+## Width stage amendment (owner decision 2026-10-07)
+
+Found while preparing T044: Media3 1.11.1's `ChannelMixingAudioProcessor` reads its matrix only in `onConfigure()`
+(a matrix put later applies at the next configure, i.e. after a flush), takes 16-bit PCM per its documentation, and
+does not ramp between matrices. A width change during playback would need a reconfigure/flush: an audible gap or
+click, against FR-056 and US7 sc3. Decision (owner): `StereoWidthProcessor` is our own float processor with the same
+mid/side formula, at the same place in the chain, ramping width changes (as the preamp ramps gain changes), bulk
+float arrays, inactive when neutral. Order, linearity (FR-051) and the S3 CPU requirement are unchanged.
 
 ## Consequences
 

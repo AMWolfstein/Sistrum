@@ -547,3 +547,11 @@ Next → M5 (T042 first) when the owner says to start.
 |---|---|---|---|
 | T042 golden generator | deepseek-v4.1-flash (`ses_eecff2515ffe4P21FRfLvFlqON`, brief `~/.local/state/sistrum-delegate/T042/brief-1.md`) | 1 | PASS. `tools/eq-golden/generate.sh` extracts `kEqBands`, `GlobalDspConfig`, `Biquad`, `kEqFrequenciesHz`, `configure_eq`, `filter_sample` and the preamp/width lines by marker, compiles with `c++ -O2 -ffp-contract=off`, writes `eq_golden.json` (5 rates × 15 gain sets: coefficients + 1/12-octave response; 125 width/preamp cases; source commit, sha256, line ranges). `--check` reproducible; renamed marker → exit 1. Coefficient spot-checked against an independent Python calculation. Gate PASS. |
 | T043 EQ tests first | deepseek-v4.1-flash (`ses_eecf8456cffeIwbMQj5PhFLPdu`, brief `~/.local/state/sistrum-delegate/T043/brief-1.md`) | 1 | PASS (expect-fail: 11 tests in `EqualizerGoldenTest`, `StereoWidthPreampTest`, `DspLinearityTest` fail on assertions against stubs `BiquadEqualizer.kt`, `StereoWidthProcessor.kt`, `PreampProcessor.kt`). Orchestrator fix before commit: three tolerances loosened after a C float simulation of the native filters showed a correct float implementation exceeds them on rounding alone (EQ linearity 1e-5→1e-3·peak, sim 2.5e-4; width/preamp linearity 1e-6→1e-5·peak; band-change settled match 1e-4→1e-3, sim 1.05e-4). Brief's "13 tests" was a miscount (11 named). migration-guard PASS; notes for T044: preamp/width ramps (FR-056) need tests with the AudioProcessors; A5a enforces "no state reset" strongly but "ramped" only weakly. Gate PASS. **Process slip:** the gate was chained after the memory check in one command and started at MemAvailable 1.7 GB (< 2 GB rule); it completed normally. Memory is now checked as a separate step. |
+
+### Decision: width stage = own ramped processor (owner, 2026-10-07)
+
+Media3 1.11.1 `ChannelMixingAudioProcessor` applies a new matrix only at `onConfigure()` (after a flush), is
+documented as 16-bit PCM, and does not ramp, so a live width change would gap/click (FR-056, US7 sc3). Owner chose
+our own float `StereoWidthProcessor` with the same mid/side matrix and a ramp. ADR-004 item 2 + "Width stage
+amendment", research D5, `research/dynamics-processing-session.md` and T044's task text (plus a processor-level
+`DspProcessorRampTest`) updated.

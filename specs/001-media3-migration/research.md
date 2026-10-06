@@ -69,8 +69,8 @@ R1–R12), the external reports in `research/` (leads, Principle 7), and the des
 ## D5 — Audio chain and the shared session (ADR-004)
 
 - **Decision**: per player, in order:
-  `normalization gain × fade (one gain processor, ramps inside) → stereo width (ChannelMixingAudioProcessor,
-  M/S matrix) → 10-band EQ (peaking biquads, Q = 1, native coefficient formula) → preamp` →
+  `normalization gain × fade (one gain processor, ramps inside) → stereo width (own ramped processor, M/S
+  matrix; ChannelMixingAudioProcessor rejected 2026-10-07, ADR-004 "Width stage amendment") → 10-band EQ (peaking biquads, Q = 1, native coefficient formula) → preamp` →
   `player.volume = focus duck` (AudioTrack) → AudioFlinger sums both players in the **shared session** →
   **limiter-only DynamicsProcessing** on that session → output.
   User volume is the system stream volume (the app's volume slider uses `STREAM_MUSIC`), so it is not an
