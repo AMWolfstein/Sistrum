@@ -150,7 +150,7 @@ ADR-003/004/005 pending device spikes, which are the first tasks after the `.qa`
 | T004 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T004/brief-1.md` | run-1 accepted, gate PASS; 80-min measurement done (session `ses_ef30d95eaffeOhRK0atiEF7J3p`). **Review rounds: 0** | DONE: S3 PASS (ADR-004 "S3 result") |
 | T005 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T005/brief-1.md` | run-1 accepted (session `ses_ef306333affek0as11Gvi0fYpX`); fixtures independently checked with ffmpeg (−26/−20/−32 dB = ±6 dB); device run PASS (after the owner approved a Play Protect prompt for the QA install). **Review rounds: 0** | DONE: S5 PASS (ADR-005) |
 | T006 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T006/brief-1.md` | run-1 accepted (session `ses_ef2ffc3fdffec6cR0qadqLACm8`); regenerated + verified by the orchestrator; gains cross-checked vs ffmpeg ebur128 (5 forms exact); 47 files pushed to `/sdcard/Music/SistrumTestCorpus`, 46 indexed by MediaStore (`.wv` not indexed — 002 NOTES). **Review rounds: 0** | DONE |
-| T003b | orchestrator (no delegation) | — | steps 1–3 below | **STOPPED** (dumpsys can't measure); owner split it 2026-10-05: (c) listening check, (a)/(b) dongle recording or MANUAL in T048 |
+| T003b | orchestrator (no delegation) | — | steps 1–3 below | **STOPPED** (dumpsys can't measure); owner split it 2026-10-05: (c) listening check, (a)/(b) dongle recording or MANUAL in T048. **Closed 2026-10-06 as accepted on evidence (owner)**; device measurement = open follow-up |
 
 T001 notes: AGP 9.4.1 `testBuildType = "qa"` also removed `testDevDebugUnitTest`; the coder re-enabled host tests for
 `debug` with `androidComponents.beforeVariants { enableUnitTest = true }` (stated in its report; verified: 378 devDebug
@@ -278,8 +278,10 @@ so the listening check becomes a cross-check).
 
 Do these when convenient; Claude never marks them PASS.
 - [x] Blocklist `/sdcard/Music/SistrumTestCorpus` in the daily app (owner, 2026-10-05).
-- [ ] T003b (c) listening check (steps above).
-- [ ] T003b (a)+(b) dongle recording (procedure above), or tell Claude it isn't possible → T048 MANUAL.
+- [x] ~~T003b (c) listening check~~ — skipped by the owner 2026-10-06; T003b closed on evidence (ADR-004 "T003b closure").
+- [x] ~~T003b (a)+(b) dongle recording~~ — no dongle; closed on evidence 2026-10-06. Open follow-up, not a gate: device-level
+  measurement (laptop as Bluetooth A2DP sink via PipeWire + `pw-record` is available: Realtek BT 4.2, Audio Sink
+  role advertised; judge level reduction, not peaks).
 - [ ] S1 snaps by ear (T002): rerun with `-e snapAt 0.3 -e snapKind pause|seek`, `-e snapAt 0.7 -e snapKind next`
   (commands in ADR-003 "S1 result" / tasks T002).
 
@@ -526,3 +528,15 @@ Build `assembleDevQa` at `8cd3d52`, ID checked, `adb install -r`; engine = Media
 
 **Owner check (T041):** with the engine on Media3, listen to the six AIFF corpus files (aiff_none_8/16/24/32,
 aifc_sowt_16, aifc_twos_16): each should sound like a clean tone/signal, with no noise, distortion or wrong pitch.
+
+## T003b closed (2026-10-06, owner)
+
+Owner: no audio dongle, Dolby can't be disabled on the CPH2307. Laptop Bluetooth checked first: a Realtek BT 4.2
+adapter, and PipeWire 1.6.9 advertises the Audio Sink (A2DP) role, so the Bluetooth recording route was possible.
+(c) listening check with Dolby on was started: two runs on `.qa.test`, both `OK (1 test)` (36 s); logs in
+`~/sistrum-limiter/` (machine-local). The owner then skipped the test ("skip this test, I don't care about it").
+No answer was recorded.
+→ (a)–(c) closed as **accepted on evidence** in ADR-004 "T003b closure": AOSP source review, T003's routing check,
+T046's limiter-parameter unit tests, and the effect-state hedge. Device-level measurement is an open follow-up, not
+a gate. T003b checked off. T046 no longer waits on it, so the T046 reminder about the listening steps is withdrawn.
+Next → M5 (T042 first) when the owner says to start.

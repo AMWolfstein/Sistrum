@@ -146,7 +146,7 @@ test corpus on the device.
   - Accept: every row generated; push done on the device. `[MANUAL]` owner blocklists the folder in the daily app
     (owner, 2026-10-05).
 
-- [ ] T003b [MANUAL] {orchestrator} Spike S2 follow-up — limiter level via AudioFlinger's post-mix power history, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md`; harness steps in `AI/spikes/SharedSessionLimiterSpikeTest.kt`
+- [x] T003b [MANUAL] {orchestrator} Spike S2 follow-up — limiter level via AudioFlinger's post-mix power history, decision into `specs/001-media3-migration/adr/ADR-004-audio-chain-shared-session.md`; harness steps in `AI/spikes/SharedSessionLimiterSpikeTest.kt`
   - Owner decision 2026-10-05: done by the orchestrator itself or as small steps (T003 used 3 review rounds), not one
     delegation. Measurement source: `dumpsys media.audio_flinger` per-stream "Signal power history" of the output
     thread carrying the shared session (post-mix, post-effect HAL power; no Visualizer, no permission), sampled per
@@ -162,7 +162,9 @@ test corpus on the device.
     limiter for "off"; control loss = possible mute). (c) → owner listening check on `.qa`, normal volume, Dolby off.
     (a)+(b) → owner recording via USB-C audio dongle into the laptop, analysed by the orchestrator; if not possible,
     `[MANUAL]` in T048. Steps for both in `HANDOFF.md` "T003b". No max-volume headphone tests.
-  - **Gates T046's completion** (not M5's start): T046 cannot close until (a)–(c) pass.
+  - ~~Gates T046's completion** (not M5's start): T046 cannot close until (a)–(c) pass.~~
+  - **Closed 2026-10-06 (owner): accepted on evidence** (ADR-004 "T003b closure"). Listening check skipped by the owner,
+    no dongle, Dolby can't be disabled. Device-level measurement = open follow-up, not a gate. T046 no longer waits.
 
 **Checkpoint M1** — status report; ADR-003/004/005 statuses updated from "pending spike"; owner approval. **Approved by the owner 2026-10-05** (T003b open as above; it gates only T046).
 
@@ -506,7 +508,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 ---
 
-## Milestone M5 — Phase 7: DSP chain and session limiter (US7) — needs T003, T004; T046 closes only after T003b (a)–(c)
+## Milestone M5 — Phase 7: DSP chain and session limiter (US7) — needs T003, T004; T003b closed on evidence 2026-10-06
 
 **Goal**: EQ/preamp/width on Media3 match the native filters; limiter on the shared session.
 **Independent test**: golden checks green; band-centre tones on device match; SC-015.
@@ -556,12 +558,12 @@ interrupts (US3); lock screen shows the right artist (US4).
     neutral gains, threshold ≈ −1 dBFS; the "off" config keeps the limiter in the chain with neutral parameters and
     the controller never calls `setEnabled(false)`; control-loss state machine: lost → check → release/keep → regain
     → re-create); `GATE`.
-  - Closes only after T003b (a)–(c) pass (recording analysis or T048's manual check).
+  - T003b closed on evidence 2026-10-06 (ADR-004 "T003b closure"); T046 closes on its own tests and gate.
 
 - [ ] T047 [P] [US7] Limiter state note in the clip-prevention setting in `A/ui/screens/PlaybackSettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); T003b (a)/(b) here as a manual check if the dongle recording was not possible
+- [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); optional, not a gate: device-level measurement of T003b (a)–(c) (open follow-up, ADR-004 "T003b closure")
 
 **Checkpoint M5** — status report; owner approval.
 
@@ -671,7 +673,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 ## Dependencies
 
 - M1 → everything. T001 blocks all device work and T002–T006. T002 (S1) blocks M7; T003/T004 (S2/S3) block M5
-  and M7; T003b (a)–(c) gates T046's completion (owner decision 2026-10-05); T005 (S5) blocks M6. T032 → T032b.
+  and M7; T003b closed on evidence 2026-10-06 (no longer gates T046); T005 (S5) blocks M6. T032 → T032b.
 - M2 order: T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → (T015 ∥ T016) → T017. No fake-engine test
   before T013 (needs the coordinator).
 - M3: T018 before T026/T027; T019 → T020 → T021 → T034; T023 → T024 → T025; T026 → T027 → T028 → T029 → T030

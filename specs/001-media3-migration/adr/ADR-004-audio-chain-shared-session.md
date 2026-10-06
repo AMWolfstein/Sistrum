@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not yet measured (T003b: (c) owner listening check, (a)/(b) recording or MANUAL in M5; T046 cannot close before they pass); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -47,12 +47,12 @@ Passed:
   (`AudioOut_1D`); a 24-bit/96 kHz WAV also stays on that mixer thread (no direct output on this device).
 - The limiter-only DP config is accepted (frame duration 4 ms from `PROPERTY_OUTPUT_FRAMES_PER_BUFFER`/rate).
 
-**Not yet measured (T003b, blocks M5):** whether the limiter reduces a summed overlap that would clip, the SC-011
+**Not measured on the device (T003b; closed on evidence 2026-10-06, see "T003b closure"):** whether the limiter reduces a summed overlap that would clip, the SC-011
 "no reduction below threshold" check, and whether disabling the limiter or the whole DP mutes or attenuates the
 session (FR-053/055). The Visualizer could not measure them: on the session it is inserted first (reads the DP
 input); on the output mix it read near-silence whenever the DP was disabled.
 
-**Measurement split (owner decision 2026-10-05, after T003b stopped):**
+**Measurement split (owner decision 2026-10-05, after T003b stopped; superseded 2026-10-06 by "T003b closure"):**
 - (c) mute/attenuation when the DP is disabled: owner listening check on `.qa` at normal volume with Dolby off
   (steps in `HANDOFF.md` "T003b").
 - (a) limiting of a summed overlap that would clip, and (b) SC-011 (no reduction below threshold): recorded from the
@@ -66,12 +66,36 @@ phase of T003/T003b no output power was logged although our track was active (th
 - Sistrum **never disables the DynamicsProcessing effect** (`enabled = false`) to turn the limiter off. The effect
   stays enabled for the session's lifetime; "clip prevention off" = the limiter stage made neutral (ratio 1,
   threshold 0 dBFS, post-gain 0 dB, input gain 0 dB). Disabling only the limiter stage (`inUse`/`enabled` false) is
-  allowed only if (c) shows it is safe; until then, neutral parameters. The effect is released only together with
+  allowed only if (c) shows it is safe; (c) was not measured (T003b closure), so neutral parameters only. The effect is released only together with
   the session (engine release).
 - **Losing control of the effect (FR-055) is treated as a possible mute.** On `onControlStatusChange(false)` (or an
   `enabled` change we did not make) Sistrum detects whether the session is still audible and, if it cannot confirm
   it, recovers: release its own effect instance and continue without the limiter (FR-053 note shown), re-creating it
   when control returns. The detection method and its device verification are part of T046/T048.
+
+## T003b closure (owner decision 2026-10-06) — accepted on evidence
+
+No device measurement of the limiter level was made. The 2026-10-05 dumpsys method could not measure it, the owner
+has no USB-C audio dongle, and Dolby Atmos cannot be disabled on the CPH2307. A listening check of (c) with Dolby on
+was started (two runs, both completed: `OK (1 test)`, 36 s) and then skipped by the owner. No result was recorded.
+The Bluetooth A2DP recording route (laptop as a PipeWire sink) was available but not used. On the owner's
+instruction, (a)–(c) are closed as **accepted on evidence**:
+
+- (a) the limiter reduces a summed overlap that would clip, and (b) no reduction below the threshold (SC-011):
+  - AOSP source review (`research/dynamics-processing-session.md`): a session chain processes the summed buffer of
+    every track in the session once per mixer cycle, and the DP limiter is a feed-forward per-channel stage with
+    link groups.
+  - T003's routing check on the CPH2307: both players and the DP are on the shared session, on the normal mixer
+    thread `AudioOut_1D`, and the limiter-only config is accepted.
+  - T046's `LimiterConfigTest`: every limiter parameter is set explicitly (threshold ≈ −1 dBFS, other stages off,
+    neutral gains), so the native fallback defaults (threshold −30 dB, ratio 2) can never apply.
+- (c) whether disabling the limiter stage or the DP mutes the session: made moot by the effect-state hedge above.
+  The effect is never disabled and the limiter stage is never switched off; "off" means neutral parameters. Losing
+  control of the effect is handled as a possible mute (FR-055).
+
+**Open follow-up (not a gate):** a device-level measurement of (a)–(c), for example the laptop as a Bluetooth A2DP
+sink recorded with `pw-record` (judge level reduction, not exact peaks; the codecs are lossy), or a dongle
+recording. It is tracked in `HANDOFF.md` and T048. T046 does not wait for it.
 
 **Withdrawn claims** (from earlier S2 runs, both wrong): "DP on the mixer thread with both players" (it was an orphan
 chain on an idle in-call thread) and "the limiter acts before volume" (the difference was two 10 Hz tones partly
@@ -107,7 +131,7 @@ PSS from `Debug.getMemoryInfo` (batterystats unusable while on USB power; SC-013
 
 - Per-player = on-the-mix exactly for linear stages (fade before EQ, ADR-003). Shapes identical when the track
   rate equals the native output rate; band-centre gains identical always (research D5 exactness note).
-- Limiter feed-forward without lookahead: bounded overshoot on loud overlaps, measured in T003b (a)/(b) (SC-011).
+- Limiter feed-forward without lookahead: bounded overshoot on loud overlaps (SC-011); accepted on evidence, device measurement is an open follow-up (T003b closure).
 - The DP effect stays enabled for the whole session; "off" is neutral parameters, never `enabled = false`.
 - Direct-output routes (some hi-res) bypass session effects: EQ still applies (in-app), only the limiter is lost
   there (S2 checks the corpus).
