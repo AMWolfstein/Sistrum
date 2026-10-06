@@ -405,14 +405,15 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.player.NowPlayingMetadataTest`; `GATE`.
   - Accept: artist text equals the in-app artist for every item with a known artist.
 
-- [ ] T033a [US4] Embedded-tag fallback for artist, album artist and album in `A/sync/EmbeddedTagReader.kt`,
+- [x] T033a [US4] Embedded-tag fallback for artist, album artist and album in `A/sync/EmbeddedTagReader.kt`,
   `A/sync/MediaStoreLibraryScanner.kt`, `A/sync/SyncDatabase.kt` (`priorScanState` only, no schema change),
   `sharedLogic/.../library/LocalLibrary.kt` (raw tag values kept in the track document so unchanged files keep the
   fallback without a re-read) with `AT/sync/EmbeddedTagReaderTest.kt`, `AT/sync/TagFallbackTest.kt` {default}
   - Do (owner decision 2026-10-06, ADR-006 amendment): `EmbeddedTagReader` also returns artist, album artist and
     album from the tag blocks it already parses (ID3v2 incl. WAV/AIFF chunks, Vorbis comments, MP4). The scanner
     uses them only when MediaStore reports none for that field (blank or `<unknown>`), and never overrides a
-    non-empty MediaStore value. Applies to every format, not only WAV (Principle 10). Same one-open-per-file read.
+    non-empty MediaStore value. Album exception (owner, 2026-10-06): if MediaStore's album equals the file's parent
+    folder name and the file has its own album tag, the tag wins; truly untagged files keep the folder name. Applies to every format, not only WAV (Principle 10). Same one-open-per-file read.
     Bump `CurrentMetadataSchemaVersion` (one full re-read on the next scan). No new tag library: jaudiotagger-kt
     stays a 002 candidate for APEv2/ASF/DSF.
   - Tests: `UT me.misa198.airmedy.sync.EmbeddedTagReaderTest` (+ a pure fallback-merge test); `GATE`.

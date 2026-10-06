@@ -45,6 +45,12 @@ internal data class EmbeddedTrackTags(
     val copyright: String? = null,
     /** Content advisory: true explicit, false clean, null when the file carries no advisory. */
     val explicit: Boolean? = null,
+    /** Artist tag, used only when MediaStore has no artist for the track. */
+    val artist: String? = null,
+    /** Album-artist tag, used only when MediaStore has no album artist. */
+    val albumArtist: String? = null,
+    /** Album-title tag, used only when MediaStore has no album. */
+    val album: String? = null,
 )
 
 /**
@@ -126,7 +132,9 @@ internal object EmbeddedTagReader {
         }
     }.getOrNull()
 
-    /** Release date/year, BPM, label, ISRC, and copyright read from the file's own tags. */
+    /** Release date/year, BPM, label, ISRC, copyright, artist, album artist and album read
+     *  from the file's own tags. The artist/album fields are only a fallback for containers
+     *  (e.g. WAV with an `id3 ` chunk) whose tags MediaStore does not report. */
     fun embeddedTrackTags(path: String): EmbeddedTrackTags? = runCatching {
         openForRead(path).use { file ->
             val head = file.head()
@@ -674,6 +682,9 @@ internal object EmbeddedTagReader {
             isrc = firstOf("ISRC"),
             copyright = firstOf("COPYRIGHT"),
             explicit = parseAdvisoryText(firstOf("ITUNESADVISORY")),
+            artist = firstOf("ARTIST"),
+            albumArtist = firstOf("ALBUMARTIST", "ALBUM ARTIST", "ALBUM_ARTIST"),
+            album = firstOf("ALBUM"),
         )
     }
 
@@ -790,6 +801,9 @@ internal object EmbeddedTagReader {
         var isrc: String? = null
         var copyright: String? = null
         var explicit: Boolean? = null
+        var artist: String? = null
+        var albumArtist: String? = null
+        var album: String? = null
         for (item in bytes.mp4Boxes(start, end)) {
             when (item.type) {
                 // Content rating: an integer atom, not a text tag.
@@ -797,6 +811,9 @@ internal object EmbeddedTagReader {
                 "©day" -> if (dateRaw == null) dateRaw = bytes.mp4DataText(item.start, item.end)
                 "tmpo" -> if (bpmRaw == null) bpmRaw = bytes.mp4TmpoText(item.start, item.end)
                 "cprt" -> if (copyright == null) copyright = bytes.mp4DataText(item.start, item.end)
+                "©ART" -> if (artist == null) artist = bytes.mp4DataText(item.start, item.end)
+                "aART" -> if (albumArtist == null) albumArtist = bytes.mp4DataText(item.start, item.end)
+                "©alb" -> if (album == null) album = bytes.mp4DataText(item.start, item.end)
                 "----" -> {
                     // iTunes free-form: mean=com.apple.iTunes, name=LABEL/PUBLISHER/ISRC/COPYRIGHT.
                     val key = bytes.mp4FreeformKey(item.start, item.end)?.substringAfterLast('.')?.uppercase()
@@ -820,6 +837,9 @@ internal object EmbeddedTagReader {
             isrc = isrc,
             copyright = copyright,
             explicit = explicit,
+            artist = artist,
+            albumArtist = albumArtist,
+            album = album,
         )
     }
 
@@ -1075,12 +1095,16 @@ internal object EmbeddedTagReader {
     }
 
     /** v2.3/2.4 (4-char) text-information frame id -> canonical key used by [EmbeddedTrackTags]. */
-    private val Id3TextFrameKeysV24 = setOf("TDRC", "TYER", "TDAT", "TIME", "TBPM", "TPUB", "TSRC", "TCOP")
+    private val Id3TextFrameKeysV24 = setOf(
+        "TDRC", "TYER", "TDAT", "TIME", "TBPM", "TPUB", "TSRC", "TCOP",
+        "TPE1", "TPE2", "TALB",
+    )
 
     /** v2.2 (3-char) text-information frame id -> its v2.3/2.4 canonical equivalent. */
     private val Id3TextFrameKeysV22 = mapOf(
         "TYE" to "TYER", "TDA" to "TDAT", "TIM" to "TIME",
         "TBP" to "TBPM", "TPB" to "TPUB", "TRC" to "TSRC", "TCR" to "TCOP",
+        "TP1" to "TPE1", "TP2" to "TPE2", "TAL" to "TALB",
     )
 
     private fun id3ExtractedTags(bytes: ByteArray): EmbeddedTrackTags? {
@@ -1139,8 +1163,23 @@ internal object EmbeddedTagReader {
             isrc = values["TSRC"],
             copyright = values["TCOP"],
             explicit = parseAdvisoryText(userValues["ITUNESADVISORY"]),
+            artist = joinId3PersonValues(values["TPE1"]),
+            albumArtist = joinId3PersonValues(values["TPE2"]),
+            album = joinId3PersonValues(values["TALB"]),
         )
     }
+
+    /**
+     * A v2.4 text frame may hold several NUL-separated values. For the person/album fields
+     * that is a multi-value list ("A\u0000B" -> "A, B"); blank entries are dropped. Null
+     * when nothing non-blank remains.
+     */
+    private fun joinId3PersonValues(raw: String?): String? =
+        raw?.split('\u0000')
+            ?.map(String::trim)
+            ?.filter(String::isNotEmpty)
+            ?.takeIf { it.isNotEmpty() }
+            ?.joinToString(", ")
 
     /** TXXX/TXX: `<encoding><description>\0<value>` -> (upper-cased description, value). */
     private fun ByteArray.parseTxxx(): Pair<String, String>? {

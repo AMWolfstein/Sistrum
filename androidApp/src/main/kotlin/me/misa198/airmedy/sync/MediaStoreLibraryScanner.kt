@@ -77,6 +77,11 @@ internal data class PriorTrackScanState(
     val explicit: Boolean = false,
     /** The codec [MediaStoreLibraryScanner] sniffed for this file (see realCodec). */
     val codec: String = "",
+    /** Raw embedded artist/album-artist/album tags, kept so unchanged files keep the
+     *  MediaStore-missing fallback without re-parsing. */
+    val tagArtist: String = "",
+    val tagAlbumArtist: String = "",
+    val tagAlbum: String = "",
 )
 
 /** A previously copied album artwork file, read back so unchanged albums skip
@@ -92,6 +97,54 @@ internal data class PriorLibraryScanState(
     /** Keyed by [albumArtworkKey]. */
     val artworkByArtworkKey: Map<String, PriorArtworkScanState> = emptyMap(),
 )
+
+/**
+ * The artist/album-artist/album a scanned track resolves to. [albumFromTag] is true when
+ * [album] came from the file's own tag, so the scanner can ignore MediaStore's shared
+ * ALBUM_ID for that folder (see [albumKey]).
+ */
+internal data class ScanTagFields(
+    val artist: String,
+    val albumArtist: String,
+    val album: String,
+    val albumFromTag: Boolean,
+)
+
+/**
+ * Resolves a track's artist/album-artist/album from MediaStore, falling back to the file's
+ * own embedded tags only when MediaStore has no value. A non-blank MediaStore value is never
+ * overridden, with one deliberate exception for the album: MediaStore reports the parent
+ * folder name (e.g. "Music") as the album for files it has no album tag for, so when the
+ * MediaStore album exactly equals [parentFolderName] and the file has its own non-blank
+ * album tag, the file's tag wins. A truly untagged file keeps the folder name. Album artist
+ * additionally falls back to the resolved artist, preserving the existing "album artist
+ * defaults to the track artist" behaviour.
+ *
+ * [ScanTagFields.albumFromTag] is true when the album came from the tag (the folder-name
+ * override or the MediaStore-null fallback): MediaStore gives every file in such a folder
+ * one shared ALBUM_ID, so the scanner derives the album key from the name instead.
+ *
+ * The tag inputs may be null or blank; blanks are ignored.
+ */
+internal fun scanTagFields(
+    mediaStoreArtist: String?,
+    mediaStoreAlbumArtist: String?,
+    mediaStoreAlbum: String?,
+    tagArtist: String?,
+    tagAlbumArtist: String?,
+    tagAlbum: String?,
+    parentFolderName: String?,
+): ScanTagFields {
+    fun nonBlank(value: String?): String? = value?.trim()?.takeIf(String::isNotEmpty)
+    val artist = mediaStoreArtist ?: nonBlank(tagArtist) ?: ""
+    val albumArtist = mediaStoreAlbumArtist ?: nonBlank(tagAlbumArtist) ?: artist
+    val tagAlbumNonBlank = nonBlank(tagAlbum)
+    // True only when the resolved album is the tag's own non-blank value: the MediaStore-null
+    // fallback, or the folder-name override.
+    val albumFromTag = tagAlbumNonBlank != null && (mediaStoreAlbum == null || mediaStoreAlbum == parentFolderName)
+    val album = if (albumFromTag) tagAlbumNonBlank else mediaStoreAlbum ?: ""
+    return ScanTagFields(artist, albumArtist, album, albumFromTag)
+}
 
 /** Representative track chosen to source an album's artwork, plus whether that
  *  specific track was found unchanged since the prior scan. */
@@ -142,11 +195,6 @@ internal class MediaStoreLibraryScanner(
                 val title = text(ColumnTitle) ?: ""
                 if (title.isBlank()) continue
                 val trackId = "local:$mediaId"
-                val artistName = tag(ColumnArtist) ?: ""
-                val albumArtistName = tag(ColumnAlbumArtist) ?: artistName
-                val albumName = tag(ColumnAlbum) ?: ""
-                val key = albumKey(number(ColumnAlbumId), albumArtistName, albumName)
-                val artworkKey = albumArtworkKey(key)
                 val dateAdded = number(ColumnDateAdded) ?: 0L
                 val dateModified = number(ColumnDateModified) ?: 0L
                 val size = number(ColumnSize) ?: 0L
@@ -162,6 +210,29 @@ internal class MediaStoreLibraryScanner(
                     priorTrack.identityHash == newIdentityHash &&
                     priorTrack.schemaVersion >= CurrentMetadataSchemaVersion
                 val embeddedTags = if (unchanged) null else EmbeddedTagReader.embeddedTrackTags(data)
+                // MediaStore reports no artist/album-artist/album for some containers (e.g.
+                // WAV with an `id3 ` chunk), so fall back to the file's own tags when
+                // MediaStore has no value. The raw tag values are persisted (see LocalTrack)
+                // so an unchanged file keeps the fallback without another file read.
+                val tagArtist = if (unchanged) priorTrack.tagArtist else embeddedTags?.artist.orEmpty()
+                val tagAlbumArtist = if (unchanged) priorTrack.tagAlbumArtist else embeddedTags?.albumArtist.orEmpty()
+                val tagAlbum = if (unchanged) priorTrack.tagAlbum else embeddedTags?.album.orEmpty()
+                val tagFields = scanTagFields(
+                    mediaStoreArtist = tag(ColumnArtist),
+                    mediaStoreAlbumArtist = tag(ColumnAlbumArtist),
+                    mediaStoreAlbum = tag(ColumnAlbum),
+                    tagArtist = tagArtist,
+                    tagAlbumArtist = tagAlbumArtist,
+                    tagAlbum = tagAlbum,
+                    parentFolderName = File(data).parentFile?.name,
+                )
+                val artistName = tagFields.artist
+                val albumArtistName = tagFields.albumArtist
+                val albumName = tagFields.album
+                // A tagged album gets its key from the name, not MediaStore's shared folder ALBUM_ID.
+                val key = albumKey(if (tagFields.albumFromTag) null else number(ColumnAlbumId), albumArtistName, albumName)
+                val artworkKey = albumArtworkKey(key)
+
                 val year = if (unchanged) priorTrack.year else embeddedTags?.year ?: 0
                 val releaseDate = if (unchanged) priorTrack.releaseDate else embeddedTags?.releaseDate.orEmpty()
                 val bpm = if (unchanged) priorTrack.bpm else embeddedTags?.bpm ?: 0
@@ -230,6 +301,9 @@ internal class MediaStoreLibraryScanner(
                     isrc = isrc,
                     explicit = explicit,
                     schemaVersion = CurrentMetadataSchemaVersion,
+                    tagArtist = tagArtist,
+                    tagAlbumArtist = tagAlbumArtist,
+                    tagAlbum = tagAlbum,
                 )
             }
         }
@@ -416,8 +490,10 @@ internal class MediaStoreLibraryScanner(
          *  3: the content advisory (explicit) flag.
          *  4: WAV/AIFF ID3 chunks after the audio data (past the old 24 MB prefix).
          *  5: M4A `moov` after `mdat` (past the old 24 MB prefix).
-         *  6: FLAC Vorbis comments past the old 8 MB prefix (after large padding or covers). */
-        const val CurrentMetadataSchemaVersion = 6
+         *  6: FLAC Vorbis comments past the old 8 MB prefix (after large padding or covers).
+         *  7: artist/album-artist/album embedded-tag fallback for containers MediaStore
+         *     reports no tags for (e.g. WAV with an `id3 ` chunk). */
+        const val CurrentMetadataSchemaVersion = 7
 
         const val ColumnId = MediaStore.Audio.Media._ID
         const val ColumnData = MediaStore.Audio.Media.DATA

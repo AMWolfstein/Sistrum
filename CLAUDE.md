@@ -63,7 +63,9 @@ device (constitution Principle 10).
 - Bump `CurrentMetadataSchemaVersion` whenever parsing behavior changes for
   already-scanned files.
 - EmbeddedTagReader opens each file once per tag read (large scan speedup). Keep it that way.
-- For untagged files MediaStore reports the folder name ("Music") as album; intentional.
+- For untagged files MediaStore reports the folder name ("Music") as album; intentional. Exception (T033a,
+  owner 2026-10-06): when that album equals the file's parent folder name and the file has its own album tag,
+  the tag wins. Artist and album artist fall back to embedded tags only when MediaStore has none.
 
 ## Known state
 
@@ -139,6 +141,11 @@ or when legacy code is deleted. Never commits.
   (`opencode-delegate`, `graphify`), so the coder can't re-delegate or run Graphify.
   The coder's own instructions are in `AGENTS.md`.
 - Max 3 review rounds per task; then stop, record the problem in `HANDOFF.md`, ask the user.
+- Memory check before every dispatch (fresh or follow-up) and every `verify.sh` gate run (owner, 2026-10-06):
+  1. Stop leftover daemons: `./gradlew --stop` and `pkill -f '[K]otlinCompileDaemon'` (the brackets keep
+     pkill from matching its own shell).
+  2. Read `MemAvailable` from `/proc/meminfo`. If it is below 2 GB, don't start: tell the owner instead.
+  If the memory reaper kills a run anyway, don't restart it on your own; report it and wait.
 - Run a milestone's tasks back to back (`/delegate-task` → `/verify-task` → commit → push → next task), without
   pausing between tasks. Stop ONLY when: (1) a milestone ends (status report + owner approval), (2) a MANUAL
   task needs the owner or the device, (3) a task fails 3 review rounds, (4) an architectural problem requires

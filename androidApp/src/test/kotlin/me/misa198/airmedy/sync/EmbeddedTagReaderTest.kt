@@ -564,6 +564,66 @@ class EmbeddedTagReaderTest {
         assertEquals(true, EmbeddedTagReader.embeddedTrackTags(file.path)?.explicit)
     }
 
+    // --- Artist/album-artist/album fallback tags ---
+
+    private fun text23(code: String, text: String): ByteArray =
+        frame32(code, byteArrayOf(3) + text.toByteArray(Charsets.UTF_8), syncsafe = true)
+
+    private fun text22(code: String, text: String): ByteArray =
+        frame22(code, byteArrayOf(3) + text.toByteArray(Charsets.UTF_8))
+
+    @Test fun `id3 v2_3 artist album artist and album`() {
+        val file = temp("id3-tag-fields", id3v23(frames = listOf(
+            text23("TPE1", "Artist"), text23("TPE2", "Album Artist"), text23("TALB", "Album"),
+        )))
+        val tags = assertNotNull(EmbeddedTagReader.embeddedTrackTags(file.path))
+        assertEquals("Artist", tags.artist)
+        assertEquals("Album Artist", tags.albumArtist)
+        assertEquals("Album", tags.album)
+    }
+
+    @Test fun `id3 v2_2 artist album artist and album`() {
+        val file = temp("id3v22-tag-fields", id3v22(frames = listOf(
+            text22("TP1", "Artist"), text22("TP2", "Album Artist"), text22("TAL", "Album"),
+        )))
+        val tags = assertNotNull(EmbeddedTagReader.embeddedTrackTags(file.path))
+        assertEquals("Artist", tags.artist)
+        assertEquals("Album Artist", tags.albumArtist)
+        assertEquals("Album", tags.album)
+    }
+
+    @Test fun `id3 v2_4 joins nul separated artist values`() {
+        val file = temp("id3v24-tag-fields", id3(4, 0, listOf(
+            frame32("TPE1", byteArrayOf(3) + "A\u0000B".toByteArray(Charsets.UTF_8), syncsafe = true),
+        )))
+        assertEquals("A, B", assertNotNull(EmbeddedTagReader.embeddedTrackTags(file.path)).artist)
+    }
+
+    @Test fun `wav id3 chunk artist and album are read with one open`() {
+        val file = wav(id3v23(frames = listOf(text23("TPE1", "Artist"), text23("TALB", "Album"))))
+        val before = EmbeddedTagReader.fileOpenCount.get()
+        val tags = assertNotNull(EmbeddedTagReader.embeddedTrackTags(file.path))
+        assertEquals("Artist", tags.artist)
+        assertEquals("Album", tags.album)
+        assertEquals(1, EmbeddedTagReader.fileOpenCount.get() - before)
+    }
+
+    @Test fun `flac vorbis artist album artist and album`() {
+        val file = flac(picture = null, comments = listOf("ARTIST=Artist", "ALBUMARTIST=Album Artist", "ALBUM=Album"))
+        val tags = assertNotNull(EmbeddedTagReader.embeddedTrackTags(file.path))
+        assertEquals("Artist", tags.artist)
+        assertEquals("Album Artist", tags.albumArtist)
+        assertEquals("Album", tags.album)
+    }
+
+    @Test fun `m4a artist album artist and album atoms`() {
+        val file = m4a(ilst = textAtom("\u00A9ART", "Artist") + textAtom("aART", "Album Artist") + textAtom("\u00A9alb", "Album"))
+        val tags = assertNotNull(EmbeddedTagReader.embeddedTrackTags(file.path))
+        assertEquals("Artist", tags.artist)
+        assertEquals("Album Artist", tags.albumArtist)
+        assertEquals("Album", tags.album)
+    }
+
     // --- One open per read (opening a shared-storage file costs more than reading its tags) ---
 
     private fun opensDuring(block: () -> Unit): Int {

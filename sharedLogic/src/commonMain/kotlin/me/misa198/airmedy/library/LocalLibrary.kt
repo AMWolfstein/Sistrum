@@ -76,6 +76,11 @@ data class LocalTrack(
     /** The file's content advisory marks it explicit (false when absent or clean). */
     val explicit: Boolean = false,
     val schemaVersion: Int = 0,
+    /** Raw embedded artist/album-artist/album tags, persisted so the MediaStore-missing
+     *  fallback survives a rescan without re-reading the file. */
+    val tagArtist: String = "",
+    val tagAlbumArtist: String = "",
+    val tagAlbum: String = "",
 )
 
 data class LocalLibrarySnapshot(
@@ -110,6 +115,9 @@ object LocalLibraryJson {
         if (track.bpm > 0) put("bpm", track.bpm)
         if (track.label.isNotBlank()) put("label", track.label)
         if (track.isrc.isNotBlank()) put("isrc", track.isrc)
+        if (track.tagArtist.isNotBlank()) put("tag_artist", track.tagArtist)
+        if (track.tagAlbumArtist.isNotBlank()) put("tag_album_artist", track.tagAlbumArtist)
+        if (track.tagAlbum.isNotBlank()) put("tag_album", track.tagAlbum)
         if (track.explicit) put("explicit", true)
         if (track.album.copyright.isNotBlank()) put("copyright", track.album.copyright)
         if (track.schemaVersion > 0) put("schema_version", track.schemaVersion)

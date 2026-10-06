@@ -18,7 +18,8 @@ new code must not repeat.
   session fault. The session already shows the in-app artist. MediaStore reports no artist, album artist or album
   for some containers (e.g. WAV), and the scanner took those fields only from MediaStore. It is fixed in the scan
   (T033a): when MediaStore has no value for a field, the file's own tags from `EmbeddedTagReader` fill it in.
-  Non-empty MediaStore values are never overridden. `CurrentMetadataSchemaVersion` is bumped, and there is no new
+  Non-empty MediaStore values are never overridden, with one exception: when MediaStore's album equals the
+  file's parent folder name (its untagged fallback) and the file has its own album tag, the tag wins. `CurrentMetadataSchemaVersion` is bumped, and there is no new
   tag library.
 - Focus stays manual (`handleAudioFocus = false` on both players), semantics of discovery Q5, plus FR-085.
 - Command path: one `Channel<Command>` consumed by one coroutine (FR-081, FR-091); queue requests handed over

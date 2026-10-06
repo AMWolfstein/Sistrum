@@ -824,6 +824,9 @@ internal class AndroidLibrarySyncStore(
                 copyright = json.string("copyright").orEmpty(),
                 explicit = json.string("explicit") == "true",
                 codec = json.string("codec").orEmpty(),
+                tagArtist = json.string("tag_artist").orEmpty(),
+                tagAlbumArtist = json.string("tag_album_artist").orEmpty(),
+                tagAlbum = json.string("tag_album").orEmpty(),
             )
         }.toMap()
         val artworkByArtworkKey = dao.activeArtworkScanState().associate { row ->

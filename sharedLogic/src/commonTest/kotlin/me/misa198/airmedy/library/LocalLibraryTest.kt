@@ -146,6 +146,26 @@ class LocalLibraryTest {
         assertEquals("Sunrise", roundTrip.string("title"))
         assertTrue(document.array("album_artists").orEmpty().isEmpty())
     }
+
+    @Test
+    fun writesEmbeddedTagFallbackFieldsWhenSet() {
+        val document = LocalLibraryJson.trackDocument(
+            sampleTrack().copy(tagArtist = "Tag Artist", tagAlbumArtist = "Tag Album Artist", tagAlbum = "Tag Album"),
+        )
+        assertEquals("Tag Artist", document.string("tag_artist"))
+        assertEquals("Tag Album Artist", document.string("tag_album_artist"))
+        assertEquals("Tag Album", document.string("tag_album"))
+    }
+
+    @Test
+    fun omitsBlankEmbeddedTagFallbackFields() {
+        val document = LocalLibraryJson.trackDocument(
+            sampleTrack().copy(tagArtist = "", tagAlbumArtist = "  ", tagAlbum = ""),
+        )
+        assertNull(document["tag_artist"])
+        assertNull(document["tag_album_artist"])
+        assertNull(document["tag_album"])
+    }
 }
 
 private fun JsonObject.string(key: String): String? = this[key]?.jsonPrimitive?.content
