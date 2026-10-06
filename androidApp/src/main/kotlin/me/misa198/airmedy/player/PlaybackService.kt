@@ -59,6 +59,20 @@ import me.misa198.airmedy.player.engine.EngineKind
 import me.misa198.airmedy.player.engine.EngineSelectionPreferences
 import me.misa198.airmedy.player.engine.LegacyNativeEngine
 
+/**
+ * Pure mapping from a [PlaybackItem] to the text keys of the MediaSession metadata.
+ * [MediaMetadata.METADATA_KEY_ALBUM] and [MediaMetadata.METADATA_KEY_ALBUM_ARTIST] are
+ * omitted when blank so the lock screen never shows an empty album or artist. The media id is the
+ * track id unchanged; only display text is trimmed.
+ */
+internal fun nowPlayingMetadata(item: PlaybackItem): Map<String, String> = buildMap {
+    put(MediaMetadata.METADATA_KEY_MEDIA_ID, item.trackId)
+    put(MediaMetadata.METADATA_KEY_TITLE, item.title.trim())
+    put(MediaMetadata.METADATA_KEY_ARTIST, item.artist.trim())
+    item.album.trim().takeIf { it.isNotEmpty() }?.let { put(MediaMetadata.METADATA_KEY_ALBUM, it) }
+    item.albumArtist.trim().takeIf { it.isNotEmpty() }?.let { put(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, it) }
+}
+
 /** Owns Android transport; queue semantics are delegated to sharedLogic. */
 class PlaybackService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
@@ -394,10 +408,8 @@ class PlaybackService : Service() {
         override fun publishNowPlaying(item: PlaybackItem, state: TransportState, positionMs: Long, durationMs: Long, activeQueueItemId: Long) {
             mediaSession.isActive = true
             val metadata = MediaMetadata.Builder()
-                    .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, item.trackId)
-                    .putString(MediaMetadata.METADATA_KEY_TITLE, item.title)
-                    .putString(MediaMetadata.METADATA_KEY_ARTIST, item.artist)
-                    .putLong(MediaMetadata.METADATA_KEY_DURATION, durationMs)
+            nowPlayingMetadata(item).forEach { (key, value) -> metadata.putString(key, value) }
+            metadata.putLong(MediaMetadata.METADATA_KEY_DURATION, durationMs)
             loadNowPlayingArtwork(item)?.let { artwork ->
                 metadata.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, artwork)
                 metadata.putBitmap(MediaMetadata.METADATA_KEY_ART, artwork)

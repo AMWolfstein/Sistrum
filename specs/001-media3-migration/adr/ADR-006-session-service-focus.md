@@ -12,8 +12,14 @@ new code must not repeat.
 
 - Keep the framework `MediaSession` in `PlaybackService`, fed from service state (one logical player; switches
   to the incoming track at fade start). No Media3 `MediaSessionService` / `ForwardingPlayer` in 001. The
-  output-switcher token type is unchanged. "Unknown artist" is fixed in `publishNowPlaying` (also set ALBUM and
-  ALBUM_ARTIST; artwork stays on `decodeArtworkBitmaps`).
+  output-switcher token type is unchanged. `publishNowPlaying` also sets ALBUM and
+  ALBUM_ARTIST (artwork stays on `decodeArtworkBitmaps`).
+- Amended 2026-10-06 (owner-approved; root cause in HANDOFF "T033 root cause"): "Unknown artist" is not a
+  session fault. The session already shows the in-app artist. MediaStore reports no artist, album artist or album
+  for some containers (e.g. WAV), and the scanner took those fields only from MediaStore. It is fixed in the scan
+  (T033a): when MediaStore has no value for a field, the file's own tags from `EmbeddedTagReader` fill it in.
+  Non-empty MediaStore values are never overridden. `CurrentMetadataSchemaVersion` is bumped, and there is no new
+  tag library.
 - Focus stays manual (`handleAudioFocus = false` on both players), semantics of discovery Q5, plus FR-085.
 - Command path: one `Channel<Command>` consumed by one coroutine (FR-081, FR-091); queue requests handed over
   in process (FR-083); every command and tick wrapped (FR-084); foreground start on every start path and

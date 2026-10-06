@@ -398,12 +398,25 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.player.DecodeFailureLogTest` (append, bound, persistence across instances, export
     text format, clear); `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T033 [US4] Fix lock-screen "Unknown artist" in `A/player/PlaybackService.kt` with `AT/player/NowPlayingMetadataTest.kt` {hard} [HIGH-RISK]
-  - Do: `{orchestrator}` first investigates the metadata path and writes the root cause into the brief and
-    `HANDOFF.md`; then pure `nowPlayingMetadata(item)` sets TITLE, ARTIST, ALBUM, ALBUM_ARTIST (+ DISPLAY_* if the
-    cause needs it); artwork stays on `decodeArtworkBitmaps`.
+- [x] T033 [US4] Fix lock-screen "Unknown artist" in `A/player/PlaybackService.kt` with `AT/player/NowPlayingMetadataTest.kt` {hard} [HIGH-RISK]
+  - Do: root cause investigated (HANDOFF "T033 root cause", 2026-10-06): the session path is correct; the cause is
+    in the scan → T033a. Here: pure `nowPlayingMetadata(item)` sets TITLE, ARTIST, ALBUM, ALBUM_ARTIST (no DISPLAY_*);
+    artwork stays on `decodeArtworkBitmaps`.
   - Tests: `UT me.misa198.airmedy.player.NowPlayingMetadataTest`; `GATE`.
   - Accept: artist text equals the in-app artist for every item with a known artist.
+
+- [ ] T033a [US4] Embedded-tag fallback for artist, album artist and album in `A/sync/EmbeddedTagReader.kt`,
+  `A/sync/MediaStoreLibraryScanner.kt`, `A/sync/SyncDatabase.kt` (`priorScanState` only, no schema change),
+  `sharedLogic/.../library/LocalLibrary.kt` (raw tag values kept in the track document so unchanged files keep the
+  fallback without a re-read) with `AT/sync/EmbeddedTagReaderTest.kt`, `AT/sync/TagFallbackTest.kt` {default}
+  - Do (owner decision 2026-10-06, ADR-006 amendment): `EmbeddedTagReader` also returns artist, album artist and
+    album from the tag blocks it already parses (ID3v2 incl. WAV/AIFF chunks, Vorbis comments, MP4). The scanner
+    uses them only when MediaStore reports none for that field (blank or `<unknown>`), and never overrides a
+    non-empty MediaStore value. Applies to every format, not only WAV (Principle 10). Same one-open-per-file read.
+    Bump `CurrentMetadataSchemaVersion` (one full re-read on the next scan). No new tag library: jaudiotagger-kt
+    stays a 002 candidate for APEv2/ASF/DSF.
+  - Tests: `UT me.misa198.airmedy.sync.EmbeddedTagReaderTest` (+ a pure fallback-merge test); `GATE`.
+  - Accept: a WAV with an ID3 chunk carrying TPE1/TPE2/TALB scans with those values; a MediaStore value wins when present.
 
 - [ ] T034 [US2] Wire `Media3Engine` into `A/player/engine/EngineFactory.kt` so the switch selects it at the next playback start {default}
   - Tests: `UT me.misa198.airmedy.player.engine.EngineFactoryTest`; `GATE`.

@@ -108,6 +108,8 @@ temporary, tied to the deferred-formats decision. Checklist: 16/16.
 from it until all three features are done; a full review-and-fix phase runs before v1.0. Part 2 findings
 for the playback path are already 001 requirements (FR-080…FR-092). Known bug: PlaybackQueue keeps only
 1000 tracks and clamps the start index (Part 3 blocker); characterization tests must not assert it.
+- Pre-v1.0 item (owner, 2026-10-06): the decode-failure log page (T032b) gives no feedback when "Save as file"
+  fails. The write error is swallowed. Add a visible error message.
 
 ## Phase 2 — Plan: DONE (2026-10-05)
 
@@ -367,6 +369,7 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 | T031 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T031/brief-1.md` (session `ses_eef048303ffe35vgarmJzn6aTe`) | `distinctUntilChanged()` on the EQ and crossfade settings flows; coordinator skips a repeated `(seconds, blend)` (no flow write / artwork clear / preload) and a repeated EQ value (no `setDsp`; new engines still get the current EQ). `PreferenceChurnTest` (4). Orchestrator fixed test 1 (it passed without the dedup because the preload slot was already full) by emptying the slot again after the first application; mutation-checked: fails without the dedup. migration-guard PASS, gate PASS. **Review rounds: 0** (orchestrator test fix) | DONE |
 | T032 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T032/brief-1.md`, `brief-2.md` (session `ses_eeeff447bffes2t07Q9T1DSD4A`) | Every `EngineEvent.Error`: log `Decode failure provider= format= id= error=`, publish TransportState.Error, close the engine, skip to the next distinct track (paused stays paused unless a resume is pending), drop the rest of the closed engine's batch; last track / repeat-one / budget exhausted → `fail`. Budget = consecutive failures < min(queue size, 20), reset on OutputStarted and user play/shuffle/select. No retry. `EngineErrorPathTest` (8). Round 1: paused session started audio after a skip; nested skip recursion bounded (cap 20). The round-1 coder run was killed by the memory reaper after writing the code and tests, before running them; orchestrator reviewed and ran the gate (PASS). migration-guard PASS; orchestrator applied its note (outer start guard also checks engine identity), player tests re-run 236/236. **Review rounds: 1** | DONE |
 | T032b | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T032b/brief-1.md` (session `ses_eeef5f457ffe0gPzEUoaHF56Q0`) | `DecodeFailureLog` (JSONL in filesDir, newest 200, six FR-064a fields only, file name not path), coordinator records on the T032 error path (new last ctor param `decodeFailures`, write failures swallowed), Settings → Decode-failure log page (Share via ACTION_SEND, Save via CreateDocument, Clear; existing Folder glyph), strings EN/AR. `DecodeFailureLogTest` (7). Orchestrator fixes: fallback resolve rethrows CancellationException; `forContext` returns one process-wide instance (guard note: UI and service instances did not share a lock). migration-guard PASS; gate PASS; after the two fixes DecodeFailureLogTest + EngineErrorPathTest and assembleDevDebug re-run green. Open: save failure is silent (UX). **Review rounds: 0** | DONE |
+| T033 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T033/brief-1.md` (session `ses_eee5ec0b4ffeonoCY4eLUjU3jl`) | Root cause investigated first (see "T033 root cause"): the session path is correct; the scan fix is T033a. Pure `nowPlayingMetadata(item)` in PlaybackService.kt sets MEDIA_ID, TITLE, ARTIST, ALBUM and ALBUM_ARTIST (blank album and album artist left out; display text trimmed); artwork unchanged. `NowPlayingMetadataTest` (6). Orchestrator fixes: MEDIA_ID is not trimmed (the brief's trim rule was wrong for ids); guard notes added (key order, untrimmed id). migration-guard PASS; gate PASS; test class re-run 6/6 after the additions. **Review rounds: 0** | DONE |
 
 ### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
 
@@ -403,7 +406,7 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 ## Exact next step
 
-M3: T032b done. T033 root cause found (below); **stopped for owner decision (stop rule 4: ADR-006 / T033 scope change)**. Then T033, T034, T035 [MANUAL].
+M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 amendment (2026-10-06). T033 done. Next → T033a (brief `~/.local/state/sistrum-delegate/T033a/brief-1.md`), T034, T035 [MANUAL].
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
