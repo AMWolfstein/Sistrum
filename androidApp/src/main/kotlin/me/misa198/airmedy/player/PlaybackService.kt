@@ -1,5 +1,6 @@
 package me.misa198.airmedy.player
 
+import android.app.ForegroundServiceStartNotAllowedException
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Notification
@@ -19,7 +20,9 @@ import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.media.session.PlaybackState as AndroidMediaPlaybackState
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import java.util.UUID
@@ -34,10 +37,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import me.misa198.airmedy.MainActivity
 import me.misa198.airmedy.R
@@ -72,6 +77,15 @@ class PlaybackService : Service() {
     private lateinit var listeningWriter: Job
     private var preferencesJob: Job? = null
     private var moodRadioJob: Job? = null
+    private var equalizerJob: Job? = null
+    private var normalizationJob: Job? = null
+    private var tickerJob: Job? = null
+    @Volatile
+    private var inForeground = false
+    private var latestStartId = -1
+    private var shuttingDown = false
+    private var myGeneration = 0
+    private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var audioManager: AudioManager
     private lateinit var mediaSession: MediaSession
     private lateinit var focusRequest: AudioFocusRequest
@@ -83,16 +97,16 @@ class PlaybackService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        myGeneration = ++instanceGeneration
+        val teardownToAwait = previousTeardown
         AndroidPlaybackRuntime.initialize(applicationContext, AndroidSyncRuntime.syncStore())
         lastFm = AndroidLastFmRuntime.initialize(applicationContext, AndroidSyncRuntime.syncStore())
         listeningTracker = ListeningTracker(DeviceIdentity(applicationContext).id) { UUID.randomUUID().toString() }
         listeningWriter = scope.launch {
-            for (write in listeningWrites) AndroidSyncRuntime.syncStore().recordListening(write)
-        }
-        runBlocking {
             val now = System.currentTimeMillis()
             AndroidSyncRuntime.syncStore().recoverOpenPlaybackAttempts(now)
             AndroidSyncRuntime.syncStore().cleanupListening(now - ListeningRetentionMs)
+            for (write in listeningWrites) AndroidSyncRuntime.syncStore().recordListening(write)
         }
         sessionStore = PlaybackSessionStore(applicationContext)
         playbackPreferences = PlaybackPreferences(applicationContext)
@@ -159,6 +173,7 @@ class PlaybackService : Service() {
             listeningTracker = listeningTracker,
             nextArtworkCrossfadeId = { ++nextArtworkCrossfadeId },
         )
+        coordinator.onIdle = { if (serviceShouldStopWhenSettled(state.value)) mainHandler.post { settle() } }
 
         preferencesJob = scope.launch {
             playbackPreferences.settings.collectLatest { settings ->
@@ -167,14 +182,14 @@ class PlaybackService : Service() {
                 }
             }
         }
-        scope.launch {
+        equalizerJob = scope.launch {
             equalizerPreferences.settings.collectLatest { settings ->
                 coordinator.withCommandLock {
                     coordinator.onEqualizerSettings(settings)
                 }
             }
         }
-        scope.launch {
+        normalizationJob = scope.launch {
             normalizationPreferences.settings.collectLatest { settings ->
                 coordinator.withCommandLock {
                     coordinator.onNormalizationSettings(settings)
@@ -184,6 +199,7 @@ class PlaybackService : Service() {
 
         restoreJob = scope.launch {
             try {
+                teardownToAwait?.join()
                 sessionStore.load()?.let { session ->
                     val availableTrackIds = AndroidPlaybackRuntime.availableTrackIds(session.queue.originalTrackIds)
                     coordinator.withCommandLock {
@@ -199,17 +215,24 @@ class PlaybackService : Service() {
                 coordinator.markRestored()
             }
         }
-        scope.launch {
-            while (true) {
-                delay(200)
-                coordinator.withCommandLock {
-                    coordinator.tick()
+        tickerJob = scope.launch {
+            state.map { !serviceShouldStopWhenSettled(it) }.distinctUntilChanged().collectLatest { active ->
+                if (active) {
+                    while (true) {
+                        delay(200)
+                        coordinator.withCommandLock {
+                            coordinator.tick()
+                        }
+                    }
                 }
             }
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        latestStartId = startId
+        if (shuttingDown) return START_NOT_STICKY
+        ensureForeground()
         if (playbackActionReplacesRestoredQueue(intent?.action)) {
             // A tap is more important than reconstructing the prior session. In
             // particular, do not delay its Preparing state (and mini-player)
@@ -217,7 +240,7 @@ class PlaybackService : Service() {
             restoreJob.cancel()
             coordinator.markRestored()
         }
-        when (intent?.action) {
+        val command: Job? = when (intent?.action) {
             ActionPlay, ActionShuffle -> coordinator.dispatch(
                 action = intent.action!!,
                 trackIds = takeQueueToken(intent),
@@ -229,10 +252,13 @@ class PlaybackService : Service() {
                 ActionSetRepeat,
                 repeat = intent.getStringExtra(RepeatModeExtra)?.let { value -> runCatching { RepeatMode.valueOf(value) }.getOrNull() },
             )
-            ActionSetCrossfade -> scope.launch {
-                playbackPreferences.setCrossfadeSeconds(
-                    intent.getIntExtra(CrossfadeSecondsExtra, CrossfadeDisabledSeconds),
-                )
+            ActionSetCrossfade -> {
+                scope.launch {
+                    playbackPreferences.setCrossfadeSeconds(
+                        intent.getIntExtra(CrossfadeSecondsExtra, CrossfadeDisabledSeconds),
+                    )
+                }
+                null
             }
             ActionPlayNext, ActionAppend, ActionReorder -> coordinator.dispatch(
                 action = intent.action!!,
@@ -241,33 +267,99 @@ class PlaybackService : Service() {
             ActionStartMoodRadio -> coordinator.dispatch(ActionStartMoodRadio, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
             ActionSelect -> coordinator.dispatch(ActionSelect, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
             ActionRemove -> coordinator.dispatch(ActionRemove, trackIds = listOfNotNull(intent.getStringExtra(TrackIdExtra)))
-            null -> Unit
+            null -> null
             else -> coordinator.dispatch(intent.action!!)
         }
+        if (command == null) settle()
         return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-        runBlocking {
-            coordinator.finishListeningCrossfade()
-            coordinator.enqueueListening(coordinator.listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()))
-            listeningWrites.close()
-            withTimeoutOrNull(2_000) { listeningWriter.join() }
-        }
-        runBlocking { sessionStore.save(coordinator.currentSession()) }
-        coordinator.closeEngine()
+        shuttingDown = true
+        // Read before cancelling: the restore job's finally marks the coordinator restored even when cancelled.
+        val restoredBeforeDestroy = coordinator.isRestored()
+        restoreJob.cancel()
+        tickerJob?.cancel()
         preferencesJob?.cancel()
+        equalizerJob?.cancel()
+        normalizationJob?.cancel()
         moodRadioJob?.cancel()
         unregisterReceiver(noisyAudioReceiver)
-        AndroidPlaybackSession.clear()
-        mediaSession.release()
         audioManager.abandonAudioFocusRequest(focusRequest)
-        scope.cancel()
-        coordinator.clearArtworkCrossfade()
-        state.value = PlaybackState.Idle
+        val teardown = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            runCatching { coordinator.shutdown() }
+                .onFailure { Log.w(PlaybackLogTag, "Playback coordinator shutdown failed", it) }
+            runCatching { coordinator.finishListeningCrossfade() }
+                .onFailure { Log.w(PlaybackLogTag, "Listening crossfade finish failed", it) }
+            runCatching {
+                coordinator.enqueueListening(
+                    coordinator.listeningTracker.finish(PlaybackEndReason.STOPPED, System.currentTimeMillis(), SystemClock.elapsedRealtime()),
+                )
+            }.onFailure { Log.w(PlaybackLogTag, "Listening finish failed", it) }
+            if (restoredBeforeDestroy) {
+                runCatching { sessionStore.save(coordinator.currentSession()) }
+                    .onFailure { Log.w(PlaybackLogTag, "Session save failed", it) }
+            }
+            runCatching { coordinator.closeEngine() }
+                .onFailure { Log.w(PlaybackLogTag, "Engine close failed", it) }
+            runCatching { listeningWrites.close() }
+                .onFailure { Log.w(PlaybackLogTag, "Listening channel close failed", it) }
+            runCatching { withTimeoutOrNull(2_000) { listeningWriter.join() } }
+                .onFailure { Log.w(PlaybackLogTag, "Listening writer join failed", it) }
+            withContext(Dispatchers.Main) {
+                if (instanceGeneration == myGeneration) {
+                    AndroidPlaybackSession.clear(mediaSession.sessionToken)
+                    coordinator.clearArtworkCrossfade()
+                    if (state.value !is PlaybackState.Failed) state.value = PlaybackState.Idle
+                }
+                mediaSession.release()
+            }
+            scope.cancel()
+        }
+        previousTeardown = teardown
         super.onDestroy()
+    }
+
+    /** Reaches foreground for every command; the service cannot tell whether startForegroundService was used. */
+    private fun ensureForeground() {
+        if (inForeground) return
+        try {
+            createChannel()
+            startForeground(NotificationId, placeholderNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            inForeground = true
+        } catch (error: ForegroundServiceStartNotAllowedException) {
+            Log.w(PlaybackLogTag, "Unable to start the playback foreground service", error)
+        }
+    }
+
+    private fun placeholderNotification(): Notification {
+        val item = when (val current = state.value) {
+            is PlaybackState.Playing -> current.item
+            is PlaybackState.Paused -> current.item
+            is PlaybackState.Preparing -> current.item
+            else -> null
+        }
+        if (item != null) return notification(item)
+        return Notification.Builder(this, ChannelId)
+            .setSmallIcon(R.drawable.ic_launcher_monochrome)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentIntent(nowPlayingContentIntent())
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true)
+            .setStyle(Notification.MediaStyle().setMediaSession(mediaSession.sessionToken))
+            .build()
+    }
+
+    /** Main thread only. Stops the service once playback has settled and no command is queued or running. */
+    private fun settle() {
+        if (!shuttingDown && serviceShouldStopWhenSettled(state.value) && coordinator.isIdle()) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            inForeground = false
+            stopSelf(latestStartId)
+        }
     }
 
     private fun registerNoisyAudioReceiver() {
@@ -343,6 +435,7 @@ class PlaybackService : Service() {
         override fun showForeground(item: PlaybackItem) {
             createChannel()
             startForeground(NotificationId, notification(item), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            inForeground = true
         }
 
         override fun updateNotification(item: PlaybackItem) {
@@ -351,6 +444,7 @@ class PlaybackService : Service() {
 
         override fun stopForeground() {
             stopForeground(STOP_FOREGROUND_REMOVE)
+            inForeground = false
         }
     }
 
@@ -455,6 +549,11 @@ class PlaybackService : Service() {
     }
 
     companion object {
+        @Volatile
+        private var instanceGeneration = 0
+        @Volatile
+        private var previousTeardown: Job? = null
+
         internal const val ActionPlay = "me.misa198.airmedy.player.PLAY"
         internal const val ActionShuffle = "me.misa198.airmedy.player.SHUFFLE"
         internal const val ActionPause = "me.misa198.airmedy.player.PAUSE"

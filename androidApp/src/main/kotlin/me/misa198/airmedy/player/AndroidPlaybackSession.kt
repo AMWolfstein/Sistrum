@@ -13,7 +13,7 @@ internal object AndroidPlaybackSession {
 
     fun tokenOrNull(): MediaSession.Token? = activeToken
 
-    fun clear() {
-        activeToken = null
+    fun clear(token: MediaSession.Token) {
+        if (activeToken == token) activeToken = null
     }
 }

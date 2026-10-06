@@ -69,6 +69,11 @@ internal class PlaybackCoordinator(
     private val commandQueue = ArrayDeque<Command>()
     private val preRestoreCommands = ArrayDeque<Command>()
     private var draining = false
+    private var drainerJob: Job? = null
+    private var shutDown = false
+
+    /** Invoked (outside the command lock) each time the drainer exits because the queue became empty. */
+    var onIdle: (() -> Unit)? = null
 
     init {
         scope.coroutineContext[Job]?.invokeOnCompletion { cancelAllPending() }
@@ -136,7 +141,7 @@ internal class PlaybackCoordinator(
 
     private fun enqueue(command: Command) {
         synchronized(commandLock) {
-            if (scope.coroutineContext[Job]?.isActive == false) {
+            if (shutDown || scope.coroutineContext[Job]?.isActive == false) {
                 command.cancel()
                 return
             }
@@ -154,9 +159,29 @@ internal class PlaybackCoordinator(
     /** Starts the single drainer; if the scope is already dead the completion handler cancels everything. */
     private fun startDrainerLocked() {
         draining = true
-        scope.launch { drain() }.invokeOnCompletion { cause ->
+        val job = scope.launch { drain() }
+        drainerJob = job
+        job.invokeOnCompletion { cause ->
             if (cause != null) cancelAllPending()
         }
+    }
+
+    /**
+     * Stops accepting commands and cancels everything queued or in-flight. After it returns the
+     * coordinator no longer runs commands and every subsequent [enqueue] refuses immediately.
+     * Idempotent; safe to call again after it has returned.
+     */
+    suspend fun shutdown() {
+        val drainer = synchronized(commandLock) {
+            shutDown = true
+            commandQueue.forEach { it.cancel() }
+            commandQueue.clear()
+            preRestoreCommands.forEach { it.cancel() }
+            preRestoreCommands.clear()
+            drainerJob?.takeIf { it.isActive }
+        }
+        drainer?.cancel()
+        drainer?.join()
     }
 
     private suspend fun drain() {
@@ -170,7 +195,10 @@ internal class PlaybackCoordinator(
                         commandQueue.removeFirst()
                     }
                 }
-                command ?: return
+                if (command == null) {
+                    onIdle?.invoke()
+                    return
+                }
                 runCommand(command)
             }
         } catch (cancellation: CancellationException) {
@@ -178,6 +206,12 @@ internal class PlaybackCoordinator(
             throw cancellation
         }
     }
+
+    fun isIdle(): Boolean = synchronized(commandLock) {
+        restored.isCompleted && commandQueue.isEmpty() && preRestoreCommands.isEmpty() && !draining
+    }
+
+    fun isRestored(): Boolean = restored.isCompleted
 
     private fun cancelAllPending() {
         synchronized(commandLock) {

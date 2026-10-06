@@ -367,7 +367,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     ignored); `GATE`. migration-guard (PlaybackController).
   - Accept: no `putExtra` with id arrays left (`grep`).
 
-- [ ] T029 [US2] Foreground start and ordered shutdown (FR-080, FR-082) in `A/player/PlaybackService.kt`, `A/player/PlaybackController.kt`, `A/player/PlaybackModels.kt` with `AT/player/ForegroundPolicyTest.kt` {hard} [HIGH-RISK]
+- [x] T029 [US2] Foreground start and ordered shutdown (FR-080, FR-082) in `A/player/PlaybackService.kt`, `A/player/PlaybackController.kt`, `A/player/PlaybackModels.kt` with `AT/player/ForegroundPolicyTest.kt` {hard} [HIGH-RISK]
   - Do: pure `requiresForegroundStart(action)`; every foreground-started path reaches `startForeground` (incl. cold
     service + empty queue, early returns); non-playing commands use `startService`; stop/fail/clear stop the ticker
     and `stopSelf` when idle; `onDestroy` stops intake, cancels, awaits the in-flight command, then releases engine and

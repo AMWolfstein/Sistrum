@@ -25,7 +25,7 @@ internal class PlaybackController(
 
     fun play(request: PlaybackRequest) {
         Log.d(PlaybackLogTag, "Queue play requested size=${request.trackIds.size} startIndex=${request.startIndex} startId=${request.trackIds[request.startIndex]}")
-        context.startForegroundService(
+        send(
             PlaybackService.intent(context, PlaybackService.ActionPlay)
             .putExtra(PlaybackService.QueueTokenExtra, QueueHandoff.shared.put(request.trackIds))
             .putExtra(PlaybackService.StartIndexExtra, request.startIndex),
@@ -38,31 +38,31 @@ internal class PlaybackController(
     fun clearQueue() = command(PlaybackService.ActionClearQueue)
     fun next() = command(PlaybackService.ActionNext)
     fun previous() = command(PlaybackService.ActionPrevious)
-    fun shuffle(request: PlaybackRequest) = context.startForegroundService(
+    fun shuffle(request: PlaybackRequest) = send(
         PlaybackService.intent(context, PlaybackService.ActionShuffle)
             .putExtra(PlaybackService.QueueTokenExtra, QueueHandoff.shared.put(request.trackIds))
             .putExtra(PlaybackService.StartIndexExtra, request.startIndex),
     )
-    fun setShuffle(enabled: Boolean) = context.startForegroundService(
+    fun setShuffle(enabled: Boolean) = send(
         PlaybackService.intent(context, PlaybackService.ActionSetShuffle).putExtra(PlaybackService.EnabledExtra, enabled),
     )
-    fun setRepeatMode(mode: RepeatMode) = context.startForegroundService(
+    fun setRepeatMode(mode: RepeatMode) = send(
         PlaybackService.intent(context, PlaybackService.ActionSetRepeat).putExtra(PlaybackService.RepeatModeExtra, mode.name),
     )
     fun playNext(trackId: String) = playNext(listOf(trackId))
     fun playNext(trackIds: List<String>) = tracksCommand(PlaybackService.ActionPlayNext, trackIds)
     fun append(trackIds: List<String>) = tracksCommand(PlaybackService.ActionAppend, trackIds)
-    fun startMoodRadio(seedTrackId: String) = context.startForegroundService(
+    fun startMoodRadio(seedTrackId: String) = send(
         PlaybackService.intent(context, PlaybackService.ActionStartMoodRadio).putExtra(PlaybackService.TrackIdExtra, seedTrackId),
     )
-    fun selectQueueTrack(trackId: String) = context.startForegroundService(
+    fun selectQueueTrack(trackId: String) = send(
         PlaybackService.intent(context, PlaybackService.ActionSelect).putExtra(PlaybackService.TrackIdExtra, trackId),
     )
-    fun removeFromQueue(trackId: String) = context.startForegroundService(
+    fun removeFromQueue(trackId: String) = send(
         PlaybackService.intent(context, PlaybackService.ActionRemove).putExtra(PlaybackService.TrackIdExtra, trackId),
     )
     fun reorderQueue(trackIds: List<String>) = tracksCommand(PlaybackService.ActionReorder, trackIds)
-    fun seekTo(positionMs: Long) = context.startForegroundService(
+    fun seekTo(positionMs: Long) = send(
         PlaybackService.intent(context, PlaybackService.ActionSeek).putExtra(PlaybackService.PositionMsExtra, positionMs),
     )
     /**
@@ -86,8 +86,13 @@ internal class PlaybackController(
 
     internal suspend fun resolve(trackId: String): PlaybackItem? = resolver.resolve(trackId)
 
-    private fun command(action: String) = context.startForegroundService(PlaybackService.intent(context, action))
-    private fun tracksCommand(action: String, trackIds: List<String>) = context.startForegroundService(
+    private fun command(action: String) = send(PlaybackService.intent(context, action))
+    private fun tracksCommand(action: String, trackIds: List<String>) = send(
         PlaybackService.intent(context, action).putExtra(PlaybackService.QueueTokenExtra, QueueHandoff.shared.put(trackIds)),
     )
+
+    private fun send(intent: Intent) {
+        if (requiresForegroundStart(intent.action)) context.startForegroundService(intent)
+        else context.startService(intent)
+    }
 }

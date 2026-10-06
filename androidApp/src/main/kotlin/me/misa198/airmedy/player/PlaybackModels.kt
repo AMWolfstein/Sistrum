@@ -112,6 +112,24 @@ internal fun playbackActionReplacesRestoredQueue(action: String?): Boolean = whe
     else -> false
 }
 
+/**
+ * Commands that can begin audio must be started as a foreground service; the rest
+ * (pause, seek, queue edits, preferences, focus) must not require a foreground start.
+ */
+internal fun requiresForegroundStart(action: String?): Boolean = when (action) {
+    PlaybackService.ActionPlay, PlaybackService.ActionShuffle, PlaybackService.ActionResume,
+    PlaybackService.ActionNext, PlaybackService.ActionPrevious, PlaybackService.ActionSelect,
+    PlaybackService.ActionStartMoodRadio -> true
+    else -> false
+}
+
+/** Once a command settles in [PlaybackState.Idle] or [PlaybackState.Failed] nothing is playing. */
+internal fun serviceShouldStopWhenSettled(state: PlaybackState): Boolean = when (state) {
+    PlaybackState.Idle -> true
+    is PlaybackState.Failed -> true
+    else -> false
+}
+
 internal fun interface PlaybackItemResolver {
     suspend fun resolve(trackId: String): PlaybackItem?
 }
