@@ -109,6 +109,18 @@
         <item quantity="many">%1$d فنانًا</item>
         <item quantity="other">%1$d فنان</item>
     </plurals>
+    <plurals name="scan_skipped_files">
+        <item quantity="zero">لم يُتخطَّ أي ملف: %2$s</item>
+        <item quantity="one">تم تخطي ملف واحد: %2$s</item>
+        <item quantity="two">تم تخطي ملفين: %2$s</item>
+        <item quantity="few">تم تخطي %1$d ملفات: %2$s</item>
+        <item quantity="many">تم تخطي %1$d ملفًا: %2$s</item>
+        <item quantity="other">تم تخطي %1$d ملف: %2$s</item>
+    </plurals>
+    <string name="scan_skipped_title">الملفات المتخطاة</string>
+    <string name="scan_skipped_none">لم يتم تخطي أي ملفات في الفحص الأخير.</string>
+    <string name="scan_skip_unsupported_format">صيغة غير مدعومة (%1$s)</string>
+    <string name="scan_skip_no_decoder">لا يوجد مفكّك ترميز على هذا الجهاز (%1$s)</string>
     <string name="scan_start">بدء الفحص</string>
     <string name="scan_again">الفحص مجددًا</string>
     <string name="scan_permission_denied">يلزم إذن الوصول إلى الصوت لفحص مكتبتك.</string>

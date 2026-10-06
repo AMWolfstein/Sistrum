@@ -35,6 +35,37 @@ interface DecoderRegistry {
     fun skipReason(key: FormatKey): String?
 }
 
+/** A structured skip reason (FR-066): the text is generated and parsed in one place. */
+internal sealed interface SkipReason {
+    data class UnsupportedFormat(val label: String) : SkipReason
+
+    data class NoDecoder(val label: String) : SkipReason
+
+    data class Other(val text: String) : SkipReason
+}
+
+private const val UnsupportedFormatPrefix = "unsupported format ("
+private const val NoDecoderPrefix = "no decoder on this device ("
+
+/** The reason text, byte-identical to what the decoder table has always produced. */
+internal fun SkipReason.text(): String = when (this) {
+    is SkipReason.UnsupportedFormat -> "$UnsupportedFormatPrefix$label)"
+    is SkipReason.NoDecoder -> "$NoDecoderPrefix$label)"
+    is SkipReason.Other -> text
+}
+
+/**
+ * Parses [reason] back into a [SkipReason]: the two prefixed forms end in `)` and
+ * carry a label; anything else (e.g. a provider refusal) is [SkipReason.Other].
+ */
+internal fun parseSkipReason(reason: String): SkipReason = when {
+    reason.startsWith(UnsupportedFormatPrefix) && reason.endsWith(")") ->
+        SkipReason.UnsupportedFormat(reason.substring(UnsupportedFormatPrefix.length, reason.length - 1))
+    reason.startsWith(NoDecoderPrefix) && reason.endsWith(")") ->
+        SkipReason.NoDecoder(reason.substring(NoDecoderPrefix.length, reason.length - 1))
+    else -> SkipReason.Other(reason)
+}
+
 /**
  * A [DecoderRegistry] backed by a [DecoderTable]: the first registered provider of
  * the entry, in table order, whose [DecoderProvider.isAvailable] is true.
@@ -54,13 +85,14 @@ class TableDecoderRegistry(
 
     override fun skipReason(key: FormatKey): String? {
         if (resolve(key) != null) return null
-        val entry = table.entryFor(key) ?: return if (key.format.isBlank()) {
-            "unsupported format (unknown)"
+        val entry = table.entryFor(key) ?: return SkipReason.UnsupportedFormat(
+            if (key.format.isBlank()) "unknown" else key.format.uppercase(),
+        ).text()
+        return if (entry.providers.isEmpty()) {
+            SkipReason.UnsupportedFormat(entry.label).text()
         } else {
-            "unsupported format (${key.format.uppercase()})"
+            SkipReason.NoDecoder(entry.label).text()
         }
-        if (entry.providers.isEmpty()) return "unsupported format (${entry.label})"
-        return "no decoder on this device (${entry.label})"
     }
 }
 

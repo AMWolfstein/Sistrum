@@ -477,7 +477,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     empty summary); `GATE`. migration-guard only if Room files appear in the diff (they must not).
   - Accept: session restore drops tracks no longer in the library (existing rule) when switching engines.
 
-- [ ] T040 [US8] Show the skipped-files summary after a scan and in settings in `A/ui/screens/LibraryScanContent.kt`, `A/ui/screens/ScanFilterContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
+- [x] T040 [US8] Show the skipped-files summary after a scan and in settings in `A/ui/screens/LibraryScanContent.kt`, `A/ui/screens/ScanFilterContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
   - Do: "12 files skipped: unsupported format (DSD)" style, `<plurals>` (Arabic zero/one/two/few/many/other), Western
     digits via `formatDisplay()`.
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.

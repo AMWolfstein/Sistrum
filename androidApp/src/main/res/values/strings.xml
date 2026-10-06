@@ -86,6 +86,14 @@
         <item quantity="one">%1$d artist</item>
         <item quantity="other">%1$d artists</item>
     </plurals>
+    <plurals name="scan_skipped_files">
+        <item quantity="one">%1$d file skipped: %2$s</item>
+        <item quantity="other">%1$d files skipped: %2$s</item>
+    </plurals>
+    <string name="scan_skipped_title">Skipped files</string>
+    <string name="scan_skipped_none">No files were skipped in the last scan.</string>
+    <string name="scan_skip_unsupported_format">unsupported format (%1$s)</string>
+    <string name="scan_skip_no_decoder">no decoder on this device (%1$s)</string>
     <string name="scan_start">Scan library</string>
     <string name="scan_again">Scan again</string>
     <string name="scan_permission_denied">Audio permission is required to scan your library.</string>

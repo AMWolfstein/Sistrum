@@ -33,6 +33,7 @@ import me.misa198.airmedy.sync.AndroidSyncRuntime
 import me.misa198.airmedy.sync.MediaScanFilter
 import me.misa198.airmedy.sync.MediaScanMode
 import me.misa198.airmedy.sync.ScanFilterPreferences
+import me.misa198.airmedy.sync.SkippedFilesSummaryStore
 import me.misa198.airmedy.ui.components.ActionList
 import me.misa198.airmedy.ui.components.ActionListContainerStyle
 import me.misa198.airmedy.ui.components.ActionListDivider
@@ -65,6 +66,9 @@ internal fun ScanFilterContent(modifier: Modifier = Modifier) {
     val preferences = remember { ScanFilterPreferences(context) }
     val filter by preferences.filter.collectAsStateWithLifecycle(initialValue = MediaScanFilter())
     val tracks by AndroidSyncRuntime.syncStore().tracks.collectAsStateWithLifecycle(initialValue = emptyList())
+    val skippedSummary by remember { SkippedFilesSummaryStore(context) }
+        .summary
+        .collectAsStateWithLifecycle(initialValue = null)
 
     val activeFolders = when (filter.mode) {
         MediaScanMode.Blacklist -> filter.blacklistedFolders
@@ -160,6 +164,22 @@ internal fun ScanFilterContent(modifier: Modifier = Modifier) {
                         if (index < suggestedFolders.lastIndex) ActionListDivider(style = ActionListDividerStyle.FullWidth)
                     }
                 }
+            }
+        }
+
+        LabeledCard(label = stringResource(R.string.scan_skipped_title)) {
+            if (skippedSummaryLines(skippedSummary).isEmpty()) {
+                Text(
+                    text = stringResource(R.string.scan_skipped_none),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textMuted,
+                )
+            } else {
+                SkippedFilesSummaryText(
+                    summary = skippedSummary,
+                    modifier = Modifier.padding(16.dp),
+                )
             }
         }
 
