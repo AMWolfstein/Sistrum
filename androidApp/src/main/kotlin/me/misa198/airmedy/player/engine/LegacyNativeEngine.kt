@@ -133,6 +133,7 @@ internal class LegacyNativeEngine(
         port = candidate
         lastFinished = false
         lastOutputDisconnected = false
+        if (!startPaused) pendingEvents += EngineEvent.OutputStarted
     }
 
     override suspend fun preloadNext(item: PlaybackItem, gain: ItemGain) {
@@ -154,7 +155,11 @@ internal class LegacyNativeEngine(
 
     override fun hasPreloaded(): Boolean = preloadedItem != null && port?.hasPreloaded() == true
 
-    override fun play() { port?.play() }
+    override fun play() {
+        val current = port ?: return
+        current.play()
+        pendingEvents += EngineEvent.OutputStarted
+    }
 
     override fun pause() { port?.pause() }
 

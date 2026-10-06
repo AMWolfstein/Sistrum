@@ -103,6 +103,7 @@ class LegacyNativeEngineTest {
     fun `events drained before a failed prepare are still returned`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.engine.preloadNext(item("b"), ItemGain(0f))
         harness.port.pending = NativeTransition.GaplessPromoted
         harness.nextPrepareError = IllegalStateException("boom")
@@ -141,6 +142,7 @@ class LegacyNativeEngineTest {
     fun `gapless promotion surfaces the preloaded item once`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.engine.preloadNext(item("b"), ItemGain(0f))
 
         harness.port.pending = NativeTransition.GaplessPromoted
@@ -154,6 +156,7 @@ class LegacyNativeEngineTest {
     fun `crossfade promotion surfaces the preloaded item with the fade duration`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.engine.preloadNext(item("b"), ItemGain(0f))
 
         assertTrue(harness.engine.beginCrossfade(5_000L))
@@ -187,6 +190,7 @@ class LegacyNativeEngineTest {
     fun `two transitions within one poll are delivered in order`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.engine.preloadNext(item("b"), ItemGain(0f))
         harness.port.pending = NativeTransition.GaplessPromoted
         harness.engine.preloadNext(item("c"), ItemGain(0f))
@@ -203,6 +207,7 @@ class LegacyNativeEngineTest {
     fun `ended is reported once per rising edge`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
 
         harness.port.finished = true
         assertEquals(listOf(EngineEvent.Ended), harness.engine.pollEvents())
@@ -214,6 +219,7 @@ class LegacyNativeEngineTest {
         assertEquals(listOf(EngineEvent.Ended), harness.engine.pollEvents())
 
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.port.finished = true
         assertEquals(listOf(EngineEvent.Ended), harness.engine.pollEvents())
     }
@@ -222,6 +228,7 @@ class LegacyNativeEngineTest {
     fun `output disconnected is reported once per rising edge`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
 
         harness.port.disconnected = true
         assertEquals(listOf(EngineEvent.OutputDisconnected), harness.engine.pollEvents())
@@ -233,6 +240,7 @@ class LegacyNativeEngineTest {
         assertEquals(listOf(EngineEvent.OutputDisconnected), harness.engine.pollEvents())
 
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.port.disconnected = true
         assertEquals(listOf(EngineEvent.OutputDisconnected), harness.engine.pollEvents())
     }
@@ -241,6 +249,7 @@ class LegacyNativeEngineTest {
     fun `one poll orders transition disconnected then ended`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.engine.preloadNext(item("b"), ItemGain(0f))
         harness.port.pending = NativeTransition.GaplessPromoted
         harness.port.disconnected = true
@@ -257,6 +266,7 @@ class LegacyNativeEngineTest {
     fun `a transition without a preloaded item is consumed silently`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.port.pending = NativeTransition.GaplessPromoted
 
         assertTrue(harness.engine.pollEvents().isEmpty())
@@ -268,6 +278,7 @@ class LegacyNativeEngineTest {
     fun `a failed preload stores nothing and its promotion is ignored`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.port.preloadResult = false
 
         harness.engine.preloadNext(item("b"), ItemGain(0f))
@@ -281,6 +292,7 @@ class LegacyNativeEngineTest {
     fun `a throwing preload rethrows and stores nothing`() = runTest {
         val harness = EngineHarness()
         harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
         harness.port.preloadError = IllegalStateException("preload")
 
         var thrown: Throwable? = null
@@ -361,6 +373,35 @@ class LegacyNativeEngineTest {
     @Test
     fun `kind is native`() {
         assertEquals(EngineKind.Native, EngineHarness().engine.kind)
+    }
+
+    @Test
+    fun `unpaused prepare reports output started once`() = runTest {
+        val harness = EngineHarness()
+        harness.engine.prepare(item("a"), ItemGain(0f), 0L, false)
+
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
+        assertTrue(harness.engine.pollEvents().isEmpty())
+    }
+
+    @Test
+    fun `paused prepare reports no output started`() = runTest {
+        val harness = EngineHarness()
+        harness.engine.prepare(item("a"), ItemGain(0f), 0L, true)
+
+        assertTrue(harness.engine.pollEvents().isEmpty())
+    }
+
+    @Test
+    fun `play reports output started and play without a port reports nothing`() = runTest {
+        val harness = EngineHarness()
+        harness.engine.play()
+        assertTrue(harness.engine.pollEvents().isEmpty())
+
+        harness.engine.prepare(item("a"), ItemGain(0f), 0L, true)
+        assertTrue(harness.engine.pollEvents().isEmpty())
+        harness.engine.play()
+        assertEquals(listOf(EngineEvent.OutputStarted), harness.engine.pollEvents())
     }
 
     private fun item(id: String) = PlaybackItem(trackId = id, title = id, artist = "artist", audioPath = "$id.mp3")

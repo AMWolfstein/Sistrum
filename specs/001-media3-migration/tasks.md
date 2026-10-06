@@ -349,7 +349,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     migration-guard (service command path).
   - Accept: T014–T016 still green unmodified.
 
-- [ ] T027 [US2] Focus, release and truthful state on the shared path in `A/player/PlaybackCoordinator.kt`, `A/player/engine/LegacyNativeEngine.kt` (FR-085, FR-086, FR-089, FR-090; defects FR-022/FR-035 duck across a track change, FR-015 no Last.fm restart on output recovery) {hard} [HIGH-RISK]
+- [x] T027 [US2] Focus, release and truthful state on the shared path in `A/player/PlaybackCoordinator.kt`, `A/player/engine/LegacyNativeEngine.kt` (FR-085, FR-086, FR-089, FR-090; defects FR-022/FR-035 duck across a track change, FR-015 no Last.fm restart on output recovery) {hard} [HIGH-RISK]
   - Do: the native engine emits `OutputStarted` after a successful unpaused prepare / `play()` (no native change); the
     coordinator reports Playing on it, draining `pollEvents()` inside the same command right after an unpaused prepare
     or `play()` (and after output recovery in `tick()`), so engines that report start synchronously (native, the fake)

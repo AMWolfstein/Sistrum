@@ -50,6 +50,7 @@ internal class PlaybackCoordinator(
     private var moodRadioSeedId: String? = null
     private var moodRadioLastRefillAttempt: Pair<String?, Int>? = null
     private var resumeOnFocusGain = false
+    private var focusHeld = false
 
     private var engine: PlayerEngine? = null
     private var preloadedItem: PlaybackItem? = null
@@ -62,6 +63,7 @@ internal class PlaybackCoordinator(
     private var normalizationSettings = NormalizationSettings()
     private var equalizerSettings = EqualizerSettings()
     private var isDucked = false
+    private var pendingStart: PendingStart? = null
 
     private val commandLock = Any()
     private val commandQueue = ArrayDeque<Command>()
@@ -94,6 +96,17 @@ internal class PlaybackCoordinator(
                 is Block -> result.cancel()
             }
         }
+    }
+
+    /** A start whose Playing publication waits for the engine's [EngineEvent.OutputStarted]. */
+    private sealed interface PendingStart {
+        val item: PlaybackItem
+
+        /** A fresh track start (startTracking) or an output-recovery recreate (!startTracking). */
+        data class Fresh(override val item: PlaybackItem, val startTracking: Boolean) : PendingStart
+
+        /** A resume of the already-prepared item. */
+        data class Resume(override val item: PlaybackItem, val resumeListening: Boolean) : PendingStart
     }
 
     fun markRestored() {
@@ -347,7 +360,7 @@ internal class PlaybackCoordinator(
     }
 
     private fun pauseForTransientFocusLoss() {
-        resumeOnFocusGain = flows.state.value is PlaybackState.Playing
+        resumeOnFocusGain = flows.state.value is PlaybackState.Playing || pendingStart != null
         restoreFocusGain()
         pauseCurrent()
     }
@@ -429,6 +442,7 @@ internal class PlaybackCoordinator(
         engine?.close()
         outputDisconnected = false
         endedPending = false
+        pendingStart = null
     }
 
     internal suspend fun handleTransition(
@@ -456,8 +470,7 @@ internal class PlaybackCoordinator(
         val item = resolver.resolve(trackId) ?: return fail(trackId, "Audio asset is not available")
         flows.state.value = PlaybackState.Preparing(item)
         nowPlaying.publishNowPlaying(item, TransportState.Buffering, 0L, 0L, activeQueueItemId(queue.snapshot()))
-        if (!focus.request()) return fail(trackId, "Audio focus was not granted")
-        restoreFocusGain()
+        if (!startPaused && !requestFocusForStart()) return fail(trackId, "Audio focus was not granted")
         try {
             engine?.close()
             // A normalization lookup can suspend. Do not leave a closed decoder
@@ -465,23 +478,23 @@ internal class PlaybackCoordinator(
             engine = null
             outputDisconnected = false
             endedPending = false
+            pendingStart = null
             val gainDb = normalizationGain(item, queue.peekNext())
             val preparedEngine = engineFactory()
             try {
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 preparedEngine.prepare(item, ItemGain(gainDb), startPositionMs, startPaused)
+                engine = preparedEngine
                 if (startPaused) {
                     flows.state.value = PlaybackState.Paused(item, preparedEngine.positionMs(), preparedEngine.durationMs())
                     nowPlaying.publishNowPlaying(item, TransportState.Paused, preparedEngine.positionMs(), preparedEngine.durationMs(), activeQueueItemId(queue.snapshot()))
+                    scrobble.startPlayback(item.trackId, preparedEngine.positionMs())
                 } else {
-                    flows.state.value = PlaybackState.Playing(item, preparedEngine.positionMs(), preparedEngine.durationMs())
-                    nowPlaying.publishNowPlaying(item, TransportState.Playing, preparedEngine.positionMs(), preparedEngine.durationMs(), activeQueueItemId(queue.snapshot()))
+                    pendingStart = PendingStart.Fresh(item, startTracking)
+                    pollEngineEvents()
+                    if (engine == null || flows.state.value is PlaybackState.Failed) return
                 }
-                engine = preparedEngine
-                scrobble.startPlayback(item.trackId, preparedEngine.positionMs())
-                if (!startPaused && startTracking) enqueueListening(listeningTracker.start(item.trackId, preparedEngine.positionMs(), clock.nowMs(), clock.elapsedMs()))
-                if (!startPaused && !startTracking) listeningTracker.resumeAfterInterruption(clock.elapsedMs())
             } catch (error: Throwable) {
                 preparedEngine.close()
                 throw error
@@ -506,20 +519,26 @@ internal class PlaybackCoordinator(
             engine = null
             outputDisconnected = false
             endedPending = false
+            pendingStart = null
             val gain = normalizationGain(item, queue.peekNext())
             val preparedEngine = engineFactory()
-            preparedEngine.setDsp(equalizerSettings)
-            preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-            preparedEngine.prepare(item, ItemGain(gain), savedPositionMs, startPaused = true)
-            val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
-            engine = preparedEngine
-            flows.state.value = PlaybackState.Paused(item, positionMs, preparedEngine.durationMs())
-            nowPlaying.publishNowPlaying(item, TransportState.Paused, positionMs, preparedEngine.durationMs(), activeQueueItemId(queue.snapshot()))
-            scrobble.startPlayback(item.trackId, positionMs)
-            preloadNext()
-            nowPlaying.showForeground(item)
-            publishQueue()
-            log.d("Restored paused playback id=$trackId positionMs=${engine?.positionMs()}")
+            try {
+                preparedEngine.setDsp(equalizerSettings)
+                preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
+                preparedEngine.prepare(item, ItemGain(gain), savedPositionMs, startPaused = true)
+                val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
+                engine = preparedEngine
+                flows.state.value = PlaybackState.Paused(item, positionMs, preparedEngine.durationMs())
+                nowPlaying.publishNowPlaying(item, TransportState.Paused, positionMs, preparedEngine.durationMs(), activeQueueItemId(queue.snapshot()))
+                scrobble.startPlayback(item.trackId, positionMs)
+                preloadNext()
+                nowPlaying.showForeground(item)
+                publishQueue()
+                log.d("Restored paused playback id=$trackId positionMs=${engine?.positionMs()}")
+            } catch (error: Throwable) {
+                preparedEngine.close()
+                throw error
+            }
         } catch (error: Throwable) {
             log.w("Unable to restore playback id=$trackId; clearing session", error)
             clearRestoredSession()
@@ -531,11 +550,24 @@ internal class PlaybackCoordinator(
         clearArtworkCrossfade()
         engine?.pause()
         enqueueListening(listeningTracker.pause(clock.nowMs(), clock.elapsedMs()))
-        (flows.state.value as? PlaybackState.Playing)?.let { current ->
-            val positionMs = engine?.positionMs() ?: current.positionMs
-            flows.state.value = PlaybackState.Paused(current.item, positionMs, current.durationMs)
-            nowPlaying.publishNowPlaying(current.item, TransportState.Paused, positionMs, current.durationMs, activeQueueItemId(queue.snapshot()))
+        when (val current = flows.state.value) {
+            is PlaybackState.Playing -> {
+                val positionMs = engine?.positionMs() ?: current.positionMs
+                flows.state.value = PlaybackState.Paused(current.item, positionMs, current.durationMs)
+                nowPlaying.publishNowPlaying(current.item, TransportState.Paused, positionMs, current.durationMs, activeQueueItemId(queue.snapshot()))
+            }
+            is PlaybackState.Preparing -> pendingStart?.let { pending ->
+                val positionMs = engine?.positionMs() ?: 0L
+                val durationMs = engine?.durationMs() ?: 0L
+                flows.state.value = PlaybackState.Paused(pending.item, positionMs, durationMs)
+                nowPlaying.publishNowPlaying(pending.item, TransportState.Paused, positionMs, durationMs, activeQueueItemId(queue.snapshot()))
+                if (pending is PendingStart.Fresh && pending.startTracking) {
+                    scrobble.startPlayback(pending.item.trackId, positionMs)
+                }
+            }
+            else -> Unit
         }
+        pendingStart = null
         updateNotification()
     }
 
@@ -547,6 +579,48 @@ internal class PlaybackCoordinator(
     internal fun restoreFocusGain() {
         isDucked = false
         engine?.setFocusGain(1f)
+    }
+
+    /** Requests focus only when audio is about to start; re-requesting keeps an existing duck. */
+    private fun requestFocusForStart(): Boolean {
+        if (!focus.request()) return false
+        if (!focusHeld) {
+            focusHeld = true
+            restoreFocusGain()
+        }
+        return true
+    }
+
+    private fun abandonFocus() {
+        if (focusHeld) {
+            focus.abandon()
+            focusHeld = false
+        }
+    }
+
+    private fun onOutputStarted() {
+        val pending = pendingStart ?: return
+        pendingStart = null
+        val currentEngine = engine ?: return
+        val item = pending.item
+        val positionMs = currentEngine.positionMs()
+        val durationMs = currentEngine.durationMs()
+        flows.state.value = PlaybackState.Playing(item, positionMs, durationMs)
+        nowPlaying.publishNowPlaying(item, TransportState.Playing, positionMs, durationMs, activeQueueItemId(queue.snapshot()))
+        updateNotification()
+        when (pending) {
+            is PendingStart.Fresh -> if (pending.startTracking) {
+                scrobble.startPlayback(item.trackId, positionMs)
+                enqueueListening(listeningTracker.start(item.trackId, positionMs, clock.nowMs(), clock.elapsedMs()))
+            } else {
+                listeningTracker.resumeAfterInterruption(clock.elapsedMs())
+            }
+            is PendingStart.Resume -> if (pending.resumeListening) {
+                listeningTracker.resume(clock.nowMs(), clock.elapsedMs())
+            } else {
+                enqueueListening(listeningTracker.start(item.trackId, positionMs, clock.nowMs(), clock.elapsedMs()))
+            }
+        }
     }
 
     internal suspend fun resumeCurrent() {
@@ -562,25 +636,20 @@ internal class PlaybackCoordinator(
                 engine = null
                 outputDisconnected = false
                 endedPending = false
+                pendingStart = null
             }
             playCurrent(paused?.positionMs ?: 0L)
             return
         }
-        if (!focus.request()) {
+        if (!requestFocusForStart()) {
             fail(paused.item.trackId, "Audio focus was not granted")
             return
         }
-        restoreFocusGain()
         currentEngine.play()
         val positionMs = currentEngine.positionMs()
-        if (listeningTracker.activeTrackId == paused.item.trackId) {
-            listeningTracker.resume(clock.nowMs(), clock.elapsedMs())
-        } else {
-            enqueueListening(listeningTracker.start(paused.item.trackId, positionMs, clock.nowMs(), clock.elapsedMs()))
-        }
-        flows.state.value = PlaybackState.Playing(paused.item, positionMs, paused.durationMs)
-        nowPlaying.publishNowPlaying(paused.item, TransportState.Playing, positionMs, paused.durationMs, activeQueueItemId(queue.snapshot()))
-        updateNotification()
+        pendingStart = PendingStart.Resume(paused.item, listeningTracker.activeTrackId == paused.item.trackId)
+        nowPlaying.publishNowPlaying(paused.item, TransportState.Buffering, positionMs, paused.durationMs, activeQueueItemId(queue.snapshot()))
+        pollEngineEvents()
         log.d("Playback resumed id=${paused.item.trackId} positionMs=$positionMs")
     }
 
@@ -598,11 +667,21 @@ internal class PlaybackCoordinator(
         engine = null
         outputDisconnected = false
         endedPending = false
+        pendingStart = null
         log.w("Audio output changed; recreating stream id=${current.item.trackId} positionMs=$positionMs")
         playCurrent(positionMs, startTracking = false)
     }
 
     internal fun seekCurrent(requestedPositionMs: Long) {
+        val preparing = flows.state.value as? PlaybackState.Preparing
+        if (preparing != null && pendingStart != null) {
+            finishListeningCrossfade()
+            clearArtworkCrossfade()
+            val targetPositionMs = clampSeekPosition(requestedPositionMs, engine?.durationMs() ?: 0L)
+            engine?.seekTo(targetPositionMs) ?: return
+            endedPending = false
+            return
+        }
         val current = flows.state.value
         val item: PlaybackItem
         val durationMs: Long
@@ -637,6 +716,7 @@ internal class PlaybackCoordinator(
     }
 
     internal fun stopPlayback() {
+        resumeOnFocusGain = false
         finishListeningCrossfade()
         enqueueListening(listeningTracker.finish(PlaybackEndReason.STOPPED, clock.nowMs(), clock.elapsedMs()))
         clearArtworkCrossfade()
@@ -644,7 +724,8 @@ internal class PlaybackCoordinator(
         engine?.close(); engine = null; preloadedItem = null
         outputDisconnected = false
         endedPending = false
-        focus.abandon()
+        pendingStart = null
+        abandonFocus()
         flows.state.value = PlaybackState.Idle
         nowPlaying.setTransportState(TransportState.Stopped, 0L, activeQueueItemId(queue.snapshot()))
         nowPlaying.deactivate()
@@ -673,7 +754,8 @@ internal class PlaybackCoordinator(
         engine?.close(); engine = null
         outputDisconnected = false
         endedPending = false
-        focus.abandon()
+        pendingStart = null
+        abandonFocus()
         val positionMs = stoppedCurrentPosition(reason, durationMs)
         flows.state.value = PlaybackState.Paused(item, positionMs, durationMs)
         nowPlaying.publishNowPlaying(item, TransportState.Paused, positionMs, durationMs, activeQueueItemId(queue.snapshot()))
@@ -689,6 +771,8 @@ internal class PlaybackCoordinator(
         engine?.close(); engine = null; preloadedItem = null
         outputDisconnected = false
         endedPending = false
+        pendingStart = null
+        abandonFocus()
         flows.state.value = PlaybackState.Failed(trackId, reason)
         nowPlaying.setTransportState(TransportState.Error, 0L, activeQueueItemId(queue.snapshot()))
         nowPlaying.deactivate()
@@ -719,6 +803,7 @@ internal class PlaybackCoordinator(
         engine?.close(); engine = null; preloadedItem = null
         outputDisconnected = false
         endedPending = false
+        pendingStart = null
         queue.clear()
         flows.queueState.value = queue.snapshot()
         nowPlaying.publishQueue(queue.snapshot())
@@ -756,9 +841,14 @@ internal class PlaybackCoordinator(
                 is EngineEvent.GaplessAdvanced -> consumeEngineTransition(event)
                 is EngineEvent.TransitionStarted -> consumeEngineTransition(event)
                 EngineEvent.OutputDisconnected -> outputDisconnected = true
-                EngineEvent.Ended -> endedPending = true
-                EngineEvent.OutputStarted -> Unit // reported as Playing in T027
-                is EngineEvent.Error -> Unit // handled in T032
+                EngineEvent.Ended -> {
+                    if (pendingStart != null) onOutputStarted()
+                    endedPending = true
+                }
+                EngineEvent.OutputStarted -> onOutputStarted()
+                is EngineEvent.Error -> pendingStart?.let { pending ->
+                    fail(pending.item.trackId, "Output did not start: ${event.cause.message}")
+                }
             }
         }
     }
