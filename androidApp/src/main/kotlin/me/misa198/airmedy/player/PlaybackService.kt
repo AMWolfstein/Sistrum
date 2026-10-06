@@ -49,6 +49,9 @@ import me.misa198.airmedy.lastfm.LastFmTrack
 import me.misa198.airmedy.device.DeviceIdentity
 import me.misa198.airmedy.mood.MoodRadioTrack
 import me.misa198.airmedy.player.engine.EngineFactory
+import me.misa198.airmedy.player.engine.EngineKind
+import me.misa198.airmedy.player.engine.EngineSelectionPreferences
+import me.misa198.airmedy.player.engine.LegacyNativeEngine
 
 /** Owns Android transport; queue semantics are delegated to sharedLogic. */
 class PlaybackService : Service() {
@@ -137,7 +140,10 @@ class PlaybackService : Service() {
             scope = scope,
             queue = queue,
             flows = PlaybackFlows(state, queueState, crossfadeSeconds, blendArtworkDuringCrossfade, artworkCrossfade, moodRadioActive),
-            engineFactory = EngineFactory::create,
+            engineFactory = EngineFactory(
+                selection = EngineSelectionPreferences(applicationContext).engine,
+                builders = mapOf(EngineKind.Native to { LegacyNativeEngine() }),
+            )::create,
             resolver = PlaybackItemResolver { id -> AndroidPlaybackRuntime.controller().resolve(id) },
             library = LibraryAdapter(),
             nowPlaying = NowPlayingAdapter(),

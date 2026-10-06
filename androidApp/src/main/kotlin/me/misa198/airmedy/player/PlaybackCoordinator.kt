@@ -30,7 +30,7 @@ internal class PlaybackCoordinator(
     private val scope: CoroutineScope,
     val queue: PlaybackQueue,
     private val flows: PlaybackFlows,
-    private val engineFactory: () -> PlayerEngine,
+    private val engineFactory: suspend () -> PlayerEngine,
     private val resolver: PlaybackItemResolver,
     private val library: LibraryPort,
     private val nowPlaying: NowPlayingPort,

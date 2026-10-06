@@ -356,6 +356,7 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 | T020 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T020/brief-1.md` … `brief-5.md` (session `ses_ef1b447f3ffeZSrv7tsGzK5l9P`) | `Media3Engine` single-player core + `Media3PlayerFactory` (shared `sistrum-player` looper, synchronous marshalling, live-player count); `Media3EngineCoreTest` 12/12 on the CPH2307 `.qa` build (3 runs). Contract: Media3 events via `pollEvents()`, looper threading. Orchestrator fixes: `check(!closed)` in prepare; dynamic scheduling off (root cause of coarse positions). Not selectable yet. **Review rounds: 4** (3 + 1 owner-approved; see "T020 stop") | DONE |
 | T021 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T021/brief-1.md` (session `ses_ef18ca039ffeVnlGX0Pyhvxa0D`) | Gapless on one ExoPlayer (two-item playlist; one `GaplessAdvanced` per AUTO transition; previous item removed; position extrapolation reset at the advance); factory test hook for audio processors. Device: `Media3EngineGaplessTest` 7/7, `Media3EngineCoreTest` 12/12. Measured joins: generated WAV split ≤ 10 ms and frame count exact; FLAC corpus 2 frames; **MP3 corpus 529 frames ≈ 11 ms** (see open item). **Review rounds: 0** | DONE |
 | T022 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T022/brief-1.md` (session `ses_ef17aabc7ffenJTcZXQOP5Ek16`) | `FocusVolumeRamp` (linear, full scale 120 ms down / 240 ms up as native `next_focus_gain`, retarget continues) + 7 host tests; Media3Engine drives `player.volume` through it with a 10 ms looper stepper, new players seeded from the ramp. Gate PASS; device regression Core 12/12, Gapless 7/7. **Review rounds: 0** | DONE |
+| T023 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T023/brief-1.md` (session `ses_ef1733959ffe6qaKEZWUPjyPd4`) | `EngineSelectionPreferences` (DataStore `engine_preferences`, default Native, unknown → Native); `EngineFactory` class reads the selection on every `create()` (suspend; coordinator `engineFactory` is now `suspend () -> PlayerEngine`), falls back to Native until T034 adds the Media3 builder. `EngineFactoryTest` green; characterization tests unmodified; gate PASS. **Review rounds: 0** | DONE |
 
 ### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
 
@@ -392,4 +393,4 @@ engine/extractor setup, or a spec note if the files' header is the cause). Not a
 
 ## Exact next step
 
-M3: `/delegate-task T023` (engine selection), then → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].
+M3: `/delegate-task T024` (hidden developer setting), then → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].

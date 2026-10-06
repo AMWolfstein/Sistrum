@@ -321,7 +321,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.player.media3.FocusVolumeRampTest`.
   - Accept: monotonic ramp, ends exactly at target, retarget mid-ramp continues from the current value.
 
-- [ ] T023 [US3] Engine selection in `A/player/engine/EngineSelectionPreferences.kt` and `A/player/engine/EngineFactory.kt` with `AT/player/engine/EngineFactoryTest.kt` {default}
+- [x] T023 [US3] Engine selection in `A/player/engine/EngineSelectionPreferences.kt` and `A/player/engine/EngineFactory.kt` with `AT/player/engine/EngineFactoryTest.kt` {default}
   - Do: DataStore `engine: Native | Media3`, default `Native` (data-model "EngineSelection"); the coordinator asks the
     factory at each playback start (play, select, restore) and never swaps a running engine.
   - Tests: `UT me.misa198.airmedy.player.engine.EngineFactoryTest` (change mid-track → same engine until next start;
