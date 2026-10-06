@@ -522,7 +522,7 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `bash tools/eq-golden/generate.sh --check` (regenerates and diffs against the committed JSON).
   - Accept: generator fails loudly if the markers move.
 
-- [ ] T043 [US7] [TESTS-FIRST] EQ match golden tests in `AT/player/dsp/EqualizerGoldenTest.kt`, `AT/player/dsp/StereoWidthPreampTest.kt`, `AT/player/dsp/DspLinearityTest.kt` {default}
+- [x] T043 [US7] [TESTS-FIRST] EQ match golden tests in `AT/player/dsp/EqualizerGoldenTest.kt`, `AT/player/dsp/StereoWidthPreampTest.kt`, `AT/player/dsp/DspLinearityTest.kt` {default}
   - Do: coefficients vs golden (relative error ≤ 1e-6, see spec US7 sc4 note on libm rounding); response within
     0.1 dB 20 Hz–20 kHz (target ≤ 0.01 dB); width/preamp vs native formula; changing a band mid-stream never resets
     filter state and the output step stays below a bound (FR-056); linearity: process(A)+process(B) == process(A+B)
