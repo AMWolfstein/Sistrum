@@ -307,7 +307,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     cache; truncated file → Error); `GATE`.
   - Accept: no service wiring yet; engine not selectable.
 
-- [ ] T021 [US2] Gapless preload in `A/player/media3/Media3Engine.kt` with `AI/player/media3/Media3EngineGaplessTest.kt` {hard} [HIGH-RISK]
+- [x] T021 [US2] Gapless preload in `A/player/media3/Media3Engine.kt` with `AI/player/media3/Media3EngineGaplessTest.kt` {hard} [HIGH-RISK]
   - Do: `preloadNext` appends to the player's two-item playlist; exactly one `GaplessAdvanced` per advance (FR-089),
     in order even for two short items; `clearPreloaded` removes it; the outgoing tail fully played (FR-088). ExoPlayer
     repeat/shuffle never used (research D2).

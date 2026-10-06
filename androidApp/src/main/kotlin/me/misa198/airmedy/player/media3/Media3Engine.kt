@@ -50,6 +50,25 @@ internal class Media3Engine(
             }
         }
 
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) return
+            val p = player ?: return
+            val mediaId = mediaItem?.mediaId
+            val incoming = if (mediaId != null) preloadedByMediaId[mediaId] else null
+            if (incoming != null) {
+                pendingEvents += EngineEvent.GaplessAdvanced(incoming)
+            }
+            endedArmed = true
+            rawMs = p.currentPosition.coerceAtLeast(0L)
+            rawAtMs = SystemClock.elapsedRealtime()
+            lastReturnedMs = rawMs
+            val index = p.currentMediaItemIndex
+            if (index > 0) {
+                p.removeMediaItems(0, index)
+            }
+            preloadedByMediaId.clear()
+        }
+
         override fun onPlayerError(error: PlaybackException) {
             if (prepared) {
                 val extension = currentItem?.audioPath?.substringAfterLast('.', "") ?: ""
@@ -68,6 +87,7 @@ internal class Media3Engine(
     private var rawMs = 0L
     private var rawAtMs = 0L
     private var lastReturnedMs = 0L
+    private val preloadedByMediaId = mutableMapOf<String, PlaybackItem>()
     @Volatile
     private var closed = false
     private val pendingEvents = ConcurrentLinkedQueue<EngineEvent>()
@@ -88,7 +108,13 @@ internal class Media3Engine(
                 prepared = false
                 endedArmed = false
                 p.addListener(listener)
-                p.setMediaItem(MediaItem.fromUri(Uri.fromFile(File(item.audioPath))), startPositionMs)
+                p.setMediaItem(
+                    MediaItem.Builder()
+                        .setUri(Uri.fromFile(File(item.audioPath)))
+                        .setMediaId(item.trackId)
+                        .build(),
+                    startPositionMs,
+                )
                 p.playWhenReady = false
                 p.prepare()
                 p
@@ -125,11 +151,38 @@ internal class Media3Engine(
         throw IllegalStateException("timed out waiting for playback to become ready")
     }
 
-    override suspend fun preloadNext(item: PlaybackItem, gain: ItemGain) = Unit
+    override suspend fun preloadNext(item: PlaybackItem, gain: ItemGain) {
+        val file = File(item.audioPath)
+        val added = factory.call {
+            val p = player ?: return@call false
+            clearPreloadedOnLooper(p)
+            p.addMediaItem(
+                MediaItem.Builder()
+                    .setUri(Uri.fromFile(file))
+                    .setMediaId(item.trackId)
+                    .build(),
+            )
+            preloadedByMediaId[item.trackId] = item
+            true
+        }
+        if (added && !file.exists()) {
+            clearPreloaded()
+            throw IOException("preloadNext: audio file does not exist: ${item.audioPath}")
+        }
+    }
 
-    override fun clearPreloaded() = Unit
+    override fun clearPreloaded() {
+        factory.call {
+            val p = player ?: return@call
+            clearPreloadedOnLooper(p)
+        }
+    }
 
-    override fun hasPreloaded(): Boolean = false
+    override fun hasPreloaded(): Boolean = factory.call {
+        val p = player ?: return@call false
+        val index = p.currentMediaItemIndex
+        index >= 0 && index + 1 < p.mediaItemCount
+    }
 
     override fun play() {
         factory.call {
@@ -239,9 +292,19 @@ internal class Media3Engine(
             prepared = false
             awaitingOutput = false
             endedArmed = false
+            preloadedByMediaId.clear()
             p
         }
         if (previous != null) factory.release(previous)
+    }
+
+    /** Removes every playlist item after the current one and forgets any preloaded mapping. */
+    private fun clearPreloadedOnLooper(p: ExoPlayer) {
+        val index = p.currentMediaItemIndex
+        if (index >= 0 && index + 1 < p.mediaItemCount) {
+            p.removeMediaItems(index + 1, p.mediaItemCount)
+        }
+        preloadedByMediaId.clear()
     }
 
     private companion object {

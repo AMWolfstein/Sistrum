@@ -354,6 +354,7 @@ Contract refinements decided at T018 (no ADR change; same kind as the T011 `poll
 | T018 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T018/brief-1.md`, `brief-2.md` (session `ses_ef1e5cb7effe6Ujo4ZVBomBUik`) | Tests first: `PlaybackCommandPathTest` 14 + `PlaybackCoordinatorDefectTest` 3 fail on assertions today (`verify.sh --expect-fail` PASS); `PlaybackCommandPathGuardTest` 6 already-holding guards (FR-084c, FR-085 a/d/f, FR-086a, FR-089). Seams: `EngineEvent.OutputStarted` (no-op arm), `selectQueueItem` stub; fakes: `autoOutputStarted` (default on), `failPosition`, resolver `failWith`/`suspendForever`, `coordinatorScope`, `ReversingDispatcher`. migration-guard NEEDS CHANGES round 1: FR-091 ordering test did not race, `join()` on custom-scope Jobs could time out; fixed in run-2; I replaced one remaining `join()` myself (trivial). Reviewer notes folded into T026/T027 task text (drain events in the command; Error before OutputStarted → fail; catch inside `tick()`). **Review rounds: 1** | DONE |
 | T019 | deepseek-v4.1-flash | `~/.local/state/sistrum-delegate/T019/brief-1.md` | Media3 exoplayer/common 1.11.1 → `implementation`, `media3-test-utils` → `testImplementation`, androidTest lines dropped, notices updated. The coder's run was killed by the OS memory reaper after its edits (before its own test run); diff reviewed complete. Gate PASS with `--expect-fail` (T018 classes), assembleDevQaAndroidTest PASS; runtime classpath: core media3 modules only, no FFmpeg/decoder extension; abiFilters unchanged. **Review rounds: 0** | DONE |
 | T020 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T020/brief-1.md` … `brief-5.md` (session `ses_ef1b447f3ffeZSrv7tsGzK5l9P`) | `Media3Engine` single-player core + `Media3PlayerFactory` (shared `sistrum-player` looper, synchronous marshalling, live-player count); `Media3EngineCoreTest` 12/12 on the CPH2307 `.qa` build (3 runs). Contract: Media3 events via `pollEvents()`, looper threading. Orchestrator fixes: `check(!closed)` in prepare; dynamic scheduling off (root cause of coarse positions). Not selectable yet. **Review rounds: 4** (3 + 1 owner-approved; see "T020 stop") | DONE |
+| T021 | deepseek-v4-pro | `~/.local/state/sistrum-delegate/T021/brief-1.md` (session `ses_ef18ca039ffeVnlGX0Pyhvxa0D`) | Gapless on one ExoPlayer (two-item playlist; one `GaplessAdvanced` per AUTO transition; previous item removed; position extrapolation reset at the advance); factory test hook for audio processors. Device: `Media3EngineGaplessTest` 7/7, `Media3EngineCoreTest` 12/12. Measured joins: generated WAV split ≤ 10 ms and frame count exact; FLAC corpus 2 frames; **MP3 corpus 529 frames ≈ 11 ms** (see open item). **Review rounds: 0** | DONE |
 
 ### T020 stop (2026-10-06): 3 review rounds used — resolved (owner approved one more round)
 
@@ -379,6 +380,15 @@ safety net; revisit if it ever masks a stall). Earlier proposal (kept for the re
 step ≤ 450 ms, |Δp − Δt| ≤ 150 ms between consecutive readings) — one more delegated round (needs owner OK, max rounds
 reached) or an orchestrator test edit.
 
+### Open: MP3 gapless join ≈ 11 ms on Media3 (found at T021, 2026-10-06)
+
+`gapless_mp3_1.mp3 → gapless_mp3_2.mp3` (ffmpeg libmp3lame 192k, LAME/Xing header) leaves a 529-frame near-silent run at
+the join on the CPH2307 (FLAC: 2 frames). 529 samples = the MP3 decoder delay, so the encoder-delay/padding trimming is
+incomplete for these files (extractor gapless info vs the platform MP3 decoder). SC-003 limit is 10 ms (480 frames).
+T021's test allows one MP3 frame (1 152) and logs the value. To do before T035/T062: check `Format.encoderDelay/
+encoderPadding` ExoPlayer reads for these files, compare with the native engine on the same pair, and decide (fix in the
+engine/extractor setup, or a spec note if the files' header is the cause). Not an ADR/spec change yet.
+
 ## Exact next step
 
-M3: `/delegate-task T021` (Media3 gapless preload), then → T021, T022, T023 → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].
+M3: `/delegate-task T022` (focus duck ramp), then T023 → T024 → T025, T026 → T027 → T028 → T029 → T030, T031, T032, T032b, T033, T034, T035 [MANUAL].

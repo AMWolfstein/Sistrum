@@ -7,8 +7,12 @@ import android.os.Looper
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.TrackSelectionParameters
+import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -30,7 +34,10 @@ private val playbackThread: HandlerThread by lazy {
  * assert every created player is released (FR-086).
  */
 @OptIn(UnstableApi::class)
-internal class Media3PlayerFactory(private val context: Context) {
+internal class Media3PlayerFactory(
+    private val context: Context,
+    private val audioProcessors: () -> Array<AudioProcessor> = { emptyArray() },
+) {
 
     private val looper: Looper = playbackThread.looper
     private val handler = Handler(looper)
@@ -90,7 +97,23 @@ internal class Media3PlayerFactory(private val context: Context) {
                     .build()
             )
         }
-        val player = ExoPlayer.Builder(context)
+        val processors = audioProcessors()
+        val renderersFactory = if (processors.isEmpty()) {
+            null
+        } else {
+            object : DefaultRenderersFactory(context) {
+                override fun buildAudioSink(
+                    context: Context,
+                    enableFloatOutput: Boolean,
+                    enableAudioOutputPlaybackParams: Boolean,
+                ): AudioSink = DefaultAudioSink.Builder(context)
+                    .setAudioProcessors(processors)
+                    .setEnableFloatOutput(enableFloatOutput)
+                    .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
+                    .build()
+            }
+        }
+        val builder = ExoPlayer.Builder(context)
             .setLooper(looper)
             .setTrackSelector(trackSelector)
             .setAudioAttributes(attributes, false)
@@ -98,6 +121,7 @@ internal class Media3PlayerFactory(private val context: Context) {
             // On by default in 1.11: the playback loop then sleeps ~250 ms between updates, so the position the
             // coordinator reads at its 200 ms tick goes stale (FR-012, lyrics sync). Measured on the CPH2307 (T020).
             .experimentalSetDynamicSchedulingEnabled(false)
+        val player = (if (renderersFactory != null) builder.setRenderersFactory(renderersFactory) else builder)
             .build()
         livePlayerCount.incrementAndGet()
         return player
