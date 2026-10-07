@@ -587,7 +587,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     Orchestrator: dumpsys on the CPH2307 — both tracks on the normal mixer thread on the shared session with the DP in
     that chain for all three formats; a direct/hi-res output → STOP, report to the owner.
 
-- [ ] T048c [US7] EQ-app imitation in `AI/player/media3/Media3EqAppImitationTest.kt` {default}
+- [x] T048c [US7] EQ-app imitation in `AI/player/media3/Media3EqAppImitationTest.kt` {default}
   - Do (owner 2026-10-07): a competing `DynamicsProcessing` (higher priority) on our engine's session takes control →
     `LimiterState(available, not controlled)` and the "not controlled" note; it then disables its effect → our recovery
     (release + 5 s probe, unavailable note); it releases → re-created with control, no note. Optional instrumentation
