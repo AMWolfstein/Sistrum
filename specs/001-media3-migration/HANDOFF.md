@@ -636,3 +636,9 @@ M2 characterization tests) and from Airmedy's `catalog/player/README.md` (curve,
 duration rule, repeat-one, artwork blend, last-duration memory, pause/skip/seek during a fade); map each to the M7 test
 or task covering it, plus the 0.46–0.69 s fade-lead compensation from S1 and the SC-015 summed-tone check (moved into
 M7). Show the owner anything not covered before starting M7.
+
+### M5 float-sink tasks (owner decisions 2026-10-07)
+
+| Task | Model | Rounds | Result |
+|---|---|---|---|
+| T048a float sink + block-size tests first | deepseek-v4.1-flash (`ses_ee8b29b93ffeaJanqPfK0W66Uo`, briefs `~/.local/state/sistrum-delegate/T048a/brief-1.md`, `brief-2.md`) | 2 | PASS (expect-fail, method-level: 11 of 12 `FloatChainAudioSinkTest` and 6 of 10 `MixerBlockEstimatorTest` fail on assertions against stubs `FloatChainAudioSink.kt` (pure `ForwardingAudioSink`) and `MixerBlockEstimator.kt` (null)). The 5 that pass against the stubs pin behaviour equal to pass-through/null: `floatAboveFullScaleIsNotClipped`, `tooFewStepsGiveNull`, `noDominantStepGivesNull`, `noProgressGivesNull`, `dominantClusterBelowHalfGivesNull` (so tasks.md's whole-class `--expect-fail` was replaced by method entries). Round 1 → orchestrator review: the ≥ 50 % rule untested, non-PCM → PCM re-enable untested, `hasPendingData` false after delivery unchecked; round 2 added `dominantClusterBelowHalfGivesNull`, `clusterAtExactlyHalfIsAccepted` and the two assertions. migration-guard NEEDS CHANGES: two inputs were not whole stereo frames (3 floats, 11 int32), which a correct chain (whole frames only) would fail; **orchestrator trivial fix** (one sample value added to each), migration-guard PASS. Non-blocking notes for T048b: no tests for `timeline`/`mediaPeriodId` copy, `reset()` forwarding, `isEnded()` with pending output, non-PCM format support; implement them per the brief anyway. Gate PASS. |

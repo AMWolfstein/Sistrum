@@ -566,7 +566,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 - [x] T047 [P] [US7] Limiter state note in the clip-prevention setting in `A/ui/screens/PlaybackSettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T048a [US7] [TESTS-FIRST] Float sink and block-size tests in `AT/player/media3/FloatChainAudioSinkTest.kt`, `AT/player/media3/MixerBlockEstimatorTest.kt` (stubs `A/player/media3/FloatChainAudioSink.kt`, `A/player/media3/MixerBlockEstimator.kt`) {default}
+- [x] T048a [US7] [TESTS-FIRST] Float sink and block-size tests in `AT/player/media3/FloatChainAudioSinkTest.kt`, `AT/player/media3/MixerBlockEstimatorTest.kt` (stubs `A/player/media3/FloatChainAudioSink.kt`, `A/player/media3/MixerBlockEstimator.kt`) {default}
   - Do (ADR-004 "Float sink amendment", owner 2026-10-07): fake inner `AudioSink`; configure rewrites the format to float
     and copies every other `AudioSinkConfig` field; 16/24/32-bit and float input → exact float out; neutral chain
     bit-exact; float above 0 dBFS not clipped; inner sink returning false → the same processed bytes re-offered, input
