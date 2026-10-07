@@ -2,7 +2,7 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M2 — Characterization and the engine seam (M1 approved by the owner 2026-10-05; T003b open, gates T046 only)
+**Phase:** M5 done — **Checkpoint M5 awaiting the owner's approval** (2026-10-07). M1–M4 approved.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
 ## Spec Kit feature directory
@@ -427,6 +427,8 @@ M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 am
 
 M4 started (owner: run to the end per the stop rules). T035a, T036–T041a done; T041 done (owner AIFF listening ok). **Checkpoint M4 approved (owner, 2026-10-06), effective after T039a/T039b.** T039a, T039b done. **M4 complete; Checkpoint M4 approved.** Stopped here at the owner's request (2026-10-06). Next → M5 (DSP chain and session limiter; needs T003/T004; remind the owner of the exact T003b listening steps when M5 reaches T046).
 
+M5 done 2026-10-07 (T042–T048d; see "Checkpoint M5" at the end). **Next:** owner approves Checkpoint M5 → then, BEFORE any M6 task, the normalization redesign docs ("Owner decisions 2026-10-07": M6-1…M6-5) and STOP to show the owner the new M6 task list, the first-analysis time/battery estimate for 775 tracks on the CPH2307, and how album loudness is stored/recomputed. Before M7: the crossfade behaviour audit.
+
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
 Evidence (QA build `me.misa198.airmedy.dev.qa` only; daily app untouched; `dumpsys media_session`,
@@ -666,3 +668,41 @@ T048 is closed on this basis (device parts done: hi-res routing + shared session
 | T048d slider-drag test (+ EQ fix) | deepseek-v4.1-flash (`ses_ee82b1f45ffeZp3yQlzTl39A3e`, briefs `~/.local/state/sistrum-delegate/T048d/brief-1.md`…`brief-3.md`) | 3 | PASS. New `DspSliderDragTest` (7): renders through `FloatChainAudioSink` with the real chain while EQ/preamp/width change between buffers; metric max \|second difference\|, threshold 1.5× the static renders at the drag's start/end/extreme settings + 1e-5; negative control (unramped 1 dB step) exceeds it 18×. **Round 1 found a real click**: one band ±12 → 0 dB (2.8× static) — `BiquadEqualizer` interpolated all five coefficients toward identity (poles moved mid-ramp) and zeroed state at the end. Round 2: 0 dB transitions blend only the numerator with frozen poles (b == a), then drain. migration-guard NEEDS CHANGES: draining used the live input, so float rounding in low bands (~1e-4) kept bands alive forever (never bit-exact, neutral fast path lost). Round 3: input-free drain recurrence, 1 s cap, draining bands untouched by other bands' drags; new `BiquadEqualizerDrainTest` (3): 32/64/125 Hz bands deactivate in 256/171/85 ms while playing, bit-exact after, no click at drain end. Orchestrator test tightening: drain must finish < 0.6 s (proves decay, not the 1 s cap). Slider table after fix: all scenarios ≤ threshold (fast drag 1.31e-3 vs 2.01e-3). migration-guard PASS. Gate PASS. Device (`.qa`) on round 2: band-centre 44.1/48 kHz, preamp/width, live change, 96 kHz golden, neutral bit-exact all OK (steady state unchanged; round 3 changes only drain internals, covered by JVM tests). **Closes T048 check 2.** Non-blocking notes: drag test's random walk rarely hits exactly 0 dB; a band still blending to 0 dB restarts its 20 ms blend while other sliders move with < 960-frame buffers (CPU only). |
 
 T048 closed 2026-10-07 on the owner's decision above (checks 1–2 closed on evidence/tests; 3–4 moved to T061).
+
+## Checkpoint M5 (2026-10-07) — awaiting owner approval
+
+US7 delivered on Media3: EQ (10 bands, native formula), stereo width and preamp as our own float processors with
+20 ms click-free ramps; each player runs Gain → Width → EQ → Preamp in float on the decoder's full resolution inside
+`FloatChainAudioSink`, float PCM to the AudioTrack; one shared audio session per engine with a DynamicsProcessing
+limiter-only stage (T003 parameters; "off" = neutral; control loss handled; frame duration from the measured mixer
+block, 40 ms on the CPH2307); limiter state note in settings (en + ar).
+
+Commits: 71a6b73 T042, 30199f3 T043, b048054 T044, 67f2b5e T045, e179a39 T046, fd50a53 T047, a967a47 docs (option A),
+36c6c34 T048a, 8188fa8 T048b, 4215147 T048c, db9bbb1 T048d + T048 closure.
+
+Evidence:
+- Golden: EQ coefficients/response match the native engine at 44.1/48/88.2/96/192 kHz (JVM, max 1.5e-6 dB); device
+  band-centre tones ±0.1 dB at 44.1/48 kHz (int path, T045) and 96 kHz (float path, T048b).
+- Float path: neutral chain bit-exact vs no chain for 16/24/32-bit int and float files; 24-bit detail kept (99.6 % of
+  samples finer than 16-bit vs 0 % on the old int path); float above 0 dBFS not clipped before our stages.
+- Routing (SC-015 single-track part + hi-res check): both players' float tracks on the MIXER thread `AudioOut_1D`
+  (deep buffer, speaker) on the shared session with the DynamicsProcessing enabled, for 16/48, 24/96, f32 — no
+  direct/hi-res output.
+- Effect-control loss: imitation test — not controlled → unavailable (no takeover under higher priority) → regained;
+  playback never stopped.
+- Slider drags: no discontinuity above threshold through the full chain (after the T048d EQ fix).
+- All Media3 device classes pass on `.qa` (Core 12, Gapless 7, Registry 3, ErrorAttribution 2, Dsp 5, Limiter 2,
+  FloatPath 5, EqAppImitation 1). Full unit suites + build green at every commit.
+- CPU (120 s, debuggable `.qa`): float neutral 13.7 / full 20.3 vs int neutral 7.8 / full 16.7 points; Media3DspTest
+  float noChain 11.1 / neutral 9.6 / full 18.3 (T045 int 11.2 / 9.6 / 19.2). PSS within 3 MB.
+
+Moved / open:
+- To T061 (M7 listening session, one session): loud material through the limiter incl. SC-011; "playback doesn't go
+  silent" during the audible imitation run; SC-015 two-tone summed crossfade.
+- `Media3Engine.setNormalization` not yet called by the coordinator → "Prevent clipping" off doesn't reach the Media3
+  limiter (on by default) — M6-4.
+- `LimiterStatus` keeps the last state after the service stops (cosmetic).
+- Low-rate AAC (8–16 kHz): possible one-time non-fatal position jump at start (inner-sink PTS check after trimming in
+  the wrapper); not device-tested (no such corpus file).
+- Real EQ apps (Wavelet, Poweramp EQ): optional owner check before v1.0.
+- Lint not run in M5 gates (not required per task; known MissingTranslation baseline).
