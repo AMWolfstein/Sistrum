@@ -643,7 +643,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ### Gain (tags kept as the fallback)
 
-- [ ] T049 [US6] [TESTS-FIRST] Tag parsing tests in `AT/player/normalization/TagGainSourceTest.kt` {default} — **kept**
+- [x] T049 [US6] [TESTS-FIRST] Tag parsing tests in `AT/player/normalization/TagGainSourceTest.kt` {default} — **kept**
   - Do: Media3 metadata objects built in the test: ID3 `TXXX` REPLAYGAIN_* (any case), Vorbis comments, `R128_*`
     (Q7.8/256, +5 dB), iTunNORM (standard conversion), `com.apple.iTunes:replaygain_*`, RVA2/RVAD/RGAD;
     `REPLAYGAIN_REFERENCE_LOUDNESS` → gain + (−18 − ref); precedence ReplayGain → R128 → Sound Check; malformed,
