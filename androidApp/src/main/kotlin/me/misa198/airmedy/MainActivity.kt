@@ -43,6 +43,7 @@ import me.misa198.airmedy.player.AndroidPlaybackRuntime
 import me.misa198.airmedy.player.AndroidPlaybackSession
 import me.misa198.airmedy.player.PlaybackService
 import me.misa198.airmedy.player.PlaybackState
+import me.misa198.airmedy.player.media3.LimiterStatus
 import me.misa198.airmedy.lastfm.AndroidLastFmRuntime
 import me.misa198.airmedy.lastfm.LastFmService
 import me.misa198.airmedy.lastfm.isLastFmAuthCallback
@@ -197,6 +198,7 @@ class MainActivity : ComponentActivity() {
             val lyricsSettings by lyricsPreferences.settings.collectAsStateWithLifecycle(initialValue = me.misa198.airmedy.lyrics.LyricsSettings())
             // Avoid clearing a valid preference while Room is still loading the active manifest.
             val normalizationAvailable by AndroidSyncRuntime.syncStore().analysisAvailable.collectAsStateWithLifecycle(initialValue = true)
+            val limiterState by LimiterStatus.state.collectAsStateWithLifecycle()
             LaunchedEffect(normalizationAvailable) {
                 if (!normalizationAvailable) normalizationPreferences.disable()
             }
@@ -388,6 +390,7 @@ class MainActivity : ComponentActivity() {
                     onShowFullscreenQualityBadgeChanged = { enabled -> preferenceScope.launch { playbackPreferences.setShowFullscreenQualityBadge(enabled) } },
                     normalizationAvailable = normalizationAvailable,
                     normalization = normalizationSettings,
+                    limiterState = limiterState,
                     onNormalizationChanged = { settings -> preferenceScope.launch { normalizationPreferences.update { settings } } },
                     equalizer = equalizerSettings,
                     onEqualizerEnabledChanged = { enabled -> preferenceScope.launch { equalizerPreferences.setEnabled(enabled) } },

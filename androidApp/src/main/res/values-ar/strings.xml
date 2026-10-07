@@ -298,6 +298,8 @@
     <string name="playback_normalization_track">الوضع: الأغنية</string>
     <string name="playback_normalization_album">الوضع: الألبوم</string>
     <string name="playback_normalization_prevent_clip">منع التشويه</string>
+    <string name="playback_limiter_unavailable_note">تعذّر تشغيل محدِّد مستوى الصوت في النظام على هذا الجهاز، لذا لا يُمنع التشويه. التشغيل ومعادل الصوت يعملان كالمعتاد.</string>
+    <string name="playback_limiter_not_controlled_note">يتحكم تطبيق آخر في مؤثر الصوت، لذا محدِّد مستوى الصوت في Sistrum غير نشط حاليًا. سيعود عندما يتوقف ذلك التطبيق عن التحكم.</string>
     <string name="playback_normalization_target">علو الصوت المستهدف</string>
     <string name="playback_normalization_target_value">%1$d LUFS</string>
     <string name="playback_normalization_mode">الوضع</string>

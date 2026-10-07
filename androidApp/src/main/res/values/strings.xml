@@ -263,6 +263,8 @@
     <string name="playback_normalization_track">Mode: Track</string>
     <string name="playback_normalization_album">Mode: Album</string>
     <string name="playback_normalization_prevent_clip">Prevent clipping</string>
+    <string name="playback_limiter_unavailable_note">The system limiter couldn\'t be started on this device, so clipping isn\'t prevented. Playback and the equalizer work as usual.</string>
+    <string name="playback_limiter_not_controlled_note">Another app is controlling the audio effect, so Sistrum\'s limiter isn\'t active right now. It comes back when that app lets go.</string>
     <string name="playback_normalization_target">Target loudness</string>
     <string name="playback_normalization_target_value">%1$d LUFS</string>
     <string name="playback_normalization_mode">Mode</string>

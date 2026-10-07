@@ -278,6 +278,7 @@ internal fun AppDestinationContent(
     val onShowFullscreenQualityBadgeChanged = settings.onShowFullscreenQualityBadgeChanged
     val normalizationAvailable = settings.normalizationAvailable
     val normalization = settings.normalization
+    val limiterState = settings.limiterState
     val onNormalizationChanged = settings.onNormalizationChanged
     val equalizer = settings.equalizer
     val onEqualizerEnabledChanged = settings.onEqualizerEnabledChanged
@@ -454,6 +455,7 @@ internal fun AppDestinationContent(
                             AppStackPage.SettingsVolumeNormalization -> VolumeNormalizationContent(
                                 normalizationAvailable = normalizationAvailable,
                                 normalization = normalization,
+                                limiterState = limiterState,
                                 onNormalizationChanged = onNormalizationChanged,
                                 modifier = settingsPageModifier,
                             )

@@ -236,7 +236,10 @@ internal class Media3PlayerFactory(
             context,
             looper,
             limiterEffectFactory ?: DynamicsProcessingLimiterEffectFactory(),
-        ) { state -> _limiterState.value = state }
+        ) { state ->
+            _limiterState.value = state
+            LimiterStatus.publish(state)
+        }
     }
 
     /** Builds the per-player [DspChain]: the DSP processors (when enabled) followed by [extraProcessors]. */

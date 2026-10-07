@@ -11,6 +11,7 @@ import me.misa198.airmedy.player.NormalizationSettings
 import me.misa198.airmedy.player.PlaybackQueueSnapshot
 import me.misa198.airmedy.player.PlaybackState
 import me.misa198.airmedy.player.RepeatMode
+import me.misa198.airmedy.player.media3.LimiterState
 import me.misa198.airmedy.sync.LibraryPlaylist
 import me.misa198.airmedy.sync.LibraryTrack
 import me.misa198.airmedy.ui.screens.AlbumDetailsUiState
@@ -164,6 +165,7 @@ internal data class SettingsDestinationModel(
     val onShowFullscreenQualityBadgeChanged: (Boolean) -> Unit = {},
     val normalizationAvailable: Boolean = false,
     val normalization: NormalizationSettings = NormalizationSettings(),
+    val limiterState: LimiterState? = null,
     val onNormalizationChanged: (NormalizationSettings) -> Unit = {},
     val equalizer: EqualizerSettings = EqualizerSettings(),
     val onEqualizerEnabledChanged: (Boolean) -> Unit = {},

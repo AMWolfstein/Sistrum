@@ -563,7 +563,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     → re-create); `GATE`.
   - T003b closed on evidence 2026-10-06 (ADR-004 "T003b closure"); T046 closes on its own tests and gate.
 
-- [ ] T047 [P] [US7] Limiter state note in the clip-prevention setting in `A/ui/screens/PlaybackSettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
+- [x] T047 [P] [US7] Limiter state note in the clip-prevention setting in `A/ui/screens/PlaybackSettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
 - [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); optional, not a gate: device-level measurement of T003b (a)–(c) (open follow-up, ADR-004 "T003b closure")
