@@ -64,6 +64,9 @@ Decision:
   finished track is written immediately; a long track checkpoints its meter state; only new or changed files
   (audio fingerprint `identityHash(path|size|mtime)`) or an `analyzer_version` change. Background thread priority;
   the meter is allocation-free per chunk so it cannot cause GC pauses in playback.
+- **"Analyze now"** (owner, 2026-10-08): a second unique work in foreground mode (type `mediaProcessing` on API 35+,
+  `dataSync` on API 34), no charging constraint, progress notification with Cancel; on any stop, including the
+  6 h/24 h foreground-service limit, the background job continues from the saved tracks and checkpoint.
 - **Storage**: `sync_documents` rows (`contracts/loudness-analysis.md`): kind `analysis` in the existing shape
   (`loudness_lufs`, `true_peak` dBTP), read unchanged by `activeAnalyses()`; plus `loudness_histogram`,
   `album_loudness`, `loudness_progress`. Rows are carried over to the new plan on rescans when the fingerprint is

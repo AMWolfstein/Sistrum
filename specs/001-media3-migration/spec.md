@@ -597,6 +597,12 @@ FR-040…FR-041 and FR-047 govern tracks that are not analyzed yet (tag gains); 
   folder fallback is not an album.
 - **FR-047g**: Stored analysis data MUST stay small and bounded per track regardless of track length (histogram,
   not raw blocks), so large libraries stay practical (Principle 10).
+- **FR-047i** (owner, 2026-10-08): The normalization settings MUST offer "Analyze now", clearly labelled as using
+  the battery: a foreground run without the charging constraint (foreground service type `mediaProcessing` on
+  Android 15+, `dataSync` on Android 14), with a progress notification and a Cancel action. Any stop, including the
+  platform's foreground-service time limit, keeps finished tracks and the current track's checkpoint, and the
+  background job resumes from there. The progress line MUST say that analysis continues automatically while
+  charging.
 - **FR-047h**: Analysis results MUST be independent of the selected engine; the job runs whichever engine is
   selected (the current engine's unchanged read side then also uses the measurements).
 

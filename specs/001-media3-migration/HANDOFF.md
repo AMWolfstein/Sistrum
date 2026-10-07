@@ -2,8 +2,8 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M5 approved (2026-10-08). M6 normalization redesign docs written — **STOP: awaiting the owner's review of
-the new M6 plan** (section "M6 normalization redesign" at the end). No M6 task started. M1–M5 approved.
+**Phase:** M6 in progress (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
+rules"). M1–M5 approved.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
 ## Spec Kit feature directory
@@ -432,8 +432,7 @@ M4 started (owner: run to the end per the stop rules). T035a, T036–T041a done;
 
 M5 done 2026-10-07 (T042–T048d; see "Checkpoint M5" at the end). **Checkpoint M5 approved (owner, 2026-10-08).**
 M6 redesign docs written 2026-10-08 (M6-1…M6-5; section "M6 normalization redesign" at the end). **Next:** the owner
-reviews the new M6 task list, the analysis time/battery estimate and the album-loudness design, and answers the open
-questions there; then M6 starts with T049 ∥ T050 ∥ T050a. Before M7: the crossfade behaviour audit.
+approved the M6 plan 2026-10-08 (decisions at the end); M6 runs T049 ∥ T050 ∥ T050a → … → T054 per the stop rules. Before M7: the crossfade behaviour audit.
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
@@ -843,3 +842,21 @@ time at 96/192 kHz, which uses 2× true-peak oversampling, or none above 192 kHz
 4. **Tracks not analyzed yet:** while a track waits for analysis, use its gain tags. [yes, as decided]
    - This means a tagged album can change level slightly once it is measured. Measured levels and the tagger's
      levels usually differ by under 1 dB at the same reference.
+
+### Owner decisions on the M6 plan (2026-10-08) — plan approved
+
+1. Background analysis: charging + battery not low + storage not low; no idle requirement.
+2. **"Analyze now"**: foreground work (all cores) with a progress notification and Cancel, labelled as using the
+   battery; foreground service type `mediaProcessing` on Android 15+ (the CPH2307 is API 35), `dataSync` on
+   Android 14; the 6 h/24 h limit is handled by checkpoint + resume in the background job. The settings progress line
+   also says analysis continues automatically while charging. New tasks T051g (tests first) → T051h; button in T053;
+   FR-047i; ADR-005 amendment.
+3. Analysis runs regardless of the selected engine: yes.
+4. Unanalyzed tracks use their gain tags until measured: yes.
+Start M6 and run it to the end per the stop rules. T054's listening part is batched into T061.
+
+### M6 tasks
+
+| Task | Model | Rounds | Result |
+|---|---|---|---|
+

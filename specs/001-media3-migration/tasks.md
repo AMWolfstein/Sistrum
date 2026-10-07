@@ -749,6 +749,28 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 - [ ] T051f [US6] Implement `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`, enqueue after scans in `A/sync/` (scan completion hook), `AndroidManifest.xml` only if WorkManager needs it; `THIRD-PARTY-NOTICES` (WorkManager, Apache-2.0) {hard} [HIGH-RISK]
   - Tests: `LoudnessAnalysisWorkerTest` passes without modifying it; `GATE`.
 
+### "Analyze now" (owner, M6 approval 2026-10-08)
+
+- [ ] T051g [US6] [TESTS-FIRST] "Analyze now" tests in `ANT/AnalyzeNowTest.kt` (WorkManager `work-testing`, fakes as T051e); stubs in `AN/LoudnessAnalysisScheduler.kt` (`analyzeNow()`, `cancelAnalyzeNow()`), `AN/AnalysisNotification.kt` {default}
+  - Do: `analyzeNow()` enqueues a separate unique one-time work (not expedited) (`loudness-analysis-now`, REPLACE) with
+    no charging constraint (storage not low only) that calls `setForeground` with type
+    `FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING` on API 35+ and `FOREGROUND_SERVICE_TYPE_DATA_SYNC` on API 34 (none needed
+    below); the background job is not cancelled and both never analyze the same track at once (shared per-track lock /
+    one runner); the foreground run has no 8-minute budget, processes pending tracks until none are left, updates the
+    notification (N of M, determinate) at least every finished track and at most once per second; the notification
+    has a Cancel action that cancels only the "now" work; a stop for any reason (cancel, `STOP_REASON_FOREGROUND_SERVICE_TIMEOUT`
+    after the platform's 6 h/24 h limit, process death) leaves every finished track saved and the current long track
+    checkpointed, and the background job (charging constraints) resumes from there; a timeout re-enqueue of the "now"
+    work never happens automatically; the notification text says it uses the battery.
+  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.analysis.AnalyzeNowTest'`. migration-guard.
+
+- [ ] T051h [US6] Implement "Analyze now" in `AN/LoudnessAnalysisScheduler.kt`, `AN/LoudnessAnalysisWorker.kt` (foreground mode), `AN/AnalysisNotification.kt`, `androidApp/src/main/AndroidManifest.xml` (WorkManager `SystemForegroundService` merged with `foregroundServiceType="mediaProcessing|dataSync"`, permissions `FOREGROUND_SERVICE_MEDIA_PROCESSING`, `FOREGROUND_SERVICE_DATA_SYNC`; `POST_NOTIFICATIONS` already handled by playback), `RES/values/strings.xml`, `RES/values-ar/strings.xml` {hard} [HIGH-RISK]
+  - Do: own notification channel "Loudness analysis" (low importance, no sound); foreground runs in the foreground
+    cpuset (all cores incl. the big ones; the scheduler, not the app, places threads); thread priority default rather
+    than background in this mode. The settings button itself is in T053.
+  - Tests: `AnalyzeNowTest` passes without modifying it; `GATE`. On `.qa` (API 35): start, notification shown with
+    Cancel, cancel stops within 1 s with finished tracks kept (part of T054).
+
 ### Engine, settings, acceptance (M6-2, M6-4)
 
 - [ ] T052 [US6] Gain ramps in `A/player/dsp/GainProcessor.kt`, gain resolution in `A/player/media3/Media3Engine.kt`, normalization settings wiring in `A/player/PlaybackCoordinator.kt` {hard} [HIGH-RISK] — **changed**
@@ -763,7 +785,9 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 - [ ] T053 [US6] Normalization settings in `A/player/NormalizationPreferences.kt`, `A/ui/screens/PlaybackSettingsContent.kt`, `A/MainActivity.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default} — **changed**
   - Do: `untaggedPreampDb` (default 0); settings enabled only with Media3 selected, disabled with a note on native
     (replaces the `analysisAvailable` gate for the UI); a progress line "Loudness analysis: N of M tracks" (plurals,
-    Western digits) and, if the owner approves, an "Analyze now" action that drops the charging constraint.
+    Western digits) that also says analysis continues automatically while charging; an "Analyze now" button
+    (T051h's `analyzeNow()`), clearly labelled as using the battery, which turns into "Stop" while that run is
+    active.
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
 - [ ] T054 [US6] [MANUAL] {orchestrator} On `.qa`: first analysis of the 775-track library (wall time, worker runs, `batterystats` CPU/wakelock, discharge if run on battery) for SC-018; SC-004 corpus loudness after analysis and before it (tags fallback); SC-017 device spot check; album records for the corpus albums; rescan keeps documents; owner listens to slider drags, album mode, Opus header gain (batched with T061 if the owner prefers) — **changed**
@@ -853,7 +877,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 - M4: T036 → T037 → T038; T036 + T025 → T039 → T040 → T041.
 - M5: T042 → T043 → T044 → T045 → T046 → T047 → T048a → T048b → T048c → T048d → T048 (closed on evidence; listening parts moved to T061).
 - M6 (redesigned 2026-10-08): (T049 ∥ T050 ∥ T050a) → T050b → T051a → T051 → T051b → T051c → T051d → T051e → T051f →
-  T052 → T053 → T054. T051 needs T051c's album read API only as an interface (fake in tests). T052 needs T045 (chain
+  T051g → T051h → T052 → T053 → T054. T051 needs T051c's album read API only as an interface (fake in tests). T052 needs T045 (chain
   exists). T051d STOPs for the owner if the measured speed leaves the estimate range.
 - M7: T055 ∥ T056 → T057 → T058 → T059 → T060 → T061.
 - User stories: US9 → US1 → (US2, US3, US4) → US8 → US7 → US6 → US5. US5 is last because it needs the chain (US7)
