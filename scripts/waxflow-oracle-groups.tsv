@@ -1,0 +1,7 @@
+# Album groups for scripts/waxflow-oracle.sh (third argument): <name><TAB><member>|<member>|...
+# Members are relative to the oracle corpus dir (sistrum/ = SistrumTestCorpus, waxflow/ = WaxFlow testdata).
+gapless_flac	sistrum/gapless_flac_1.flac|sistrum/gapless_flac_2.flac|sistrum/gapless_flac_3.flac
+gapless_mp3	sistrum/gapless_mp3_1.mp3|sistrum/gapless_mp3_2.mp3|sistrum/gapless_mp3_3.mp3
+mixed_pcm	sistrum/wav_pcm16_48.wav|sistrum/wav_pcm24_96.wav|sistrum/wav_pcm_f32.wav|sistrum/t048_tone1k_-0.5dBFS_16_48k.wav
+mixed_formats	sistrum/flac_rg_vorbis.flac|sistrum/opus_untagged.opus|sistrum/mp3_untagged.mp3|sistrum/m4a_aac_untagged.m4a|sistrum/wav_pcm16_48.wav
+hires_wav	sistrum/t048_hires_24bit_96k.wav|sistrum/wav_pcm24_96.wav|sistrum/wav_pcm16_48.wav

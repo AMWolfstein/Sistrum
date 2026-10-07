@@ -677,7 +677,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     of the oracle; skips with a clear message when the corpus or fixtures are absent.
   - Tests: `verify.sh --expect-fail '<the four classes>'` (method-level where a stub coincidentally passes, as T048a). migration-guard.
 
-- [ ] T050b [US6] {orchestrator} WaxFlow loudness fixtures: `scripts/waxflow-oracle.sh` on the pulled corpus and WaxFlow `testdata/` → `androidApp/src/test/resources/waxflow/oracle-fixtures.tsv`
+- [x] T050b [US6] {orchestrator} WaxFlow loudness fixtures: `scripts/waxflow-oracle.sh` on the pulled corpus and WaxFlow `testdata/` → `androidApp/src/test/resources/waxflow/oracle-fixtures.tsv`
   - Do: extend the script's helper with group rows (WaxFlow `loudness.Group`: integrated, true peak) for a small
     group list (corpus subsets used as albums) so album accuracy has an oracle too. Commit only the fixtures file and
     the script change; no audio, no WaxFlow code. Pin unchanged (`446ca31`).
