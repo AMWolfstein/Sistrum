@@ -1,7 +1,10 @@
-# Future: on-device analyzer (true LUFS + Mood Radio revival)
+# Future: on-device Mood analyzer (Mood Radio revival)
 
-Record only (owner, 2026-10-05). A separate later feature, after 001–003. Revives true LUFS normalization and
-Mood Radio together. **All Kotlin/Java: no bridge, no native code** (constitution Principle 11).
+Record only (owner, 2026-10-05; revised 2026-10-08). **Loudness moved into 001** (owner decisions 2026-10-07, M6-1):
+001 ships the BS.1770-4 meter (Kotlin port of WaxFlow `dsp/loudness`), the WorkManager job, the decode path through
+the Decoder Registry and the `sync_documents` writer for `loudness_lufs` / `true_peak`, plus album loudness
+(ADR-005 amendment, `contracts/loudness-analysis.md`). What stays for a separate later feature, after 001–003, is
+**Mood**: the features Mood Radio needs. **All Kotlin/Java: no bridge, no native code** (constitution Principle 11).
 
 ## What it computes
 
@@ -10,28 +13,25 @@ Airmedy's method, unchanged in meaning:
   meaning.
 - Locked weights from `formulas.go`; `normalizer.go` maps features through a sigmoid on corpus percentiles.
 - Batched recompute when the corpus percentiles change.
-- Output: `loudness_lufs`, `true_peak`, `energy`, `danceability`, `brightness`, `tempo` into `sync_documents`
-  in the **existing** analysis-document shape (the read side is not touched: constitution "Do not touch").
+- Output: `energy`, `danceability`, `brightness`, `tempo` added to the **existing** `analysis` documents that 001
+  already writes (the read side is not touched: constitution "Do not touch"); `library_analysis_enabled` turns on
+  only then.
 
-## How
+## How (reusing 001)
 
-- **Decode** through the Decoder Registry (platform codecs + the 002 Kotlin decoders), separate from
-  playback (its own decoder instances, never the players).
-- **Loudness**: Kotlin port of WaxFlow's `dsp/loudness` (~700 lines; BS.1770-4 integrated loudness, true peak,
-  EBU Tech 3342 loudness range). WaxFlow's numbers are the oracle (`scripts/waxflow-oracle.sh` already writes
-  integrated LUFS, LRA, true peak and sample peak per corpus file). Cross-check against mp3care PR#16
-  (github.com/andresdelcampo/mp3care/pull/16, Kotlin R128 verified vs ffmpeg) and the EBU test vectors.
+- **Decode, job, storage**: 001's offline decoder, `LoudnessAnalysisWorker` scheduling (fingerprints, budget,
+  checkpoints) and document writer; the Mood pass becomes a second consumer of the same decoded float PCM, with its
+  own version key so it can run on tracks that already have loudness.
 - **FFT**: TarsosDSP core 2.5 (GPL-3.0; never the `jvm` module; vendored at a pinned version, see
   `tarsosdsp-evaluation.md`) or a Kotlin port of WaxFlow's `dsp/fft`. Spectral descriptors (centroid, rolloff,
   flatness, flux) on top, with the definitions versioned.
 - **Tempo and onsets**: TarsosDSP `ComplexOnsetDetector` + BeatRoot; BPM from the median beat interval.
-- **Scheduling**: WorkManager, bounded per-track work (10-minute worker limit), checkpointed, only new or
-  changed files (MediaStore id + mtime/size fingerprint). Store raw features + the analysis config version.
-- **Gain source**: plugs into 001's pluggable gain source; precedence tags → analysis → unity + untagged pre-amp.
+- **Loudness range** (EBU Tech 3342), if a Mood feature needs it: WaxFlow's meter already computes it; 001's port
+  leaves it out.
 
 ## Rollout
 
-- User setting with progress.
-- Device benchmark before rollout (decode and DSP real-time factors separately, memory, cancel/resume).
-- The owner's Opus-heavy library is the first real test against WaxFlow's numbers; then other format mixes
-  (Principle 10).
+- User setting with progress (001's loudness progress line extends to Mood).
+- Device benchmark before rollout (feature DSP real-time factor on top of 001's measured decode speed, memory,
+  cancel/resume).
+- The owner's Opus-heavy library is the first real test; then other format mixes (Principle 10).

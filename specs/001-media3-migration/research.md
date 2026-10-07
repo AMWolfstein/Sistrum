@@ -147,6 +147,10 @@ R1–R12), the external reports in `research/` (leads, Principle 7), and the des
   - Opus header output gain: whether `c2.android.opus` applies it is **UNVERIFIED**; a corpus file with a
     non-zero header gain is in the corpus, and FR-041 is tested on device (S5).
 - **Alternatives**: our own parser from scratch (rejected: Rhythm's covers more forms and is tested).
+- **Amendment 2026-10-08 (owner decisions 2026-10-07)**: tags become the fallback. Loudness is measured on the device
+  by a Kotlin port of WaxFlow `dsp/loudness` in a WorkManager job, stored in `sync_documents` in the existing
+  analysis shape; precedence measured → tags → unity + untagged pre-amp; album loudness gated over the whole album
+  from stored per-track histograms. ADR-005 amendment, `contracts/loudness-analysis.md`.
 
 ## D10 — Service robustness (FR-080…092)
 

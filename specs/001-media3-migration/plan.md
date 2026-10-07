@@ -10,8 +10,9 @@ Put both engines behind a `PlayerEngine` seam (ADR-001) with the native player a
 behaviour change), then build `Media3Engine` on Media3 1.11.1: a Decoder Registry of platform codecs and a Kotlin
 AIFF provider (ADR-002), Rhythm's A/B crossfade mechanics with our equal-power curve on two ExoPlayers that share
 one audio session (ADR-003), per-player gain/width/EQ/preamp processors matching the native filters plus a
-limiter-only DynamicsProcessing on the shared session (ADR-004), tag-based normalization through a pluggable gain
-source (ADR-005), and the existing framework MediaSession fed from service state with the review's service-path
+limiter-only DynamicsProcessing on the shared session (ADR-004), normalization from loudness measured on the device
+(WaxFlow BS.1770 meter port, WorkManager job; tags as the fallback) through a pluggable gain source (ADR-005, amended
+2026-10-08), and the existing framework MediaSession fed from service state with the review's service-path
 fixes (ADR-006). A separate `.qa` test build comes first (ADR-007), then the device spikes S1–S3, S5.
 
 ## Technical Context
@@ -88,9 +89,12 @@ androidApp/src/main/kotlin/me/misa198/airmedy/
 │   ├── media3/                       # NEW: Media3Engine, TransitionController, player factory, LimiterSession
 │   ├── dsp/                          # NEW: GainProcessor, StereoWidthProcessor, EqualizerProcessor (biquads)
 │   ├── decoders/                     # NEW: DecoderRegistry, PlatformProvider, aiff/AiffExtractor (Choir port)
-│   ├── normalization/                # NEW: GainSource, TagGainSource (Rhythm ReplayGainUtil port), gain math
+│   ├── normalization/                # NEW: GainSource, GainResolver, MeasuredGainSource, TagGainSource (Rhythm port), gain math
 │   └── FfmpegDecoder.kt              # untouched
+├── analysis/                         # NEW (M6, 2026-10-08): loudness/ (WaxFlow meter port, histogram), LoudnessStore,
+│                                     #   AlbumLoudnessPlanner, OfflineDecoder, LoudnessAnalysisWorker (WorkManager)
 ├── sync/MediaStoreLibraryScanner.kt  # registry gate before tag read (Media3 engine only), skipped summary
+├── sync/SyncDatabase.kt              # M6: analysis document upserts + rescan carry-over (no schema change)
 └── settings/…                        # hidden engine switch, untagged pre-amp, skipped summary, notes
 androidApp/src/test/…/player/…        # characterization + unit tests
 androidApp/src/androidTest/…          # instrumented (run on .qa only)
@@ -122,7 +126,9 @@ are separate units with their own tests; the scanner change is one gate call.
    Unknown artist fix).
 5. **Decoder Registry + AIFF + scan gate + skipped summary**. US8.
 6. **DSP chain + limiter session** (tests first for gain/EQ math). US7.
-7. **Normalization** (tests first: tag parsing per form incl. `REPLAYGAIN_REFERENCE_LOUDNESS`, gain math). US6.
+7. **Normalization** (revised 2026-10-08; tests first: tag parsing, gain math and source precedence, the loudness
+   meter vs EBU cases and the WaxFlow oracle, the analysis store and album planner, the job). Measured loudness
+   first, tags as the fallback; album loudness gated over the whole album. US6.
 8. **Crossfade** (tests first: transition state machine, snaps, next/previous/repeat-one; processor fade). US5.
 9. **Regression and resources** — SC-001…016 on `.qa`, two library mixes; owner's manual checklist. Default stays
    native until 002 is also done.

@@ -2,7 +2,8 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M5 done — **Checkpoint M5 awaiting the owner's approval** (2026-10-07). M1–M4 approved.
+**Phase:** M5 approved (2026-10-08). M6 normalization redesign docs written — **STOP: awaiting the owner's review of
+the new M6 plan** (section "M6 normalization redesign" at the end). No M6 task started. M1–M5 approved.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
 ## Spec Kit feature directory
@@ -114,6 +115,8 @@ for the playback path are already 001 requirements (FR-080…FR-092). Known bug:
   returns no candidates (slower on big libraries). Fix: join the prefix terms with a space (implicit AND).
 - Pre-v1.0 item (owner, 2026-10-06): the decode-failure log page (T032b) gives no feedback when "Save as file"
   fails. The write error is swallowed. Add a visible error message.
+- Pre-v1.0 item (owner, Checkpoint M5 approval 2026-10-08): `LimiterStatus` keeps its last state in settings after
+  the playback service stops (stale "not controlled"/"unavailable" note). Reset it when the session ends.
 
 ## Phase 2 — Plan: DONE (2026-10-05)
 
@@ -427,7 +430,10 @@ M3: T032b done. T033 root cause found (below); Owner approved T033a + ADR-006 am
 
 M4 started (owner: run to the end per the stop rules). T035a, T036–T041a done; T041 done (owner AIFF listening ok). **Checkpoint M4 approved (owner, 2026-10-06), effective after T039a/T039b.** T039a, T039b done. **M4 complete; Checkpoint M4 approved.** Stopped here at the owner's request (2026-10-06). Next → M5 (DSP chain and session limiter; needs T003/T004; remind the owner of the exact T003b listening steps when M5 reaches T046).
 
-M5 done 2026-10-07 (T042–T048d; see "Checkpoint M5" at the end). **Next:** owner approves Checkpoint M5 → then, BEFORE any M6 task, the normalization redesign docs ("Owner decisions 2026-10-07": M6-1…M6-5) and STOP to show the owner the new M6 task list, the first-analysis time/battery estimate for 775 tracks on the CPH2307, and how album loudness is stored/recomputed. Before M7: the crossfade behaviour audit.
+M5 done 2026-10-07 (T042–T048d; see "Checkpoint M5" at the end). **Checkpoint M5 approved (owner, 2026-10-08).**
+M6 redesign docs written 2026-10-08 (M6-1…M6-5; section "M6 normalization redesign" at the end). **Next:** the owner
+reviews the new M6 task list, the analysis time/battery estimate and the album-loudness design, and answers the open
+questions there; then M6 starts with T049 ∥ T050 ∥ T050a. Before M7: the crossfade behaviour audit.
 
 ### T033 root cause — "Unknown artist" (2026-10-06, orchestrator, FR-021)
 
@@ -669,7 +675,7 @@ T048 is closed on this basis (device parts done: hi-res routing + shared session
 
 T048 closed 2026-10-07 on the owner's decision above (checks 1–2 closed on evidence/tests; 3–4 moved to T061).
 
-## Checkpoint M5 (2026-10-07) — awaiting owner approval
+## Checkpoint M5 (2026-10-07) — approved by the owner 2026-10-08
 
 US7 delivered on Media3: EQ (10 bands, native formula), stereo width and preamp as our own float processors with
 20 ms click-free ramps; each player runs Gain → Width → EQ → Preamp in float on the decoder's full resolution inside
@@ -706,3 +712,134 @@ Moved / open:
   the wrapper); not device-tested (no such corpus file).
 - Real EQ apps (Wavelet, Poweramp EQ): optional owner check before v1.0.
 - Lint not run in M5 gates (not required per task; known MissingTranslation baseline).
+
+Owner approval 2026-10-08 ("Checkpoint M5 approved"), carried forward:
+- **M8 / CPU**: float neutral 13.7 vs int 7.8 points (debug build). Measure on a release build in M8 against
+  SC-003/SC-006 (T062 note). If Media3 with crossfade off still costs more than native, optimize, e.g. 16-bit input
+  with a neutral chain skips the float conversion entirely.
+- **Pre-v1.0**: stale limiter state in settings after the service stops (added to "Pre-v1.0 review phase").
+- **Corpus**: add an 8–16 kHz AAC file when convenient (low-rate AAC position jump); not a blocker (T062 note).
+
+## M6 normalization redesign (2026-10-08) — STOP for the owner's review
+
+Docs changed (M6-5): constitution ("In scope": measured loudness; "Out of scope": Mood analyzer only; dependencies:
+WorkManager, WaxFlow notice with the meter port), spec (US6 rewritten with scenarios 11–14, FR-040…FR-047h,
+SC-004, new SC-017/SC-018, edge cases, assumptions, clarification session 2026-10-07), ADR-005 amendment,
+`data-model.md`, `contracts/gain-source.md` (GainForm.Measured, GainResolver), new `contracts/loudness-analysis.md`,
+`research/analyzer-future.md` (Mood only), `plan.md`/`research.md` D9 cross-references, `tasks.md` M6.
+
+### Facts found while writing it (they shaped the design)
+
+- **Every scan creates a new plan and deletes the old plan's `sync_documents`** (`writeLocalLibrary`:
+  `deleteStaleDocuments(planId)`). Analysis rows would vanish at each rescan, so T051c copies them into the new plan
+  when the file's fingerprint (`identityHash(path|size|mtime)`, already the audio asset's `sha256`) is unchanged.
+- The existing read side wants `true_peak` in **dBTP** (`min(gain, -truePeak)`), and `toFloatOrNull()` would accept
+  "-Infinity": silent/short files therefore get a row **without** `loudness_lufs`/`true_peak`, so the reader skips
+  them.
+- `PlaybackCoordinator.normalizationGain()` (native lookup) runs for both engines and **turns normalization off when
+  no analysis exists**. On Media3 a user enabling it before the first analysis would see it switched off at the next
+  track. T052 runs that path only for the native engine (call sites; the function itself is not touched).
+- `Media3Engine.setNormalization` exists, but nothing calls it; that is why "Prevent clipping" off never reached the
+  limiter (T052).
+- Native album mode = **average** of track LUFS, only when the next track is on the same album; Media3 uses whole-album
+  gating whatever the queue (FR-043). Native code unchanged; once rows exist the native engine normalizes again
+  with its old rules.
+- WaxFlow's `loudness.Group` measures an album by pooling each member's gated 400 ms block powers (one float64 per
+  100 ms). Storing raw blocks would cost ~7 MB for this library and ~190 MB for 20 000 tracks, so we store a
+  bounded histogram instead (below).
+
+### New M6 task list (tasks.md)
+
+| Task | Status | What |
+|---|---|---|
+| T049 | kept | Tag parsing tests (tests first) — tags are now the fallback |
+| T050 | changed | Gain math + **GainResolver** precedence + ramp tests; Measured form; "Prevent clipping" off = no cap |
+| T050a | new | Meter tests first: generated EBU Tech 3341 cases, WaxFlow's synthetic cases, true peak, chunking, histogram track/album accuracy, checkpoint resume, oracle rows |
+| T050b | new | {orchestrator} WaxFlow oracle fixtures (+ album group rows); commit fixtures + script change only |
+| T051a | new | Meter port (WaxFlow `dsp/loudness` + `firwin`, `446ca31`) + our histogram; WaxFlow MIT notice — {hard} |
+| T051 | changed | TagGainSource (Rhythm port) + **MeasuredGainSource** + **GainResolver** + ItemGainMath — {hard} |
+| T051b | new | Store/planner tests first (Room on `.qa` + JVM): existing reader reads our rows; rescan carry-over; album membership/completeness/recompute |
+| T051c | new | LoudnessStore, AlbumLoudnessPlanner, DAO queries + rescan carry-over in `SyncDatabase.kt` (no schema change) — {hard} |
+| T051d | new | [MANUAL] Offline decode through the registry (float) + **device benchmark** per format, little and big cores; STOP if outside the estimate range |
+| T051e | new | Job tests first (WorkManager `work-testing`): constraints, 8-min budget, checkpoint, pending-only, failures, planner run |
+| T051f | new | LoudnessAnalysisWorker + scheduler, enqueue after scans; WorkManager notice — {hard} |
+| T052 | changed | Engine gain from GainResolver; **coordinator calls `setNormalization`**; native lookup only on native; no mid-track source change — {hard} |
+| T053 | changed | Settings: untagged pre-amp, Media3-only gate, **analysis progress line** (+ "Analyze now" if approved) |
+| T054 | changed | [MANUAL] On `.qa`: first analysis of the 775-track library (time, runs, batterystats), SC-004 before/after analysis, SC-017 spot check, rescan keeps rows; listening batched with T061 |
+
+Order: (T049 ∥ T050 ∥ T050a) → T050b → T051a → T051 → T051b → T051c → T051d → T051e → T051f → T052 → T053 → T054.
+14 tasks (was 6): 5 tests-first, 6 implementation ({hard} for the meter, gain sources, store, decode, job, engine),
+1 orchestrator fixtures task, 2 device tasks.
+
+### First-analysis estimate: 775 tracks on the CPH2307 (estimate, not measured on the phone)
+
+Inputs (measured):
+- Library (`.qa` DB copy, active plan): 775 tracks, **49.8 h** of audio (179,300 s), 7.4 GB; 708 tracks are Ogg/Opus at
+  48 kHz (47.3 h), the rest is spread over m4a, FLAC (up to 192 kHz), AIFF, WAV, MP3 and WMA.
+- Phone: Snapdragon 778G (`lahaina`): little cores 0–3 at 1.8 GHz, big cores 4–6 at 2.4 GHz and 7 at 2.8 GHz.
+  `/dev/cpuset/background` = **0–3**: a background worker runs on the little cores only. Battery: 4800 mAh design,
+  but the charge counter reads **3.28 Ah at 100 %** (aged), so about 12.6 Wh usable.
+- Meter cost: WaxFlow's own Go benchmark at the pinned commit (`BenchmarkMeterProcess`, 48 kHz stereo) = **6.0 ms per
+  second of audio** on this laptop (Ryzen 5 3500U), i.e. 166× real time.
+
+Assumptions (not measured; T051d replaces them):
+- The Kotlin meter on an A55 core is 4–12× slower than Go on the laptop: 25–70 ms per audio second.
+- Opus decode through `c2.android.opus.decoder` on an A55 core, including the codec IPC: 10–30 ms per audio second.
+- Total 35–100 ms per audio second, i.e. 10–28× real time on one little core.
+
+Estimate:
+
+| Run | Wall time for 49.8 h of audio | Energy | Battery |
+|---|---|---|---|
+| Default: background worker on little cores, **only while charging** | **~1.8–5 h**: one or two nights on the charger. About 13–38 worker runs of 8 min | ~0.3–0.6 W, so 0.6–3 Wh | **0 % of the user's battery** (charging) |
+| Same work done on battery (only if the charging constraint is dropped) | ~1.8–5 h | 0.6–3 Wh | ~5–24 % of the 12.6 Wh |
+| "Analyze now" as a foreground job (big cores), if approved | ~1–2 h (25–55× real time) | ~1–1.5 W, so 1–3 Wh | ~8–24 % if on battery |
+
+After that: only new or changed files are analyzed. A new 4-minute track costs about 10–25 s of little-core time.
+Storage: about 1–2 KB per track (analysis row ~250 B + histogram ~0.5–1.5 KB), roughly 1–1.5 MB for this library.
+Principle 10: other libraries differ. FLAC and hi-res files decode faster per sample, but they cost more meter
+time at 96/192 kHz, which uses 2× true-peak oversampling, or none above 192 kHz. T051d measures every format family.
+
+### Album loudness: storage and recomputation
+
+- **Per track**, written by the job: an `analysis` row (`loudness_lufs`, `true_peak` dBTP: the existing shape) and a
+  `loudness_histogram` row. The histogram counts how many 400 ms gating blocks (100 ms hop) above −70 LUFS fall in
+  each 0.1 LU bin from −70 to +5 LUFS. It is stored sparse and base64-encoded, its size is bounded by the bin count
+  rather than by track length, and it is typically 0.5–1.5 KB. This is libebur128's histogram method.
+- **Per album**: an `album_loudness` row (`loudness_lufs`, `true_peak`, `members`, `members_fingerprint`), keyed by
+  album id.
+  - **Computation:** merge the members' histograms, then run the BS.1770 gates over the union of blocks:
+    - the absolute gate at −70 LUFS;
+    - the relative gate at −10 LU below the pooled mean;
+    - then the mean of the blocks that pass.
+    This is WaxFlow's `Group`, not an average of track values. The album true peak is the highest member true peak.
+  - **Accuracy:** the 0.1 LU binning moves the result by less than 0.05 LU. T050a checks this against the exact
+    pooled blocks, and the T050b oracle checks it against WaxFlow.
+- **Members:** available, non-hidden tracks with the same album id whose album name comes from a tag. Untagged
+  files under MediaStore's folder album ("Music") are never an album.
+- **Complete only:** an album record is written only when every member has a histogram. Until then, album mode uses
+  each track's own measured value.
+- **Recompute:** `members_fingerprint` is the SHA-256 of the sorted `trackId:fingerprint:analyzer_version` entries.
+  The planner recomputes it after every analysis run and after every scan. When it changes, the album is
+  recomputed from the stored histograms in milliseconds, without decoding. Changes include:
+  - a track added, removed or re-tagged;
+  - a file changed and re-analyzed;
+  - an analyzer version bump.
+- **Rescans:** rows of unchanged files are copied into the new plan, and the planner re-validates albums right
+  after the scan.
+
+### Open questions for the owner (defaults in brackets, already written into the docs)
+
+1. **Constraints:** should the job run only while charging, plus battery-not-low and storage-not-low? [yes]
+   - "Idle" is not required. On Android, device-idle means a long screen-off doze, which would usually postpone
+     analysis to the early morning.
+   - Should it be "charging or idle" instead?
+2. **"Analyze now":** add an "Analyze now" action in the normalization settings?
+   - It would run without the charging constraint, as a foreground job with a notification, on the big cores.
+   - [not added unless you say so; T053 has the progress line only]
+3. **Engines:** should the job run whichever engine is selected? [yes]
+   - The native engine then also normalizes again from the measurements, with its own old rules (average album,
+     next-track-same-album).
+4. **Tracks not analyzed yet:** while a track waits for analysis, use its gain tags. [yes, as decided]
+   - This means a tagged album can change level slightly once it is measured. Measured levels and the tagger's
+     levels usually differ by under 1 dB at the same reference.

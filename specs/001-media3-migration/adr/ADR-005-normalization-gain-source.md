@@ -1,6 +1,6 @@
-# ADR-005 — Tag-based normalization and the gain source
+# ADR-005 — Normalization: measured loudness, tags as fallback, and the gain source
 
-Status: Accepted (owner, 2026-10-05); **S5 PASS 2026-10-05 (T005)**: platform decoder applies the Opus header gain once · Date: 2026-10-05 · Spec: US6, FR-040…047a, SC-004 ·
+Status: Accepted (owner, 2026-10-05); **S5 PASS 2026-10-05 (T005)**: platform decoder applies the Opus header gain once; **amended 2026-10-08: measured loudness first** (owner decisions 2026-10-07, M6-1…M6-5; see the amendment at the end, which overrides the sections above where they differ) · Date: 2026-10-05 · Spec: US6, FR-040…047h, SC-004, SC-017, SC-018 ·
 Research: D9
 
 ## Context
@@ -42,3 +42,50 @@ with +5 dB. Constitution and spec FR-041 updated.
 
 - The analysis feature later plugs in as a second `GainSource` with no processor change.
 - `VolumeNormalization.kt` (sharedLogic) stays for the native engine's analysis-based path (unchanged).
+
+## Amendment 2026-10-08 — measured loudness first (owner decisions 2026-10-07)
+
+Context: tags depend on the listener's tagging tool and are missing for most libraries; the original Airmedy
+measured loudness on the desktop and the app only read it. The owner chose to measure on the device in 001 instead
+of shipping tags as the only source.
+
+Decision:
+- **Analyzer in 001 (loudness only).** A Kotlin port of WaxFlow `dsp/loudness` at the pinned commit `446ca31`
+  (BS.1770-4 gated integrated loudness, true peak per Annex 2; no loudness range), attribution header per
+  `docs/waxflow/ORACLE.md`. Validated against generated EBU Tech 3341 cases, WaxFlow's own synthetic cases and the
+  WaxFlow oracle fixtures (`scripts/waxflow-oracle.sh`; only the fixtures file is committed). Mood features stay out
+  of 001 (`research/analyzer-future.md`).
+- **Decode**: through the Decoder Registry's provider for the file (same extractors/renderers as playback, own
+  instances, no AudioTrack, no focus), to float via `PcmToFloatProcessor` (the float path of the ADR-004 amendment).
+  ExoPlayer with a capture sink unless T051d measures it slower than a direct extractor + MediaCodec loop over the
+  same provider.
+- **Job**: WorkManager (`androidx.work`, Apache-2.0), unique work, constraints charging + battery not low + storage not
+  low; 8-minute budget per run (under the 10-minute worker limit), re-enqueued while tracks are pending; every
+  finished track is written immediately; a long track checkpoints its meter state; only new or changed files
+  (audio fingerprint `identityHash(path|size|mtime)`) or an `analyzer_version` change. Background thread priority;
+  the meter is allocation-free per chunk so it cannot cause GC pauses in playback.
+- **Storage**: `sync_documents` rows (`contracts/loudness-analysis.md`): kind `analysis` in the existing shape
+  (`loudness_lufs`, `true_peak` dBTP), read unchanged by `activeAnalyses()`; plus `loudness_histogram`,
+  `album_loudness`, `loudness_progress`. Rows are carried over to the new plan on rescans when the fingerprint is
+  unchanged. No Room schema change.
+- **Precedence (M6-2)**: `GainResolver`: measured → tags (Rhythm port, unchanged, incl. `REPLAYGAIN_REFERENCE_LOUDNESS`)
+  → unity + untagged pre-amp. Per track as a whole; a measured track's gain is target − L (−18 − L, plus the
+  global pre-amp).
+- **Album (M6-3)**: BS.1770 gating over all the album's blocks (WaxFlow `loudness.Group` semantics), from stored
+  per-track histograms, not an average; only when every member is analyzed; recomputed from histograms when the
+  members fingerprint changes. Unlike the native engine (average of track values, only when the next track is on the
+  same album), it applies whatever the queue order (FR-043).
+- **Kept (M6-4)**: `GainProcessor` and its ramps, true-peak clip prevention (tagged peak for tag sources),
+  `NormalizationPreferences` as the UI contract, tag parsing as the fallback. "Prevent clipping" now reaches the
+  engine: the coordinator calls `setNormalization`; off = no peak cap + limiter stage neutral (FR-053).
+- **Native engine**: unchanged code. Once `analysis` rows exist, its existing read side finds them, so the native
+  engine (developer switch only) also normalizes again with its own old rules. The coordinator's native gain lookup,
+  which force-disables normalization when no analysis exists, no longer runs for Media3.
+
+Consequences:
+- The first WaxFlow port lands in 001 (the loudness meter), so WaxFlow's MIT notice is added in 001; 002's decoder
+  ports follow the same header and pin.
+- New dependency: WorkManager. New package `analysis/` outside `player/`.
+- SC-004 is measured after analysis; tags remain covered by their own tests for not-yet-analyzed tracks.
+- The analyzer feature after 001 shrinks to Mood features (12 raw features, Mood Radio revival); it reuses this
+  job, decode path and document writer.

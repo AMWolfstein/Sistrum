@@ -4,6 +4,8 @@ Revised 2026-10-01 with the owner's Phase 0 decisions
 (evidence: `specs/001-media3-migration/research/discovery.md`).
 Revised 2026-10-05 with the owner's new overall plan: Kotlin decoders replace FFmpeg,
 the native player and all native code are removed at the end (features 001–003 below).
+Revised 2026-10-08 with the owner's normalization decisions of 2026-10-07: loudness is
+measured on the device in 001 (WaxFlow meter port), tags become the fallback.
 
 ## Goal
 
@@ -38,8 +40,8 @@ The migration is three Spec Kit features, in order:
 
 - **001-media3-migration**: the Media3 engine, the engine seam and switch, the
   Decoder Registry with two provider kinds (platform codecs and a Kotlin AIFF
-  provider ported from Choir), crossfade, tag-based normalization, equalizer,
-  MediaSession.
+  provider ported from Choir), crossfade, normalization (loudness measured on
+  the device, gain tags as the fallback), equalizer, MediaSession.
 - **002-kotlin-decoders**: Kotlin ports of WaxFlow's decoders (and a Kotlin
   port of Flick's DSD engine) as Decoder Registry providers, each verified
   against WaxFlow as the test oracle. Gated first by a performance gate on
@@ -186,9 +188,11 @@ loses a format. 003 merges separately, after its own gate.
   with attribution (001).
 - **WaxFlow** (MIT; owner's fork AMWolfstein/WaxFlow at a pinned commit,
   procedures in `docs/waxflow/ORACLE.md`): every ported Kotlin file carries an
-  attribution header; WaxFlow (MIT) and its FFmpeg-derived WMA tables
-  (LGPL-2.1+, GPL-compatible) go into the third-party notices with the first
-  port (002).
+  attribution header; WaxFlow (MIT) goes into the third-party notices with
+  the first port (the loudness meter, 001), and its FFmpeg-derived WMA tables
+  (LGPL-2.1+, GPL-compatible) with the WMA port (002).
+- **AndroidX WorkManager** (`androidx.work`, Apache-2.0) for the loudness
+  analysis job (001, 2026-10-08).
 - **moss-apps/Flick** (MIT): its `dsd_engine` is ported to Kotlin (002).
 - Never use: JustDSD (no license), JMAC (license unclear), MediaChest (no
   license).
@@ -204,7 +208,35 @@ loses a format. 003 merges separately, after its own gate.
   and the Kotlin AIFF provider (port of Choir's `AiffExtractor`). No FFmpeg, no
   NDK in any provider. DSD has no provider until 002 (it still plays on the
   native player via the developer switch).
-- **Volume normalization, stage 1 (tag-based gain).** Port Rhythm's
+- **Volume normalization: measured loudness (owner, 2026-10-07).** As in the
+  original Airmedy, gain comes from loudness measured on the device, not from
+  tags:
+  - **Analyzer (loudness only):** a Kotlin port of WaxFlow's `dsp/loudness`
+    (BS.1770-4 gated integrated loudness, true peak) with the attribution
+    header of `docs/waxflow/ORACLE.md`, validated against EBU test cases and
+    the WaxFlow oracle (`scripts/waxflow-oracle.sh`; only the fixtures file is
+    committed). It decodes through the Decoder Registry, separately from
+    playback, in float (the float path of ADR-004).
+  - **Background job:** WorkManager, bounded work per run (under the
+    10-minute worker limit), checkpointed per track, only new or changed
+    files, preferring charging. Playback is never disturbed.
+  - **Storage:** `loudness_lufs` and `true_peak` go into `sync_documents` in
+    the existing analysis shape, so the existing gain lookup reads them
+    unchanged; extra rows (histograms, album loudness) are new document kinds
+    in the same table, with no Room schema change. Results survive rescans
+    for unchanged files.
+  - **Precedence:** measured loudness; gain tags only for tracks not analyzed
+    yet; then unity gain + untagged pre-amp.
+  - **Album mode:** album loudness is measured over the album as a whole
+    (BS.1770 gating across all its tracks), never averaged, from stored
+    per-track data so it never needs re-decoding; recomputed when an album's
+    tracks change.
+  - **Kept:** the gain processor and its ramps, clip prevention with true
+    peak, `NormalizationPreferences` as the UI contract, tag parsing (now the
+    fallback). "Prevent clipping" off reaches the engine.
+  - **Mood features stay out of 001** (see "Out of scope").
+  The rules below for tags apply to tracks not analyzed yet.
+- **Volume normalization, tag-based gain (the fallback).** Port Rhythm's
   `ReplayGainAudioProcessor` / `ReplayGainUtil`, which read gain tags at
   playback time from Media3 metadata. It must support every common form
   (Principle 10), extending the port where it falls short:
@@ -231,9 +263,9 @@ loses a format. 003 merges separately, after its own gate.
     peaks reduce gain, and the session limiter protects the mixed output (see
     "Equalizer on Media3").
   - **Pluggable gain source.** Normalization reads gain through a gain-source
-    interface. Tags are the only source in 001. Later precedence: tags, then
-    on-device analysis, then unity gain + untagged pre-amp. The ADR records
-    this; the analysis source is not built in 001.
+    interface. Precedence (revised 2026-10-08): measured loudness, then tags,
+    then unity gain + untagged pre-amp, chosen per track as a whole. ADR-005
+    records this.
   - Gain is a per-player processor (before the session effect chain), with
     its ramps inside the processor, not in player volume.
   - Never silence, error, or a jump in level mid-crossfade.
@@ -276,14 +308,13 @@ loses a format. 003 merges separately, after its own gate.
 - **Kotlin decoders** for APE, WavPack, DSD (DSF/DFF), the WMA family and any
   other format FFmpeg plays today: feature 002.
 - **Removing the native player, our FFmpeg build and the NDK**: feature 003.
-- **On-device analyzer** (volume normalization stage 2 + Mood Radio revival),
-  all in Kotlin/Java, no bridge, no native: decode through the Decoder
-  Registry; loudness from a Kotlin port of WaxFlow's `dsp/loudness` (WaxFlow is
-  the oracle); FFT/onsets/tempo from TarsosDSP core or a WaxFlow `dsp/fft`
-  port; feature definitions matching Airmedy's `ffmpeg_analyzer.h` and
-  `formulas.go`. It writes `loudness_lufs`, `true_peak`, `energy`,
-  `danceability`, `brightness` and `tempo` into `sync_documents` in the
-  existing shape. Recorded in `research/analyzer-future.md`.
+- **On-device Mood analyzer** (Mood Radio revival), all in Kotlin/Java, no
+  bridge, no native: reuses 001's decode path, job and document writer;
+  FFT/onsets/tempo from TarsosDSP core or a WaxFlow `dsp/fft` port; feature
+  definitions matching Airmedy's `ffmpeg_analyzer.h` and `formulas.go`. It adds
+  `energy`, `danceability`, `brightness` and `tempo` to the existing analysis
+  documents. Loudness moved into 001 (2026-10-08). Recorded in
+  `research/analyzer-future.md`.
 - **Media3 MediaSession** (replacing the framework `MediaSession` that 001
   keeps): its own feature after 001 and 002; it does not wait for 003.
 - Settings beyond today's (crossfade toggle, crossfade on skip, repeat-one
@@ -297,7 +328,8 @@ loses a format. 003 merges separately, after its own gate.
 - The analysis read side stays exactly as it is: the `sync_documents` analysis
   document shape, `activeAnalyses()`, `moodRadioEligibleTrackIds`,
   `moodRadioTracks()`, and the gain lookup (`normalizationGain()` /
-  `normalizationGainDb()`).
+  `normalizationGainDb()`). 001's loudness analyzer only *writes* that shape
+  (2026-10-08); none of these readers change.
 - `sharedLogic/.../player/PlaybackQueue.kt` and
   `sharedLogic/.../player/ListeningTracker.kt` need **zero changes**. The
   Media3 wrapper adapts to their contracts (QueueTransition, peekNext, the
@@ -319,10 +351,13 @@ analysis documents and deletes stale ones, and the local manifest hard-codes
   gate). The native engine itself applies gain correctly.
 - Mood Radio has no features to select from and its menu entry is hidden.
 
+(2026-10-08) 001's loudness analyzer will write `loudness_lufs` / `true_peak`
+locally. Mood features stay absent until the Mood analyzer feature.
+
 Neither failure is caused by the playback engine. Characterization tests
 describe the native engine as it is: they must not assert that normalization
 or Mood Radio work, and their failure there is not a regression. Acceptance
-for tag-based normalization is defined against the Media3 engine only; Mood
+for normalization is defined against the Media3 engine only; Mood
 Radio acceptance belongs to the analyzer feature.
 
 Known bug (code review 2026-10, Part 3 blocker): `PlaybackQueue.play()` keeps

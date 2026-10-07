@@ -619,41 +619,154 @@ interrupts (US3); lock screen shows the right artist (US4).
 
 ---
 
-## Milestone M6 — Phase 8: Tag-based normalization (US6) — needs T005, M5
+## Milestone M6 — Phase 8: Measured-loudness normalization (US6) — needs T005, M5
 
-**Goal**: tagged and untagged files play at one level on Media3, without clipping.
-**Independent test**: corpus loudness within ±1 dB of `corpus.tsv` expectations (SC-004).
+**Redesigned 2026-10-08** (owner decisions 2026-10-07 "M6-1…M6-5"; HANDOFF "M6 normalization redesign"). Loudness is
+measured on the device, as in the original Airmedy, instead of being taken from tags. A Kotlin port of WaxFlow's
+BS.1770-4 meter runs as a WorkManager job, decodes through the Decoder Registry in float, and writes `loudness_lufs` /
+`true_peak` into `sync_documents` in the shape the existing gain lookup reads. Gain precedence per track: measured
+loudness → gain tags (only for tracks not analyzed yet) → unity + untagged pre-amp. Album loudness is gated over the
+whole album from stored per-track histograms, never averaged. Mood features stay out of 001.
+Kept from the 2026-10-05 plan: T049 unchanged; T050–T054 changed as marked. New: T050a, T050b, T051a–T051f.
 
-- [ ] T049 [US6] [TESTS-FIRST] Tag parsing tests in `AT/player/normalization/TagGainSourceTest.kt` {default}
+**Goal**: every track plays at the target loudness on Media3, measured where analyzed and tag-based until then,
+without clipping.
+**Independent test**: SC-004 (corpus within ±1 dB of target after analysis), SC-017 (meter vs WaxFlow oracle and
+EBU cases), SC-018 (analysis time, budget, battery on `.qa`).
+**Fixed MUST NOTs for this milestone, in addition to the global list**: the existing analysis read side
+(`activeAnalysisDocuments`, `activeAnalyses()`, `analysis()`, `moodRadioEligibleTrackIds`, `moodRadioTracks()`,
+`normalizationGain()`, `normalizationGainDb()`, `TrackAnalysis`) stays byte-identical; no Mood features
+(`energy`, `danceability`, `brightness`, `tempo`) are written; `library_analysis_enabled` stays false; no Room
+schema/version change (new document kinds are rows in the existing `sync_documents` table).
+New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysis/`, tests `ANT/` =
+`androidApp/src/test/kotlin/me/misa198/airmedy/analysis/`, `ANI/` = `androidApp/src/androidTest/kotlin/me/misa198/airmedy/analysis/`.
+
+### Gain (tags kept as the fallback)
+
+- [ ] T049 [US6] [TESTS-FIRST] Tag parsing tests in `AT/player/normalization/TagGainSourceTest.kt` {default} — **kept**
   - Do: Media3 metadata objects built in the test: ID3 `TXXX` REPLAYGAIN_* (any case), Vorbis comments, `R128_*`
     (Q7.8/256, +5 dB), iTunNORM (standard conversion), `com.apple.iTunes:replaygain_*`, RVA2/RVAD/RGAD;
     `REPLAYGAIN_REFERENCE_LOUDNESS` → gain + (−18 − ref); precedence ReplayGain → R128 → Sound Check; malformed,
     missing "dB", +50 dB, NaN/Inf → ignored/treated as untagged.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.normalization.TagGainSourceTest'`. migration-guard.
 
-- [ ] T050 [P] [US6] [TESTS-FIRST] Gain math and ramp tests in `AT/player/normalization/ItemGainMathTest.kt`, `AT/player/dsp/GainRampTest.kt` {default}
-  - Do: `itemGainDb` rules from `contracts/gain-source.md` (disabled → 0; target −14 → +4 dB on every file; untagged
-    → 0 + untagged pre-amp; album gain else track gain; clip cap with album peak in album mode; NaN → absent; clamp
-    −30…+20 dB); ramp: 100–300 ms, starts from the current actual gain, retarget mid-ramp is continuous, no per-sample
-    step above ε, both players retargeted together.
-  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.normalization.ItemGainMathTest,me.misa198.airmedy.player.dsp.GainRampTest'`. migration-guard.
+- [ ] T050 [P] [US6] [TESTS-FIRST] Gain math, source precedence and ramp tests in `AT/player/normalization/ItemGainMathTest.kt`, `AT/player/normalization/GainResolverTest.kt`, `AT/player/dsp/GainRampTest.kt` {default} — **changed**
+  - Do: `itemGainDb` rules from `contracts/gain-source.md` (disabled → 0; target −14 → +4 dB pre-amp on every
+    source; `Measured` track L → −18 − L before pre-amp, so the result is target − L; untagged pre-amp only for
+    `None`; album value else track value; clip cap from true/tagged peak, album peak in album mode;
+    **`preventClip` off → no cap**; NaN/±Inf → absent; clamp −30…+20 dB). `GainResolver`: measured beats tags per
+    track as a whole (no mixing of album tag gain with measured track loudness); measured album only when the album
+    record is complete; analysed-but-silent/failed → tags → none; never-analysed → tags → none. Ramp: 100–300 ms,
+    from the current actual gain, retarget mid-ramp continuous, no per-sample step above ε, both players together.
+  - Tests: `verify.sh --expect-fail '…ItemGainMathTest,…GainResolverTest,me.misa198.airmedy.player.dsp.GainRampTest'`. migration-guard.
 
-- [ ] T051 [US6] Implement `A/player/normalization/GainSource.kt`, `A/player/normalization/TagGainSource.kt`, `A/player/normalization/ItemGainMath.kt`; `THIRD-PARTY-NOTICES` entry {hard} [HIGH-RISK]
-  - Do: port Rhythm `ReplayGainUtil.kt` (`ef16e7b`, GPL-3.0-or-later, SPDX + attribution) with our rules (ADR-005).
-  - Tests: `TagGainSourceTest` and `ItemGainMathTest` pass without modifying them; `GATE`.
+### Loudness meter (M6-1, WaxFlow port)
 
-- [ ] T052 [US6] Implement gain ramps in `A/player/dsp/GainProcessor.kt` and gain resolution in `A/player/media3/Media3Engine.kt` {hard} [HIGH-RISK]
-  - Do: on each player's track format, `TagGainSource` → `itemGainDb` → `GainProcessor` target; `setNormalization`
-    retargets the current and prepared player with ramps; Opus header gain per T005's decision: never added by
-    `GainProcessor` (the platform decoder applies it once); log the active Opus decoder name.
-  - Tests: `GainRampTest` passes without modifying it; `GATE`.
+- [ ] T050a [P] [US6] [TESTS-FIRST] Meter tests in `ANT/loudness/LoudnessMeterTest.kt`, `ANT/loudness/TruePeakTest.kt`, `ANT/loudness/LoudnessHistogramTest.kt`, `ANT/loudness/WaxFlowOracleLoudnessTest.kt`; stubs `AN/loudness/LoudnessMeter.kt`, `AN/loudness/LoudnessHistogram.kt` {default}
+  - Do: generated EBU Tech 3341 cases 1–5 (stereo 1 kHz sines and the gating sequences, ±0.1 LU) and true-peak
+    sines with a known inter-sample peak (e.g. fs/4 at 45°: samples ±0.707, true peak 0 dBTP ±0.3 dB at 4×); the
+    synthetic cases of WaxFlow `dsp/loudness/loudness_test.go` and `peak_test.go` at the pinned commit, same
+    expectations; chunking invariance (1-sample, odd and 4096-frame chunks give identical results); silence and
+    < 400 ms → no integrated value (never −Inf/NaN out); 44.1/48/96/192 kHz, mono and stereo (mono not read 3 dB hot).
+    Histogram (0.1 LU bins, −70…+5 LUFS, counts of 400 ms blocks above the absolute gate): track value from its own
+    histogram within 0.05 LU of the exact meter; album value from merged member histograms within 0.05 LU of the
+    exact pooled-block result (WaxFlow `Group` semantics, members not concatenated); encode/decode round trip;
+    checkpoint → resume of a meter mid-track equals the uninterrupted result within 0.02 LU / 0.1 dB TP.
+    `WaxFlowOracleLoudnessTest`: for each fixtures row whose file is present (path from a system property, e.g. the
+    pulled corpus), decode-free PCM input from the WAV rows → integrated within 0.01 LU and true peak within 0.05 dB
+    of the oracle; skips with a clear message when the corpus or fixtures are absent.
+  - Tests: `verify.sh --expect-fail '<the four classes>'` (method-level where a stub coincidentally passes, as T048a). migration-guard.
 
-- [ ] T053 [US6] Normalization settings on the engine switch in `A/player/NormalizationPreferences.kt`, `A/ui/screens/PlaybackSettingsContent.kt`, `A/MainActivity.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
+- [ ] T050b [US6] {orchestrator} WaxFlow loudness fixtures: `scripts/waxflow-oracle.sh` on the pulled corpus and WaxFlow `testdata/` → `androidApp/src/test/resources/waxflow/oracle-fixtures.tsv`
+  - Do: extend the script's helper with group rows (WaxFlow `loudness.Group`: integrated, true peak) for a small
+    group list (corpus subsets used as albums) so album accuracy has an oracle too. Commit only the fixtures file and
+    the script change; no audio, no WaxFlow code. Pin unchanged (`446ca31`).
+
+- [ ] T051a [US6] Implement the meter in `AN/loudness/LoudnessMeter.kt`, `AN/loudness/KWeighting.kt`, `AN/loudness/TruePeak.kt`, `AN/loudness/Firwin.kt`, `AN/loudness/LoudnessHistogram.kt`; `THIRD-PARTY-NOTICES` (WaxFlow, MIT) {hard} [HIGH-RISK]
+  - Do: port WaxFlow `dsp/loudness` (`loudness.go`, `kweight.go`, `truepeak.go`, `peak.go`) and
+    `dsp/internal/firwin` at `446ca31` with the `docs/waxflow/ORACLE.md` header; integrated loudness and true peak
+    only (no loudness range); float64 state as in WaxFlow; allocation-free per chunk after construction; checkpoint
+    state serializable. `LoudnessHistogram` is ours (not ported): sparse varint/base64 encoding, merge, integrated
+    from bin centres (libebur128 histogram method).
+  - Tests: T050a classes pass without modifying them; `GATE`.
+
+### Gain sources (M6-2)
+
+- [ ] T051 [US6] Implement `A/player/normalization/GainSource.kt`, `TagGainSource.kt`, `MeasuredGainSource.kt`, `GainResolver.kt`, `ItemGainMath.kt`; `THIRD-PARTY-NOTICES` (Rhythm) {hard} [HIGH-RISK] — **changed**
+  - Do: port Rhythm `ReplayGainUtil.kt` (`ef16e7b`, GPL-3.0-or-later, SPDX + attribution) with our rules (ADR-005);
+    `MeasuredGainSource` builds `GainInfo(form = Measured)` from `PlaybackItem.analysis` (existing read side, read
+    only) and an album-loudness snapshot (T051c's read API); `GainResolver` holds the one precedence.
+  - Tests: `TagGainSourceTest`, `ItemGainMathTest`, `GainResolverTest` pass without modifying them; `GATE`.
+
+### Storage, album loudness, rescans (M6-1, M6-3)
+
+- [ ] T051b [US6] [TESTS-FIRST] Analysis store tests in `ANI/LoudnessStoreTest.kt` (instrumented, Room on `.qa`) and `ANT/AlbumLoudnessPlannerTest.kt` (JVM); stubs `AN/LoudnessStore.kt`, `AN/AlbumLoudnessPlanner.kt` {default}
+  - Do: a written `analysis` document is read back unchanged by the **existing** `activeAnalyses()` (loudness_lufs,
+    true_peak in dBTP); silent/failed documents carry no `loudness_lufs` and are skipped by it; documents survive a
+    rescan when the track's audio fingerprint (`identityHash(path|size|mtime)`) is unchanged and are dropped when it
+    changed or the track is gone; `analyzer_version` mismatch → track listed as pending; pending list = available
+    (not hidden) tracks without a current document. Album planner: members = available tracks with the same
+    `albumId` whose album comes from a tag (MediaStore's folder fallback "Music" is not an album); album record only
+    when every member has a histogram; members fingerprint changes on add/remove/re-analysis → recompute; album true
+    peak = max member true peak; untagged-folder tracks never get an album record.
+  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.analysis.AlbumLoudnessPlannerTest'`; instrumented class run
+    with `QA-I` and its expected failures listed in the commit message. migration-guard (Room).
+
+- [ ] T051c [US6] Implement `AN/LoudnessStore.kt`, `AN/AlbumLoudnessPlanner.kt`, new DAO queries and the rescan carry-over in `A/sync/SyncDatabase.kt` {hard} [HIGH-RISK]
+  - Do: document kinds `analysis`, `loudness_histogram`, `album_loudness`, `loudness_progress`
+    (`contracts/loudness-analysis.md`); upserts in the active plan; `writeLocalLibrary` copies the per-track kinds
+    with unchanged fingerprints, and the album records, into the new plan before it deletes stale documents (album
+    records are re-validated by the planner right after every scan); album read API for
+    `MeasuredGainSource`. No change to the existing read side, no schema/version change.
+  - Tests: T051b classes pass without modifying them; `GATE`. migration-guard (Room).
+
+### Decode and job (M6-1)
+
+- [ ] T051d [US6] [MANUAL] Offline decode through the Decoder Registry in `AN/OfflineDecoder.kt` + device benchmark `ANI/OfflineDecodeBenchmarkTest.kt` {hard} [HIGH-RISK]
+  - Do: decode a file with the registry's provider for its `FormatKey` (same extractors/renderers as playback, own
+    instances, never the players, no AudioTrack, no audio focus) to float via `PcmToFloatProcessor` (path A); feed
+    the meter; cancellable between chunks; background thread priority. Mechanism: an ExoPlayer instance with a
+    capture `AudioSink` (keeps 002's renderer providers working) unless the benchmark shows it capped below the
+    direct extractor + MediaCodec loop over the same provider's extractors; the choice and numbers go in HANDOFF.
+  - Tests: JVM unit tests for the capture sink; on `.qa`: decoded float PCM equals the playback path's capture tap for
+    the same file; corpus loudness vs fixtures (≤ 0.01 LU for PCM/FLAC/AIFF, ≤ 0.1 LU for lossy, whose decoders
+    differ from WaxFlow's); real-time factors decode-only and meter-only per format (Opus, Vorbis, FLAC, ALAC if
+    present, MP3, AAC, AIFF, WAV, 24/96, 32f), once in the `background` cpuset a worker runs in (little cores 0–3
+    on the CPH2307) and once on the big cores. **STOP and show the owner** if the measured little-core
+    time for the 775-track library is above the 5 h upper bound of the HANDOFF estimate.
+
+- [ ] T051e [US6] [TESTS-FIRST] Job tests in `ANT/LoudnessAnalysisWorkerTest.kt` (WorkManager `work-testing`, fake decoder/meter/store); stubs `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`; `androidx.work:work-runtime-ktx` + `work-testing` in `gradle/libs.versions.toml` and `androidApp/build.gradle.kts` {default}
+  - Do: unique work, KEEP; default constraints charging + battery not low + storage not low; a run stops starting
+    new tracks after its 8-minute budget and re-enqueues itself while tracks are pending; `isStopped` honoured
+    between chunks; each finished track is written before the next starts (checkpoint); a long track interrupted
+    mid-way resumes from its meter checkpoint (`loudness_progress` document) instead of restarting; only pending
+    tracks are processed; a failed decode writes a failed document and is not retried until its fingerprint or
+    `analyzer_version` changes; the planner runs at the end of every run; enqueued after every scan; the job runs
+    whichever engine is selected (the documents serve both; owner may change this, HANDOFF); progress counts exposed
+    as a Flow.
+  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.analysis.LoudnessAnalysisWorkerTest'`. migration-guard.
+
+- [ ] T051f [US6] Implement `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`, enqueue after scans in `A/sync/` (scan completion hook), `AndroidManifest.xml` only if WorkManager needs it; `THIRD-PARTY-NOTICES` (WorkManager, Apache-2.0) {hard} [HIGH-RISK]
+  - Tests: `LoudnessAnalysisWorkerTest` passes without modifying it; `GATE`.
+
+### Engine, settings, acceptance (M6-2, M6-4)
+
+- [ ] T052 [US6] Gain ramps in `A/player/dsp/GainProcessor.kt`, gain resolution in `A/player/media3/Media3Engine.kt`, normalization settings wiring in `A/player/PlaybackCoordinator.kt` {hard} [HIGH-RISK] — **changed**
+  - Do: on each player's track format, `GainResolver` → `itemGainDb` → `GainProcessor` target; `setNormalization`
+    retargets the current and prepared player with ramps; **the coordinator calls `engine.setNormalization` at engine
+    creation and on every `NormalizationPreferences` change** ("Prevent clipping" off → no peak cap and the limiter
+    stage neutral, FR-053); the coordinator's native `normalizationGain()` path (which force-disables normalization
+    when no analysis exists) runs only for the native engine; a track whose analysis finishes while it plays keeps
+    its gain until its next start; Opus header gain never added by `GainProcessor` (T005); log the Opus decoder name.
+  - Tests: `GainRampTest` passes without modifying it; coordinator test for the call/skip (`PlaybackCoordinatorNormalizationTest`, new); `GATE`. migration-guard (coordinator).
+
+- [ ] T053 [US6] Normalization settings in `A/player/NormalizationPreferences.kt`, `A/ui/screens/PlaybackSettingsContent.kt`, `A/MainActivity.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default} — **changed**
   - Do: `untaggedPreampDb` (default 0); settings enabled only with Media3 selected, disabled with a note on native
-    (replaces the `analysisAvailable` gate for the UI; the native analysis gain lookup itself unchanged).
+    (replaces the `analysisAvailable` gate for the UI); a progress line "Loudness analysis: N of M tracks" (plurals,
+    Western digits) and, if the owner approves, an "Analyze now" action that drops the charging constraint.
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T054 [US6] [MANUAL] {orchestrator} SC-004 loudness measurement over the corpus on `.qa`; owner listens to slider drags, album mode, Opus header gain
+- [ ] T054 [US6] [MANUAL] {orchestrator} On `.qa`: first analysis of the 775-track library (wall time, worker runs, `batterystats` CPU/wakelock, discharge if run on battery) for SC-018; SC-004 corpus loudness after analysis and before it (tags fallback); SC-017 device spot check; album records for the corpus albums; rescan keeps documents; owner listens to slider drags, album mode, Opus header gain (batched with T061 if the owner prefers) — **changed**
 
 **Checkpoint M6** — status report; owner approval.
 
@@ -717,6 +830,11 @@ interrupts (US3); lock screen shows the right artist (US4).
 ## Milestone M8 — Phase 10: Regression, resources, polish
 
 - [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ +20 %, SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
+  - CPU (owner, Checkpoint M5 approval 2026-10-08): measure on a **release** build (debug `.qa` numbers: float neutral
+    13.7 vs int 7.8 points). If Media3 with crossfade off still costs more than native, optimize, e.g. 16-bit input
+    with a neutral chain skips the float conversion entirely.
+  - Corpus (owner, not a blocker): add an 8–16 kHz AAC file when convenient and check the possible one-time position
+    jump at start (T048b note).
 - [ ] T063 {orchestrator} Full regression: `GATE`, `./gradlew :androidApp:lintDevDebug` (only known lint classes), every instrumented class on `.qa` one at a time (known failures listed in CLAUDE.md only), SC-001, SC-010 diff check; results in `specs/001-media3-migration/research/regression-001.md`
 - [ ] T064 {orchestrator} Docs: `THIRD-PARTY-NOTICES` completeness (Media3, Choir, Rhythm), CLAUDE.md "Playback" section (seam, switch, `.qa`), `quickstart.md`, `HANDOFF.md` (default stays Native until 002 is done; FR-003 flip is a pre-merge task)
 
@@ -734,7 +852,9 @@ interrupts (US3); lock screen shows the right artist (US4).
   (all edit the coordinator/service, so sequential); T031, T022 parallel; T032 after T026; T033 after T013.
 - M4: T036 → T037 → T038; T036 + T025 → T039 → T040 → T041.
 - M5: T042 → T043 → T044 → T045 → T046 → T047 → T048a → T048b → T048c → T048d → T048 (closed on evidence; listening parts moved to T061).
-- M6: T049 ∥ T050 → T051 → T052 → T053 → T054. T052 needs T045 (chain exists).
+- M6 (redesigned 2026-10-08): (T049 ∥ T050 ∥ T050a) → T050b → T051a → T051 → T051b → T051c → T051d → T051e → T051f →
+  T052 → T053 → T054. T051 needs T051c's album read API only as an interface (fake in tests). T052 needs T045 (chain
+  exists). T051d STOPs for the owner if the measured speed leaves the estimate range.
 - M7: T055 ∥ T056 → T057 → T058 → T059 → T060 → T061.
 - User stories: US9 → US1 → (US2, US3, US4) → US8 → US7 → US6 → US5. US5 is last because it needs the chain (US7)
   and the gain processor (US6) for per-sample fades before the EQ.
@@ -744,7 +864,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 - M1: T003, T004, T005 harnesses can be briefed together after T001 (separate files); device runs one at a time.
 - M2: T015 and T016 (separate test files on the same fakes).
 - M3: T022 and T031 next to the service chain.
-- M6: T049 and T050.
+- M6: T049, T050 and T050a (separate test files).
 - M7: T055 and T056.
 
 ## Implementation strategy

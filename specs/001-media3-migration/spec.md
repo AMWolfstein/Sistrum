@@ -2,7 +2,8 @@
 
 **Feature Branch**: `feature/media3-migration` (spec directory `specs/001-media3-migration`)
 
-**Created**: 2026-10-01 · **Revised**: 2026-10-05 (owner's new overall plan, see Clarifications)
+**Created**: 2026-10-01 · **Revised**: 2026-10-05 (owner's new overall plan, see Clarifications); 2026-10-08
+(measured-loudness normalization, owner decisions 2026-10-07)
 
 **Status**: Draft
 
@@ -19,6 +20,9 @@ lock-screen Unknown artist fix keeping decodeArtworkBitmaps, scan filtered by th
 skipped-files summary, test builds with a separate applicationId suffix and a test corpus. Out of scope: Kotlin
 decoders for the other formats (002), removing the native player/FFmpeg/NDK (003), the on-device analyzer.
 PlaybackQueue.kt and ListeningTracker.kt must need zero changes."
+Revised 2026-10-08 (owner): normalization measures loudness on the device (Kotlin port of WaxFlow's BS.1770
+meter, background job, decode through the Decoder Registry); tags become the fallback. Only the Mood part of the
+on-device analyzer stays out of scope.
 
 **Governing documents**: `.specify/memory/constitution.md` (Principles 1–11 and all sections),
 `research/discovery.md` (behaviours to preserve §2 Q8, format inventory §3, risks §6, boundaries §7),
@@ -108,6 +112,21 @@ known limitations and edge cases.
   assert the old faulty behaviour as preserved.
 - Q: Honour `REPLAYGAIN_REFERENCE_LOUDNESS`? → A: Yes, when present: adjusted gain = tag gain + (−18 −
   reference). Without it, gains are taken against −18, and R128 against −23 with +5 dB.
+
+### Session 2026-10-07 (owner, after the M5 hi-res report; written 2026-10-08)
+
+- Q: Where does normalization get loudness? → A: Measured on the device, as the original Airmedy did (measured,
+  not taken from tags): a Kotlin port of WaxFlow's `dsp/loudness` (BS.1770-4 integrated loudness, true peak),
+  validated with EBU test cases and the WaxFlow oracle. Mood features stay out of 001.
+- Q: How does analysis run? → A: A WorkManager job: bounded work per run under the 10-minute limit, checkpointed,
+  only new or changed files, preferring charging/idle, decoding through the Decoder Registry in float, separate
+  from playback. Results go into `sync_documents` in the shape the existing gain lookup reads.
+- Q: Precedence? → A: Measured loudness, then gain tags (only for tracks not analyzed yet), then unity gain +
+  untagged pre-amp.
+- Q: Album mode? → A: Album loudness gated across the whole album, not averaged, from stored per-track data so it
+  needs no re-decoding; recomputed when an album's tracks change.
+- Q: What is kept? → A: The gain processor, ramps, true-peak clip prevention, `NormalizationPreferences` and tag
+  parsing. "Prevent clipping" off must reach the engine.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -261,38 +280,54 @@ during a fade, pause and seek during a fade), comparing observable state with th
 
 ### User Story 6 — Consistent loudness across a mixed library (Priority: P2)
 
-A listener with normalization enabled plays a library that mixes MP3, FLAC, Ogg, Opus and M4A files,
-tagged by different tools or not at all. Tracks play at one consistent level, without clipping.
+A listener with normalization enabled plays a library that mixes MP3, FLAC, Ogg, Opus, M4A and other files,
+tagged by different tools or not at all. The app measures each track's loudness on the device in the background
+and plays every track at one consistent level, without clipping. Until a track is measured, its gain tags are
+used, and untagged tracks play at unity plus the untagged pre-amp.
 
-**Why this priority**: Normalization is broken today for every listener. Stage 1 (tag-based) restores
-it for tagged libraries on the new engine.
+**Why this priority**: Normalization is broken today for every listener, and tags alone would leave most libraries
+(untagged, or tagged by different tools against different references) inconsistent. Measuring restores the
+original Airmedy behaviour for everyone.
 
-**Independent Test**: Test-corpus tracks with known gain tags in each tag form, plus untagged tracks;
-measure the output level per track against the expected level.
+**Independent Test**: Test-corpus tracks of every format, with and without gain tags; after analysis, measure the
+output level per track against the target; before analysis, against the tag-based expectation. Meter accuracy
+against EBU cases and the WaxFlow oracle (SC-017); analysis cost on the test device (SC-018).
 
 **Acceptance Scenarios**:
 
-1. **Given** tracks with ReplayGain tags in MP3 (ID3 TXXX), FLAC/Ogg Vorbis (REPLAYGAIN_*), Opus
-   (R128_*) and M4A (Sound Check or ReplayGain atoms), **When** normalization is on, **Then** they all play
-   at the same target level.
-2. **Given** the target is −14 LUFS, **Then** every file gets the same global pre-amp of +4 dB on top of
-   its tag gain (reference −18 LUFS). The target never differs per format.
-3. **Given** an Opus file with R128 gain tags and a non-zero header output gain, **Then** the header gain
-   is applied exactly once and the R128 tag gain is converted by +5 dB.
-4. **Given** an untagged file, **Then** it plays at unity gain plus the "untagged pre-amp" setting.
-5. **Given** album mode, **Then** every track with an album gain plays at its album gain, whatever the
-   queue order or the next track (including the last track of an album and album tracks inside a
-   shuffled or mixed queue); a track without an album gain uses its track gain.
-6. **Given** a gain that would push peaks above full scale and clip prevention on, **Then** the gain is
-   reduced so the output doesn't clip, for tagged and untagged files alike. In album mode the album peak
-   is used.
+1. **Given** analyzed tracks of any format, tagged or not, **When** normalization is on, **Then** each plays at
+   the target loudness (gain = target − measured loudness), whatever its tags say.
+2. **Given** the target is −14 LUFS, **Then** the target acts as one global pre-amp relative to −18 LUFS (+4 dB)
+   on every source: measured tracks land on −14 LUFS; tag gains get +4 dB. The target never differs per format.
+3. **Given** an Opus file with R128 gain tags and a non-zero header output gain, **Then** the header gain is
+   applied exactly once (by the decoder, so the measured loudness already includes it) and, while the track is not
+   yet analyzed, the R128 tag gain is converted by +5 dB.
+4. **Given** a track not yet analyzed, **Then** its gain tags apply (ReplayGain, R128, Sound Check, with the tag
+   precedence); an untagged one plays at unity gain plus the "untagged pre-amp" setting.
+5. **Given** album mode and an album whose tracks are all analyzed, **Then** every track of it plays at the album
+   gain from the album's loudness gated across all its tracks, whatever the queue order or the next track
+   (including the last track of an album and album tracks inside a shuffled or mixed queue). A track whose album
+   is not fully analyzed uses its own measured loudness; a track not analyzed uses its album tag gain, else its
+   track tag gain.
+6. **Given** a gain that would push peaks above full scale and clip prevention on, **Then** the gain is reduced so
+   the true peak (the tagged peak for tag gains) stays at or below full scale, for every source; in album mode the
+   album peak is used.
 7. **Given** normalization is off, **Then** no gain is applied (the equalizer and pre-amps still apply as
    configured).
-8. **Given** the current engine is selected, **When** the listener opens the normalization settings,
-   **Then** they are disabled and a short note says they require the new playback engine.
+8. **Given** the current engine is selected, **When** the listener opens the normalization settings, **Then**
+   they are disabled and a short note says they require the new playback engine.
 9. *(Removed 2026-10-05: native-routed tracks.)*
-10. **Given** a track is playing, **When** the listener drags the target or untagged pre-amp slider,
-   **Then** the level follows smoothly without clicks, steps or jumps back to the old value.
+10. **Given** a track is playing, **When** the listener drags the target or untagged pre-amp slider, **Then** the
+    level follows smoothly without clicks, steps or jumps back to the old value.
+11. **Given** new or changed files after a scan, **When** the phone is charging, **Then** they are analyzed in the
+    background without interrupting or glitching playback, already analyzed unchanged files are not analyzed again,
+    and the settings show how many tracks are analyzed.
+12. **Given** a track's analysis finishes while it is playing, **Then** its gain does not change until its next
+    start.
+13. **Given** clip prevention is turned off, **Then** no peak cap is applied and the session limiter stage goes
+    neutral, without a click or a level jump.
+14. **Given** a rescan, **Then** measurements of unchanged files are kept and changed files are measured again;
+    an album whose tracks changed gets its album loudness recomputed without decoding the unchanged tracks.
 
 ---
 
@@ -391,6 +426,12 @@ and the daily app's library, statistics and settings are untouched.
   missing: ignored safely (treated as untagged or clamped), never distorted output or infinite gain.
 - A file carrying several tag forms at once (e.g. ReplayGain and Sound Check): one defined precedence.
 - Opus without R128 tags but with a header gain.
+- Loudness analysis (2026-10-08): a silent or sub-400 ms file (no loudness value → tags → unity); a file
+  changed or deleted while it is being analyzed (result discarded by fingerprint); a decode failure (recorded,
+  not retried until the file changes); a multi-hour file interrupted mid-way (resumed from its checkpoint); an
+  album with some tracks not yet analyzed or hidden (track values until complete; hidden tracks are not members);
+  untagged files under MediaStore's folder album (never an album); a rescan during a run; analysis while music
+  plays (no glitch); the phone unplugged mid-run (run stops between chunks, resumes later).
 - Mood Radio refill while a fade runs.
 - Test corpus folder present on a listener device without blocklisting: it simply appears as music.
 - A hi-res or multichannel file that the system routes to a direct output, where the session effect does not
@@ -486,7 +527,9 @@ and the daily app's library, statistics and settings are untouched.
   re-checked; a player that does not reach the shared session MUST NOT start (otherwise the limiter would silently
   miss it), and the failure is logged and handled like a prepare failure.
 
-**Normalization (tag-based, stage 1)**
+**Normalization (measured loudness first, tags as the fallback; revised 2026-10-08)**
+
+FR-040…FR-041 and FR-047 govern tracks that are not analyzed yet (tag gains); FR-047b…FR-047h govern measurement.
 
 - **FR-040**: Gain tags MUST be read in all common forms: ID3v2 TXXX ReplayGain (MP3), REPLAYGAIN_*
   comments (FLAC, Ogg Vorbis), R128_TRACK_GAIN / R128_ALBUM_GAIN (Opus), iTunes Sound Check and
@@ -496,21 +539,26 @@ and the daily app's library, statistics and settings are untouched.
   without it, gains are taken as written against −18. R128 gains (relative to −23 LUFS) MUST be converted by
   +5 dB. Opus header output gain MUST be applied exactly once.
 - **FR-042**: The user's target LUFS MUST act as one global pre-amp relative to −18 LUFS (target −14 →
-  +4 dB) applied to every file, tagged or not.
-- **FR-043**: Untagged files MUST play at unity gain plus a separate "untagged pre-amp" setting (default
-  0 dB). Album mode MUST always use the file's album gain when present and otherwise the track gain,
-  independent of queue order or the next track (unlike today's "next track on the same album" rule,
-  which stays unchanged on the current engine).
-- **FR-044**: Clip prevention MUST apply to all files, tagged and untagged: where a peak value is tagged,
-  the gain is reduced so that peak stays below full scale (album peak in album mode); in addition, a
+  +4 dB) applied to every file and every gain source. A measured track's gain before the pre-amp is −18 − L
+  (L = its measured integrated loudness), so it plays at target − L.
+- **FR-043**: Files with neither a measurement nor gain tags MUST play at unity gain plus a separate
+  "untagged pre-amp" setting (default 0 dB). Album mode MUST always use the album value when present and
+  otherwise the track value, independent of queue order or the next track (unlike today's "next track on the
+  same album" rule and averaged album loudness, which stay unchanged on the current engine). For a measured
+  track the album value is the album loudness of FR-047f; for a tag-only track it is the album tag gain.
+- **FR-044**: Clip prevention MUST apply to all files: the gain is reduced so that the measured true peak (or,
+  for tag gains, the tagged peak) stays at or below full scale (album peak in album mode); in addition, a
   limiter on the shared audio session processes the summed output of both players, after
   normalization, fade, stereo width, equalizer and preamp (each of which can clip). Below its threshold
-  the limiter MUST apply no gain reduction (SC-011). If the limiter is unavailable (FR-053), tagged-peak
-  reduction still applies.
+  the limiter MUST apply no gain reduction (SC-011). If the limiter is unavailable (FR-053), peak reduction
+  still applies. With clip prevention off, no peak cap is applied and the limiter stage is neutral (FR-053); the
+  setting MUST reach the engine whenever it changes and when an engine is created.
 - **FR-045**: The existing normalization settings (enabled, target, track/album mode, clip prevention)
   MUST remain the user-facing settings, extended only by the untagged pre-amp. They MUST be enabled only
-  while the new engine is selected (no longer force-disabled for lack of analysis data); while the current
-  engine is selected they MUST be disabled with a short note that they require the new playback engine.
+  while the new engine is selected (no longer force-disabled for lack of analysis data, and never turned off
+  automatically by the current engine's analysis lookup while the new engine is selected); while the current
+  engine is selected they MUST be disabled with a short note that they require the new playback engine. The
+  settings MUST show the analysis progress (analyzed tracks of the total).
 - **FR-046**: Gain changes MUST never cause an audible jump inside a crossfade.
 - **FR-046a**: A normalization setting change during playback (on/off, target, untagged pre-amp,
   Track/Album mode) MUST be heard immediately through a smooth ramp of about 100–300 ms, applied to the
@@ -520,10 +568,37 @@ and the daily app's library, statistics and settings are untouched.
   processor, not in player volume. The limiter stays active throughout.
 - **FR-047**: When several tag forms are present, one documented precedence MUST apply
   (ReplayGain → R128 → Sound Check assumed; see Assumptions).
-- **FR-047a**: Normalization MUST read gain through a gain-source abstraction. Tags are the only source in
-  this feature; the abstraction MUST allow the later precedence tags → on-device analysis → unity gain +
-  untagged pre-amp without changing the gain processor. Non-finite or silent-file values MUST never
-  produce infinite or NaN gain.
+- **FR-047a**: Normalization MUST read gain through a gain-source abstraction with one precedence, chosen per
+  track as a whole: measured loudness → gain tags → unity gain + untagged pre-amp. A measured track never mixes in
+  tag values. Non-finite or silent-file values MUST never produce infinite or NaN gain. A track's gain source
+  MUST NOT change while it plays (a measurement finished mid-track applies from its next start).
+- **FR-047b**: Loudness MUST be measured on the device per ITU-R BS.1770-4: gated integrated loudness (400 ms
+  blocks, 100 ms hop, absolute gate −70 LUFS, relative gate −10 LU) and true peak (Annex 2 oversampling). The meter
+  MUST be a Kotlin port of WaxFlow's `dsp/loudness` at the pinned commit, with the attribution header, and MUST
+  match the WaxFlow oracle and EBU test cases (SC-017). Mono MUST NOT read 3 dB hot. Tracks shorter than one block
+  or with no block above the absolute gate are recorded as silent, with no loudness value.
+- **FR-047c**: Analysis MUST run as a background job (WorkManager): constraints charging, battery not low and
+  storage not low; each run bounded below the 10-minute worker limit and re-scheduled while tracks are pending;
+  every finished track saved at once; a long track checkpointed so an interrupted run resumes it; only new or
+  changed files (audio fingerprint path + size + modification time) or files measured by an older analyzer
+  version. Scheduled after every scan.
+- **FR-047d**: Analysis MUST decode through the Decoder Registry's provider for the file, with its own decoder
+  instances, never the playback players, no audio output and no audio focus, converting to float on the same
+  path as playback (ADR-004 float amendment). It MUST run at background priority without glitching playback.
+  A decode failure is recorded with the provider and reason and is not retried until the file or the analyzer
+  version changes.
+- **FR-047e**: Measurements MUST be stored in `sync_documents` as `analysis` documents in the existing shape
+  (`loudness_lufs`, `true_peak` in dBTP) so the existing read side reads them unchanged, without Mood features and
+  without any Room schema change. They MUST survive rescans for unchanged files (`contracts/loudness-analysis.md`).
+- **FR-047f**: Album loudness MUST be BS.1770-gated across all blocks of all the album's tracks (not an average of
+  track values), computed from stored per-track data without re-decoding, only when every track of the album is
+  measured, and recomputed whenever the album's tracks or their measurements change. Album true peak = the
+  highest track true peak. Albums are tracks sharing an album id whose album name comes from a tag; MediaStore's
+  folder fallback is not an album.
+- **FR-047g**: Stored analysis data MUST stay small and bounded per track regardless of track length (histogram,
+  not raw blocks), so large libraries stay practical (Principle 10).
+- **FR-047h**: Analysis results MUST be independent of the selected engine; the job runs whichever engine is
+  selected (the current engine's unchanged read side then also uses the measurements).
 
 **Equalizer**
 
@@ -661,9 +736,12 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
 - **Skipped-files summary**: per scan, counts of files left out by format and reason.
 - **Playback item**: a resolved library track (id, title, artist, album, album artist, track number,
   file path, artwork path).
-- **Gain source**: something that yields gain information for an item (tags now; analysis later).
-- **Gain information**: per item: track gain, album gain, track peak, album peak, source tag form, and
-  whether any tag was found.
+- **Gain source**: something that yields gain information for an item: measured loudness, then tags.
+- **Gain information**: per item: track gain, album gain, track peak, album peak, and the source form (measured,
+  a tag form, or none).
+- **Loudness analysis**: per track: integrated loudness, true peak, sample peak, status, file fingerprint,
+  analyzer version, and a loudness histogram for album gating.
+- **Album loudness**: per album: gated integrated loudness, true peak, member count and members fingerprint.
 - **Normalization settings**: enabled, target LUFS (→ global pre-amp), track/album mode, clip prevention,
   untagged pre-amp.
 - **Equalizer settings**: 10 band gains, preamp, stereo width (unchanged).
@@ -680,8 +758,9 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   library view, queue and search, with their rows and play counts kept (FR-065a).
 - **SC-003**: Gapless joins on the new engine add no audible gap: measured silence between consecutive
   tracks of a gapless album is ≤ 10 ms.
-- **SC-004**: With normalization on, tagged corpus tracks of every tag form play within ±1 dB of each
-  other's expected level; no corpus track clips with clip prevention on.
+- **SC-004**: With normalization on and the corpus analyzed, every corpus track of every format plays within
+  ±1 dB of the target loudness; before analysis, tagged corpus tracks of every tag form play within ±1 dB of
+  each other's expected level; no corpus track clips with clip prevention on.
 - **SC-005**: The lock screen and notification show the correct artist for 100 % of corpus tracks with a
   known artist (0 "Unknown artist").
 - **SC-006**: Time from tapping a track to hearing audio on the new engine is no worse than on the current
@@ -713,6 +792,14 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   clip only when summed come out limited. Hi-res corpus files are checked for direct-output routing.
 - **SC-016**: The skipped-files summary after a scan matches the corpus: every skipped file is counted once,
   under its format and reason.
+- **SC-017**: The meter matches the references: generated EBU Tech 3341 cases within ±0.1 LU; on identical PCM,
+  the WaxFlow oracle within 0.01 LU (integrated) and 0.05 dB (true peak); on the device, lossless corpus files
+  within 0.01 LU and lossy ones within 0.1 LU of the oracle; album loudness from stored histograms within 0.05 LU
+  of WaxFlow's group measurement.
+- **SC-018**: On the test device, the first analysis of the owner's library (775 tracks, ~50 h) completes within
+  the estimate recorded in HANDOFF (re-measured in T051d) using only charging time by default, no run exceeds its
+  budget, playback during analysis shows no underruns, and stored analysis data stays under 2 KB per track on
+  average. Raw battery percentage is reported only for a run on battery, as information.
 
 ## Assumptions
 
@@ -735,9 +822,9 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
 - Device-only checks (listening, Bluetooth, headset, focus, process death, audio_flinger routing) are done by
   the owner on the test device (CPH2307) and ideally a second device; they are samples, not the target
   (Principle 10).
-- The on-device analyzer (true LUFS, Mood Radio features) is a separate later feature
-  (`research/analyzer-future.md`); until then Mood Radio stays unavailable to listeners, but its
-  machinery is kept working and tested with supplied data.
+- The on-device loudness analyzer is part of this feature (2026-10-08). The Mood part (Mood Radio features) is
+  a separate later feature (`research/analyzer-future.md`); until then Mood Radio stays unavailable to
+  listeners, but its machinery is kept working and tested with supplied data.
 - Future note (after the migration, not in scope): a possible automatic Track/Album mode would be based
   on the queue's source (album page = album gain; playlist, mixed queue or shuffle = track gain), never on
   adjacent tracks (`research/future-settings.md`).
