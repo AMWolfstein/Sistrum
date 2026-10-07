@@ -1,6 +1,7 @@
 package me.misa198.airmedy.player.dsp
 
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -47,11 +48,21 @@ internal object BiquadDesign {
  * interpolation of every band's coefficients from their current values to the new targets over
  * `TRANSITION_FRAMES` frames, keeping the `z1`/`z2` state so there is never a step. Setting gains
  * before the first [process] call, or right after [reset], applies immediately with no transition.
+ *
+ * Transitions to and from 0 dB move only the numerator while the poles are frozen, so the response
+ * blends linearly between the peaking filter and unity instead of jumping:
+ * - active -> 0 dB: the numerator ramps from the peaking `b` to `a` (unity), then the band keeps
+ *   running an input-free state recurrence (`y = x + z1`, `z1' = -a1*z1 + z2`, `z2' = -a2*z1`)
+ *   until its state decays below [DRAIN_EPSILON] or `maxDrainFrames` (1 s) elapse, and is then
+ *   dropped. Running the recurrence without the live input is what lets the state actually decay
+ *   (with the live input, float rounding re-excites it and low bands never settle).
+ * - 0 dB -> active: the numerator ramps from unity (`b == a` with the target poles) to the target.
  */
 internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
 
     private val bands = BiquadDesign.FrequenciesHz.size
     private val transitionFrames = maxOf(1, (0.02f * sampleRate).roundToInt())
+    private val maxDrainFrames = sampleRate
 
     private val targetGainsDb = FloatArray(bands)
 
@@ -74,10 +85,17 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
     private val startB2 = FloatArray(bands)
     private val startA1 = FloatArray(bands)
     private val startA2 = FloatArray(bands)
-    private val startActive = BooleanArray(bands)
 
     private val z1 = FloatArray(bands * channelCount)
     private val z2 = FloatArray(bands * channelCount)
+
+    /**
+     * A band whose target is 0 dB is not stepped straight to inactive: it first blends to unity
+     * (`b == a`, poles fixed) and then runs an input-free recurrence on its own state until that
+     * state has decayed, so neither the numerator step nor the state clear can click.
+     */
+    private val draining = BooleanArray(bands)
+    private val drainFrames = IntArray(bands)
 
     private var transitionRemaining = 0
     private var transitionElapsed = 0
@@ -98,6 +116,9 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
             for (i in 0 until bands) if (curActive[i]) return true
             return transitionRemaining > 0
         }
+
+    /** Test-only view of one band's state; a draining band counts as active. */
+    internal fun isBandActiveForTest(index: Int): Boolean = curActive[index]
 
     fun setGains(gainsDb: FloatArray) {
         require(gainsDb.size == bands) { "expected $bands EQ gains, got ${gainsDb.size}" }
@@ -143,12 +164,46 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
                     val stateIndex = band * channelCount + ch
                     val z1v = z1[stateIndex]
                     val z2v = z2[stateIndex]
-                    val y = curB0[band] * sample + z1v
-                    z1[stateIndex] = curB1[band] * sample - curA1[band] * y + z2v
-                    z2[stateIndex] = curB2[band] * sample - curA2[band] * y
-                    sample = y
+                    if (draining[band]) {
+                        // b == a, so the live input cancels: run the state-only recurrence so it
+                        // decays geometrically instead of being re-excited by the signal.
+                        sample += z1v
+                        z1[stateIndex] = -curA1[band] * z1v + z2v
+                        z2[stateIndex] = -curA2[band] * z1v
+                        if (ch == 0) drainFrames[band]++
+                    } else {
+                        val y = curB0[band] * sample + z1v
+                        z1[stateIndex] = curB1[band] * sample - curA1[band] * y + z2v
+                        z2[stateIndex] = curB2[band] * sample - curA2[band] * y
+                        sample = y
+                    }
                 }
                 buffer[base + ch] = sample
+            }
+        }
+        settleDrainingBands()
+    }
+
+    /** Deactivates a band once its (unity) state has decayed enough that dropping it cannot click. */
+    private fun settleDrainingBands() {
+        for (i in 0 until bands) {
+            if (!draining[i]) continue
+            val base = i * channelCount
+            var maxState = 0f
+            for (ch in 0 until channelCount) {
+                val a = abs(z1[base + ch])
+                if (a > maxState) maxState = a
+                val b = abs(z2[base + ch])
+                if (b > maxState) maxState = b
+            }
+            if (maxState < DRAIN_EPSILON || drainFrames[i] >= maxDrainFrames) {
+                draining[i] = false
+                curActive[i] = false
+                drainFrames[i] = 0
+                for (ch in 0 until channelCount) {
+                    z1[base + ch] = 0f
+                    z2[base + ch] = 0f
+                }
             }
         }
     }
@@ -174,12 +229,14 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
             curA1[i] = 0f
             curA2[i] = 0f
 
-            startActive[i] = false
             startB0[i] = 1f
             startB1[i] = 0f
             startB2[i] = 0f
             startA1[i] = 0f
             startA2[i] = 0f
+
+            draining[i] = false
+            drainFrames[i] = 0
         }
         transitionRemaining = 0
         transitionElapsed = 0
@@ -194,6 +251,8 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
             curB2[i] = targetB2[i]
             curA1[i] = targetA1[i]
             curA2[i] = targetA2[i]
+            draining[i] = false
+            drainFrames[i] = 0
         }
         transitionRemaining = 0
         transitionElapsed = 0
@@ -201,13 +260,53 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
 
     private fun beginTransition() {
         for (i in 0 until bands) {
-            startActive[i] = curActive[i]
             startB0[i] = curB0[i]
             startB1[i] = curB1[i]
             startB2[i] = curB2[i]
             startA1[i] = curA1[i]
             startA2[i] = curA2[i]
-            curActive[i] = startActive[i] || targetActive[i]
+
+            if (draining[i] && !targetActive[i]) {
+                // This band's own target is still 0 dB: leave it draining untouched so dragging
+                // other bands cannot restart or prolong it. Freeze it out of the blend.
+                targetB0[i] = curB0[i]
+                targetB1[i] = curB1[i]
+                targetB2[i] = curB2[i]
+                targetA1[i] = curA1[i]
+                targetA2[i] = curA2[i]
+                continue
+            }
+
+            draining[i] = false
+
+            if (targetActive[i]) {
+                if (!curActive[i]) {
+                    // 0 dB -> active: start at unity with the target poles so only the
+                    // numerator moves (b == a at t = 0). The (zeroed) state starts clean.
+                    startB0[i] = 1f
+                    startB1[i] = targetA1[i]
+                    startB2[i] = targetA2[i]
+                    startA1[i] = targetA1[i]
+                    startA2[i] = targetA2[i]
+                    val base = i * channelCount
+                    for (ch in 0 until channelCount) {
+                        z1[base + ch] = 0f
+                        z2[base + ch] = 0f
+                    }
+                }
+                curActive[i] = true
+            } else if (curActive[i]) {
+                // active -> 0 dB: freeze the current (start) poles and move only the numerator
+                // to match them (b == a -> unity). The band stays active and drains afterwards.
+                targetB0[i] = 1f
+                targetB1[i] = startA1[i]
+                targetB2[i] = startA2[i]
+                targetA1[i] = startA1[i]
+                targetA2[i] = startA2[i]
+                curActive[i] = true
+            } else {
+                curActive[i] = false
+            }
         }
         transitionElapsed = 0
         transitionRemaining = transitionFrames
@@ -217,18 +316,22 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
         transitionElapsed++
         if (transitionElapsed >= transitionFrames) {
             for (i in 0 until bands) {
-                curActive[i] = targetActive[i]
                 curB0[i] = targetB0[i]
                 curB1[i] = targetB1[i]
                 curB2[i] = targetB2[i]
                 curA1[i] = targetA1[i]
                 curA2[i] = targetA2[i]
-                if (!targetActive[i]) {
-                    val base = i * channelCount
-                    for (ch in 0 until channelCount) {
-                        z1[base + ch] = 0f
-                        z2[base + ch] = 0f
-                    }
+                if (targetActive[i]) {
+                    curActive[i] = true
+                    draining[i] = false
+                } else if (curActive[i]) {
+                    // Finished blending to unity; keep the band alive until its state decays.
+                    if (!draining[i]) drainFrames[i] = 0
+                    curActive[i] = true
+                    draining[i] = true
+                } else {
+                    curActive[i] = false
+                    draining[i] = false
                 }
             }
             transitionRemaining = 0
@@ -243,5 +346,10 @@ internal class BiquadEqualizer(val channelCount: Int, val sampleRate: Int) {
                 curA2[i] = startA2[i] + (targetA2[i] - startA2[i]) * t
             }
         }
+    }
+
+    private companion object {
+        /** A draining band is dropped only once every state term is below this magnitude. */
+        const val DRAIN_EPSILON = 1e-6f
     }
 }

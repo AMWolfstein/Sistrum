@@ -595,11 +595,25 @@ interrupts (US3); lock screen shows the right artist (US4).
     Real EQ apps (Wavelet, Poweramp EQ) = optional owner check before v1.0, not a gate.
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3EqAppImitationTest`; `GATE`.
 
-- [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); optional, not a gate: device-level measurement of T003b (a)–(c) (open follow-up, ADR-004 "T003b closure")
+- [x] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); optional, not a gate: device-level measurement of T003b (a)–(c) (open follow-up, ADR-004 "T003b closure")
   - Revised 2026-10-07 (owner): run after T048a–c, since A changes the audio path. Done so far: hi-res routing +
     shared session on `flac_24_96` (HANDOFF "T048"). SC-015 summed-overlap check moved to M7 (needs Media3 crossfade).
     Remaining, owner by ear, one at a time with the orchestrator setting up the app state: extreme EQ vs native; no
     clicks while dragging sliders; loud material through the limiter; "playback doesn't go silent" during T048c.
+  - Revised 2026-10-07 (owner: "Skip the M5 listening session"): (1) extreme EQ vs native → closed on the device
+    band-centre measurements (T045 `Media3DspTest` 44.1/48 kHz, T048b `Media3FloatPathTest` 96 kHz, ±0.1 dB vs the
+    native golden); (2) slider clicks → closed by the automated chain test T048d; (3) loud material through the
+    limiter (with SC-011) and (4) no silence during effect-control loss (T048c audible run) → moved to T061's owner
+    listening session together with SC-015's two-tone crossfade check (no tool on the CPH2307 measures audible output).
+    Done on the device: hi-res routing + shared session (T048, T048b re-check for 16/48, 24/96, f32), EQ-app interplay
+    via imitation (T048c). Real EQ apps (Wavelet, Poweramp EQ) = optional owner check before v1.0, not a gate.
+
+- [x] T048d [US7] Slider-drag discontinuity test through the full float chain in `AT/player/media3/DspSliderDragTest.kt` {default}
+  - Do (owner 2026-10-07): render through `FloatChainAudioSink` with the real Gain → Width → EQ → Preamp chain while
+    EQ, preamp and width change between buffers like slider drags; assert no discontinuity above a stated threshold
+    (second difference vs static renders at the drag's settings), with a negative control proving the metric catches
+    an unramped step. Closes T048's check 2.
+  - Tests: `UT me.misa198.airmedy.player.media3.DspSliderDragTest`; `GATE`. migration-guard.
 
 **Checkpoint M5** — status report; owner approval.
 
@@ -691,6 +705,10 @@ interrupts (US3); lock screen shows the right artist (US4).
   - Tests: `UT me.misa198.airmedy.player.PlaybackCoordinatorCrossfadeMedia3Test`; `GATE`. migration-guard.
 
 - [ ] T061 [US5] [MANUAL] {orchestrator} US5 scenarios 1–8 on `.qa` vs native (SC-007 start within 200 ms), 12 s fade and snaps by ear (owner), SC-015 during a fade
+  - Owner listening session (one session for all, owner 2026-10-07): 12 s fade and snaps; SC-015 two overlapping tones
+    that clip only when summed come out limited during a crossfade; moved from T048: loud material through the limiter
+    incl. SC-011 (clip prevention on/off, max EQ boost + preamp, two loud tracks overlapping in a crossfade), and
+    "playback doesn't go silent" during `Media3EqAppImitationTest` with `-e audible true -e phaseSeconds 15`.
 
 **Checkpoint M7** — status report; owner approval.
 
@@ -715,7 +733,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 - M3: T018 before T026/T027; T019 → T020 → T021 → T034; T023 → T024 → T025; T026 → T027 → T028 → T029 → T030
   (all edit the coordinator/service, so sequential); T031, T022 parallel; T032 after T026; T033 after T013.
 - M4: T036 → T037 → T038; T036 + T025 → T039 → T040 → T041.
-- M5: T042 → T043 → T044 → T045 → T046 → T047 → T048a → T048b → T048c → T048 (owner listening).
+- M5: T042 → T043 → T044 → T045 → T046 → T047 → T048a → T048b → T048c → T048d → T048 (closed on evidence; listening parts moved to T061).
 - M6: T049 ∥ T050 → T051 → T052 → T053 → T054. T052 needs T045 (chain exists).
 - M7: T055 ∥ T056 → T057 → T058 → T059 → T060 → T061.
 - User stories: US9 → US1 → (US2, US3, US4) → US8 → US7 → US6 → US5. US5 is last because it needs the chain (US7)
