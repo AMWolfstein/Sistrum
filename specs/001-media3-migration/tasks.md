@@ -662,7 +662,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ### Loudness meter (M6-1, WaxFlow port)
 
-- [ ] T050a [P] [US6] [TESTS-FIRST] Meter tests in `ANT/loudness/LoudnessMeterTest.kt`, `ANT/loudness/TruePeakTest.kt`, `ANT/loudness/LoudnessHistogramTest.kt`, `ANT/loudness/WaxFlowOracleLoudnessTest.kt`; stubs `AN/loudness/LoudnessMeter.kt`, `AN/loudness/LoudnessHistogram.kt` {default}
+- [x] T050a [P] [US6] [TESTS-FIRST] Meter tests in `ANT/loudness/LoudnessMeterTest.kt`, `ANT/loudness/TruePeakTest.kt`, `ANT/loudness/LoudnessHistogramTest.kt`, `ANT/loudness/WaxFlowOracleLoudnessTest.kt`; stubs `AN/loudness/LoudnessMeter.kt`, `AN/loudness/LoudnessHistogram.kt` {default}
   - Do: generated EBU Tech 3341 cases 1–5 (stereo 1 kHz sines and the gating sequences, ±0.1 LU) and true-peak
     sines with a known inter-sample peak (e.g. fs/4 at 45°: samples ±0.707, true peak 0 dBTP ±0.3 dB at 4×); the
     synthetic cases of WaxFlow `dsp/loudness/loudness_test.go` and `peak_test.go` at the pinned commit, same
