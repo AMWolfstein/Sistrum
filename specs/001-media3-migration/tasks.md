@@ -566,7 +566,40 @@ interrupts (US3); lock screen shows the right artist (US4).
 - [x] T047 [P] [US7] Limiter state note in the clip-prevention setting in `A/ui/screens/PlaybackSettingsContent.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default}
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
+- [ ] T048a [US7] [TESTS-FIRST] Float sink and block-size tests in `AT/player/media3/FloatChainAudioSinkTest.kt`, `AT/player/media3/MixerBlockEstimatorTest.kt` (stubs `A/player/media3/FloatChainAudioSink.kt`, `A/player/media3/MixerBlockEstimator.kt`) {default}
+  - Do (ADR-004 "Float sink amendment", owner 2026-10-07): fake inner `AudioSink`; configure rewrites the format to float
+    and copies every other `AudioSinkConfig` field; 16/24/32-bit and float input → exact float out; neutral chain
+    bit-exact; float above 0 dBFS not clipped; inner sink returning false → the same processed bytes re-offered, input
+    never re-processed, nothing lost or duplicated; flush / flushing configure drop pending output; non-PCM passthrough
+    untouched; end of stream; format support reported as float transcoding. Estimator: playback-head samples → mixer
+    block duration (mode of the positive steps ÷ track rate), robust to jitter and pauses; fallback when unmeasurable.
+  - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.media3.FloatChainAudioSinkTest,me.misa198.airmedy.player.media3.MixerBlockEstimatorTest'`. migration-guard.
+
+- [ ] T048b [US7] Float chain end to end in `A/player/media3/FloatChainAudioSink.kt`, `A/player/media3/MixerBlockEstimator.kt`, `A/player/media3/Media3PlayerFactory.kt`, `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3Engine.kt` with `AI/player/media3/Media3FloatPathTest.kt` {hard} [HIGH-RISK]
+  - Do: T048a tests pass without modifying them; the factory builds every player's sink as
+    `FloatChainAudioSink(inner DefaultAudioSink: float output on, empty processor chain, wrapped AudioOutputProvider)`;
+    the wrapped provider measures the real AudioTrack's mixer block and the limiter is re-created with it (and after a
+    routing change); int path kept behind a factory flag for the comparison only.
+  - Tests: `QA-I me.misa198.airmedy.player.media3.Media3FloatPathTest` (16-bit, 24/96, 32-bit float corpus files:
+    neutral chain bit-exact in float via tee; band-centre tones at 96 kHz vs golden ±0.1 dB; two players on one shared
+    session held 20 s per format for the orchestrator's dumpsys routing check; measured block duration reported; CPU
+    and PSS: float chain vs int chain, neutral and full, T045 method); all existing Media3 device tests; `GATE`.
+    Orchestrator: dumpsys on the CPH2307 — both tracks on the normal mixer thread on the shared session with the DP in
+    that chain for all three formats; a direct/hi-res output → STOP, report to the owner.
+
+- [ ] T048c [US7] EQ-app imitation in `AI/player/media3/Media3EqAppImitationTest.kt` {default}
+  - Do (owner 2026-10-07): a competing `DynamicsProcessing` (higher priority) on our engine's session takes control →
+    `LimiterState(available, not controlled)` and the "not controlled" note; it then disables its effect → our recovery
+    (release + 5 s probe, unavailable note); it releases → re-created with control, no note. Optional instrumentation
+    argument keeps playback audible (normal volume) for the owner's "doesn't go silent" listening check.
+    Real EQ apps (Wavelet, Poweramp EQ) = optional owner check before v1.0, not a gate.
+  - Tests: `QA-I me.misa198.airmedy.player.media3.Media3EqAppImitationTest`; `GATE`.
+
 - [ ] T048 [US7] [MANUAL] {orchestrator} SC-015 (`dumpsys media.audio_flinger`, two clipping tones), SC-011 overshoot, hi-res direct output, EQ app interplay (Wavelet/Poweramp EQ) incl. control loss not muting playback (FR-055 hedge), extreme EQ by ear vs native (owner); optional, not a gate: device-level measurement of T003b (a)–(c) (open follow-up, ADR-004 "T003b closure")
+  - Revised 2026-10-07 (owner): run after T048a–c, since A changes the audio path. Done so far: hi-res routing +
+    shared session on `flac_24_96` (HANDOFF "T048"). SC-015 summed-overlap check moved to M7 (needs Media3 crossfade).
+    Remaining, owner by ear, one at a time with the orchestrator setting up the app state: extreme EQ vs native; no
+    clicks while dragging sliders; loud material through the limiter; "playback doesn't go silent" during T048c.
 
 **Checkpoint M5** — status report; owner approval.
 
@@ -682,7 +715,7 @@ interrupts (US3); lock screen shows the right artist (US4).
 - M3: T018 before T026/T027; T019 → T020 → T021 → T034; T023 → T024 → T025; T026 → T027 → T028 → T029 → T030
   (all edit the coordinator/service, so sequential); T031, T022 parallel; T032 after T026; T033 after T013.
 - M4: T036 → T037 → T038; T036 + T025 → T039 → T040 → T041.
-- M5: T042 → T043 → T044 → T045 → T046 → T047 → T048.
+- M5: T042 → T043 → T044 → T045 → T046 → T047 → T048a → T048b → T048c → T048 (owner listening).
 - M6: T049 ∥ T050 → T051 → T052 → T053 → T054. T052 needs T045 (chain exists).
 - M7: T055 ∥ T056 → T057 → T058 → T059 → T060 → T061.
 - User stories: US9 → US1 → (US2, US3, US4) → US8 → US7 → US6 → US5. US5 is last because it needs the chain (US7)

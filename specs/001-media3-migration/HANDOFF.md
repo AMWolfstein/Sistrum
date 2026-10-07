@@ -577,3 +577,62 @@ Open items for the owner / later milestones:
 - `Media3Engine.setNormalization` is not called by the coordinator yet → the "Prevent clipping" switch does not reach the Media3 limiter until M6 wires normalization (T052 area); the limiter runs with clip prevention on meanwhile.
 - `LimiterStatus` keeps the last state after the service stops (no reset); harmless, note for T048.
 - Possible-mute detection on control loss (ADR-004 "Session and limiter wiring") is verified on the device only by T048.
+
+### T048 — in progress (2026-10-07, owner: "Let's do T048 now … run the dumpsys captures yourself")
+
+- Prep: current `.qa` (with T047) built and installed (`aapt2`: `me.misa198.airmedy.dev.qa`); `t048_tone1k_-0.5dBFS_16_48k.wav`
+  and `t048_hires_24bit_96k.wav` pushed to `/sdcard/Music/SistrumTestCorpus/` (daily app blocklists it), QA library rescanned.
+  The orchestrator drives the QA app over adb (`uiautomator dump` + taps, each tap refuses unless the QA app is in front).
+- Engine selection (About → Developer): Media3. Volume normalization page: no limiter note (expected).
+- **Hi-res routing + shared session (SC-015 single-track part): PASS.** Playing corpus `flac_24_96`: track 1118, session 9489,
+  PCM float, 96 kHz stereo, active on mixer thread `AudioOut_1D` (speaker, 48 kHz, HAL 24-bit) — no direct output. On
+  session 9489, DynamicsProcessing (effect 707) on the same thread, enabled, controlled by the QA app (priority 0), float.
+- **Finding (FR-052 frame duration):** the thread processes 1920 frames per cycle (40 ms); the limiter's preferred frame
+  duration is 4 ms (`PROPERTY_OUTPUT_FRAMES_PER_BUFFER`). Not equal to the real buffer duration.
+- SC-015 summed overlap (two clipping tones in a crossfade): not testable until Media3 crossfade (M7) → moved to M7.
+- No EQ app installed on the CPH2307 (no Wavelet/Poweramp EQ) → EQ-app interplay not run yet.
+- Hi-res analysis for the owner (Media3 1.11.1 sources): see the conversation report; options A (ForwardingAudioSink wrapper,
+  float end to end) / B (fork DefaultAudioSink) / C (neutral bypass via player rebuild). Truncation is undithered. Awaiting decision.
+
+### Owner decisions 2026-10-07 (after the hi-res report)
+
+1. **Hi-res: option A** (wrapper sink, float end to end) + ADR-004 amendment ("Float sink amendment"). New M5 tasks
+   T048a (tests first) → T048b (implementation, high-risk model). Extra requirements, all in T048b:
+   - Routing re-check on the CPH2307 (dumpsys): both players' tracks on the normal mixer thread on the shared session,
+     DP in that chain, for 16-bit, 24/96 and 32-bit float. **Float routed to a direct/hi-res output → STOP, tell the owner.**
+   - CPU and memory: float chain vs current int chain (T045 method).
+   - ADR-004 notes that A removes the hard clip of float decoder output above 0 dBFS before our gain stages. (Done.)
+   - FR-052: don't hardcode 40 ms; read the real block size of the session's output thread (differs per device and after
+     A) and set the limiter's frame duration from it.
+2. **EQ-app check:** automated imitation test now (T048c). Real apps (Wavelet etc.) = optional owner check pre-v1.0.
+3. **Listening checks:** batched after A. Orchestrator sets up the app state for each and guides one at a time:
+   extreme EQ vs native; no clicks while dragging sliders; loud material through the limiter; "playback doesn't go
+   silent" during the imitation test. These close the M5 sign-off. Then Checkpoint M5.
+
+**After the owner's M5 approval, BEFORE running any M6 task — redesign normalization like original Airmedy (loudness
+measured on device, not taken from tags):**
+- M6-1 Loudness analyzer INTO 001 (M6): Kotlin port of WaxFlow `dsp/loudness` (BS.1770 integrated loudness, true peak)
+  with the attribution header per `docs/waxflow/ORACLE.md`; validated with EBU test vectors and the WaxFlow oracle (Go is
+  installed: `scripts/waxflow-oracle.sh` on the T006 corpus and WaxFlow's testdata → loudness fixtures; commit only the
+  fixtures file). Background job: WorkManager, per-track bounded work (10-minute worker limit), checkpointed, only
+  new/changed files, prefers charging/idle, decodes through the Decoder Registry, separate from playback, in float
+  (same path as A). Writes `loudness_lufs` and `true_peak` into `sync_documents` in the shape the existing gain lookup
+  reads. Mood features stay out of 001.
+- M6-2 GainSource precedence: measured loudness first; ReplayGain tags (Rhythm port, with REPLAYGAIN_REFERENCE_LOUDNESS)
+  only for tracks not yet analyzed; then unity gain + untagged pre-amp.
+- M6-3 Album mode: album loudness measured over the album as a whole (BS.1770 gating across all its tracks), not
+  averaged. Store per-track data that allows computing album loudness later without re-decoding; recompute when an
+  album's tracks change.
+- M6-4 Keep: gain processor, ramps, clip prevention with true peak, NormalizationPreferences as the UI contract, tag
+  parsing (now the fallback). Wire "Prevent clipping" off to the engine (currently ignored on Media3).
+- M6-5 Update constitution, spec (US6 + FR-04x), ADR-005, data-model.md, gain-source contract, M6 tasks,
+  analyzer-future.md (loudness moved into 001; mood stays later).
+- **STOP before running any M6 task and show the owner:** the new M6 task list (kept / added / changed); estimated
+  first-analysis time for the owner's 775-track library on the CPH2307 and the battery impact; how album loudness is
+  stored and recomputed.
+
+**Before M7 starts:** list every crossfade behaviour from the native engine (`ffmpeg_player.cpp`, the coordinator, the
+M2 characterization tests) and from Airmedy's `catalog/player/README.md` (curve, swap at fade start, gain staging,
+duration rule, repeat-one, artwork blend, last-duration memory, pause/skip/seek during a fade); map each to the M7 test
+or task covering it, plus the 0.46–0.69 s fade-lead compensation from S1 and the SC-015 summed-tone check (moved into
+M7). Show the owner anything not covered before starting M7.

@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below); **chain wiring 2026-10-07 (T045)**: custom `AudioProcessorChain`, float output off (below); **session + limiter wiring 2026-10-07 (T046)**: possible-mute detection defined (below) · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below); **chain wiring 2026-10-07 (T045)**: custom `AudioProcessorChain`, float output off (below); **session + limiter wiring 2026-10-07 (T046)**: possible-mute detection defined (below); **float sink amendment 2026-10-07 (owner, option A)**: chain runs in float before the sink (below) · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -170,6 +170,34 @@ Read from the 1.11.1 bytecode while preparing T045; the wiring follows from them
   Whether this matches what the device does when an EQ app takes control is checked by ear in T048.
 - On the CPH2307 the effect is created with control (`Media3LimiterTest`: available = true, controlled = true).
 - `Media3PlayerFactory.limiterState` holds the latest state across engines (null before the first) for T047.
+
+## Float sink amendment (owner decision 2026-10-07, option A) — supersedes "Chain wiring" bullet 1
+
+Owner: don't accept 16-bit truncation before the EQ. Verified in the Media3 1.11.1 sources (`DefaultAudioSink.java`
+754-759 and 1755; `ToInt16PcmAudioProcessor.java` 111/125/142-146): the int path drops low bytes (no dither) and
+clamps float input to [−1, 1] before any custom processor; the float path (`setEnableFloatOutput(true)` + hi-res input)
+never runs custom processors. Alternatives rejected: forking `DefaultAudioSink` (final, ~2000 lines, re-merge on every
+upgrade); rebuilding the player to bypass when neutral (gap on EQ toggle, FR-056).
+
+Decision:
+- `FloatChainAudioSink` (a `ForwardingAudioSink`) runs the per-player chain on the decoder's PCM **before** the inner
+  sink: Media3's `ToFloatPcmAudioProcessor` (exact for 8/16/24/32-bit and float) → Gain → Width → EQ → Preamp (+ test
+  taps), then hands float PCM to an inner `DefaultAudioSink` built with float output on and an empty processor chain.
+  Float input counts as hi-res, so the inner sink takes its float path (trimming, channel mapping, no 16-bit step).
+  Non-PCM (passthrough) bypasses the chain. Every file keeps full resolution end to end and is always equalized.
+- This also removes the hard clip of float decoder output above 0 dBFS (`ToInt16PcmAudioProcessor` clamp) before our
+  gain stages: preamp, normalization gain and the session limiter see the unclipped signal.
+- Contract details (from `AudioSink.handleBuffer`): the chain is 1:1 in frames; processed output not yet accepted by the
+  inner sink is kept and re-offered when the caller re-sends the same buffer, never re-processed; `flush()` and a
+  flushing `configure()` drop it. `configure()` rewrites the `AudioSinkConfig` format to float and copies every other field.
+- FR-052 frame duration: measured, not hardcoded. The inner sink's `AudioOutputProvider` is wrapped to reach the real
+  `AudioTrack` (`AudioTrackAudioOutput.getAudioTrack()`); the mixer advances its playback head once per mixer cycle, so
+  the step size ÷ track sample rate = the output thread's block duration (40 ms measured by dumpsys on the CPH2307
+  speaker thread vs 4 ms from `PROPERTY_OUTPUT_FRAMES_PER_BUFFER`). The limiter is created with the property value and
+  re-created once with the measured duration, and again after a routing change.
+- Gates (owner): on the CPH2307, dumpsys must show both players' tracks on the normal mixer thread on the shared session
+  with the DP in that chain for 16-bit, 24/96 and 32-bit float files; if float routes to a direct/hi-res output where
+  session effects don't run → stop and report. CPU and memory recorded for the float chain vs the int chain (T045 method).
 
 ## Consequences
 
