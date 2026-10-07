@@ -546,7 +546,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     process CPU with the full chain active vs neutral vs no chain over 2 min each, reported; neutral chain within
     +1 CPU point of no chain); `GATE`.
 
-- [ ] T046 [US7] Shared session and limiter in `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AT/player/media3/LimiterConfigTest.kt` {hard} [HIGH-RISK]
+- [x] T046 [US7] Shared session and limiter in `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AT/player/media3/LimiterConfigTest.kt` {hard} [HIGH-RISK]
   - Do: one audio session id per engine lifetime, reused for every player (FR-036); limiter-only DynamicsProcessing
     with every parameter set explicitly from T003/T003b's decision, linked channels, frame duration = sink buffer (FR-052);
     every player verified on the shared session after ready and before play, re-applied if needed, never started

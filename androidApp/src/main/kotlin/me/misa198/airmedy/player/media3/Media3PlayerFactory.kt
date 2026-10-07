@@ -25,6 +25,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import me.misa198.airmedy.player.GlobalDspConfig
 import me.misa198.airmedy.player.decoders.DecoderProvider
 import me.misa198.airmedy.player.decoders.ProcessCodecProbe
@@ -60,6 +62,8 @@ internal class Media3PlayerFactory(
     private val providers: List<DecoderProvider> = defaultDecoderProviders(ProcessCodecProbe),
     /** When false, players are built with no DSP chain (CPU baseline only). */
     private val dspChainEnabled: Boolean = true,
+    /** Injected limiter effect factory for tests; null uses the DynamicsProcessing-backed default. */
+    private val limiterEffectFactory: LimiterEffectFactory? = null,
     /** Extra processors appended AFTER the DSP chain (test taps). */
     private val audioProcessors: () -> Array<AudioProcessor> = { emptyArray() },
 ) {
@@ -74,6 +78,11 @@ internal class Media3PlayerFactory(
 
     /** Serializes the store-and-apply of a DSP config with chain registration/release (FR-050). */
     private val dspLock = Any()
+
+    private val _limiterState = MutableStateFlow<LimiterState?>(null)
+
+    /** Latest limiter state published by any [LimiterSession] this factory created (null before the first). */
+    val limiterState: StateFlow<LimiterState?> = _limiterState
 
     /** Number of players created by [newPlayer] and not yet released. */
     val livePlayers: Int get() = livePlayerCount.get()
@@ -216,6 +225,18 @@ internal class Media3PlayerFactory(
             synchronized(dspLock) { liveDspChainMap.remove(player) }
             livePlayerCount.decrementAndGet()
         }
+    }
+
+    /**
+     * Creates a fresh shared-audio [LimiterSession] on the playback looper (so effect callbacks
+     * arrive on it) and publishes its state into [limiterState].
+     */
+    fun newLimiterSession(): LimiterSession = call {
+        LimiterSession.create(
+            context,
+            looper,
+            limiterEffectFactory ?: DynamicsProcessingLimiterEffectFactory(),
+        ) { state -> _limiterState.value = state }
     }
 
     /** Builds the per-player [DspChain]: the DSP processors (when enabled) followed by [extraProcessors]. */

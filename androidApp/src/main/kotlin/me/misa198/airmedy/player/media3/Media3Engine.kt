@@ -102,6 +102,16 @@ internal class Media3Engine(
     private var focusHandler: Handler? = null
     private var focusStepper: Runnable? = null
 
+    /** Clip-prevention flag stored from [setNormalization], seeded into the limiter when it opens. */
+    @Volatile
+    private var preventClip = true
+
+    @Volatile
+    private var limiter: LimiterSession? = null
+
+    @Volatile
+    private var sharedSessionId = 0
+
     override suspend fun prepare(
         item: PlaybackItem,
         gain: ItemGain,
@@ -109,6 +119,7 @@ internal class Media3Engine(
         startPaused: Boolean,
     ) {
         check(!closed) { "engine is closed" }
+        ensureLimiter()
         releaseCurrentPlayer()
         val candidate = try {
             factory.call {
@@ -118,6 +129,9 @@ internal class Media3Engine(
                 prepared = false
                 endedArmed = false
                 p.addListener(listener)
+                if (sharedSessionId != C.AUDIO_SESSION_ID_UNSET) {
+                    p.setAudioSessionId(sharedSessionId)
+                }
                 p.setMediaItem(
                     MediaItem.Builder()
                         .setUri(Uri.fromFile(File(item.audioPath)))
@@ -140,6 +154,14 @@ internal class Media3Engine(
             releaseCurrentPlayer()
             throw error
         }
+        if (sharedSessionId != C.AUDIO_SESSION_ID_UNSET) {
+            try {
+                verifySharedSession(candidate)
+            } catch (error: Throwable) {
+                releaseCurrentPlayer()
+                throw error
+            }
+        }
         factory.call {
             prepared = true
             endedArmed = true
@@ -160,6 +182,32 @@ internal class Media3Engine(
             delay(PREPARE_POLL_MS)
         }
         throw IllegalStateException("timed out waiting for playback to become ready")
+    }
+
+    /**
+     * Ensures [candidate] stays on the shared session (FR-036): `setAudioSessionId` applies
+     * asynchronously and the player can overwrite it, so poll (50 ms steps, <= 3 s) re-setting
+     * until the player's session matches. On failure the player must not start.
+     */
+    private suspend fun verifySharedSession(candidate: ExoPlayer) {
+        val deadline = SystemClock.elapsedRealtime() + SESSION_VERIFY_TIMEOUT_MS
+        while (true) {
+            val session = factory.call { candidate.audioSessionId }
+            if (session == sharedSessionId) return
+            factory.call { candidate.setAudioSessionId(sharedSessionId) }
+            if (SystemClock.elapsedRealtime() >= deadline) {
+                throw IllegalStateException("player not on the shared audio session")
+            }
+            delay(SESSION_VERIFY_POLL_MS)
+        }
+    }
+
+    private fun ensureLimiter() {
+        if (limiter != null) return
+        val session = factory.newLimiterSession()
+        sharedSessionId = session.sessionId
+        limiter = session
+        factory.call { session.open(preventClip) }
     }
 
     override suspend fun preloadNext(item: PlaybackItem, gain: ItemGain) {
@@ -278,7 +326,10 @@ internal class Media3Engine(
 
     override fun setGains(current: ItemGain, preloaded: ItemGain?) = Unit
 
-    override fun setNormalization(settings: NormalizationSettings) = Unit
+    override fun setNormalization(settings: NormalizationSettings) {
+        preventClip = settings.preventClip
+        limiter?.setClipPrevention(settings.preventClip)
+    }
 
     override fun pollEvents(): List<EngineEvent> = factory.call {
         val p = player
@@ -299,7 +350,15 @@ internal class Media3Engine(
         closed = true
         releaseCurrentPlayer()
         factory.call { pendingEvents.clear() }
+        limiter?.close()
+        limiter = null
     }
+
+    /** The engine's shared session id (0 before the first prepare), for the device test. */
+    internal val audioSessionIdForTest: Int get() = sharedSessionId
+
+    /** The current player's audio session id (0 without a player), read on the playback looper. */
+    internal fun playerAudioSessionIdForTest(): Int = factory.call { player?.audioSessionId ?: 0 }
 
     private fun releaseCurrentPlayer() {
         val previous = factory.call {
@@ -373,5 +432,7 @@ internal class Media3Engine(
         const val PREPARE_POLL_MS = 10L
         const val MAX_EXTRAPOLATION_MS = 500L
         const val FOCUS_STEP_MS = 10L
+        const val SESSION_VERIFY_TIMEOUT_MS = 3_000L
+        const val SESSION_VERIFY_POLL_MS = 50L
     }
 }

@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below); **chain wiring 2026-10-07 (T045)**: custom `AudioProcessorChain`, float output off (below) · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below); **chain wiring 2026-10-07 (T045)**: custom `AudioProcessorChain`, float output off (below); **session + limiter wiring 2026-10-07 (T046)**: possible-mute detection defined (below) · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -154,6 +154,22 @@ Read from the 1.11.1 bytecode while preparing T045; the wiring follows from them
 - CPU (`Media3DspTest`, CPH2307, 48 kHz stereo, process CPU over 120 s, muted): no chain 11.2, neutral chain 9.6,
   full chain (10 bands + width + preamp) 19.2 CPU points. Neutral within +1 point of no chain (requirement met; the
   difference is noise). The full chain costs ~+8 points per player; two players only during fades (S3).
+
+## Session and limiter wiring (T046, 2026-10-07)
+
+- One audio session per `Media3Engine` lifetime (created at the first `prepare`, released at `close`); OPEN/CLOSE
+  effect-control broadcasts at those two points. Every player gets the session before `prepare()` and is verified
+  after READY (re-set, 50 ms steps, ≤ 3 s); a player that never matches fails like a prepare failure. If no session
+  id can be generated, players keep their own sessions and the limiter is reported unavailable.
+- Limiter: the T003 parameters (attack 1 ms, release 60 ms, ratio 10, threshold −1 dB, post-gain 0 dB, link group 0,
+  input gain 0, other stages off); "off" = ratio 1, threshold 0 dB. `setEnabled(false)` is never called.
+- **Possible-mute detection (the hedge's open point):** on control loss, our instance's `enabled` is read. Still
+  enabled → the session is still processed; keep the instance and wait for regain (`LimiterState(available, not
+  controlled)`). Not enabled, unreadable, an `enabled = false` we did not make, or any throwing effect call →
+  release our instance, report unavailable, and try to re-create it every 5 s until an instance has control.
+  Whether this matches what the device does when an EQ app takes control is checked by ear in T048.
+- On the CPH2307 the effect is created with control (`Media3LimiterTest`: available = true, controlled = true).
+- `Media3PlayerFactory.limiterState` holds the latest state across engines (null before the first) for T047.
 
 ## Consequences
 
