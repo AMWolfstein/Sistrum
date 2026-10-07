@@ -682,7 +682,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     group list (corpus subsets used as albums) so album accuracy has an oracle too. Commit only the fixtures file and
     the script change; no audio, no WaxFlow code. Pin unchanged (`446ca31`).
 
-- [ ] T051a [US6] Implement the meter in `AN/loudness/LoudnessMeter.kt`, `AN/loudness/KWeighting.kt`, `AN/loudness/TruePeak.kt`, `AN/loudness/Firwin.kt`, `AN/loudness/LoudnessHistogram.kt`; `THIRD-PARTY-NOTICES` (WaxFlow, MIT) {hard} [HIGH-RISK]
+- [x] T051a [US6] Implement the meter in `AN/loudness/LoudnessMeter.kt`, `AN/loudness/KWeighting.kt`, `AN/loudness/TruePeak.kt`, `AN/loudness/Firwin.kt`, `AN/loudness/LoudnessHistogram.kt`; `THIRD-PARTY-NOTICES` (WaxFlow, MIT) {hard} [HIGH-RISK]
   - Do: port WaxFlow `dsp/loudness` (`loudness.go`, `kweight.go`, `truepeak.go`, `peak.go`) and
     `dsp/internal/firwin` at `446ca31` with the `docs/waxflow/ORACLE.md` header; integrated loudness and true peak
     only (no loudness range); float64 state as in WaxFlow; allocation-free per chunk after construction; checkpoint

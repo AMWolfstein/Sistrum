@@ -15,3 +15,10 @@ Source: https://github.com/AurielSolaris/Choir
 Note: playback/AiffExtractor.kt ported to player/decoders/aiff/AiffExtractor.kt with changes (8-bit bias in both byte orders, named refusals).
 
 --------------------------------------------------------------------------------
+
+WaxFlow loudness meter (AMWolfstein/WaxFlow fork of ColeSpringer/WaxFlow, commit 446ca3124d890fd08caecdcbf8931a493d4ebd04)
+License: MIT (Copyright (c) 2026 Cole Springer)
+Source: https://github.com/AMWolfstein/WaxFlow
+Note: dsp/loudness and dsp/internal/firwin ported to analysis/loudness/; the K-weighting parametrization follows libebur128 (MIT, https://github.com/jiixyj/libebur128) as WaxFlow's notices state.
+
+--------------------------------------------------------------------------------
