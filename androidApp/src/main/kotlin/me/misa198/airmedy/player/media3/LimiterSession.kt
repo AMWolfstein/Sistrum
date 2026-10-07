@@ -8,6 +8,7 @@ import android.media.audiofx.DynamicsProcessing
 import android.os.Handler
 import android.os.Looper
 import androidx.media3.common.C
+import kotlin.math.abs
 
 /**
  * Shared-session limiter for the Media3 engine (T046, FR-052..055, ADR-004).
@@ -131,7 +132,7 @@ internal fun interface LimiterScheduler {
  */
 internal class LimiterController(
     private val sessionId: Int,
-    private val frameDurationMs: Float,
+    private var frameDurationMs: Float,
     private val factory: LimiterEffectFactory,
     private val scheduler: LimiterScheduler,
     private val onState: (LimiterState) -> Unit,
@@ -145,6 +146,9 @@ internal class LimiterController(
     private var currentState: LimiterState = LimiterState(available = false, controlled = false)
 
     val state: LimiterState get() = synchronized(lock) { currentState }
+
+    /** Current frame duration in ms, exposed for the device test. */
+    val frameDurationMsForTest: Float get() = synchronized(lock) { frameDurationMs }
 
     private val listener = object : LimiterEffectListener {
         override fun onControlStatusChange(hasControl: Boolean) = synchronized(lock) {
@@ -162,22 +166,25 @@ internal class LimiterController(
     fun start(clipPrevention: Boolean) = synchronized(lock) {
         if (released) return@synchronized
         this.clipPrevention = clipPrevention
-        val created = try {
-            factory.create(sessionId, config(), listener)
-        } catch (t: Throwable) {
-            null
-        }
-        if (created == null) {
-            effect = null
-            publishLocked(LimiterState(available = false, controlled = false))
-            return@synchronized
-        }
-        effect = created
-        if (!tryEnable(created)) {
-            releaseAndProbeLocked()
-            return@synchronized
-        }
-        publishLocked(LimiterState(available = true, controlled = created.hasControlSafe()))
+        createAndEnableLocked(probeOnFailure = false)
+    }
+
+    /**
+     * Updates the limiter's frame duration. When an effect already exists it is released and
+     * re-created with the new value (the DynamicsProcessing frame duration cannot be changed in
+     * place); if that re-creation fails the controller falls back to the release + probe path.
+     * When no effect exists (unavailable/probing/not started) the value is stored for the
+     * next probe/creation. [setEnabled] is never called with `false` on any path.
+     */
+    fun setFrameDurationMs(ms: Float) = synchronized(lock) {
+        if (released) return@synchronized
+        if (!ms.isFinite() || ms <= 0f) return@synchronized
+        if (abs(ms - frameDurationMs) < 0.5f) return@synchronized
+        frameDurationMs = ms
+        if (effect == null) return@synchronized
+        cancelProbeLocked()
+        releaseEffectLocked()
+        createAndEnableLocked(probeOnFailure = true)
     }
 
     fun setClipPrevention(on: Boolean) = synchronized(lock) {
@@ -192,6 +199,29 @@ internal class LimiterController(
         released = true
         cancelProbeLocked()
         releaseEffectLocked()
+    }
+
+    private fun createAndEnableLocked(probeOnFailure: Boolean) {
+        val created = try {
+            factory.create(sessionId, config(), listener)
+        } catch (t: Throwable) {
+            null
+        }
+        if (created == null) {
+            effect = null
+            if (probeOnFailure) {
+                releaseAndProbeLocked()
+            } else {
+                publishLocked(LimiterState(available = false, controlled = false))
+            }
+            return
+        }
+        effect = created
+        if (!tryEnable(created)) {
+            releaseAndProbeLocked()
+            return
+        }
+        publishLocked(LimiterState(available = true, controlled = created.hasControlSafe()))
     }
 
     private fun config() = LimiterConfigs.forClipPrevention(clipPrevention, frameDurationMs)
@@ -396,6 +426,15 @@ internal class LimiterSession(
     @Volatile
     private var opened = false
 
+    @Volatile
+    private var closed = false
+
+    /** True once [close] has been called. */
+    internal val isClosed: Boolean get() = closed
+
+    /** Current limiter frame duration in ms (0 when no controller was created). */
+    internal val frameDurationMsForTest: Float get() = controller?.frameDurationMsForTest ?: 0f
+
     fun open(clipPrevention: Boolean) {
         if (opened) return
         val c = controller ?: return
@@ -408,7 +447,13 @@ internal class LimiterSession(
         controller?.setClipPrevention(on)
     }
 
+    /** Forwards a new frame duration to the controller (no-op without a controller). */
+    fun setFrameDurationMs(ms: Float) {
+        controller?.setFrameDurationMs(ms)
+    }
+
     fun close() {
+        closed = true
         if (!opened) return
         opened = false
         val c = controller ?: return

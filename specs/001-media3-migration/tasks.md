@@ -575,7 +575,7 @@ interrupts (US3); lock screen shows the right artist (US4).
     block duration (mode of the positive steps ÷ track rate), robust to jitter and pauses; fallback when unmeasurable.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.media3.FloatChainAudioSinkTest,me.misa198.airmedy.player.media3.MixerBlockEstimatorTest'`. migration-guard.
 
-- [ ] T048b [US7] Float chain end to end in `A/player/media3/FloatChainAudioSink.kt`, `A/player/media3/MixerBlockEstimator.kt`, `A/player/media3/Media3PlayerFactory.kt`, `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3Engine.kt` with `AI/player/media3/Media3FloatPathTest.kt` {hard} [HIGH-RISK]
+- [x] T048b [US7] Float chain end to end in `A/player/media3/FloatChainAudioSink.kt`, `A/player/media3/MixerBlockEstimator.kt`, `A/player/media3/Media3PlayerFactory.kt`, `A/player/media3/LimiterSession.kt`, `A/player/media3/Media3Engine.kt` with `AI/player/media3/Media3FloatPathTest.kt` {hard} [HIGH-RISK]
   - Do: T048a tests pass without modifying them; the factory builds every player's sink as
     `FloatChainAudioSink(inner DefaultAudioSink: float output on, empty processor chain, wrapped AudioOutputProvider)`;
     the wrapped provider measures the real AudioTrack's mixer block and the limiter is re-created with it (and after a

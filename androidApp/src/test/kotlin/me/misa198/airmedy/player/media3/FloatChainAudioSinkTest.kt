@@ -63,8 +63,10 @@ class FloatChainAudioSinkTest {
         assertEquals(C.ENCODING_PCM_FLOAT, out.pcmEncoding)
         assertEquals(96000, out.sampleRate)
         assertEquals(2, out.channelCount)
-        assertEquals(576, out.encoderDelay)
-        assertEquals(1000, out.encoderPadding)
+        // Encoder delay/padding are trimmed in the wrapper before the chain, as the int path did (owner 2026-10-07,
+        // T048b round 4: the gapless characterization measures after the chain), so the inner sink trims nothing.
+        assertEquals(0, out.encoderDelay)
+        assertEquals(0, out.encoderPadding)
         assertEquals(12345, received.preferredBufferSizeOverride)
         assertEquals(ImmutableIntArray.of(1, 0), received.outputChannelMapping)
     }
