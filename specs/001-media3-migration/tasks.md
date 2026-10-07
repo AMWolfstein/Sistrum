@@ -650,7 +650,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     missing "dB", +50 dB, NaN/Inf → ignored/treated as untagged.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.normalization.TagGainSourceTest'`. migration-guard.
 
-- [ ] T050 [P] [US6] [TESTS-FIRST] Gain math, source precedence and ramp tests in `AT/player/normalization/ItemGainMathTest.kt`, `AT/player/normalization/GainResolverTest.kt`, `AT/player/dsp/GainRampTest.kt` {default} — **changed**
+- [x] T050 [P] [US6] [TESTS-FIRST] Gain math, source precedence and ramp tests in `AT/player/normalization/ItemGainMathTest.kt`, `AT/player/normalization/GainResolverTest.kt`, `AT/player/dsp/GainRampTest.kt` {default} — **changed**
   - Do: `itemGainDb` rules from `contracts/gain-source.md` (disabled → 0; target −14 → +4 dB pre-amp on every
     source; `Measured` track L → −18 − L before pre-amp, so the result is target − L; untagged pre-amp only for
     `None`; album value else track value; clip cap from true/tagged peak, album peak in album mode;

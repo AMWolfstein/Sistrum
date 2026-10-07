@@ -20,6 +20,10 @@ internal class GainProcessor : BaseAudioProcessor() {
     private var work = FloatArray(0)
     private var workShorts = ShortArray(0)
 
+    /** T050 stub, T052 implements: ramped change from the gain actually applied now. */
+    fun setTargetGainDb(db: Float) {
+    }
+
     override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
         if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT &&
             inputAudioFormat.encoding != C.ENCODING_PCM_FLOAT
