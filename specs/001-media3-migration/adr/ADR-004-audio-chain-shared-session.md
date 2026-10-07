@@ -1,6 +1,6 @@
 # ADR-004 — Audio chain, shared session, limiter
 
-Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below) · Date: 2026-10-05 ·
+Status: Accepted (owner, 2026-10-05); **S2 PARTIAL 2026-10-05 (T003)**: shared session + routing confirmed, limiter level not measured on the device; **T003b closed 2026-10-06 as accepted on evidence (owner)**, device-level measurement = open follow-up, not a gate (below); **effect-state hedge approved 2026-10-05** (below); **S3 PASS 2026-10-05 (T004)**: track-rate processing, CPU requirement below; **width stage amended 2026-10-07 (owner)**: own ramped processor instead of `ChannelMixingAudioProcessor` (below); **chain wiring 2026-10-07 (T045)**: custom `AudioProcessorChain`, float output off (below) · Date: 2026-10-05 ·
 Spec: US7, FR-035, FR-036, FR-044, FR-050…056, SC-011, SC-015 · Research: D5, `research/dynamics-processing-session.md`
 
 ## Context
@@ -135,6 +135,25 @@ does not ramp between matrices. A width change during playback would need a reco
 click, against FR-056 and US7 sc3. Decision (owner): `StereoWidthProcessor` is our own float processor with the same
 mid/side formula, at the same place in the chain, ramping width changes (as the preamp ramps gain changes), bulk
 float arrays, inactive when neutral. Order, linearity (FR-051) and the S3 CPU requirement are unchanged.
+
+## Chain wiring (T045, 2026-10-07) — Media3 1.11.1 constraints
+
+Read from the 1.11.1 bytecode while preparing T045; the wiring follows from them (no change to the decision above):
+- `DefaultAudioSink` with float output enabled and hi-res input (24/32-bit/float) uses only `ToFloatPcmAudioProcessor`
+  and **skips the custom processors**. Float output therefore stays **disabled**, so the chain applies to every file.
+  Consequence: the sink converts 24/32-bit input to 16-bit (`ToInt16PcmAudioProcessor`) *before* our chain; the chain
+  then works in float and the AudioTrack receives float (headroom kept for the limiter). Hi-res sources lose their
+  extra bits before the DSP (~96 dB dynamic range, undithered). This was already the case on the Media3 engine before
+  T045 (float output was never enabled); it is below the native engine's float path and is listed for the owner.
+- `setAudioProcessors` wraps the processors in `DefaultAudioProcessorChain`, which appends `SilenceSkippingAudioProcessor`
+  (16-bit only; its configure throws for float even when disabled) and `SonicAudioProcessor`. Our processors output
+  float, so the factory sets its own `AudioProcessorChain` (Gain → Width → EQ → Preamp, no speed, no skip-silence; the
+  app uses neither).
+- `Media3PlayerFactory.setDsp` holds the current config and applies it to every live player's chain and seeds new
+  ones under one lock (no lost update when a player is created while settings change).
+- CPU (`Media3DspTest`, CPH2307, 48 kHz stereo, process CPU over 120 s, muted): no chain 11.2, neutral chain 9.6,
+  full chain (10 bands + width + preamp) 19.2 CPU points. Neutral within +1 point of no chain (requirement met; the
+  difference is noise). The full chain costs ~+8 points per player; two players only during fades (S3).
 
 ## Consequences
 

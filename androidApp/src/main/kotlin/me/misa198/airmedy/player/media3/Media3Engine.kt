@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import me.misa198.airmedy.player.EqualizerSettings
 import me.misa198.airmedy.player.NormalizationSettings
+import me.misa198.airmedy.player.equalizerDspConfig
 import me.misa198.airmedy.player.PlaybackItem
 import me.misa198.airmedy.player.engine.EngineEvent
 import me.misa198.airmedy.player.engine.EngineKind
@@ -271,7 +272,9 @@ internal class Media3Engine(
         }
     }
 
-    override fun setDsp(settings: EqualizerSettings) = Unit
+    override fun setDsp(settings: EqualizerSettings) {
+        factory.setDsp(equalizerDspConfig(settings))
+    }
 
     override fun setGains(current: ItemGain, preloaded: ItemGain?) = Unit
 
