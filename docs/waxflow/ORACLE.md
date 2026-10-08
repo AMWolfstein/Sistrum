@@ -12,9 +12,9 @@ owner's fork and uses it two ways (feature `002-kotlin-decoders`, and later the 
 |---|---|
 | Fork (Sistrum's only WaxFlow source) | https://github.com/AMWolfstein/WaxFlow |
 | Upstream | https://github.com/ColeSpringer/WaxFlow (MIT) |
-| Pinned fork commit | `446ca3124d890fd08caecdcbf8931a493d4ebd04` (`446ca31`) |
-| Upstream commit it is based on | `446ca3124d890fd08caecdcbf8931a493d4ebd04` (2026-09-23, "Skip a CUE sheet's data track instead of cutting it as audio"); the fork has no own commits yet |
-| Pinned on | 2026-10-05 |
+| Pinned fork commit | `b7857aff88820ad37936026421d1641e64611dbe` (`b7857af`), branch `fix/riff-wrapped-wavpack` |
+| Upstream commit it is based on | `446ca3124d890fd08caecdcbf8931a493d4ebd04` (2026-09-23, "Skip a CUE sheet's data track instead of cutting it as audio"); fork fix `b7857af` refuses RIFF-wrapped legacy WavPack before PCM decoding |
+| Pinned on | 2026-10-08 |
 | Go module path | `github.com/colespringer/waxflow` (never renamed in the fork: renaming would make every upstream merge conflict) |
 
 The pin lives in two places that always change together: `WAXFLOW_COMMIT` in `scripts/waxflow-oracle.sh` and
@@ -89,6 +89,39 @@ hybrid, DSD and float streams, a corrupt lossless stream and a self-extracting f
 Four HLS initialization files decode successfully to zero frames. All 132 source
 SHA-256 values were checked against the extracted corpus, and decoded rows were
 checked for PCM hashes and nonnegative frame counts.
+
+## RIFF-wrapped WavPack fix and regenerated fixtures (2026-10-08)
+
+Pin [`b7857aff88820ad37936026421d1641e64611dbe`](https://github.com/AMWolfstein/WaxFlow/commit/b7857aff88820ad37936026421d1641e64611dbe)
+is published on fork branch `fix/riff-wrapped-wavpack`. The external clone used
+for the fix and regeneration is `/tmp/sistrum-waxflow-oracle/oracle-work/src`.
+The GitHub branch ref and commit API both returned the full pinned hash.
+
+RIFF/WavPack format tests, WavPack conformance and the separate oracle module
+pass at this pin. The full root Go suite still has two unrelated IMA differential
+failures (`sine-ima.wav`, `sine-ima-stereo.wav`); both reproduce at the unchanged
+base commit. They are reported rather than changed as part of the WavPack fix.
+
+The fix is original recognition code based on WaxFlow's MIT RIFF parser and the
+bytes of the eight official suite files. No FFmpeg or other GPL/LGPL source was
+used. The first ten bytes of a RIFF data chunk identify the legacy version-1/2/3
+header; recognition checks magic, legacy header size and version together. The
+error is `wavpack: unsupported stream version: only version-4 streams
+(0x402..0x410) are supported`. The probe precedes truncation warnings, so strict
+and tolerant modes refuse for the same reason. Tests cover all eight files,
+engine routing, magic-only ordinary PCM and the exact ten-byte added read cost.
+
+The public corpus has not changed: it still contains the original 58 WaxFlow
+files at `446ca31` and the 74 files from official suite 2.0, with the download
+URLs and archive checksums above. Only the oracle implementation pin changes.
+Regenerated `oracle-corpus-fixtures.tsv` has **132 rows, 70 decoded, 62 refused**;
+its **50 `.wv` rows are 20 decoded / 30 refused**. The eight changed rows are
+`legacy/vers-10.wv`, `vers-20.wv`, `vers-20-lossy.wv`, `vers-30.wv`,
+`vers-30-fast.wv`, `vers-30-lossy.wv`, `vers-397.wv`, and
+`vers-397-hybrid.wv`, under `wavpack-test-suite-2.0/test_suite/`. They now contain
+unsupported-version refusals rather than hashes of compressed bytes read as PCM.
+The original default `oracle-fixtures.tsv` is preserved at its recorded old pin;
+it has not been regenerated as part of this public-corpus task.
 
 ## Attribution for ports
 
