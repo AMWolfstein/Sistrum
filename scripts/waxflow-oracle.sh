@@ -19,7 +19,7 @@ set -euo pipefail
 
 # The pin. Bump it only through the procedure in docs/waxflow/ORACLE.md.
 WAXFLOW_REPO="https://github.com/AMWolfstein/WaxFlow.git"
-WAXFLOW_COMMIT="446ca3124d890fd08caecdcbf8931a493d4ebd04"
+WAXFLOW_COMMIT="b7857aff88820ad37936026421d1641e64611dbe"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 corpus="${1:?usage: scripts/waxflow-oracle.sh <corpus-dir> [fixtures-file]}"
