@@ -214,3 +214,22 @@ No audio was copied into Sistrum and no non-free corpus was added.
 Running the existing oracle command on the expanded corpus produced **140 rows,
 78 decoded, 62 refused**. All eight additions decode. Every prior fixture row
 is byte-identical; the oracle pin is unchanged. APE now has ten successful rows.
+
+
+## ALAC regression corpus extension (2026-10-08)
+
+Five free WaxFlow MP4 test-suite vectors were copied from the pinned external
+clone's [container/mp4/testdata](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/container/mp4/testdata):
+`alac-stereo.m4a`, `alac-mono-tail.m4a`, and `golden/golden-s16-stereo.m4a`,
+`golden/golden-s24-mono.m4a`, `golden/golden-s32-stereo.m4a`. They are MIT
+WaxFlow test-suite assets generated with its ALAC encoder. Source-relative paths
+are preserved under the external corpus's `waxflow-alac-tests/` directory.
+The existing `waxflow-testdata/chapters.m4b` also contains ALAC.
+
+Regeneration at the unchanged `b7857af` pin produces **145 rows, 83 decoded,
+62 refused**; all five additions decode and every previous row is unchanged.
+`scripts/waxflow-alac-packets.sh` builds a test-only Go helper outside Sistrum
+and uses the pinned MP4 demuxer to save codec cookies and access units outside
+the corpus and repository. These dumps contain compressed data and source hashes,
+not expected PCM. Kotlin tests compare output only with the committed oracle.
+The production module remains decoder-only for ALAC.

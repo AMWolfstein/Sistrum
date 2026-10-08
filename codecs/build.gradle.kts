@@ -17,7 +17,13 @@ val fixtures = rootProject.layout.projectDirectory.file(
     "androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv"
 )
 
+val alacPackets = providers.gradleProperty("waxflowAlacPackets")
+    .orElse(providers.environmentVariable("WAXFLOW_ALAC_PACKETS"))
+    .orElse("/tmp/sistrum-waxflow-oracle/alac-packets")
+
 tasks.test {
+    inputs.dir(alacPackets).withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("waxflow.alacPackets", alacPackets.get())
     inputs.file(fixtures).withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.dir(corpus).withPathSensitivity(PathSensitivity.RELATIVE)
     systemProperty("waxflow.corpus", corpus.get())
@@ -48,5 +54,19 @@ tasks.register<JavaExec>("benchmarkApe") {
     systemProperty("waxflow.corpus", corpus.get())
     systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
     args(layout.buildDirectory.file("reports/ape-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}
+
+
+tasks.register<JavaExec>("benchmarkAlac") {
+    group = "verification"
+    description = "Measure ALAC packet decode time / audio duration and loop allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.AlacBenchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    systemProperty("waxflow.alacPackets", alacPackets.get())
+    args(layout.buildDirectory.file("reports/alac-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }

@@ -216,3 +216,56 @@ APE validation: **243 full-module tests passed, zero failures/skips**, including
 32 APE cases. `assembleDevDebug` passes. Benchmark across ten files:
 **RTF 0.006376–0.090657**, median 0.034397; every file
 measured **0 median allocated bytes per full decode**. Saved report: `benchmarks/ape.tsv`.
+
+
+## ALAC — Media3 gap and port decision
+
+Media3 **1.11.1** already provides `Mp4Extractor`. Inspection of the resolved
+extractor's `BoxParser` bytecode confirms `audio/alac`, parsing the nested `alac`
+box, skipping its 12-byte box/full-box header, and putting the remaining
+ALACSpecificConfig into `Format.initializationData`. The module accepts that
+canonical 24-byte cookie, including longer cookies with trailing layout data.
+[Media3's official format documentation](https://developer.android.com/media/media3/exoplayer/supported-formats)
+lists ALAC under the optional **native FFmpeg extension**; core Media3 has no
+bundled ALAC decoder. **Decision: port only `codec/alac`; no MP4 container port.**
+The [Apple reference](https://github.com/macosforge/alac) is Apache-2.0.
+
+`Decoder(Config(cookie)).decode(packet)` returns reused interleaved Int PCM.
+`Alac.open(cookie, RandomAccessSource, PacketIndex)` supplies bounded positional
+packet reads and exact sample seeking. A ByteBuffer overload is available.
+The existing extractor supplies packet locations, sample timestamps and total
+samples; this module does not parse MP4 or depend on Android/Media3. Index arrays
+and sources remain caller-owned and immutable. Each packet is independent;
+seeking finds its sample interval and discards the prefix after decoding.
+The source Golomb coder, adaptive FIR cascade, matrix, escape, shift-off and
+refusal order are retained. Scratch and packet buffers are reused.
+
+Six files in the public oracle cover progressive and fragmented input, mono and
+stereo, partial frames, and 16/24/32-bit samples. Twenty-bit decoding is ported
+but is not exercised by these corpus files. Test-only packet extraction uses
+pinned WaxFlow's existing MP4 demuxer, outside the repository:
+
+```bash
+SISTRUM_WAXFLOW_DIR=/tmp/sistrum-waxflow-oracle/oracle-work \
+  bash scripts/waxflow-alac-packets.sh /tmp/sistrum-waxflow-oracle/corpus
+./gradlew :codecs:test :codecs:benchmarkAlac
+```
+
+Set `WAXFLOW_ALAC_PACKETS` or `-PwaxflowAlacPackets` for a different external
+packet directory. Missing packets fail tests. The packet dump embeds the original
+source hash; PCM expectations still come solely from the committed oracle.
+All MP4 demuxing is test tooling, not shipped Kotlin container code.
+
+| ALAC corpus refusal reason | Count |
+|---|---:|
+| None (all six decoded) | 0 |
+
+Cookie channel-count/frame/width and unsupported-element reasons have separate
+source-derived contract tests. File-backed input, partial reads and source offsets
+beyond 2 GiB are checked against the same PCM oracle. Deviations are recorded in
+`SISTRUM-PATCHES.md`.
+
+ALAC validation: **263 full-module tests passed, zero failures/skips**, including
+20 ALAC cases. `assembleDevDebug` passes. Across six files, **RTF
+0.013827–0.034957**, median 0.026867; every file measures
+**0 median allocated bytes per full decode**. Report: `benchmarks/alac.tsv`.

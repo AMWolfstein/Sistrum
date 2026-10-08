@@ -1,0 +1,9 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-alac-tests/container/mp4/testdata/alac-mono-tail.m4a	ok	0.120000	0.004195	0.034957	0
+waxflow-alac-tests/container/mp4/testdata/alac-stereo.m4a	ok	0.120000	0.003201	0.026678	0
+waxflow-alac-tests/container/mp4/testdata/golden/golden-s16-stereo.m4a	ok	0.197098	0.004549	0.023079	0
+waxflow-alac-tests/container/mp4/testdata/golden/golden-s24-mono.m4a	ok	0.062500	0.001773	0.028368	0
+waxflow-alac-tests/container/mp4/testdata/golden/golden-s32-stereo.m4a	ok	0.052083	0.001409	0.027056	0
+waxflow-testdata/chapters.m4b	ok	0.120000	0.001659	0.013827	0
