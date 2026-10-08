@@ -1,0 +1,35 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-musepack-tests/codec/musepack/testdata/sv7-32k.mpc	ok	0.360000	0.007089	0.019692	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-37800.mpc	ok	0.529101	0.009518	0.017989	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-48k.mpc	ok	0.625000	0.007065	0.011303	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-braindead.mpc	ok	0.283900	0.006311	0.022229	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-mono.mpc	ok	0.538322	0.005302	0.009850	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-ms-off.mpc	ok	0.283900	0.003743	0.013184	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-pns.mpc	ok	0.538322	0.008993	0.016706	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-standard.mpc	ok	0.272109	0.001075	0.003952	0
+waxflow-musepack-tests/codec/musepack/testdata/sv7-thumb.mpc	ok	0.538322	0.002653	0.004928	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-32k.mpc	ok	0.375000	0.008619	0.022983	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-37800.mpc	ok	0.331217	0.006076	0.018345	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-48k.mpc	ok	0.494583	0.005191	0.010497	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-blocks.mpc	ok	0.272109	0.001732	0.006364	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-cut.mpc	ok	0.158730	0.001047	0.006597	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-frames0.mpc	ok	0.453515	0.009779	0.021562	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-mono.mpc	ok	0.453515	0.006963	0.015355	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-no-ei.mpc	ok	0.453515	0.003144	0.006933	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-no-st.mpc	ok	0.453515	0.001515	0.003341	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-q0-pns.mpc	ok	0.680272	0.001931	0.002839	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-q10.mpc	ok	0.453515	0.005500	0.012128	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-repack-pns.mpc	ok	0.538322	0.003897	0.007239	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-repack.mpc	ok	0.272109	0.001361	0.005001	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-stereo.mpc	ok	0.453515	0.001728	0.003811	0
+waxflow-musepack-tests/codec/musepack/testdata/sv8-thumb.mpc	ok	0.680272	0.003563	0.005238	0
+waxflow-musepack-tests/container/mpc/testdata/chapters.mpc	ok	0.453515	0.001640	0.003617	0
+waxflow-musepack-tests/container/mpc/testdata/gapless-sv7.mpc	ok	0.538322	0.002456	0.004562	0
+waxflow-musepack-tests/container/mpc/testdata/seek-pns.mpc	ok	0.680272	0.002415	0.003551	0
+waxflow-musepack-tests/container/mpc/testdata/seek-sv7.mpc	ok	2.089796	0.010042	0.004805	0
+waxflow-musepack-tests/container/mpc/testdata/seek.mpc	ok	0.680272	0.006097	0.008963	0
+waxflow-musepack-tests/container/mpc/testdata/tagged.mpc	ok	0.181406	0.000845	0.004659	0
+waxflow-testdata/noise-s16.mpc	ok	0.500000	0.003446	0.006893	0
+waxflow-testdata/sine-s16.mpc	ok	0.500000	0.001714	0.003428	0
