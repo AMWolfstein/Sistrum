@@ -367,3 +367,53 @@ Reports: `benchmarks/adpcm.tsv`, `benchmarks/g711.tsv`. Timings exclude open,
 file loading, seek setup and checksum packing; bounded memory reads and the
 entire decode walk are included. These are JVM proxies; the phone gate remains
 future work. No application playback integration or WMA-family port is included.
+
+## Expanded lossless corpus (2026-10-09)
+
+`scripts/waxflow-expand-lossless-corpus.py` generates original deterministic
+triangle/noise signals outside the repository. The generated audio is dedicated
+to **CC0-1.0**; no third-party recording is used. Twenty modern APE files cover
+the full cross-product of levels **1000/2000/3000/4000/5000** (fast, normal,
+high, extra high, insane), **16/24-bit**, and **mono/stereo**. They are encoded
+with the official [Monkey's Audio 13.26 SDK](https://monkeysaudio.com/files/MAC_1326_SDK.zip)
+(BSD-3-Clause), archive SHA-256
+`3fdb516db15cc754eb2db1d255e405a8142fbb115eccdf51b0fa07b84305b6ac`.
+Build its CMake console target outside Sistrum and pass its executable to:
+
+```bash
+python3 scripts/waxflow-expand-lossless-corpus.py /tmp/sistrum-waxflow-oracle/corpus /tmp/sistrum-waxflow-oracle/encoders/mac-1326/build/mac
+```
+
+A twenty-first APE vector is a genuine **3.97** mono/16-bit silence stream,
+constructed directly from pinned WaxFlow's old-header and special-silence frame
+model, including its CRC and range-coder terminator. The generator independently
+decodes it with the official 13.26 decoder and checks the original zero PCM.
+It tests legacy framing and silence; it does **not** exercise the old non-silent
+entropy/predictor path. No historical SDK code is used or included.
+
+Five ALAC vectors use the same original signals at **24 bits**, with
+**1/2/4/6/8 channels**, encoded by the installed FFmpeg **n9.0.2** binary as a
+black-box tool. Explicit layouts (mono, stereo, 4.0, 5.1, 7.1(wide)) prevent the
+encoder's automatic selection from reducing the eight-channel input to seven.
+No FFmpeg implementation source is consulted. WaxFlow deliberately refuses
+multichannel ALAC because its WAV channel remap is unimplemented; Kotlin must
+retain those exact refusals. These are refusal vectors, not evidence that the
+port plays multichannel ALAC.
+
+All compressed audio stays in external `waxflow-ape-tests/generated/` and
+`waxflow-alac-tests/generated/`. Run the existing oracle and packet-extraction
+scripts afterward; only Go produces expected PCM hashes. Packet extraction
+accepts an unavailable dump only when the Go demux error exactly matches the
+committed oracle refusal. Tests independently read refused files' actual cookies
+and compare the Kotlin refusal text with that oracle.
+
+Expanded gate: **470 tests passed, 0 failures/skips**; `assembleDevDebug` passed.
+No production decoder changes were needed.
+
+| Codec | Successful files | Refusal reason | Refused files | RTF range | Median RTF | Median decode-loop allocation |
+|---|---:|---|---:|---|---:|---:|
+| APE | 31 | None | 0 | 0.000547–0.296532 | 0.020283 | 0 bytes per file |
+| ALAC | 8 | Only mono/stereo supported: channel counts 4, 6, 8 | 3 | 0.013656–0.041438 | 0.027937 | 0 bytes per decoded file |
+
+The expanded per-file measurements replace `benchmarks/ape.tsv` and
+`benchmarks/alac.tsv`; the earlier measurements remain in git history.

@@ -274,3 +274,20 @@ Regeneration produces **181 rows, 119 decoded, 62 refused**. All six additions
 since the Musepack commit decode; every earlier row is unchanged. The pin remains
 `b7857af`. See codecs/README.md for the two pre-existing WAV IMA differential
 failures with this laptop's FFmpeg n9.0.2 versus the source's 8.0.1 target.
+
+## Lossless corpus coverage expansion (2026-10-09)
+
+At unchanged pin `b7857af`, `scripts/waxflow-expand-lossless-corpus.py` adds
+26 self-generated CC0 audio vectors, entirely outside the repo: twenty APE
+level/depth/channel combinations, one directly constructed pre-3.98 (3.97)
+silence stream, and five 24-bit ALAC files with 1/2/4/6/8 channels. Source/tool
+URLs, versions, SDK checksum and the legacy vector's coverage limit are recorded
+in `codecs/README.md`. The official BSD-licensed Monkey's Audio 13.26 encoder and
+FFmpeg n9.0.2 executable are generation tools; neither is linked into Sistrum.
+The official Monkey's Audio decoder separately validates the legacy vector.
+
+Regenerate using the same external corpus and the command above, then run
+`scripts/waxflow-alac-packets.sh` for successful ALAC files. The corpus now has
+**207 file rows: 142 decoded, 65 refused**. All 181 previous rows are unchanged.
+The three additions refused by Go are ALAC channel counts 4, 6 and 8, each with
+`alac: channel count N: only mono and stereo are supported`.

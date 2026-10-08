@@ -15,8 +15,8 @@ import me.misa198.airmedy.codecs.audio.Buffer
 internal class AlacOracleTest(private val fixture: Fixture) {
     companion object {
         @JvmStatic @Parameterized.Parameters(name="{0}")
-        fun corpus(): Collection<Array<Any>> = OracleCorpus.allRows.filter { it.name.startsWith("waxflow-alac-tests/") || it.name=="waxflow-testdata/chapters.m4b" }
-            .also { check(it.size==6) { "ALAC oracle corpus missing" } }.map { arrayOf<Any>(it) }
+        fun corpus(): Collection<Array<Any>> = OracleCorpus.allRows.filter { it.status=="ok" && (it.name.startsWith("waxflow-alac-tests/") || it.name=="waxflow-testdata/chapters.m4b") }
+            .also { check(it.size>=8) { "ALAC oracle corpus missing" } }.map { arrayOf<Any>(it) }
     }
     @Test fun matchesOracleAndReusesBuffers() {
         val data=AlacPackets(fixture); val stream=Alac.open(data.cookie,data.bytes,data.index)
