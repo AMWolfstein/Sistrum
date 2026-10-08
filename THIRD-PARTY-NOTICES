@@ -22,3 +22,10 @@ Source: https://github.com/AMWolfstein/WaxFlow
 Note: dsp/loudness and dsp/internal/firwin ported to analysis/loudness/; the K-weighting parametrization follows libebur128 (MIT, https://github.com/jiixyj/libebur128) as WaxFlow's notices state.
 
 --------------------------------------------------------------------------------
+
+Rhythm ReplayGainUtil (cromaguy/Rhythm, commit ef16e7bd)
+License: GNU General Public License v3.0 or later
+Source: https://github.com/cromaguy/Rhythm
+Note: ReplayGainUtil parsing ported to player/normalization/TagGainSource.kt with changes (REPLAYGAIN_REFERENCE_LOUDNESS accepts a bare number, Sound Check takes the louder channel word, and malformed binary frames are skipped).
+
+--------------------------------------------------------------------------------

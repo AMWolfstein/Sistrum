@@ -692,7 +692,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ### Gain sources (M6-2)
 
-- [ ] T051 [US6] Implement `A/player/normalization/GainSource.kt`, `TagGainSource.kt`, `MeasuredGainSource.kt`, `GainResolver.kt`, `ItemGainMath.kt`; `THIRD-PARTY-NOTICES` (Rhythm) {hard} [HIGH-RISK] — **changed**
+- [x] T051 [US6] Implement `A/player/normalization/GainSource.kt`, `TagGainSource.kt`, `MeasuredGainSource.kt`, `GainResolver.kt`, `ItemGainMath.kt`; `THIRD-PARTY-NOTICES` (Rhythm) {hard} [HIGH-RISK] — **changed**
   - Do: port Rhythm `ReplayGainUtil.kt` (`ef16e7b`, GPL-3.0-or-later, SPDX + attribution) with our rules (ADR-005);
     `MeasuredGainSource` builds `GainInfo(form = Measured)` from `PlaybackItem.analysis` (existing read side, read
     only) and an album-loudness snapshot (T051c's read API); `GainResolver` holds the one precedence.
