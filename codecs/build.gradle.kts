@@ -83,3 +83,28 @@ tasks.register<JavaExec>("benchmarkMusepack") {
     args(layout.buildDirectory.file("reports/musepack-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }
+
+
+tasks.register<JavaExec>("benchmarkAdpcm") {
+    group = "verification"
+    description = "Measure missing ADPCM variants' decode time and allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.AdpcmBenchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/adpcm-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}
+
+tasks.register<JavaExec>("benchmarkG711") {
+    group = "verification"
+    description = "Measure G.711 fallback decode time and allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.G711Benchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/g711-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}

@@ -178,3 +178,16 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ADPCM and G.711 ports
+--------------------
+Ported from the pinned MIT WaxFlow codec/adpcm and codec/g711 implementation,
+with its scoped RIFF, AIFF-C and MP4 container branches. The MIT notice above
+applies. WaxFlow documents the IMA step/index tables as published specification
+data from IMA Recommended Practices revision 3.00 (1992), and the MS adaptation
+and predictor tables as Microsoft Multimedia Programming Interface and Data
+Specifications 1.0 / Multimedia Data Standards Update specification data.
+QuickTime packet layout follows the public QuickTime File Format specification.
+G.711 expansion tables are computed from the ITU-T G.711 (1988) segment and
+bit-inversion definitions. No FFmpeg or other GPL implementation source was used
+for these ports or the investigation of the existing differential failures.

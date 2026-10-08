@@ -1,0 +1,9 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-adpcm-tests/container/mp4/testdata/ima4-frag.mov	ok	1.001361	0.005077	0.005070	0
+waxflow-adpcm-tests/container/mp4/testdata/ima4.mov	ok	1.000000	0.004746	0.004746	0
+waxflow-testdata/sine-ima4-stereo.aifc	ok	0.251066	0.001139	0.004537	0
+waxflow-testdata/sine-ima4.aifc	ok	1.000000	0.000469	0.000469	0
+waxflow-testdata/sine-msadpcm-stereo.wav	ok	0.250000	0.000982	0.003929	0
+waxflow-testdata/sine-msadpcm.wav	ok	1.000000	0.000345	0.000345	0

@@ -305,3 +305,65 @@ median decode-loop allocation is **0 bytes on every file** (same laptop/JVM and
 five warmups/five measured decodes as the other codecs). JVM allocation tracing
 identified allocating Kotlin stepped ranges; explicit loops preserve Go's
 iteration order and remove those range objects.
+
+## ADPCM / G.711 decision and validation (2026-10-08)
+
+The resolved Media3 **1.11.1** `WavExtractor` selects its own
+`ImaAdPcmOutputWriter` for WAV format 17. Formats 6/7 select a passthrough
+writer with `audio/g711-alaw` / `audio/g711-mlaw`; `BoxParser` also recognizes
+MP4 `alaw` and `ulaw`. These variants already have a Media3/platform path.
+There is no MS ADPCM output writer, no `ima4` sample-entry branch in
+`BoxParser`, and no AIFF extractor in `DefaultExtractorsFactory`.
+Decision: port **MS ADPCM and QuickTime IMA4**, including their missing WAV,
+AIFF-C and IMA4 MOV container branches. Do not port WAV IMA ADPCM.
+
+Android's published software decoder capabilities limit G.711 to
+[at most six channels in this AOSP listing](https://android.googlesource.com/platform/frameworks/av/+/3a7fe554a2958dd7293c90b9090ba4972b17ab4b/media/libstagefright/data/media_codecs_sw.xml);
+[the current Codec2 listing](https://android.googlesource.com/platform/frameworks/av/+/master/media/libstagefright/data/media_codecs_google_c2_audio.xml)
+limits both laws to one channel. WaxFlow supports eight. Therefore the missing
+**7/8-channel G.711 decoder fallback** is included. `codec.g711.G711.open`
+takes law/rate/channels and an extractor-supplied source region, rather than
+duplicating Media3's WAV/MP4 extractors. The same scalar kernel naturally works
+for fewer channels; app routing should prefer the existing decoder wherever its
+reported capabilities suffice. This is a capability inference, not a device test.
+
+All entry points use `RandomAccessSource` or ByteBuffer. ADPCM reads bounded
+compressed blocks; G.711 reads bounded 4096-frame regions. Both reuse their
+interleaved 16-bit PCM buffers. Seeking resets/pre-rolls QuickTime predictor
+carry, lands at MS blocks, or addresses G.711 samples directly. MP4 indexing
+reads metadata at open; it never loads all compressed audio. The IMA4 MOV port
+is deliberately scoped to that sample entry, not a second ALAC extractor.
+
+Six ADPCM and six G.711 files (two original mono, four derived multichannel) decode bit-exactly with exact seeks,
+reused buffers, file-backed input and direct-buffer regions. All twelve decode;
+**corpus refusals: 0 for both families**. MS >2-channel and invalid block
+geometry refusals are checked separately against source messages.
+
+### Investigation of the two existing Go IMA differential failures
+
+At unchanged pin `b7857af`, `go test ./tests -run
+'TestFixturesDecodeDifferential/sine-ima' -count=1 -v` fails on
+`sine-ima.wav` and `sine-ima-stereo.wav` at interleaved sample indices 1 and 2;
+both QuickTime IMA4 cases pass. The source explicitly targets FFmpeg **8.0.1**
+for WAV IMA's multiply-style step. This laptop has **n9.0.2**. A black-box
+comparison of that binary's output with both arithmetic forms finds zero
+mismatches with shift/add, versus 7,509 mono and 21,564 stereo mismatches with
+multiply. No FFmpeg source was consulted. This establishes a reference-version
+mismatch; it does not justify changing pinned WaxFlow PCM behavior. No fork fix
+or pin bump was made. The focused Go ADPCM/G.711 unit suites pass (60 test
+records including subtests); these two differential failures remain documented.
+
+Final gate: **399 codecs tests, 0 failures, 0 skipped**, including 20 ADPCM
+and 18 G.711 cases. `:androidApp:assembleDevDebug` passes. Benchmarks run
+sequentially after the test gate on the same laptop/JVM, with five warmups and
+five measured full decodes per file:
+
+| Family | Files decoded | Refusal reason / count | RTF range | Median RTF | Median loop allocation per file |
+|---|---:|---|---|---:|---:|
+| MS ADPCM / QuickTime IMA4 | 6 | None / 0 | 0.000345–0.005070 | 0.004233 | 0 bytes |
+| G.711 A-law / mu-law | 6 | None / 0 | 0.000141–0.001076 | 0.0009295 | 0 bytes |
+
+Reports: `benchmarks/adpcm.tsv`, `benchmarks/g711.tsv`. Timings exclude open,
+file loading, seek setup and checksum packing; bounded memory reads and the
+entire decode walk are included. These are JVM proxies; the phone gate remains
+future work. No application playback integration or WMA-family port is included.

@@ -64,3 +64,29 @@ records JVM port deviations within the authorized Sistrum file scope.
   progression/range objects for `step` inside these loops. Loop order is unchanged.
 - Huffman tries are built once from the same source rows; Int wrapping and
   unsigned shifts implement the source's uint32 noise generator and bit codes.
+
+## ADPCM / G.711
+
+- Only missing MS and QuickTime IMA layouts are ported. Media3 owns WAV IMA.
+  Shift/add QuickTime step arithmetic, carry/reset thresholds, MS coefficient
+  products, truncation, bias and delta clamps retain the source behavior.
+- Planar callbacks become reused interleaved IntArray blocks. Encoded storage,
+  predictors and output are allocated at open; bounded source reads replace Go
+  packet slices. Sample-exact seeking/trim belongs to `BlockStream`.
+- The RIFF branch is scoped to MS ADPCM and AIFF-C to `ima4`; other codecs are
+  left to existing extractors. Chunk boundaries, fact trimming, RF64 ds64,
+  sample-entry fields and source refusal messages remain.
+- The MP4 branch is scoped to `ima4`. Progressive chunk tables and fragmented
+  addresses are indexed at open instead of a streaming Go packet queue; encoded
+  audio remains in RandomAccessSource. General MP4 codec routing, metadata/tag
+  APIs and persisted index serialization are omitted. Source edit-list trimming
+  is represented by a front delay and emitted length. Undeclared fragment length
+  retains the complete last coded block, matching Go's 44,160-frame fixture.
+- G.711 is decoder-only: law/rate/channels and byte-region metadata come from
+  the existing extractor. The original expansion tables are built once at open.
+  This supplies the 7/8-channel fallback beyond published Android capabilities;
+  it does not add a second WAV/MP4 extractor. File seeking replaces packet/flush
+  callbacks since G.711 has no predictor state.
+- Derived multichannel test vectors replicate pinned MIT compressed mono bytes;
+  scripts/waxflow-g711-corpus.py reproduces them outside the repository. All PCM
+  expectations are produced by Go, never by the Kotlin implementation.

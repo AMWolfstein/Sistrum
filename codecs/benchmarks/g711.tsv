@@ -1,0 +1,9 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-g711-tests/sine-alaw-7ch.wav	ok	1.000000	0.000916	0.000916	0
+waxflow-g711-tests/sine-alaw-8ch.wav	ok	1.000000	0.001046	0.001046	0
+waxflow-g711-tests/sine-ulaw-7ch.wav	ok	1.000000	0.000943	0.000943	0
+waxflow-g711-tests/sine-ulaw-8ch.wav	ok	1.000000	0.001076	0.001076	0
+waxflow-testdata/sine-alaw.wav	ok	1.000000	0.000141	0.000141	0
+waxflow-testdata/sine-ulaw.wav	ok	1.000000	0.000141	0.000141	0

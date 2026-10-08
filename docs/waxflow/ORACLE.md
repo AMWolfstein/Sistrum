@@ -251,3 +251,26 @@ Regeneration with the existing command produces **175 rows, 113 decoded,
 byte-identical. Together with the two original samples, Musepack covers 32
 successful files across SV7/SV8, all four rates, mono/stereo, noise substitution,
 gapless tails, undeclared length, seek tables, chapters and trailers.
+
+## ADPCM / G.711 regression corpus extension (2026-10-08)
+
+The free MIT WaxFlow `ima4.mov` and `ima4-frag.mov` vectors were copied from
+[container/mp4/testdata at the unchanged pin](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/container/mp4/testdata)
+into external `waxflow-adpcm-tests/container/mp4/testdata/`, retaining paths.
+Together with the original MS WAV and IMA4 AIFF-C vectors, this covers six files.
+
+Four free multichannel vectors are derived from the pinned suite's
+[testdata/sine-alaw.wav and sine-ulaw.wav](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/testdata)
+by replicating each compressed mono byte into seven/eight channels, preserving
+rate and length. Reproduce outside Sistrum, then obtain expectations from Go:
+
+```bash
+python3 scripts/waxflow-g711-corpus.py /tmp/sistrum-waxflow-oracle/oracle-work/src /tmp/sistrum-waxflow-oracle/corpus
+SISTRUM_WAXFLOW_DIR=/tmp/sistrum-waxflow-oracle/oracle-work bash scripts/waxflow-oracle.sh /tmp/sistrum-waxflow-oracle/corpus androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv
+```
+
+These reside under external `waxflow-g711-tests/`; no audio is committed.
+Regeneration produces **181 rows, 119 decoded, 62 refused**. All six additions
+since the Musepack commit decode; every earlier row is unchanged. The pin remains
+`b7857af`. See codecs/README.md for the two pre-existing WAV IMA differential
+failures with this laptop's FFmpeg n9.0.2 versus the source's 8.0.1 target.
