@@ -24,3 +24,22 @@ records JVM port deviations within the authorized Sistrum file scope.
 - The seek table is read once at open into bounded metadata scratch, and each
   encoded frame is read positionally into the reused packet buffer. Sources
   are never loaded wholesale for decoding.
+
+
+## ALAC
+
+- Go planar callback output becomes a reused interleaved `Buffer`. The frame
+  reader and low-byte shift reader are reused rather than constructed per packet.
+- Cookie parsing consumes the canonical ALACSpecificConfig supplied by Media3,
+  not the enclosing MP4 box. No MP4 demuxer is ported into production.
+- `PacketIndex` is extractor-supplied metadata; the `Alac` wrapper reads packets
+  through `RandomAccessSource`, finds a seek interval and pre-rolls to the exact
+  sample. The source decoder itself has no seeking state or latency.
+- Predictor scratch and output are allocated at open rather than the first
+  frame; packet scratch is sized from the supplied sample table. Go uint32
+  arithmetic is retained with Int wrapping and unsigned shifts/comparisons.
+- Container-signaled total samples bounds the last returned block. Index
+  timestamps are source samples, not microseconds.
+- Tests demux the free MP4 vectors using the pinned Go container into external
+  packet dumps; source hashes are verified, and PCM hashes are taken from the
+  existing regenerated oracle. Test tooling is not a production MP4 port.
