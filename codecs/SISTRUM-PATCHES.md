@@ -43,3 +43,24 @@ records JVM port deviations within the authorized Sistrum file scope.
 - Tests demux the free MP4 vectors using the pinned Go container into external
   packet dumps; source hashes are verified, and PCM hashes are taken from the
   existing regenerated oracle. Test tooling is not a production MP4 port.
+
+
+## Musepack
+
+- Go's planar float callbacks become a reused interleaved `FloatBuffer`.
+  The synthesis DCT, window, float32 rounding and summation order are retained.
+- Encoded packet and bit-reader storage is allocated at open and reused. SV8
+  packets drain one frame per `decodeBlock()` call while retaining the reader;
+  Go's packet header is internal transport and is replaced by fields here.
+- SV7 word realignment, 32-frame offset/state checkpoints, SV8 capped/halving
+  block index, noise-generator carry, PNS declaration and sample trimming are
+  retained. Container scanning reuses a scanner instead of temporary structs.
+- Exact sample seeking and discarded filter pre-roll live in the stream wrapper,
+  replacing the Go format pipeline's trim. Go packet-state serialization and
+  persisted index serialization are not exposed by this module's API.
+- Tag-value, chapter and replay-gain metadata APIs are omitted. Their packet
+  framing and leading/trailing tag recognition remain to delimit audio.
+- Step-2/3/18 loops use explicit counters: this Kotlin compiler allocates
+  progression/range objects for `step` inside these loops. Loop order is unchanged.
+- Huffman tries are built once from the same source rows; Int wrapping and
+  unsigned shifts implement the source's uint32 noise generator and bit codes.

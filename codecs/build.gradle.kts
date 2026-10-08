@@ -70,3 +70,16 @@ tasks.register<JavaExec>("benchmarkAlac") {
     args(layout.buildDirectory.file("reports/alac-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }
+
+
+tasks.register<JavaExec>("benchmarkMusepack") {
+    group = "verification"
+    description = "Measure Musepack float PCM decode time and allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.MusepackBenchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/musepack-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}

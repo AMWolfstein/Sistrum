@@ -269,3 +269,39 @@ ALAC validation: **263 full-module tests passed, zero failures/skips**, includin
 20 ALAC cases. `assembleDevDebug` passes. Across six files, **RTF
 0.013827–0.034957**, median 0.026867; every file measures
 **0 median allocated bytes per full decode**. Report: `benchmarks/alac.tsv`.
+
+
+## Musepack decision and validation (2026-10-08)
+
+Media3 **1.11.1** has no Musepack extractor or bundled Musepack decoder. The
+resolved `media3-extractor-1.11.1.aar` class list and the bytecode of
+`DefaultExtractorsFactory` contain neither an MPC extractor nor MP+/MPCK
+recognition. Google's [supported-formats documentation](https://developer.android.com/media/media3/exoplayer/supported-formats)
+also lists no Musepack progressive container. Decision: port both
+`codec/musepack` and `container/mpc`, covering SV7 and SV8. No Media3 dependency
+is introduced. The reference libmpcdec license in the pinned r475 archive is
+BSD-3-Clause; its archive SHA matches WaxFlow's vector manifest. Encoder and
+chapter-editor source from that archive was not consulted.
+
+`container.mpc.Musepack.open(RandomAccessSource)` (also ByteBuffer) exposes
+`info`, reused interleaved `FloatBuffer` blocks and `seekSample(Long)`. Samples
+are IEEE float32, matching the oracle WAV data. SV7 little-endian words are
+realigned into bounded packets; SV8 blocks use their header frame count.
+Synthesis delay, beginning silence, decay frames and exact trailing counts
+follow the source. SV7 seeks restore scalefactors/noise state from 32-frame
+checkpoints; SV8 seeks restore noise state, with scanning omitted when the
+encoder declares PNS off. Both pre-roll the filter before the target.
+
+All **32 Musepack files** decode bit-exactly, with exact backward/forward seeks,
+reused PCM buffers, partial source reads and direct ByteBuffer regions. Corpus
+refusals: **0**. Contract tests retain the named SV4/5/6 and >2-channel refusals.
+No tag/chapter editing or metadata API is included; framing still skips those
+packets and peels trailers to delimit audio.
+
+Final full module gate: **361 tests, 0 failures, 0 skipped**;
+`:androidApp:assembleDevDebug` passed. `:codecs:benchmarkMusepack` results are
+saved in `benchmarks/musepack.tsv`: RTF **0.002839–0.022983**, median **0.006913**;
+median decode-loop allocation is **0 bytes on every file** (same laptop/JVM and
+five warmups/five measured decodes as the other codecs). JVM allocation tracing
+identified allocating Kotlin stepped ranges; explicit loops preserve Go's
+iteration order and remove those range objects.

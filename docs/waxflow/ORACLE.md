@@ -233,3 +233,21 @@ and uses the pinned MP4 demuxer to save codec cookies and access units outside
 the corpus and repository. These dumps contain compressed data and source hashes,
 not expected PCM. Kotlin tests compare output only with the committed oracle.
 The production module remains decoder-only for ALAC.
+
+
+## Musepack regression corpus extension (2026-10-08)
+
+Thirty free WaxFlow regression files were copied from the unchanged pinned
+external clone's [codec/musepack/testdata](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/codec/musepack/testdata)
+and [container/mpc/testdata](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/container/mpc/testdata),
+retaining source-relative paths under external `waxflow-musepack-tests/`.
+These are MIT WaxFlow test-suite assets generated for the suite. Audio remains
+outside Sistrum. The reference decoder's BSD-3-Clause license was checked in
+[Musepack r475](https://files.musepack.net/source/musepack_src_r475.tar.gz), SHA-256
+`a4b1742f997f83e1056142d556a8c20845ba764b70365ff9ccf2e3f81c427b2b`.
+
+Regeneration with the existing command produces **175 rows, 113 decoded,
+62 refused**. All thirty additions decode; every previous fixture row remains
+byte-identical. Together with the two original samples, Musepack covers 32
+successful files across SV7/SV8, all four rates, mono/stereo, noise substitution,
+gapless tails, undeclared length, seek tables, chapters and trailers.
