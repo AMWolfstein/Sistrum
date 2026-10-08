@@ -13,7 +13,8 @@ internal data class Fixture(val fields: Map<String,String>, val source: File) {
 }
 internal object OracleCorpus {
     const val PIN="b7857aff88820ad37936026421d1641e64611dbe"
-    val rows: List<Fixture> by lazy {
+    val rows: List<Fixture> by lazy { allRows.filter { it.name.endsWith(".wv") || it.name.endsWith(".wvc") } }
+    val allRows: List<Fixture> by lazy {
         val fixtureFile=File(checkNotNull(System.getProperty("waxflow.fixtures")) { "Missing waxflow.fixtures path" })
         check(fixtureFile.isFile) { "Oracle fixtures missing: $fixtureFile; refusing to skip parity tests" }
         val root=File(checkNotNull(System.getProperty("waxflow.corpus")) { "Missing waxflow.corpus path" })
@@ -27,8 +28,8 @@ internal object OracleCorpus {
             check(values.size==columns.size) { "Malformed fixture row: $it" }
             val fields=columns.zip(values).toMap()
             Fixture(fields,File(root,fields.getValue("file")))
-        }.filter { it.name.endsWith(".wv") || it.name.endsWith(".wvc") }
-        check(result.isNotEmpty()) { "No WavPack oracle entries" }
+        }
+        check(result.isNotEmpty()) { "No oracle entries" }
         result.forEach {
             check(it.source.isFile) { "Corpus file missing: ${it.source}" }
             val hash=MessageDigest.getInstance("SHA-256").digest(it.source.readBytes()).hex()

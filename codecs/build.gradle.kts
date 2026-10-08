@@ -37,3 +37,16 @@ tasks.register<JavaExec>("benchmark") {
     args(layout.buildDirectory.file("reports/wavpack-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }
+
+
+tasks.register<JavaExec>("benchmarkApe") {
+    group = "verification"
+    description = "Measure APE decode time / audio duration and loop allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.ApeBenchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/ape-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}

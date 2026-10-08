@@ -170,3 +170,49 @@ Inspection of the successful native files found 1388 audio blocks, including
 17, 18). These paths are covered by the bit-exact corpus tests. Dedicated
 unsigned-overflow stress vectors beyond the corpus were not added.
 Hardware/phone testing is deferred.
+
+
+## APE — Media3 gap and port decision
+
+The app pins Media3 **1.11.1** (`gradle/libs.versions.toml`). Before porting APE,
+`jar tf` and `javap -c -p DefaultExtractorsFactory` on the resolved
+`media3-extractor-1.11.1.aar` confirmed there is no APE extractor. The
+[official progressive format list](https://developer.android.com/media/media3/exoplayer/supported-formats)
+also has no APE container. Media3 has no bundled pure JVM APE decoder; optional
+FFmpeg support is native and does not supply the missing APE extractor.
+**Decision: port `container/apen` and `codec/ape`.** No Media3 or app integration
+is added by this module task.
+
+`Ape.open(RandomAccessSource)` and `Ape.open(ByteBuffer)` expose parsed stream
+info, borrowed 4096-frame interleaved integer PCM chunks, and exact sample seeking.
+Every frame is decoded and CRC-checked before exposing any of its chunks.
+This includes the source's interim 24-bit retry, word-reversed frame reads,
+both range models, neural filter cascades and predictor arithmetic. Supported
+versions are 3950–3990, mono/stereo integer 8/16/24-bit, all five levels.
+Fixed scratch buffers are allocated at open. Sources and file handles remain
+caller-owned; seeking does not reload the whole source.
+
+[Monkey's Audio SDK 13.26 license](https://www.monkeysaudio.com/license.html)
+is BSD-3-Clause. The exact SDK archive license and WaxFlow's MIT license are in
+`THIRD-PARTY-NOTICES`. JVM/API adaptations are recorded in `SISTRUM-PATCHES.md`.
+
+The public oracle contains ten decoded APE files: the original two plus eight
+free WaxFlow test-suite vectors from the pinned commit. Audio remains outside
+this repo. All five levels, 8/16/24-bit, trailers and multi-frame seeks are
+covered; expected PCM comes only from the regenerated Go oracle.
+
+| APE corpus refusal reason | Count |
+|---|---:|
+| None (all ten decoded) | 0 |
+
+Named version, float, width, channel and compression-level refusals are tested
+separately with source-derived header mutations; strict descriptor warnings and
+negative seeks also have contract tests. These are not fabricated oracle rows.
+
+Run `./gradlew :codecs:benchmarkApe`; the per-file report is
+`build/reports/ape-benchmark.tsv`.
+
+APE validation: **243 full-module tests passed, zero failures/skips**, including
+32 APE cases. `assembleDevDebug` passes. Benchmark across ten files:
+**RTF 0.006376–0.090657**, median 0.034397; every file
+measured **0 median allocated bytes per full decode**. Saved report: `benchmarks/ape.tsv`.

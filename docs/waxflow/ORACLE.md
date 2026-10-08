@@ -196,3 +196,21 @@ branch:
 3. Re-run the Kotlin decoder tests against the new fixtures. Where WaxFlow changed decoder behaviour, port the
    change and update the affected files' attribution headers to the new commit.
 4. Commit script, this file and fixtures together: `chore(waxflow): bump oracle pin to <short-hash>`.
+
+
+## APE regression corpus extension (2026-10-08)
+
+Eight free, committed WaxFlow regression files were fetched from the clean
+external clone at the existing pin `b7857aff88820ad37936026421d1641e64611dbe`:
+[codec/ape/testdata](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/codec/ape/testdata)
+(five `noise-c*.ape` files) and
+[container/apen/testdata](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/container/apen/testdata)
+(`golden-known.ape`, `seek.ape`, `tagged.ape`). WaxFlow's test suite is MIT;
+the noise fixtures are generated using the BSD-3-Clause Monkey's Audio reference
+encoder, as its `fixturegen_test.go` documents. Each file was copied into the
+external corpus under `waxflow-ape-tests/`, retaining its source-relative path.
+No audio was copied into Sistrum and no non-free corpus was added.
+
+Running the existing oracle command on the expanded corpus produced **140 rows,
+78 decoded, 62 refused**. All eight additions decode. Every prior fixture row
+is byte-identical; the oracle pin is unchanged. APE now has ten successful rows.

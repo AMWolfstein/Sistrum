@@ -15,7 +15,10 @@ internal const val CHUNK=128 shl 10
  * No ByteBuffer views are created per read. Users keep a separate scan/packet
  * buffer where a nested read must not invalidate borrowed window bytes.
  */
-internal class Window(private val source: RandomAccessSource) {
+internal class Window(private val source: RandomAccessSource,
+    private val unreadable: (IOException) -> IOException = { cause ->
+        WavPackException(ErrorCode.SOURCE_UNREADABLE,"reading block data").also { it.initCause(cause) }
+    }) {
     val data: ByteBuffer=ByteBuffer.allocate(CHUNK*2)
     var dataEnd=source.length
     private var start=0L
@@ -61,8 +64,7 @@ internal class Window(private val source: RandomAccessSource) {
                     throw IOException("source made no progress or ended before its declared length")
             }
         } catch (e: IOException) {
-            val wrapped=WavPackException(ErrorCode.SOURCE_UNREADABLE,"reading block data")
-            wrapped.initCause(e); failure=wrapped; throw wrapped
+            val wrapped=unreadable(e); failure=wrapped; throw wrapped
         }
     }
 }

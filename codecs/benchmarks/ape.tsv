@@ -1,0 +1,13 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-ape-tests/codec/ape/testdata/noise-c1000-s16.ape	ok	0.136054	0.007097	0.052165	0
+waxflow-ape-tests/codec/ape/testdata/noise-c2000-s16.ape	ok	0.136054	0.009870	0.072545	0
+waxflow-ape-tests/codec/ape/testdata/noise-c3000-s16.ape	ok	0.136054	0.008184	0.060155	0
+waxflow-ape-tests/codec/ape/testdata/noise-c4000-s24.ape	ok	0.125000	0.011332	0.090657	0
+waxflow-ape-tests/codec/ape/testdata/noise-c5000-s8.ape	ok	0.272109	0.020041	0.073650	0
+waxflow-ape-tests/container/apen/testdata/golden-known.ape	ok	3.441655	0.026136	0.007594	0
+waxflow-ape-tests/container/apen/testdata/seek.ape	ok	3.457052	0.022041	0.006376	0
+waxflow-ape-tests/container/apen/testdata/tagged.ape	ok	0.181406	0.002704	0.014906	0
+waxflow-testdata/noise-s16.ape	ok	0.500000	0.008315	0.016630	0
+waxflow-testdata/sine-s16.ape	ok	0.500000	0.007372	0.014744	0
