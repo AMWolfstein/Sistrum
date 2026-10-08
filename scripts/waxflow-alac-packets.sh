@@ -38,11 +38,23 @@ import (
     "github.com/colespringer/waxflow/container/mp4"
 )
 func main() {
-    err := filepath.WalkDir(os.Args[1],func(path string,entry os.DirEntry,walkErr error) error {
+    fixtureBytes,err:=os.ReadFile(os.Args[3]); if err!=nil { panic(err) }
+    statuses:=make(map[string]string)
+    for _,line:=range strings.Split(string(fixtureBytes),"\n") {
+        columns:=strings.Split(line,"\t"); if len(columns)>2 && !strings.HasPrefix(line,"#") { statuses[columns[0]]=columns[2] }
+    }
+    err = filepath.WalkDir(os.Args[1],func(path string,entry os.DirEntry,walkErr error) error {
         if walkErr != nil { return walkErr }
         if entry.IsDir() || !(strings.HasSuffix(path,".m4a") || strings.HasSuffix(path,".m4b")) { return nil }
         raw,err:=os.ReadFile(path); if err!=nil { return err }
-        demux,err:=mp4.NewDemuxer(container.BytesSource(raw),nil); if err!=nil { return err }
+        demux,err:=mp4.NewDemuxer(container.BytesSource(raw),nil)
+        if err!=nil {
+            rel,pathErr:=filepath.Rel(os.Args[1],path); if pathErr!=nil { return pathErr }
+            if statuses[filepath.ToSlash(rel)]=="refused: waxflow: "+err.Error() {
+                fmt.Printf("%s: oracle refusal, no packet dump: %v\n",rel,err); return nil
+            }
+            return err
+        }
         track:=demux.Tracks()[0]; if track.Codec!=codec.ALAC { return nil }
         rel,err:=filepath.Rel(os.Args[1],path); if err!=nil { return err }
         dest:=filepath.Join(os.Args[2],rel+".packets")
@@ -67,4 +79,4 @@ func main() {
     if err!=nil { panic(err) }
 }
 GO
-(cd "$helper" && "${GO:-go}" run -mod=mod . "$corpus" "$output")
+(cd "$helper" && "${GO:-go}" run -mod=mod . "$corpus" "$output" "$repo_root/androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv")

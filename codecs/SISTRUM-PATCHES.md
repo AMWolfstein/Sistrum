@@ -90,3 +90,12 @@ records JVM port deviations within the authorized Sistrum file scope.
 - Derived multichannel test vectors replicate pinned MIT compressed mono bytes;
   scripts/waxflow-g711-corpus.py reproduces them outside the repository. All PCM
   expectations are produced by Go, never by the Kotlin implementation.
+
+## Expanded lossless corpus tooling
+
+- The ALAC packet helper now recognizes a demux refusal only when its exact Go
+  error matches the committed fixture. No packet dump exists for such a stream;
+  tests extract its real cookie and assert the Kotlin parser's exact refusal.
+- Original generated signals and a directly constructed legacy silence stream
+  expand coverage without changing production decoder arithmetic or expectations.
+  The legacy vector exercises old framing, not the non-silent old entropy path.
