@@ -1,0 +1,53 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+wavpack-test-suite-2.0/test_suite/bit_depths/12bit.wv	ok	30.000000	0.335755	0.011192	0
+wavpack-test-suite-2.0/test_suite/bit_depths/16bit.wv	ok	30.000000	0.310402	0.010347	0
+wavpack-test-suite-2.0/test_suite/bit_depths/1bit_dsd.wv	refused: waxflow: wavpack: DSD streams are not supported				
+wavpack-test-suite-2.0/test_suite/bit_depths/20bit.wv	ok	30.000000	0.313164	0.010439	0
+wavpack-test-suite-2.0/test_suite/bit_depths/24bit.wv	ok	30.000000	0.384233	0.012808	0
+wavpack-test-suite-2.0/test_suite/bit_depths/32bit_float.wv	refused: waxflow: wavpack: 32-bit float streams are not supported				
+wavpack-test-suite-2.0/test_suite/bit_depths/32bit_int.wv	ok	30.000000	0.469974	0.015666	0
+wavpack-test-suite-2.0/test_suite/bit_depths/8bit.wv	ok	30.000000	0.350784	0.011693	0
+wavpack-test-suite-2.0/test_suite/corruption/bad_checksums.wv	ok	28.034354	0.296399	0.010573	0
+wavpack-test-suite-2.0/test_suite/corruption/dsd_corrupt.wv	refused: waxflow: wavpack: DSD streams are not supported				
+wavpack-test-suite-2.0/test_suite/corruption/hybrid_corrupt.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/corruption/lossless_corrupt.wv	refused: waxflow: wavpack: block at sample 22050 fails its CRC				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/1024kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/128kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/160kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/24kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/256kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/320kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/32kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/384kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/48kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/512kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/64kbps.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-10.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-20-lossy.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-20.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-30-fast.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-30-lossy.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-30.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-397-hybrid.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-397.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-40-hybrid.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-40.wv	ok	28.459184	0.418465	0.014704	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-480-hybrid.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-480-sfx.wv	refused: waxflow: wavpack: not a WavPack file				
+wavpack-test-suite-2.0/test_suite/legacy/vers-480.wv	ok	28.459184	0.305677	0.010741	0
+wavpack-test-suite-2.0/test_suite/num_channels/mono-1.wv	ok	24.681020	0.090085	0.003650	0
+wavpack-test-suite-2.0/test_suite/num_channels/multichannel-6.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/num_channels/stereo-2.wv	ok	30.517279	0.223658	0.007329	0
+wavpack-test-suite-2.0/test_suite/special_cases/cue_sheet.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/special_cases/custom_srate.wv	ok	29.999972	0.183594	0.006120	0
+wavpack-test-suite-2.0/test_suite/special_cases/hybrid_test.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/special_cases/redundant_bits.wv	ok	29.999955	0.233993	0.007800	0
+wavpack-test-suite-2.0/test_suite/special_cases/stereo_mixing.wv	ok	29.999955	0.210699	0.007023	0
+wavpack-test-suite-2.0/test_suite/speed_modes/default.wv	ok	30.000000	0.220269	0.007342	0
+wavpack-test-suite-2.0/test_suite/speed_modes/fast.wv	ok	30.000000	0.164121	0.005471	0
+wavpack-test-suite-2.0/test_suite/speed_modes/high.wv	ok	30.000000	0.313073	0.010436	0
+wavpack-test-suite-2.0/test_suite/speed_modes/vhigh.wv	ok	30.000000	0.431346	0.014378	0
+waxflow-testdata/noise-s16.wv	ok	0.350000	0.002661	0.007604	0
+waxflow-testdata/sine-s16.wv	ok	0.350000	0.001244	0.003555	0

@@ -1,0 +1,30 @@
+{
+  "waxflow_commit": "b7857aff88820ad37936026421d1641e64611dbe",
+  "file_sha256": "beaa5b0ebefb76affc84fef127e4723c5f09d2b1b28cbe6a22907b3958ee4bc5",
+  "pcm_sha256": "dcb7e0ec93ee9481965db9408510c0579e5365894feeb7260686a375af008666",
+  "samples": [
+    5,
+    14,
+    31,
+    60,
+    124,
+    248,
+    504,
+    1016,
+    -5,
+    -12,
+    -26,
+    -62,
+    -128,
+    -256,
+    -512,
+    -1024
+  ],
+  "sent_bits": 3,
+  "maximum_width": 5,
+  "branches": {
+    "full": 6,
+    "partial": 4,
+    "none": 6
+  }
+}
