@@ -67,7 +67,7 @@ internal class AlacOracleTest(private val fixture: Fixture) {
         val stream=Alac.open(data.cookie,source,shifted); val digest=MessageDigest.getInstance("SHA-256")
         while (true) { val block=stream.decodeBlock() ?: break; digest.update(pcmBytes(block)) }
         assertEquals(fixture.value("pcm_sha256"),digest.digest().hex())
-        val root=java.io.File(System.getProperty("waxflow.alacPackets","/tmp/sistrum-waxflow-oracle/alac-packets"))
+        val root=java.io.File(checkNotNull(System.getProperty("waxflow.alacPackets")) { "Run bash scripts/waxflow-oracle.sh --fetch-generate, then run tests through Gradle" })
         java.nio.channels.FileChannel.open(java.io.File(root,fixture.name+".packets").toPath(),java.nio.file.StandardOpenOption.READ).use { channel ->
             val fileStream=Alac.open(data.cookie,me.misa198.airmedy.codecs.container.FileChannelSource(channel),data.index)
             val fileDigest=MessageDigest.getInstance("SHA-256")

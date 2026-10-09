@@ -26,8 +26,8 @@ the table above. Ports record the pin they were made from (header below).
 scripts/waxflow-oracle.sh <corpus-dir> [fixtures-file]
 ```
 
-- Clones the fork at the pinned commit **outside the repository** (`$SISTRUM_WAXFLOW_DIR`, default
-  `~/.cache/sistrum/waxflow`; it refuses a path inside the repo, and refuses a clone with local changes).
+- Clones the fork at the pinned commit **outside the repository** (`$SISTRUM_ORACLE_DIR/oracle-work`, default
+  `~/.cache/sistrum-waxflow-oracle/oracle-work`; it refuses a path inside the repo, and refuses a clone with local changes).
 - Builds the WaxFlow CLI and a small loudness helper there (needs the Go version WaxFlow's `go.mod` names,
   1.26+; `GO=/path/to/go` to pick one).
 - For every file in the corpus: decodes with `waxflow transcode --format wav --no-tags` at the source rate,
@@ -38,7 +38,7 @@ scripts/waxflow-oracle.sh <corpus-dir> [fixtures-file]
   then one row per file: `file`, `file_sha256`, `status`, `frames`, `rate`, `channels`, `bits`,
   `sample_format`, `pcm_sha256`, `integrated_lufs`, `lra_lu`, `true_peak_dbtp`, `sample_peak_dbfs`.
 - **No audio goes into git.** The corpus stays outside the repo; tests find it through a path given at test
-  time and skip with a clear message when it's absent. `file_sha256` detects a corpus that drifted from the
+  time and fail with a rebuild command when it's absent. `file_sha256` detects a corpus that drifted from the
   one the fixtures were made from.
 
 Notes: integrated loudness is `-Inf` for clips shorter than one 400 ms gating block (expected). Lossy decoders
@@ -54,7 +54,7 @@ The public corpus fixtures are in
 No corpus audio or downloaded archives are stored in the repository.
 
 Both archives were fetched with `curl -fL --retry 2` into
-`/tmp/sistrum-waxflow-oracle/downloads/` and extracted outside the repository:
+`${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/downloads/` and extracted outside the repository:
 
 | Source | Version / URL | Archive SHA-256 | Corpus files |
 |---|---|---|---|
@@ -72,10 +72,10 @@ The oracle ran with Go `go1.27.1-X:nodwarf5 linux/amd64`, using the pinned fork,
 an external work directory and external Go caches. To reproduce the generated file:
 
 ```bash
-SISTRUM_WAXFLOW_DIR=/tmp/sistrum-waxflow-oracle/oracle-work \
-GOCACHE=/tmp/sistrum-waxflow-oracle/go-cache \
-GOPATH=/tmp/sistrum-waxflow-oracle/go-path \
-bash scripts/waxflow-oracle.sh /tmp/sistrum-waxflow-oracle/corpus \
+SISTRUM_WAXFLOW_DIR=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work \
+GOCACHE=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/go-cache \
+GOPATH=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/go-path \
+bash scripts/waxflow-oracle.sh ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus \
   androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv
 ```
 
@@ -94,7 +94,7 @@ checked for PCM hashes and nonnegative frame counts.
 
 Pin [`b7857aff88820ad37936026421d1641e64611dbe`](https://github.com/AMWolfstein/WaxFlow/commit/b7857aff88820ad37936026421d1641e64611dbe)
 is published on fork branch `fix/riff-wrapped-wavpack`. The external clone used
-for the fix and regeneration is `/tmp/sistrum-waxflow-oracle/oracle-work/src`.
+for the fix and regeneration is `${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work/src`.
 The GitHub branch ref and commit API both returned the full pinned hash.
 
 RIFF/WavPack format tests, WavPack conformance and the separate oracle module
@@ -265,8 +265,8 @@ by replicating each compressed mono byte into seven/eight channels, preserving
 rate and length. Reproduce outside Sistrum, then obtain expectations from Go:
 
 ```bash
-python3 scripts/waxflow-g711-corpus.py /tmp/sistrum-waxflow-oracle/oracle-work/src /tmp/sistrum-waxflow-oracle/corpus
-SISTRUM_WAXFLOW_DIR=/tmp/sistrum-waxflow-oracle/oracle-work bash scripts/waxflow-oracle.sh /tmp/sistrum-waxflow-oracle/corpus androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv
+python3 scripts/waxflow-g711-corpus.py ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work/src ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus
+SISTRUM_WAXFLOW_DIR=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work bash scripts/waxflow-oracle.sh ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv
 ```
 
 These reside under external `waxflow-g711-tests/`; no audio is committed.
@@ -291,3 +291,61 @@ Regenerate using the same external corpus and the command above, then run
 **207 file rows: 142 decoded, 65 refused**. All 181 previous rows are unchanged.
 The three additions refused by Go are ALAC channel counts 4, 6 and 8, each with
 `alac: channel count N: only mono and stereo are supported`.
+
+## Persistent corpus and verified reconstruction
+
+All new oracle state lives outside the repository under
+`${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}`. This includes
+`corpus/`, `alac-packets/`, `downloads/`, `encoders/`, and `oracle-work/`.
+Earlier runs used volatile storage; the paths above now describe the persistent
+layout. `SISTRUM_WAXFLOW_DIR` remains an optional override for decode-only builds.
+Reconstruction always uses the pinned clone within `SISTRUM_ORACLE_DIR`.
+
+```bash
+bash scripts/waxflow-oracle.sh --fetch-generate
+bash scripts/waxflow-oracle.sh --verify
+./gradlew :codecs:test
+```
+
+`corpus-manifest.tsv` records each relative corpus path, immutable source URL or
+allowlisted generator command, license, and the SHA-256 from the existing oracle
+fixtures. Generator placeholders `{src}`, `{corpus}`, and `{mac}` are resolved by
+the rebuild tool, without shell evaluation. Downloads and generation must match
+these hashes; rebuilding never changes the manifest or oracle expectations.
+The generator tools are Monkey's Audio 13.26 (SDK archive hash pinned in the
+rebuild script) and FFmpeg n9.0.2. A different encoder build may change compressed
+bytes; a mismatch is an error, never a replacement fixture.
+
+The rebuild uses the official WavPack decoder suite 2.0 archive (hash above),
+WaxFlow files from the exact revisions in the manifest, and the committed signal
+generators. Once all corpus hashes match, the pinned Go MP4 demuxer extracts ALAC
+packet dumps. `alac-packets-manifest.tsv` records each dump hash, computed only after all
+compressed sources were restored and verified. Rebuilds check this committed
+manifest without rewriting it and also check each dump’s embedded source hash.
+Test preflight checks all corpus files and these dumps,
+even when Gradle otherwise considers tests up to date. Every Gradle JVM `Test` task across the project and every `:codecs` benchmark
+depends on this preflight; missing or changed data reports the rebuild command
+before directory input validation. Android assembly itself does not require
+external corpus data.
+
+The original WavPack archive describes itself as a decoder verification suite;
+it does not contain an SPDX license or an express redistribution license for
+its audio. The manifest records that distinction rather than assigning the
+WavPack software license to audio. The official download remains the source;
+no audio is redistributed in this repository.
+
+### Reconstruction validation (2026-10-09)
+
+All **207** source-file hashes from pushed commit `5d2fba2` match the rebuilt
+files, and all existing fixture rows remain unchanged. The manifest also covers
+29 already-generated ASF/WMA v1/v2 additions: five MIT files from the pinned
+`container/asf/testdata/` and 24 CC0 signals generated by
+`scripts/waxflow-wma-corpus.py` using FFmpeg n9.0.2. These additions also rebuilt
+bit-identically. Their oracle rows bring the inventory to **236 files, 171
+decoded and 65 refused**; Kotlin WMA parity is a separate, subsequent gate.
+
+The restored pre-WMA suite passed **470 tests, zero failures/errors/skips**,
+including WavPack, APE, ALAC, Musepack, ADPCM/G.711, AIFF and source contracts.
+`:androidApp:assembleDevDebug` passed. Missing-corpus and modified-byte negative
+checks both failed with the rebuild instruction. Repeating reconstruction
+verified all 236 corpus hashes and all eight committed ALAC dump hashes.

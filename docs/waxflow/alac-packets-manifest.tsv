@@ -1,0 +1,9 @@
+path	source	license	sha256
+waxflow-alac-tests/container/mp4/testdata/alac-mono-tail.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	013932b6ddc32485f5d167a6cae79f5e8af422c6df3e1b9e12b34d623b7d8da2
+waxflow-alac-tests/container/mp4/testdata/alac-stereo.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	95f65279312d7dc57bd6c962f96b0782737d187ef0b1ab913eee360fb13ced94
+waxflow-alac-tests/container/mp4/testdata/golden/golden-s16-stereo.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	e2776f0a27bd7f0ac2b0fcc16734c524ed5dff9ece66f10cadeef83c603c8033
+waxflow-alac-tests/container/mp4/testdata/golden/golden-s24-mono.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	27bda782747b62d2603d4d037425016787bcce08552507ddd002058e6f380ae3
+waxflow-alac-tests/container/mp4/testdata/golden/golden-s32-stereo.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	de86d39adc162f3e449689bcf9fe694b78b32b0502c765a68a9e7b9539bb8069
+waxflow-alac-tests/generated/signal-s24-1ch.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	3ca3f3fd964ae9c8b6da0c5cae351d85eda61d38bcabe051bbbe27f2f6edd538
+waxflow-alac-tests/generated/signal-s24-2ch.m4a.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	48bd44c02a6b46d04a050c16004a6645d33422d119ce9db227176769524c1bff
+waxflow-testdata/chapters.m4b.packets	bash scripts/waxflow-alac-packets.sh {corpus} {packets}	MIT or CC0-1.0; same as compressed source	8584718f06476429f0d667537efd100bebf2536b271797011aa1a8119a8901fb

@@ -10,16 +10,36 @@ tasks.jar {
     from("THIRD-PARTY-NOTICES") { into("META-INF") }
 }
 
+val oracleDir = providers.environmentVariable("SISTRUM_ORACLE_DIR")
+    .orElse(providers.systemProperty("user.home").map { "$it/.cache/sistrum-waxflow-oracle" })
+
 val corpus = providers.gradleProperty("waxflowCorpus")
     .orElse(providers.environmentVariable("WAXFLOW_CORPUS"))
-    .orElse("/tmp/sistrum-waxflow-oracle/corpus")
+    .orElse(oracleDir.map { "$it/corpus" })
 val fixtures = rootProject.layout.projectDirectory.file(
     "androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv"
 )
 
 val alacPackets = providers.gradleProperty("waxflowAlacPackets")
     .orElse(providers.environmentVariable("WAXFLOW_ALAC_PACKETS"))
-    .orElse("/tmp/sistrum-waxflow-oracle/alac-packets")
+    .orElse(oracleDir.map { "$it/alac-packets" })
+
+// Always run before Gradle validates Test input directories, even for up-to-date tests.
+val verifyOracleCorpus by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Verify the external corpus and ALAC dumps against the committed manifest."
+    workingDir(rootProject.layout.projectDirectory)
+    commandLine("python3", "scripts/waxflow-corpus.py", "--verify", corpus.get(), alacPackets.get())
+}
+
+rootProject.allprojects {
+    tasks.withType<Test>().configureEach {
+        dependsOn(verifyOracleCorpus)
+        inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/corpus-manifest.tsv"))
+        inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/alac-packets-manifest.tsv"))
+    }
+}
+tasks.withType<JavaExec>().configureEach { dependsOn(verifyOracleCorpus) }
 
 tasks.test {
     inputs.dir(alacPackets).withPathSensitivity(PathSensitivity.RELATIVE)

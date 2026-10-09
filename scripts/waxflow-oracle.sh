@@ -13,7 +13,8 @@
 #                  each group is measured as one programme (WaxFlow AnalyzeGroup, the album-loudness oracle)
 #                  and written as a row with status `group` and its members in the `members` column.
 # Environment:
-#   SISTRUM_WAXFLOW_DIR  where the fork is cloned (default: ${XDG_CACHE_HOME:-~/.cache}/sistrum/waxflow)
+#   SISTRUM_ORACLE_DIR   persistent storage (default: ~/.cache/sistrum-waxflow-oracle)
+#   SISTRUM_WAXFLOW_DIR  optional clone/build override (default: $SISTRUM_ORACLE_DIR/oracle-work)
 #   GO                   go binary to use (default: go on PATH); needs the Go version WaxFlow's go.mod asks for
 set -euo pipefail
 
@@ -22,11 +23,16 @@ WAXFLOW_REPO="https://github.com/AMWolfstein/WaxFlow.git"
 WAXFLOW_COMMIT="b7857aff88820ad37936026421d1641e64611dbe"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-corpus="${1:?usage: scripts/waxflow-oracle.sh <corpus-dir> [fixtures-file]}"
+oracle_root="${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}"
+export SISTRUM_ORACLE_DIR="$oracle_root"
+if [[ "${1:-}" == --fetch-generate || "${1:-}" == --verify ]]; then
+  exec python3 "$repo_root/scripts/waxflow-corpus.py" "$@"
+fi
+corpus="${1:-$oracle_root/corpus}"
 fixtures="${2:-$repo_root/androidApp/src/test/resources/waxflow/oracle-fixtures.tsv}"
 groups="${3:-}"
 [[ -z "$groups" || -f "$groups" ]] || { echo "groups file not found: $groups" >&2; exit 2; }
-work="${SISTRUM_WAXFLOW_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/sistrum/waxflow}"
+work="${SISTRUM_WAXFLOW_DIR:-$oracle_root/oracle-work}"
 go_bin="${GO:-go}"
 
 [[ -d "$corpus" ]] || { echo "corpus directory not found: $corpus" >&2; exit 2; }
@@ -137,7 +143,7 @@ EOF
 (cd "$work/helper" && GOFLAGS=-mod=mod "$go_bin" mod tidy >/dev/null 2>&1 || true
  cd "$work/helper" && CGO_ENABLED=0 GOFLAGS=-mod=mod "$go_bin" build -trimpath -o "$bin/waxflow-loudness" .)
 
-tmp="$(mktemp -d)"
+tmp="$(mktemp -d "$work/decode.XXXXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$(dirname "$fixtures")"
 

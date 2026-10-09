@@ -7,7 +7,7 @@ beside WavPack without changing this module's platform requirements.
 
 Port source: https://github.com/AMWolfstein/WaxFlow at
 `b7857aff88820ad37936026421d1641e64611dbe`. The clean external clone used here is
-`/tmp/sistrum-waxflow-oracle/oracle-work/src`. See `THIRD-PARTY-NOTICES` for the
+`${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work/src`. See `THIRD-PARTY-NOTICES` for the
 WaxFlow MIT license and underlying WavPack 5.9.0 BSD-3-Clause attribution.
 
 ## API
@@ -64,8 +64,8 @@ fixtures/corpus fail the run; tests never skip because data is unavailable.
 Configure the external corpus with `WAXFLOW_CORPUS` or `-PwaxflowCorpus`:
 
 ```bash
-./gradlew :codecs:test -PwaxflowCorpus=/tmp/sistrum-waxflow-oracle/corpus
-./gradlew :codecs:benchmark -PwaxflowCorpus=/tmp/sistrum-waxflow-oracle/corpus
+./gradlew :codecs:test -PwaxflowCorpus=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus
+./gradlew :codecs:benchmark -PwaxflowCorpus=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus
 ./gradlew :androidApp:assembleDevDebug
 ```
 
@@ -246,8 +246,8 @@ but is not exercised by these corpus files. Test-only packet extraction uses
 pinned WaxFlow's existing MP4 demuxer, outside the repository:
 
 ```bash
-SISTRUM_WAXFLOW_DIR=/tmp/sistrum-waxflow-oracle/oracle-work \
-  bash scripts/waxflow-alac-packets.sh /tmp/sistrum-waxflow-oracle/corpus
+SISTRUM_WAXFLOW_DIR=${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work \
+  bash scripts/waxflow-alac-packets.sh ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus
 ./gradlew :codecs:test :codecs:benchmarkAlac
 ```
 
@@ -381,7 +381,7 @@ with the official [Monkey's Audio 13.26 SDK](https://monkeysaudio.com/files/MAC_
 Build its CMake console target outside Sistrum and pass its executable to:
 
 ```bash
-python3 scripts/waxflow-expand-lossless-corpus.py /tmp/sistrum-waxflow-oracle/corpus /tmp/sistrum-waxflow-oracle/encoders/mac-1326/build/mac
+python3 scripts/waxflow-expand-lossless-corpus.py ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/encoders/mac-1326/build/mac
 ```
 
 A twenty-first APE vector is a genuine **3.97** mono/16-bit silence stream,

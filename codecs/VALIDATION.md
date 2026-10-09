@@ -30,7 +30,7 @@ module task and was not edited during this follow-up.
 
 ## Commands and results
 
-Corpus remains `/tmp/sistrum-waxflow-oracle/corpus`. Go commands ran in the
+Corpus remains `${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus`. Go commands ran in the
 external clone with external Go caches and `GOMAXPROCS=2` / `-p 2`.
 Go counts below are **leaf cases**, excluding parent/subtest double-counting.
 
@@ -41,8 +41,8 @@ Go counts below are **leaf cases**, excluding parent/subtest double-counting.
 | `go test -json -p 2 -timeout 10m ./...` in `oracletest/` | 130 passed, 0 failures |
 | `go test -json -p 2 -timeout 15m ./...` in root | 5663 passed, 2 failures, 273 skips; 66 packages passed, 1 failed, 5 skipped |
 | `go test ... ./tests -run '^TestFixturesDecodeDifferential$/^sine-ima'` at unchanged base | Same two failures; 2 passes |
-| `bash scripts/waxflow-oracle.sh /tmp/sistrum-waxflow-oracle/corpus androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv` | 132 rows: 70 decoded, 62 refused; `.wv`: 20 decoded, 30 refused |
-| `python3 codecs/tools/generate-max-width.py /tmp/sistrum-waxflow-oracle/oracle-work/bin/waxflow` | Go confirmed all 16 synthetic PCM samples and the recorded checksum |
+| `bash scripts/waxflow-oracle.sh ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/corpus androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv` | 132 rows: 70 decoded, 62 refused; `.wv`: 20 decoded, 30 refused |
+| `python3 codecs/tools/generate-max-width.py ${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}/oracle-work/bin/waxflow` | Go confirmed all 16 synthetic PCM samples and the recorded checksum |
 | `./gradlew :codecs:test :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest :androidApp:assembleDevDebug` | Codecs: 211 passed, 0 failures/skips. Android unit: 899 passed, 7 failed, 1 skipped; combined gate fails |
 | `./gradlew :sharedLogic:testAndroidHostTest :androidApp:assembleDevDebug` | Build succeeds; shared test result initially cached |
 | `./gradlew :sharedLogic:testAndroidHostTest --rerun :codecs:benchmark` | Shared: fresh 39 passes, 0 failures/skips. Benchmark succeeds |
@@ -63,7 +63,7 @@ Full-suite failures remain outside the requested scope:
 
 ## GainRampTest baseline evidence
 
-Clean worktree: `/tmp/sistrum-gainramp-baseline`, detached at
+Clean external baseline worktree (historical run), detached at
 `c58f76905f2e687bba7a48f0b1a42045d770df28` (the local
 `feature/media3-migration` HEAD). Its tracked and untracked git status is clean.
 Only a symlink to the existing ignored machine-local `local.properties` supplied

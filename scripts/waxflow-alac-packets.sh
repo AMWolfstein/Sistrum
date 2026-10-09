@@ -5,8 +5,9 @@
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 corpus="$(realpath "${1:?usage: waxflow-alac-packets.sh <corpus> [output-dir]}")"
-work="${SISTRUM_WAXFLOW_DIR:-$HOME/.cache/sistrum/waxflow}"
-output="${2:-/tmp/sistrum-waxflow-oracle/alac-packets}"
+oracle_root="${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}"
+work="${SISTRUM_WAXFLOW_DIR:-$oracle_root/oracle-work}"
+output="${2:-$oracle_root/alac-packets}"
 mkdir -p "$output"
 output="$(realpath "$output")"
 case "$output/" in "$repo_root/"*) echo 'Packet data must stay outside the repo' >&2; exit 1;; esac
