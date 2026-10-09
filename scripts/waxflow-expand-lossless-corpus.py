@@ -30,7 +30,7 @@ def signal(path,depth,channels):
         out.setnchannels(channels);out.setsampwidth(depth//8);out.setframerate(44100);out.writeframes(data)
     return bytes(data)
 
-with tempfile.TemporaryDirectory(prefix='sistrum-lossless-') as temp:
+with tempfile.TemporaryDirectory(dir=corpus.parent, prefix='sistrum-lossless-') as temp:
     temp=pathlib.Path(temp)
     for depth in (16,24):
         for channels in (1,2):

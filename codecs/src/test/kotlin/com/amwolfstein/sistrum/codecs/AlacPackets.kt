@@ -14,7 +14,7 @@ internal class AlacPackets(fixture: Fixture) {
     val cookie: ByteBuffer
     val index: PacketIndex
     init {
-        val root=File(System.getProperty("waxflow.alacPackets","/tmp/sistrum-waxflow-oracle/alac-packets"))
+        val root=File(checkNotNull(System.getProperty("waxflow.alacPackets")) { "Run bash scripts/waxflow-oracle.sh --fetch-generate, then run tests through Gradle" })
         val file=File(root,fixture.name+".packets")
         check(file.isFile) { "ALAC test packets missing: $file; run scripts/waxflow-alac-packets.sh on the corpus" }
         bytes=ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
