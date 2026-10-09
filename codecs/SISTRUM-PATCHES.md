@@ -99,3 +99,28 @@ records JVM port deviations within the authorized Sistrum file scope.
 - Original generated signals and a directly constructed legacy silence stream
   expand coverage without changing production decoder arithmetic or expectations.
   The legacy vector exercises old framing, not the non-silent old entropy path.
+
+## ASF / WMA v1 and v2
+
+- Ported the pinned Go ASF header/stream selection, packet fields, compressed
+  subpayloads and fragment assembly, and the WMA reservoir, exponent, run-level,
+  noise substitution, mid/side, IMDCT, overlap and drain logic. Refusal messages
+  retain the source's duplicated `wma: wma:` prefix where ASF annotates a codec
+  error. No arithmetic correction or lossy tolerance is applied.
+- Go packet slices/callback frames become borrowed fixed-capacity buffers and
+  RandomAccessSource reads. The maximum packet/media-object caps are preserved;
+  construction preallocates assembly, lookahead and output storage. PCM is
+  reused interleaved float32. Caller owns the source; ByteBuffer regions work.
+- Exact sample seeking replays from the beginning instead of using ASF's native
+  index approximation. This preserves noise-generator and overlap history and
+  permits arbitrary backward seeks at linear time cost. `Decoder.reset(true)`
+  distinguishes this full restart from Go's state-losing midstream reset.
+- ASF declared duration remains advisory and never truncates decoded PCM. Tags,
+  chapters, general metadata APIs and persisted index APIs are not included in
+  the audio stream API. These objects are skipped using their object framing.
+- The shared FFT port includes only radix 4/2, the factors WMA's power-of-two
+  transforms use. Go's arithmetic order and float32/float64 boundaries remain.
+  Huffman tries and transform plans are initialized outside the decode loop.
+- Parameter arrays are copied from WaxFlow's LGPL-2.1-or-later FFmpeg-derived
+  data artifacts; THIRD-PARTY-NOTICES includes their provenance and LGPL text.
+  No FFmpeg implementation source was used, and no fork fix was needed.
