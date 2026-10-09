@@ -402,3 +402,18 @@ vector books, run/level values, default decorrelation matrices and critical
 band edges. WaxFlow's extraction is SHA-256-pinned and contains no decoder
 logic. Kotlin's implementation is a port of the MIT WaxFlow implementation;
 no FFmpeg implementation source was read or ported.
+
+WMA Voice parameter tables — FFmpeg (LGPL-2.1-or-later), via WaxFlow
+==================================================================
+Source: FFmpeg n9.0, https://github.com/FFmpeg/FFmpeg,
+commit d32b387f2b0a484599d4587d651891f0c63c4238, libavcodec/wmavoice_data.h
+and the awStartOffsets data array from libavcodec/wmavoice.c.
+WaxFlow extraction at b7857aff88820ad37936026421d1641e64611dbe:
+codec/wmavoice/tables_lsp.go, tables_gain.go, tables_pulse.go, tables_interp.go,
+tables_denoise.go. Kotlin files: codec/wmavoice/TablesLsp.kt, TablesGain.kt,
+TablesPulse.kt, TablesInterp.kt, TablesDenoise.kt. The LGPL-2.1 text above
+also applies to these tables.
+
+These are data-only codebooks, gains, filter taps and offsets, mechanically
+extracted by WaxFlow under SHA-256 pins. Kotlin's implementation ports the
+MIT WaxFlow implementation. No FFmpeg decoder implementation was read or ported.
