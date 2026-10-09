@@ -577,3 +577,40 @@ median on the first file during initial runs. Individual measured samples can
 still include JVM warm-up/deoptimization overhead (one final sample allocated
 1424 bytes; the other 39 allocated zero). The benchmark logs every allocation
 sample. Open, seek, file loading and hashing remain outside the timed loop.
+
+## AIFF / AIFF-C container
+
+The earlier ADPCM commit contained only an IMA4 entry point. `container.aiff.Aiff`
+now reads fixed-unit AIFF/AIFF-C COMM/SSND chunks for NONE/twos/sowt, raw, in24/in32,
+fl32/fl64, alaw/ulaw and ima4. Media3 1.11.1 has no AIFF extractor, as the artifact
+inspection recorded in the ADPCM decision above confirms. The port reuses G.711
+and IMA4 decoders and adds WaxFlow's fixed-width PCM unpacking helper. MP3-in-AIFF
+is outside this requested container subset; no MP3 decoder is introduced.
+
+Input is RandomAccessSource or a ByteBuffer region. Integer sources return a
+borrowed Buffer from `decodeBlock()`; float sources use `decodeFloatBlock()`.
+`info.floating` selects the method. FL64 narrows to float32 exactly as WaxFlow
+requires. Integer precision stays right-justified at the declared valid depth;
+the oracle's WAV serializer rounds its storage width up to whole bytes. Seeking
+is arithmetic for PCM/G.711 and replay-based for IMA4 predictor continuity.
+
+Nine existing pinned WaxFlow AIFF files plus twelve original CC0 generated files
+cover the requested types, non-byte-aligned PCM, mixed-case FourCC, alignment
+offsets, odd-sized chunks and partial final decode blocks. Generate the additions
+with `scripts/waxflow-aiff-corpus.py`; sources and SHA-256 are in the manifest.
+No audio is committed and all old fixture rows remain unchanged.
+
+| Refusal reason | File under `waxflow-aiff-tests/generated/` |
+|---|---|
+| Nine channels (maximum eight) | `refused-channels.aifc` |
+| Unsupported MAC3 compression | `refused-mace.aifc` |
+| Unknown compression `zzzz` | `refused-unknown.aifc` |
+
+All 18 successful files must match Go's PCM hash exactly; the three refusals
+compare complete oracle messages. Sixty-three parameterized checks cover PCM,
+buffer reuse, exact sample seeks, partial reads and direct-buffer regions.
+
+Validation: **755 full-module tests, zero failures/errors/skips**;
+`assembleDevDebug` passed. Per-file median laptop RTF is **0.000138–0.009435**,
+with **zero median decode-loop allocation bytes for every file**. See
+`benchmarks/aiff.tsv`. Open, seek, file loading and hashing are excluded.

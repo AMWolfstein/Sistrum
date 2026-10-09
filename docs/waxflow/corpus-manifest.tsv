@@ -272,3 +272,15 @@ waxflow-wmavoice-tests/refused/channels-2.wma	python3 scripts/waxflow-wmavoice-c
 waxflow-wmavoice-tests/refused/delta-pitch-7000.wma	python3 scripts/waxflow-wmavoice-corpus.py {src} {corpus}	MIT (header mutation of WaxFlow synthetic test vector)	4e6be1ae32bc1f55a261cf4799afa903eb3fbd6a04bb1435bf2d8808031a2c1c
 waxflow-wmavoice-tests/refused/denoise-12.wma	python3 scripts/waxflow-wmavoice-corpus.py {src} {corpus}	MIT (header mutation of WaxFlow synthetic test vector)	f0e7f68eb73e72a51c4a06ef2e522ab8fddea27078d2e9164f9324c81257ef4c
 waxflow-wmavoice-tests/refused/rate-24000.wma	python3 scripts/waxflow-wmavoice-corpus.py {src} {corpus}	MIT (header mutation of WaxFlow synthetic test vector)	10b05b14ad244f2be604a16998fb2a9a75a00d311a9f274a16d63de22b1524f3
+waxflow-aiff-tests/generated/FL32-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	c1bcbe88332b6fff674d85a52d21427f454c642c06f03b30ef9b630d109d70c1
+waxflow-aiff-tests/generated/alaw-stereo.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	16dbac0b6ac2a2d1a90ade27b8e574b8c4791110de052a621745b5d5c50ac7fb
+waxflow-aiff-tests/generated/fl64-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	f2e26af091a8b1161801dbbd29ab2eebc1c9f4303beadee4b61395574317cd6a
+waxflow-aiff-tests/generated/in24-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	47bfddda1f44407a565c9714aa9eb744b900025fa25fedbdc0a24c876ffcc7ed
+waxflow-aiff-tests/generated/in32-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	84c022d7160eb06f61d980fdc6e8f9824e17a9f812ff8f6ca802ed6ef8222792
+waxflow-aiff-tests/generated/raw-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	c3a66c79043d7cf717cafb42446c8e7b1a01ff65ba0e890e46cd3116f89809dc
+waxflow-aiff-tests/generated/refused-channels.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	61c1fad7b7c310c9f49c6c4a1fd31c6da5dd3787ca4de94a3275c4c77df30a67
+waxflow-aiff-tests/generated/refused-mace.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	2d0fb6e1e4a2db133aadd9c87dd01f8f52abaf69845c6af8cedde4d59a8135c2
+waxflow-aiff-tests/generated/refused-unknown.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	604790c5bfc8cb89914483d0baacb42f257bab926f589e2fe0f0d26145393470
+waxflow-aiff-tests/generated/sowt-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	4307592858fdcba0f997afe5be76cd2239dc7e4a819da644223f2071aef9a319
+waxflow-aiff-tests/generated/twos-offset-tail.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	39842f6d070419e688b9bdef200349fd57575f5360ae39c1968eff5d4f12bcc0
+waxflow-aiff-tests/generated/ulaw-stereo.aifc	python3 scripts/waxflow-aiff-corpus.py {corpus}	CC0-1.0	606302de6152bb81c9c38df83fe453962fd1bfa8835da412b2db963a00c25b95
