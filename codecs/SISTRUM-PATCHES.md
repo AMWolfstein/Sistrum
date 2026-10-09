@@ -124,3 +124,19 @@ records JVM port deviations within the authorized Sistrum file scope.
 - Parameter arrays are copied from WaxFlow's LGPL-2.1-or-later FFmpeg-derived
   data artifacts; THIRD-PARTY-NOTICES includes their provenance and LGPL text.
   No FFmpeg implementation source was used, and no fork fix was needed.
+
+## WMA Lossless
+
+- Ported integer Golomb, CDLMS/MCLMS, AC filtering, lifting, padding, raw PCM,
+  tiling, skip and carry logic from `codec/wmalossless` at the same pin. Filter
+  sums and updates remain wrapping 32-bit integers, including unsigned Golomb
+  averages. No FFmpeg code or parameter tables are involved in this codec.
+- Go's callback frame loop becomes `acceptPacket` / `nextFrame` / `finish`, with
+  two bounded 1 MiB compressed carries and one reused interleaved PCM frame.
+  This avoids accumulating a whole packet's potentially 1024 output frames.
+  Packet sequence, restart, incomplete-carry recovery and latched error rules
+  remain; ASF source ownership and replay-based exact seeking match the v1/v2 API.
+- Tiling counts, filter orders, planar reconstruction and maximum-sized filter
+  histories are allocated at open, replacing Go's per-frame slices/grow calls.
+  Only active spans are cleared at seekable filter definitions. No signal-path
+  optimizations or arithmetic changes are made.

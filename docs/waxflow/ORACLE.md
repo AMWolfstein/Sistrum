@@ -360,3 +360,14 @@ refused by Go. The manifest records their generator, MIT license and SHA-256.
 Regeneration at unchanged `b7857af` yields **243 rows: 171 decoded, 72 refused**.
 All prior 236 rows remain identical. Kotlin refusal coverage uses the exact new
 oracle reasons rather than hand-written expected errors.
+
+## WMA Lossless corpus (2026-10-09)
+
+Six MIT vectors are copied from the exact pinned fork's
+`codec/wmalossless/testdata/corpus/`, preserving their source-relative paths
+under `waxflow-wmalossless-tests/`. Their manifest URLs fetch the original bytes;
+these synthetic Windows Media Foundation encodings must not be regenerated with
+new GUIDs. Three header-only refusals come from the committed
+`scripts/waxflow-wmalossless-corpus.py`. Reconstruction knows that generator and
+checks every hash. The unchanged Go pin generates **252 rows: 177 decoded,
+75 refused**. All 243 previous rows remain unchanged.
