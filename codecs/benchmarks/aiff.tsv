@@ -1,0 +1,24 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-aiff-tests/generated/FL32-offset-tail.aifc	ok	0.104229	0.000605	0.005806	0
+waxflow-aiff-tests/generated/alaw-stereo.aifc	ok	0.104229	0.000650	0.006237	0
+waxflow-aiff-tests/generated/fl64-offset-tail.aifc	ok	0.104229	0.000520	0.004993	0
+waxflow-aiff-tests/generated/in24-offset-tail.aifc	ok	0.104229	0.000983	0.009435	0
+waxflow-aiff-tests/generated/in32-offset-tail.aifc	ok	0.104229	0.000542	0.005196	0
+waxflow-aiff-tests/generated/raw-offset-tail.aifc	ok	0.104229	0.000102	0.000979	0
+waxflow-aiff-tests/generated/refused-channels.aifc	refused: waxflow: aiff: 9 channels (supported: 1..8)				
+waxflow-aiff-tests/generated/refused-mace.aifc	refused: waxflow: aiff: this build does not read MAC3 (compression type "MAC3") from an AIFF-C				
+waxflow-aiff-tests/generated/refused-unknown.aifc	refused: waxflow: aiff: this build does not read compression type "zzzz" from an AIFF-C				
+waxflow-aiff-tests/generated/sowt-offset-tail.aifc	ok	0.104229	0.000392	0.003765	0
+waxflow-aiff-tests/generated/twos-offset-tail.aifc	ok	0.104229	0.000355	0.003409	0
+waxflow-aiff-tests/generated/ulaw-stereo.aifc	ok	0.104229	0.000195	0.001868	0
+waxflow-testdata/sine-alaw.aifc	ok	1.000000	0.000138	0.000138	0
+waxflow-testdata/sine-f32.aiff	ok	0.050000	0.000241	0.004818	0
+waxflow-testdata/sine-ima4-stereo.aifc	ok	0.251066	0.001273	0.005072	0
+waxflow-testdata/sine-ima4.aifc	ok	1.000000	0.000972	0.000972	0
+waxflow-testdata/sine-s16.aiff	ok	0.050000	0.000243	0.004863	0
+waxflow-testdata/sine-s24.aiff	ok	0.050000	0.000311	0.006217	0
+waxflow-testdata/sine-s8.aiff	ok	0.050000	0.000066	0.001319	0
+waxflow-testdata/sine-sowt.aiff	ok	0.050000	0.000215	0.004293	0
+waxflow-testdata/sine-ulaw.aifc	ok	1.000000	0.000247	0.000247	0

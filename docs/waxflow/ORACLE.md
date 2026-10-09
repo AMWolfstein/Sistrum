@@ -392,3 +392,14 @@ Windows file GUIDs. Four deterministic header-only mutations from
 postfilter-table refusals. Sources, licenses and SHA-256 are in the manifest.
 The unchanged Go pin generates **273 rows: 193 decoded, 80 refused**; all 261
 previous rows remain identical. Existing ALAC packet-dump hashes are unchanged.
+
+## AIFF container coverage (2026-10-10)
+
+`scripts/waxflow-aiff-corpus.py` generates twelve original CC0 AIFF-C files with
+integer-defined synthetic signals and exact binary chunk layouts. The manifest
+records this command and every SHA-256. These complement the nine existing AIFF
+files from the original pinned testdata. Cases include sowt, FL32/fl64, in24/in32,
+raw, 20-bit twos, G.711, odd chunks and alignment offsets. Three generated files
+are refused for MAC3, unknown compression and nine channels. The unchanged Go
+pin produces **285 rows: 202 decoded, 83 refused**, with every preceding row
+unchanged. All 21 AIFF files are covered by Kotlin parity, source and seek tests.

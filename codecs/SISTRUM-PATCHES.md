@@ -181,3 +181,20 @@ records JVM port deviations within the authorized Sistrum file scope.
   WaxFlow's extraction. THIRD-PARTY-NOTICES records the data-only origins.
   No FFmpeg decoder source was read. All successful corpus PCM hashes match Go
   bit-for-bit, without a lossy tolerance or fork fix.
+
+## AIFF container completion
+
+- Extend the earlier IMA4-only AIFF-C entry point with pinned WaxFlow's fixed-unit
+  AIFF/AIFF-C COMM and SSND parsing for PCM, float and G.711. Retain the existing
+  Ima4 API as a facade over the shared parser. MP3's frame-walking branch is
+  outside the requested subset and is not ported.
+- Reuse the ADPCM BlockStream and G.711 decoder. Port the needed signed/unsigned
+  integer and float unpacking from codec/pcm; channel permutation and encoder
+  APIs are not needed here. Scratch and output are allocated at construction.
+- Return interleaved integer or float buffers through separate typed decode
+  methods, selected by stream info. Preserve FL64-to-float32 narrowing and valid
+  integer depth. Sample seeks restore IMA4 history by replay and seek directly
+  for independent PCM/G.711 frames. No WaxFlow arithmetic fix is applied.
+- Tests serialize non-byte-aligned integers using the Go oracle's WAV packing:
+  valid bits are left-justified in whole-byte output words before hashing.
+  This changes neither the expected hash nor the decoder's right-justified PCM.
