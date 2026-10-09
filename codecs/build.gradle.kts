@@ -166,3 +166,15 @@ tasks.register<JavaExec>("benchmarkWmaPro") {
     args(layout.buildDirectory.file("reports/wmapro-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }
+
+tasks.register<JavaExec>("benchmarkWmaVoice") {
+    group = "verification"
+    description = "Measure ASF/WMA Voice float PCM decode time and allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.WmaVoiceBenchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/wmavoice-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}

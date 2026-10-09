@@ -1,0 +1,15 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=20; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-11025-10k.wma	ok	3.983401	0.041911	0.010521	0
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-16000-12k.wma	ok	3.982938	0.026773	0.006722	0
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-16000-16k.wma	ok	3.982938	0.023047	0.005786	0
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-22050-20k.wma	ok	3.983356	0.031153	0.007821	0
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-8000-4k.wma	ok	3.982875	0.011722	0.002943	0
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-8000-5k.wma	ok	3.982875	0.011206	0.002814	0
+waxflow-wmavoice-tests/codec/wmavoice/testdata/corpus/voice-8000-8k.wma	ok	3.982875	0.012768	0.003206	0
+waxflow-wmavoice-tests/container/asf/testdata/voice-mono.wma	ok	1.000000	0.008032	0.008032	0
+waxflow-wmavoice-tests/refused/channels-2.wma	refused: waxflow: wma: wmavoice: 2 channels; this format is mono				
+waxflow-wmavoice-tests/refused/delta-pitch-7000.wma	refused: waxflow: wma: wmavoice: sample rate 7000 leaves a delta-pitch half-range of 0, so the per-block pitch field has no width				
+waxflow-wmavoice-tests/refused/denoise-12.wma	refused: waxflow: wma: wmavoice: denoise strength 12 (the table has 12 rows)				
+waxflow-wmavoice-tests/refused/rate-24000.wma	refused: waxflow: wma: wmavoice: sample rate 24000 (this format admits 322 to 22097)				

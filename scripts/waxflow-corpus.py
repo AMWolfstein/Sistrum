@@ -142,7 +142,7 @@ def rebuild():
     for command in generators:
         # Commands are a small explicit allowlist, never shell-evaluated.
         args=shlex.split(command)
-        allowed={'scripts/waxflow-expand-lossless-corpus.py','scripts/waxflow-g711-corpus.py','scripts/waxflow-wma-corpus.py','scripts/waxflow-wmalossless-corpus.py'}
+        allowed={'scripts/waxflow-expand-lossless-corpus.py','scripts/waxflow-g711-corpus.py','scripts/waxflow-wma-corpus.py','scripts/waxflow-wmalossless-corpus.py','scripts/waxflow-wmavoice-corpus.py'}
         if args[1] not in allowed:
             raise ValueError('Unrecognized generator: '+command)
         values={'{src}':str(src),'{corpus}':str(corpus)}

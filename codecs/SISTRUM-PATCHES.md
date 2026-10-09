@@ -158,3 +158,26 @@ records JVM port deviations within the authorized Sistrum file scope.
 - Four table files preserve LGPL-2.1-or-later FFmpeg data provenance through
   WaxFlow's pinned extraction; THIRD-PARTY-NOTICES records them. No FFmpeg decoder
   implementation was read and no fork bug/fix was required.
+
+## WMA Voice
+
+- Ported the pinned `codec/wmavoice` configuration/geometry, variable-bit-mode
+  tree, independent/residual LSPs, LPC synthesis, pitch interpolation, pulse
+  windows, noise, gains and postfilter. Source arithmetic, sample-count trims,
+  spillover, drain and error recovery are retained. PCM is mono float32.
+- The source's callback loop becomes `acceptPacket` / `nextFrame` / `finish`.
+  This permits escaped superframe counts without accumulating unbounded PCM.
+  A borrowed packet remains live until consumed; carry/join storage is allocated
+  for one/two block-aligned packets at open. Output is one reused 480-frame buffer.
+- Go stack scratch (LSP indices, window masks and DCT/DST vectors) is held on the
+  decoder. Tuple gain returns become two fields. Diagnostic path counters are
+  omitted. Transform tables/plans are per decoder rather than global once values.
+  Constant-folded Go expressions retain their final rounded double values.
+- The existing ASF demuxer supplies RandomAccessSource/ByteBuffer streaming.
+  Sample seeking replays from the beginning, preserving predictive/noise/filter
+  state exactly; declared ASF length remains advisory. Voice 10 and mixed WMA
+  Pro speech/music payloads remain named refusals, as in the pinned source.
+- Five parameter-table files retain LGPL-2.1-or-later provenance through
+  WaxFlow's extraction. THIRD-PARTY-NOTICES records the data-only origins.
+  No FFmpeg decoder source was read. All successful corpus PCM hashes match Go
+  bit-for-bit, without a lossy tolerance or fork fix.

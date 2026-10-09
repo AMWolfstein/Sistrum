@@ -540,3 +540,40 @@ Validation: **649 full-module tests, zero failures/errors/skips**;
 four contracts. Per-file median JVM RTF is **0.004093–0.043831**; every decoded
 file has **0 median decode-loop allocation bytes**. See `benchmarks/wmapro.tsv`.
 Open, seek, file loading and hashing are excluded from these loop measurements.
+
+## WMA Voice
+
+Media3 1.11.1 supplies neither the ASF extractor nor a bundled pure-JVM WMA
+Voice decoder, using the same artifact inspection and official-format evidence
+recorded above. This port adds `codec.wmavoice` and reuses ASF through
+`container.asf.WmaVoice.open(RandomAccessSource/ByteBuffer)`. Output is a reused
+interleaved mono float32 buffer. Seeking replays from the beginning for exact
+predictor, comfort-noise and postfilter state; ASF total samples remain advisory.
+
+Eight original MIT synthetic files come from the pinned
+[codec/wmavoice/testdata/corpus](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/codec/wmavoice/testdata/corpus)
+and `container/asf/testdata/voice-mono.wma`. They cover all seven Windows encoder
+formats, spanning 8/11.025/16/22.05 kHz and 4–20 kb/s. The manifest fetches exact
+original bytes rather than re-encoding nondeterministic file GUIDs. Four
+header-only MIT mutations are reproducible with `scripts/waxflow-wmavoice-corpus.py`.
+
+| Refusal reason | File under `waxflow-wmavoice-tests/refused/` |
+|---|---|
+| Two channels; Voice is mono | `channels-2.wma` |
+| Rate outside 322–22097 Hz | `rate-24000.wma` |
+| Delta-pitch field has no width at 7000 Hz | `delta-pitch-7000.wma` |
+| Denoise strength 12 exceeds the table | `denoise-12.wma` |
+
+Tests compare complete oracle errors. Voice 10 (tag 0x000B), invalid trees and
+mixed WMA Pro payloads retain the source's named refusals. The eight decoded
+files are bit-exact to the Go PCM hashes; no lossy tolerance is applied.
+
+Validation: **692 full-module tests, zero failures/errors/skips**, including 36
+Voice corpus/seek/source checks and seven contract tests; `assembleDevDebug`
+passed. Per-file median JVM RTF is **0.002814–0.010521**, with **0 median allocated
+bytes per full decode on every file**. See `benchmarks/wmavoice.tsv`. Voice uses
+20 warm-up decodes and five measured decodes: five warm-ups left a 416-byte
+median on the first file during initial runs. Individual measured samples can
+still include JVM warm-up/deoptimization overhead (one final sample allocated
+1424 bytes; the other 39 allocated zero). The benchmark logs every allocation
+sample. Open, seek, file loading and hashing remain outside the timed loop.

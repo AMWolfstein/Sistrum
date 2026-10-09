@@ -380,3 +380,15 @@ Nine original MIT vectors from pinned `codec/wmapro/testdata/corpus/` and
 refused. No Windows re-encoding is used; the original file hashes are retained.
 At unchanged `b7857af`, the fixture inventory is **261 rows: 185 decoded,
 76 refused**. All previous 252 rows are unchanged.
+
+## WMA Voice corpus (2026-10-09)
+
+Eight original MIT synthetic vectors from pinned `codec/wmavoice/testdata/corpus/`
+and `container/asf/testdata/voice-mono.wma` are fetched by immutable URLs under
+`waxflow-wmavoice-tests/`. They cover all seven Windows encoder formats (8,
+11.025, 16 and 22.05 kHz). The original encoded bytes are used, not regenerated
+Windows file GUIDs. Four deterministic header-only mutations from
+`scripts/waxflow-wmavoice-corpus.py` cover named channel, rate, delta-pitch and
+postfilter-table refusals. Sources, licenses and SHA-256 are in the manifest.
+The unchanged Go pin generates **273 rows: 193 decoded, 80 refused**; all 261
+previous rows remain identical. Existing ALAC packet-dump hashes are unchanged.
