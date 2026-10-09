@@ -386,3 +386,19 @@ by James Random Hacker.
 signature of Ty Coon, 1 April 1990
 Ty Coon, President of Vice
 That's all there is to it!
+
+
+WMA Pro parameter tables — FFmpeg (LGPL-2.1-or-later), via WaxFlow
+================================================================
+Source: FFmpeg n9.0, https://github.com/FFmpeg/FFmpeg,
+commit d32b387f2b0a484599d4587d651891f0c63c4238, libavcodec/wmaprodata.h.
+WaxFlow extraction at b7857aff88820ad37936026421d1641e64611dbe:
+codec/wmapro/tables_bands.go, tables_scale.go, tables_coef.go, tables_decorr.go.
+Kotlin files: codec/wmapro/TablesBands.kt, TablesScale.kt, TablesCoef.kt,
+TablesDecorr.kt. The LGPL-2.1 license text above also applies to these tables.
+
+The data-only artifacts contain scale-factor and coefficient codebooks,
+vector books, run/level values, default decorrelation matrices and critical
+band edges. WaxFlow's extraction is SHA-256-pinned and contains no decoder
+logic. Kotlin's implementation is a port of the MIT WaxFlow implementation;
+no FFmpeg implementation source was read or ported.

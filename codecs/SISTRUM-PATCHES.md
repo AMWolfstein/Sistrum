@@ -140,3 +140,21 @@ records JVM port deviations within the authorized Sistrum file scope.
   histories are allocated at open, replacing Go's per-frame slices/grow calls.
   Only active spans are cleared at seekable filter definitions. No signal-path
   optimizations or arithmetic changes are made.
+
+## WMA Pro
+
+- Ported the pinned `codec/wmapro` configuration, bit reader, band resampling,
+  canonical Huffman books, vectors/run-level coefficients, scale factors,
+  channel groups/matrices, IMDCT, overlap and packet continuation state.
+  Float arithmetic and Go's long-frame retry/rollback behavior are preserved.
+- The frame callback API uses a bounded reused interleaved output buffer in the
+  ASF wrapper. Its capacity is the source's 256-frames-per-packet cap plus one
+  carried frame; encoded input still streams through RandomAccessSource. Exact
+  seeking replays from the beginning. ASF declared duration remains advisory.
+- Tiling/group scratch arrays, vector magnitudes, compressed carry and long-frame
+  rollback storage are preallocated at open. Go's diagnostic path counters are
+  omitted; signal state and buffer rollback are retained. Transform plans are
+  per decoder instead of a global mutex cache. No signal arithmetic is optimized.
+- Four table files preserve LGPL-2.1-or-later FFmpeg data provenance through
+  WaxFlow's pinned extraction; THIRD-PARTY-NOTICES records them. No FFmpeg decoder
+  implementation was read and no fork bug/fix was required.

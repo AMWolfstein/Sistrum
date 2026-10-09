@@ -1,0 +1,12 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-32000-2ch-16-32k.wma	refused: waxflow: wma: wmapro: the stream sets the low-bit-rate tool (extra word 0x20c6); no decoder outside Windows implements it				
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-44100-2ch-16-128k-tonal.wma	ok	2.255964	0.020127	0.008922	0
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-44100-2ch-16-128k.wma	ok	1.486077	0.027427	0.018456	0
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-44100-6ch-16-128k-long.wma	ok	0.371519	0.007345	0.019771	0
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-44100-6ch-16-128k.wma	ok	1.486077	0.065136	0.043831	0
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-48000-6ch-24-384k.wma	ok	1.365333	0.022343	0.016365	0
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-48000-8ch-16-128k.wma	ok	1.365333	0.011969	0.008766	0
+waxflow-wmapro-tests/codec/wmapro/testdata/corpus/pro-96000-2ch-24-384k.wma	ok	1.365333	0.014881	0.010899	0
+waxflow-wmapro-tests/container/asf/testdata/pro-s16.wma	ok	0.371519	0.001521	0.004093	0
