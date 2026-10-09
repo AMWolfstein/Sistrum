@@ -507,3 +507,36 @@ passed. All six decoded streams are bit-exact. The JVM benchmark's per-file
 median RTF is **0.019267–0.054744**; every file's median decode-loop allocation
 is **0 bytes**. Results are in `benchmarks/wmalossless.tsv`; timing excludes open,
 seek, file loading and PCM hashing.
+
+## WMA Pro
+
+The Media3 1.11.1 ASF/decoder decision above applies to WMA Pro as well: the
+module supplies the missing pure-Kotlin decoder and reuses the ASF container.
+`container.asf.WmaPro.open(RandomAccessSource/ByteBuffer)` returns reused
+interleaved float32 blocks and advisory stream length, with exact replay-based
+sample seeking. The bounded packet output queue has capacity for the Go parser's
+256-frame limit plus a carried frame; no packet-dependent arrays are allocated
+in the decode loop. Long-frame speculative decoding saves and restores overlap
+state using preallocated storage.
+
+The nine original MIT files come from the pinned
+[codec/wmapro/testdata/corpus](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/codec/wmapro/testdata/corpus)
+and `container/asf/testdata/pro-s16.wma`. These are WaxFlow-generated synthetic
+signals encoded with Windows Media Foundation. The manifest fetches the exact
+compressed bytes, preserving their file GUIDs. Coverage includes 16/24-bit,
+stereo/5.1/7.1, 96 kHz, tonal band transforms, end trim and frames longer than a
+packet. The parameter-table license is LGPL-2.1-or-later via WaxFlow's documented
+extraction; implementation provenance is MIT WaxFlow.
+
+| Refusal reason | File |
+|---|---|
+| Low-bit-rate tool, extra word `0x20c6` | `codec/wmapro/testdata/corpus/pro-32000-2ch-16-32k.wma` |
+
+The path is relative to external `waxflow-wmapro-tests/`. All eight other files
+must match the oracle's float PCM hash exactly; no tolerance is applied.
+
+Validation: **649 full-module tests, zero failures/errors/skips**;
+`assembleDevDebug` passed. WMA Pro contributes 27 corpus/seek/source checks and
+four contracts. Per-file median JVM RTF is **0.004093–0.043831**; every decoded
+file has **0 median decode-loop allocation bytes**. See `benchmarks/wmapro.tsv`.
+Open, seek, file loading and hashing are excluded from these loop measurements.

@@ -371,3 +371,12 @@ new GUIDs. Three header-only refusals come from the committed
 `scripts/waxflow-wmalossless-corpus.py`. Reconstruction knows that generator and
 checks every hash. The unchanged Go pin generates **252 rows: 177 decoded,
 75 refused**. All 243 previous rows remain unchanged.
+
+## WMA Pro corpus (2026-10-09)
+
+Nine original MIT vectors from pinned `codec/wmapro/testdata/corpus/` and
+`container/asf/testdata/pro-s16.wma` are fetched by exact commit URL under
+`waxflow-wmapro-tests/`. Eight decode and the 32 kHz low-bit-rate-tool file is
+refused. No Windows re-encoding is used; the original file hashes are retained.
+At unchanged `b7857af`, the fixture inventory is **261 rows: 185 decoded,
+76 refused**. All previous 252 rows are unchanged.
