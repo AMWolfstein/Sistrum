@@ -1,0 +1,12 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-wmalossless-tests/codec/wmalossless/testdata/corpus/ll-44100-2ch-16-dup.wma	ok	0.371519	0.008968	0.024138	0
+waxflow-wmalossless-tests/codec/wmalossless/testdata/corpus/ll-44100-2ch-16-skip.wma	ok	0.340136	0.013565	0.039881	0
+waxflow-wmalossless-tests/codec/wmalossless/testdata/corpus/ll-44100-2ch-16.wma	ok	0.371519	0.007158	0.019267	0
+waxflow-wmalossless-tests/codec/wmalossless/testdata/corpus/ll-44100-2ch-24-pad.wma	ok	0.371519	0.010980	0.029554	0
+waxflow-wmalossless-tests/codec/wmalossless/testdata/corpus/ll-44100-2ch-24.wma	ok	0.371519	0.011757	0.031645	0
+waxflow-wmalossless-tests/codec/wmalossless/testdata/corpus/ll-48000-6ch-24.wma	ok	0.170667	0.009343	0.054744	0
+waxflow-wmalossless-tests/refused/channels-9.wma	refused: waxflow: wma: wmalossless: 9 channels (this build decodes up to 8)				
+waxflow-wmalossless-tests/refused/depth-32.wma	refused: waxflow: wma: wmalossless: 32 bits per sample (this build decodes 16 and 24)				
+waxflow-wmalossless-tests/refused/subframe-depth-6.wma	refused: waxflow: wma: wmalossless: subframe depth 6, so 64 subframes a frame				

@@ -141,3 +141,15 @@ tasks.register<JavaExec>("benchmarkWma") {
     args(layout.buildDirectory.file("reports/wma-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }
+
+tasks.register<JavaExec>("benchmarkWmaLossless") {
+    group = "verification"
+    description = "Measure ASF/WMA Lossless integer PCM decode time and allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.WmaLosslessBenchmark")
+    systemProperty("waxflow.corpus", corpus.get())
+    systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/wmalossless-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}

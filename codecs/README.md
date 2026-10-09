@@ -471,3 +471,39 @@ per-file RTF **0.000842–0.062372**, with **0 median allocated bytes per full d
 for every file**. Open/seek/file loading and PCM hashing are excluded from the
 measured loop; bounded source reads are included. Results: `benchmarks/wma.tsv`.
 This laptop measurement is not the phone performance gate.
+
+## WMA Lossless
+
+Media3 1.11.1 has neither the ASF extractor nor a bundled pure-JVM WMA Lossless
+decoder (same artifact and official-format evidence as WMA v1/v2 above). This
+port reuses `container.asf.Demux` and adds `codec.wmalossless` plus
+`container.asf.WmaLossless.open(RandomAccessSource/ByteBuffer)`. Output is reused
+interleaved integer PCM at 16/24-bit depth; stream info includes the channel mask.
+Sample seeking replays from the beginning to restore predictors exactly.
+
+The six MIT files in pinned
+[codec/wmalossless/testdata/corpus](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/codec/wmalossless/testdata/corpus)
+are original synthetic signals encoded by WaxFlow's Windows Media Foundation
+test helper. They cover stereo 16/24-bit, duplicated channels, a trimmed final
+frame, padding zeroes and 24-bit six-channel audio. The original compressed files
+are fetched, not re-encoded: Microsoft's encoder writes a new file GUID on each
+run. Three header-only mutations are reproduced by
+`scripts/waxflow-wmalossless-corpus.py` for exact named refusals. All source URLs,
+licenses and compressed hashes are recorded in the manifest.
+
+| Refusal reason | File under `waxflow-wmalossless-tests/refused/` |
+|---|---|
+| More than eight channels | `channels-9.wma` |
+| Unsupported 32-bit depth | `depth-32.wma` |
+| Subframe depth six (64 subframes) | `subframe-depth-6.wma` |
+
+Other source-level refusals, including arithmetic coding, LPC, transmitted
+CDLMS coefficients and differently tiled channels, remain named in the port.
+No new support is inferred for those shapes. No WaxFlow bug/fork fix was needed.
+
+Validation: **618 full-module tests, zero failures/errors/skips**, including
+27 Lossless corpus/seek/source checks and six contract tests; `assembleDevDebug`
+passed. All six decoded streams are bit-exact. The JVM benchmark's per-file
+median RTF is **0.019267–0.054744**; every file's median decode-loop allocation
+is **0 bytes**. Results are in `benchmarks/wmalossless.tsv`; timing excludes open,
+seek, file loading and PCM hashing.
