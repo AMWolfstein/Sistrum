@@ -417,3 +417,57 @@ No production decoder changes were needed.
 
 The expanded per-file measurements replace `benchmarks/ape.tsv` and
 `benchmarks/alac.tsv`; the earlier measurements remain in git history.
+
+## ASF + WMA v1/v2
+
+**Media3 decision (1.11.1): port both container and codec.** The resolved
+`media3-extractor-1.11.1.aar` classes contain no ASF or WMA extractor; the
+[official progressive-container table](https://developer.android.com/media/media3/exoplayer/supported-formats#progressive-container-formats)
+does not list ASF. Media3's
+[sample-format documentation](https://developer.android.com/media/media3/exoplayer/supported-formats#sample-formats)
+uses platform decoders plus optional native extensions; it supplies no pure-JVM
+WMA decoder. A device-specific MediaCodec implementation does not provide the
+missing ASF extractor. The WMA family therefore needs both layers here.
+
+`container.asf.Wma.open(RandomAccessSource)` (or a ByteBuffer region) exposes
+stream information and reused interleaved float32 PCM through `decodeBlock()`.
+`seekSample(n)` replays from the start, preserving the noise and overlap history
+for bit-exact sample seeking, including backward seeks. It is linear in the
+seek distance. ASF duration is advisory (`samplesExact=false`); EOF/drain decides
+the emitted frame count. The source is not loaded whole or closed by the stream.
+Metadata/chapter APIs and native ASF index seeking are outside this audio API.
+
+Corpus: the original `sine-s16.wma`, five MIT vectors from pinned
+[container/asf/testdata](https://github.com/AMWolfstein/WaxFlow/tree/b7857aff88820ad37936026421d1641e64611dbe/container/asf/testdata),
+and 24 CC0 generated WMA v1/v2 files at 8/16/22.05/32/44.1/48 kHz, mono/stereo.
+`scripts/waxflow-wma-corpus.py` uses FFmpeg n9.0.2 only as a black-box encoder.
+It also generates seven header-only mutations of MIT vectors for named refusals.
+All audio stays outside the repo, listed and hashed in the corpus manifest.
+
+The parameter tables retain WaxFlow's explicitly recorded LGPL-2.1-or-later
+FFmpeg provenance. The ASF/WMA and radix-4/2 FFT implementation is ported from
+MIT WaxFlow at `b7857af`; the full notices ship in the module jar. See
+`SISTRUM-PATCHES.md` for buffer/API adaptations.
+
+| Refusal reason | Files |
+|---|---|
+| More than two channels | `refused/channels-3.wma` |
+| Sample rate above 50,000 Hz | `refused/rate-96000.wma` |
+| WMA v1 variable block lengths | `refused/v1-variable-blocks.wma` |
+| Stereo WMA v1 with bit reservoir | `refused/v1-stereo-reservoir.wma` |
+| Encrypted stream (DRM) | `refused/encrypted-stream.wma` |
+| PCM inside ASF | `refused/pcm-tag.wma` |
+| Variable packet sizes | `refused/variable-packet-size.wma` |
+
+Paths are relative to external `waxflow-wma-tests/`. Each refusal test compares
+the complete oracle error, including source annotations. Every decoded file is
+checked against its float PCM SHA-256; no RMS/max-error tolerance is needed.
+
+Validation on this laptop: **585 full-module tests, zero failures/errors/skips**;
+`assembleDevDebug` passed. WMA contributes 111 parameterized checks (37 files ×
+PCM/refusal, exact seek, partial/direct source) and four decoder contract tests.
+All 30 successful files are bit-exact. `:codecs:benchmarkWma` measured median
+per-file RTF **0.000842–0.062372**, with **0 median allocated bytes per full decode
+for every file**. Open/seek/file loading and PCM hashing are excluded from the
+measured loop; bounded source reads are included. Results: `benchmarks/wma.tsv`.
+This laptop measurement is not the phone performance gate.

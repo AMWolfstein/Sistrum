@@ -349,3 +349,14 @@ including WavPack, APE, ALAC, Musepack, ADPCM/G.711, AIFF and source contracts.
 `:androidApp:assembleDevDebug` passed. Missing-corpus and modified-byte negative
 checks both failed with the rebuild instruction. Repeating reconstruction
 verified all 236 corpus hashes and all eight committed ALAC dump hashes.
+
+## ASF/WMA v1/v2 refusal coverage (2026-10-09)
+
+`scripts/waxflow-wma-corpus.py` additionally makes seven deterministic header-only
+mutations of the pinned MIT ASF vectors. Their packet audio is unchanged; the
+headers request unsupported channel count, rate, v1 variable blocks, v1 stereo
+reservoir, stream encryption, PCM tag, or variable packet sizes. All seven are
+refused by Go. The manifest records their generator, MIT license and SHA-256.
+Regeneration at unchanged `b7857af` yields **243 rows: 171 decoded, 72 refused**.
+All prior 236 rows remain identical. Kotlin refusal coverage uses the exact new
+oracle reasons rather than hand-written expected errors.

@@ -1,0 +1,40 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+waxflow-testdata/sine-s16.wma	ok	0.510839	0.006345	0.012420	0
+waxflow-wma-tests/container/asf/testdata/chapters.wma	ok	2.048000	0.002602	0.001271	0
+waxflow-wma-tests/container/asf/testdata/frag.wma	ok	0.510839	0.003618	0.007083	0
+waxflow-wma-tests/container/asf/testdata/sine-wmav1.wma	ok	0.510839	0.004635	0.009072	0
+waxflow-wma-tests/container/asf/testdata/sine-wmav2.wma	ok	2.043356	0.029172	0.014276	0
+waxflow-wma-tests/container/asf/testdata/tagged.wma	ok	0.278639	0.005076	0.018218	0
+waxflow-wma-tests/generated/v1-16000-1ch.wma	ok	0.352000	0.001664	0.004727	0
+waxflow-wma-tests/generated/v1-16000-2ch.wma	ok	0.352000	0.004357	0.012377	0
+waxflow-wma-tests/generated/v1-22050-1ch.wma	ok	0.371519	0.002610	0.007025	0
+waxflow-wma-tests/generated/v1-22050-2ch.wma	ok	0.371519	0.004358	0.011729	0
+waxflow-wma-tests/generated/v1-32000-1ch.wma	ok	0.352000	0.009111	0.025883	0
+waxflow-wma-tests/generated/v1-32000-2ch.wma	ok	0.352000	0.021955	0.062372	0
+waxflow-wma-tests/generated/v1-44100-1ch.wma	ok	0.371519	0.004473	0.012039	0
+waxflow-wma-tests/generated/v1-44100-2ch.wma	ok	0.371519	0.005939	0.015984	0
+waxflow-wma-tests/generated/v1-48000-1ch.wma	ok	0.341333	0.002656	0.007781	0
+waxflow-wma-tests/generated/v1-48000-2ch.wma	ok	0.341333	0.003278	0.009603	0
+waxflow-wma-tests/generated/v1-8000-1ch.wma	ok	0.384000	0.000663	0.001727	0
+waxflow-wma-tests/generated/v1-8000-2ch.wma	ok	0.384000	0.000675	0.001757	0
+waxflow-wma-tests/generated/v2-16000-1ch.wma	ok	0.352000	0.000426	0.001211	0
+waxflow-wma-tests/generated/v2-16000-2ch.wma	ok	0.352000	0.001022	0.002904	0
+waxflow-wma-tests/generated/v2-22050-1ch.wma	ok	0.371519	0.002982	0.008026	0
+waxflow-wma-tests/generated/v2-22050-2ch.wma	ok	0.371519	0.006138	0.016521	0
+waxflow-wma-tests/generated/v2-32000-1ch.wma	ok	0.384000	0.000671	0.001747	0
+waxflow-wma-tests/generated/v2-32000-2ch.wma	ok	0.384000	0.001585	0.004126	0
+waxflow-wma-tests/generated/v2-44100-1ch.wma	ok	0.371519	0.000595	0.001602	0
+waxflow-wma-tests/generated/v2-44100-2ch.wma	ok	0.371519	0.001611	0.004336	0
+waxflow-wma-tests/generated/v2-48000-1ch.wma	ok	0.341333	0.000760	0.002227	0
+waxflow-wma-tests/generated/v2-48000-2ch.wma	ok	0.341333	0.001892	0.005543	0
+waxflow-wma-tests/generated/v2-8000-1ch.wma	ok	0.384000	0.000323	0.000842	0
+waxflow-wma-tests/generated/v2-8000-2ch.wma	ok	0.384000	0.000710	0.001849	0
+waxflow-wma-tests/refused/channels-3.wma	refused: waxflow: wma: wma: 3 channels: Windows Media Audio 1 and 2 are mono or stereo				
+waxflow-wma-tests/refused/encrypted-stream.wma	refused: waxflow: wma: Windows Media Audio 2 stream 1 is encrypted (DRM), which this build cannot read				
+waxflow-wma-tests/refused/pcm-tag.wma	refused: waxflow: wma: this build does not read PCM (audio format 0x0001) from an ASF				
+waxflow-wma-tests/refused/rate-96000.wma	refused: waxflow: wma: wma: sample rate 96000 above the 50000 Hz this decoder covers				
+waxflow-wma-tests/refused/v1-stereo-reservoir.wma	refused: waxflow: wma: wma: stereo Windows Media Audio 1 with a bit reservoir: its per-channel byte alignment has no defined meaning once a frame can move				
+waxflow-wma-tests/refused/v1-variable-blocks.wma	refused: waxflow: wma: wma: Windows Media Audio 1 with variable block lengths: no encoder writes it and no layout is defined for it				
+waxflow-wma-tests/refused/variable-packet-size.wma	refused: waxflow: wma: variable-size data packets (3200 to 3201 bytes) are not a file this build reads				
