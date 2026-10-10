@@ -59,13 +59,14 @@ internal class WordCoder {
             c[0].errorLimit=exp2s(b0); if (!mono) c[1].errorLimit=exp2s(b1)
         }
     }
-    fun getWordsHybrid(bs: BitReader, buf: IntArray, n: Int, flags: Int): Int {
+    fun getWordsHybrid(bs: BitReader, buf: IntArray, n: Int, flags: Int, wvc: BitReader?=null, corrections: IntArray?=null): Int {
         val mono=flags and MONO_DATA != 0
         val total=if (mono) n else n*2
         var i=0
         while (i<total) {
             val channel=if (mono) 0 else i and 1
             val ch=c[channel]
+            if (corrections!=null) corrections[i]=0
             if (c[0].median[0] and -2==0 && !holdingZero && !holdingOne && c[1].median[0] and -2==0) {
                 if (zerosAcc!=0) {
                     zerosAcc--
@@ -103,6 +104,10 @@ internal class WordCoder {
                 }
             }
             val sign=bs.getBit()
+            if (wvc!=null && wvc.open() && ch.errorLimit!=0) {
+                val exact=low+wvc.readCode(high-low)
+                corrections!![i]=if (sign!=0) mid-exact else exact-mid
+            }
             if (flags and 0x200 != 0) { ch.slowLevel-=(ch.slowLevel+128) ushr 8; ch.slowLevel+=wpLog2(mid) }
             buf[i++]=signed(sign,mid)
         }
