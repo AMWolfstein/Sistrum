@@ -138,7 +138,7 @@ def rebuild():
     src=source_clone()
     generators={}
     for r in entries:
-        dst=corpus/r['path'];source=r['source']
+        source=r['source'];dst=(ROOT/'owned/corpus' if source.startswith('python3 ') else corpus)/r['path']
         if dst.is_file() and sha(dst)==r['sha256']:
             continue
         dst.parent.mkdir(parents=True,exist_ok=True)
@@ -160,10 +160,15 @@ def rebuild():
         allowed={'scripts/waxflow-expand-lossless-corpus.py','scripts/waxflow-g711-corpus.py','scripts/waxflow-wma-corpus.py','scripts/waxflow-wmalossless-corpus.py','scripts/waxflow-wmavoice-corpus.py','scripts/waxflow-aiff-corpus.py'}
         if args[1] not in allowed:
             raise ValueError('Unrecognized generator: '+command)
-        values={'{src}':str(src),'{corpus}':str(corpus)}
+        values={'{src}':str(src),'{corpus}':str(ROOT/'owned/corpus')}
         if '{mac}' in args:
             values['{mac}']=str(mac_encoder())
         run(sys.executable,REPO/args[1],*(values[a] for a in args[2:]),cwd=REPO)
+    for r in entries:
+        if r['source'].startswith('python3 '):
+            link=corpus/r['path'];link.parent.mkdir(parents=True,exist_ok=True)
+            if link.exists() or link.is_symlink():link.unlink()
+            link.symlink_to(ROOT/'owned/corpus'/r['path'])
     count=validate(corpus)
     packets=ROOT/'alac-packets'
     env=dict(os.environ,SISTRUM_ORACLE_DIR=str(ROOT),SISTRUM_WAXFLOW_DIR=str(ROOT/'oracle-work'))

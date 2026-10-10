@@ -26,7 +26,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 oracle_root="${SISTRUM_ORACLE_DIR:-$HOME/.cache/sistrum-waxflow-oracle}"
 export SISTRUM_ORACLE_DIR="$oracle_root"
 if [[ "${1:-}" == --fetch-generate || "${1:-}" == --verify ]]; then
-  exec python3 "$repo_root/scripts/waxflow-corpus.py" "$@"
+  exec python3 "$repo_root/scripts/oracle-corpus.py" "$@"
 fi
 corpus="${1:-$oracle_root/corpus}"
 fixtures="${2:-$repo_root/androidApp/src/test/resources/waxflow/oracle-fixtures.tsv}"

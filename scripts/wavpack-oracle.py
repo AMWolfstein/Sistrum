@@ -4,10 +4,11 @@
 """Build pinned upstream tools, generate owned vectors, hash raw wvunpack output."""
 import argparse, csv, hashlib, importlib.util, json, os, pathlib, shutil, struct, subprocess
 REPO = pathlib.Path(__file__).resolve().parents[1]
-ROOT = pathlib.Path.home()/'.cache/sistrum-wavpack-oracle'
+ORACLE_ROOT = pathlib.Path(os.environ.get('SISTRUM_ORACLE_DIR', pathlib.Path.home()/'.cache/sistrum-waxflow-oracle')).expanduser().resolve()
+ROOT = ORACLE_ROOT/'wavpack'
 TAG = '5.8.1'
 PIN = '4827b9889665b937b6ed71b9c6c0123152cd7a02'
-VECTORS = REPO/'codecs/src/test/resources/wavpack/generated'
+VECTORS = ORACLE_ROOT/'owned/wavpack/generated'
 MANIFEST = REPO/'docs/wavpack/corpus-manifest.tsv'
 FIXTURES = REPO/'codecs/src/test/resources/wavpack/libwavpack.tsv'
 def run(*args): subprocess.run([str(x) for x in args], check=True)
@@ -23,14 +24,15 @@ def build():
     return build
 
 def generate(build):
+    if ORACLE_ROOT.is_relative_to(REPO):raise ValueError('Oracle storage must be outside git')
     spec=importlib.util.spec_from_file_location('dsdgen',REPO/'scripts/dsd-oracle/generate.py')
     gen=importlib.util.module_from_spec(spec);spec.loader.exec_module(gen)
-    table=gen.sine_table(); work=ROOT/'signals';work.mkdir(exist_ok=True);VECTORS.mkdir(parents=True,exist_ok=True)
+    table=gen.sine_table(); work=ORACLE_ROOT/'owned/wavpack/signals';work.mkdir(parents=True,exist_ok=True);VECTORS.mkdir(parents=True,exist_ok=True)
     entries=[];inputs={}
     def encode(name,source,options,signal):
         dst=VECTORS/(name+'.wv')
         input_name=''
-        if source.suffix in ['.dsf','.dff']:
+        if source.is_file():
             input_name='inputs/'+source.name
             saved=VECTORS/input_name;saved.parent.mkdir(exist_ok=True);shutil.copyfile(source,saved)
             inputs[input_name]=[input_name,'','python3 scripts/wavpack-oracle.py --generate',signal,'-','CC0-1.0',sha(saved)]
@@ -90,10 +92,11 @@ def generate(build):
             plane.append(seed>>24 if kind=='noise' else 0x55)
         src=work/('owned-dsd-'+kind+'.dff');src.write_bytes(gen.dff(2822400,[plane,plane]))
         encode('dsd-'+kind,src,['--blocksize=511'],'owned LCG bytes' if kind=='noise' else 'owned 0x55 DSD silence')
-    if sum(p.stat().st_size for p in VECTORS.rglob('*') if p.is_file())>=5_000_000: raise ValueError('Owned vectors exceed 5 MB: use test-time generation')
     MANIFEST.parent.mkdir(parents=True,exist_ok=True)
-    with MANIFEST.open('w') as f:
-        w=csv.writer(f,delimiter='\t',lineterminator='\n');w.writerow(['path','input_path','generator','signal','encoder_command','license','sha256']);w.writerows(entries+list(inputs.values()))
+    import io
+    f=io.StringIO();w=csv.writer(f,delimiter='\t',lineterminator='\n');w.writerow(['path','input_path','generator','signal','encoder_command','license','sha256']);w.writerows(entries+list(inputs.values()))
+    if a.record_manifest:MANIFEST.write_text(f.getvalue())
+    elif MANIFEST.read_text()!=f.getvalue():raise ValueError('Generated WavPack manifest differs from committed hashes')
 
 def oracle(build):
     external=pathlib.Path(os.environ.get('SISTRUM_ORACLE_DIR',pathlib.Path.home()/'.cache/sistrum-waxflow-oracle'))/'corpus'
@@ -127,11 +130,10 @@ def verify():
     expected={r['path']:r['sha256'] for r in rows}
     actual={str(p.relative_to(VECTORS)):sha(p) for p in VECTORS.rglob('*') if p.is_file()}
     if expected!=actual:raise ValueError('Owned WavPack corpus drift; regenerate with pinned encoder')
-    if sum(p.stat().st_size for p in VECTORS.rglob('*') if p.is_file())>=5_000_000:raise ValueError('Owned corpus exceeds 5 MB')
     print('Verified owned WavPack vectors:',len(rows))
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser();ap.add_argument('--generate',action='store_true');ap.add_argument('--oracle',action='store_true');ap.add_argument('--verify',action='store_true');a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--generate',action='store_true');ap.add_argument('--oracle',action='store_true');ap.add_argument('--verify',action='store_true');ap.add_argument('--record-manifest',action='store_true');a=ap.parse_args()
     if a.verify:verify()
     b=build() if a.generate or a.oracle else None
     if a.generate:generate(b)

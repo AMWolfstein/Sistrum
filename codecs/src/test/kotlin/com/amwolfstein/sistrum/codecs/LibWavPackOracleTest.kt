@@ -17,7 +17,7 @@ internal data class LibWavPackFixture(val fields: Map<String,String>,val source:
     override fun toString()=name+if (correction) " + wvc" else " lossy"
     val info get()=fields.getValue("info").split(';')
     val flags get()=if (source.readBytes().take(4)==listOf(119.toByte(),118.toByte(),112.toByte(),107.toByte())) ByteBuffer.wrap(source.readBytes()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt(24) else 0
-    val correctionSource: File? get()=if (!correction) null else if (name.startsWith("generated/")) File("src/test/resources/wavpack/generated",fields.getValue("correction_file")) else File(System.getProperty("waxflow.corpus"),fields.getValue("correction_file"))
+    val correctionSource: File? get()=if (!correction) null else if (name.startsWith("generated/")) File(System.getProperty("oracle.owned")+"/wavpack/generated",fields.getValue("correction_file")) else File(System.getProperty("waxflow.corpus"),fields.getValue("correction_file"))
     fun open(): Wv {
         val companion=correctionSource
         if (companion!=null) check(MessageDigest.getInstance("SHA-256").digest(companion.readBytes()).hex()==fields.getValue("correction_sha256"))
@@ -33,7 +33,7 @@ internal object LibWavPackCorpus {
         data.drop(1).filter { it.isNotEmpty() && (System.getProperty("wavpack.ownedOnly")!="true" || it.startsWith("generated/")) }.map {
             val values=it.split('\t');check(values.size==columns.size)
             val fields=columns.zip(values).toMap(); val name=fields.getValue("file")
-            val path=if (name.startsWith("generated/")) File("src/test/resources/wavpack",name) else File(System.getProperty("waxflow.corpus"),name)
+            val path=if (name.startsWith("generated/")) File(System.getProperty("oracle.owned")+"/wavpack",name) else File(System.getProperty("waxflow.corpus"),name)
             check(path.isFile) { "Missing libwavpack vector $path" }
             check(MessageDigest.getInstance("SHA-256").digest(path.readBytes()).hex()==fields.getValue("sha256"))
             LibWavPackFixture(fields,path)

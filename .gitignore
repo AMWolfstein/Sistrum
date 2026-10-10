@@ -1,0 +1,21 @@
+
+# Audio belongs in SISTRUM_ORACLE_DIR, never in git.
+*.[wW][vV]
+*.[wW][vV][cC]
+*.[dD][sS][fF]
+*.[dD][fF][fF]
+*.[aA][pP][eE]
+*.[mM][pP][cC]
+*.[wW][mM][aA]
+*.[aA][sS][fF]
+*.[aA][iI][fF]
+*.[aA][iI][fF][fF]
+*.[aA][iI][fF][cC]
+*.[wW][aA][vV]
+*.[fF][lL][aA][cC]
+*.[mM]4[aA]
+*.[cC][aA][fF]
+*.[mM][pP]3
+*.[oO][gG][gG]
+*.[oO][pP][uU][sS]
+*.[mM]4[bB]

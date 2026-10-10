@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Build ID_WVX_NEW synthetic coverage and verify every PCM sample with pinned WaxFlow.
 
-Usage: python3 codecs/tools/generate-max-width.py /outside/repo/bin/waxflow
-The binary must be built by waxflow-oracle.sh at the documented pin.
+Usage: python3 codecs/tools/generate-max-width.py [pinned-waxflow-binary]
+An optional binary verifies the originally recorded PCM independently; normal
+generation is checked against the committed owned SHA-256 manifest.
 No production encoder is added to the Kotlin module.
 """
+import os
 import hashlib
 import json
 import pathlib
@@ -15,7 +17,8 @@ import tempfile
 import wave
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-OUT = ROOT / "src/test/resources/wavpack"
+OUT = pathlib.Path(os.environ.get("SISTRUM_ORACLE_DIR", pathlib.Path.home()/".cache/sistrum-waxflow-oracle")).expanduser().resolve()/"owned/wavpack"
+if OUT.is_relative_to(ROOT.parent):raise SystemExit("Oracle storage must remain outside the repository")
 PIN = "b7857aff88820ad37936026421d1641e64611dbe"
 BASE = [0, 1, 3, 7, 15, 31, 63, 127, -1, -2, -4, -8, -16, -32, -64, -128]
 # Constructed completed samples, checked independently by Go before recording them.
@@ -85,14 +88,17 @@ raw = header + body
 OUT.mkdir(parents=True, exist_ok=True)
 path = OUT / "extended-max-width.wv"
 path.write_bytes(raw)
-with tempfile.TemporaryDirectory() as temporary:
-    wav = pathlib.Path(temporary) / "reference.wav"
-    subprocess.run([sys.argv[1], "transcode", "--force", "--no-tags", "--format", "wav", str(path), str(wav)], check=True)
-    with wave.open(str(wav)) as reader:
-        assert (reader.getnchannels(), reader.getsampwidth(), reader.getframerate(), reader.getnframes()) == (1, 2, 44100, len(PCM))
-        packed = reader.readframes(reader.getnframes())
-    decoded = list(struct.unpack("<" + "h" * len(PCM), packed))
-    assert decoded == PCM, (decoded, PCM)
+packed = struct.pack("<" + "h" * len(PCM), *PCM)
+decoded = PCM
+if len(sys.argv)>1:
+    with tempfile.TemporaryDirectory() as temporary:
+        wav = pathlib.Path(temporary) / "reference.wav"
+        subprocess.run([sys.argv[1], "transcode", "--force", "--no-tags", "--format", "wav", str(path), str(wav)], check=True)
+        with wave.open(str(wav)) as reader:
+            assert (reader.getnchannels(), reader.getsampwidth(), reader.getframerate(), reader.getnframes()) == (1, 2, 44100, len(PCM))
+            packed = reader.readframes(reader.getnframes())
+        decoded = list(struct.unpack("<" + "h" * len(PCM), packed))
+        assert decoded == PCM, (decoded, PCM)
 record = {"waxflow_commit": PIN, "file_sha256": hashlib.sha256(raw).hexdigest(),
           "pcm_sha256": hashlib.sha256(packed).hexdigest(), "samples": decoded,
           "sent_bits": SENT, "maximum_width": WIDTH, "branches": branches}

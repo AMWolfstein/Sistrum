@@ -20,7 +20,7 @@ internal class WavPackDsdIntegrationTest(private val fixture:LibWavPackFixture,p
             val lines=File("../docs/wavpack/corpus-manifest.tsv").readLines();val columns=lines.first().split('\t')
             val inputs=lines.drop(1).filter { it.isNotEmpty() }.associate { val r=columns.zip(it.split('\t')).toMap();r.getValue("path") to r.getValue("input_path") }
             return LibWavPackCorpus.rows.filter { it.name.startsWith("generated/") && it.flags and DSD!=0 && it.success }.map {
-                arrayOf<Any>(it,File("src/test/resources/wavpack/generated",inputs.getValue(it.name.removePrefix("generated/"))))
+                arrayOf<Any>(it,File(System.getProperty("oracle.owned")+"/wavpack/generated",inputs.getValue(it.name.removePrefix("generated/"))))
             }
         }
     }

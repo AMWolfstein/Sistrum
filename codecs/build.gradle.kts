@@ -24,13 +24,11 @@ val alacPackets = providers.gradleProperty("waxflowAlacPackets")
     .orElse(providers.environmentVariable("WAXFLOW_ALAC_PACKETS"))
     .orElse(oracleDir.map { "$it/alac-packets" })
 
-val dsdCorpus = providers.gradleProperty("dsdCorpus").orElse(oracleDir.map { "$it/dsd/corpus" })
+val dsdCorpus = providers.gradleProperty("dsdCorpus").orElse(oracleDir.map { "$it/owned/dsd" })
 val dsdFixtures = rootProject.layout.projectDirectory.file("androidApp/src/test/resources/dsd/oracle-fixtures.tsv")
-val verifyDsdCorpus = tasks.register<Exec>("verifyDsdCorpus") {
+val verifyDsdCorpus = tasks.register("verifyDsdCorpus") {
     group = "verification"
-    description = "Verify synthetic DSD corpus hashes before JVM tests."
-    workingDir(rootProject.layout.projectDirectory)
-    commandLine("python3", "scripts/dsd-oracle.py", "--verify", dsdCorpus.get())
+    dependsOn("verifyOracleCorpus")
 }
 
 // Always run before Gradle validates Test input directories, even for up-to-date tests.
@@ -38,18 +36,20 @@ val verifyOracleCorpus by tasks.registering(Exec::class) {
     group = "verification"
     description = "Verify the external corpus and ALAC dumps against the committed manifest."
     workingDir(rootProject.layout.projectDirectory)
-    commandLine("python3", "scripts/waxflow-corpus.py", "--verify", corpus.get(), alacPackets.get())
+    commandLine("python3", "scripts/oracle-corpus.py", "--verify", corpus.get(), alacPackets.get(), dsdCorpus.get())
 }
 
 rootProject.allprojects {
     tasks.withType<Test>().configureEach {
-        if (name != "testOwnedWavPack") dependsOn(verifyOracleCorpus, verifyDsdCorpus)
+        dependsOn(verifyOracleCorpus)
+        systemProperty("oracle.owned", oracleDir.get()+"/owned")
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/corpus-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/alac-packets-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/dsd-corpus-manifest.tsv"))
+        inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/owned-manifest.tsv"))
     }
 }
-tasks.withType<JavaExec>().configureEach { dependsOn(verifyOracleCorpus, verifyDsdCorpus) }
+tasks.withType<JavaExec>().configureEach { dependsOn(verifyOracleCorpus); systemProperty("oracle.owned", oracleDir.get()+"/owned") }
 
 tasks.test {
     inputs.dir(dsdCorpus).withPathSensitivity(PathSensitivity.RELATIVE)
@@ -218,14 +218,13 @@ tasks.register<JavaExec>("benchmarkDsd") {
     maxHeapSize = "512m"
 }
 
-val verifyOwnedWavPack = tasks.register<Exec>("verifyOwnedWavPack") {
-    workingDir(rootProject.layout.projectDirectory)
-    commandLine("python3", "scripts/wavpack-oracle.py", "--verify")
+val verifyOwnedWavPack = tasks.register("verifyOwnedWavPack") {
+    dependsOn(verifyOracleCorpus)
 }
 tasks.test { dependsOn(verifyOwnedWavPack) }
 tasks.register<Test>("testOwnedWavPack") {
     group = "verification"
-    description = "Run owned WavPack parity and seek vectors without external audio."
+    description = "Run owned WavPack parity and seek vectors after corpus verification."
     dependsOn(tasks.testClasses, verifyOwnedWavPack)
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = sourceSets.test.get().runtimeClasspath
@@ -235,3 +234,12 @@ tasks.register<Test>("testOwnedWavPack") {
 }
 
 tasks.named("benchmark") { dependsOn(verifyOwnedWavPack) }
+
+val checkNoTrackedAudio = tasks.register<Exec>("checkNoTrackedAudio") {
+    group = "verification"
+    workingDir(rootProject.layout.projectDirectory)
+    commandLine("python3", "scripts/check-no-audio.py")
+}
+rootProject.allprojects {
+    tasks.matching { it.name == "check" }.configureEach { dependsOn(checkNoTrackedAudio) }
+}

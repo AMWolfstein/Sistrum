@@ -8,14 +8,14 @@ MANIFEST=REPO/'docs/waxflow/dsd-corpus-manifest.tsv'
 FIXTURES=REPO/'androidApp/src/test/resources/dsd/oracle-fixtures.tsv'
 PIN='79da4ed76557c8ddf534e898480dde66bcc90334'
 FILES={'mod.rs':'92e791d131d1c361bc3ac1a37af63e995706f9852bb812647eaf9a2a2e178b79','coefficients.rs':'4e5c708a2225ce5a3c0970b1d8716356dfc4b31c9d1444c9faa9593b26f10726','dop.rs':'878bf8be389e7c225993e4e807dd1458bd4c78333fb55fcab4ae275f68b8de65'}
-REBUILD='bash scripts/dsd-oracle.sh --fetch-generate'
+REBUILD='bash scripts/waxflow-oracle.sh --fetch-generate'
 def run(*args,**kwargs):return subprocess.run([str(x)for x in args],check=True,**kwargs)
 def sha(path):
     with path.open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest()
 def outside():
     if ROOT.is_relative_to(REPO):raise ValueError('DSD oracle directory must remain outside the repo')
 def verify(corpus=None):
-    corpus=pathlib.Path(corpus)if corpus else ROOT/'corpus'
+    corpus=pathlib.Path(corpus)if corpus else ROOT.parent/'owned/dsd'
     with MANIFEST.open()as f:rows=list(csv.DictReader(f,delimiter='\t'))
     with FIXTURES.open()as f:fixtures=list(csv.DictReader(f,delimiter='\t'))
     expected={r['file']:r['file_sha256']for r in fixtures}
@@ -42,8 +42,8 @@ def build():
     run(cargo,'+1.90.0','build','--locked','--release','--manifest-path',REPO/'scripts/dsd-oracle/Cargo.toml',env=env)
     return ROOT/'target/release/sistrum-dsd-oracle',env
 def rebuild():
-    binary,_=build();run(sys.executable,REPO/'scripts/dsd-oracle/generate.py',ROOT/'corpus');verify()
-    generated=subprocess.check_output([str(binary),str(ROOT/'corpus')])
+    binary,_=build();run(sys.executable,REPO/'scripts/dsd-oracle/generate.py',ROOT.parent/'owned/dsd');verify()
+    generated=subprocess.check_output([str(binary),str(ROOT.parent/'owned/dsd')])
     if generated!=FIXTURES.read_bytes():raise ValueError('Rust oracle PCM/DoP fixtures changed; review required, expectations were not replaced')
     print('Rust PCM hashes, stream info and DoP window all match committed fixtures')
 if __name__=='__main__':
