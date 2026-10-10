@@ -1,0 +1,8 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+wavpack-test-suite-2.0/test_suite/bit_depths/32bit_float.wv	ok	30.000000	0.528317	0.017611	0
+generated/float32-b6-c.wv	ok	0.092880	0.011199	0.120570	0
+generated/float32-b6.wv	ok	0.092880	0.003362	0.036193	0
+generated/float32.wv	ok	0.092880	0.001072	0.011540	0
+generated/float32-b6-c.wv + wvc.wv	ok	0.092880	0.003277	0.035281	0

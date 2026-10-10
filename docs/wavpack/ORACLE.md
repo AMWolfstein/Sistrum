@@ -67,3 +67,15 @@ All successful oracle raw hashes are unchanged by the documented `-b` setting;
 only damaged files differ from default checksum-muting wvunpack output.
 `codecs/benchmarks/wavpack-hybrid-lossless.tsv` records 86 decoded cases,
 all with zero decode-loop allocation bytes.
+
+## Feature 3: float32 validation
+
+`./gradlew :codecs:test :codecs:testOwnedWavPack :androidApp:assembleDevDebug
+:codecs:benchmark -PwavpackBenchmarkFeature=float` passed with zero failures,
+errors or skips. Both raw IEEE words and the public borrowed FloatBuffer match
+wvunpack, including signed zero, subnormals, infinity and NaN payloads. Raw and
+float APIs seek to exact samples in pure-lossless and both hybrid paths.
+`codecs/benchmarks/wavpack-float.tsv` records all five float cases, including
+float conversion, with zero decode-loop allocation bytes. Earlier integer
+benchmark artifacts remain available; native WaxFlow hashes still pass.
+Owned vectors total 328,762 bytes.

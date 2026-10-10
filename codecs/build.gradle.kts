@@ -72,6 +72,7 @@ tasks.register<JavaExec>("benchmark") {
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("me.misa198.airmedy.codecs.WavPackBenchmarkKt")
+    systemProperty("wavpack.benchmarkFeature", providers.gradleProperty("wavpackBenchmarkFeature").orElse("all").get())
     systemProperty("waxflow.corpus", corpus.get())
     systemProperty("waxflow.fixtures", fixtures.asFile.absolutePath)
     args(layout.buildDirectory.file("reports/wavpack-benchmark.tsv").get().asFile.absolutePath)
@@ -232,3 +233,5 @@ tasks.register<Test>("testOwnedWavPack") {
     systemProperty("wavpack.ownedOnly", "true")
     maxHeapSize = "512m"
 }
+
+tasks.named("benchmark") { dependsOn(verifyOwnedWavPack) }

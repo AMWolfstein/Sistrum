@@ -14,10 +14,17 @@ import me.misa198.airmedy.codecs.codec.wavpack.WavPackException
  */
 fun main(args: Array<String>) {
     val lib=LibWavPackCorpus.rows.filter { !it.correction && LibWavPackCorpus.active(it) }
-    fun fixture(f: LibWavPackFixture)=Fixture(mapOf("file" to (f.name+if (f.correction) " + wvc.wv" else ""),"status" to if (f.success) "ok" else "refused: ${f.fields["error"]}","frames" to f.info[5],"rate" to f.info[0]),f.source,f.correctionSource)
-    val rows=OracleCorpus.rows.map { old -> lib.find { it.name==old.name }?.let(::fixture) ?: old }+
+    fun fixture(f: LibWavPackFixture)=Fixture(mapOf("file" to (f.name+if (f.correction) " + wvc.wv" else ""),"status" to if (f.success) "ok" else "refused: ${f.fields["error"]}","frames" to f.info[5],"rate" to f.info[0],"channels" to f.info[3],"sample_format" to f.info[2],"bits" to f.info[1]),f.source,f.correctionSource)
+    val allRows=OracleCorpus.rows.map { old -> lib.find { it.name==old.name }?.let(::fixture) ?: old }+
         lib.filter { it.name.startsWith("generated/") }.map(::fixture)+
         LibWavPackCorpus.rows.filter { it.correction && LibWavPackCorpus.active(it) }.map(::fixture)
+    val feature=System.getProperty("wavpack.benchmarkFeature","all")
+    val rows=allRows.filter { when (feature) {
+        "float" -> it.fields["sample_format"]=="float"
+        "multichannel" -> (it.fields["channels"]?.toIntOrNull() ?: 0)>2
+        "dsd" -> it.fields["bits"]=="1"
+        else -> true
+    } }
     val output=File(args.single()); output.parentFile.mkdirs()
     val alloc=ManagementFactory.getThreadMXBean() as? com.sun.management.ThreadMXBean
     if (alloc?.isThreadAllocatedMemorySupported==true) alloc.isThreadAllocatedMemoryEnabled=true
@@ -34,7 +41,11 @@ fun main(args: Array<String>) {
             }
             fun decode() {
                 var sum=0L
-                while (true) { val b=stream.decodeBlock() ?: break; sum+=b.frames; sum+=b.samples[0] }
+                if (stream.info.isFloat) {
+                    while (true) { val b=stream.decodeFloatBlock() ?: break; sum+=b.frames; sum+=b.samples[0].toRawBits() }
+                } else {
+                    while (true) { val b=stream.decodeBlock() ?: break; sum+=b.frames; sum+=b.samples[0] }
+                }
                 sink=sum
             }
             repeat(5) { stream.seekSample(0); decode() }

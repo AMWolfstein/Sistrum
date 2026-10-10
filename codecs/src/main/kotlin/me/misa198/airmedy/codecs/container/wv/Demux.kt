@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Ported from WaxFlow container/wv/demux.go, container/wv/wv.go, fork github.com/AMWolfstein/WaxFlow at b7857aff88820ad37936026421d1641e64611dbe,
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
+// libwavpack 5.8.1 stream metadata adaptation; Copyright (c) 1998-2025 David Bryant.
+// BSD-3-Clause; copyright, conditions and disclaimer in THIRD-PARTY-NOTICES.
 package me.misa198.airmedy.codecs.container.wv
 
 import java.nio.ByteBuffer
@@ -18,7 +20,7 @@ private const val MAX_BLOCK_BYTES=(1 shl 20)+8
 
 data class Warning(val offset: Long, val message: String, val note: Boolean=false)
 data class StreamInfo(val sampleRate: Int, val channels: Int, val bits: Int,
-                      val validBits: Int, val totalSamples: Long, val samplesExact: Boolean)
+                      val validBits: Int, val totalSamples: Long, val samplesExact: Boolean, val isFloat: Boolean=false)
 
 /** Native .wv block walk and sample-index bisection. RandomAccessSource provides bounded positional reads.
  * Headers and packet descriptors are borrowed and reused; the source itself is never copied.
@@ -99,7 +101,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
             val end=scanTail()
             if (end>=0) { samples=end-initialIndex; exact=true }
         }
-        info=StreamInfo(config.rate,config.channels,config.bitDepth,config.validBits,samples,exact)
+        info=StreamInfo(config.rate,config.channels,config.bitDepth,config.validBits,samples,exact,config.isFloat)
     }
     private fun tilesToEnd(start: Long): Boolean {
         var offset=start; var i=0

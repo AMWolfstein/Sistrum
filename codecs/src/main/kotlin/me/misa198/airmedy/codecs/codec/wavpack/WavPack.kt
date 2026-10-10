@@ -89,7 +89,6 @@ class BlockHeader {
     fun supported() {
         when {
             flags and DSD != 0 -> unsupported("DSD streams are not supported")
-            flags and FLOAT_DATA != 0 -> unsupported("32-bit float streams are not supported")
             flags and (INITIAL_BLOCK or FINAL_BLOCK) != INITIAL_BLOCK or FINAL_BLOCK ->
                 unsupported("more than 2 channels: only mono and stereo are supported")
         }
@@ -121,11 +120,12 @@ internal class Metadata {
     fun int(i: Int) = le32(block,offset+i)
 }
 
-data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false) {
+data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false, val isFloat: Boolean=false) {
     fun validate() {
         if (rate<=0) malformed("sample rate $rate outside 1..2147483647")
         if (channels !in 1..2) unsupported("$channels channels: only mono and stereo are supported")
         if (bitDepth !in intArrayOf(8,16,24,32)) malformed("bit depth $bitDepth, want 8/16/24/32")
+        if (isFloat && bitDepth!=32) malformed("float stream must store 32-bit samples")
         if (validBits !in 1..bitDepth) malformed("valid bits $validBits outside 1..$bitDepth")
     }
 }
@@ -147,7 +147,7 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
             0xd -> if (m.size>0 && m.byte(0)>2) unsupported("${m.byte(0)} channels: only mono and stereo are supported")
         }
     }
-    return Config(rate,h.channels(),h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0).also { it.validate() }
+    return Config(rate,h.channels(),h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0,h.flags and FLOAT_DATA!=0).also { it.validate() }
 }
 
 internal fun crcMono(crc: Int,v: Int) = crc*3+v

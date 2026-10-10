@@ -1,14 +1,13 @@
 # WavPack refusal inventory
 
-State after features 1 and 2. Counts are primary `.wv` inputs, excluding
+State after features 1–3. Counts are primary `.wv` inputs, excluding
 standalone `.wvc` files and duplicate correction/no-correction runs. The inventory
-contains 50 external files and 32 owned vectors. Correction-only files are inputs
+contains 50 external files and 34 owned vectors. Correction-only files are inputs
 to the two-source API; they cannot supply audio without the main stream.
 
 | Result / remaining refusal | Files |
 |---|---:|
-| Decoded, bit-exact native or new raw oracle parity | 59 |
-| Float (feature 3 pending) | 2 |
+| Decoded, bit-exact native or new raw oracle parity | 63 |
 | Multichannel (feature 4 pending) | 4 |
 | DSD (feature 5 pending, includes one damaged stream) | 6 |
 | Self-extracting native stream prefix | 1 |

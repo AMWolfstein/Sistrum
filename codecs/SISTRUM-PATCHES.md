@@ -307,3 +307,17 @@ original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
   block checksum verification and advisory-length behavior. This retains the
   already-matching `bad_checksums.wv` PCM instead of introducing upstream's
   default checksum muting. Audio/extension CRC verification is still active.
+
+### Float32 output
+
+- `unpack_floats.c` restores IEEE-754 words using the source's integer mantissa,
+  exponent, sign, shifted-bit and zero/exception paths. No floating arithmetic
+  or normalization is introduced. Old/new WVX payloads and float extension CRC
+  retain the source behavior; signed zero and NaN payload bits are preserved.
+- `float_norm_exp` is advisory for upstream OPEN_NORMALIZE, which this API does
+  not request. `StreamInfo.isFloat` identifies floating output. `decodeBlock`
+  retains raw words for bit-level parity; `decodeFloatBlock` converts them with
+  `Float.fromBits` into a separately preallocated borrowed `FloatBuffer`.
+- Existing seek/trim and correction reconstruction precede float conversion.
+  The encoder corpus now exercises pure-lossless and both hybrid float paths,
+  including signed zeros, subnormals, infinities and quiet/signaling NaN payloads.
