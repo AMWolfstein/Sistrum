@@ -1,0 +1,23 @@
+crate	version	license
+adler2	2.0.1	0BSD OR MIT OR Apache-2.0
+bitflags	2.13.2	MIT OR Apache-2.0
+block-buffer	0.10.4	MIT OR Apache-2.0
+byteorder	1.5.0	Unlicense OR MIT
+cfg-if	1.0.5	MIT OR Apache-2.0
+cpufeatures	0.2.17	MIT OR Apache-2.0
+crc32fast	1.5.2	MIT OR Apache-2.0
+crypto-common	0.1.7	MIT OR Apache-2.0
+dff-meta	0.2.0	MIT/Apache-2.0
+digest	0.10.7	MIT OR Apache-2.0
+dsd-source	0.2.0	MIT/Apache-2.0
+dsf-meta	0.3.0	MIT/Apache-2.0
+flate2	1.1.10	MIT OR Apache-2.0
+generic-array	0.14.7	MIT
+id3	1.16.3	MIT
+log	0.4.28	MIT OR Apache-2.0
+miniz_oxide	0.9.1	MIT OR Zlib OR Apache-2.0
+sampled_data_duration	0.3.1	MIT
+sha2	0.10.9	MIT OR Apache-2.0
+simd-adler32	0.3.10	MIT
+typenum	1.20.1	MIT OR Apache-2.0
+version_check	0.9.5	MIT/Apache-2.0

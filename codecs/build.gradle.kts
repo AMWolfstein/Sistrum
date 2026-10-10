@@ -24,6 +24,15 @@ val alacPackets = providers.gradleProperty("waxflowAlacPackets")
     .orElse(providers.environmentVariable("WAXFLOW_ALAC_PACKETS"))
     .orElse(oracleDir.map { "$it/alac-packets" })
 
+val dsdCorpus = providers.gradleProperty("dsdCorpus").orElse(oracleDir.map { "$it/dsd/corpus" })
+val dsdFixtures = rootProject.layout.projectDirectory.file("androidApp/src/test/resources/dsd/oracle-fixtures.tsv")
+val verifyDsdCorpus = tasks.register<Exec>("verifyDsdCorpus") {
+    group = "verification"
+    description = "Verify synthetic DSD corpus hashes before JVM tests."
+    workingDir(rootProject.layout.projectDirectory)
+    commandLine("python3", "scripts/dsd-oracle.py", "--verify", dsdCorpus.get())
+}
+
 // Always run before Gradle validates Test input directories, even for up-to-date tests.
 val verifyOracleCorpus by tasks.registering(Exec::class) {
     group = "verification"
@@ -34,14 +43,19 @@ val verifyOracleCorpus by tasks.registering(Exec::class) {
 
 rootProject.allprojects {
     tasks.withType<Test>().configureEach {
-        dependsOn(verifyOracleCorpus)
+        dependsOn(verifyOracleCorpus, verifyDsdCorpus)
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/corpus-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/alac-packets-manifest.tsv"))
+        inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/dsd-corpus-manifest.tsv"))
     }
 }
-tasks.withType<JavaExec>().configureEach { dependsOn(verifyOracleCorpus) }
+tasks.withType<JavaExec>().configureEach { dependsOn(verifyOracleCorpus, verifyDsdCorpus) }
 
 tasks.test {
+    inputs.dir(dsdCorpus).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file(dsdFixtures).withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("dsd.corpus", dsdCorpus.get())
+    systemProperty("dsd.fixtures", dsdFixtures.asFile.absolutePath)
     inputs.dir(alacPackets).withPathSensitivity(PathSensitivity.RELATIVE)
     systemProperty("waxflow.alacPackets", alacPackets.get())
     inputs.file(fixtures).withPathSensitivity(PathSensitivity.RELATIVE)
