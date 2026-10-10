@@ -20,7 +20,6 @@ class WavPackContractsTest {
     @Test fun unsupportedFlagsAreNamedAndOrdered() {
         val cases=listOf(
             (1 shl 31) to "DSD streams are not supported",
-            8 to "hybrid streams (and their wvc correction files) are not supported",
             128 to "32-bit float streams are not supported"
         )
         for ((flag,message) in cases) {
@@ -31,6 +30,13 @@ class WavPackContractsTest {
         refused(ErrorCode.UNSUPPORTED,"more than 2 channels: only mono and stereo are supported") { Wv.open(multichannel) }
         val both=raw(); both.putInt(24,both.getInt(24) or (1 shl 31) or 8 or 128)
         refused(ErrorCode.UNSUPPORTED,"DSD streams are not supported") { Wv.open(both) }
+    }
+    @Test fun hybridFlagWithoutProfileHasZeroErrorLimit() {
+        val b=raw(); b.putInt(24,b.getInt(24) or 8)
+        val stream=Wv.open(b)
+        val digest=java.security.MessageDigest.getInstance("SHA-256")
+        while (true) { val block=stream.decodeBlock()?:break;digest.update(pcmBytes(block)) }
+        assertEquals(sample().value("pcm_sha256"),digest.digest().hex())
     }
     @Test fun unsupportedVersionsRetainCodecAndContainerBehavior() {
         for (version in intArrayOf(0x397,0x401,0x411,0x500)) {

@@ -267,3 +267,16 @@ flat audio over preserving this roll-off. Test code retains the 0–15 kHz
 comparison and asserts each decoder's corresponding analytic response; no
 original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
 `codecs/benchmarks/dsd-byte-table-comparison.tsv` for measurement details.
+
+## libwavpack extension (5.8.1)
+
+- Source: upstream release tag 5.8.1, commit
+  `4827b9889665b937b6ed71b9c6c0123152cd7a02` (BSD-3-Clause).
+- Hybrid entropy follows `read_words.c` and `entropy_utils.c`, retaining integer
+  wrapping, unsigned shifts, median adaptation, bitrate balance, slow-level log
+  lookup and zero runs. The existing pure-lossless fast path is unchanged.
+- Upstream pointer/bitstream fields become reused Kotlin block state and the
+  existing bounded reader; word output is decoded into preallocated storage.
+- Hybrid lossy integer fixup follows `unpack.c`, including 32-bit redundant low
+  bits and clipping before shifting. No correction stream is consulted in this
+  first feature. CRC still checks the lossy block's own expected checksum.

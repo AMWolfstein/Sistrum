@@ -87,7 +87,6 @@ class BlockHeader {
     fun supported() {
         when {
             flags and DSD != 0 -> unsupported("DSD streams are not supported")
-            flags and HYBRID != 0 -> unsupported("hybrid streams (and their wvc correction files) are not supported")
             flags and FLOAT_DATA != 0 -> unsupported("32-bit float streams are not supported")
             flags and (INITIAL_BLOCK or FINAL_BLOCK) != INITIAL_BLOCK or FINAL_BLOCK ->
                 unsupported("more than 2 channels: only mono and stereo are supported")

@@ -48,8 +48,23 @@ def outside(path):
         raise ValueError('Oracle storage must be outside the repository: '+str(path))
 
 
+def reject_tracked_corpus_audio(entries):
+    """The external corpus is local-only, even when copied or renamed."""
+    audio = {r['sha256'] for r in entries if Path(r['path']).suffix.lower() in
+             {'.wv', '.wvc', '.wav', '.aif', '.aiff', '.aifc', '.dsf', '.dff',
+              '.ape', '.mpc', '.m4a', '.m4b', '.mov', '.wma'}}
+    tracked = subprocess.check_output(['git', 'ls-files', '-z'], cwd=REPO).split(b'\0')
+    for name in tracked:
+        if not name:
+            continue
+        path = REPO / os.fsdecode(name)
+        if path.is_file() and sha(path) in audio:
+            raise ValueError('Local-only corpus audio is tracked by git: ' + os.fsdecode(name))
+
+
 def validate(corpus, packets=None):
     entries = rows()
+    reject_tracked_corpus_audio(entries)
     failures = []
     for r in entries:
         path = corpus/r['path']

@@ -403,3 +403,14 @@ raw, 20-bit twos, G.711, odd chunks and alignment offsets. Three generated files
 are refused for MAC3, unknown compression and nine channels. The unchanged Go
 pin produces **285 rows: 202 decoded, 83 refused**, with every preceding row
 unchanged. All 21 AIFF files are covered by Kotlin parity, source and seek tests.
+
+## Local-only external audio policy (2026-10-10)
+
+The external WavPack decoder verification suite is a local-only test input.
+The manifest fetches it into `~/.cache/sistrum-waxflow-oracle`; its audio must
+never be committed or redistributed. The BSD license of libwavpack does not
+license these audio inputs. `scripts/waxflow-corpus.py --verify` checks tracked
+file contents against all manifest audio SHA-256 values and fails even if an
+external corpus audio file has been renamed or copied into a fixture directory.
+Original self-generated signals are separate, owned CC0-1.0 test vectors and
+may be committed when their total size is below 5 MB.

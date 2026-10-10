@@ -43,7 +43,7 @@ val verifyOracleCorpus by tasks.registering(Exec::class) {
 
 rootProject.allprojects {
     tasks.withType<Test>().configureEach {
-        dependsOn(verifyOracleCorpus, verifyDsdCorpus)
+        if (name != "testOwnedWavPack") dependsOn(verifyOracleCorpus, verifyDsdCorpus)
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/corpus-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/alac-packets-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/dsd-corpus-manifest.tsv"))
@@ -214,5 +214,21 @@ tasks.register<JavaExec>("benchmarkDsd") {
     systemProperty("dsd.corpus", dsdCorpus.get())
     systemProperty("dsd.fixtures", dsdFixtures.asFile.absolutePath)
     args(layout.buildDirectory.file("reports/dsd-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}
+
+val verifyOwnedWavPack = tasks.register<Exec>("verifyOwnedWavPack") {
+    workingDir(rootProject.layout.projectDirectory)
+    commandLine("python3", "scripts/wavpack-oracle.py", "--verify")
+}
+tasks.test { dependsOn(verifyOwnedWavPack) }
+tasks.register<Test>("testOwnedWavPack") {
+    group = "verification"
+    description = "Run owned WavPack parity and seek vectors without external audio."
+    dependsOn(tasks.testClasses, verifyOwnedWavPack)
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    filter { includeTestsMatching("*LibWavPackOracleTest") }
+    systemProperty("wavpack.ownedOnly", "true")
     maxHeapSize = "512m"
 }
