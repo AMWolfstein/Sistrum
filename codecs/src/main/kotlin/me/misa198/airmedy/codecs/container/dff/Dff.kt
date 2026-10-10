@@ -11,8 +11,8 @@ import me.misa198.airmedy.codecs.container.*
 import me.misa198.airmedy.codecs.container.dsd.*
 
 object Dff {
-    fun open(source:RandomAccessSource,targetRate:Int=176400)=Dsd.open(source,targetRate)
-    fun open(source:ByteBuffer,targetRate:Int=176400)=Dsd.open(source,targetRate)
+    fun open(source:RandomAccessSource,targetRate:Int=0)=Dsd.open(source,targetRate)
+    fun open(source:ByteBuffer,targetRate:Int=0)=Dsd.open(source,targetRate)
     internal fun parse(source:RandomAccessSource):Header {
         fun check(ok:Boolean,error:String){if(!ok)throw IOException("dff: $error")}
         fun read(p:Long,n:Int)=headerBytes(source,p,n).order(ByteOrder.BIG_ENDIAN)

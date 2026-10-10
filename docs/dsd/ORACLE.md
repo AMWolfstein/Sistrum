@@ -87,27 +87,42 @@ Every ported Kotlin file begins with SPDX GPL-3.0-or-later and identifies the
 original source path, exact version/commit and MIT or MIT/Apache-2.0 origin.
 The original license notices are included in codecs/THIRD-PARTY-NOTICES.
 
-## Kotlin validation
+## Flick reference validation
 
-The DSF/DFF container API admits the corpus's DSD64/128/256 rates, returns
+The test-only `FlickExactDsd` adapter admits the corpus's DSD64/128/256 rates, returns
 borrowed interleaved float32 PCM, and provides a separate codec-only Int32 DoP
 cursor. Sample seeks restore the source state exactly; ByteBuffer and bounded
 RandomAccessSource reads share the same parser and processing path.
 
-All 16 decoded files match the Rust PCM hash and DoP window exactly, including
+All 16 test-only reference decodes match the Rust PCM hash and DoP window exactly, including
 5.1 DSF; all four parser refusals match complete messages. No coefficient
-snapshot or lossy tolerance was needed. There are 83 DSD JVM checks and 838
-full-module tests, with zero failures/errors/skips. The four Rust source tests
-and Android `assembleDevDebug` also pass. Per-file benchmark measurements are
+snapshot or lossy tolerance was needed for the exact reference. Original
+validation recorded 83 DSD JVM checks and 838 full-module tests. The byte-table
+implementation adds eight generated-signal/measurement checks, for 846 total
+tests with zero failures/errors/skips; Android `assembleDevDebug` passes.
+The four Rust source tests passed during the original oracle validation. Per-file benchmark measurements are
 committed in `codecs/benchmarks/dsd.tsv`; median decode-loop allocations are zero.
 After the bit-exact mirrored-ring optimization, PCM RTF is 0.186384–2.269914;
 DSD256 stereo is 0.688590 for DFF and 0.694286 for DSF. DoP RTF is
 0.003141–0.062923. Decode-loop allocations remain zero. Fresh before/after
 measurements and the unimplemented next-step proposal are in
-[PERFORMANCE.md](PERFORMANCE.md). DSD256 stereo still exceeds the 0.10 RTF target.
+[PERFORMANCE.md](PERFORMANCE.md). These are historical ring-path results;
+the former 0.10 laptop target is dropped in favor of the spec 002 phone gate.
 
 Source issues and API scope are recorded without a source modification in
 `codecs/SISTRUM-PATCHES.md`: no FIR drain, discarded partial groups, DFF's
 mono/stereo limit, suspected missing odd-property padding advancement, and
 DSD512's three-byte DoP boundary behavior. DSD512 is not exposed by this
 container API and has no claimed corpus validation.
+
+## Byte-table production converter
+
+The exact converter and its container adapter now live under `codecs/src/test/`;
+production uses byte lookup tables and subsequent half-band/output-decimated
+FIRs. Original fixture hashes and oracle assertions are unchanged. Production
+DoP retains exact Rust parity. Generated production signal/specification tests
+and the analytic comparison report are in
+[BYTE-TABLE-PERFORMANCE.md](BYTE-TABLE-PERFORMANCE.md). The new defaults are
+88.2 kHz for DSD64 and 176.4 kHz for DSD128/256. Laptop DSD256 stereo RTF of 0.136–0.141 is accepted; the phone gate in
+spec 002 remains pending. The flat production signal and exact Flick filter
+are independently checked against their analytic responses.

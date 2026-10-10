@@ -625,16 +625,17 @@ No Android, Media3, Flutter, Rust/native dependency or playback integration is
 added to this module.
 
 Source pins, licenses and standalone Rust reproduction are in
-[`docs/dsd/ORACLE.md`](../docs/dsd/ORACLE.md). Flick supplies the third-order CIC,
-512-tap Kaiser FIR and DoP word/marker logic. dsf-meta 0.3.0 and dff-meta 0.2.0
+[`docs/dsd/ORACLE.md`](../docs/dsd/ORACLE.md). Flick supplies the test-only exact third-order CIC / 512-tap FIR reference
+and the production DoP word/marker logic. dsf-meta 0.3.0 and dff-meta 0.2.0
 supply audio header parsing. Adaptations and suspected source limitations are
 recorded in `SISTRUM-PATCHES.md`; original licenses are packaged in the jar.
 
-`container.dsd.Dsd.open(RandomAccessSource | ByteBuffer, targetRate = 176400)`
-selects DSF or DFF. The stream exposes DSD/PCM rates, channels, physical layout
+`container.dsd.Dsd.open(RandomAccessSource | ByteBuffer, targetRate = 0)`
+selects DSF or DFF. Zero selects `bestTargetRate`: 88200 for DSD64 and 176400
+for DSD128/256; existing explicit targets remain available. The stream exposes DSD/PCM rates, channels, physical layout
 and sample counts. `decodeBlock()` returns borrowed interleaved float32 PCM;
 `decodeDopBlock()` returns borrowed left-justified Int32 DoP words. Both reuse
-buffers. `seekSample()` restores CIC/FIR history by replay; `seekDopSample()`
+buffers. `seekSample()` restores byte/FIR history by replay; `seekDopSample()`
 restores the exact carrier sample and alternating marker. Cursors are independent,
 so decoding PCM does not consume DoP. Caller retains ownership of the source.
 Only the requested DSD64/128/256 rates are admitted by the container API.
@@ -647,7 +648,8 @@ in `docs/waxflow/dsd-corpus-manifest.tsv`; no audio is copied into the repositor
 Rebuild and verify with `bash scripts/dsd-oracle.sh --fetch-generate`. Every JVM
 test task checks both the WaxFlow and DSD manifests before input validation.
 
-All **16 successful files** match Rust's float32 PCM SHA-256 bit for bit. Every
+The **test-only Flick reference** matches Rust's float32 PCM SHA-256 bit for bit
+for all 16 successful files; those hashes are not the new production output. Every
 DoP first-eight-frame window matches Rust; full-stream marker continuity and
 exact forward/backward PCM/DoP seeks are checked. Eighty parameterized tests
 also cover output reuse, short reads, direct ByteBuffer regions and source
@@ -659,21 +661,26 @@ PCM-target rejection and the LSB DoP helper.
 | `dff: CHNL number not found or is unsupported.` | `dsd64-6ch.dff`, `dsd128-6ch.dff`, `dsd256-6ch.dff` |
 | `dff: Compression type must be 'DSD '. DST not supported.` | `dst-compressed.dff` |
 
-DFF 5.1 is a pinned parser limitation; DSF 5.1 decodes exactly. The DST vector
+DFF 5.1 is a pinned parser limitation; DSF 5.1 is supported. The DST vector
 has a zero-frame compressed header and proves refusal only. DSF physical block
 padding/ID3 and DFF DIIN chunks never enter the audio decoder. The source has no
-FIR-tail drain, drops incomplete decimation groups and treats DSF samples as
-whole bytes; these semantics are retained.
+FIR-tail drain and treats DSF samples as whole bytes; those semantics remain.
+The new pipeline retains partial decimation groups across calls and discards
+an incomplete final group at end of stream.
 
-Validation: **838 full-module tests, zero failures/errors/skips**, including
-83 DSD checks; four standalone Rust tests and `assembleDevDebug` passed.
-Benchmark (`benchmarks/dsd.tsv`): after the bit-exact mirrored-ring history
-optimization, PCM RTF is **0.186384–2.269914** and DoP RTF is
-**0.003141–0.062923**, with **zero median allocated decode-loop bytes on every
-successful file in both modes**. DSD256 stereo PCM RTF fell from **1.484284 to
-0.688590 (DFF)** and **2.141361 to 0.694286 (DSF)** in fresh sequential runs.
-These short synthetic files are a JVM proxy, not a phone gate. Twenty warmups
-and five full measured passes are used; loading/open/seek/hash are excluded,
-but decoded audio blocks and positional reads are timed. Arithmetic order and
-Rust parity remain exact. See [the per-file comparison and step 2 proposal](../docs/dsd/PERFORMANCE.md);
-step 2 is not implemented.
+The byte-table converter uses a shared float lookup FIR to 352.8 kHz,
+a sparse half-band FIR to 176.4 kHz, and a symmetric output-decimated FIR to
+the requested rate, with double accumulation and unity DSD/PCM gain.
+Generated-signal tests measure flatness, stopband including table rounding,
+ultrasonic noise, THD+N, level, chunk/reset behavior and exact production seeks.
+The Flick comparison requirement was relaxed in favor of flatness through 20 kHz.
+
+Laptop performance is accepted: DSD256 stereo is 0.136461 RTF (DFF) and
+0.141493 RTF (DSF); **phone gate pending under spec 002**. The 0.10 laptop
+threshold is dropped. A corrected 0–15 kHz comparison measures -66.80/-70.33/
+-28.54 dB against Flick for DSD64/128/256. Our output matches the analytic flat
+signal below -134 dB, while Flick matches its own analytic filter below -111 dB:
+its fixed 512-tap response attenuates 10 kHz by 0.651 dB at DSD256.
+See [the full measurements and source diagnosis](../docs/dsd/BYTE-TABLE-PERFORMANCE.md).
+The earlier bit-exact history optimization remains documented in
+[PERFORMANCE.md](../docs/dsd/PERFORMANCE.md) and `benchmarks/dsd.tsv`.

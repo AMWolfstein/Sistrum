@@ -13,15 +13,10 @@ import me.misa198.airmedy.codecs.container.dsf.Dsf
 import me.misa198.airmedy.codecs.container.dff.Dff
 import me.misa198.airmedy.codecs.codec.dsd.*
 
-internal data class Header(val rate:Int,val channels:Int,val layout:String,val bytesPerChannel:Long,val dataOffset:Long,val blocked:Boolean,val reverse:Boolean)
-internal fun readExact(source:RandomAccessSource,position:Long,buffer:ByteBuffer){var p=position;while(buffer.hasRemaining()){val n=source.read(p,buffer);if(n<=0)throw IOException("dsd: unexpected end of file");p+=n}}
-internal fun headerBytes(source:RandomAccessSource,position:Long,size:Int):ByteBuffer=ByteBuffer.allocate(size).also{readExact(source,position,it);it.flip()}
-internal fun tag(b:ByteBuffer,offset:Int)=String(ByteArray(4){b.get(offset+it)},Charsets.US_ASCII)
-
 /** Borrowed output blocks. PCM and DoP have independent sample cursors. */
-class Dsd internal constructor(private val source:RandomAccessSource,private val header:Header,targetRate:Int){
+internal class FlickExactDsd private constructor(private val source:RandomAccessSource,private val header:Header,targetRate:Int=176400){
     data class Info(val sampleRate:Int,val channels:Int,val bitsPerSample:Int,val totalSamples:Long,val dsdSampleRate:Int,val totalDsdSamples:Long,val channelLayout:String,val dopSampleRate:Int)
-    private val pipeline=DsdDecimationPipeline(header.rate,targetRate,header.channels)
+    private val pipeline=FlickExactDecimationPipeline(header.rate,targetRate,header.channels)
     private val packer=DopPacker(header.rate,header.channels)
     val info=Info(targetRate,header.channels,32,header.bytesPerChannel*8/(header.rate/targetRate),header.rate,header.bytesPerChannel*8,header.layout,packer.carrierRate)
     private val planar=ByteArray(4096*header.channels)
@@ -33,16 +28,13 @@ class Dsd internal constructor(private val source:RandomAccessSource,private val
     private var bytePosition=0L;private var pcmPosition=0L;private var dopBytePosition=0L;private var dopPosition=0L
     private var pending=false;private var discontinuity=false;private var dopDiscontinuity=false
     companion object {
-        /** Default is bounded at 176.4 kHz; higher targets require an explicit request. */
-        fun bestTargetRate(dsdRate: Int): Int = if (dsdRate == 2822400) 88200 else 176400
-        fun open(buffer:ByteBuffer,targetRate:Int=0)=open(ByteBufferSource(buffer),targetRate)
-        fun open(source:RandomAccessSource,targetRate:Int=0):Dsd {
+        fun open(buffer:ByteBuffer,targetRate:Int=176400)=open(ByteBufferSource(buffer),targetRate)
+        fun open(source:RandomAccessSource,targetRate:Int=176400):FlickExactDsd {
             val h=headerBytes(source,0,4);val parsed=when(tag(h,0)){"DSD "->Dsf.parse(source);"FRM8"->Dff.parse(source);else->throw IOException("dsd: unsupported container")}
             if(parsed.rate !in intArrayOf(2822400,5644800,11289600))throw IOException("dsd: unsupported sample rate")
             val targets=when(parsed.rate){2822400->intArrayOf(176400,88200,44100);5644800->intArrayOf(352800,176400,88200,44100);else->intArrayOf(705600,352800,176400,88200)}
-            val chosen = if (targetRate == 0) bestTargetRate(parsed.rate) else targetRate
-            if(chosen !in targets)throw IOException("dsd: unsupported PCM target")
-            return Dsd(source,parsed,chosen)
+            if(targetRate !in targets)throw IOException("dsd: unsupported PCM target")
+            return FlickExactDsd(source,parsed,targetRate)
         }
     }
     private fun readPlanar(position:Long,n:Int){

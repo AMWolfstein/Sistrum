@@ -21,7 +21,7 @@ object DsdBenchmark {
      fun decode(){var sum=0L;if(dop){while(true){val b=stream.decodeDopBlock()?:break;sum+=b.frames;sum+=b.samples[0]}}else{while(true){val b=stream.decodeBlock()?:break;sum+=b.frames;sum+=b.samples[0].toRawBits()}};dsdSink=sum}
      repeat(20){seek();decode()};val ns=LongArray(5);val bytes=LongArray(5)
      repeat(5){i->seek();val before=allocation.getThreadAllocatedBytes(thread);val start=System.nanoTime();decode();ns[i]=System.nanoTime()-start;bytes[i]=allocation.getThreadAllocatedBytes(thread)-before};ns.sort();bytes.sort()
-     val seconds=ns[2]/1e9;val duration=f.value("frames").toDouble()/f.value("pcm_rate").toInt();val line=String.format(Locale.ROOT,"%s\t%s\tok\t%.6f\t%.6f\t%.6f\t%d",f.name,if(dop)"dop"else "pcm",duration,seconds,seconds/duration,bytes[2]);out.appendLine(line);println(line)
+     val seconds=ns[2]/1e9;val duration=stream.info.totalDsdSamples.toDouble()/stream.info.dsdSampleRate;val line=String.format(Locale.ROOT,"%s\t%s\tok\t%.6f\t%.6f\t%.6f\t%d",f.name,if(dop)"dop"else "pcm",duration,seconds,seconds/duration,bytes[2]);out.appendLine(line);println(line)
     }
    }
   };println("Benchmark: ${output.absolutePath}")

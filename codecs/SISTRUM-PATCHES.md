@@ -203,8 +203,8 @@ records JVM port deviations within the authorized Sistrum file scope.
 
 - Separate source pins and reproducible Rust oracle are documented in
   `docs/dsd/ORACLE.md`; this port does not derive DSD behavior from WaxFlow.
-- Flick's `DsdDecimationPipeline` preserves third-order integer/fractional CIC
-  arithmetic, wrapping Long accumulators, 512-tap FIR rotation and summation
+- The test-only `FlickExactDecimationPipeline` preserves third-order integer/fractional CIC
+  arithmetic, wrapping Long accumulators, 512-tap FIR mirrored history and summation
   order, runtime Kaiser coefficient generation and float32 output. The source
   allocates CIC/channel/coefficient vectors in each call; JVM scratch and
   interleaved output are allocated once at open. Logging is omitted.
@@ -219,7 +219,7 @@ records JVM port deviations within the authorized Sistrum file scope.
   dff-meta's recognized property-chunk reader appears to omit this advance for
   odd payloads. The corpus's recognized properties have even sizes, so no
   claimed parity result relies on changing that suspected source behavior.
-- PCM seeking replays all preceding CIC/FIR state and retains the requested
+- PCM seeking replays all preceding byte/FIR state and retains the requested
   remainder in the borrowed block. DoP seeking computes the byte offset and
   alternating marker from the absolute carrier sample. The two cursors are
   independent. Neither mode is wired into playback.
@@ -229,5 +229,41 @@ records JVM port deviations within the authorized Sistrum file scope.
   so a faithful exact-seek contract needs a separate covered decision before
   exposing that rate. The low-level DopPacker retains the source's 32-bit mode.
 - dff-meta's mono/stereo limit and DST refusal are retained verbatim. DSF's
-  whole-byte sample_count/8 rule, dropped partial FIR groups and lack of a
-  delayed-tail drain are retained. No source fix or PCM tolerance was used.
+  whole-byte sample_count/8 rule and lack of a delayed-tail drain are retained.
+  Production retains partial decimation groups across calls, dropping only an
+  incomplete group at EOF. The test-only Flick path keeps the original behavior.
+- The production converter replaces CIC with a raw-byte lookup FIR, then sparse
+  half-band and symmetric output-decimated FIRs. Tables are constructed once per
+  rate and shared; channel state is retained, with no per-call allocation. DSD
+  +/-1 maps to PCM +/-1, preserving Flick's DC level. Defaults are 88.2 kHz for
+  DSD64 and 176.4 kHz for DSD128/256; explicit targets are unchanged. It is
+  validated against generated signals rather than Flick's old PCM hashes.
+  The user prioritized flat 20 kHz response over the incompatible -90 dB Flick
+  waveform difference. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md`; after three
+  attempts the laptop measurement (0.136–0.141 RTF, DSD256 stereo) was accepted;
+  the 0.10 target is dropped and the spec 002 phone gate remains pending.
+
+### Pinned Flick filter does not meet the flat-audio specification
+
+The exact port matches the pinned Rust PCM hashes and its own analytic
+CIC/FIR response. However, Flick fixes its Kaiser FIR at 512 taps / beta 10 /
+18 kHz cutoff while FIR input rate rises from 705600 Hz to 2822400 Hz. This
+widens the transition in Hz. Measured 10 kHz gains for DSD64/128/256 are
+-0.008059/-0.005267/-0.651034 dB; DSD256 fails the new ±0.1 dB passband
+specification even at 10 kHz. Measured 19.5 kHz gains are -17.119633/-10.566493/
+-8.071546 dB, explaining the earlier -4.40/-6.43/-8.00 dB two-tone difference.
+A scalar gain cannot undo frequency-dependent attenuation.
+
+Using 1 kHz + 10 kHz tones, a full 0–15 kHz spectral comparison after measured
+fractional delay, gain and polarity alignment gives -66.795582/-70.333549/
+-28.544328 dB. Fitted delays applied to Flick are 290.887187/472.824546/
+563.793226 microseconds; fitted gains are 1.000470263/1.000301965/1.036051842;
+polarity is +1 for all rates. Production matches the analytic flat generated
+signal below -134/-144/-150 dB. Flick matches an independent analytic prediction
+of its own CIC/FIR response below -111/-132/-142 dB without alignment fitting.
+This is a source filter-design limitation relative to the new audio contract,
+not a byte-order, normalization or delay bug in either port. The user chose
+flat audio over preserving this roll-off. Test code retains the 0–15 kHz
+comparison and asserts each decoder's corresponding analytic response; no
+original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
+`codecs/benchmarks/dsd-byte-table-comparison.tsv` for measurement details.
