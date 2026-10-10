@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import java.security.MessageDigest
 import me.misa198.airmedy.codecs.audio.Buffer
 
-internal data class Fixture(val fields: Map<String,String>, val source: File) {
+internal data class Fixture(val fields: Map<String,String>, val source: File, val correctionSource: File?=null) {
     override fun toString() = name
     val name get() = fields.getValue("file")
     val status get() = fields.getValue("status")

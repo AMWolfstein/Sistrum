@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Ported from WaxFlow codec/wavpack/wavpack.go, fork github.com/AMWolfstein/WaxFlow at b7857aff88820ad37936026421d1641e64611dbe,
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
+// libwavpack 5.8.1 adaptation; Copyright (c) 1998-2025 David Bryant.
+// BSD-3-Clause; copyright, conditions and disclaimer in THIRD-PARTY-NOTICES.
 package me.misa198.airmedy.codecs.codec.wavpack
 
 import java.io.IOException
@@ -119,7 +121,7 @@ internal class Metadata {
     fun int(i: Int) = le32(block,offset+i)
 }
 
-data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int) {
+data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false) {
     fun validate() {
         if (rate<=0) malformed("sample rate $rate outside 1..2147483647")
         if (channels !in 1..2) unsupported("$channels channels: only mono and stereo are supported")
@@ -145,7 +147,7 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
             0xd -> if (m.size>0 && m.byte(0)>2) unsupported("${m.byte(0)} channels: only mono and stereo are supported")
         }
     }
-    return Config(rate,h.channels(),h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift()).also { it.validate() }
+    return Config(rate,h.channels(),h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0).also { it.validate() }
 }
 
 internal fun crcMono(crc: Int,v: Int) = crc*3+v

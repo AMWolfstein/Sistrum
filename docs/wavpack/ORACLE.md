@@ -10,7 +10,7 @@ The script checks the exact source commit and refuses modified source. It builds
 both `wavpack` and `wvunpack` with CMake Release, including DSD support, in
 `~/.cache/sistrum-wavpack-oracle`. Production decoding uses Kotlin only.
 
-`wvunpack -q -y --threads=1 --raw -i INPUT -o -` is the raw lossy reference;
+`wvunpack -q -y --threads=1 --raw -b -i INPUT -o -` is the raw lossy reference;
 omitting `-i` uses a sibling `.wvc`. No float normalization or DSD-to-PCM
 conversion is requested. Raw SHA-256, length, source SHA-256, return code and
 exact error text are committed in `codecs/src/test/resources/wavpack/libwavpack.tsv`.
@@ -42,3 +42,28 @@ float and DSD cases remain assigned to their later feature commits.
 `codecs/benchmarks/wavpack-hybrid-lossy.tsv` records 59 successful decoded cases,
 all with zero decode-loop allocation bytes; median RTF range 0.001086–0.024910.
 All originally successful WaxFlow native PCM hashes remain unchanged.
+
+The oracle uses upstream `-b` (`OPEN_STREAMING | OPEN_NO_CHECKSUM`) so optional
+compressed-block checksum verification does not mute the established WaxFlow
+PCM output. In particular `bad_checksums.wv` has intact encoded audio and corrupt
+block checksum fields: default wvunpack mutes it, while `wvunpack -b --raw`
+produces the existing verified native PCM hash
+`603994045e14fb060c5dc5a98d57796f0b0794b0712af7032935c4c41f8fb55b`.
+This setting is applied consistently, not by replacing expected PCM values.
+Audio CRC and extension CRC errors still originate from wvunpack and are recorded.
+Block checksum verification remains separately available through
+`verifyBlockChecksum`, preserving the existing API. Declared length is advisory
+in the Kotlin demuxer; its block-derived total is retained.
+
+## Feature 2: hybrid lossless validation
+
+`./gradlew :codecs:test :codecs:testOwnedWavPack :androidApp:assembleDevDebug
+:codecs:benchmark` passed: 985 full codecs tests and 74 owned tests, zero failures,
+errors or skips. Raw output and exact seeking pass both with and without
+correction, including external correction files held in `wvc_files/` (staged
+as siblings only by oracle tooling). Short positional reads and direct-buffer
+regions test both caller-owned inputs; mismatched correction indices fail.
+All successful oracle raw hashes are unchanged by the documented `-b` setting;
+only damaged files differ from default checksum-muting wvunpack output.
+`codecs/benchmarks/wavpack-hybrid-lossless.tsv` records 86 decoded cases,
+all with zero decode-loop allocation bytes.

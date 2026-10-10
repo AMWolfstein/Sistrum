@@ -280,3 +280,30 @@ original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
 - Hybrid lossy integer fixup follows `unpack.c`, including 32-bit redundant low
   bits and clipping before shifting. No correction stream is consulted in this
   first feature. CRC still checks the lossy block's own expected checksum.
+
+### Hybrid correction reconstruction
+
+- Optional caller-owned `RandomAccessSource` supplies the correction stream.
+  The codec does no filesystem lookup. Both sources seek independently to the
+  same native sample index and pre-roll trims their reconstructed result.
+- `read_words.c` correction offsets and `unpack.c` corrected predictor preview,
+  cross decorrelation, signed shaping accumulators and corrected CRC are ported.
+  Entropy can be decoded into preallocated residual/correction arrays before
+  per-sample reconstruction: entropy adaptation does not depend on predictor
+  adaptation. Predictor history still follows the lossy values in source order.
+- The main and correction metadata cursors use their own block sizes. Missing
+  correction bitstreams are valid for exactly representable blocks such as
+  silence; mismatched source positions/headers fail instead of combining data.
+- The bounded JVM truncated-binary reader consumes the minimum prefix first,
+  then fetches its optional final bit. Upstream speculatively fills that bit
+  and may wrap its sentinel buffer even when it is unused. This avoids false
+  end-of-stream errors on valid correction payloads without changing code values
+  or allowing consumed bits beyond the payload. All native PCM hashes are checked.
+- `lossyFallback` is true for a hybrid stream opened without correction;
+  `usesCorrection` distinguishes the two-source path. Caller source ownership
+  and both existing `open(source, strict)` overloads are preserved.
+
+- Oracle raw decoding uses wvunpack `-b` to match WaxFlow's separate compressed
+  block checksum verification and advisory-length behavior. This retains the
+  already-matching `bad_checksums.wv` PCM instead of introducing upstream's
+  default checksum muting. Audio/extension CRC verification is still active.

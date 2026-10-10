@@ -97,26 +97,39 @@ internal class BlockState {
     private val terms=Array(MAX_TERMS) { DecorrPass() }
     private var nterm=0
     private val w=WordCoder()
-    private val wv=BitReader(); private val wvx=BitReader()
+    private val wv=BitReader(); private val wvx=BitReader(); private val wvc=BitReader()
+    private val corrections=IntArray(MAX_BLOCK_SAMPLES*2)
+    private val hybrid=HybridReconstruction()
+    private val correctionHeader=BlockHeader()
+    private var corrected=false
     private val metadata=Metadata()
     private lateinit var h: BlockHeader
     private var int32Sent=0; private var int32Zeros=0; private var int32Ones=0; private var int32Dups=0
     private var int32MaxWidth=0; private var crcWVX=0
-    fun unpackBlock(header: BlockHeader, block: ByteBuffer, offset: Int, out: IntArray): Int {
+    fun unpackBlock(header: BlockHeader, block: ByteBuffer, offset: Int, out: IntArray, correction: ByteBuffer?=null): Int {
         h=header
         if (h.size>block.limit()-offset) malformed("block declares ${h.size} bytes but only ${block.limit()-offset} are present")
         // In-place equivalent of Go's *s = blockState{h:h}; no state crosses blocks.
         for (term in terms) term.reset()
-        nterm=0; w.reset(); wv.clear(); wvx.clear()
+        nterm=0; w.reset(); wv.clear(); wvx.clear(); wvc.clear(); hybrid.reset(); corrected=false
         int32Sent=0; int32Zeros=0; int32Ones=0; int32Dups=0; int32MaxWidth=0; crcWVX=0
         readMetadata(block,offset)
+        if (correction!=null && h.flags and HYBRID!=0) {
+            correctionHeader.parse(correction)
+            if (correctionHeader.blockIndex!=h.blockIndex || correctionHeader.blockSamples!=h.blockSamples || correctionHeader.flags!=h.flags)
+                malformed("correction block does not match at sample ${h.blockIndex}")
+            readMetadata(correction,0,correctionHeader.size.toInt())
+            corrected=true
+        }
         if (!wv.open()) malformed("block has no wv bitstream")
         val n=h.blockSamples; val mono=h.mono(); val span=if (mono) n else n*2
-        val got=if (h.flags and HYBRID != 0) w.getWordsHybrid(wv,out,n,h.flags) else w.getWordsLossless(wv,out,n,mono)
+        val got=if (h.flags and HYBRID != 0) w.getWordsHybrid(wv,out,n,h.flags,if (corrected) wvc else null,if (corrected) corrections else null) else w.getWordsLossless(wv,out,n,mono)
         if (got!=n) malformed("bitstream ends after $got of $n samples")
-        if (wv.over) malformed("block at sample ${h.blockIndex} reads past the end of its bitstream")
+        if (wv.over || (corrected && wvc.over)) malformed("block at sample ${h.blockIndex} reads past the end of its bitstream")
         var crc=-1
-        if (mono) {
+        if (corrected) {
+            crc=hybrid.reconstruct(out,corrections,n,h.flags,terms,nterm)
+        } else if (mono) {
             var t=0; while (t<nterm) decorrMonoPass(terms[t++],out,span)
             var i=0; while (i<span) crc=crcMono(crc,out[i++])
         } else {
@@ -128,15 +141,15 @@ internal class BlockState {
             }
         }
         fixup(out,span)
-        if (crc!=h.crc) malformed("block at sample ${h.blockIndex} fails its CRC")
+        if (crc!=(if (corrected) correctionHeader.crc else h.crc)) malformed("block at sample ${h.blockIndex} fails its CRC")
         if (h.flags and FALSE_STEREO != 0) {
             var i=n-1
             while (i>=0) { val v=out[i]; out[i*2]=v; out[i*2+1]=v; i-- }
         }
         return n
     }
-    private fun readMetadata(block: ByteBuffer, off: Int) {
-        metadata.reset(block,off,h.size.toInt())
+    private fun readMetadata(block: ByteBuffer, off: Int, size: Int=h.size.toInt()) {
+        metadata.reset(block,off,size)
         val m=metadata; val mono=h.mono()
         while (m.next()) {
             when (m.id) {
@@ -145,6 +158,8 @@ internal class BlockState {
                 4 -> readDecorrSamples(m,mono)
                 5 -> readEntropyVars(m,mono)
                 6 -> w.readHybridProfile(m,h.flags)
+                7 -> hybrid.readShaping(m,h.mono())
+                11 -> wvc.reset(block,m.offset,m.size)
                 9 -> {
                     if (m.size!=4) malformed("int32 info of ${m.size} bytes, want 4")
                     int32Sent=m.byte(0) and 31; int32Zeros=m.byte(1) and 31; int32Ones=m.byte(2) and 31; int32Dups=m.byte(3) and 31
@@ -240,7 +255,7 @@ internal class BlockState {
                     if (crc!=crcWVX) malformed("block at sample ${h.blockIndex} fails its extension CRC")
                 }
                 sent==0 && zeros+ones+dups!=0 -> {
-                    while (h.flags and HYBRID != 0 && h.bytesPerSample()==4 && shift<8) {
+                    while (h.flags and HYBRID != 0 && !corrected && h.bytesPerSample()==4 && shift<8) {
                         when { zeros!=0 -> zeros--; ones!=0 -> ones--; dups!=0 -> dups--; else -> break }
                         shift++
                     }
@@ -250,7 +265,7 @@ internal class BlockState {
             }
         }
         shift=shift and 31
-        if (h.flags and HYBRID != 0) {
+        if (h.flags and HYBRID != 0 && !corrected) {
             val bits=h.bytesPerSample()*8
             val min=if (bits==32) Int.MIN_VALUE shr shift else (-(1 shl (bits-1))) shr shift
             val max=if (bits==32) Int.MAX_VALUE shr shift else ((1 shl (bits-1))-1) shr shift

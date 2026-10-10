@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Ported from WaxFlow codec/wavpack/words.go, fork github.com/AMWolfstein/WaxFlow at b7857aff88820ad37936026421d1641e64611dbe,
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
+// Truncated-binary reader adaptation from libwavpack 5.8.1 src/read_words.c.
+// Copyright (c) 1998-2013 Conifer Software; BSD-3-Clause (THIRD-PARTY-NOTICES).
 package me.misa198.airmedy.codecs.bitstream
 
 import java.nio.ByteBuffer
@@ -41,13 +43,10 @@ internal class BitReader {
         if (Integer.compareUnsigned(maxcode,2)<0) return if (maxcode==0) 0 else getBit()
         val n=32-Integer.numberOfLeadingZeros(maxcode)
         val extras=((1L shl n)-(maxcode.toLong() and 0xffffffffL)-1).toInt()
-        fill(n)
-        var code=(sr and ((1L shl (n-1))-1)).toInt()
-        if (Integer.compareUnsigned(code,extras)>=0) {
-            code=(code shl 1)-extras+((sr ushr (n-1)).toInt() and 1)
-            sr=sr ushr n; bc-=n
-        } else { sr=sr ushr (n-1); bc-=n-1 }
-        return code
+        // Read only bits consumed by this code. Upstream can speculatively wrap
+        // its sentinel buffer; bounded JVM reads must not flag unused lookahead.
+        val code=getBits(n-1)
+        return if (Integer.compareUnsigned(code,extras)>=0) (code shl 1)-extras+getBit() else code
     }
     /** Unsigned 32-bit value in a Long, or -1 for the invalid escape. */
     fun readElias(): Long {

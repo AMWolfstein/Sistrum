@@ -1,0 +1,105 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+wavpack-test-suite-2.0/test_suite/bit_depths/12bit.wv	ok	30.000000	0.330160	0.011005	0
+wavpack-test-suite-2.0/test_suite/bit_depths/16bit.wv	ok	30.000000	0.308839	0.010295	0
+wavpack-test-suite-2.0/test_suite/bit_depths/1bit_dsd.wv	refused: waxflow: wavpack: DSD streams are not supported				
+wavpack-test-suite-2.0/test_suite/bit_depths/20bit.wv	ok	30.000000	0.215537	0.007185	0
+wavpack-test-suite-2.0/test_suite/bit_depths/24bit.wv	ok	30.000000	0.385927	0.012864	0
+wavpack-test-suite-2.0/test_suite/bit_depths/32bit_float.wv	refused: waxflow: wavpack: 32-bit float streams are not supported				
+wavpack-test-suite-2.0/test_suite/bit_depths/32bit_int.wv	ok	30.000000	0.487817	0.016261	0
+wavpack-test-suite-2.0/test_suite/bit_depths/8bit.wv	ok	30.000000	0.349591	0.011653	0
+wavpack-test-suite-2.0/test_suite/corruption/bad_checksums.wv	ok	28.034354	0.292489	0.010433	0
+wavpack-test-suite-2.0/test_suite/corruption/dsd_corrupt.wv	refused: waxflow: wavpack: DSD streams are not supported				
+wavpack-test-suite-2.0/test_suite/corruption/hybrid_corrupt.wv	refused: missing data or crc errors detected in 6 block(s)!				
+wavpack-test-suite-2.0/test_suite/corruption/lossless_corrupt.wv	refused: waxflow: wavpack: block at sample 22050 fails its CRC				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/1024kbps.wv	ok	29.977448	0.749923	0.025016	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/128kbps.wv	ok	29.999229	0.145512	0.004851	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/160kbps.wv	ok	31.424875	0.208500	0.006635	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/24kbps.wv	ok	40.045000	0.031242	0.000780	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/256kbps.wv	ok	28.722812	0.304681	0.010608	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/320kbps.wv	ok	29.999184	0.350553	0.011685	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/32kbps.wv	ok	40.047800	0.043551	0.001087	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/384kbps.wv	ok	30.398776	0.283382	0.009322	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/48kbps.wv	ok	30.396813	0.053691	0.001766	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/512kbps.wv	ok	30.986604	0.423910	0.013680	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/64kbps.wv	ok	31.193515	0.063359	0.002031	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-10.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-20-lossy.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-20.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-30-fast.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-30-lossy.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-30.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-397-hybrid.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-397.wv	refused: waxflow: wavpack: unsupported stream version: only version-4 streams (0x402..0x410) are supported				
+wavpack-test-suite-2.0/test_suite/legacy/vers-40-hybrid.wv	ok	28.459184	0.445424	0.015651	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-40.wv	ok	28.459184	0.411662	0.014465	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-480-hybrid.wv	ok	28.459184	0.339951	0.011945	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-480-sfx.wv	refused: waxflow: wavpack: not a WavPack file				
+wavpack-test-suite-2.0/test_suite/legacy/vers-480.wv	ok	28.459184	0.300997	0.010576	0
+wavpack-test-suite-2.0/test_suite/num_channels/mono-1.wv	ok	24.681020	0.052749	0.002137	0
+wavpack-test-suite-2.0/test_suite/num_channels/multichannel-6.wv	refused: waxflow: wavpack: hybrid streams (and their wvc correction files) are not supported				
+wavpack-test-suite-2.0/test_suite/num_channels/stereo-2.wv	ok	30.517279	0.132449	0.004340	0
+wavpack-test-suite-2.0/test_suite/special_cases/cue_sheet.wv	ok	3393.226667	8.697877	0.002563	0
+wavpack-test-suite-2.0/test_suite/special_cases/custom_srate.wv	ok	29.999972	0.179785	0.005993	0
+wavpack-test-suite-2.0/test_suite/special_cases/hybrid_test.wv	ok	10.000000	0.046013	0.004601	0
+wavpack-test-suite-2.0/test_suite/special_cases/redundant_bits.wv	ok	29.999955	0.213326	0.007111	0
+wavpack-test-suite-2.0/test_suite/special_cases/stereo_mixing.wv	ok	29.999955	0.120597	0.004020	0
+wavpack-test-suite-2.0/test_suite/speed_modes/default.wv	ok	30.000000	0.208327	0.006944	0
+wavpack-test-suite-2.0/test_suite/speed_modes/fast.wv	ok	30.000000	0.154832	0.005161	0
+wavpack-test-suite-2.0/test_suite/speed_modes/high.wv	ok	30.000000	0.304166	0.010139	0
+wavpack-test-suite-2.0/test_suite/speed_modes/vhigh.wv	ok	30.000000	0.425344	0.014178	0
+waxflow-testdata/noise-s16.wv	ok	0.350000	0.002607	0.007448	0
+waxflow-testdata/sine-s16.wv	ok	0.350000	0.001174	0.003355	0
+generated/noise-b2-c.wv	ok	0.092880	0.000740	0.007971	0
+generated/noise-b2.wv	ok	0.092880	0.000736	0.007919	0
+generated/noise-b3.5-c.wv	ok	0.092880	0.000899	0.009680	0
+generated/noise-b3.5.wv	ok	0.092880	0.000891	0.009589	0
+generated/noise-b6-c.wv	ok	0.092880	0.001162	0.012514	0
+generated/noise-b6.wv	ok	0.092880	0.001161	0.012504	0
+generated/silence-b2-c.wv	ok	0.092880	0.000132	0.001427	0
+generated/silence-b2.wv	ok	0.092880	0.000132	0.001426	0
+generated/silence-b3.5-c.wv	ok	0.092880	0.000132	0.001427	0
+generated/silence-b3.5.wv	ok	0.092880	0.000133	0.001427	0
+generated/silence-b6-c.wv	ok	0.092880	0.000134	0.001443	0
+generated/silence-b6.wv	ok	0.092880	0.000133	0.001428	0
+generated/sine-b2-c.wv	ok	0.092880	0.000627	0.006746	0
+generated/sine-b2.wv	ok	0.092880	0.000626	0.006740	0
+generated/sine-b3.5-c.wv	ok	0.092880	0.000803	0.008645	0
+generated/sine-b3.5.wv	ok	0.092880	0.000802	0.008637	0
+generated/sine-b6-c.wv	ok	0.092880	0.001085	0.011681	0
+generated/sine-b6.wv	ok	0.092880	0.001079	0.011614	0
+generated/sweep-b2-c.wv	ok	0.092880	0.000616	0.006637	0
+generated/sweep-b2.wv	ok	0.092880	0.000613	0.006596	0
+generated/sweep-b3.5-c.wv	ok	0.092880	0.000788	0.008487	0
+generated/sweep-b3.5.wv	ok	0.092880	0.000854	0.009199	0
+generated/sweep-b6-c.wv	ok	0.092880	0.001073	0.011548	0
+generated/sweep-b6.wv	ok	0.092880	0.001070	0.011521	0
+generated/noise-b2-c.wv + wvc.wv	ok	0.092880	0.000987	0.010626	0
+generated/noise-b3.5-c.wv + wvc.wv	ok	0.092880	0.001143	0.012311	0
+generated/noise-b6-c.wv + wvc.wv	ok	0.092880	0.001366	0.014708	0
+generated/silence-b2-c.wv + wvc.wv	ok	0.092880	0.001951	0.021007	0
+generated/silence-b3.5-c.wv + wvc.wv	ok	0.092880	0.001894	0.020390	0
+generated/silence-b6-c.wv + wvc.wv	ok	0.092880	0.001895	0.020404	0
+generated/sine-b2-c.wv + wvc.wv	ok	0.092880	0.002183	0.023505	0
+generated/sine-b3.5-c.wv + wvc.wv	ok	0.092880	0.002355	0.025355	0
+generated/sine-b6-c.wv + wvc.wv	ok	0.092880	0.006001	0.064609	0
+generated/sweep-b2-c.wv + wvc.wv	ok	0.092880	0.000921	0.009920	0
+generated/sweep-b3.5-c.wv + wvc.wv	ok	0.092880	0.001087	0.011704	0
+generated/sweep-b6-c.wv + wvc.wv	ok	0.092880	0.001390	0.014963	0
+wavpack-test-suite-2.0/test_suite/corruption/hybrid_corrupt.wv + wvc.wv	refused: missing data or crc errors detected in 14 block(s)!				
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/1024kbps.wv + wvc.wv	ok	29.977448	0.932477	0.031106	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/128kbps.wv + wvc.wv	ok	29.999229	0.110396	0.003680	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/160kbps.wv + wvc.wv	ok	31.424875	0.267079	0.008499	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/24kbps.wv + wvc.wv	ok	40.045000	0.050090	0.001251	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/256kbps.wv + wvc.wv	ok	28.722812	0.371591	0.012937	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/320kbps.wv + wvc.wv	ok	29.999184	0.424365	0.014146	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/32kbps.wv + wvc.wv	ok	40.047800	0.070401	0.001758	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/384kbps.wv + wvc.wv	ok	30.398776	0.398241	0.013101	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/48kbps.wv + wvc.wv	ok	30.396813	0.086343	0.002841	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/512kbps.wv + wvc.wv	ok	30.986604	0.539436	0.017409	0
+wavpack-test-suite-2.0/test_suite/hybrid_bitrates/64kbps.wv + wvc.wv	ok	31.193515	0.102199	0.003276	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-40-hybrid.wv + wvc.wv	ok	28.459184	0.656957	0.023084	0
+wavpack-test-suite-2.0/test_suite/legacy/vers-480-hybrid.wv + wvc.wv	ok	28.459184	0.544972	0.019149	0
+wavpack-test-suite-2.0/test_suite/special_cases/cue_sheet.wv + wvc.wv	ok	3393.226667	11.411577	0.003363	0
+wavpack-test-suite-2.0/test_suite/special_cases/hybrid_test.wv + wvc.wv	ok	10.000000	0.089328	0.008933	0

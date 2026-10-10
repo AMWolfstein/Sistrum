@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Ported from WaxFlow codec/wavpack/decode.go, fork github.com/AMWolfstein/WaxFlow at b7857aff88820ad37936026421d1641e64611dbe,
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
+// libwavpack 5.8.1 adaptation; Copyright (c) 1998-2025 David Bryant.
+// BSD-3-Clause; copyright, conditions and disclaimer in THIRD-PARTY-NOTICES.
 package me.misa198.airmedy.codecs.codec.wavpack
 
 import java.nio.ByteBuffer
@@ -13,13 +15,13 @@ class Decoder(val config: Config) {
     // Reserve the format's existing hostile-input cap at open, avoiding growth allocations.
     val buffer=Buffer(config.channels,config.bitDepth,MAX_BLOCK_SAMPLES)
     init { config.validate() }
-    fun decode(block: ByteBuffer, offset: Int = 0): Buffer? {
+    fun decode(block: ByteBuffer, offset: Int = 0, correction: ByteBuffer?=null): Buffer? {
         val h=header.parse(block,offset)
         if (!h.audio()) return null
         h.supported()
         if (h.channels()!=config.channels || h.bytesPerSample()*8!=config.bitDepth)
             malformed("block at sample ${h.blockIndex} changes format mid-stream")
-        buffer.frames=state.unpackBlock(h,block,offset,buffer.samples)
+        buffer.frames=state.unpackBlock(h,block,offset,buffer.samples,correction)
         buffer.position=h.blockIndex
         return buffer
     }

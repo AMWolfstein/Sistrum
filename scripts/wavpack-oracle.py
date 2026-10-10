@@ -80,7 +80,7 @@ def oracle(build):
                 for link,target in [(input_path,p),(input_path.with_suffix('.wvc'),companion)]:
                     if link.is_symlink():link.unlink()
                     link.symlink_to(target)
-            cmd=[str(build/'wvunpack'),'-q','-y','--threads=1','--raw',*([] if correction else ['-i']),str(input_path),'-o','-']
+            cmd=[str(build/'wvunpack'),'-q','-y','--threads=1','--raw','-b',*([] if correction else ['-i']),str(input_path),'-o','-']
             ref=hashlib.sha256((name+str(correction)).encode()).hexdigest()+'.raw'
             with (refs/ref).open('wb') as output:result=subprocess.run(cmd,stdout=output,stderr=subprocess.PIPE)
             info=subprocess.run([str(build/'wvunpack'),'-f',str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True).stdout.strip()

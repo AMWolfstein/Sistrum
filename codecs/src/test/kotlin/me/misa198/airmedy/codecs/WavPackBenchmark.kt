@@ -14,9 +14,10 @@ import me.misa198.airmedy.codecs.codec.wavpack.WavPackException
  */
 fun main(args: Array<String>) {
     val lib=LibWavPackCorpus.rows.filter { !it.correction && LibWavPackCorpus.active(it) }
-    fun fixture(f: LibWavPackFixture)=Fixture(mapOf("file" to f.name,"status" to if (f.success) "ok" else "refused: ${f.fields["error"]}","frames" to f.info[5],"rate" to f.info[0]),f.source)
+    fun fixture(f: LibWavPackFixture)=Fixture(mapOf("file" to (f.name+if (f.correction) " + wvc.wv" else ""),"status" to if (f.success) "ok" else "refused: ${f.fields["error"]}","frames" to f.info[5],"rate" to f.info[0]),f.source,f.correctionSource)
     val rows=OracleCorpus.rows.map { old -> lib.find { it.name==old.name }?.let(::fixture) ?: old }+
-        lib.filter { it.name.startsWith("generated/") }.map(::fixture)
+        lib.filter { it.name.startsWith("generated/") }.map(::fixture)+
+        LibWavPackCorpus.rows.filter { it.correction && LibWavPackCorpus.active(it) }.map(::fixture)
     val output=File(args.single()); output.parentFile.mkdirs()
     val alloc=ManagementFactory.getThreadMXBean() as? com.sun.management.ThreadMXBean
     if (alloc?.isThreadAllocatedMemorySupported==true) alloc.isThreadAllocatedMemoryEnabled=true
@@ -27,7 +28,7 @@ fun main(args: Array<String>) {
         out.appendLine("file\tstatus\taudio_seconds\tdecode_seconds\treal_time_factor\tallocated_bytes")
         for (fixture in rows.filter { it.name.endsWith(".wv") }) {
             if (fixture.status!="ok") { out.appendLine("${fixture.name}\t${fixture.status}\t\t\t\t"); continue }
-            val stream=try { Wv.open(fixture.byteBuffer()) } catch (e: WavPackException) {
+            val stream=try { Wv.open(fixture.byteBuffer(),fixture.correctionSource?.let { me.misa198.airmedy.codecs.container.ByteBufferSource(java.nio.ByteBuffer.wrap(it.readBytes())) }) } catch (e: WavPackException) {
                 val line="${fixture.name}\toracle mismatch: ${e.message}\t\t\t\t"
                 out.appendLine(line); println(line); continue
             }
