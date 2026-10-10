@@ -79,3 +79,16 @@ float APIs seek to exact samples in pure-lossless and both hybrid paths.
 float conversion, with zero decode-loop allocation bytes. Earlier integer
 benchmark artifacts remain available; native WaxFlow hashes still pass.
 Owned vectors total 328,762 bytes.
+
+## Feature 4: multichannel validation
+
+`./gradlew :codecs:test :codecs:testOwnedWavPack :androidApp:assembleDevDebug
+:codecs:benchmark -PwavpackBenchmarkFeature=multichannel` passed with zero failures,
+errors or skips. All 3/6/8-channel integer, hybrid and float vectors match raw
+wvunpack and expose identical masks. Exact seeks include group interiors,
+block boundaries and EOF, with and without correction. Direct buffer regions
+and 17-byte positional reads exercise both multichannel inputs.
+`codecs/benchmarks/wavpack-multichannel.tsv` records all 11 multichannel cases,
+with zero decode-loop allocation bytes. All previously matching native hashes
+remain unchanged. The self-extracting native file now matches raw wvunpack too.
+Owned vectors total 478,838 bytes.

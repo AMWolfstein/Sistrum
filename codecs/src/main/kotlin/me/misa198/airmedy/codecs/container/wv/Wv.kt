@@ -21,12 +21,12 @@ import me.misa198.airmedy.codecs.codec.wavpack.Decoder
 class Wv private constructor(source: RandomAccessSource, strict: Boolean, correctionSource: RandomAccessSource?=null) {
     val demuxer=Demuxer(source,strict)
     val info get() = demuxer.info
-    private val correction=if (demuxer.config.hybrid && correctionSource!=null) Demuxer(correctionSource,strict) else null
+    private val correction=if (demuxer.config.hybrid && correctionSource!=null) Demuxer(correctionSource,strict,demuxer.config) else null
     /** True when hybrid reconstruction lacks a correction source. */
     val lossyFallback get()=demuxer.config.hybrid && correction==null
     val usesCorrection get()=demuxer.config.hybrid && correction!=null
-    private val decoder=Decoder(demuxer.config)
-    private val floatBuffer=if (demuxer.config.isFloat) FloatBuffer(info.channels,MAX_BLOCK_SAMPLES) else null
+    private val decoder=Decoder(demuxer.config,demuxer.capacityFrames)
+    private val floatBuffer=if (demuxer.config.isFloat) FloatBuffer(info.channels,demuxer.capacityFrames) else null
     private var discard=0L
     private var discontinuity=false
     /** Integer PCM, or raw IEEE-754 words for float streams. Use decodeFloatBlock for floats. */

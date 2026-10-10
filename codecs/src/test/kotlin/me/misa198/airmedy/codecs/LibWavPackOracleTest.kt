@@ -40,7 +40,7 @@ internal object LibWavPackCorpus {
         }
     }
     // Feature gate grows with each separately validated port commit.
-    fun active(f: LibWavPackFixture)= f.flags and (HYBRID or FLOAT_DATA)!=0 && f.flags and DSD==0 && f.flags and (INITIAL_BLOCK or FINAL_BLOCK)==INITIAL_BLOCK or FINAL_BLOCK
+    fun active(f: LibWavPackFixture)=f.info.size>3 && f.flags and DSD==0
 }
 @RunWith(Parameterized::class)
 internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
@@ -57,6 +57,8 @@ internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
             catch (e: WavPackException) { assertEquals(ErrorCode.MALFORMED,e.code) }
             return
         }
+        assertEquals(fixture.info[3].toInt(),stream.info.channels)
+        assertEquals(java.lang.Long.decode(fixture.info[4]).toLong(),stream.info.channelMask)
         val digest=MessageDigest.getInstance("SHA-256"); var bytes=0L
         while (true) { val b=stream.decodeBlock()?:break;val raw=pcmBytes(b);digest.update(raw);bytes+=raw.size }
         assertEquals(fixture.name,fixture.fields.getValue("raw_bytes").toLong(),bytes)
@@ -101,7 +103,8 @@ internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
 class WavPackHybridContractsTest {
     private fun vector()=LibWavPackCorpus.rows.single { it.name=="generated/noise-b2-c.wv" && it.correction }
     @Test fun twoCallerSourcesSupportShortReadsAndBufferRegions() {
-        val f=vector()
+        val names=setOf("generated/noise-b2-c.wv","generated/3ch-mask7-b3-c.wv","generated/6ch-mask3f-b3-c.wv","generated/8ch-mask63f-b3-c.wv")
+        for (f in LibWavPackCorpus.rows.filter { it.correction && it.name in names }) {
         fun region(bytes:ByteArray):ByteBuffer=ByteBuffer.allocateDirect(bytes.size+13).also { it.position(7);it.put(bytes);it.limit(7+bytes.size);it.position(7) }
         val main=region(f.source.readBytes());val companion=region(f.correctionSource!!.readBytes())
         fun shortReads(b:ByteBuffer)=object:me.misa198.airmedy.codecs.container.RandomAccessSource {
@@ -126,6 +129,7 @@ class WavPackHybridContractsTest {
         stream.seekSample(513);assertEquals(513L,stream.decodeBlock()!!.position)
         val fallback=Wv.open(me.misa198.airmedy.codecs.container.ByteBufferSource(main),null)
         assertTrue(fallback.lossyFallback);assertFalse(fallback.usesCorrection)
+        }
     }
     @Test fun suppliedCorrectionMustMatchSampleIndices() {
         val f=vector();val companion=ByteBuffer.wrap(f.correctionSource!!.readBytes()).order(java.nio.ByteOrder.LITTLE_ENDIAN)

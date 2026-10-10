@@ -20,12 +20,12 @@ private const val MAX_BLOCK_BYTES=(1 shl 20)+8
 
 data class Warning(val offset: Long, val message: String, val note: Boolean=false)
 data class StreamInfo(val sampleRate: Int, val channels: Int, val bits: Int,
-                      val validBits: Int, val totalSamples: Long, val samplesExact: Boolean, val isFloat: Boolean=false)
+                      val validBits: Int, val totalSamples: Long, val samplesExact: Boolean, val isFloat: Boolean=false, val channelMask: Long=if (channels==1) 4 else 3)
 
 /** Native .wv block walk and sample-index bisection. RandomAccessSource provides bounded positional reads.
  * Headers and packet descriptors are borrowed and reused; the source itself is never copied.
  */
-class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false) {
+class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false, private val correctionConfig:Config?=null) {
     lateinit var config: Config
         private set
     lateinit var info: StreamInfo
@@ -34,7 +34,10 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
     private val dataEnd: Long
     private val w=Window(source)
     private val scans=Window(source)
-    val packetData: ByteBuffer=ByteBuffer.allocate(MAX_BLOCK_BYTES)
+    var packetData: ByteBuffer=ByteBuffer.allocate(MAX_BLOCK_BYTES)
+        private set
+    var capacityFrames=MAX_BLOCK_SAMPLES
+        private set
     private var firstBlock=0L
     private var initialIndex=0L
     private var off=0L
@@ -58,9 +61,14 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
     init {
         require(source.length>=0) { "negative source length" }
         rejectLegacyRiff(w)
-        if (w.ensure(0,4)<4 || !match(w.data,w.index(0))) malformed("not a WavPack file")
         dataEnd=stripTrailers(w)
         w.dataEnd=dataEnd; scans.dataEnd=dataEnd
+        if (w.ensure(0,4)<4) malformed("not a WavPack file")
+        if (!match(w.data,w.index(0))) {
+            if (u8(w.data,w.index(0))!=0x4d || u8(w.data,w.index(0)+1)!=0x5a || !nextCandidate(0,minOf(dataEnd,MAX_RESYNC.toLong())))
+                malformed("not a WavPack file")
+            firstBlock=candidateOffset
+        }
         parse()
     }
     private fun warn(offset: Long, message: String, note: Boolean=false) {
@@ -76,7 +84,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
         return into.size<=dataEnd-offset
     }
     private fun parse() {
-        var offset=0L; var i=0
+        var offset=firstBlock; var i=0
         while (true) {
             checkVersionAt(offset)
             if (!blockAt(offset,cur)) malformed("no parsable block at offset $offset")
@@ -86,7 +94,9 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
         }
         readBlock(offset,cur.size.toInt())
         config=probeBlock(packetData)
+        if (correctionConfig!=null) config=config.copy(channels=correctionConfig.channels,channelMask=correctionConfig.channelMask)
         firstBlock=offset; initialIndex=cur.blockIndex; off=offset; valid=true
+        if (config.channels>2) reserveChannelGroups()
         var samples=-1L; var exact=false
         if (cur.blockIndex==0L && cur.totalSamples>=0) {
             samples=cur.totalSamples
@@ -101,7 +111,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
             val end=scanTail()
             if (end>=0) { samples=end-initialIndex; exact=true }
         }
-        info=StreamInfo(config.rate,config.channels,config.bitDepth,config.validBits,samples,exact,config.isFloat)
+        info=StreamInfo(config.rate,config.channels,config.bitDepth,config.validBits,samples,exact,config.isFloat,config.channelMask)
     }
     private fun tilesToEnd(start: Long): Boolean {
         var offset=start; var i=0
@@ -156,7 +166,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
     private fun confirm(offset: Long): Boolean {
         if (!blockAt(offset,confirmHeader)) return false
         if (::config.isInitialized && confirmHeader.audio() &&
-            (confirmHeader.channels()!=config.channels || confirmHeader.bytesPerSample()*8!=config.bitDepth)) return false
+            ((config.channels<=2 && confirmHeader.channels()!=config.channels) || confirmHeader.bytesPerSample()*8!=config.bitDepth)) return false
         val end=offset+confirmHeader.size
         return end==dataEnd || blockAt(end,scratch)
     }
@@ -181,7 +191,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
         var offset=from
         while (offset<limit) {
             if (!nextCandidate(offset,limit)) return false
-            if (candidate.audio()) return true
+            if (candidate.audio() && candidate.flags and INITIAL_BLOCK!=0) return true
             offset=candidateOffset+1
         }
         return false
@@ -199,15 +209,49 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
         }
         off=end; cur.copyFrom(scratch)
     }
+    private fun reserveChannelGroups() {
+        // Scan only headers at open to reserve actual maximum frame/packet spans,
+        // avoiding enormous worst-case buffers for high channel counts.
+        var offset=firstBlock;var bytes=0L;var channels=0;var active=false
+        var maxBytes=0;var maxFrames=0
+        while (offset<dataEnd && blockAt(offset,scanHeader)) {
+            val h=scanHeader
+            if (h.audio()) {
+                if (h.flags and INITIAL_BLOCK!=0) {
+                    if (active) malformed("incomplete channel group at offset $offset")
+                    active=true;bytes=0;channels=0
+                } else if (!active) malformed("channel group lacks initial block at offset $offset")
+                bytes+=h.size;channels+=h.channels();maxFrames=maxOf(maxFrames,h.blockSamples)
+                if (bytes>Int.MAX_VALUE) malformed("channel group is too large")
+                if (h.flags and FINAL_BLOCK!=0) {
+                    if (channels!=config.channels) malformed("channel group has $channels channels, expected ${config.channels}")
+                    maxBytes=maxOf(maxBytes,bytes.toInt());active=false
+                }
+            } else if (active) malformed("metadata interrupts channel group")
+            offset+=h.size
+        }
+        if (active || maxBytes==0) malformed("incomplete channel group")
+        capacityFrames=maxFrames
+        packetData=ByteBuffer.allocate(maxBytes)
+    }
     fun readPacket(): Boolean {
         while (valid) {
             if (!cur.audio()) { advance(); continue }
-            if (cur.channels()!=config.channels || cur.bytesPerSample()*8!=config.bitDepth)
-                malformed("mid-stream format change at offset $off")
-            packetHeader.copyFrom(cur); packetOffset=off; packetPosition=cur.blockIndex-initialIndex
-            readBlock(off,cur.size.toInt())
-            w.trim(off)
-            advance()
+            if (cur.flags and INITIAL_BLOCK==0) malformed("channel group lacks initial block at offset $off")
+            packetHeader.copyFrom(cur);packetOffset=off;packetPosition=cur.blockIndex-initialIndex
+            val start=off;var bytes=0L;var channels=0
+            while (true) {
+                if (cur.blockIndex!=packetHeader.blockIndex || cur.blockSamples!=packetHeader.blockSamples || cur.bytesPerSample()*8!=config.bitDepth)
+                    malformed("mid-stream format change at offset $off")
+                channels+=cur.channels();bytes+=cur.size
+                if (bytes>packetData.capacity()) malformed("channel group exceeds reserved packet size")
+                val final=cur.flags and FINAL_BLOCK!=0
+                if (final) break
+                advance()
+                if (!valid || !cur.audio() || cur.flags and INITIAL_BLOCK!=0) malformed("incomplete channel group at offset $start")
+            }
+            if (channels!=config.channels) malformed("channel group has $channels channels, expected ${config.channels}")
+            readBlock(start,bytes.toInt());w.trim(start);advance()
             return true
         }
         return false
@@ -255,7 +299,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false)
         off=bisectOffset; cur.copyFrom(bisectHeader); valid=true
         var lastOff=off; lastHeader.copyFrom(cur)
         while (valid) {
-            if (cur.audio()) {
+            if (cur.audio() && cur.flags and INITIAL_BLOCK!=0) {
                 if (pos(cur)>sample) break
                 if (pos(cur)+cur.blockSamples>sample) return pos(cur)
                 lastOff=off; lastHeader.copyFrom(cur)

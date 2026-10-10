@@ -107,7 +107,7 @@ internal class BlockState {
     private lateinit var h: BlockHeader
     private var int32Sent=0; private var int32Zeros=0; private var int32Ones=0; private var int32Dups=0
     private var int32MaxWidth=0; private var crcWVX=0
-    fun unpackBlock(header: BlockHeader, block: ByteBuffer, offset: Int, out: IntArray, correction: ByteBuffer?=null): Int {
+    fun unpackBlock(header: BlockHeader, block: ByteBuffer, offset: Int, out: IntArray, correction: ByteBuffer?=null, correctionOffset: Int=0): Int {
         h=header
         if (h.size>block.limit()-offset) malformed("block declares ${h.size} bytes but only ${block.limit()-offset} are present")
         // In-place equivalent of Go's *s = blockState{h:h}; no state crosses blocks.
@@ -116,10 +116,10 @@ internal class BlockState {
         int32Sent=0; int32Zeros=0; int32Ones=0; int32Dups=0; int32MaxWidth=0; crcWVX=0
         readMetadata(block,offset)
         if (correction!=null && h.flags and HYBRID!=0) {
-            correctionHeader.parse(correction)
+            correctionHeader.parse(correction,correctionOffset)
             if (correctionHeader.blockIndex!=h.blockIndex || correctionHeader.blockSamples!=h.blockSamples || correctionHeader.flags!=h.flags)
                 malformed("correction block does not match at sample ${h.blockIndex}")
-            readMetadata(correction,0,correctionHeader.size.toInt())
+            readMetadata(correction,correctionOffset,correctionHeader.size.toInt())
             corrected=true
         }
         if (!wv.open()) malformed("block has no wv bitstream")

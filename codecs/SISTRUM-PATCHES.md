@@ -321,3 +321,25 @@ original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
 - Existing seek/trim and correction reconstruction precede float conversion.
   The encoder corpus now exercises pure-lossless and both hybrid float paths,
   including signed zeros, subnormals, infinities and quiet/signaling NaN payloads.
+
+### Multichannel groups and masks
+
+- Ported `open_utils.c` old/extended channel-count and unsigned mask metadata,
+  and `unpack_utils.c` initial/final channel-group assembly and channel interleave.
+  One reused physical-block state feeds a preallocated logical-channel buffer;
+  no predictors carry between independently coded physical blocks.
+- For multichannel inputs only, bounded header reads at open reserve the actual
+  maximum packet span and frame count. This avoids multiplying a worst-case
+  buffer by the channel count. No encoded audio is retained wholesale and no
+  buffer grows during decoding. Main and correction groups use independent spans.
+- Correction parsing shares the main stream's declared channel configuration,
+  as upstream's streams share one context. Missing correction channel metadata
+  must not collapse a multichannel correction group to stereo. Headers and sample
+  spans still match for every physical block before combining correction data.
+- Seek bisection and forward landing select INITIAL_BLOCK, never an interior
+  channel block. Full groups are reconstructed before sample-exact trimming.
+- The previously refused self-extracting native file is opened by a bounded
+  native-header scan after an MZ prefix. Executable data is never executed; the
+  codec only reads its native WavPack payload, matching upstream's stream search.
+- `StreamInfo.channelMask` is an unsigned 32-bit mask held in a Long. Channel
+  identity/tag APIs and application routing remain outside this decoder API.
