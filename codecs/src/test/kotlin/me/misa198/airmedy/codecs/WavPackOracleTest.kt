@@ -17,6 +17,16 @@ internal class WavPackOracleTest(private val fixture: Fixture) {
     }
     @Test fun matchesOracle() {
         val data=fixture.byteBuffer()
+        if (fixture.status.contains("hybrid streams") && fixture.name.endsWith(".wvc")) {
+            try { val stream=Wv.open(data);while (stream.decodeBlock()!=null) { };fail("Correction-only input decoded") }
+            catch (e: WavPackException) { assertEquals("wavpack: block has no wv bitstream",e.message) }
+            return
+        }
+        if (fixture.status.contains("hybrid streams")) {
+            // This mode has moved to the pinned libwavpack oracle, including damaged inputs.
+            assertNotNull(LibWavPackCorpus.rows.single { it.name==fixture.name && !it.correction })
+            return
+        }
         if (fixture.status!="ok") {
             if (fixture.status=="refused: waxflow: format: unrecognized input (no magic bytes matched)") {
                 // This correction file is rejected by WaxFlow's format registry before wv.NewDemuxer.

@@ -13,7 +13,10 @@ import me.misa198.airmedy.codecs.codec.wavpack.WavPackException
  * full decodes per file. RTF = wall decode seconds / audio seconds (lower is faster).
  */
 fun main(args: Array<String>) {
-    val rows=OracleCorpus.rows
+    val lib=LibWavPackCorpus.rows.filter { !it.correction && LibWavPackCorpus.active(it) }
+    fun fixture(f: LibWavPackFixture)=Fixture(mapOf("file" to f.name,"status" to if (f.success) "ok" else "refused: ${f.fields["error"]}","frames" to f.info[5],"rate" to f.info[0]),f.source)
+    val rows=OracleCorpus.rows.map { old -> lib.find { it.name==old.name }?.let(::fixture) ?: old }+
+        lib.filter { it.name.startsWith("generated/") }.map(::fixture)
     val output=File(args.single()); output.parentFile.mkdirs()
     val alloc=ManagementFactory.getThreadMXBean() as? com.sun.management.ThreadMXBean
     if (alloc?.isThreadAllocatedMemorySupported==true) alloc.isThreadAllocatedMemoryEnabled=true

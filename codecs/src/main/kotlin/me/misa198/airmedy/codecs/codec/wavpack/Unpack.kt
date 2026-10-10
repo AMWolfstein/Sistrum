@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Ported from WaxFlow codec/wavpack/unpack.go, fork github.com/AMWolfstein/WaxFlow at b7857aff88820ad37936026421d1641e64611dbe,
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
+// Hybrid sample fixup port: libwavpack 5.8.1 src/unpack.c.
+// Copyright (c) 1998-2013 Conifer Software; 1998-2025 David Bryant.
+// BSD-3-Clause; conditions and disclaimer in THIRD-PARTY-NOTICES.
 package me.misa198.airmedy.codecs.codec.wavpack
 
 import java.nio.ByteBuffer
@@ -109,7 +112,7 @@ internal class BlockState {
         readMetadata(block,offset)
         if (!wv.open()) malformed("block has no wv bitstream")
         val n=h.blockSamples; val mono=h.mono(); val span=if (mono) n else n*2
-        val got=w.getWordsLossless(wv,out,n,mono)
+        val got=if (h.flags and HYBRID != 0) w.getWordsHybrid(wv,out,n,h.flags) else w.getWordsLossless(wv,out,n,mono)
         if (got!=n) malformed("bitstream ends after $got of $n samples")
         if (wv.over) malformed("block at sample ${h.blockIndex} reads past the end of its bitstream")
         var crc=-1
@@ -141,6 +144,7 @@ internal class BlockState {
                 3 -> readDecorrWeights(m,mono)
                 4 -> readDecorrSamples(m,mono)
                 5 -> readEntropyVars(m,mono)
+                6 -> w.readHybridProfile(m,h.flags)
                 9 -> {
                     if (m.size!=4) malformed("int32 info of ${m.size} bytes, want 4")
                     int32Sent=m.byte(0) and 31; int32Zeros=m.byte(1) and 31; int32Ones=m.byte(2) and 31; int32Dups=m.byte(3) and 31
@@ -224,7 +228,7 @@ internal class BlockState {
     private fun fixup(buf: IntArray, length: Int) {
         var shift=h.shift()
         if (h.flags and INT32_DATA != 0) {
-            val sent=int32Sent; val zeros=int32Zeros; val ones=int32Ones; val dups=int32Dups
+            val sent=int32Sent; var zeros=int32Zeros; var ones=int32Ones; var dups=int32Dups
             when {
                 wvx.open() -> {
                     var crc=-1; var i=0
@@ -236,13 +240,22 @@ internal class BlockState {
                     if (crc!=crcWVX) malformed("block at sample ${h.blockIndex} fails its extension CRC")
                 }
                 sent==0 && zeros+ones+dups!=0 -> {
+                    while (h.flags and HYBRID != 0 && h.bytesPerSample()==4 && shift<8) {
+                        when { zeros!=0 -> zeros--; ones!=0 -> ones--; dups!=0 -> dups--; else -> break }
+                        shift++
+                    }
                     var i=0; while (i<length) { buf[i]=synthesizeLowBits(buf[i],zeros,ones,dups); i++ }
                 }
                 else -> shift+=zeros+sent+ones+dups
             }
         }
         shift=shift and 31
-        if (shift!=0) { var i=0; while (i<length) { buf[i]=buf[i] shl shift; i++ } }
+        if (h.flags and HYBRID != 0) {
+            val bits=h.bytesPerSample()*8
+            val min=if (bits==32) Int.MIN_VALUE shr shift else (-(1 shl (bits-1))) shr shift
+            val max=if (bits==32) Int.MAX_VALUE shr shift else ((1 shl (bits-1))-1) shr shift
+            var i=0; while (i<length) { buf[i]=buf[i].coerceIn(min,max) shl shift; i++ }
+        } else if (shift!=0) { var i=0; while (i<length) { buf[i]=buf[i] shl shift; i++ } }
     }
     private fun sendBits(v: Int, sent: Int): Int {
         if (int32MaxWidth==0) return (v shl sent) or wvx.getBits(sent)
