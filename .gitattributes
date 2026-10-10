@@ -1,3 +1,24 @@
 # graphify knowledge graph: generated, keep diffs collapsed.
 graphify-out/graph.json linguist-generated=true -diff
 graphify-out/.graphify_analysis.json linguist-generated=true -diff
+
+# Audio belongs in SISTRUM_ORACLE_DIR, never in git.
+*.[wW][vV] binary
+*.[wW][vV][cC] binary
+*.[dD][sS][fF] binary
+*.[dD][fF][fF] binary
+*.[aA][pP][eE] binary
+*.[mM][pP][cC] binary
+*.[wW][mM][aA] binary
+*.[aA][sS][fF] binary
+*.[aA][iI][fF] binary
+*.[aA][iI][fF][fF] binary
+*.[aA][iI][fF][cC] binary
+*.[wW][aA][vV] binary
+*.[fF][lL][aA][cC] binary
+*.[mM]4[aA] binary
+*.[cC][aA][fF] binary
+*.[mM][pP]3 binary
+*.[oO][gG][gG] binary
+*.[oO][pP][uU][sS] binary
+*.[mM]4[bB] binary

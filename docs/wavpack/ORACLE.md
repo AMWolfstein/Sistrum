@@ -17,7 +17,9 @@ exact error text are committed in `codecs/src/test/resources/wavpack/libwavpack.
 Raw reference audio stays in the cache and is never committed. Upstream errors
 remain separate from successful raw parity expectations.
 
-Owned original CC0-1.0 vectors live in `codecs/src/test/resources/wavpack/generated`.
+Owned original CC0-1.0 vectors live outside git in
+`$SISTRUM_ORACLE_DIR/owned/wavpack/generated` (default
+`~/.cache/sistrum-waxflow-oracle/owned/wavpack/generated`).
 `corpus-manifest.tsv` records every source hash, signal generator and actual
 encoder command (with path placeholders). The deterministic Decimal Q24 sine
 table and integer phase/noise operations avoid platform libm variation. Signals
@@ -28,8 +30,9 @@ normal and high modes, mono/stereo/six channels, DSD64/128/256 and duplicated
 noise/silence planes. Owned DSF/DFF originals are included for adapter tests.
 PCM blocks have 512 frames; DSD blocks have 511 byte frames so tests exercise
 DoP carry across odd block boundaries. Both provide interior seek boundaries.
-The generator fails at 5,000,000 bytes; larger corpora must be generated at test
-time rather than committed.
+All audio, including encoder inputs, is generated on demand and never committed.
+The unified rebuild command is `bash scripts/waxflow-oracle.sh --fetch-generate`.
+Normal generation compares against committed hashes; it never replaces expectations.
 
 The external suite remains local-only under `~/.cache/sistrum-waxflow-oracle`,
 as specified in `docs/waxflow/ORACLE.md`. Its compressed hashes are already in

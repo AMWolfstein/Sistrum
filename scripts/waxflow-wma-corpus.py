@@ -10,9 +10,7 @@ src,corpus=map(pathlib.Path,sys.argv[1:]);corpus=corpus.resolve()
 if corpus.is_relative_to(pathlib.Path(__file__).resolve().parent.parent):
     raise SystemExit('Corpus must remain outside the repo')
 root=corpus/'waxflow-wma-tests';root.mkdir(parents=True,exist_ok=True)
-for name in ['sine-wmav1.wma','sine-wmav2.wma','chapters.wma','frag.wma','tagged.wma']:
-    dst=root/'container/asf/testdata'/name;dst.parent.mkdir(parents=True,exist_ok=True)
-    shutil.copyfile(src/'container/asf/testdata'/name,dst)
+# Upstream samples are fetched by the external manifest, not copied into owned.
 with tempfile.TemporaryDirectory(dir=corpus.parent, prefix='sistrum-wma-gen-') as temp:
     for rate in (8000,16000,22050,32000,44100,48000):
         for channels in (1,2):

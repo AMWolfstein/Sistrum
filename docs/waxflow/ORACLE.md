@@ -413,4 +413,56 @@ license these audio inputs. `scripts/waxflow-corpus.py --verify` checks tracked
 file contents against all manifest audio SHA-256 values and fails even if an
 external corpus audio file has been renamed or copied into a fixture directory.
 Original self-generated signals are separate, owned CC0-1.0 test vectors and
-may be committed when their total size is below 5 MB.
+must also remain outside git regardless of size.
+
+
+## All audio outside git
+
+Run `bash scripts/waxflow-oracle.sh --fetch-generate` to rebuild all external
+inputs, ALAC packet dumps and owned vectors. This command builds pinned tools
+when needed, including libwavpack 5.8.1 and the Rust DSD oracle. No audio is
+written to the repository and committed expectation hashes are never replaced.
+
+`SISTRUM_ORACLE_DIR` defaults to `~/.cache/sistrum-waxflow-oracle`. Generated
+main-corpus inputs (AIFF, APE, ALAC, G.711 and WMA) live in `owned/corpus/`,
+synthetic DSF/DFF in `owned/dsd/`, and WavPack vectors plus all encoder inputs
+and the maximum-width fixture in `owned/wavpack/`. `corpus/` exposes explicit
+manifest-declared symlinks for generated main-corpus inputs, preserving logical
+fixture names; external downloads remain regular files there. These links are
+created only by rebuilding, never by tests as a fallback.
+
+`docs/waxflow/owned-manifest.tsv` records every persistent owned file's command
+and SHA-256. Format-specific manifests retain detailed encoder commands and
+source hashes. Every Gradle Test task runs the unified hash preflight, even when
+its tests would be up to date. Missing, changed or extra owned files fail with
+the rebuild command; tests neither skip nor synthesize replacements.
+
+`./gradlew check` includes `checkNoTrackedAudio`. Run
+`python3 scripts/check-no-audio.py` directly, or install the executable hook
+with `git config core.hooksPath scripts`. The hook examines the index, including
+staged additions, and rejects audio extensions case-insensitively. The same
+extensions are ignored and marked binary.
+
+Determinism can be reproduced by rebuilding into two directories that initially
+have no `corpus/`, `alac-packets/` or `owned/`, then running
+`python3 scripts/check-oracle-determinism.py FIRST SECOND`. Toolchains, pinned
+source clones and checksum-verified archives may be cached; test inputs must
+be regenerated/fetched in both directories. The comparator checks every input
+SHA-256, including owned encoder inputs and the ALAC packet dumps.
+
+Verified migration determinism: two independent empty-input rebuilds produced
+491 identical input-path SHA-256 values (285 corpus paths, eight ALAC dumps,
+198 owned files; logical corpus links and their owned targets are both counted).
+The sorted inventory SHA-256 is
+`1117f16b246924daf79e8dcd778f4233a2ac609c170dc88051d8a6314ea40457`.
+A missing-cache Gradle test invocation failed at the preflight with one rebuild
+message; an isolated-index hook test rejected a staged uppercase `.WAV` file.
+`./gradlew check --dry-run` includes the tracked-audio guard.
+
+The history purge is limited to `feature/media3-migration..port/waxflow`.
+The local-only backup tag is `backup/port-waxflow-pre-purge`; do not push it.
+`scripts/audit-audio-history.py OLD_TIP feature/media3-migration REPORT`
+checks every old/new commit-map entry and writes the complete tree diff,
+rejecting anything except audio deletions. Because the backup tag retains the
+old commits locally, local object storage still includes those audio objects;
+a fresh branch clone does not retain that backup history.

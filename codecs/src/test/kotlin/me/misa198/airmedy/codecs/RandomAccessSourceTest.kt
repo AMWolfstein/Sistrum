@@ -69,7 +69,7 @@ class RandomAccessSourceTest {
         assertEquals(1,reads)
     }
     @Test fun extendedIntegerMaximumWidthMatchesPinnedGo() {
-        val bytes=javaClass.getResourceAsStream("/wavpack/extended-max-width.wv")!!.use { it.readBytes() }
+        val bytes=java.io.File(System.getProperty("oracle.owned"),"wavpack/extended-max-width.wv").readBytes()
         val reference=javaClass.getResourceAsStream("/wavpack/extended-max-width.json")!!.bufferedReader().use { it.readText() }
         fun field(name: String)=Regex(""""$name": "([^"]+)"""").find(reference)!!.groupValues[1]
         assertEquals(OracleCorpus.PIN,field("waxflow_commit"))
