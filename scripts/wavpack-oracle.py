@@ -57,6 +57,13 @@ def generate(build):
         body=b'WAVEfmt '+struct.pack('<I',len(fmt))+fmt+b'data'+struct.pack('<I',len(payload))+payload
         src=work/f'{ch}ch.wav';src.write_bytes(b'RIFF'+struct.pack('<I',len(body))+body)
         encode(f'{ch}ch-mask{mask:x}',src,[],f'{ch} independent sines; channel mask 0x{mask:x}')
+        encode(f'{ch}ch-mask{mask:x}-b3-c',src,['-b3','-c','--cross-decorr'],f'{ch} independent sines; channel mask 0x{mask:x}')
+    ch=6;mask=63
+    payload=b''.join(struct.pack('<f',table[(i*(31+c*7))&1023]/(1<<24)) for i in range(4096) for c in range(ch))
+    fmt=struct.pack('<HHIIHHHHI',0xfffe,ch,44100,44100*ch*4,ch*4,32,22,32,mask)+bytes.fromhex('0300000000001000800000aa00389b71')
+    body=b'WAVEfmt '+struct.pack('<I',len(fmt))+fmt+b'data'+struct.pack('<I',len(payload))+payload
+    src=work/'6ch-float.wav';src.write_bytes(b'RIFF'+struct.pack('<I',len(body))+body)
+    encode('6ch-float-mask3f',src,[],'6 float sines; channel mask 0x3f')
     planes=gen.signal(2822400,2,4096,table)
     for ext in ['dsf','dff']:
         src=work/('owned.'+ext);src.write_bytes(getattr(gen,ext)(2822400,planes))

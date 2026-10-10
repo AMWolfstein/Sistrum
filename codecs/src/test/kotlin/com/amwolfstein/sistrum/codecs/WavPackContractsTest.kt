@@ -26,7 +26,7 @@ class WavPackContractsTest {
             refused(ErrorCode.UNSUPPORTED,message) { Wv.open(b) }
         }
         val multichannel=raw(); multichannel.putInt(24,multichannel.getInt(24) and 0x1000.inv())
-        refused(ErrorCode.UNSUPPORTED,"more than 2 channels: only mono and stereo are supported") { Wv.open(multichannel) }
+        refused(ErrorCode.MALFORMED,"incomplete channel group at offset 0") { Wv.open(multichannel).decodeBlock() }
         val both=raw(); both.putInt(24,both.getInt(24) or (1 shl 31) or 8 or 128)
         refused(ErrorCode.UNSUPPORTED,"DSD streams are not supported") { Wv.open(both) }
     }
@@ -54,7 +54,9 @@ class WavPackContractsTest {
         val source=original.duplicate(); source.limit(header.size.toInt()); block.put(source)
         block.put(0xd.toByte()).put(1.toByte()).put(6.toByte()).put(0.toByte())
         block.putInt(4,block.capacity()-8)
-        refused(ErrorCode.UNSUPPORTED,"6 channels: only mono and stereo are supported") { probeBlock(block) }
+        val config=probeBlock(block)
+        assertEquals(6,config.channels);assertEquals(0L,config.channelMask)
+        refused(ErrorCode.MALFORMED,"incomplete channel group at sample 0") { Decoder(config).decode(block) }
         val flags=raw(); flags.putInt(24,flags.getInt(24) or 4 or 0x40000000)
         refused(ErrorCode.MALFORMED,"block is flagged both mono and false-stereo") { BlockHeader().parse(flags) }
     }

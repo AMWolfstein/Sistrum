@@ -1,0 +1,14 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+wavpack-test-suite-2.0/test_suite/num_channels/multichannel-6.wv	ok	30.906984	0.814674	0.026359	0
+generated/3ch-mask7-b3-c.wv	ok	0.092880	0.001623	0.017478	0
+generated/3ch-mask7.wv	ok	0.092880	0.009475	0.102014	0
+generated/6ch-float-mask3f.wv	ok	0.092880	0.016111	0.173462	0
+generated/6ch-mask3f-b3-c.wv	ok	0.092880	0.002316	0.024938	0
+generated/6ch-mask3f.wv	ok	0.092880	0.002072	0.022304	0
+generated/8ch-mask63f-b3-c.wv	ok	0.092880	0.003051	0.032851	0
+generated/8ch-mask63f.wv	ok	0.092880	0.002770	0.029822	0
+generated/3ch-mask7-b3-c.wv + wvc.wv	ok	0.092880	0.001350	0.014534	0
+generated/6ch-mask3f-b3-c.wv + wvc.wv	ok	0.092880	0.002805	0.030197	0
+generated/8ch-mask63f-b3-c.wv + wvc.wv	ok	0.092880	0.003526	0.037959	0

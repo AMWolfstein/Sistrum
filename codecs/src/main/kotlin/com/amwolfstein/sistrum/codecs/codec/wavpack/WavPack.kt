@@ -89,8 +89,6 @@ class BlockHeader {
     fun supported() {
         when {
             flags and DSD != 0 -> unsupported("DSD streams are not supported")
-            flags and (INITIAL_BLOCK or FINAL_BLOCK) != INITIAL_BLOCK or FINAL_BLOCK ->
-                unsupported("more than 2 channels: only mono and stereo are supported")
         }
     }
 }
@@ -120,10 +118,11 @@ internal class Metadata {
     fun int(i: Int) = le32(block,offset+i)
 }
 
-data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false, val isFloat: Boolean=false) {
+data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false, val isFloat: Boolean=false, val channelMask: Long=if (channels==1) 4 else 3) {
     fun validate() {
         if (rate<=0) malformed("sample rate $rate outside 1..2147483647")
-        if (channels !in 1..2) unsupported("$channels channels: only mono and stereo are supported")
+        if (channels !in 1..4096) malformed("channel count $channels outside 1..4096")
+        if (channelMask<0 || channelMask>0xffffffffL || java.lang.Long.bitCount(channelMask)>channels) malformed("invalid channel mask")
         if (bitDepth !in intArrayOf(8,16,24,32)) malformed("bit depth $bitDepth, want 8/16/24/32")
         if (isFloat && bitDepth!=32) malformed("float stream must store 32-bit samples")
         if (validBits !in 1..bitDepth) malformed("valid bits $validBits outside 1..$bitDepth")
@@ -137,6 +136,7 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
     if (h.size>b.limit()-off) malformed("block declares ${h.size} bytes but only ${b.limit()-off} are present")
     val idx=(h.flags ushr 23) and 15
     var rate=if (idx<SRATE_TABLE.size) SRATE_TABLE[idx] else 0
+    var channels=h.channels();var mask=if (channels==1) 4L else 3L
     val m=Metadata(); m.reset(b,off,h.size.toInt())
     while (m.next()) {
         when (m.id) {
@@ -144,10 +144,22 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
                 rate=m.byte(0) or (m.byte(1) shl 8) or (m.byte(2) shl 16)
                 if (m.size==4) rate=rate or ((m.byte(3) and 127) shl 24)
             }
-            0xd -> if (m.size>0 && m.byte(0)>2) unsupported("${m.byte(0)} channels: only mono and stereo are supported")
+            0xd -> {
+                if (m.size !in 1..7) malformed("invalid channel information length")
+                mask=0L
+                if (m.size>=6) {
+                    channels=(m.byte(0) or ((m.byte(2) and 15) shl 8))+1
+                    val streams=(m.byte(1) or ((m.byte(2) and 240) shl 4))+1
+                    if (channels<streams || channels>streams*2) malformed("invalid channel stream count")
+                    var i=3;while (i<m.size) { mask=mask or (m.byte(i).toLong() shl ((i-3)*8));i++ }
+                } else {
+                    channels=m.byte(0)
+                    var i=1;while (i<m.size) { mask=mask or (m.byte(i).toLong() shl ((i-1)*8));i++ }
+                }
+            }
         }
     }
-    return Config(rate,h.channels(),h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0,h.flags and FLOAT_DATA!=0).also { it.validate() }
+    return Config(rate,channels,h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0,h.flags and FLOAT_DATA!=0,mask).also { it.validate() }
 }
 
 internal fun crcMono(crc: Int,v: Int) = crc*3+v
