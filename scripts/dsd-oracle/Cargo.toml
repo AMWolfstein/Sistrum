@@ -1,0 +1,16 @@
+[package]
+name = "sistrum-dsd-oracle"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dsf-meta = "=0.3.0"
+dff-meta = "=0.2.0"
+dsd-source = "=0.2.0"
+id3 = "=1.16.3"
+log = "=0.4.28"
+sha2 = "=0.10.9"
+
+[profile.release]
+overflow-checks = false

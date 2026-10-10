@@ -1,0 +1,21 @@
+path	source	license	sha256
+dsd128-1ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	9252fcef66168ab05d030b8b31f5ca6686c066bebb653327f522f319c1fbec3f
+dsd128-1ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	544d162ed8255d12c4bce94f0e0951cac3333484dabc186aa2d19203c11f13b4
+dsd128-2ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	8ab9e3293125c3a64062225d20132d20d9adda9c0322ce9cc4eb8534fa64fb4c
+dsd128-2ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	950224d42296bfb0271812138a73abd2f4c56c92fedd28297f197fc8680908bd
+dsd128-6ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	98aedbd4fc1a9ac1135852a058369de6f516d338cab5d8f177a0855b8b8d163d
+dsd128-6ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	a24e45374c6295f8afdba9b360e7ce0b77b2a19965baf67ffb4a41d10fe30eb6
+dsd256-1ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	c32ec17444dbfd5a7ae60300d741935ad73e9e1d68a67a6245e9c77f72847127
+dsd256-1ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	4f4382072d92c963d1fa8b08ecafb9bb92c8751cdc047c29157c1ed15f070d38
+dsd256-2ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	cbb6ab2b3b04bea6be28454ae1d720094fcf16f271209bc0bc0ec4dbc2c144db
+dsd256-2ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	aaf62b917602d987a70a65d5107bc14e7a089d95a43d87f1e76f4fa7c889d7d0
+dsd256-6ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	3ae9cc4c82dee18ec8614d120417b45c106c6e486dbb32e13094ee5c3344de20
+dsd256-6ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	5ec34b8ca2401cf5e4fc184381a93cd1faa2454f23a72105ec8c050927be2258
+dsd64-1ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	b1f5a06f386afc67f189acc481f1fc4c0a6aa2d7a586f3537a679bcd70d38926
+dsd64-1ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	30d81357bd4b4ce06d24cfbda4d3b42a9ce7010841957f93218c5b7454a576bc
+dsd64-2ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	7bfa6e81682b36ead263a9222874157489346c1283d114ffae6e35efbca4022e
+dsd64-2ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	5af34a7df1e0147b22ddb5d0ed4629a9c43217c6c012842cd7b7ec2633a64041
+dsd64-6ch.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	47fac1d4c5f26b48c407784717f5050416733f2a62ca5000c8b1aa3835c3a611
+dsd64-6ch.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	57b08739d007baca76bbd31e784dc9e7c51fae6ccfc35d1e0faef5b8c5aa64a6
+dsd64-msb-partial-bits.dsf	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	be14854f6f5a3a1a476485d889ba9cb1cf01e36fccac186e11d97ce74235809b
+dst-compressed.dff	python3 scripts/dsd-oracle/generate.py {corpus}	CC0-1.0	76b1e2850eacc39353c40a464eb264429c627d7247c8f5be269f656f3b63ad98
