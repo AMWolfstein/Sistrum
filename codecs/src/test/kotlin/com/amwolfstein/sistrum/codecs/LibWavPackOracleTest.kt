@@ -40,7 +40,7 @@ internal object LibWavPackCorpus {
         }
     }
     // Feature gate grows with each separately validated port commit.
-    fun active(f: LibWavPackFixture)=f.info.size>3 && f.flags and DSD==0
+    fun active(f: LibWavPackFixture)=f.info.size>3
 }
 @RunWith(Parameterized::class)
 internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
@@ -49,20 +49,34 @@ internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
         fun corpus(): Collection<Array<Any>> = LibWavPackCorpus.rows.filter { LibWavPackCorpus.active(it) }.map { arrayOf<Any>(it) }
     }
     @Test fun matchesRawOracle() {
-        val stream=fixture.open()
-        assertEquals(fixture.correction && fixture.flags and HYBRID!=0,stream.usesCorrection)
-        assertEquals(!fixture.correction && fixture.flags and HYBRID!=0,stream.lossyFallback)
         if (!fixture.success) {
-            try { while (stream.decodeBlock()!=null) { }; fail("Accepted file with wvunpack error: ${fixture.fields["error"]}") }
+            try { val stream=fixture.open();while (stream.decodeBlock()!=null) { };fail("Accepted file with wvunpack error: ${fixture.fields["error"]}") }
             catch (e: WavPackException) { assertEquals(ErrorCode.MALFORMED,e.code) }
             return
         }
+        val stream=fixture.open()
+        assertEquals(fixture.correction && fixture.flags and HYBRID!=0,stream.usesCorrection)
+        assertEquals(!fixture.correction && fixture.flags and HYBRID!=0,stream.lossyFallback)
+        assertEquals(fixture.info[0].toInt(),if (stream.info.isDsd) stream.info.dsdSampleRate else stream.info.sampleRate)
         assertEquals(fixture.info[3].toInt(),stream.info.channels)
         assertEquals(java.lang.Long.decode(fixture.info[4]).toLong(),stream.info.channelMask)
         val digest=MessageDigest.getInstance("SHA-256"); var bytes=0L
-        while (true) { val b=stream.decodeBlock()?:break;val raw=pcmBytes(b);digest.update(raw);bytes+=raw.size }
+        while (true) { val b=stream.decodeBlock()?:break;val raw=if (stream.info.isDsd) ByteArray(b.frames*b.channels) { b.samples[it].toByte() } else pcmBytes(b);digest.update(raw);bytes+=raw.size }
         assertEquals(fixture.name,fixture.fields.getValue("raw_bytes").toLong(),bytes)
         assertEquals(fixture.name,fixture.fields.getValue("raw_sha256"),digest.digest().hex())
+    }
+    @Test fun rawDsdApiPreservesBits() {
+        if (!fixture.success || fixture.flags and DSD==0) return
+        val stream=fixture.open();assertTrue(stream.info.isDsd)
+        val digest=MessageDigest.getInstance("SHA-256");var borrowed:Any?=null;var storage:Any?=null
+        while (true) {
+            val b=stream.decodeDsdBlock()?:break
+            if (borrowed!=null) { assertSame(borrowed,b);assertSame(storage,b.bytes) }
+            borrowed=b;storage=b.bytes;digest.update(b.bytes,0,b.bytesPerChannel*b.channels)
+        }
+        assertEquals(fixture.fields.getValue("raw_sha256"),digest.digest().hex())
+        assertEquals(fixture.info[5].toLong(),stream.info.totalDsdSamples)
+        stream.seekSample(513);val b=stream.decodeDsdBlock()!!;assertEquals(513L,b.bytePosition);assertEquals(4104L,b.bitPosition);assertTrue(b.discontinuity)
     }
     @Test fun floatApiPreservesIeeeBits() {
         if (!fixture.success || fixture.flags and FLOAT_DATA==0) return

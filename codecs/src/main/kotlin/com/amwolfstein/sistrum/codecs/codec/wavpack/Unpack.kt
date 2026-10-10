@@ -101,6 +101,7 @@ internal class BlockState {
     private val corrections=IntArray(MAX_BLOCK_SAMPLES*2)
     private val hybrid=HybridReconstruction()
     private val floats=FloatFixup()
+    private val dsd=DsdState()
     private val correctionHeader=BlockHeader()
     private var corrected=false
     private val metadata=Metadata()
@@ -112,7 +113,7 @@ internal class BlockState {
         if (h.size>block.limit()-offset) malformed("block declares ${h.size} bytes but only ${block.limit()-offset} are present")
         // In-place equivalent of Go's *s = blockState{h:h}; no state crosses blocks.
         for (term in terms) term.reset()
-        nterm=0; w.reset(); wv.clear(); wvx.clear(); wvc.clear(); hybrid.reset(); floats.reset(); corrected=false
+        nterm=0; w.reset(); wv.clear(); wvx.clear(); wvc.clear(); hybrid.reset(); floats.reset(); dsd.reset(); corrected=false
         int32Sent=0; int32Zeros=0; int32Ones=0; int32Dups=0; int32MaxWidth=0; crcWVX=0
         readMetadata(block,offset)
         if (correction!=null && h.flags and HYBRID!=0) {
@@ -122,6 +123,7 @@ internal class BlockState {
             readMetadata(correction,correctionOffset,correctionHeader.size.toInt())
             corrected=true
         }
+        if (h.flags and DSD!=0) return dsd.decode(h,out)
         if (!wv.open()) malformed("block has no wv bitstream")
         val n=h.blockSamples; val mono=h.mono(); val span=if (mono) n else n*2
         val got=if (h.flags and HYBRID != 0) w.getWordsHybrid(wv,out,n,h.flags,if (corrected) wvc else null,if (corrected) corrections else null) else w.getWordsLossless(wv,out,n,mono)
@@ -162,6 +164,7 @@ internal class BlockState {
                 7 -> hybrid.readShaping(m,h.mono())
                 8 -> floats.readInfo(m)
                 11 -> wvc.reset(block,m.offset,m.size)
+                14 -> dsd.readInfo(m,h)
                 9 -> {
                     if (m.size!=4) malformed("int32 info of ${m.size} bytes, want 4")
                     int32Sent=m.byte(0) and 31; int32Zeros=m.byte(1) and 31; int32Ones=m.byte(2) and 31; int32Dups=m.byte(3) and 31

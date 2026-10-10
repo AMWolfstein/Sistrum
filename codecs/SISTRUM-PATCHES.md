@@ -343,3 +343,24 @@ original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
   codec only reads its native WavPack payload, matching upstream's stream search.
 - `StreamInfo.channelMask` is an unsigned 32-bit mask held in a Long. Channel
   identity/tag APIs and application routing remain outside this decoder API.
+
+### Raw DSD and existing output adapters
+
+- Ported libwavpack 5.8.1 `unpack_dsd.c` raw, fast byte-range and high bit-range
+  decoding, with unsigned 32-bit arithmetic represented by masked Long values.
+  Probability, lookup and adaptive filter tables are reserved at open and reused.
+  Mono, false stereo and multichannel groups retain upstream CRC semantics.
+- Native WavPack DSD sample/seek units are bytes per channel, as in upstream's
+  native API. `dsdSampleRate`, `totalDsdSamples` and `DsdBuffer.bitPosition`
+  expose bit units explicitly. Borrowed output bytes are interleaved, MSB first.
+- A damaged block raises a malformed-stream error rather than upstream's
+  muted block output; the oracle reports CRC errors for each such input.
+- The original `WavPackDsd` adapter feeds the project's existing
+  `DsdDecimationPipeline` and `DopPacker`; no upstream DSD-to-PCM filter is ported.
+  It reserves planar scratch and borrowed outputs at open, retains incomplete
+  DoP frames across odd native blocks, and keeps independent PCM/DoP cursors.
+  Exact PCM seeks replay existing filter history before trimming; DoP seeks
+  reset markers to the absolute carrier frame. Replay cost is outside benchmark
+  decode loops and is a deliberate time-for-bounded-memory tradeoff.
+- Owned DSF/DFF inputs accompany the encoded vectors so adapter parity and the
+  existing DSD specification checks are available without external corpus data.

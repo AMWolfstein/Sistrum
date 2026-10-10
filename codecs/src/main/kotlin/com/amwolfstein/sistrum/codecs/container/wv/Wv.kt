@@ -10,6 +10,7 @@ import com.amwolfstein.sistrum.codecs.container.RandomAccessSource
 import com.amwolfstein.sistrum.codecs.container.ByteBufferSource
 import com.amwolfstein.sistrum.codecs.audio.Buffer
 import com.amwolfstein.sistrum.codecs.audio.FloatBuffer
+import com.amwolfstein.sistrum.codecs.audio.DsdBuffer
 import com.amwolfstein.sistrum.codecs.codec.wavpack.MAX_BLOCK_SAMPLES
 import com.amwolfstein.sistrum.codecs.codec.wavpack.Decoder
 
@@ -27,9 +28,10 @@ class Wv private constructor(source: RandomAccessSource, strict: Boolean, correc
     val usesCorrection get()=demuxer.config.hybrid && correction!=null
     private val decoder=Decoder(demuxer.config,demuxer.capacityFrames)
     private val floatBuffer=if (demuxer.config.isFloat) FloatBuffer(info.channels,demuxer.capacityFrames) else null
+    private val dsdBuffer=if (demuxer.config.isDsd) DsdBuffer(info.channels,demuxer.capacityFrames) else null
     private var discard=0L
     private var discontinuity=false
-    /** Integer PCM, or raw IEEE-754 words for float streams. Use decodeFloatBlock for floats. */
+    /** Integer PCM, raw IEEE-754 words, or unsigned DSD bytes. Typed methods expose float/DSD buffers. */
     fun decodeBlock(): Buffer? {
         while (demuxer.readPacket()) {
             if (correction!=null) {
@@ -49,6 +51,14 @@ class Wv private constructor(source: RandomAccessSource, strict: Boolean, correc
             return out
         }
         return null
+    }
+    /** Raw DSD uses the same byte-sample seek units as upstream WavpackSeekSample64. */
+    fun decodeDsdBlock(): DsdBuffer? {
+        val out=dsdBuffer ?: throw com.amwolfstein.sistrum.codecs.codec.wavpack.WavPackException(com.amwolfstein.sistrum.codecs.codec.wavpack.ErrorCode.INVALID_REQUEST,"stream is not DSD")
+        val raw=decodeBlock() ?: return null
+        var i=0;while (i<raw.frames*raw.channels) { out.bytes[i]=raw.samples[i].toByte();i++ }
+        out.bytesPerChannel=raw.frames;out.bytePosition=raw.position;out.discontinuity=raw.discontinuity
+        return out
     }
     fun decodeFloatBlock(): FloatBuffer? {
         val out=floatBuffer ?: throw com.amwolfstein.sistrum.codecs.codec.wavpack.WavPackException(com.amwolfstein.sistrum.codecs.codec.wavpack.ErrorCode.INVALID_REQUEST,"stream is not float")

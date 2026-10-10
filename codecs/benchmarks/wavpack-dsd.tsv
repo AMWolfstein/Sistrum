@@ -1,0 +1,43 @@
+# OpenJDK 64-Bit Server VM 21.0.12.1; amd64; 8 CPUs
+# Warmups=5; measured decodes=5; median RTF; file loading/open/seek/hash excluded; bounded memory reads included; allocation bytes per full decode
+file	status	audio_seconds	decode_seconds	real_time_factor	allocated_bytes
+wavpack-test-suite-2.0/test_suite/bit_depths/1bit_dsd.wv [raw]	ok	30.000000	2.660857	0.088695	0
+wavpack-test-suite-2.0/test_suite/bit_depths/1bit_dsd.wv [pcm]	ok	30.000000	4.025238	0.134175	0
+wavpack-test-suite-2.0/test_suite/bit_depths/1bit_dsd.wv [dop]	ok	30.000000	2.599216	0.086641	0
+wavpack-test-suite-2.0/test_suite/corruption/dsd_corrupt.wv	refused: missing data or crc errors detected in 21 block(s)!	-	-	-	-
+generated/dsd-1ch-high.wv [raw]	ok	0.011618	0.001506	0.129587	0
+generated/dsd-1ch-high.wv [pcm]	ok	0.011618	0.001818	0.156496	0
+generated/dsd-1ch-high.wv [dop]	ok	0.011618	0.001548	0.133243	0
+generated/dsd-1ch.wv [raw]	ok	0.011618	0.001592	0.137050	0
+generated/dsd-1ch.wv [pcm]	ok	0.011618	0.001885	0.162250	0
+generated/dsd-1ch.wv [dop]	ok	0.011618	0.002252	0.193862	0
+generated/dsd-6ch-high.wv [raw]	ok	0.011618	0.005759	0.495661	0
+generated/dsd-6ch-high.wv [pcm]	ok	0.011618	0.003989	0.343294	0
+generated/dsd-6ch-high.wv [dop]	ok	0.011618	0.002320	0.199655	0
+generated/dsd-6ch.wv [raw]	ok	0.011618	0.001118	0.096194	0
+generated/dsd-6ch.wv [pcm]	ok	0.011618	0.002929	0.252056	0
+generated/dsd-6ch.wv [dop]	ok	0.011618	0.001266	0.108971	0
+generated/dsd-dff-high.wv [raw]	ok	0.011618	0.000523	0.045015	0
+generated/dsd-dff-high.wv [pcm]	ok	0.011618	0.001129	0.097196	0
+generated/dsd-dff-high.wv [dop]	ok	0.011618	0.000583	0.050187	0
+generated/dsd-dff.wv [raw]	ok	0.011618	0.000361	0.031034	0
+generated/dsd-dff.wv [pcm]	ok	0.011618	0.001490	0.128274	0
+generated/dsd-dff.wv [dop]	ok	0.011618	0.000785	0.067532	0
+generated/dsd-dsf-high.wv [raw]	ok	0.011618	0.000517	0.044523	0
+generated/dsd-dsf-high.wv [pcm]	ok	0.011618	0.001112	0.095712	0
+generated/dsd-dsf-high.wv [dop]	ok	0.011618	0.000565	0.048648	0
+generated/dsd-dsf.wv [raw]	ok	0.011618	0.000367	0.031575	0
+generated/dsd-dsf.wv [pcm]	ok	0.011618	0.000958	0.082452	0
+generated/dsd-dsf.wv [dop]	ok	0.011618	0.000414	0.035604	0
+generated/dsd-noise.wv [raw]	ok	0.011618	0.000725	0.062397	0
+generated/dsd-noise.wv [pcm]	ok	0.011618	0.001344	0.115685	0
+generated/dsd-noise.wv [dop]	ok	0.011618	0.000786	0.067662	0
+generated/dsd-silence.wv [raw]	ok	0.011618	0.001895	0.163073	0
+generated/dsd-silence.wv [pcm]	ok	0.011618	0.002538	0.218451	0
+generated/dsd-silence.wv [dop]	ok	0.011618	0.001933	0.166402	0
+generated/dsd128-high.wv [raw]	ok	0.005809	0.003044	0.523982	0
+generated/dsd128-high.wv [pcm]	ok	0.005809	0.003725	0.641269	0
+generated/dsd128-high.wv [dop]	ok	0.005809	0.000744	0.128014	0
+generated/dsd256-high.wv [raw]	ok	0.002905	0.001181	0.406460	0
+generated/dsd256-high.wv [pcm]	ok	0.002905	0.002489	0.856751	0
+generated/dsd256-high.wv [dop]	ok	0.002905	0.001239	0.426604	0

@@ -17,18 +17,15 @@ class WavPackContractsTest {
         try { action(); fail("Expected $code: $message") }
         catch (e: WavPackException) { assertEquals(code,e.code); assertEquals("wavpack: $message",e.message) }
     }
-    @Test fun unsupportedFlagsAreNamedAndOrdered() {
-        val cases=listOf(
-            (1 shl 31) to "DSD streams are not supported"
-        )
-        for ((flag,message) in cases) {
-            val b=raw(); b.putInt(24,b.getInt(24) or flag)
-            refused(ErrorCode.UNSUPPORTED,message) { Wv.open(b) }
-        }
-        val multichannel=raw(); multichannel.putInt(24,multichannel.getInt(24) and 0x1000.inv())
+    @Test fun formatFlagsRequireMatchingMetadata() {
+        val dsd=raw();dsd.putInt(24,dsd.getInt(24) or DSD)
+        refused(ErrorCode.MALFORMED,"block has no DSD bitstream") { Wv.open(dsd) }
+        val float=raw();float.putInt(24,float.getInt(24) or FLOAT_DATA)
+        refused(ErrorCode.MALFORMED,"float stream must store 32-bit samples") { Wv.open(float) }
+        val multichannel=raw();multichannel.putInt(24,multichannel.getInt(24) and FINAL_BLOCK.inv())
         refused(ErrorCode.MALFORMED,"incomplete channel group at offset 0") { Wv.open(multichannel).decodeBlock() }
-        val both=raw(); both.putInt(24,both.getInt(24) or (1 shl 31) or 8 or 128)
-        refused(ErrorCode.UNSUPPORTED,"DSD streams are not supported") { Wv.open(both) }
+        val both=raw();both.putInt(24,both.getInt(24) or DSD or HYBRID or FLOAT_DATA)
+        refused(ErrorCode.MALFORMED,"block has no DSD bitstream") { Wv.open(both) }
     }
     @Test fun hybridFlagWithoutProfileHasZeroErrorLimit() {
         val b=raw(); b.putInt(24,b.getInt(24) or 8)
