@@ -204,3 +204,15 @@ tasks.register<JavaExec>("benchmarkAiff") {
     args(layout.buildDirectory.file("reports/aiff-benchmark.tsv").get().asFile.absolutePath)
     maxHeapSize = "512m"
 }
+
+tasks.register<JavaExec>("benchmarkDsd") {
+    group = "verification"
+    description = "Measure DSD PCM decimation and codec-only DoP packing time and allocations."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.codecs.DsdBenchmark")
+    systemProperty("dsd.corpus", dsdCorpus.get())
+    systemProperty("dsd.fixtures", dsdFixtures.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/dsd-benchmark.tsv").get().asFile.absolutePath)
+    maxHeapSize = "512m"
+}

@@ -614,3 +614,65 @@ Validation: **755 full-module tests, zero failures/errors/skips**;
 `assembleDevDebug` passed. Per-file median laptop RTF is **0.000138–0.009435**,
 with **zero median decode-loop allocation bytes for every file**. See
 `benchmarks/aiff.tsv`. Open, seek, file loading and hashing are excluded.
+
+## DSD: DSF/DFF, PCM decimation and codec-only DoP
+
+Media3 **1.11.1** has no DSF/DFF extractor or bundled DSD decimator/DoP packer.
+Inspection of the resolved extractor, decoder and exoplayer AAR `classes.jar`
+entries found no such implementation (the substring hit `EsdsData` is MP4 ESDS
+metadata). **Decision: port both containers and the DSD processing helpers.**
+No Android, Media3, Flutter, Rust/native dependency or playback integration is
+added to this module.
+
+Source pins, licenses and standalone Rust reproduction are in
+[`docs/dsd/ORACLE.md`](../docs/dsd/ORACLE.md). Flick supplies the third-order CIC,
+512-tap Kaiser FIR and DoP word/marker logic. dsf-meta 0.3.0 and dff-meta 0.2.0
+supply audio header parsing. Adaptations and suspected source limitations are
+recorded in `SISTRUM-PATCHES.md`; original licenses are packaged in the jar.
+
+`container.dsd.Dsd.open(RandomAccessSource | ByteBuffer, targetRate = 176400)`
+selects DSF or DFF. The stream exposes DSD/PCM rates, channels, physical layout
+and sample counts. `decodeBlock()` returns borrowed interleaved float32 PCM;
+`decodeDopBlock()` returns borrowed left-justified Int32 DoP words. Both reuse
+buffers. `seekSample()` restores CIC/FIR history by replay; `seekDopSample()`
+restores the exact carrier sample and alternating marker. Cursors are independent,
+so decoding PCM does not consume DoP. Caller retains ownership of the source.
+Only the requested DSD64/128/256 rates are admitted by the container API.
+
+The original CC0 generator (`scripts/dsd-oracle/generate.py`) uses integer
+sigma-delta feedback with known sine and sweep signals. Twenty files cover
+three rates, mono/stereo/5.1, both containers, odd tails, ID3 presence/absence,
+DIIN, MSB DSF and sub-byte tails, plus a DST header refusal. Every source hash is
+in `docs/waxflow/dsd-corpus-manifest.tsv`; no audio is copied into the repository.
+Rebuild and verify with `bash scripts/dsd-oracle.sh --fetch-generate`. Every JVM
+test task checks both the WaxFlow and DSD manifests before input validation.
+
+All **16 successful files** match Rust's float32 PCM SHA-256 bit for bit. Every
+DoP first-eight-frame window matches Rust; full-stream marker continuity and
+exact forward/backward PCM/DoP seeks are checked. Eighty parameterized tests
+also cover output reuse, short reads, direct ByteBuffer regions and source
+metadata. Three contract tests cover bounded opening, reset without decoding,
+PCM-target rejection and the LSB DoP helper.
+
+| Refusal reason (exact oracle error) | Files |
+|---|---|
+| `dff: CHNL number not found or is unsupported.` | `dsd64-6ch.dff`, `dsd128-6ch.dff`, `dsd256-6ch.dff` |
+| `dff: Compression type must be 'DSD '. DST not supported.` | `dst-compressed.dff` |
+
+DFF 5.1 is a pinned parser limitation; DSF 5.1 decodes exactly. The DST vector
+has a zero-frame compressed header and proves refusal only. DSF physical block
+padding/ID3 and DFF DIIN chunks never enter the audio decoder. The source has no
+FIR-tail drain, drops incomplete decimation groups and treats DSF samples as
+whole bytes; these semantics are retained.
+
+Validation: **838 full-module tests, zero failures/errors/skips**, including
+83 DSD checks; four standalone Rust tests and `assembleDevDebug` passed.
+Benchmark (`benchmarks/dsd.tsv`): PCM RTF **0.375983–5.128097** and DoP RTF
+**0.003165–0.061481**, with **zero median allocated decode-loop bytes on every
+successful file in both modes**. DSD256 stereo PCM RTF is **1.478477 (DFF)** and
+**2.138809 (DSF)**; corresponding DoP RTF is **0.019181** and **0.024332**.
+RTF above one is slower than real time on this laptop. These are short synthetic
+files and a JVM proxy, not a phone gate. Twenty warmups and five full measured
+passes are used; loading/open/seek/hash are excluded, but every decoded audio
+block and positional read is timed. FIR/CIC processing remains faithful rather
+than optimized to meet a performance threshold.

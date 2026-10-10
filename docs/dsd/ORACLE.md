@@ -86,3 +86,26 @@ refused**. Paired DSF/DFF successful files have identical PCM and DoP output.
 Every ported Kotlin file begins with SPDX GPL-3.0-or-later and identifies the
 original source path, exact version/commit and MIT or MIT/Apache-2.0 origin.
 The original license notices are included in codecs/THIRD-PARTY-NOTICES.
+
+## Kotlin validation
+
+The DSF/DFF container API admits the corpus's DSD64/128/256 rates, returns
+borrowed interleaved float32 PCM, and provides a separate codec-only Int32 DoP
+cursor. Sample seeks restore the source state exactly; ByteBuffer and bounded
+RandomAccessSource reads share the same parser and processing path.
+
+All 16 decoded files match the Rust PCM hash and DoP window exactly, including
+5.1 DSF; all four parser refusals match complete messages. No coefficient
+snapshot or lossy tolerance was needed. There are 83 DSD JVM checks and 838
+full-module tests, with zero failures/errors/skips. The four Rust source tests
+and Android `assembleDevDebug` also pass. Per-file benchmark measurements are
+committed in `codecs/benchmarks/dsd.tsv`; median decode-loop allocations are zero.
+PCM RTF is 0.375983–5.128097; DSD256 stereo is 1.478477 for DFF and 2.138809 for
+DSF. This faithful implementation does not yet meet real time for those files
+on this laptop. DoP RTF is 0.003165–0.061481.
+
+Source issues and API scope are recorded without a source modification in
+`codecs/SISTRUM-PATCHES.md`: no FIR drain, discarded partial groups, DFF's
+mono/stereo limit, suspected missing odd-property padding advancement, and
+DSD512's three-byte DoP boundary behavior. DSD512 is not exposed by this
+container API and has no claimed corpus validation.

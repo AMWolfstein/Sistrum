@@ -198,3 +198,36 @@ records JVM port deviations within the authorized Sistrum file scope.
 - Tests serialize non-byte-aligned integers using the Go oracle's WAV packing:
   valid bits are left-justified in whole-byte output words before hashing.
   This changes neither the expected hash nor the decoder's right-justified PCM.
+
+## DSD: Flick, dsf-meta and dff-meta
+
+- Separate source pins and reproducible Rust oracle are documented in
+  `docs/dsd/ORACLE.md`; this port does not derive DSD behavior from WaxFlow.
+- Flick's `DsdDecimationPipeline` preserves third-order integer/fractional CIC
+  arithmetic, wrapping Long accumulators, 512-tap FIR rotation and summation
+  order, runtime Kaiser coefficient generation and float32 output. The source
+  allocates CIC/channel/coefficient vectors in each call; JVM scratch and
+  interleaved output are allocated once at open. Logging is omitted.
+- DSF/DFF native data is read positionally through RandomAccessSource and
+  rearranged into planar, MSB-first 4096-byte units, matching the harness.
+  Physical DSF padding and following ID3/DIIN chunks are excluded from audio.
+  Metadata editing and ID3 tag values are outside the codec API; only source
+  stream information and physical channel labels are exposed.
+- Native parser chunk structures become audio header fields. Bounds and
+  arithmetic are checked before positional reads; malformed/truncated bounds
+  have explicit JVM I/O errors. DFF chunks are advanced with even-byte padding;
+  dff-meta's recognized property-chunk reader appears to omit this advance for
+  odd payloads. The corpus's recognized properties have even sizes, so no
+  claimed parity result relies on changing that suspected source behavior.
+- PCM seeking replays all preceding CIC/FIR state and retains the requested
+  remainder in the borrowed block. DoP seeking computes the byte offset and
+  alternating marker from the absolute carrier sample. The two cursors are
+  independent. Neither mode is wired into playback.
+- The container API admits the required DSD64/128/256 rates and documented
+  Flick PCM targets. DSD512 is outside the corpus and this container API:
+  Flick's three-byte DoP words drop one byte at every 4096-byte input boundary,
+  so a faithful exact-seek contract needs a separate covered decision before
+  exposing that rate. The low-level DopPacker retains the source's 32-bit mode.
+- dff-meta's mono/stereo limit and DST refusal are retained verbatim. DSF's
+  whole-byte sample_count/8 rule, dropped partial FIR groups and lack of a
+  delayed-tail drain are retained. No source fix or PCM tolerance was used.
