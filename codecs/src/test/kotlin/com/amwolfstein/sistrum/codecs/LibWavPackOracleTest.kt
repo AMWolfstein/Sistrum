@@ -40,7 +40,7 @@ internal object LibWavPackCorpus {
         }
     }
     // Feature gate grows with each separately validated port commit.
-    fun active(f: LibWavPackFixture)= f.flags and HYBRID!=0 && f.flags and (DSD or FLOAT_DATA)==0 && f.flags and (INITIAL_BLOCK or FINAL_BLOCK)==INITIAL_BLOCK or FINAL_BLOCK
+    fun active(f: LibWavPackFixture)= f.flags and (HYBRID or FLOAT_DATA)!=0 && f.flags and DSD==0 && f.flags and (INITIAL_BLOCK or FINAL_BLOCK)==INITIAL_BLOCK or FINAL_BLOCK
 }
 @RunWith(Parameterized::class)
 internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
@@ -50,8 +50,8 @@ internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
     }
     @Test fun matchesRawOracle() {
         val stream=fixture.open()
-        assertEquals(fixture.correction,stream.usesCorrection)
-        assertEquals(!fixture.correction,stream.lossyFallback)
+        assertEquals(fixture.correction && fixture.flags and HYBRID!=0,stream.usesCorrection)
+        assertEquals(!fixture.correction && fixture.flags and HYBRID!=0,stream.lossyFallback)
         if (!fixture.success) {
             try { while (stream.decodeBlock()!=null) { }; fail("Accepted file with wvunpack error: ${fixture.fields["error"]}") }
             catch (e: WavPackException) { assertEquals(ErrorCode.MALFORMED,e.code) }
@@ -61,6 +61,18 @@ internal class LibWavPackOracleTest(private val fixture: LibWavPackFixture) {
         while (true) { val b=stream.decodeBlock()?:break;val raw=pcmBytes(b);digest.update(raw);bytes+=raw.size }
         assertEquals(fixture.name,fixture.fields.getValue("raw_bytes").toLong(),bytes)
         assertEquals(fixture.name,fixture.fields.getValue("raw_sha256"),digest.digest().hex())
+    }
+    @Test fun floatApiPreservesIeeeBits() {
+        if (!fixture.success || fixture.flags and FLOAT_DATA==0) return
+        val stream=fixture.open();assertTrue(stream.info.isFloat)
+        val digest=MessageDigest.getInstance("SHA-256");var borrowed:Any?=null;var storage:Any?=null
+        while (true) {
+            val b=stream.decodeFloatBlock()?:break
+            if (borrowed!=null) { assertSame(borrowed,b);assertSame(storage,b.samples) }
+            borrowed=b;storage=b.samples;digest.update(pcmBytes(b))
+        }
+        assertEquals(fixture.fields.getValue("raw_sha256"),digest.digest().hex())
+        stream.seekSample(513);val b=stream.decodeFloatBlock()!!;assertEquals(513L,b.position);assertTrue(b.discontinuity)
     }
     @Test fun exactSeeking() {
         if (!fixture.success) return

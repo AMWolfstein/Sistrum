@@ -19,8 +19,7 @@ class WavPackContractsTest {
     }
     @Test fun unsupportedFlagsAreNamedAndOrdered() {
         val cases=listOf(
-            (1 shl 31) to "DSD streams are not supported",
-            128 to "32-bit float streams are not supported"
+            (1 shl 31) to "DSD streams are not supported"
         )
         for ((flag,message) in cases) {
             val b=raw(); b.putInt(24,b.getInt(24) or flag)

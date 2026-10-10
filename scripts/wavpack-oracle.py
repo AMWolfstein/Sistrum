@@ -45,9 +45,12 @@ def generate(build):
         for bitrate in ['2','3.5','6']:
             for correction in [False,True]:
                 encode(f'{kind}-b{bitrate}'+('-c' if correction else ''),src,[f'-b{bitrate}',*(['-c'] if correction else []),'--raw-pcm=44100,16,2'],kind)
-    floats=[0.0,-0.0,1.0,-1.0,0.125,-0.75,1e-30,1e20]
-    src=work/'float.raw';src.write_bytes(b''.join(struct.pack('<f',floats[i%8] if i%13==0 else table[(i*31)&1023]/(1<<24)) for i in range(8192)))
-    encode('float32',src,['--raw-pcm=44100,32f,2'],'sine + signed zero and extreme finite floats')
+    special=[0x00000000,0x80000000,0x00000001,0x80000001,0x007fffff,0x00800000,
+             0x3f800000,0xbf800000,0x7f800000,0xff800000,0x7fc12345,0x7f812345,0xffc12345]
+    src=work/'float.raw'
+    src.write_bytes(b''.join(struct.pack('<I',special[(i//13)%len(special)]) if i%13==0 else struct.pack('<f',table[(i*31)&1023]/(1<<24)) for i in range(8192)))
+    for name,options in [('float32',[]),('float32-b6',['-b6']),('float32-b6-c',['-b6','-c'])]:
+        encode(name,src,[*options,'--raw-pcm=44100,32f,2'],'sine + signed zero/subnormals/infinity/NaN payloads')
     for ch,mask in [(3,7),(6,63),(8,0x63f)]:
         payload=b''.join(struct.pack('<h',table[(i*(31+c*7))&1023]//1024) for i in range(4096) for c in range(ch))
         fmt=struct.pack('<HHIIHHHHI',0xfffe,ch,44100,44100*ch*2,ch*2,16,22,16,mask)+bytes.fromhex('0100000000001000800000aa00389b71')
@@ -85,7 +88,7 @@ def oracle(build):
             with (refs/ref).open('wb') as output:result=subprocess.run(cmd,stdout=output,stderr=subprocess.PIPE)
             info=subprocess.run([str(build/'wvunpack'),'-f',str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True).stdout.strip()
             # Keep the exact tool diagnostic and exit status for damaged/legacy inputs.
-            rows.append([name,sha(p),str(correction).lower(),str(companion.relative_to(VECTORS)) if correction and name.startswith('generated/') else str(companion.relative_to(external)) if correction else '',sha(companion) if correction else '',result.returncode,(refs/ref).stat().st_size,sha(refs/ref),ref,';'.join(info.split(';')[:9]),result.stderr.decode(errors='replace').strip().replace('\n',' | ')])
+            rows.append([name,sha(p),str(correction).lower(),str(companion.relative_to(VECTORS)) if correction and name.startswith('generated/') else str(companion.relative_to(external)) if correction else '',sha(companion) if correction else '',result.returncode,(refs/ref).stat().st_size,sha(refs/ref),ref,';'.join(info.split(';')[:9]),result.stderr.decode(errors='replace').strip().replace('\n',' | ') or '-'])
     with FIXTURES.open('w') as f:
         f.write('# libwavpack_tag\t'+TAG+'\n# libwavpack_commit\t'+PIN+'\n')
         w=csv.writer(f,delimiter='\t',lineterminator='\n');w.writerow(['file','sha256','correction','correction_file','correction_sha256','exit','raw_bytes','raw_sha256','reference','info','error']);w.writerows(rows)

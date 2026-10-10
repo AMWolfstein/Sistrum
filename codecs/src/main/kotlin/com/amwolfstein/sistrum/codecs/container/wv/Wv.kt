@@ -9,6 +9,8 @@ import java.nio.ByteBuffer
 import com.amwolfstein.sistrum.codecs.container.RandomAccessSource
 import com.amwolfstein.sistrum.codecs.container.ByteBufferSource
 import com.amwolfstein.sistrum.codecs.audio.Buffer
+import com.amwolfstein.sistrum.codecs.audio.FloatBuffer
+import com.amwolfstein.sistrum.codecs.codec.wavpack.MAX_BLOCK_SAMPLES
 import com.amwolfstein.sistrum.codecs.codec.wavpack.Decoder
 
 /** Open native WavPack and decode borrowed interleaved PCM blocks.
@@ -24,8 +26,10 @@ class Wv private constructor(source: RandomAccessSource, strict: Boolean, correc
     val lossyFallback get()=demuxer.config.hybrid && correction==null
     val usesCorrection get()=demuxer.config.hybrid && correction!=null
     private val decoder=Decoder(demuxer.config)
+    private val floatBuffer=if (demuxer.config.isFloat) FloatBuffer(info.channels,MAX_BLOCK_SAMPLES) else null
     private var discard=0L
     private var discontinuity=false
+    /** Integer PCM, or raw IEEE-754 words for float streams. Use decodeFloatBlock for floats. */
     fun decodeBlock(): Buffer? {
         while (demuxer.readPacket()) {
             if (correction!=null) {
@@ -45,6 +49,13 @@ class Wv private constructor(source: RandomAccessSource, strict: Boolean, correc
             return out
         }
         return null
+    }
+    fun decodeFloatBlock(): FloatBuffer? {
+        val out=floatBuffer ?: throw com.amwolfstein.sistrum.codecs.codec.wavpack.WavPackException(com.amwolfstein.sistrum.codecs.codec.wavpack.ErrorCode.INVALID_REQUEST,"stream is not float")
+        val raw=decodeBlock() ?: return null
+        var i=0;while (i<raw.frames*raw.channels) { out.samples[i]=Float.fromBits(raw.samples[i]);i++ }
+        out.frames=raw.frames;out.position=raw.position;out.discontinuity=raw.discontinuity
+        return out
     }
     fun seekSample(sample: Long) {
         val landed=demuxer.seekSample(sample)

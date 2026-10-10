@@ -100,6 +100,7 @@ internal class BlockState {
     private val wv=BitReader(); private val wvx=BitReader(); private val wvc=BitReader()
     private val corrections=IntArray(MAX_BLOCK_SAMPLES*2)
     private val hybrid=HybridReconstruction()
+    private val floats=FloatFixup()
     private val correctionHeader=BlockHeader()
     private var corrected=false
     private val metadata=Metadata()
@@ -111,7 +112,7 @@ internal class BlockState {
         if (h.size>block.limit()-offset) malformed("block declares ${h.size} bytes but only ${block.limit()-offset} are present")
         // In-place equivalent of Go's *s = blockState{h:h}; no state crosses blocks.
         for (term in terms) term.reset()
-        nterm=0; w.reset(); wv.clear(); wvx.clear(); wvc.clear(); hybrid.reset(); corrected=false
+        nterm=0; w.reset(); wv.clear(); wvx.clear(); wvc.clear(); hybrid.reset(); floats.reset(); corrected=false
         int32Sent=0; int32Zeros=0; int32Ones=0; int32Dups=0; int32MaxWidth=0; crcWVX=0
         readMetadata(block,offset)
         if (correction!=null && h.flags and HYBRID!=0) {
@@ -159,6 +160,7 @@ internal class BlockState {
                 5 -> readEntropyVars(m,mono)
                 6 -> w.readHybridProfile(m,h.flags)
                 7 -> hybrid.readShaping(m,h.mono())
+                8 -> floats.readInfo(m)
                 11 -> wvc.reset(block,m.offset,m.size)
                 9 -> {
                     if (m.size!=4) malformed("int32 info of ${m.size} bytes, want 4")
@@ -171,7 +173,7 @@ internal class BlockState {
                 12,44 -> {
                     if (m.size<=4 || m.size and 1 != 0) malformed("wvx bitstream of ${m.size} bytes")
                     crcWVX=m.int(0); wvx.reset(block,m.offset+4,m.size-4)
-                    if (m.id==44) int32MaxWidth=wvx.getBits(5) and 31
+                    if (m.id==44) { if (h.flags and FLOAT_DATA!=0) floats.readWidths(wvx) else int32MaxWidth=wvx.getBits(5) and 31 }
                 }
             }
         }
@@ -241,6 +243,7 @@ internal class BlockState {
         }
     }
     private fun fixup(buf: IntArray, length: Int) {
+        if (h.flags and FLOAT_DATA!=0) { floats.restore(buf,length,wvx,crcWVX,h.blockIndex);return }
         var shift=h.shift()
         if (h.flags and INT32_DATA != 0) {
             val sent=int32Sent; var zeros=int32Zeros; var ones=int32Ones; var dups=int32Dups

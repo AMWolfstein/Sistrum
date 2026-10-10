@@ -22,7 +22,7 @@ internal class WavPackOracleTest(private val fixture: Fixture) {
             catch (e: WavPackException) { assertEquals("wavpack: block has no wv bitstream",e.message) }
             return
         }
-        if (fixture.status.contains("hybrid streams")) {
+        if (fixture.status.contains("hybrid streams") || fixture.status.contains("32-bit float streams")) {
             // This mode has moved to the pinned libwavpack oracle, including damaged inputs.
             assertNotNull(LibWavPackCorpus.rows.single { it.name==fixture.name && !it.correction })
             return
