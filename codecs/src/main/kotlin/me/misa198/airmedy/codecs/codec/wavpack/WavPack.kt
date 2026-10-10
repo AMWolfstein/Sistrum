@@ -86,11 +86,8 @@ class BlockHeader {
         if (flags and MONO_DATA == MONO_DATA) malformed("block is flagged both mono and false-stereo")
         return this
     }
-    fun supported() {
-        when {
-            flags and DSD != 0 -> unsupported("DSD streams are not supported")
-        }
-    }
+    fun supported() = Unit
+
 }
 
 /** Reused cursor replaces Go's metadata slices without allocating ByteBuffer views. */
@@ -118,7 +115,7 @@ internal class Metadata {
     fun int(i: Int) = le32(block,offset+i)
 }
 
-data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false, val isFloat: Boolean=false, val channelMask: Long=if (channels==1) 4 else 3) {
+data class Config(val rate: Int, val channels: Int, val bitDepth: Int, val validBits: Int, val hybrid: Boolean=false, val isFloat: Boolean=false, val channelMask: Long=if (channels==1) 4 else 3, val isDsd:Boolean=false) {
     fun validate() {
         if (rate<=0) malformed("sample rate $rate outside 1..2147483647")
         if (channels !in 1..4096) malformed("channel count $channels outside 1..4096")
@@ -136,6 +133,7 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
     if (h.size>b.limit()-off) malformed("block declares ${h.size} bytes but only ${b.limit()-off} are present")
     val idx=(h.flags ushr 23) and 15
     var rate=if (idx<SRATE_TABLE.size) SRATE_TABLE[idx] else 0
+    var dsdShift= -1
     var channels=h.channels();var mask=if (channels==1) 4L else 3L
     val m=Metadata(); m.reset(b,off,h.size.toInt())
     while (m.next()) {
@@ -144,6 +142,7 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
                 rate=m.byte(0) or (m.byte(1) shl 8) or (m.byte(2) shl 16)
                 if (m.size==4) rate=rate or ((m.byte(3) and 127) shl 24)
             }
+            0xe -> if (m.size>=2) { dsdShift=m.byte(0);if (dsdShift>31) malformed("invalid DSD multiplier") }
             0xd -> {
                 if (m.size !in 1..7) malformed("invalid channel information length")
                 mask=0L
@@ -159,7 +158,14 @@ fun probeBlock(b: ByteBuffer, off: Int = 0): Config {
             }
         }
     }
-    return Config(rate,channels,h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0,h.flags and FLOAT_DATA!=0,mask).also { it.validate() }
+    val isDsd=h.flags and DSD!=0
+    if (isDsd) {
+        if (dsdShift<0) malformed("block has no DSD bitstream")
+        val byteRate=rate.toLong() shl dsdShift
+        if (byteRate !in 1..(Int.MAX_VALUE/8).toLong()) malformed("invalid DSD sample rate")
+        rate=byteRate.toInt()
+    }
+    return Config(rate,channels,h.bytesPerSample()*8,h.bytesPerSample()*8-h.shift(),h.flags and HYBRID!=0,h.flags and FLOAT_DATA!=0,mask,isDsd).also { it.validate() }
 }
 
 internal fun crcMono(crc: Int,v: Int) = crc*3+v

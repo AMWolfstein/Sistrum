@@ -4,6 +4,7 @@ import java.io.File
 import java.lang.management.ManagementFactory
 import java.util.Locale
 import me.misa198.airmedy.codecs.container.wv.Wv
+import me.misa198.airmedy.codecs.container.wv.WavPackDsd
 import me.misa198.airmedy.codecs.codec.wavpack.WavPackException
 
 @Volatile private var sink=0L
@@ -39,19 +40,29 @@ fun main(args: Array<String>) {
                 val line="${fixture.name}\toracle mismatch: ${e.message}\t\t\t\t"
                 out.appendLine(line); println(line); continue
             }
+            val modes=if (stream.info.isDsd) listOf("raw", "pcm", "dop") else listOf("native")
+            for (mode in modes) {
+            val adapter=if (mode=="pcm" || mode=="dop") WavPackDsd.open(fixture.byteBuffer()) else null
+            fun seek() { when (mode) { "pcm" -> adapter!!.seekSample(0); "dop" -> adapter!!.seekDopSample(0); else -> stream.seekSample(0) } }
             fun decode() {
                 var sum=0L
-                if (stream.info.isFloat) {
+                if (mode=="pcm") {
+                    while (true) { val b=adapter!!.decodeBlock() ?: break; sum+=b.frames; sum+=b.samples[0].toRawBits() }
+                } else if (mode=="dop") {
+                    while (true) { val b=adapter!!.decodeDopBlock() ?: break; sum+=b.frames; sum+=b.samples[0] }
+                } else if (stream.info.isDsd) {
+                    while (true) { val b=stream.decodeDsdBlock() ?: break; sum+=b.bytesPerChannel; sum+=b.bytes[0] }
+                } else if (stream.info.isFloat) {
                     while (true) { val b=stream.decodeFloatBlock() ?: break; sum+=b.frames; sum+=b.samples[0].toRawBits() }
                 } else {
                     while (true) { val b=stream.decodeBlock() ?: break; sum+=b.frames; sum+=b.samples[0] }
                 }
                 sink=sum
             }
-            repeat(5) { stream.seekSample(0); decode() }
+            repeat(5) { seek(); decode() }
             val nanos=LongArray(5); val allocations=LongArray(5)
             repeat(5) { i ->
-                stream.seekSample(0)
+                seek()
                 val before=alloc?.getThreadAllocatedBytes(thread) ?: -1
                 val start=System.nanoTime(); decode(); nanos[i]=System.nanoTime()-start
                 allocations[i]=if (before>=0) alloc!!.getThreadAllocatedBytes(thread)-before else -1
@@ -59,8 +70,9 @@ fun main(args: Array<String>) {
             nanos.sort(); allocations.sort()
             val seconds=nanos[2]/1e9
             val duration=fixture.value("frames").toDouble()/fixture.value("rate").toDouble()
-            val line=String.format(Locale.ROOT,"%s\tok\t%.6f\t%.6f\t%.6f\t%d",fixture.name,duration,seconds,seconds/duration,allocations[2])
+            val line=String.format(Locale.ROOT,"%s\tok\t%.6f\t%.6f\t%.6f\t%d",fixture.name+if (mode=="native") "" else " [$mode]",duration,seconds,seconds/duration,allocations[2])
             out.appendLine(line); println(line)
+            }
         }
     }
     println("Benchmark: ${output.absolutePath}")

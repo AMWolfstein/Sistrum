@@ -26,14 +26,19 @@ def generate(build):
     spec=importlib.util.spec_from_file_location('dsdgen',REPO/'scripts/dsd-oracle/generate.py')
     gen=importlib.util.module_from_spec(spec);spec.loader.exec_module(gen)
     table=gen.sine_table(); work=ROOT/'signals';work.mkdir(exist_ok=True);VECTORS.mkdir(parents=True,exist_ok=True)
-    entries=[]
+    entries=[];inputs={}
     def encode(name,source,options,signal):
         dst=VECTORS/(name+'.wv')
-        args=['-q','-y','--threads=1','--blocksize=512',*options,str(source),'-o',str(dst)]
+        input_name=''
+        if source.suffix in ['.dsf','.dff']:
+            input_name='inputs/'+source.name
+            saved=VECTORS/input_name;saved.parent.mkdir(exist_ok=True);shutil.copyfile(source,saved)
+            inputs[input_name]=[input_name,'','python3 scripts/wavpack-oracle.py --generate',signal,'-','CC0-1.0',sha(saved)]
+        args=['-q','-y','--threads=1',*([] if any(x.startswith('--blocksize=') for x in options) else ['--blocksize=512']),*options,str(source),'-o',str(dst)]
         run(build/'wavpack',*args)
         command='wavpack '+ ' '.join(x.replace(str(work),'{signals}').replace(str(VECTORS),'{vectors}') for x in args)
         for p in [dst,dst.with_suffix('.wvc')]:
-            if p.exists(): entries.append([p.name,'python3 scripts/wavpack-oracle.py --generate',signal,command,'CC0-1.0',sha(p)])
+            if p.exists(): entries.append([p.name,input_name,'python3 scripts/wavpack-oracle.py --generate',signal,command,'CC0-1.0',sha(p)])
     for kind in ['sine','sweep','noise','silence']:
         data=bytearray();seed=0x12345678
         for i in range(4096):
@@ -64,15 +69,31 @@ def generate(build):
     body=b'WAVEfmt '+struct.pack('<I',len(fmt))+fmt+b'data'+struct.pack('<I',len(payload))+payload
     src=work/'6ch-float.wav';src.write_bytes(b'RIFF'+struct.pack('<I',len(body))+body)
     encode('6ch-float-mask3f',src,[],'6 float sines; channel mask 0x3f')
-    planes=gen.signal(2822400,2,4096,table)
+    planes=gen.signal(2822400,2,4099,table)
     for ext in ['dsf','dff']:
         src=work/('owned.'+ext);src.write_bytes(getattr(gen,ext)(2822400,planes))
         for quality in ['', '-h']:
-            encode('dsd-'+ext+('-high' if quality else ''),src,[quality] if quality else [],'scripts/dsd-oracle/generate.py signal + '+ext)
-    if sum(p.stat().st_size for p in VECTORS.iterdir())>=5_000_000: raise ValueError('Owned vectors exceed 5 MB: use test-time generation')
+            encode('dsd-'+ext+('-high' if quality else ''),src,['--blocksize=511',*([quality] if quality else [])],'scripts/dsd-oracle/generate.py signal + '+ext)
+    for channels in [1,6]:
+        planes=gen.signal(2822400,channels,4099,table)
+        src=work/f'owned-{channels}ch.dsf';src.write_bytes(gen.dsf(2822400,planes))
+        for quality in ['', '-h']:
+            encode(f'dsd-{channels}ch'+('-high' if quality else ''),src,['--blocksize=511',*([quality] if quality else [])],f'scripts/dsd-oracle/generate.py signal + dsf; {channels} channels')
+    for mult in [128,256]:
+        planes=gen.signal(44100*mult,2,4099,table)
+        src=work/f'owned-dsd{mult}.dsf';src.write_bytes(gen.dsf(44100*mult,planes))
+        encode(f'dsd{mult}-high',src,['-h','--blocksize=511'],f'scripts/dsd-oracle/generate.py signal + dsf; DSD{mult}')
+    for kind in ['noise','silence']:
+        seed=0x12345678;plane=bytearray()
+        for i in range(4099):
+            seed=(1664525*seed+1013904223)&0xffffffff
+            plane.append(seed>>24 if kind=='noise' else 0x55)
+        src=work/('owned-dsd-'+kind+'.dff');src.write_bytes(gen.dff(2822400,[plane,plane]))
+        encode('dsd-'+kind,src,['--blocksize=511'],'owned LCG bytes' if kind=='noise' else 'owned 0x55 DSD silence')
+    if sum(p.stat().st_size for p in VECTORS.rglob('*') if p.is_file())>=5_000_000: raise ValueError('Owned vectors exceed 5 MB: use test-time generation')
     MANIFEST.parent.mkdir(parents=True,exist_ok=True)
     with MANIFEST.open('w') as f:
-        w=csv.writer(f,delimiter='\t',lineterminator='\n');w.writerow(['path','generator','signal','encoder_command','license','sha256']);w.writerows(entries)
+        w=csv.writer(f,delimiter='\t',lineterminator='\n');w.writerow(['path','input_path','generator','signal','encoder_command','license','sha256']);w.writerows(entries+list(inputs.values()))
 
 def oracle(build):
     external=pathlib.Path(os.environ.get('SISTRUM_ORACLE_DIR',pathlib.Path.home()/'.cache/sistrum-waxflow-oracle'))/'corpus'
@@ -99,14 +120,14 @@ def oracle(build):
     with FIXTURES.open('w') as f:
         f.write('# libwavpack_tag\t'+TAG+'\n# libwavpack_commit\t'+PIN+'\n')
         w=csv.writer(f,delimiter='\t',lineterminator='\n');w.writerow(['file','sha256','correction','correction_file','correction_sha256','exit','raw_bytes','raw_sha256','reference','info','error']);w.writerows(rows)
-    print('Oracle rows:',len(rows),'owned vector bytes:',sum(p.stat().st_size for p in VECTORS.iterdir()))
+    print('Oracle rows:',len(rows),'owned vector bytes:',sum(p.stat().st_size for p in VECTORS.rglob('*') if p.is_file()))
 def verify():
     with MANIFEST.open() as f:
         rows=list(csv.DictReader(f,delimiter='\t'))
     expected={r['path']:r['sha256'] for r in rows}
-    actual={p.name:sha(p) for p in VECTORS.iterdir() if p.is_file()}
+    actual={str(p.relative_to(VECTORS)):sha(p) for p in VECTORS.rglob('*') if p.is_file()}
     if expected!=actual:raise ValueError('Owned WavPack corpus drift; regenerate with pinned encoder')
-    if sum(p.stat().st_size for p in VECTORS.iterdir())>=5_000_000:raise ValueError('Owned corpus exceeds 5 MB')
+    if sum(p.stat().st_size for p in VECTORS.rglob('*') if p.is_file())>=5_000_000:raise ValueError('Owned corpus exceeds 5 MB')
     print('Verified owned WavPack vectors:',len(rows))
 
 if __name__=='__main__':

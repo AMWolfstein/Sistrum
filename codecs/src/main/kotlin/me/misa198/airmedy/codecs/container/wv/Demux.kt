@@ -20,7 +20,10 @@ private const val MAX_BLOCK_BYTES=(1 shl 20)+8
 
 data class Warning(val offset: Long, val message: String, val note: Boolean=false)
 data class StreamInfo(val sampleRate: Int, val channels: Int, val bits: Int,
-                      val validBits: Int, val totalSamples: Long, val samplesExact: Boolean, val isFloat: Boolean=false, val channelMask: Long=if (channels==1) 4 else 3)
+                      val validBits: Int, val totalSamples: Long, val samplesExact: Boolean, val isFloat: Boolean=false, val channelMask: Long=if (channels==1) 4 else 3, val isDsd:Boolean=false) {
+    val dsdSampleRate get()=if (isDsd) sampleRate*8 else 0
+    val totalDsdSamples get()=if (isDsd && totalSamples>=0) totalSamples*8 else -1L
+}
 
 /** Native .wv block walk and sample-index bisection. RandomAccessSource provides bounded positional reads.
  * Headers and packet descriptors are borrowed and reused; the source itself is never copied.
@@ -111,7 +114,7 @@ class Demuxer(val source: RandomAccessSource, private var strict: Boolean=false,
             val end=scanTail()
             if (end>=0) { samples=end-initialIndex; exact=true }
         }
-        info=StreamInfo(config.rate,config.channels,config.bitDepth,config.validBits,samples,exact,config.isFloat,config.channelMask)
+        info=StreamInfo(config.rate,config.channels,config.bitDepth,config.validBits,samples,exact,config.isFloat,config.channelMask,config.isDsd)
     }
     private fun tilesToEnd(start: Long): Boolean {
         var offset=start; var i=0

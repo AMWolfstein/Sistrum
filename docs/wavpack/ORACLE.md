@@ -24,7 +24,10 @@ table and integer phase/noise operations avoid platform libm variation. Signals
 include sines, a sweep, LCG noise and silence; hybrid bitrates 2/3.5/6 bits per
 sample with and without correction; float32 including signed zero and finite
 extremes; 3/6/8-channel PCM with masks 0x7/0x3f/0x63f; and owned DSF/DFF DSD in
-normal and high modes. Fixed 512-sample blocks provide interior seek boundaries.
+normal and high modes, mono/stereo/six channels, DSD64/128/256 and duplicated
+noise/silence planes. Owned DSF/DFF originals are included for adapter tests.
+PCM blocks have 512 frames; DSD blocks have 511 byte frames so tests exercise
+DoP carry across odd block boundaries. Both provide interior seek boundaries.
 The generator fails at 5,000,000 bytes; larger corpora must be generated at test
 time rather than committed.
 
@@ -92,3 +95,31 @@ and 17-byte positional reads exercise both multichannel inputs.
 with zero decode-loop allocation bytes. All previously matching native hashes
 remain unchanged. The self-extracting native file now matches raw wvunpack too.
 Owned vectors total 478,838 bytes.
+
+## Feature 5: DSD validation
+
+Raw DSD matches wvunpack byte for byte, with exact native byte-frame seeks.
+Owned vectors exercise raw mode 0 (23 blocks), fast mode 1 (113 blocks), and
+high mode 3 (26 blocks), including mono, false stereo, six channels and
+DSD64/128/256. The borrowed DsdBuffer exposes MSB-first interleaved bytes and
+explicit bit positions. WavPackDsd feeds the existing decimator and DoP packer
+with independent cursors, exact PCM/DoP seeks and carry across odd native blocks.
+Owned original DSF/DFF adapter parity checks run everywhere without the external
+suite. Existing DSD specification tests remain the DSP acceptance criteria.
+
+`codecs/benchmarks/wavpack-dsd.tsv` records 39 successful measurements across
+13 files: raw, PCM and DoP output. Every decode loop allocates zero bytes.
+Median RTF ranges are 0.031034–0.523982 (raw), 0.082452–0.856751 (PCM), and
+0.035604–0.426604 (DoP); loading, open and seek are outside the timed loop.
+PCM seeking deliberately replays filter history and can take time proportional
+to the requested position. Owned assets total 671,266 bytes across 70 files,
+including 46 encoded WavPack vectors, 16 correction files and eight originals.
+
+Final acceptance command: `./gradlew :codecs:test :codecs:testOwnedWavPack
+:androidApp:assembleDevDebug :codecs:benchmark -PwavpackBenchmarkFeature=dsd`.
+The full codecs suite (1,365 tests), owned suite (286 tests) and Android assembly
+all pass with zero failures, errors or skips; native WaxFlow
+hashes remain unchanged. Corpus hash/size verification and the local-only audio
+tracking guard also pass. The refusal inventory is in `REFUSALS.md`: zero valid
+modern refusals; eight deprecated files and three damaged files error in the
+pinned oracle as well.

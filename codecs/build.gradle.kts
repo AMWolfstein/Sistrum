@@ -229,7 +229,7 @@ tasks.register<Test>("testOwnedWavPack") {
     dependsOn(tasks.testClasses, verifyOwnedWavPack)
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = sourceSets.test.get().runtimeClasspath
-    filter { includeTestsMatching("*LibWavPackOracleTest"); includeTestsMatching("*WavPackHybridContractsTest") }
+    filter { includeTestsMatching("*LibWavPackOracleTest"); includeTestsMatching("*WavPackHybridContractsTest"); includeTestsMatching("*WavPackDsdIntegrationTest") }
     systemProperty("wavpack.ownedOnly", "true")
     maxHeapSize = "512m"
 }
