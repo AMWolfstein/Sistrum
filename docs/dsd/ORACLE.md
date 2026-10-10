@@ -100,9 +100,11 @@ snapshot or lossy tolerance was needed. There are 83 DSD JVM checks and 838
 full-module tests, with zero failures/errors/skips. The four Rust source tests
 and Android `assembleDevDebug` also pass. Per-file benchmark measurements are
 committed in `codecs/benchmarks/dsd.tsv`; median decode-loop allocations are zero.
-PCM RTF is 0.375983–5.128097; DSD256 stereo is 1.478477 for DFF and 2.138809 for
-DSF. This faithful implementation does not yet meet real time for those files
-on this laptop. DoP RTF is 0.003165–0.061481.
+After the bit-exact mirrored-ring optimization, PCM RTF is 0.186384–2.269914;
+DSD256 stereo is 0.688590 for DFF and 0.694286 for DSF. DoP RTF is
+0.003141–0.062923. Decode-loop allocations remain zero. Fresh before/after
+measurements and the unimplemented next-step proposal are in
+[PERFORMANCE.md](PERFORMANCE.md). DSD256 stereo still exceeds the 0.10 RTF target.
 
 Source issues and API scope are recorded without a source modification in
 `codecs/SISTRUM-PATCHES.md`: no FIR drain, discarded partial groups, DFF's

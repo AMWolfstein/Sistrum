@@ -667,12 +667,13 @@ whole bytes; these semantics are retained.
 
 Validation: **838 full-module tests, zero failures/errors/skips**, including
 83 DSD checks; four standalone Rust tests and `assembleDevDebug` passed.
-Benchmark (`benchmarks/dsd.tsv`): PCM RTF **0.375983–5.128097** and DoP RTF
-**0.003165–0.061481**, with **zero median allocated decode-loop bytes on every
-successful file in both modes**. DSD256 stereo PCM RTF is **1.478477 (DFF)** and
-**2.138809 (DSF)**; corresponding DoP RTF is **0.019181** and **0.024332**.
-RTF above one is slower than real time on this laptop. These are short synthetic
-files and a JVM proxy, not a phone gate. Twenty warmups and five full measured
-passes are used; loading/open/seek/hash are excluded, but every decoded audio
-block and positional read is timed. FIR/CIC processing remains faithful rather
-than optimized to meet a performance threshold.
+Benchmark (`benchmarks/dsd.tsv`): after the bit-exact mirrored-ring history
+optimization, PCM RTF is **0.186384–2.269914** and DoP RTF is
+**0.003141–0.062923**, with **zero median allocated decode-loop bytes on every
+successful file in both modes**. DSD256 stereo PCM RTF fell from **1.484284 to
+0.688590 (DFF)** and **2.141361 to 0.694286 (DSF)** in fresh sequential runs.
+These short synthetic files are a JVM proxy, not a phone gate. Twenty warmups
+and five full measured passes are used; loading/open/seek/hash are excluded,
+but decoded audio blocks and positional reads are timed. Arithmetic order and
+Rust parity remain exact. See [the per-file comparison and step 2 proposal](../docs/dsd/PERFORMANCE.md);
+step 2 is not implemented.

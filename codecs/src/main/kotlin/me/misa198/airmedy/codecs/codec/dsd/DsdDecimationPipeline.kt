@@ -15,7 +15,9 @@ class DsdDecimationPipeline(val dsdRate:Int,val targetPcmRate:Int,val channels:I
     private val cicIntF=DoubleArray(channels*3)
     private val cicCombC=LongArray(channels*3)
     private val cicCombF=DoubleArray(channels*3)
-    private val firState=Array(channels){DoubleArray(512)}
+    // Both halves mirror each other, so newest-to-oldest history is contiguous.
+    private val firState=Array(channels){DoubleArray(1024)}
+    private val firHead=IntArray(channels)
     private val cicBuffer=DoubleArray(4096*8/cicDecimation)
     private val coefficients=generateSincFilter(512,18000.0/(dsdRate/cicDecimation))
     private val normalization=1.0/(cicDecimation*cicDecimation*cicDecimation)
@@ -26,13 +28,20 @@ class DsdDecimationPipeline(val dsdRate:Int,val targetPcmRate:Int,val channels:I
         for(ch in 0 until channels){
             runCicStage(ch,bytes,offsets[ch],bytesPerChannel)
             val state=firState[ch]
+            var head=firHead[ch]
             for(i in 0 until frames){
                 val base=i*stage2Decimation
-                for(j in 0 until stage2Decimation){System.arraycopy(state,0,state,1,511);state[0]=cicBuffer[base+j]}
+                for(j in 0 until stage2Decimation){
+                    head=(head-1)and 511
+                    val value=cicBuffer[base+j]
+                    state[head]=value
+                    state[head+512]=value
+                }
                 var sample=0.0
-                for(tap in 0 until 512)sample+=state[tap]*coefficients[tap]
+                for(tap in 0 until 512)sample+=state[head+tap]*coefficients[tap]
                 output[i*channels+ch]=(sample*normalization).toFloat()
             }
+            firHead[ch]=head
         }
         return frames
     }
@@ -50,7 +59,7 @@ class DsdDecimationPipeline(val dsdRate:Int,val targetPcmRate:Int,val channels:I
             }
         }
     }
-    fun reset(){cicIntC.fill(0);cicIntF.fill(0.0);cicCombC.fill(0);cicCombF.fill(0.0);for(s in firState)s.fill(0.0)}
+    fun reset(){cicIntC.fill(0);cicIntF.fill(0.0);cicCombC.fill(0);cicCombF.fill(0.0);for(s in firState)s.fill(0.0);firHead.fill(0)}
 }
 
 internal fun generateSincFilter(taps:Int,cutoff:Double):DoubleArray {
