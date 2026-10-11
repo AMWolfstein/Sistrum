@@ -9,8 +9,8 @@ License: MIT, Copyright (c) 2026 Cole Springer; copied verbatim into
 
 `Metadata.read(RandomAccessSource, ReadOptions)` lives in the pure-JVM `:metadata`
 module. It is independent of Android and uses `:codecs` only for the existing source
-contract. Steps 1–7 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
-APE-family containers, WAV/RF64/BW64/AIFF/AIFF-C, ASF/WMA and Matroska/MKA/WebM. There is no writer,
+contract. Steps 1–8 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
+APE-family containers, WAV/RF64/BW64/AIFF/AIFF-C, ASF/WMA, Matroska/MKA/WebM and the DSF/DFF additions described below. There is no writer,
 player integration, or scanner integration.
 
 ## Reproduce
@@ -29,6 +29,7 @@ The harness rejects cache paths within this repository.
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 5
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 6
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 7
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 8
 python3 scripts/waxlabel-oracle.py --verify
 ./gradlew :codecs:test --rerun :metadata:test --rerun :androidApp:assembleDevDebug
 ./gradlew :metadata:benchmark -PwaxlabelStep=2
@@ -224,10 +225,51 @@ reads, breadth/depth/allocation/read limits, every truncation through 2048 bytes
 on five seeds and 1500 mutations verify nonthrowing reads.
 See [STEP7.md](STEP7.md) for test results, changed files and per-file benchmarks.
 
+## Step 8 — DSF/DFF supplementary reference
+
+WaxLabel does not implement these formats. `oracle-step8.json` uses a documented
+composite adapter, not a fabricated claim that `waxlabel dump` reads DSD. Exact pins:
+
+| Package/archive | SHA-256 |
+|---|---|
+| dsf-meta 0.3.0 | dfc2ace16a9905a870d157d87cbd179d701714fe6315a47e61fa194a3d6f7f1a |
+| dff-meta 0.2.0 | 06301c411497b9d471ba2aa728dc666fd4c5c300673c2f4d937eb6a737824a1b |
+| DSF upstream test ZIP | 69b3b1e389654b6a91b3a37bbfe05c7bcfee4985c468c95eedb932fe9e75e6ae |
+
+The crate archives include upstream source/tests and dff-meta's 1kHz.dff fixture.
+The dsf-meta unit test retrieves the samplerateconverter.com sweep archive; both ZIP
+and extracted DSF are external and hashed. Sources are checked byte-for-byte against
+verified archives, including the Cargo registry sources used to build them. The
+helper reuses scripts/dsd-oracle/Cargo.toml and Cargo.lock with Rust 1.90.0 in the
+existing external DSD toolchain cache (SISTRUM_ORACLE_DIR may override that cache).
+Package licenses declare MIT/Apache-2.0; the shipped Apache license and attribution
+are copied into metadata/THIRD-PARTY-NOTICES.
+
+The unmodified Rust libraries return container geometry and errors, preserved as
+`containerReference` for each row. The adapter extracts ID3 into a zero-audio WAV
+wrapper and builds/invokes the pinned WaxLabel `dump --native --json`; its ordered
+canonical fields, frames, pictures, chapters, lyrics, provenance and warnings feed
+DSD projection. The pinned Go supplement provides hashes. DSD native summaries,
+one-bit depth, duration/bitrate, pointer warnings and standardized errors are
+explicit adapter definitions. Rust's partial-ID3 model is replaced with WaxLabel's
+projection. DIIN DIAR/DITI and top-level ID3 before audio are tested Sistrum additions;
+dff-meta supports neither. See PATCH-9 for all precise policies and tests.
+
+There are **125 composite cases**, 82 successful documents and 43 typed errors;
+**zero unexplained mismatches** against the documented adapter. Both upstream
+container fixtures and 123 owned inputs are included. Owned mutagen 1.47.0 tags and
+structural vectors cover ID3v2.2/2.3/2.4, art/large art, chapters/lyrics, malformed tags,
+DIIN values/duplicates/precedence, sample rates/channels, partial sample bits,
+endianness fields, bad headers/reserved/block fields, declared sizes, unsafe pointers,
+opaque chunks, early/duplicate ID3 and truncated files. Rust refuses DST and DFF
+multichannel as recorded; no codec/player behavior is changed. All **1912** fetched/
+generated files, including crate sources/testdata and extracted tag wrappers, have
+manifest hashes. See [STEP8.md](STEP8.md) for results and benchmarks.
+
 ## Benchmark
 
 `:metadata:benchmark` measures each file (step 1 by default, `-PwaxlabelStep=2`
-for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5, `-PwaxlabelStep=6` for step 6, `-PwaxlabelStep=7` for step 7) on a warm filesystem cache
+for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5, `-PwaxlabelStep=6` for step 6, `-PwaxlabelStep=7` for step 7, `-PwaxlabelStep=8` for step 8) on a warm filesystem cache
 with an open `FileChannelSource`: 25 warmups, 101 trials, median nanoseconds and
 median per-thread allocated bytes from HotSpot's `ThreadMXBean`. File opening and
 corpus verification are outside the measured call; parsing, document construction,
@@ -237,7 +279,7 @@ none are reported as successful metadata parses.
 
 Generated output: `metadata/build/reports/metadata-benchmark.tsv`.
 Recorded snapshots: `docs/waxlabel/step1-benchmark.tsv` and
-`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv` and `docs/waxlabel/step6-benchmark.tsv` and `docs/waxlabel/step7-benchmark.tsv`.
+`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv` and `docs/waxlabel/step6-benchmark.tsv` and `docs/waxlabel/step7-benchmark.tsv` and `docs/waxlabel/step8-benchmark.tsv`.
 These are per-file measurements, not a hard performance threshold; host/JIT/I/O
 noise means a new run can differ.
 

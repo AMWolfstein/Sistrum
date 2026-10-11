@@ -1,0 +1,8513 @@
+{
+  "attribution": "SPDX-License-Identifier: GPL-3.0-or-later; WaxLabel MIT, Copyright (c) 2026 Cole Springer",
+  "pin": "cfbb45d13135a76f5df6781fdeec75f5cfe63bf9",
+  "files": [
+    {
+      "path": "owned/dsd-bad-id3.dff",
+      "sha256": "6d12f1b68550a295411ec6229b258227125ac880f46befe2873531dd7c17c3da",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSD ID3 region is shorter than its header"
+          }
+        ],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8312
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 3,
+            "note": "unparsed"
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-bad-id3.dsf",
+      "sha256": "a40e5d8ac608707eaedb5ede6ac673b477a3cccc98a14cae7bc1c67238661999",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSD ID3 region is shorter than its header"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 3,
+            "note": "unparsed"
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-bad-version.dff",
+      "sha256": "ec5b50f4b3e3107e2a9bd78455d2914ae67bb0e4f0d6a2f120b03c04cf1ab1f3",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSD ID3 region could not be parsed"
+          }
+        ],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8318
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 10,
+            "note": "unparsed"
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-bad-version.dsf",
+      "sha256": "d1bc008730d6cf57f52c84a152e96cf89ed9adce36e002b8797dc4bcd4331273",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSD ID3 region could not be parsed"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 10,
+            "note": "unparsed"
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-base.dff",
+      "sha256": "4667aeb0e8778b1a6090a13c01b390fc81a02ad451755bd573de7e65f86115c3",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-base.dsf",
+      "sha256": "d4ea2f6ecdf6ddc109484cdff47cd34ffc77d5ef3b2e95f7af6837773e989fdf",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-bits-0.dsf",
+      "sha256": "ac7d0179c6beff88266f1a8da37e7109cbfab6162b26ebbd75c5ce1eaecbd51d",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-bits-255.dsf",
+      "sha256": "5d3b36927383eb89d0a6e881c848d544b5217a1393d36114ac439d0448f35459",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-bits-8.dsf",
+      "sha256": "422cd1e53735132d8cfe02c855bc64e0f2304e88c0bcff1ee79e9b943a8036d4",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-block-0.dsf",
+      "sha256": "4c1a2f2059b5baf2b68e6b46adc21f033109e4f8c8bc9df26ac81f6f660b45b6",
+      "containerReference": [
+        "ERR",
+        "BlockSizePerChannelNonStandard"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-block-512.dsf",
+      "sha256": "9aa40054758c8e40975aa13a7bc9567635e6cb7f36e74102a78571be78323ced",
+      "containerReference": [
+        "ERR",
+        "BlockSizePerChannelNonStandard"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-channels-1.dff",
+      "sha256": "27eae4cbdfbce44fdb54a4b7b43e8b8334797b7815c654ecb4df88686d49da4e",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "1",
+        "65536",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 1,
+          "durationMs": 23,
+          "bitrateBps": 2822400
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8292
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 56
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 6
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 65536,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-1.dsf",
+      "sha256": "03cb4fa86b36219647d23b457d50aa8a2d56d14e3453ad35dcbbbb03c51f21ff",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "1",
+        "32768",
+        "4108",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 1,
+          "durationMs": 12,
+          "bitrateBps": 2822400
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 4096
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-2.dff",
+      "sha256": "4667aeb0e8778b1a6090a13c01b390fc81a02ad451755bd573de7e65f86115c3",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-2.dsf",
+      "sha256": "d4ea2f6ecdf6ddc109484cdff47cd34ffc77d5ef3b2e95f7af6837773e989fdf",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-3.dsf",
+      "sha256": "77a2e3f099b371b9513672dbee6e9f5f171797d779d1c3e827bba21a9ab5791b",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "3",
+        "32768",
+        "12300",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 3,
+          "durationMs": 12,
+          "bitrateBps": 8467200
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 12288
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-4.dsf",
+      "sha256": "2500b7ed5cff2664979a14a28d336a973aa60813885e17ae1779b8fd79578033",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "4",
+        "32768",
+        "16396",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 4,
+          "durationMs": 12,
+          "bitrateBps": 11289600
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 16384
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-5.dsf",
+      "sha256": "092a612fa336f22ed4b03d5d6aa08f0a8c21ee213872e04d644c9a600f4526e8",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "5",
+        "32768",
+        "20492",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 5,
+          "durationMs": 12,
+          "bitrateBps": 14112000
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 20480
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-channels-6.dff",
+      "sha256": "c6b383975e1d2df3c994473affeaaaaef81c1b32bb09c6d6a837c6f04e0380a8",
+      "containerReference": [
+        "ERR",
+        "ChnlNumber"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-channels-6.dsf",
+      "sha256": "8606d1a9390e84252bf0127c6d56fa60c3802296e33e11cfce40a0407edee9c2",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "6",
+        "32768",
+        "24588",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 6,
+          "durationMs": 12,
+          "bitrateBps": 16934400
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 24576
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-chapters-lyrics.dff",
+      "sha256": "9c46da84be5b309e2de0fa95a4ae2385c68e65a4af8f33f9183411f036516a30",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [
+          {
+            "startMs": 0,
+            "endMs": 5,
+            "title": "Chapter"
+          }
+        ],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "description": "Owned",
+            "lines": [
+              {
+                "timeMs": 1,
+                "text": "Line"
+              }
+            ]
+          }
+        ],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8402
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 93,
+            "note": "ID3v2.4, 2 frames"
+          },
+          {
+            "kind": "  CHAP",
+            "size": 42
+          },
+          {
+            "kind": "  SYLT",
+            "size": 21
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-chapters-lyrics.dsf",
+      "sha256": "59671f8103f4c323ca2e950bd200c15dcb0bf9b21bb3988cf7ab31ba457da80f",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [
+          {
+            "startMs": 0,
+            "endMs": 5,
+            "title": "Chapter"
+          }
+        ],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "description": "Owned",
+            "lines": [
+              {
+                "timeMs": 1,
+                "text": "Line"
+              }
+            ]
+          }
+        ],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 93,
+            "note": "ID3v2.4, 2 frames"
+          },
+          {
+            "kind": "  CHAP",
+            "size": 42
+          },
+          {
+            "kind": "  SYLT",
+            "size": 21
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-cut-0.dff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/dsd-cut-0.dsf",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/dsd-cut-1.dff",
+      "sha256": "f67ab10ad4e4c53121b6a5fe4da9c10ddee905b978d3788d2723d7bfacbe28a9",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/dsd-cut-1.dsf",
+      "sha256": "3f39d5c348e5b79d06e842c114e6cc571583bbf44e4b0ebfda1a01ec05745d43",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/dsd-cut-100.dff",
+      "sha256": "6cd73d91f5fb9bc55d1e7b268f7d9223702960b1323d3d4daa9eff05c636c8b5",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-100.dsf",
+      "sha256": "49da215940f9eac9c7cfa37975917f7c9f457bc38c1e081e26e73ac206f42c70",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-cut-12.dff",
+      "sha256": "da7155f11b19377acefa85be20c3e5d463b630187ed9343d968acb4257d22dba",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-12.dsf",
+      "sha256": "1099644ea7acd4917746c3be0de785fa57dff1a0e6c709419d804eb3e98d2c97",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-20.dff",
+      "sha256": "74784766af5e885060b9d6d9ce5ab851141594752dfffcd4c04b3634a3756bcd",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-20.dsf",
+      "sha256": "a3e3a4aee69aacba37b007ca041b034b4086479a1ef7caea69546efbcf36a59d",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-27.dff",
+      "sha256": "23f6c1e28579b0c7c9e2a5ec013d113a0b948c23fca316d3430930d0604d93f6",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-27.dsf",
+      "sha256": "463f16f0e98595692db69d88a7f78bd5a613d09f9b875bcbf9abbf188458c3e5",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-28.dff",
+      "sha256": "9a601db36f0c2c5c47e8093e1ed9fb78ccc3792f638cf3e3be8fdd1f8e037eb4",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-28.dsf",
+      "sha256": "fc235a320c4806c754ff52efd7d9e349347d8b53485ba535b762651becf88518",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-3.dff",
+      "sha256": "7bb8698b6399f6b975f44247605af71e759121b92a3caa42bc923155c661f169",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/dsd-cut-3.dsf",
+      "sha256": "169420e08feb8e37649473e89a8c80c3692dacf4ac0aba6ca06ab704cbdc0d30",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/dsd-cut-31.dff",
+      "sha256": "8c948b5462e1e5945f95994807e11296b1f7bd7385f344efd6a9812310844e09",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-31.dsf",
+      "sha256": "18dd8d6bb0a97e7e2466d86624d1224f48e916589c116b41bc242ded40d68f93",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-4.dff",
+      "sha256": "26b45aa15457c0b856e73da0199f68ce4132fa308fc3afaf173d2b150894bf9e",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-4.dsf",
+      "sha256": "95437e4226c511f018784d917610dc0557aeb7fb728050e3acaf4e28810200a4",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-52.dff",
+      "sha256": "01026714af84028fa066ebd02bf2f0227d4f44743fa16f43d6a94d34326ccb7d",
+      "containerReference": [
+        "ERR",
+        "Eof"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-52.dsf",
+      "sha256": "6eb6b949b74b02fe407643fd06d9759970cd3c7165d4be42482e1e8d00a87145",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-79.dff",
+      "sha256": "65ae48f5f56bf3259da12d021bb1f7f915411d7f2c10d995fe65642c11c3ec02",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-79.dsf",
+      "sha256": "ca902e1cec942809148c487cf3e52def9c0572a5d3dadb6f9026b92df48ecc8d",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-80.dff",
+      "sha256": "98c526a56fd647c2c66c7c9250cfc04eba76d7eaf6fbcb33e99d79ed8eca97d4",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-80.dsf",
+      "sha256": "3ac2384d4ad2c156125516d8ebb7921d7b125120b4bb243cd012c37d8290cd97",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-8396.dsf",
+      "sha256": "e78904cb6f953f8c460ef6e41afb29276fd95785a429e5d01681ddbdc1d1a174",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the TXXX frame declares more bytes than the tag holds; the 36 byte(s) from it to the end of the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 112,
+            "note": "ID3v2.4, 4 frames, 36 unparsed byte(s)"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-cut-8433.dff",
+      "sha256": "73bdcac1e23a28a32316f593c45fff3dfc7e7d025a586e0ae6febb27a9693442",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8422
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-cut-91.dff",
+      "sha256": "895f7bcd2a3d5aadcaf84ab8c79aa22ac60b0526528aa0c6029939593d68b0a8",
+      "containerReference": [
+        "ERR",
+        "Eof"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-91.dsf",
+      "sha256": "f076dd782637e50504b605d1c1318fb2181259d9345de6cc728e43437f9a3cd1",
+      "containerReference": [
+        "ERR",
+        "IoError(Error { kind: UnexpectedEof, message: \"failed to fill whole buffer\" })"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-92.dff",
+      "sha256": "0ce9f8c937fa8e2a2c44b232ea244b53ddcdd8783965d797e4a79050d20f02ca",
+      "containerReference": [
+        "ERR",
+        "Eof"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-cut-92.dsf",
+      "sha256": "93427b0a9b03795e9cf70dea071d14ba46a2863ecbbd6e6ad0d6454492b35f16",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          },
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 0
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-data_size-0.dsf",
+      "sha256": "3cde7a03686d6a0e29ac56013cf9b134457eb4e7c7e3258c28110edb586278ca",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "0",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 0
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-data_size-100.dsf",
+      "sha256": "7f333ebfe58cde065d09d411384e9df646719864caca93e31ea45b343ae914dd",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "100",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 88
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-data_size-100000.dsf",
+      "sha256": "49e42cbcf80c3fcb3fab5cc09f1169966c1ce7f3951a91c29b98970c78f24fd7",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "100000",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8305
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-data_size-12.dsf",
+      "sha256": "ba9393fe6470da805823895e8a40b5f0fe0765558426540e735b0871f6879294",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "12",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 0
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-data_size-18446744073709551615.dsf",
+      "sha256": "028a80fef7cc91ed0ffcac11222af7378ebc1f5b9bd752f82b11f93e3ccd5542",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "18446744073709551615",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8305
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-before.dff",
+      "sha256": "45d6d0431fe3940ad81cbd28e1d7c65bfe0928c3c73fa0f6d39978cf1e071cb5",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "Artist"
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              "Title"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8352
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "DIIN",
+            "size": 44
+          },
+          {
+            "kind": "  DIAR",
+            "size": 10
+          },
+          {
+            "kind": "  DITI",
+            "size": 9
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Title"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-conflict.dff",
+      "sha256": "d047709aa7074494ebbe805cd29e6c368ac3ff0656e923a27d11c47eda7ae435",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8490
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 56
+          },
+          {
+            "kind": "  DIAR",
+            "size": 16
+          },
+          {
+            "kind": "  DITI",
+            "size": 15
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Other Artist"
+            ],
+            "selected": false
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Other Title"
+            ],
+            "selected": false
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-duplicates.dff",
+      "sha256": "84dc6d9d9fd05af0411b1fd7c42d043ec258dd9d7d73da8e9bf54149b2762c8e",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              "Title"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8370
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 62
+          },
+          {
+            "kind": "  DIAR",
+            "size": 7
+          },
+          {
+            "kind": "  DIAR",
+            "size": 7
+          },
+          {
+            "kind": "  DITI",
+            "size": 9
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Title"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-echo.dff",
+      "sha256": "281972d96e411609d9d63d6cefa14e33991b4b180d80a6cee9dab4f4f1f68f5e",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8476
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 42
+          },
+          {
+            "kind": "  DIAR",
+            "size": 7
+          },
+          {
+            "kind": "  DITI",
+            "size": 9
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "One"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-empty.dff",
+      "sha256": "4cb8db584329a1ef5fbffe562d00a3aec6746e82b4bf0d407d885ebd0f6f60b0",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              ""
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              ""
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8340
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 32
+          },
+          {
+            "kind": "  DIAR",
+            "size": 4
+          },
+          {
+            "kind": "  DITI",
+            "size": 4
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              ""
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              ""
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-malformed.dff",
+      "sha256": "fe6bebdb6054021be5c70b6544f76ecd06bc89e68621fa963f67bc94e7e4368f",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-diin-tags.dff",
+      "sha256": "fd06b61654d9352f6839aa862f393dac89820bab051ca60dae5810ba8f63280c",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "Owned Artist"
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned Title"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8364
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 56
+          },
+          {
+            "kind": "  DIAR",
+            "size": 16
+          },
+          {
+            "kind": "  DITI",
+            "size": 15
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Owned Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Owned Title"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-unicode.dff",
+      "sha256": "654f593ba2dbaf85da1460a690c11885f76fdc5029dc5db153127ca1178b6f56",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "العربية"
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              "Title"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8360
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 52
+          },
+          {
+            "kind": "  DIAR",
+            "size": 18
+          },
+          {
+            "kind": "  DITI",
+            "size": 10
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "العربية"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Title"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-diin-unknown.dff",
+      "sha256": "c7af0d4e48a915a246ab62ef4615ac09e0cda1f7a495ae9a10bc940727895042",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 18342
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "DIIN",
+            "size": 10034
+          },
+          {
+            "kind": "  EMID",
+            "size": 10000
+          },
+          {
+            "kind": "  DITI",
+            "size": 9
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "dff",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-dst-name-refusal.dff",
+      "sha256": "9acc5a4ac21d644cfb38f36f22fc15407dedb44c66b37c994e8e756d9c4405a5",
+      "containerReference": [
+        "ERR",
+        "CmprTypeMismatch"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-dst-refusal.dff",
+      "sha256": "65d7dfdc9cca0d7c36dfca4518a441d6a3feba6a1d7d5f226769bc1e089fe4e1",
+      "containerReference": [
+        "ERR",
+        "CmprTypeMismatch"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-duplicate-id3.dff",
+      "sha256": "1d0d61754371e3ab85d31402c6d278f468a94cdee3504e4136095bd819b296b4",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8422
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 129,
+            "note": "unparsed"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-empty.dff",
+      "sha256": "73cfb51b6c8f8631fd46c29915a2748725977c767f697b07fb7f42995d565bde",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8318
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 10,
+            "note": "ID3v2.4, 0 frames"
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-empty.dsf",
+      "sha256": "ff98acf6d0eea2b1220dea0ac884775142d683fe7b120f02f6939b9319da04ad",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 10,
+            "note": "ID3v2.4, 0 frames"
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-file_size-0.dsf",
+      "sha256": "337b882f17d3ecb9e7427e7d6c92da8b5bf4d10a78683bbae273467b03df8ad8",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-file_size-92.dsf",
+      "sha256": "429607d1747c0a86fb7ea28a26043f4d128143d678c2b0e388945bc7c6c6c6e1",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-format-1.dsf",
+      "sha256": "a8b5d5ef1dee84b0d8dd3c0789281d5a25d8b8904a8f5ac9feac077c96054556",
+      "containerReference": [
+        "ERR",
+        "FormatId"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-header_size-0.dsf",
+      "sha256": "7c5df471f721633ad47a1a88a16f2fb10085a7fcca0f504036c60d086da0ce13",
+      "containerReference": [
+        "ERR",
+        "DsdChunkSize"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-header_size-27.dsf",
+      "sha256": "2f5deb446d07d8d2d3e23500fdeacf10ad0093eebfdc7698c9b2a2b9bac7a75f",
+      "containerReference": [
+        "ERR",
+        "DsdChunkSize"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-id3-before-audio.dff",
+      "sha256": "4dcccbb8996f3fde9e776bfbeda1fa1288d171496c80ebdf0bb487244f278e11",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Cover"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8438
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 129,
+            "note": "ID3v2.4, 2 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-id3-v2.dff",
+      "sha256": "6c61983f8ac501223c4ecfd276e796e1b27276feacd8c9f146dfd2c6c527a010",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8330
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 22,
+            "note": "ID3v2.2, 1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-id3-v2.dsf",
+      "sha256": "083e03fe7f9273f320b50fce08a10084a2acf746ddff54b676bc0a0a5cab3d4f",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 22,
+            "note": "ID3v2.2, 1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-id3-v3.dff",
+      "sha256": "85fbc82f2c0c41494d4523a4470e25c346ad3f1bec99b04e23f46d7666ef60b0",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8334
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 26,
+            "note": "ID3v2.3, 1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-id3-v3.dsf",
+      "sha256": "bda180a85cb49e1e480594eb6debddc98524167431564c7abe994f9c4e7e0785",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 26,
+            "note": "ID3v2.3, 1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-id3-v4.dff",
+      "sha256": "7f2aab7cb699abc6fef41f243c5a2c884850dc0ed01c035ce0262d3dd1129d03",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8334
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 26,
+            "note": "ID3v2.4, 1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-id3-v4.dsf",
+      "sha256": "c6780988184fa788daf277313dcab0a8c87ba056bc34e6c6f4d70d825bc62762",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 26,
+            "note": "ID3v2.4, 1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-large-picture.dff",
+      "sha256": "d9933ebca61090e5161e879807e49bffeb0a135aed39061ce891804cad3f44a6",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 1100075,
+            "description": "Large"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 1108422
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 1100113,
+            "note": "ID3v2.4, 1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 1100093
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "4dbfd1d6d31a7abf6a3d90e027099e9b40767f07e9d80ad603b2127e2848872e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-large-picture.dsf",
+      "sha256": "78258dfdf9df8076c857237fb80e787887ea366af258ac872ffd23b8b21b6d8d",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 1100075,
+            "description": "Large"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 1100113,
+            "note": "ID3v2.4, 1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 1100093
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "4dbfd1d6d31a7abf6a3d90e027099e9b40767f07e9d80ad603b2127e2848872e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-mutagen.dff",
+      "sha256": "56766173bec4a8bf9242e03e92df256b4ebf727ca45445a05b915f1d93beda8f",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned Mutagen"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Owned"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8466
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 157,
+            "note": "ID3v2.4, 3 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 15
+          },
+          {
+            "kind": "  TPE1",
+            "size": 9
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned Mutagen"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-mutagen.dsf",
+      "sha256": "0993b8d483f862eee498bf7927a0b843b8b731dd732f45bb193e9534d26db9e0",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned Mutagen"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Owned"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 157,
+            "note": "ID3v2.4, 3 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 15
+          },
+          {
+            "kind": "  TPE1",
+            "size": 9
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned Mutagen"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-opaque.dff",
+      "sha256": "d1bc6c0f77317838ab48373a55208e89517316897883337e4af865625007c359",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 1108308
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "JUNK",
+            "size": 1100000
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-picture.dff",
+      "sha256": "315c738ade8512d1a41db091bf72b97a86ddeebfa0d769089e914460a402d203",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Cover"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8438
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 129,
+            "note": "ID3v2.4, 2 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-picture.dsf",
+      "sha256": "bc8abf701dff3d407803d3d89c50c15d830009c43b1409a40a6591c3df2f5356",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Cover"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 129,
+            "note": "ID3v2.4, 2 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ]
+      }
+    },
+    {
+      "path": "owned/dsd-pointer-1.dsf",
+      "sha256": "e5d3d6ce7163168f652aac451b97bdd6b9e8679f8f55d4fd263c5193507e919c",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-pointer-100.dsf",
+      "sha256": "1d126822910c1e4544e08e81b7c014bbbb322b8d748e282c1d581cdf3531d374",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-pointer-100000.dsf",
+      "sha256": "b9912da5c72404a693485deee9e637caea9c84c964fd2c19aca5260c3b4a10a7",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-pointer-28.dsf",
+      "sha256": "ea7cb9b8adf9e505adfe2f466b8767688320ccb3aa9a73158b638fd22b2e8ef7",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-pointer-80.dsf",
+      "sha256": "3ff951c7f37dfa10d02512973b16d289c93709ad74e821aeba227ff6f4fa365c",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-pointer-92.dsf",
+      "sha256": "e9815c8201437b31f09c24907a999bb7ae009116ac9bd0b92869ac1165c35678",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "true"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "DSF metadata offset does not identify a tag region outside audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-0.dff",
+      "sha256": "bc2d26966a3e68b95a0f22e83c6e94dd5c90ad464e729a8980ecd2e717288ee9",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "0",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "channels": 2
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-0.dsf",
+      "sha256": "a2d01e74d4153d01c1833fd4e1f626f4dc855aeaad052385e0e415dccea980d5",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "0",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "channels": 2
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-11289600.dff",
+      "sha256": "4d914ccd5c7906e95a8b14b28b2db22abf3fd9006084e4a69e030bf0780d297a",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "11289600",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 11289600,
+          "channels": 2,
+          "durationMs": 3,
+          "bitrateBps": 22579200
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-11289600.dsf",
+      "sha256": "5bd084c26992c136c07973818175457fa8ba6244d9a65653500e2de904a01bbc",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "11289600",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 11289600,
+          "channels": 2,
+          "durationMs": 3,
+          "bitrateBps": 22579200
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-2822400.dff",
+      "sha256": "4667aeb0e8778b1a6090a13c01b390fc81a02ad451755bd573de7e65f86115c3",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-2822400.dsf",
+      "sha256": "d4ea2f6ecdf6ddc109484cdff47cd34ffc77d5ef3b2e95f7af6837773e989fdf",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-3072000.dff",
+      "sha256": "90ebc63e771905b2e0735779af473d56a7aba5761de36cfe64099a3db963308c",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "3072000",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 3072000,
+          "channels": 2,
+          "durationMs": 11,
+          "bitrateBps": 6144000
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-3072000.dsf",
+      "sha256": "7575b71cb5701c494e1c18cb0295d4877f5d28877d514be0b2dbe64ffa5ccac0",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "3072000",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 3072000,
+          "channels": 2,
+          "durationMs": 11,
+          "bitrateBps": 6144000
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-4294967295.dff",
+      "sha256": "fb0d689421bd9c61d1e8f5ea4c3a0851cff7afd6c41d9efecb2d0f8af87fa783",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "4294967295",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2147483647,
+          "channels": 2
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-4294967295.dsf",
+      "sha256": "7d38dbd0f80bcca8c839a46da1a8fda24f158c03b7dd4a4c1d3cade7695ed293",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "4294967295",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2147483647,
+          "channels": 2
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-5644800.dff",
+      "sha256": "916fb1a3e979d3bc38054a152880c03620322b80639bb37ede31421c4994a231",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "5644800",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 5644800,
+          "channels": 2,
+          "durationMs": 6,
+          "bitrateBps": 11289600
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8296
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-rate-5644800.dsf",
+      "sha256": "6a28a4b136beb665908f3187b615cae0ccc8f7739e4d37ce2b858a766ef65a0b",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "5644800",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 5644800,
+          "channels": 2,
+          "durationMs": 6,
+          "bitrateBps": 11289600
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-reserved-1.dsf",
+      "sha256": "4a5d34a158b8597ed51c2c1a4aad16d4ce872a766d3a5218cf0dc898b77dc123",
+      "containerReference": [
+        "ERR",
+        "ReservedNotZero"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-samples-0.dsf",
+      "sha256": "1f2b0b7b0bb612b39d4ec3faafe9094bd332c8e74a4f1c9f398d3327477bfff6",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "0",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 0,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-samples-3.dsf",
+      "sha256": "f04dd9f8f05d9861f588946346694b26308b26b0844e0421a45ff68b43982ed7",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "3",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 3,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-samples-32771.dsf",
+      "sha256": "1be1aa2ef3c60d3bf38df8cb52b2719cb8a3c542ba791ec21c6703e0333ab8c5",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32771",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32771,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-tags.dff",
+      "sha256": "5ad60a4d50299553850a656b3568cae166ac07785386054afdbf7f7bbb346445",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8422
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-tags.dsf",
+      "sha256": "eb6792941ed5f2c8c89c6a7d754a385db58503ada1c5834bcd6717f1fa94bf09",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "owned"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 113,
+            "note": "ID3v2.4, 5 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TXXX",
+            "size": 27,
+            "note": "description: MusicBrainz Album Id"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "owned"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-truncated-tag.dff",
+      "sha256": "6dbb485303895b6bf3655c934416c4cbb6f062237110f5d203267d91ea8def38",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "32768",
+        "8192",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the TXXX frame declares more bytes than the tag holds; the 32 byte(s) from it to the end of the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 8416
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 60
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 6
+          },
+          {
+            "kind": "DSD ",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 108,
+            "note": "ID3v2.4, 4 frames, 32 unparsed byte(s)"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-truncated-tag.dsf",
+      "sha256": "26574fafe776d045870cca98800e2090fbb271e4309e8e240b2e755e0ab8ce6c",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "32768",
+        "8204",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 12,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "04"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "09"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the TXXX frame declares more bytes than the tag holds; the 32 byte(s) from it to the end of the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 8192
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 108,
+            "note": "ID3v2.4, 4 frames, 32 unparsed byte(s)"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  TALB",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "04"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "09"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 32768,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-type-0.dsf",
+      "sha256": "4259a97f23e1cbd6ce116f94f51cabc605d8653a0e468101d4089945f4079638",
+      "containerReference": [
+        "ERR",
+        "ChannelType"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-type-8.dsf",
+      "sha256": "8c3a5c244a536d3dfe9c75e95bffe1b8e6ebe0111f55042408ddd753d3af488c",
+      "containerReference": [
+        "ERR",
+        "ChannelType"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-upstream-1kHz.dff",
+      "sha256": "68d201af2d0a1860661919e6593cab47f58935e93f49c0412516917d37344b95",
+      "containerReference": [
+        "OK",
+        "DFF",
+        "2822400",
+        "2",
+        "141120",
+        "35280",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DFF",
+        "subformat": "DFF",
+        "properties": {
+          "container": "DFF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 50,
+          "bitrateBps": 5644800
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              ".05 sec 1kHz"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "dff"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Test Tones"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "Created with sox dsd"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "key": "GENRE",
+            "values": [
+              "Test"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2025"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FRM8",
+            "size": 71860
+          },
+          {
+            "kind": "FVER",
+            "size": 4
+          },
+          {
+            "kind": "PROP",
+            "size": 74
+          },
+          {
+            "kind": "  FS  ",
+            "size": 4
+          },
+          {
+            "kind": "  CHNL",
+            "size": 10
+          },
+          {
+            "kind": "  CMPR",
+            "size": 20
+          },
+          {
+            "kind": "DSD ",
+            "size": 35280
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 1169,
+            "note": "ID3v2.3, 7 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 13
+          },
+          {
+            "kind": "  TPE1",
+            "size": 4
+          },
+          {
+            "kind": "  TALB",
+            "size": 11
+          },
+          {
+            "kind": "  COMM",
+            "size": 25
+          },
+          {
+            "kind": "  TRCK",
+            "size": 2
+          },
+          {
+            "kind": "  TYER",
+            "size": 5
+          },
+          {
+            "kind": "  TCON",
+            "size": 5
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              ".05 sec 1kHz"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "dff"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Test Tones"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Created with sox dsd"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Test"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2025"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 141120,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-upstream-sweep-176400hz-0-22050hz-20s-D64-2.8mhz.dsf",
+      "sha256": "0728ee035aa2f7a76d9527cf58634ec153b8a38481d7c9d24fc37957521c1d5c",
+      "containerReference": [
+        "OK",
+        "DSF",
+        "2822400",
+        "2",
+        "56459264",
+        "14114828",
+        "false"
+      ],
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "DSF",
+        "subformat": "DSF",
+        "properties": {
+          "container": "DSF",
+          "codec": "DSD",
+          "bitsPerSample": 1,
+          "sampleRate": 2822400,
+          "channels": 2,
+          "durationMs": 20004,
+          "bitrateBps": 5644800
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "DSD ",
+            "size": 28
+          },
+          {
+            "kind": "fmt ",
+            "size": 52
+          },
+          {
+            "kind": "data",
+            "size": 14114816
+          }
+        ]
+      },
+      "supplement": {
+        "totalSamples": 56459264,
+        "pictureSha256": []
+      }
+    },
+    {
+      "path": "owned/dsd-version-0.dsf",
+      "sha256": "631b1791935438bbebdf2eb8fb1e3e91e8975fdd9d8a99d9875a4d194dacec82",
+      "containerReference": [
+        "ERR",
+        "FormatVersion"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-version-2.dsf",
+      "sha256": "ab5166a94421453b61b79dd156c0e979fd5c608101fc3fe7fb30944097946a34",
+      "containerReference": [
+        "ERR",
+        "FormatVersion"
+      ],
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/dsd-zero-audio.dff",
+      "sha256": "1b6786ec872d2a1a93bea71f85849530eba67b522e98742f29fee0aa85b410a9",
+      "containerReference": [
+        "ERR",
+        "DsdChunkSize"
+      ],
+      "errorClass": "INVALID_DATA"
+    }
+  ],
+  "dsdCrateSha256": {
+    "dsf-meta-0.3.0": "dfc2ace16a9905a870d157d87cbd179d701714fe6315a47e61fa194a3d6f7f1a",
+    "dff-meta-0.2.0": "06301c411497b9d471ba2aa728dc666fd4c5c300673c2f4d937eb6a737824a1b"
+  }
+}

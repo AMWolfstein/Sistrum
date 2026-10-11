@@ -298,6 +298,51 @@ escapes. The default chapter edition keeps its flags/languages and explicit ends
 including ends beyond segment duration. Ordering uses nanoseconds before rounding.
 No unsupported synced-lyrics convention or write path is added.
 
+## PATCH-9 — DSF/DFF additions and composite reference
+
+WaxLabel has no DSF/DFF reader. Step 8 uses exact dsf-meta 0.3.0 and dff-meta 0.2.0
+crate archives (checksums in ORACLE.md), built with the existing locked Rust 1.90.0
+harness dependencies. Unmodified Rust results are stored per input. Its container
+validation, sample rate/channels and declared samples/audio extent supply the
+reference. A tag-only WAV wrapper gives the pinned WaxLabel CLI the extracted ID3
+region, retaining its vocabulary, native frame notes, provenance, picture metadata,
+lyrics, chapters and warnings. Public picture hashes use the same Go supplement.
+The DSD native block schema, geometry projection and container warnings are explicit
+Sistrum adapter definitions; these are not claimed as WaxLabel DSD CLI output.
+
+DIIN DIAR/DITI is absent from dff-meta and is a Sistrum addition. Four-byte big-endian
+lengths bound UTF-8 text; NUL padding is trimmed, multiple values retained. ID3 wins
+canonical keys; DIIN supplies missing keys and keeps conflicts as unselected dff
+provenance. Unknown DIIN bodies are skipped. Top-level DFF ID3 before audio is also
+accepted, unlike dff-meta's trailing-only tag read. Both additions have owned parity
+vectors and `diinValuesFillMissingKeysAndKeepId3ConflictsInProvenance` assertions.
+
+A DSF metadata pointer into its fixed headers or declared data extent is rejected
+without probing that range. Pointers beyond EOF are likewise warnings, not throws.
+The owned pointer-1/28/80/92/100/100000 and oversized/unsigned data-size cases assert
+this policy, including guarded audio ranges. Upstream attempts such seeks/reads and
+reports ID3 errors; Sistrum returns a malformed-tag-entry warning. ID3 errors recover
+with the pinned WaxLabel projection rather than the Rust id3 crate's partial-tag
+model. Reference JSON records this declared composition; raw Rust results remain
+alongside it, with no suppression of a Rust container validation failure.
+
+Sample rate and bitrate clamp to the public Int range, using raw rates for duration
+and samples. DSD depth is 1: DSF's stored 1/8 field describes bit order, not PCM depth.
+DSF fmt sample counts and DFF declared audio bytes remain authoritative, as Rust does;
+DSF's reported physical data extent is clipped to EOF. Unknown/zero rates yield zero
+duration. Unsigned sample counts beyond Long and overflowing nanosecond duration
+return SIZE_TOO_LARGE. Default breadth/read/tag bounds and picture modes still apply.
+`unsignedCountsAndOverflowingDurationsReturnTypedLimits` tests the JVM limits.
+Truncated on-disk structure (including Rust UnexpectedEof/Eof) maps to INVALID_DATA;
+source I/O faults retain IO. DST and DFF channels beyond mono/stereo match the pinned
+reference's INVALID_DATA refusal, without changing any codec/player support.
+
+`DsdReadContractsTest` rejects DSD sample and opaque body reads, tests lazy/streamed/
+NONE images, early ID3, DIIN precedence, short reads, typed faults, limits, every
+truncation through 2048 bytes on five seeds and 1500 mutations. No writing or scanner/
+player integration. All 125 composite reference cases match without unexplained
+JSON differences; the additions and operating policies above are intentional.
+
 ## Implementation boundary
 
 Step 1 includes canonical vocabulary/aliases, ID3v1 legacy provenance,
@@ -311,6 +356,6 @@ non-authoritative. Ogg gain, pre-skip, chained streams, continued packets, share
 header/audio pages, comment padding and trailing bytes follow the pinned read
 projection. Step 3 adds MP4/M4A ilst/freeform/covr, native summaries, audio properties and
 Nero/QuickTime chapter tracks, plus classic udta and indexed mdta tags. Step 4 adds APEv1/v2 items, aliases, covers, legacy MP3 provenance, Monkey's Audio
-and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Step 6 adds ASF/WMA tags, pictures, markers and properties. Remaining
-reader (step 8, DSF/DFF) is not ported yet. Step 7 adds Matroska/WebM scoped tags,
-attachments, chapter editions and audio properties. No application feature was removed.
+and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Step 6 adds ASF/WMA tags, pictures, markers and properties. Step 7 adds Matroska/WebM scoped tags,
+attachments, chapter editions and audio properties. Step 8 adds DSF/DFF as described
+in PATCH-9. All eight read-port steps are implemented. No application feature was removed.

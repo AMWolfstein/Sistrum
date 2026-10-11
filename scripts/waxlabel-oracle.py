@@ -982,6 +982,56 @@ def generate_matroska(source):
     put('duplicate-fields',file([tagblock(group([element(0x67c8,text(0x45a3,'ARTIST')+text(0x45a3,'TITLE')+text(0x4487,'First')+text(0x4487,'Last'))]))]))
     return owned
 
+def generate_dsd(source):
+    owned=CACHE/'owned';owned.mkdir(exist_ok=True)
+    def ck(name,data):return name.encode()+struct.pack('>Q',len(data))+data+(b'\0' if len(data)%2 else b'')
+    def dsf(metadata=None,rate=2822400,channels=2,samples=32768,**fields):
+        payload=bytes([0x69])*4096*channels
+        fmt=b'fmt '+struct.pack('<QIIIIIIQII',52,fields.get('version',1),fields.get('format',0),fields.get('type',2),channels,rate,fields.get('bits',1),samples,fields.get('block',4096),fields.get('reserved',0))
+        end=92+len(payload)
+        return b'DSD '+struct.pack('<QQQ',fields.get('header_size',28),fields.get('file_size',end+len(metadata or b'')),fields.get('pointer',end if metadata is not None else 0))+fmt+b'data'+struct.pack('<Q',fields.get('data_size',12+len(payload)))+payload+(metadata or b'')
+    def dff(metadata=None,diin=b'',rate=2822400,channels=2,cmpr='DSD ',compression_name=b'\0\0',before=False,extras=b'',audio=bytes([0x69])*8192):
+        ids=b'C   ' if channels==1 else b'SLFTSRGT' if channels==2 else b'MLFTMRGTC   LFE LS  RS  '
+        prop=b'SND '+ck('FS  ',struct.pack('>I',rate))+ck('CHNL',struct.pack('>H',channels)+ids)+ck('CMPR',cmpr.encode()+compression_name)
+        body=b'DSD '+ck('FVER',bytes.fromhex('01050000'))+(ck('DIIN',diin) if diin and before else b'')+ck('PROP',prop)+extras+ck('DSD ',audio)+(ck('DIIN',diin) if diin and not before else b'')+(ck('ID3 ',metadata) if metadata is not None else b'')
+        return b'FRM8'+struct.pack('>Q',len(body))+body
+    def text(name,value):
+        data=value if isinstance(value,bytes) else value.encode()
+        return ck(name,struct.pack('>I',len(data))+data)
+    def put(name,data,suffix):(owned/f'dsd-{name}.{suffix}').write_bytes(data)
+    png=(owned/'cover.png').read_bytes()
+    basic=tag([frame('TIT2',b'\x03Owned'),frame('TPE1',b'\x03One\0Two'),frame('TALB',b'\x03Album'),frame('TRCK',b'\x0304/09'),frame('TXXX',b'\x03MusicBrainz Album Id\0owned')])
+    picture=tag([frame('TIT2',b'\x03Owned'),frame('APIC',b'\x03image/png\0\x03Cover\0'+png)])
+    chapter=frame('CHAP',b'chapter\0'+struct.pack('>IIII',0,5,0xffffffff,0xffffffff)+frame('TIT2',b'\x03Chapter'))
+    lyrics=frame('SYLT',b'\x03eng\x02\x01Owned\0Line\0'+struct.pack('>I',1))
+    for suffix,make in [('dsf',dsf),('dff',dff)]:
+        for name,metadata in [('base',None),('empty',tag([])),('tags',basic),('picture',picture),('chapters-lyrics',tag([chapter,lyrics])),('bad-id3',b'bad'),('bad-version',b'ID3\x05\0\0'+sync(0)),('truncated-tag',basic[:-5]),('large-picture',tag([frame('APIC',b'\x03image/png\0\x03Large\0'+png+bytes(1100000))]))]:put(name,make(metadata),suffix)
+        for version in [2,3,4]:put(f'id3-v{version}',make(tag([frame('TT2' if version==2 else 'TIT2',b'\0Owned',version)],version)),suffix)
+        for rate in [0,44100*64,44100*128,44100*256,48000*64,4294967295]:put(f'rate-{rate}',make(rate=rate),suffix)
+        for channel in ([1,2,3,4,5,6] if suffix=='dsf' else [1,2,6]):put(f'channels-{channel}',make(channels=channel),suffix)
+        seed=make(basic)
+        for cut in [0,1,3,4,12,20,27,28,31,52,79,80,91,92,100,len(seed)-1]:put(f'cut-{cut}',seed[:cut],suffix)
+    for field,values in [('version',[0,2]),('format',[1]),('type',[0,8]),('block',[0,512]),('reserved',[1]),('header_size',[0,27]),('bits',[0,8,255]),('samples',[0,3,32771]),('file_size',[0,92]),('data_size',[0,12,100,100000,18446744073709551615]),('pointer',[1,28,80,92,100,100000])]:
+        for value in values:put(f'{field}-{value}',dsf(basic,**{field:value}),'dsf')
+    for name,diin in [('tags',text('DIAR','Owned Artist')+text('DITI','Owned Title')),('empty',text('DIAR','')+text('DITI','')),('duplicates',text('DIAR','One')+text('DIAR','Two')+text('DITI','Title')),('unicode',text('DIAR','العربية')+text('DITI','Title\0')),('unknown',ck('EMID',bytes(10000))+text('DITI','Owned')),('malformed',ck('DITI',struct.pack('>I',100)+b'short'))]:
+        put('diin-'+name,dff(diin=diin),'dff')
+    put('diin-before',dff(diin=text('DIAR','Artist')+text('DITI','Title'),before=True),'dff')
+    put('diin-conflict',dff(basic,diin=text('DIAR','Other Artist')+text('DITI','Other Title')),'dff')
+    put('diin-echo',dff(basic,diin=text('DIAR','One')+text('DITI','Owned')),'dff')
+    put('opaque',dff(extras=ck('JUNK',bytes(1100000))),'dff')
+    put('duplicate-id3',dff(basic)+ck('ID3 ',picture),'dff')
+    put('id3-before-audio',dff(extras=ck('ID3 ',picture)),'dff')
+    put('dst-refusal',dff(cmpr='DST '),'dff')
+    put('dst-name-refusal',dff(compression_name=b'DST Encoded'),'dff')
+    put('zero-audio',dff(audio=b''),'dff')
+    import io,mutagen
+    from mutagen.id3 import ID3,TIT2,TPE1,APIC
+    if mutagen.version_string!='1.47.0':raise ValueError('DSD vectors require mutagen 1.47.0')
+    generated=ID3();generated.add(TIT2(encoding=3,text=['Owned Mutagen']));generated.add(TPE1(encoding=3,text=['One','Two']));generated.add(APIC(encoding=3,mime='image/png',type=3,desc='Owned',data=png))
+    buffer=io.BytesIO();generated.save(buffer,v2_version=4,padding=lambda _:0)
+    for suffix,make in [('dsf',dsf),('dff',dff)]:put('mutagen',make(buffer.getvalue()),suffix)
+    return owned
+
 def oracle(source,binary,owned,step=1):
     helper = CACHE/"helper"
     helper.mkdir(exist_ok=True)
@@ -1006,6 +1056,7 @@ def oracle(source,binary,owned,step=1):
     if step == 7:
         files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".mka",".mkv",".webm",".mk3d",".mks"))
         files += sorted(p for p in owned.iterdir() if p.name.startswith("matroska-") and p.suffix.lower() in (".mka",".mkv",".webm",".mk3d",".mks"))
+    if step == 8: files=[]
     rows = []
     for path in files:
         ref = subprocess.run([str(binary),"dump","--native","--json",str(path)],capture_output=True,text=True)
@@ -1019,11 +1070,19 @@ def oracle(source,binary,owned,step=1):
         data.pop("file")
         supplement = subprocess.check_output([str(CACHE/"supplement"),str(path)],text=True)
         rows.append({"path":rel,"sha256":sha(path),"oracle":data,"supplement":json.loads(supplement)})
+    if step == 8:
+        import importlib.util, sys
+        spec=importlib.util.spec_from_file_location("waxlabel_dsd",REPO/"scripts/waxlabel-dsd-oracle.py")
+        adapter=importlib.util.module_from_spec(spec);spec.loader.exec_module(adapter)
+        rows=adapter.oracle_rows(sys.modules[__name__],binary)
     DOCS.mkdir(exist_ok=True)
-    (DOCS/f"oracle-step{step}.json").write_text(json.dumps({"attribution":HEADER,"pin":PIN,"files":rows},ensure_ascii=False,indent=2)+"\n")
+    reference={"attribution":HEADER,"pin":PIN,"files":rows}
+    if step == 8: reference["dsdCrateSha256"]=adapter.PINS
+    (DOCS/f"oracle-step{step}.json").write_text(json.dumps(reference,ensure_ascii=False,indent=2)+"\n")
     # Hash every fetched upstream source/test/testdata file, and every owned input.
     inputs = sorted(p for p in source.rglob("*") if p.is_file() and ".git" not in p.parts)
     inputs += sorted(p for p in owned.rglob("*") if p.is_file())
+    if (CACHE/"dsd-reference").exists(): inputs += sorted(p for p in (CACHE/"dsd-reference").rglob("*") if p.is_file())
     with MANIFEST.open("w") as out:
         out.write(f"# {HEADER}\n# WaxLabel commit {PIN}; generated by scripts/waxlabel-oracle.py\npath\tsha256\n")
         for path in inputs:
@@ -1043,7 +1102,7 @@ def verify():
             raise SystemExit(f"Missing/changed oracle input: {rel}; run the pinned fetch/generate harness")
         expected.add(rel)
         count += 1
-    for folder in (CACHE/"src",CACHE/"owned"):
+    for folder in (CACHE/"src",CACHE/"owned",CACHE/"dsd-reference"):
         actual = {p.relative_to(CACHE).as_posix() for p in folder.rglob("*") if p.is_file() and ".git" not in p.parts}
         if actual-expected:
             raise SystemExit(f"Unmanifested oracle inputs: {sorted(actual-expected)}")
@@ -1058,12 +1117,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch-generate",action="store_true")
     parser.add_argument("--verify",action="store_true")
-    parser.add_argument("--step",type=int,choices=(1,2,3,4,5,6,7),default=1)
+    parser.add_argument("--step",type=int,choices=(1,2,3,4,5,6,7,8),default=1)
     args = parser.parse_args()
     safe_cache()
     if args.fetch_generate:
         source,binary = fetch()
-        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff,6:generate_asf,7:generate_matroska}[args.step](source),args.step)
+        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff,6:generate_asf,7:generate_matroska,8:generate_dsd}[args.step](source),args.step)
         verify()
     elif args.verify:
         verify()
