@@ -172,18 +172,22 @@ class DsdSpecTest {
 
     @Test fun productionCorpusSeeksShortReadsAndDefaults() {
         for (f in DsdCorpus.rows) {
-            if (f.status != "ok") {
+            // Pinned dff-meta still refuses six channels; production now extends that parser.
+            val multichannelDff = f.name.endsWith("-6ch.dff")
+            if (f.status != "ok" && !multichannelDff) {
                 assertEquals(f.status.removePrefix("refused: "), assertThrows(java.io.IOException::class.java) { f.open() }.message)
                 continue
             }
+            val oracle = if (multichannelDff) DsdCorpus.rows.first { it.name == f.name.replace(".dff", ".dsf") } else f
             val s = f.open()
             assertEquals(Dsd.bestTargetRate(s.info.dsdSampleRate), s.info.sampleRate)
             assertTrue(s.info.sampleRate <= 176400)
             val all = samples(s)
+            if (multichannelDff) assertArrayEquals(samples(oracle.open()), all, 0f)
             val dop = s.decodeDopBlock()!!
             val firstWords = ByteBuffer.allocate(8 * dop.channels * 4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
             for (i in 0 until 8 * dop.channels) firstWords.putInt(dop.samples[i])
-            assertEquals(f.value("dop_first8_le32"), firstWords.array().hex())
+            assertEquals(oracle.value("dop_first8_le32"), firstWords.array().hex())
             assertEquals(s.info.totalSamples * s.info.channels, all.size.toLong())
             for (position in longArrayOf(0, 1, 63, 2047, 4096, s.info.totalSamples / 2, s.info.totalSamples - 1).filter { it in 0 until s.info.totalSamples }) {
                 s.seekSample(position)

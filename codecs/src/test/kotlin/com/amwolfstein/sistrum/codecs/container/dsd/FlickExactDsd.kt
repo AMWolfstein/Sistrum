@@ -10,7 +10,6 @@ import com.amwolfstein.sistrum.codecs.audio.Buffer
 import com.amwolfstein.sistrum.codecs.audio.FloatBuffer
 import com.amwolfstein.sistrum.codecs.container.*
 import com.amwolfstein.sistrum.codecs.container.dsf.Dsf
-import com.amwolfstein.sistrum.codecs.container.dff.Dff
 import com.amwolfstein.sistrum.codecs.codec.dsd.*
 
 /** Borrowed output blocks. PCM and DoP have independent sample cursors. */
@@ -30,7 +29,7 @@ internal class FlickExactDsd private constructor(private val source:RandomAccess
     companion object {
         fun open(buffer:ByteBuffer,targetRate:Int=176400)=open(ByteBufferSource(buffer),targetRate)
         fun open(source:RandomAccessSource,targetRate:Int=176400):FlickExactDsd {
-            val h=headerBytes(source,0,4);val parsed=when(tag(h,0)){"DSD "->Dsf.parse(source);"FRM8"->Dff.parse(source);else->throw IOException("dsd: unsupported container")}
+            val h=headerBytes(source,0,4);val parsed=when(tag(h,0)){"DSD "->Dsf.parse(source);"FRM8"->FlickExactDff.parse(source);else->throw IOException("dsd: unsupported container")}
             if(parsed.rate !in intArrayOf(2822400,5644800,11289600))throw IOException("dsd: unsupported sample rate")
             val targets=when(parsed.rate){2822400->intArrayOf(176400,88200,44100);5644800->intArrayOf(352800,176400,88200,44100);else->intArrayOf(705600,352800,176400,88200)}
             if(targetRate !in targets)throw IOException("dsd: unsupported PCM target")

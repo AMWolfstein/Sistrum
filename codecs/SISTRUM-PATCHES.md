@@ -243,6 +243,35 @@ records JVM port deviations within the authorized Sistrum file scope.
   attempts the laptop measurement (0.136–0.141 RTF, DSD256 stereo) was accepted;
   the 0.10 target is dropped and the spec 002 phone gate remains pending.
 
+### Multichannel DFF extension beyond dff-meta 0.2.0
+
+- Production accepts uncompressed DFF with one to six channels, extending the
+  pinned parser's mono/stereo limit. CHNL is required exactly once; its count,
+  exact payload length, recognized IDs and distinct channel identities are
+  checked before audio is read. Missing, truncated, unknown or duplicate IDs
+  (including aliases for the same speaker) have explicit refusal reasons.
+  CMPR must declare DSD; DST remains refused.
+- SLFT/MLFT map to FL, SRGT/MRGT to FR, C to C, LFE to LFE, LS to BL and RS to
+  BR, matching DSF and libwavpack 5.8.1's DFF reader. Named channels are reordered
+  into DSF's FL,FR,C,LFE,BL,BR speaker order before both PCM and DoP processing.
+  The permutation is allocated at open; positional reads and borrowed decode
+  buffers remain allocation-free and retain bounded exact-seek warm-up.
+- Every c000-c999 ID is accepted as an unspecified channel identity. Such
+  channels follow the named speakers, retaining their relative input order.
+  Info.channelMask exposes the named Android speaker bits (4,8,16,32,64,128);
+  if any channel is unspecified, Info.channelIndexMask exposes all channel
+  indices for routing without assigning a fictitious speaker position. DSF
+  exposes the same mask API and retains its original channel order.
+- The test-only FlickExactDff retains the original parser's count limit,
+  literal channel labels and refusal messages. Original Rust/Flick golden
+  fixtures are unchanged. Production parity instead uses independently
+  generated matching DSF/DFF signals, including 3/5/6 channels and shuffled
+  CHNL order, in the external owned cache. The pinned libwavpack reader checks
+  header rate/count/mask and raw physical-order bits for every accepted vector.
+  Source and oracle hashes are verified by the unified corpus preflight.
+  Reproduce with python3 scripts/dsd-multichannel-oracle.py --generate; audio
+  and encoded files are never committed.
+
 ### Pinned Flick filter does not meet the flat-audio specification
 
 The exact port matches the pinned Rust PCM hashes and its own analytic

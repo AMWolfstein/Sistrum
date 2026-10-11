@@ -47,6 +47,7 @@ rootProject.allprojects {
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/alac-packets-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/dsd-corpus-manifest.tsv"))
         inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/owned-manifest.tsv"))
+        inputs.file(rootProject.layout.projectDirectory.file("docs/waxflow/dsd-multichannel-manifest.tsv"))
     }
 }
 tasks.withType<JavaExec>().configureEach { dependsOn(verifyOracleCorpus); systemProperty("oracle.owned", oracleDir.get()+"/owned") }
