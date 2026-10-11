@@ -25,3 +25,11 @@
   Cancellation stops before consuming a block. Local versioned Java
   serialization captures all DSP state; stream overloads avoid duplicate
   state-sized byte arrays on high-rate multichannel input.
+
+- Spectral descriptors preserve the 2048-point symmetric Hann window, 1024
+  hop, initial zero half-window, partial final-hop padding, channel 1,
+  magnitude normalization, Nyquist exclusion, float accumulation and six-digit
+  metadata rounding. The mathematical FFT uses JVM radix-2 butterflies instead
+  of FFmpeg's architecture-specific AVTX codelets; all four descriptor errors
+  remain within the requested 0.5%. Checkpoint format advances to version 2
+  to include the spectral window, previous magnitudes and accumulators.

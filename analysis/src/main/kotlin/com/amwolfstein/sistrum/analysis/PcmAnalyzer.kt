@@ -22,10 +22,11 @@ data class AnalysisResult(
  * Checkpoints contain bounded DSP histories, not the full PCM track. Resume at exactly the next input frame.
  */
 class PcmAnalyzer(val channels: Int, val sampleRate: Int,
-                  private val groups: Int = DYNAMICS or LOUDNESS): Serializable {
-    init { require(channels in 1..9 && sampleRate in 8000..2822400); require(groups > 0 && groups and (DYNAMICS or LOUDNESS).inv() == 0) }
+                  private val groups: Int = ALL): Serializable {
+    init { require(channels in 1..9 && sampleRate in 8000..2822400); require(groups > 0 && groups and ALL.inv() == 0) }
     private val loudness = if (groups and LOUDNESS != 0) Loudness(channels,sampleRate) else null
     private val peakResampler = if (groups and LOUDNESS != 0) Resampler(sampleRate,192000,channels) else null
+    private val spectral = if (groups and SPECTRAL != 0) Spectral(sampleRate) else null
     private val sums = DoubleArray(channels)
     private var firstPeak = 0.0
     private var samplePeak = 0.0
@@ -46,6 +47,7 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
         if (cancelled) return false
         var offset = 0
         while (offset < interleaved.size) {
+            spectral?.put(interleaved[offset])
             loudness?.frame(interleaved,offset)
             peakResampler?.let { resampler ->
                 resampler.put(interleaved,offset)
@@ -91,12 +93,16 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
         val peak = roundMetadata(metadataPeak,1000.0)
         val haveMetadata = frames >= sampleRate / 10
         val dynamics = groups and DYNAMICS != 0
+        spectral?.finish()
+        val sp = spectral?.result() ?: DoubleArray(4)
         val res = AnalysisResult(
             roundMetadata(if (haveMetadata) loudness?.integrated ?: 0.0 else 0.0,1000.0),
             roundMetadata(if (haveMetadata) loudness?.range ?: 0.0 else 0.0,1000.0),
             if (peak > 0) 20*log10(peak) else roundMetadata(db(samplePeak),1e6),
             if (dynamics) roundMetadata(db(sqrt(sum/(frames*channels))),1e6) else 0.0,
             if (dynamics) roundMetadata(if(sums[0]!=0.0) firstPeak/sqrt(sums[0]/frames) else 1.0,1e6) else 0.0,
+            spectral_centroid = sp[0], spectral_rolloff = sp[1],
+            spectral_flatness = sp[2], spectral_flux = sp[3],
             zcr = if(dynamics) roundMetadata(crossings.toDouble()/frames,1e6) else 0.0
         )
         result = res
@@ -116,7 +122,9 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
     companion object {
         const val DYNAMICS = 1
         const val LOUDNESS = 2
-        private const val CHECKPOINT_VERSION = 1
+        const val SPECTRAL = 4
+        const val ALL = DYNAMICS or LOUDNESS or SPECTRAL
+        private const val CHECKPOINT_VERSION = 2
         fun resume(checkpoint: ByteArray): PcmAnalyzer = resume(ByteArrayInputStream(checkpoint))
         /** The caller owns the stream. */
         fun resume(input: InputStream): PcmAnalyzer {
