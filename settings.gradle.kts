@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Sistrum; WaxLabel module attribution: Copyright (c) 2026 Cole Springer (MIT).
 rootProject.name = "Airmedy"
 
 pluginManagement {
@@ -30,3 +32,5 @@ dependencyResolutionManagement {
 include(":androidApp")
 include(":sharedLogic")
 include(":codecs")
+// WaxLabel read port (MIT, Cole Springer); see metadata/THIRD-PARTY-NOTICES.
+include(":metadata")

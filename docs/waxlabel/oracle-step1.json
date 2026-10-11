@@ -1,0 +1,7585 @@
+{
+  "attribution": "SPDX-License-Identifier: GPL-3.0-or-later; WaxLabel MIT, Copyright (c) 2026 Cole Springer",
+  "pin": "cfbb45d13135a76f5df6781fdeec75f5cfe63bf9",
+  "files": [
+    {
+      "path": "src/testdata/empty.mp3",
+      "sha256": "52a7d3771292f1da37139ab5819a1c4d6a6e89eb2ac19d3301a7da5c56b12e5c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 10,
+            "note": "0 frames"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 0,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "src/testdata/empty.wav",
+      "sha256": "8b8fbafe8679076454429756fa72f11d5f442c87381cc6a4285451d826a9e629",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "WAV",
+        "subformat": "WAV",
+        "properties": {
+          "container": "WAV",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 1,
+          "bitsPerSample": 16
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "fmt ",
+            "size": 16,
+            "note": "preserved"
+          },
+          {
+            "kind": "data",
+            "size": 0,
+            "note": "PCM"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "src/testdata/notags.aiff",
+      "sha256": "7ad27bc094086bc2760591ad66c1f46a045f14ea5196df05a3befe2eaabaa84f",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "AIFF",
+        "subformat": "AIFF",
+        "properties": {
+          "container": "AIFF",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 2,
+          "bitsPerSample": 16,
+          "durationMs": 1000,
+          "bitrateBps": 1411200
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "COMM",
+            "size": 18,
+            "note": "PCM"
+          },
+          {
+            "kind": "SSND",
+            "size": 176408,
+            "note": "sound data"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 44100
+      }
+    },
+    {
+      "path": "src/testdata/notags.mp3",
+      "sha256": "d28f86cc719cafce71efc54d9a8099e5ace796a56a404931621ee3cc3d48ca26",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 2038,
+          "bitrateBps": 64712
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 16482,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 89856
+      }
+    },
+    {
+      "path": "src/testdata/notags.wav",
+      "sha256": "e8b6c841361a77c2a370602be32e960627532dea27184558eb736c1d4a654bac",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "WAV",
+        "subformat": "WAV",
+        "properties": {
+          "container": "WAV",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 2,
+          "bitsPerSample": 16,
+          "durationMs": 1000,
+          "bitrateBps": 1411200
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "fmt ",
+            "size": 16,
+            "note": "preserved"
+          },
+          {
+            "kind": "data",
+            "size": 176400,
+            "note": "PCM"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 44100
+      }
+    },
+    {
+      "path": "src/testdata/sample.aifc",
+      "sha256": "68afce55c53a3de6b8e5ec3f4819de169afb1784e49052f5e8c4ff72572b7286",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "AIFF",
+        "subformat": "AIFC",
+        "properties": {
+          "container": "AIFC",
+          "codec": "PCM",
+          "codecProfile": "sowt",
+          "sampleRate": 44100,
+          "channels": 2,
+          "bitsPerSample": 16,
+          "durationMs": 1000,
+          "bitrateBps": 1411200
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "AIFC Title"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "aifc comment"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "FVER",
+            "size": 4,
+            "note": "preserved"
+          },
+          {
+            "kind": "NAME",
+            "size": 10,
+            "note": "text"
+          },
+          {
+            "kind": "ANNO",
+            "size": 12,
+            "note": "text"
+          },
+          {
+            "kind": "COMM",
+            "size": 24,
+            "note": "sowt"
+          },
+          {
+            "kind": "SSND",
+            "size": 176408,
+            "note": "sound data"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "aiff",
+            "scope": "track",
+            "values": [
+              "AIFC Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "aiff",
+            "scope": "track",
+            "values": [
+              "aifc comment"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 44100
+      }
+    },
+    {
+      "path": "src/testdata/sample.aiff",
+      "sha256": "1ac9760a7607c2f836319b3041129f225b502c01a971ebfbc93b6fcfe3548d90",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "AIFF",
+        "subformat": "AIFF",
+        "properties": {
+          "container": "AIFF",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 2,
+          "bitsPerSample": 16,
+          "durationMs": 1000,
+          "bitrateBps": 1411200
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sample Title"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "Sample Artist"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Sample Album"
+            ]
+          },
+          {
+            "key": "GENRE",
+            "values": [
+              "Rock"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "3"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "hello world"
+            ]
+          },
+          {
+            "key": "ENCODER",
+            "values": [
+              "Lavf61.7.100"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "inherited-encoder",
+            "message": "inherited encoder stamp: Lavf61.7.100"
+          }
+        ],
+        "native": [
+          {
+            "kind": "NAME",
+            "size": 12,
+            "note": "text"
+          },
+          {
+            "kind": "ANNO",
+            "size": 12,
+            "note": "text"
+          },
+          {
+            "kind": "COMM",
+            "size": 18,
+            "note": "PCM"
+          },
+          {
+            "kind": "SSND",
+            "size": 176408,
+            "note": "sound data"
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 193,
+            "note": "ID3v2.4, 8 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 14
+          },
+          {
+            "kind": "  TPE1",
+            "size": 15
+          },
+          {
+            "kind": "  TALB",
+            "size": 14
+          },
+          {
+            "kind": "  TDRC",
+            "size": 6
+          },
+          {
+            "kind": "  TCON",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 3
+          },
+          {
+            "kind": "  TXXX",
+            "size": 21,
+            "note": "description: comment"
+          },
+          {
+            "kind": "  TSSE",
+            "size": 14
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Rock"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "3"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "hello world"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ENCODER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Lavf61.7.100"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "aiff",
+            "scope": "track",
+            "values": [
+              "Sample Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "aiff",
+            "scope": "track",
+            "values": [
+              "hello world"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 44100
+      }
+    },
+    {
+      "path": "src/testdata/sample.mp3",
+      "sha256": "7d475e5ae05c7df70e63efa65812ee4889cb28e2ccf33875e08d42c62c41da77",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 2038,
+          "bitrateBps": 64712,
+          "paddingBytes": 10
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sample Title"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "Sample Artist"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Sample Album"
+            ]
+          },
+          {
+            "key": "GENRE",
+            "values": [
+              "Rock"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "3"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "12"
+            ]
+          },
+          {
+            "key": "ENCODER",
+            "values": [
+              "Lavf61.7.100"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "trailing-id3v1",
+            "message": "legacy ID3v1 tag follows the audio; preserved"
+          },
+          {
+            "code": "inherited-encoder",
+            "message": "inherited encoder stamp: Lavf61.7.100"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 165,
+            "note": "7 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 14
+          },
+          {
+            "kind": "  TPE1",
+            "size": 15
+          },
+          {
+            "kind": "  TALB",
+            "size": 14
+          },
+          {
+            "kind": "  TYER",
+            "size": 6
+          },
+          {
+            "kind": "  TCON",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TSSE",
+            "size": 14
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 16482,
+            "note": "MPEG-1 Layer 3"
+          },
+          {
+            "kind": "ID3v1 (trailing)",
+            "size": 128,
+            "note": "preserved"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Rock"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "3"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "12"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ENCODER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Lavf61.7.100"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Sample Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Sample Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Sample Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "2021"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Rock"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "3"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 89856
+      }
+    },
+    {
+      "path": "src/testdata/sample.wav",
+      "sha256": "6954416d2df8811f976894e9c4498306876c64f8244d431cd865e02e8c07cc77",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "WAV",
+        "subformat": "WAV",
+        "properties": {
+          "container": "WAV",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 2,
+          "bitsPerSample": 16,
+          "durationMs": 1000,
+          "bitrateBps": 1411200
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "Sample Artist"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "hello world"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021"
+            ]
+          },
+          {
+            "key": "GENRE",
+            "values": [
+              "Rock"
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              "Sample Title"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Sample Album"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "3"
+            ]
+          },
+          {
+            "key": "ENCODER",
+            "values": [
+              "Lavf61.7.100"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "inherited-encoder",
+            "message": "inherited encoder stamp: Lavf61.7.100"
+          }
+        ],
+        "native": [
+          {
+            "kind": "fmt ",
+            "size": 16,
+            "note": "preserved"
+          },
+          {
+            "kind": "LIST/INFO",
+            "size": 150,
+            "note": "8 items"
+          },
+          {
+            "kind": "  IART",
+            "size": 13
+          },
+          {
+            "kind": "  ICMT",
+            "size": 11
+          },
+          {
+            "kind": "  ICRD",
+            "size": 4
+          },
+          {
+            "kind": "  IGNR",
+            "size": 4
+          },
+          {
+            "kind": "  INAM",
+            "size": 12
+          },
+          {
+            "kind": "  IPRD",
+            "size": 12
+          },
+          {
+            "kind": "  IPRT",
+            "size": 1
+          },
+          {
+            "kind": "  ISFT",
+            "size": 12
+          },
+          {
+            "kind": "data",
+            "size": 176400,
+            "note": "PCM"
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "Sample Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "hello world"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "2021"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "Rock"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TITLE",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "Sample Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "Sample Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "3"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ENCODER",
+            "family": "riff",
+            "scope": "track",
+            "values": [
+              "Lavf61.7.100"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 44100
+      }
+    },
+    {
+      "path": "src/testdata/sample24.mp3",
+      "sha256": "05cdc273fcb28270001b41cb51d712ebbeacf736558e751a430912046d8b8aef",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 2038,
+          "bitrateBps": 64712,
+          "paddingBytes": 10
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sample Title"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "Sample Artist"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Sample Album"
+            ]
+          },
+          {
+            "key": "GENRE",
+            "values": [
+              "Jazz"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "3"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "12"
+            ]
+          },
+          {
+            "key": "ENCODER",
+            "values": [
+              "Lavf61.7.100"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021-06-15"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "inherited-encoder",
+            "message": "inherited encoder stamp: Lavf61.7.100"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 171,
+            "note": "7 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 14
+          },
+          {
+            "kind": "  TPE1",
+            "size": 15
+          },
+          {
+            "kind": "  TALB",
+            "size": 14
+          },
+          {
+            "kind": "  TDRC",
+            "size": 12
+          },
+          {
+            "kind": "  TCON",
+            "size": 6
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TSSE",
+            "size": 14
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 16482,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sample Album"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Jazz"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "3"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "12"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ENCODER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Lavf61.7.100"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021-06-15"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 89856
+      }
+    },
+    {
+      "path": "owned/bad-version.mp3",
+      "sha256": "fd2f91a01f16462bfe80752299a5c5c764edb643f6cad5151ed7d0920c72d911",
+      "errorClass": "INVALID_DATA"
+    },
+    {
+      "path": "owned/base.mp3",
+      "sha256": "c4751a673d685f7af81effc61aa9e2485781e6f68bf34677379795fba031bf27",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/descriptor-controls.mp3",
+      "sha256": "6b5639b888090a7b6de5295fa10ac5307a3dcaabf2d6329f771cb5c5fd7af44f",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "COMMENT",
+            "values": [
+              "comment"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 37,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  COMM",
+            "size": 17,
+            "note": "description: x\\x0a\\u202e"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "comment"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/embedded.aiff",
+      "sha256": "a28776cba629b564c339f1b549a795c2494afffea6efd3944725967c084c821b",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "AIFF",
+        "subformat": "AIFF",
+        "properties": {
+          "container": "AIFF",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 1,
+          "bitsPerSample": 16
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Embedded"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "owned"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "lines": [
+              {
+                "timeMs": 10,
+                "text": "line"
+              }
+            ]
+          }
+        ],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "COMM",
+            "size": 18,
+            "note": "PCM"
+          },
+          {
+            "kind": "SSND",
+            "size": 24,
+            "note": "sound data"
+          },
+          {
+            "kind": "ID3 chunk",
+            "size": 159,
+            "note": "ID3v2.4, 3 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 9
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          },
+          {
+            "kind": "  SYLT",
+            "size": 17
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Embedded"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 8
+      }
+    },
+    {
+      "path": "owned/embedded.wav",
+      "sha256": "69309925bcbd48dd16c23b996aceb6e8c7589cc00f6f8e457121bc56048e3ce2",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "WAV",
+        "subformat": "WAV",
+        "properties": {
+          "container": "WAV",
+          "codec": "PCM",
+          "sampleRate": 44100,
+          "channels": 1,
+          "bitsPerSample": 16
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Embedded"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "owned"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "lines": [
+              {
+                "timeMs": 10,
+                "text": "line"
+              }
+            ]
+          }
+        ],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "fmt ",
+            "size": 16,
+            "note": "preserved"
+          },
+          {
+            "kind": "data",
+            "size": 16,
+            "note": "PCM"
+          },
+          {
+            "kind": "id3 chunk",
+            "size": 159,
+            "note": "ID3v2.4, 3 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 9
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          },
+          {
+            "kind": "  SYLT",
+            "size": 17
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Embedded"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 8
+      }
+    },
+    {
+      "path": "owned/ext-v23.mp3",
+      "sha256": "3569fa0ad0e3fb5ca010b96d01e552d1f097007ccff3b512927b164ac8530d8a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Extended"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 39,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 9
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Extended"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/ext-v24.mp3",
+      "sha256": "e9e0a282bf4075937bd087fe48fcf3087be634f33a5cb5dd29384eb5dc48d0c3",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Extended"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 35,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 9
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Extended"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/footer.mp3",
+      "sha256": "31d537c2d44b084a54c7f9814ec8567e59d66a15226520f3a8aa2fabb7b023b3",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Footer"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 37,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 7
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Footer"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/frame-unsync.mp3",
+      "sha256": "a0e93a54997c9d62f3fe92d98b74794d336e622c2f446644ff40629d8ceca9c3",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "AÿB"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 25,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 4
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "AÿB"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/genre-date.mp3",
+      "sha256": "b35f51add3c10a453f28ae0e7994fd4dbb2b675fd8ab181a485a5edc25aeb905",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "GENRE",
+            "values": [
+              "Rock",
+              "Techno-Industrial",
+              "Noise",
+              "Remix",
+              "(999)",
+              "(live)"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "bad/2/3"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021-02-03T04:05"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "numeric-genre",
+            "message": "a numeric genre reference was resolved to a name"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 118,
+            "note": "5 frames"
+          },
+          {
+            "kind": "  TCON",
+            "size": 35
+          },
+          {
+            "kind": "  TYER",
+            "size": 5
+          },
+          {
+            "kind": "  TDAT",
+            "size": 5
+          },
+          {
+            "kind": "  TIME",
+            "size": 5
+          },
+          {
+            "kind": "  TRCK",
+            "size": 8
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "GENRE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Rock",
+              "Techno-Industrial",
+              "Noise",
+              "Remix",
+              "(999)",
+              "(live)"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "bad/2/3"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021-02-03T04:05"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/grouped-dli.mp3",
+      "sha256": "ea3166c523fdd87e6db075a3336f60bc2dae5ad42f809e8809b381aa847827d0",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Hello"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 31,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Hello"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/invalid-key.mp3",
+      "sha256": "4668c744d11856db3cdde3f030fd508cb7866e57531e333d7e842e616714095f",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "invalid-tag-key",
+            "message": "tag key not represented in canonical tags (not carried): bad=key"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 34,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TXXX",
+            "size": 14,
+            "note": "description: bad=key"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/invalid-picture.mp3",
+      "sha256": "7db18de0db723a89237a46ebc59d16b91be05133b63feeaf9c48005cf7fc0b24",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "invalid-picture",
+            "message": "APIC: invalid picture data"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 24,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 4
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/invalid-utf8.mp3",
+      "sha256": "215e7275fa1e39aee647f0138f6c7bc912b6dc1855dc2cd10764e2de44c1ec0a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "a�b�c"
+            ]
+          },
+          {
+            "key": "CUSTOM",
+            "values": [
+              "�value"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 55,
+            "note": "2 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 10
+          },
+          {
+            "kind": "  TXXX",
+            "size": 15,
+            "note": "description: CUSTOM"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "a�b�c"
+            ],
+            "selected": true
+          },
+          {
+            "key": "CUSTOM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "�value"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/large-frame-unsync.mp3",
+      "sha256": "53783f2923f64387f3d62dbeed4f6d1c404eeec3ec2685f5ced64540120329c0",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 1100075,
+            "description": "large"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 1540114,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 1100093
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "694cfd5c4befa0394711d857c81b1ff439d1f0f2e6a270a3ddadaa41e791dc72"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/large-picture.mp3",
+      "sha256": "d5acba55e98fb4268665d4969f8a6a3953cc93a3a33e4b2027f667f2e16eab64",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 1100075,
+            "description": "large"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 1100113,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 1100093
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "694cfd5c4befa0394711d857c81b1ff439d1f0f2e6a270a3ddadaa41e791dc72"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/large-tag-unsync.mp3",
+      "sha256": "481c0da1f2d50c8825790978766662eacedf60f0e61c4bd3faf012528e4974f2",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 1100075,
+            "description": "large"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 1540114,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 1100093
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "694cfd5c4befa0394711d857c81b1ff439d1f0f2e6a270a3ddadaa41e791dc72"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/malformed-frame.mp3",
+      "sha256": "830c9f4ff65d6aa801fa20bc13c7467ebba1389cb9d95ec29e3ae6b394bec63a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "before"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the TALB frame declares more bytes than the tag holds; the 16 byte(s) from it to the end of the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 43,
+            "note": "1 frames, 16 unparsed byte(s)"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 7
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "before"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/mutagen-v23.mp3",
+      "sha256": "e007b2cab8d3f3b12bc9208179e126357171e166cd692042f59cf5c5ede0e493",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050,
+          "paddingBytes": 64
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sistrum — عنوان"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "03"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "12"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "DISCNUMBER",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "key": "DISCTOTAL",
+            "values": [
+              "2"
+            ]
+          },
+          {
+            "key": "LYRICS",
+            "values": [
+              "سطر\nثان\u0000"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "values": [
+              "recording-1"
+            ]
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "values": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "first",
+              "second"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "release-1"
+            ]
+          },
+          {
+            "key": "MIXER",
+            "values": [
+              "Alice"
+            ]
+          },
+          {
+            "key": "DJMIXER",
+            "values": [
+              "Bob"
+            ]
+          },
+          {
+            "key": "PRODUCER",
+            "values": [
+              "C"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021-02-03T04:05"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Own cover"
+          }
+        ],
+        "chapters": [
+          {
+            "startMs": 0,
+            "endMs": 100,
+            "title": "First"
+          }
+        ],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "description": "main",
+            "lines": [
+              {
+                "timeMs": 20,
+                "text": "early"
+              },
+              {
+                "timeMs": 100,
+                "text": "late"
+              }
+            ]
+          }
+        ],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 938,
+            "note": "17 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 35
+          },
+          {
+            "kind": "  TPE1",
+            "size": 21
+          },
+          {
+            "kind": "  TRCK",
+            "size": 15
+          },
+          {
+            "kind": "  TALB",
+            "size": 15
+          },
+          {
+            "kind": "  TPOS",
+            "size": 11
+          },
+          {
+            "kind": "  TDRC",
+            "size": 37
+          },
+          {
+            "kind": "  CTOC",
+            "size": 9
+          },
+          {
+            "kind": "  USLT",
+            "size": 26
+          },
+          {
+            "kind": "  UFID",
+            "size": 34
+          },
+          {
+            "kind": "  TXXX",
+            "size": 37,
+            "note": "description: custom.key"
+          },
+          {
+            "kind": "  CHAP",
+            "size": 44
+          },
+          {
+            "kind": "  COMM",
+            "size": 46,
+            "note": "description: iTunNORM"
+          },
+          {
+            "kind": "  COMM",
+            "size": 52,
+            "note": "description: comment"
+          },
+          {
+            "kind": "  SYLT",
+            "size": 58
+          },
+          {
+            "kind": "  TXXX",
+            "size": 67,
+            "note": "description: MusicBrainz Album Id"
+          },
+          {
+            "kind": "  TIPL",
+            "size": 77
+          },
+          {
+            "kind": "  APIC",
+            "size": 110
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sistrum — عنوان"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "03"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "12"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2"
+            ],
+            "selected": true
+          },
+          {
+            "key": "LYRICS",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "سطر\nثان\u0000"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "recording-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "a",
+              "b"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "first",
+              "second"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "release-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Alice"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DJMIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Bob"
+            ],
+            "selected": true
+          },
+          {
+            "key": "PRODUCER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "C"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021-02-03T04:05"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/mutagen-v24.mp3",
+      "sha256": "973206dcdb3262f8c59514aff2663374bcf802f1457c638fb98ed4dde6ede3f8",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050,
+          "paddingBytes": 64
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sistrum — عنوان"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "03"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "12"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "DISCNUMBER",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "key": "DISCTOTAL",
+            "values": [
+              "2"
+            ]
+          },
+          {
+            "key": "LYRICS",
+            "values": [
+              "سطر\nثان\u0000"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "first",
+              "second"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "release-1"
+            ]
+          },
+          {
+            "key": "MIXER",
+            "values": [
+              "Alice"
+            ]
+          },
+          {
+            "key": "DJMIXER",
+            "values": [
+              "Bob"
+            ]
+          },
+          {
+            "key": "PRODUCER",
+            "values": [
+              "C"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "values": [
+              "recording-1"
+            ]
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "values": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021-02-03T04:05"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Own cover"
+          }
+        ],
+        "chapters": [
+          {
+            "startMs": 0,
+            "endMs": 100,
+            "title": "First"
+          }
+        ],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "description": "main",
+            "lines": [
+              {
+                "timeMs": 20,
+                "text": "early"
+              },
+              {
+                "timeMs": 100,
+                "text": "late"
+              }
+            ]
+          }
+        ],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 693,
+            "note": "17 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 24
+          },
+          {
+            "kind": "  TPE1",
+            "size": 9
+          },
+          {
+            "kind": "  TRCK",
+            "size": 7
+          },
+          {
+            "kind": "  TALB",
+            "size": 7
+          },
+          {
+            "kind": "  TPOS",
+            "size": 5
+          },
+          {
+            "kind": "  TDRC",
+            "size": 18
+          },
+          {
+            "kind": "  CTOC",
+            "size": 9
+          },
+          {
+            "kind": "  USLT",
+            "size": 19
+          },
+          {
+            "kind": "  COMM",
+            "size": 23,
+            "note": "description: iTunNORM"
+          },
+          {
+            "kind": "  COMM",
+            "size": 25,
+            "note": "description: comment"
+          },
+          {
+            "kind": "  TXXX",
+            "size": 32,
+            "note": "description: MusicBrainz Album Id"
+          },
+          {
+            "kind": "  SYLT",
+            "size": 33
+          },
+          {
+            "kind": "  TIPL",
+            "size": 33
+          },
+          {
+            "kind": "  UFID",
+            "size": 34
+          },
+          {
+            "kind": "  CHAP",
+            "size": 36
+          },
+          {
+            "kind": "  TXXX",
+            "size": 37,
+            "note": "description: custom.key"
+          },
+          {
+            "kind": "  APIC",
+            "size": 98
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sistrum — عنوان"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "03"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "12"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2"
+            ],
+            "selected": true
+          },
+          {
+            "key": "LYRICS",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "سطر\nثان\u0000"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "first",
+              "second"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "release-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Alice"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DJMIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Bob"
+            ],
+            "selected": true
+          },
+          {
+            "key": "PRODUCER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "C"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "recording-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "a",
+              "b"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021-02-03T04:05"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/opaque.mp3",
+      "sha256": "f1b40eb6ae2bfaab75e6cea01ff422aac251423c0265733468b1f4a495c8803c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "visible"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 64,
+            "note": "3 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 10,
+            "note": "preserved (opaque)"
+          },
+          {
+            "kind": "  TPE1",
+            "size": 8
+          },
+          {
+            "kind": "  PRIV",
+            "size": 6
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "visible"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-avif.mp3",
+      "sha256": "e3e46ea3aedb67f937faefa44f7b0fd3b3da9312f05d17e3ee10d8b3207785d5",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/avif",
+            "bytes": 20
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 54,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 34
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "c2c8361e5ddec43427c41e46e1f6dd64ce561eeff16a2dbbf6e67b145e350cad"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-bmp.mp3",
+      "sha256": "344932ae02cdf8d352c3d73ac533d7de7456e886b1931f6175dab9dbb6a10f7a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/bmp",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 34
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 68,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 48
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e3d300cea8772efe4aac48e6bcfd4068b3ccb0e07c563933fd63bc94e26f534f"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-gif.mp3",
+      "sha256": "1e5605c063eab8ef86bdfef8464816a2d9902080645b207914c6658fd3fef078",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/gif",
+            "width": 2,
+            "height": 3,
+            "bytes": 13
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 47,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 27
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "99146f832355fd3955ff78bd2fcfa401281ae06f84ad2574a3a5d48f25c12755"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-jpeg-truncated.mp3",
+      "sha256": "36c21740e16bcf0c9d57b465ea1c7d654e3337c7fd063d64f650b0850c6c5c27",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "application/octet-stream",
+            "bytes": 4
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 38,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 18
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "ba4f25bf16ba4be6bc7d3276fafeb67f9eb3c5df042bc3a405e1af15b921eed7"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-jpeg.mp3",
+      "sha256": "4e2aaaa3a4885d33783c950737742b7d9fd7e12f7406965470b0fc3ac773218a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/jpeg",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 20
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 54,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 34
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "178c2d5e8a223ffe1db1544376008a621c95a10ae1ce6019ed067e6e1c383d2a"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-jxl.mp3",
+      "sha256": "ff089ec3148afabaef4d34d630fef4a33b51523fc7887b727eb7e747dc8315de",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/jxl",
+            "bytes": 12
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 46,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 26
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "59debe8cbf310be0a0a66213bd0a82419eb21bbe68fe17cfc8da35ce883b2539"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-link.mp3",
+      "sha256": "57d74e70cc0437ea6f95de84bd03eaf37fe0328aa81cbafa7b8d3ea1ed4305bd",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "-->",
+            "bytes": 30
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 57,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 37
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "ff21c8b90a44c830046e13a9aa92ee78efb4d74a2adcf5c8a2aded5ccbc6f5b9"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-tiff.mp3",
+      "sha256": "be0046574f2380f561ce333e9c9fc3c842c41d31977f0773e4fda34e82e64e05",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/tiff",
+            "width": 2,
+            "height": 3,
+            "bytes": 38
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 72,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 52
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "59753efee53644237f9f0f4299a3b7178c949d9447626418365c7d4e15005dbc"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/picture-webp.mp3",
+      "sha256": "07f754fe6ff35cd6155fc86c66d7ed49665f89bec58b7e99dce9579870fb315a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/webp",
+            "width": 2,
+            "height": 3,
+            "bytes": 30
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 64,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  APIC",
+            "size": 44
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "39a1d33e4a26327c87b4eb1f2ec49541fe6bf72afde87f019c5fc9f82321e8cd"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/signed-numbers.mp3",
+      "sha256": "4e76168e81ab6b1b3209e07f2d97533c376500d6bae93eb09946ff93d334f03b",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "-1"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "+2"
+            ]
+          },
+          {
+            "key": "DISCNUMBER",
+            "values": [
+              "4294967296"
+            ]
+          },
+          {
+            "key": "DISCTOTAL",
+            "values": [
+              "9223372036854775807"
+            ]
+          },
+          {
+            "key": "MOVEMENT",
+            "values": [
+              "+1/2"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 86,
+            "note": "3 frames"
+          },
+          {
+            "kind": "  TRCK",
+            "size": 6
+          },
+          {
+            "kind": "  TPOS",
+            "size": 35
+          },
+          {
+            "kind": "  MVIN",
+            "size": 5
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "+2"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "4294967296"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "9223372036854775807"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MOVEMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "+1/2"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/source-conflict.mp3",
+      "sha256": "5055ff1625b8b04ca49389cb2c5d944429a1668c470edb24bf6f5492b5ef247c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "TITLE",
+            "values": [
+              "A",
+              "B"
+            ],
+            "cardinality": "conflict"
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 67,
+            "note": "3 frames"
+          },
+          {
+            "kind": "  TPE1",
+            "size": 4
+          },
+          {
+            "kind": "  TXXX",
+            "size": 19,
+            "note": "description: LEAD_PERFORMER"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 4
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": false
+          },
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "A",
+              "B"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/tag-only.mp3",
+      "sha256": "204a56e019826af7fe47cbcbb02d99c185955cfb8a0b3d7fd3d4699aaff4f90a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "tag only"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 29,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 9
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 0,
+            "note": "MPEG audio"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "tag only"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/tag-unsync.mp3",
+      "sha256": "67ca680911b58160443bc8e493f3f6a157308e42d0aeff98082ff024f7f4d4be",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "AÿB"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 25,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 4
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "AÿB"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-0.mp3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-1.mp3",
+      "sha256": "a83dd0ccbffe39d071cc317ddf6e97f5c6b1c87af91919271f9fa140b0508c6c",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-10.mp3",
+      "sha256": "2530f42cd6bb1368ff4f5deab8884c041df1f33514b4c85e6696bfb18c0e2ba8",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 10; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 10,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-11.mp3",
+      "sha256": "eab09116fd6131f2a852c513bd8501355b694b97626a53bbe2e3d5ea08b8e57c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 11; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 11,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-12.mp3",
+      "sha256": "854df149f6f60307214b23f8cc13873f2c3fee2e0504cd0502356a6cdcdc8a49",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 12; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 12,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-13.mp3",
+      "sha256": "7b2684c97ac5835cfd7703666b5d7d2af9c351ebb4a129378accb320f88d7fdd",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 13; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 13,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-14.mp3",
+      "sha256": "8edafe7b4d4ac8ffb99dbb2ffef1216b6b09afe0efef4b15caf78ba6415dac0b",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 14; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 14,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-15.mp3",
+      "sha256": "3868c1f3c18eb15cc9364d171f651c1957ddd64d05270f54697db00498a0a76c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 15; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 15,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-16.mp3",
+      "sha256": "467c70165e452a23ef74adee26d5baeed0db5f7d764b335432f52e671bd776f7",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 16; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 16,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-17.mp3",
+      "sha256": "1dbf15efe5981985aff760696698f5a5037c9d589f8d6709742f6e0b7eee843d",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 17; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 17,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-18.mp3",
+      "sha256": "6bc6090c748e1d27202eb5ffe6046f2c36871c48f4e838ce2c2f315487951aac",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 18; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 18,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-19.mp3",
+      "sha256": "d5af54d15c78c1e0837ec001b5f5439b2e6b10604c4f207439224c988d3b2695",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 19; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 19,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-2.mp3",
+      "sha256": "3843971dcfdee5083e6289e1bbdbb003e538b5a8a668fc43ae4f19d415ac18a2",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-3.mp3",
+      "sha256": "041149186b23a9502aea5a4e81bbc9620d2b4b76b4bad94e36c744abcf9d3771",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 3,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-4.mp3",
+      "sha256": "23bd6ce94c83574c945fe197b091ed1a3d18d59fd450e55c64aea3addddf8620",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 4,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-469.mp3",
+      "sha256": "cbc99569513f81ce5b130c8ef4c7b35963363698083d1c9c3f30e61f29659c25",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP1",
+          "codecProfile": "MPEG-1 Layer 1",
+          "sampleRate": 44100,
+          "channels": 2
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 469; the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 469,
+            "note": "MPEG-1 Layer 1"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-5.mp3",
+      "sha256": "81c393b24f5da162828a390566b97aef3bcaba2342dcaa95d0a8e3a4908a0889",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 5,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-6.mp3",
+      "sha256": "b72a4aaed59835541ab8187e47a4c64ceb9d1f9beeba531f577ecea373c067ed",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 6,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-7.mp3",
+      "sha256": "d32a100e9c2088576717447c80ef7b23ebf589997fb95b981a32dda99136f297",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 7,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-8.mp3",
+      "sha256": "7beafcdf15e961bb66055649a432e73753e5a791fc754b0562f87e05bf9ba615",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 8,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-9.mp3",
+      "sha256": "af97d665b2be6bdd6f72b3e9e0abc8ab9d9b2d368b4c4ccca6b67aa10e1c1bb9",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 9,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-937.mp3",
+      "sha256": "f1e855d7200d37a3d5507cad7551dd2022f5a24c40291be26289d8867a6b811f",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP1",
+          "codecProfile": "MPEG-1 Layer 1",
+          "sampleRate": 44100,
+          "channels": 2
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 938 bytes but the file holds 937; the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 937,
+            "note": "MPEG-1 Layer 1"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v23-938.mp3",
+      "sha256": "18090056e05db47603c8657e7b9cacb49deae01dee9bb7be0fcfddde99af4928",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio",
+          "paddingBytes": 64
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sistrum — عنوان"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "03"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "12"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "DISCNUMBER",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "key": "DISCTOTAL",
+            "values": [
+              "2"
+            ]
+          },
+          {
+            "key": "LYRICS",
+            "values": [
+              "سطر\nثان\u0000"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "values": [
+              "recording-1"
+            ]
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "values": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "first",
+              "second"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "release-1"
+            ]
+          },
+          {
+            "key": "MIXER",
+            "values": [
+              "Alice"
+            ]
+          },
+          {
+            "key": "DJMIXER",
+            "values": [
+              "Bob"
+            ]
+          },
+          {
+            "key": "PRODUCER",
+            "values": [
+              "C"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021-02-03T04:05"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Own cover"
+          }
+        ],
+        "chapters": [
+          {
+            "startMs": 0,
+            "endMs": 100,
+            "title": "First"
+          }
+        ],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "description": "main",
+            "lines": [
+              {
+                "timeMs": 20,
+                "text": "early"
+              },
+              {
+                "timeMs": 100,
+                "text": "late"
+              }
+            ]
+          }
+        ],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.3",
+            "size": 938,
+            "note": "17 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 35
+          },
+          {
+            "kind": "  TPE1",
+            "size": 21
+          },
+          {
+            "kind": "  TRCK",
+            "size": 15
+          },
+          {
+            "kind": "  TALB",
+            "size": 15
+          },
+          {
+            "kind": "  TPOS",
+            "size": 11
+          },
+          {
+            "kind": "  TDRC",
+            "size": 37
+          },
+          {
+            "kind": "  CTOC",
+            "size": 9
+          },
+          {
+            "kind": "  USLT",
+            "size": 26
+          },
+          {
+            "kind": "  UFID",
+            "size": 34
+          },
+          {
+            "kind": "  TXXX",
+            "size": 37,
+            "note": "description: custom.key"
+          },
+          {
+            "kind": "  CHAP",
+            "size": 44
+          },
+          {
+            "kind": "  COMM",
+            "size": 46,
+            "note": "description: iTunNORM"
+          },
+          {
+            "kind": "  COMM",
+            "size": 52,
+            "note": "description: comment"
+          },
+          {
+            "kind": "  SYLT",
+            "size": 58
+          },
+          {
+            "kind": "  TXXX",
+            "size": 67,
+            "note": "description: MusicBrainz Album Id"
+          },
+          {
+            "kind": "  TIPL",
+            "size": 77
+          },
+          {
+            "kind": "  APIC",
+            "size": 110
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 0,
+            "note": "MPEG audio"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sistrum — عنوان"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "03"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "12"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2"
+            ],
+            "selected": true
+          },
+          {
+            "key": "LYRICS",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "سطر\nثان\u0000"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "recording-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "a",
+              "b"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "first",
+              "second"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "release-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Alice"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DJMIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Bob"
+            ],
+            "selected": true
+          },
+          {
+            "key": "PRODUCER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "C"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021-02-03T04:05"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-0.mp3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-1.mp3",
+      "sha256": "a83dd0ccbffe39d071cc317ddf6e97f5c6b1c87af91919271f9fa140b0508c6c",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-10.mp3",
+      "sha256": "b3cbc4642ba3e1ad4211bf7e003617d4ff590306da2c818463669f3828f1aa5d",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 10; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 10,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-11.mp3",
+      "sha256": "9a6d00337ef28d96a176c20f555c60ed482fff43d73754ae87a44650dde2465c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 11; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 11,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-12.mp3",
+      "sha256": "e9930e0ae57a563c63a5c13da2123da886adc351472eb7d07409f0a87c0e9219",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 12; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 12,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-13.mp3",
+      "sha256": "bc8fd401272fee4c90fdf7353e8e5c58db4a85951422198c575dc9b13de7f9d8",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 13; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 13,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-14.mp3",
+      "sha256": "72481219085f23646bf3a07b32a85f35ae81feb0d339dde8954da7c08e24af26",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 14; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 14,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-15.mp3",
+      "sha256": "d38ffaec9af91d9753766144c67363d12be2e2838722dbb3e187233c40c4b2a5",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 15; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 15,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-16.mp3",
+      "sha256": "dd0277a1b80d28e9689807dfdc996fc2ee1dfc2ed1ac8d65c2464b58ea5ad4e6",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 16; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 16,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-17.mp3",
+      "sha256": "a2e66fcf78d44916f0a2cdefeeec3120944019f179fa10f66f2c022e6b1f05d5",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 17; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 17,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-18.mp3",
+      "sha256": "a9ef1990308716ee3cb5c8a4d3c3e2ce44fe69bebe0c7e74584ab5058c4ff682",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 18; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 18,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-19.mp3",
+      "sha256": "80845f16759fb884051a87814114519467794231a4a686d9ec5c839ec41d1744",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 19; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 19,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-2.mp3",
+      "sha256": "3843971dcfdee5083e6289e1bbdbb003e538b5a8a668fc43ae4f19d415ac18a2",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-3.mp3",
+      "sha256": "041149186b23a9502aea5a4e81bbc9620d2b4b76b4bad94e36c744abcf9d3771",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 3,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-346.mp3",
+      "sha256": "4781d7543fd46a21f1580144229c0537850fe8b3af3e47883ab2ac3ccd6fffee",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 346; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 346,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-4.mp3",
+      "sha256": "875697501557841c577d32771acb29e50ce512c416ed9a3926f8f3abdaa3c081",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 4,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-5.mp3",
+      "sha256": "0309e27dc5c111c30989f1a9c1b2795739e244e7f66ae10f5e985292a919b58b",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 5,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-6.mp3",
+      "sha256": "113baf8ac4c066486f59c4fca05b74acc28dc24d43bddfe648627a0ee68593a4",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 6,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-692.mp3",
+      "sha256": "c1de0b2c9d92066da03151c5a9eb5d87ac504c449a48aeab268bf369fe763e12",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP1",
+          "codecProfile": "MPEG-1 Layer 1",
+          "sampleRate": 44100,
+          "channels": 2,
+          "durationMs": 29,
+          "bitrateBps": 192000
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 693 bytes but the file holds 692; the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 692,
+            "note": "MPEG-1 Layer 1"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 1271
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-693.mp3",
+      "sha256": "c86d8b4ac1b9a3fbddd902868fdc578f3582e3b58cf1e790b5109d06b8d66e20",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio",
+          "paddingBytes": 64
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Sistrum — عنوان"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          },
+          {
+            "key": "TRACKNUMBER",
+            "values": [
+              "03"
+            ]
+          },
+          {
+            "key": "TRACKTOTAL",
+            "values": [
+              "12"
+            ]
+          },
+          {
+            "key": "ALBUM",
+            "values": [
+              "Owned"
+            ]
+          },
+          {
+            "key": "DISCNUMBER",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "key": "DISCTOTAL",
+            "values": [
+              "2"
+            ]
+          },
+          {
+            "key": "LYRICS",
+            "values": [
+              "سطر\nثان\u0000"
+            ]
+          },
+          {
+            "key": "COMMENT",
+            "values": [
+              "first",
+              "second"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "values": [
+              "release-1"
+            ]
+          },
+          {
+            "key": "MIXER",
+            "values": [
+              "Alice"
+            ]
+          },
+          {
+            "key": "DJMIXER",
+            "values": [
+              "Bob"
+            ]
+          },
+          {
+            "key": "PRODUCER",
+            "values": [
+              "C"
+            ]
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "values": [
+              "recording-1"
+            ]
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "values": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "key": "RECORDINGDATE",
+            "values": [
+              "2021-02-03T04:05"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "Own cover"
+          }
+        ],
+        "chapters": [
+          {
+            "startMs": 0,
+            "endMs": 100,
+            "title": "First"
+          }
+        ],
+        "syncedLyrics": [
+          {
+            "language": "eng",
+            "description": "main",
+            "lines": [
+              {
+                "timeMs": 20,
+                "text": "early"
+              },
+              {
+                "timeMs": 100,
+                "text": "late"
+              }
+            ]
+          }
+        ],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 693,
+            "note": "17 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 24
+          },
+          {
+            "kind": "  TPE1",
+            "size": 9
+          },
+          {
+            "kind": "  TRCK",
+            "size": 7
+          },
+          {
+            "kind": "  TALB",
+            "size": 7
+          },
+          {
+            "kind": "  TPOS",
+            "size": 5
+          },
+          {
+            "kind": "  TDRC",
+            "size": 18
+          },
+          {
+            "kind": "  CTOC",
+            "size": 9
+          },
+          {
+            "kind": "  USLT",
+            "size": 19
+          },
+          {
+            "kind": "  COMM",
+            "size": 23,
+            "note": "description: iTunNORM"
+          },
+          {
+            "kind": "  COMM",
+            "size": 25,
+            "note": "description: comment"
+          },
+          {
+            "kind": "  TXXX",
+            "size": 32,
+            "note": "description: MusicBrainz Album Id"
+          },
+          {
+            "kind": "  SYLT",
+            "size": 33
+          },
+          {
+            "kind": "  TIPL",
+            "size": 33
+          },
+          {
+            "kind": "  UFID",
+            "size": 34
+          },
+          {
+            "kind": "  CHAP",
+            "size": 36
+          },
+          {
+            "kind": "  TXXX",
+            "size": 37,
+            "note": "description: custom.key"
+          },
+          {
+            "kind": "  APIC",
+            "size": 98
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 0,
+            "note": "MPEG audio"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Sistrum — عنوان"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "03"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "12"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ALBUM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Owned"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCNUMBER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DISCTOTAL",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2"
+            ],
+            "selected": true
+          },
+          {
+            "key": "LYRICS",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "سطر\nثان\u0000"
+            ],
+            "selected": true
+          },
+          {
+            "key": "COMMENT",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "first",
+              "second"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_ALBUMID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "release-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Alice"
+            ],
+            "selected": true
+          },
+          {
+            "key": "DJMIXER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Bob"
+            ],
+            "selected": true
+          },
+          {
+            "key": "PRODUCER",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "C"
+            ],
+            "selected": true
+          },
+          {
+            "key": "MUSICBRAINZ_TRACKID",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "recording-1"
+            ],
+            "selected": true
+          },
+          {
+            "key": "CUSTOM.KEY",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "a",
+              "b"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "2021-02-03T04:05"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-7.mp3",
+      "sha256": "f553f196af2a952546a46c15161b17dd2fea66dd5995622046653ea10dfea436",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 7,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-8.mp3",
+      "sha256": "441735316cf327b1d0969f67d26d5c46a454dec54d30a0ba58097682c16e67a0",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 8,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-mutagen-v24-9.mp3",
+      "sha256": "fa4a4d317f172ffa94344ffa3ea3b4585b675fc4cdf145054f7488ad985a1049",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 9,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-tag.mp3",
+      "sha256": "2f7204762210caeb6cef003686db8b9d5655f9b7110153636272095d3ba60c78",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71390
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 4186 bytes but the file holds 2098; the tag could not be read"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 2098,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/truncated-v22-0.mp3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-v22-1.mp3",
+      "sha256": "a83dd0ccbffe39d071cc317ddf6e97f5c6b1c87af91919271f9fa140b0508c6c",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-v22-10.mp3",
+      "sha256": "7d21ebb8c5ef2e0b3938e028239bf140e2cdead8abde98c36574cc38fcd60e59",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 10; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 10,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-11.mp3",
+      "sha256": "c014c009c3ac5a0e4bc4ac50996b36ecd71b1475f2b3dc2776597e6fd98cc05b",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 11; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 11,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-12.mp3",
+      "sha256": "20f9e0952d34d2ce1eaf8e7348920221e83d90370fd5f0dc19a9d9ccf5b7cfe2",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 12; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 12,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-13.mp3",
+      "sha256": "c8167b9c50fa5a7777b37860eb0e8ec3d499edcf1875195eaa7fa4a65a4b667c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 13; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 13,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-14.mp3",
+      "sha256": "b8a0f0d59459f4589fcb86c6e9afe16b73c97776e6e5de6c155d9b1a1036ae1c",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 14; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 14,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-148.mp3",
+      "sha256": "1a67b2d4f807ae69ee48172159fc2e08c8bf5f910779a7c046263a22f836c968",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 148; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 148,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-149.mp3",
+      "sha256": "e1ff1fd8b872ac542652576c8aa82e66a943ca751d645d2e360780367ce96c8e",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio",
+          "paddingBytes": 7
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Title"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "owned"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no audio essence found; file may be tag-only or truncated"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.2",
+            "size": 149,
+            "note": "4 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 10
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          },
+          {
+            "kind": "  TXY ",
+            "size": 6,
+            "note": "preserved (opaque)"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 0,
+            "note": "MPEG audio"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-15.mp3",
+      "sha256": "a78e1c85a6af1fcfc65c2af14bc11b6b091bcfe10eb279d566c8e2c4eccd2253",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 15; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 15,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-16.mp3",
+      "sha256": "ce6b79a1f36f9bbdc472c4173e2130457bac1e3b91ab872fb06229b58e3be6ef",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 16; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 16,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-17.mp3",
+      "sha256": "2a8ed9fcd50a13129bcf06e40d1f4a009ba78cf2c18dd3c20f6a6724314051a4",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 17; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 17,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-18.mp3",
+      "sha256": "a889325a6dd0151449c336814d9a422579e550ae5a087eb8e72dc276161e3dba",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 18; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 18,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-19.mp3",
+      "sha256": "028c6e6b750ffa85bad49069dfe11acf18651be45382772e27538f5eb9fa4ab7",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 19; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 19,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-2.mp3",
+      "sha256": "3843971dcfdee5083e6289e1bbdbb003e538b5a8a668fc43ae4f19d415ac18a2",
+      "errorClass": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "path": "owned/truncated-v22-3.mp3",
+      "sha256": "041149186b23a9502aea5a4e81bbc9620d2b4b76b4bad94e36c744abcf9d3771",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 3,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-4.mp3",
+      "sha256": "3ebba5981651fb6e877a07f35e5c15bacc1c079a766b3763c259dc67935173ed",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 4,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-5.mp3",
+      "sha256": "2ac34a996b37f7179b5c6789e31237992939aee33402f51cb56d773303f5df33",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 5,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-6.mp3",
+      "sha256": "6866e46db16d641f8134f12775fbf9a20d788adbb2a0d58d3338f4d717c0e270",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 6,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-7.mp3",
+      "sha256": "ad4b760f8cc1ae15d7e5f10412f45f2945cd546e5bf0b632012b0f664ee0d983",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 7,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-74.mp3",
+      "sha256": "1d333c3f2dcd8624d540dfe4238aab1b9855236bdc8979e4c7c7bd696a3b46d1",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the leading ID3v2 tag declares 149 bytes but the file holds 74; the tag could not be read"
+          },
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 74,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-8.mp3",
+      "sha256": "50e3b5350298a1367c0f089a4d7b66e1dfb5a5718349735ea5078b17b48cc116",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 8,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/truncated-v22-9.mp3",
+      "sha256": "4e9bd127f8bd0df4376ef910af1503b501895223f604cd577234045cd471a4c7",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MPEG audio"
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "no-audio",
+            "message": "no MPEG audio frames found; file may not be audio"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 9,
+            "note": "MPEG audio"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 0
+      }
+    },
+    {
+      "path": "owned/unsupported-sylt.mp3",
+      "sha256": "43ae2c0852f9aa29e476b6902adf8db2f4c2fe97665bf23dc68407132739d06b",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "synced-lyrics-timestamp-format",
+            "message": "a SYLT frame uses a non-millisecond timestamp format, which is not modeled; it was skipped"
+          },
+          {
+            "code": "synced-lyrics-content-type",
+            "message": "a SYLT frame carries a non-lyric content type, which is not modeled; it was skipped"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 70,
+            "note": "2 frames"
+          },
+          {
+            "kind": "  SYLT",
+            "size": 20
+          },
+          {
+            "kind": "  SYLT",
+            "size": 20
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/utf16-carry.mp3",
+      "sha256": "eb65eb3f43acda335ac29859891aa3b663768b36d23c2d707dd506d6d945f1d3",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "CUSTOM",
+            "values": [
+              "one",
+              "two"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 51,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TXXX",
+            "size": 31,
+            "note": "description: CUSTOM"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "CUSTOM",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "one",
+              "two"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/utf16be-bom.mp3",
+      "sha256": "a2699bfaa11d0622e9a8e987c9b42d9889b8688b084e71318b1bee8517ccac8d",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "﻿A"
+            ]
+          }
+        ],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 25,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 5
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "﻿A"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/v1-only.mp3",
+      "sha256": "8c6ce1dd1a34ec46239274ce00ab051ae5dd1829a1fb013bd4108115a285f2a8",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "trailing-id3v1",
+            "message": "legacy ID3v1 tag follows the audio; preserved"
+          }
+        ],
+        "legacyOnly": [
+          "TITLE",
+          "ARTIST",
+          "RECORDINGDATE",
+          "GENRE",
+          "TRACKNUMBER"
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          },
+          {
+            "kind": "ID3v1 (trailing)",
+            "size": 128,
+            "note": "preserved"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Artist"
+            ],
+            "selected": true
+          },
+          {
+            "key": "RECORDINGDATE",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "2026"
+            ],
+            "selected": true
+          },
+          {
+            "key": "GENRE",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "Rock"
+            ],
+            "selected": true
+          },
+          {
+            "key": "TRACKNUMBER",
+            "family": "id3v1",
+            "scope": "track",
+            "values": [
+              "3"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/v1-rejected.mp3",
+      "sha256": "5fd193a9afb4e78afdbd6b34de0a3a95717f88c2271598deca8e5b65d29bdde7",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 75405
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 2216,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/v1-stacked.mp3",
+      "sha256": "cd4d8eb2b6c30dec38d9aebd4a531491510ace9d93399212e6f3d9cb83985e3a",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "trailing-id3v1",
+            "message": "2 stacked legacy ID3v1 tags follow the audio; preserved"
+          }
+        ],
+        "native": [
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          },
+          {
+            "kind": "ID3v1 (trailing)",
+            "size": 256,
+            "note": "preserved"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/v22-compressed.mp3",
+      "sha256": "76973d522a4498b6c2343378c650b7bc506ff419066bda8fae654518f8227e3d",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "malformed-tag-entry",
+            "message": "the ID3v2.2 tag sets the compression flag, for which v2.2 defines no scheme; the tag is ignored"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.2",
+            "size": 15,
+            "note": "0 frames"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/v22.mp3",
+      "sha256": "729cbb0554aacace8ec298639dd0bcd054f15be370f8bffb5999a0537675afa5",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050,
+          "paddingBytes": 7
+        },
+        "tags": [
+          {
+            "key": "TITLE",
+            "values": [
+              "Title"
+            ]
+          },
+          {
+            "key": "ARTIST",
+            "values": [
+              "One",
+              "Two"
+            ]
+          }
+        ],
+        "pictures": [
+          {
+            "type": "Front cover",
+            "mime": "image/png",
+            "width": 2,
+            "height": 3,
+            "depth": 24,
+            "bytes": 75,
+            "description": "owned"
+          }
+        ],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [],
+        "native": [
+          {
+            "kind": "ID3v2.2",
+            "size": 149,
+            "note": "4 frames"
+          },
+          {
+            "kind": "  TIT2",
+            "size": 6
+          },
+          {
+            "kind": "  TPE1",
+            "size": 10
+          },
+          {
+            "kind": "  APIC",
+            "size": 93
+          },
+          {
+            "kind": "  TXY ",
+            "size": 6,
+            "note": "preserved (opaque)"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ],
+        "sources": [
+          {
+            "key": "TITLE",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "Title"
+            ],
+            "selected": true
+          },
+          {
+            "key": "ARTIST",
+            "family": "id3v2",
+            "scope": "track",
+            "values": [
+              "One",
+              "Two"
+            ],
+            "selected": true
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [
+          "e57b3b111f6f31bbfe89091d3a998fce03fea7cf04c6efead143603658eb138e"
+        ],
+        "totalSamples": 10368
+      }
+    },
+    {
+      "path": "owned/warning-snippet.mp3",
+      "sha256": "9712a5f30f459fe33503db1f28e2c53f7f83f69555dfabbbab352ab6f987b451",
+      "oracle": {
+        "schemaVersion": 1,
+        "format": "MP3",
+        "subformat": "MP3",
+        "properties": {
+          "container": "MP3",
+          "codec": "MP3",
+          "codecProfile": "MPEG-1 Layer 3",
+          "sampleRate": 44100,
+          "channels": 1,
+          "durationMs": 235,
+          "bitrateBps": 71050
+        },
+        "tags": [],
+        "pictures": [],
+        "chapters": [],
+        "syncedLyrics": [],
+        "warnings": [
+          {
+            "code": "invalid-tag-key",
+            "message": "tag key not represented in canonical tags (not carried): bad=\\x0aععععععععععععععععععععععععععععععععععععععععععععع…[+30 B]"
+          }
+        ],
+        "native": [
+          {
+            "kind": "ID3v2.4",
+            "size": 152,
+            "note": "1 frames"
+          },
+          {
+            "kind": "  TXXX",
+            "size": 132,
+            "note": "description: bad=\\x0aعععععععععععععععععععععععععععععععععععععععععععععععععععععععععععع"
+          },
+          {
+            "kind": "MPEG audio",
+            "size": 2088,
+            "note": "MPEG-1 Layer 3"
+          }
+        ]
+      },
+      "supplement": {
+        "pictureSha256": [],
+        "totalSamples": 10368
+      }
+    }
+  ]
+}
