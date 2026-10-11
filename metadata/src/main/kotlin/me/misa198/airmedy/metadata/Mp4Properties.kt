@@ -162,11 +162,11 @@ internal object Mp4Properties {
             }; off=dec.end
         }; return null
     }
-    private data class AacConfig(var aot: Int,var rate: Int,val channel: Int,var sbr: Boolean=false,var ps: Boolean=false,var signalled: Boolean=false,var extensionRate: Int=0) {
+    internal data class AacConfig(var aot: Int,var rate: Int,val channel: Int,var sbr: Boolean=false,var ps: Boolean=false,var signalled: Boolean=false,var extensionRate: Int=0) {
         val channels get()=intArrayOf(0,1,2,3,4,5,6,8,0,0,0,7,8,24,8,0)[channel]
         fun profile()=when { sbr && ps && channel==1 -> "HE-AAC v2"; sbr -> "HE-AAC"; else -> when(aot) { 1 -> "AAC Main"; 2 -> "AAC LC"; 3 -> "AAC SSR"; 4 -> "AAC LTP"; 23 -> "AAC LD"; 39 -> "AAC ELD"; 42 -> "xHE-AAC"; else -> "AAC" } }
     }
-    private fun aac(p: ByteArray): AacConfig? {
+    internal fun aac(p: ByteArray): AacConfig? {
         var bit=0
         fun take(n: Int): Int? { if(n>p.size*8-bit) return null; var v=0; repeat(n) { v=v shl 1 or ((p.u(bit/8) shr (7-bit%8)) and 1); bit++ }; return v }
         fun objectType(): Int? { val n=take(5) ?: return null; return if(n==31) (take(6) ?: return null)+32 else n }

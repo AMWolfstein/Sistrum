@@ -25,14 +25,14 @@ data class AudioProperties(
 ) { val durationMs: Long get() = minOf(Long.MAX_VALUE / 1_000_000,
     durationNs / 1_000_000 + if (durationNs % 1_000_000 >= 500_000) 1 else 0) }
 data class NativeBlock(val kind: String, val size: Long, val note: String = "", val unit: String = "")
-data class Chapter(val startMs: Long, val endMs: Long = 0, val title: String = "")
+data class Chapter(val startMs: Long, val endMs: Long = 0, val title: String = "",
+    val language: String = "", val languageIETF: String = "", val hidden: Boolean = false, val disabled: Boolean = false)
 data class SyncedLine(val timeMs: Long, val text: String)
 class SyncedLyrics(val language: String, val description: String, lines: List<SyncedLine>) {
     val lines: List<SyncedLine> = frozen(lines)
 }
-class FamilyValue(val key: String, val family: String, values: List<String>, val selected: Boolean, val legacy: Boolean = false) {
+class FamilyValue(val key: String, val family: String, values: List<String>, val selected: Boolean, val legacy: Boolean = false, val scope: String = "track") {
     val values: List<String> = frozen(values)
-    val scope: String = "track"
 }
 
 /** Payload is never retained in scan mode. FULL enables a bounded, on-demand read;

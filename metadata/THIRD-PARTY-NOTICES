@@ -9,7 +9,7 @@ Pinned commit: cfbb45d13135a76f5df6781fdeec75f5cfe63bf9
 Sources: tag/, internal/mapping/, internal/id3/, internal/mp3/, internal/core/,
 internal/bits/image.go, internal/flac/, internal/ogg/, internal/vorbis/,
 internal/mp4/, internal/mpeg4audio/, internal/ape/, internal/apen/,
-internal/wavpack/, internal/musepack/, internal/wav/, internal/aiff/, internal/iff/ and internal/asf/.
+internal/wavpack/, internal/musepack/, internal/wav/, internal/aiff/, internal/iff/, internal/asf/ and internal/matroska/.
 
 The upstream LICENSE is reproduced verbatim:
 

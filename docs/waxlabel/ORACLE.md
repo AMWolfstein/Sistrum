@@ -9,8 +9,8 @@ License: MIT, Copyright (c) 2026 Cole Springer; copied verbatim into
 
 `Metadata.read(RandomAccessSource, ReadOptions)` lives in the pure-JVM `:metadata`
 module. It is independent of Android and uses `:codecs` only for the existing source
-contract. Steps 1–6 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
-APE-family containers, WAV/RF64/BW64/AIFF/AIFF-C and ASF/WMA. There is no writer,
+contract. Steps 1–7 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
+APE-family containers, WAV/RF64/BW64/AIFF/AIFF-C, ASF/WMA and Matroska/MKA/WebM. There is no writer,
 player integration, or scanner integration.
 
 ## Reproduce
@@ -28,6 +28,7 @@ The harness rejects cache paths within this repository.
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 4
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 5
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 6
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 7
 python3 scripts/waxlabel-oracle.py --verify
 ./gradlew :codecs:test --rerun :metadata:test --rerun :androidApp:assembleDevDebug
 ./gradlew :metadata:benchmark -PwaxlabelStep=2
@@ -48,7 +49,7 @@ builds the pinned `./cmd/waxlabel` with `CGO_ENABLED=0 go build -trimpath`. It e
 3 (`UNSUPPORTED_FORMAT`) or 4 (`INVALID_DATA`), never an invented reference document.
 It strips only the absolute CLI filename from successful JSON.
 
-`oracle-step1.json` through `oracle-step6.json` preserve the reference output. A tiny external Go helper,
+`oracle-step1.json` through `oracle-step7.json` preserve the reference output. A tiny external Go helper,
 compiled against the exact same source using a local module replacement, supplies
 only total samples and SHA-256 of each upstream picture's bytes: neither exists in
 CLI JSON. Kotlin comparison retains ordered tags/values, native blocks, properties,
@@ -200,10 +201,33 @@ default hashing streams and FULL loads lazily. Short reads, I/O faults, resource
 limits, byte truncations through 2048 bytes and 1250 seeded mutations never throw.
 See [STEP6.md](STEP6.md) for counts, benchmarks and exact deviations.
 
+## Step 7 — Matroska/MKA/WebM
+
+`oracle-step7.json` contains 170 records: all four pinned upstream testdata files
+and 166 owned inputs; 160 successful projections and ten typed errors.
+**170 exact matches, zero intentional or unexplained JSON differences.**
+All 1726 fetched/generated source/test/testdata and owned files have manifest
+SHA-256. The pinned CLI builds and supplies unmodified native JSON; the same
+public-API supplement supplies sample counts and picture hashes.
+
+Owned ffmpeg silence covers Opus/Vorbis WebM and FLAC/AAC/PCM MKA. Deterministic
+EBML vectors cover mappings, scoped families, nested/binary SimpleTags, empty and
+invalid UTF-8 text, statistics suppression, pairs, numeric/keyword/UID targets,
+attachments/MIME/name gates, large images and opaque data, chapter editions,
+flags/languages/nesting, stable submillisecond order, overflow and open ends.
+Properties cover codec names/AAC private prefixes, output rates, invalid floats,
+multiple/video tracks and duration geometry. Framing cases include unknown-size
+Segments/Clusters, trailing/interleaved tags, repeated metadata, many Clusters,
+truncations and malformed VINTs. Default and FULL compare every public field;
+NONE and guarded sources enforce bounded payload skips. Source faults, one-byte
+reads, breadth/depth/allocation/read limits, every truncation through 2048 bytes
+on five seeds and 1500 mutations verify nonthrowing reads.
+See [STEP7.md](STEP7.md) for test results, changed files and per-file benchmarks.
+
 ## Benchmark
 
 `:metadata:benchmark` measures each file (step 1 by default, `-PwaxlabelStep=2`
-for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5, `-PwaxlabelStep=6` for step 6) on a warm filesystem cache
+for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5, `-PwaxlabelStep=6` for step 6, `-PwaxlabelStep=7` for step 7) on a warm filesystem cache
 with an open `FileChannelSource`: 25 warmups, 101 trials, median nanoseconds and
 median per-thread allocated bytes from HotSpot's `ThreadMXBean`. File opening and
 corpus verification are outside the measured call; parsing, document construction,
@@ -213,7 +237,7 @@ none are reported as successful metadata parses.
 
 Generated output: `metadata/build/reports/metadata-benchmark.tsv`.
 Recorded snapshots: `docs/waxlabel/step1-benchmark.tsv` and
-`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv` and `docs/waxlabel/step6-benchmark.tsv`.
+`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv` and `docs/waxlabel/step6-benchmark.tsv` and `docs/waxlabel/step7-benchmark.tsv`.
 These are per-file measurements, not a hard performance threshold; host/JIT/I/O
 noise means a new run can differ.
 

@@ -7,7 +7,9 @@ ID3v2.2/2.3/2.4, WAV/RF64/BW64 INFO and ID3 chunks, AIFF/AIFF-C text and ID3 chu
 Ogg Vorbis/Opus/FLAC comments, pictures, synced lyrics and chapters, and MP4/M4A
 iTunes ilst/freeform/covr, QuickTime mdta/udta tags and Nero/QuickTime chapters. APEv1/v2 tags on Monkey's Audio, WavPack, Musepack and MP3, plus native Musepack
 chapters, are supported. APE tags are legacy-only on MP3. ASF/WMA content descriptions, extended/nested metadata, pictures, markers and
-audio properties are supported. Other containers remain reserved for steps 7–8. WAV bext/iXML/cue and AIFF ancillary chunks are
+audio properties are supported. Matroska/MKA/WebM supports scoped SimpleTags,
+Info.Title, image attachments, default-edition chapters and audio properties.
+DSF/DFF remains for step 8. WAV bext/iXML/cue and AIFF ancillary chunks are
 reported as opaque native summaries, matching the pinned reader. There is no Android/player/scanner code.
 
 ```kotlin
@@ -26,7 +28,8 @@ Imports are under `me.misa198.airmedy.metadata`; `FileChannelSource` and
 
 `Document` includes ordered canonical tags, native block summaries, audio properties,
 pictures, chapters, synced lyrics, warnings, provenance families, legacy-only keys,
-and an optional typed error. Collections and nested values are unmodifiable.
+and an optional typed error. Chapters include language/IETF language and
+hidden/disabled flags; provenance carries album/track/edition/chapter scopes. Collections and nested values are unmodifiable.
 Unsupported/malformed data and I/O failures do not throw out of `Metadata.read`.
 Callers own the source and must keep its contents immutable during reads.
 
