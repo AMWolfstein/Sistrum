@@ -44,6 +44,8 @@ internal fun jsonProjection(doc: Document): JsonElement {
     } }
     result["chapters"] = doc.chapters.map { c -> linkedMapOf<String,Any>("startMs" to c.startMs).apply {
         if(c.endMs != 0L) put("endMs",c.endMs); if(c.title.isNotEmpty()) put("title",c.title)
+        if(c.language.isNotEmpty()) put("language",c.language); if(c.languageIETF.isNotEmpty()) put("languageIetf",c.languageIETF)
+        if(c.hidden) put("hidden",true); if(c.disabled) put("disabled",true)
     } }
     result["syncedLyrics"] = doc.syncedLyrics.map { sl -> linkedMapOf<String,Any>("lines" to sl.lines.map { mapOf("timeMs" to it.timeMs,"text" to it.text) }).apply {
         if(sl.language.isNotEmpty()) put("language",sl.language); if(sl.description.isNotEmpty()) put("description",sl.description)

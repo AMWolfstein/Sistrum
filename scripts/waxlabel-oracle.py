@@ -867,6 +867,121 @@ def generate_asf(source):
     put('picture-lookalike',asf([records([('WM/Pıcture',picture(),1),('WM/Pİcture',picture(),1)])]))
     return owned
 
+def generate_matroska(source):
+    """Owned silence and deterministic EBML/tag/attachment/chapter vectors; external only."""
+    owned=CACHE/'owned';owned.mkdir(exist_ok=True)
+    def vint(n,width=None):
+        width=width or next(w for w in range(1,9) if n<(1<<(7*w))-1)
+        return ((1<<(7*width))|n).to_bytes(width,'big')
+    def element(id,data=b'',unknown=False):
+        return id.to_bytes((id.bit_length()+7)//8,'big')+(b'\xff' if unknown else vint(len(data)))+data
+    def uint(id,n,width=None):return element(id,n.to_bytes(width or max(1,(n.bit_length()+7)//8),'big'))
+    def text(id,s):return element(id,s if isinstance(s,bytes) else s.encode())
+    def number(id,n,width=8):return element(id,struct.pack('>d' if width==8 else '>f',n))
+    def simple(name,value=None,sub=b'',binary=None):
+        return element(0x67c8,text(0x45a3,name)+(text(0x4487,value) if value is not None else b'')+(element(0x4485,binary) if binary is not None else b'')+sub)
+    def group(tags,level=None,target=None,uid=None):
+        targets=(uint(0x68ca,level) if level is not None else b'')+(text(0x63ca,target) if target is not None else b'')+(uint(uid,0) if uid else b'')
+        return element(0x7373,element(0x63c0,targets)+b''.join(tags))
+    def tagblock(*groups):return element(0x1254c367,b''.join(groups))
+    def track(codec='A_OPUS',rate=48000,channels=2,bits=16,type=2,private=None,output=None,audio=b''):
+        geom=number(0xb5,rate)+uint(0x9f,channels)+uint(0x6264,bits)+(number(0x78b5,output) if output is not None else b'')
+        return element(0xae,uint(0xd7,1)+uint(0x83,type)+text(0x86,codec)+element(0xe1,geom)+audio+(element(0x63a2,private) if private is not None else b''))
+    def info(title=None,duration=1000,scale=1000000):
+        return element(0x1549a966,uint(0x2ad7b1,scale)+number(0x4489,duration)+(text(0x7ba9,title) if title is not None else b''))
+    cluster=element(0x1f43b675,uint(0xe7,0)+element(0xa3,b'\x81\0\0\x80'+bytes(200)))
+    def file(children=(),dt='matroska',clusters=True,tracks=None,information=None,unknown=False):
+        header=element(0x1a45dfa3,text(0x4282,dt))
+        body=(info() if information is None else information)+element(0x1654ae6b,track() if tracks is None else tracks)+b''.join(children)+(cluster if clusters else b'')
+        return header+element(0x18538067,body,unknown)
+    def put(name,body,suffix='mka'):(owned/f'matroska-{name}.{suffix}').write_bytes(body)
+    # The mapping source is fetched and hashed in the external cache.
+    import re
+    names=re.findall(r'"([A-Z_ -]+)"\s*:\s*tag\.',(source/'internal/mapping/matroska.go').read_text().split('// matroskaNames')[0])
+    put('aliases',file([tagblock(group([simple(n,'Owned '+n) for n in names]+[simple('COUNTRY','AR'),simple('CUSTOM','value'),simple('PART_NUMBER','04/09'),simple('DISC','0/12')]))]))
+    put('empty',file([tagblock(group([simple('TITLE',''),simple('ARTIST',''),simple('ALBUM',None),simple('GENRE','')]))],information=info('')))
+    put('duplicates',file([tagblock(group([simple('ARTIST','One'),simple('ARTIST','One'),simple('TITLE','Echo'),simple('TITLE',' echo ')]))],information=info('Echo')))
+    put('scopes',file([tagblock(group([simple('TITLE','Track'),simple('ARTIST','One'),simple('GENRE','Rock')],30),group([simple('TITLE','Album'),simple('ARTIST','Two'),simple('GENRE',' rock ')],50),group([simple('TITLE','Edition')],60),group([simple('TITLE','Chapter')],uid=0x63c4))],information=info('Album')))
+    put('multiple-tags',file([tagblock(group([simple('TITLE','First')])),tagblock(group([simple('TITLE','Second')]))]))
+    for n in ['COLLECTION','EDITION','ISSUE','VOLUME','OPUS','SEASON','SEQUEL','ALBUM','OPERA','CONCERT','MOVIE','EPISODE','PART','SESSION','TRACK','SONG','CHAPTER','SUBTRACK','PART_BIS','MOVEMENT','SCENE','SHOT','UNKNOWN',' album ']:
+        put('target-'+n.strip().lower().replace(' ','-'),file([tagblock(group([simple('TITLE',n)],target=n))]))
+    for level in [0,10,30,39,40,50,59,60,70,2**64-1]:
+        put(f'level-{level}',file([tagblock(group([simple('TITLE','Owned')],level))]))
+    for uid in [0x63c5,0x63c9,0x63c4]:put(f'uid-{uid:x}',file([tagblock(group([simple('TITLE','Owned')],50,uid=uid))]))
+    put('invalid-keys',file([tagblock(group([simple(n,'value') for n in ['','  ','BAD=KEY','العربية','WM/ß','ß','İSRC','BPS','_STATISTICS_WRITING_APP','DURATION','NUMBER_OF_BYTES','x~']]))]))
+    put('unicode-values',file([tagblock(group([simple('TITLE',b'A\xff\xfeB'),simple('ARTIST','العربية'),simple('CUSTOM',b'\xe0\x80\x80'),simple('COMMENT','inside\0nul\0\0')]))],information=info(b'\xff\xfe')))
+    put('invalid-name',file([tagblock(group([simple(b'bad\xff\xfe','value')]))]))
+    put('nested',file([tagblock(group([simple('ARTIST','Parent',simple('COUNTRY','AR',simple('TITLE','Nested')),binary=bytes(20)),simple('ALBUM',None,simple('TITLE','Child'))]))]))
+    nested=simple('TITLE','Leaf')
+    for _ in range(48):nested=simple('COUNTRY',None,nested)
+    put('nested-deep',file([tagblock(group([nested]))]))
+    put('binary-large',file([tagblock(group([simple('CUSTOM',None,binary=bytes(1100000))]))]))
+    put('opaque',file([element(0x114d9b74,bytes(11000)),element(0x1c53bb6b,bytes(12000)),element(0xec,bytes(13000)),element(0xbf,b'abcd')]))
+    png=(owned/'cover.png').read_bytes()
+    def attachment(name='cover.png',mime='image/png',data=png,description='Owned cover'):
+        return element(0x61a7,text(0x466e,name)+text(0x4660,mime)+text(0x467e,description)+(element(0x465c,data) if data is not None else b''))
+    def attachments(*items):return element(0x1941a469,b''.join(items))
+    for name in ['cover.png','small_cover.png','Cover_1.bin','small_cover_2','cover','cover_letter.bin','cover_.bin','booklet.png','font.ttf']:
+        put('attachment-'+name.replace('.','-'),file([attachments(attachment(name,'application/octet-stream'))]))
+    for mime in ['image/png','IMAGE/JPEG','image/unknown','application/octet-stream','application/pdf','', '-->']:
+        put('mime-'+mime.replace('/','-').replace('>','gt'),file([attachments(attachment('cover.png',mime))]))
+    for name,data in [('empty',b''),('unknown',b'not an image'),('absent',None),('large',png+bytes(1100000))]:put('picture-'+name,file([attachments(attachment(data=data))]))
+    put('picture-wrongmime',file([attachments(attachment(mime='image/jpeg'))]))
+    put('picture-description',file([attachments(attachment(description=b'A\xff\xfeB'))]))
+    put('attachments-multiple',file([attachments(attachment(),attachment('small_cover.png')),attachments(attachment('booklet.png'),attachment('font.ttf','font/ttf',bytes(10000)))]))
+    def display(title='Owned',lang='eng',ietf='en-US'):
+        return element(0x80,text(0x85,title)+text(0x437c,lang)+text(0x437d,ietf))
+    def atom(start=0,end=None,title='Owned',flags=b'',extra=b'',lang='eng',ietf='en-US'):
+        return element(0xb6,uint(0x91,start)+(uint(0x92,end) if end is not None else b'')+display(title,lang,ietf)+flags+extra)
+    def edition(atoms,default=False):return element(0x45b9,(uint(0x45db,1) if default else b'')+b''.join(atoms))
+    def chapters(*eds):return element(0x1043a770,b''.join(eds))
+    put('chapters',file([chapters(edition([atom(200000000,400000000,'Second'),atom(0,200000000,'First'),atom(700000000,None,'Open')]))]))
+    put('editions',file([chapters(edition([atom(title='Fallback')]),edition([atom(title='Default')],True),edition([atom(title='Other')],True))]))
+    put('chapter-flags',file([chapters(edition([atom(flags=uint(0x98,1)+uint(0x4598,0))]))]))
+    put('chapter-languages',file([chapters(edition([atom(lang='und',ietf='UND'),atom(1000000,title=b'bad\xff',lang=b'\xff',ietf='ar-EG')]))]))
+    put('chapter-subms',file([chapters(edition([atom(490000,title='Later'),atom(100000,title='Earlier'),atom(100000,title='Stable')]))]))
+    put('chapter-overflow',file([chapters(edition([atom(2**64-1,2**64-1),atom(0,2000000000,'Past duration'),atom(10,5,'Invalid end')]))]))
+    put('chapter-nested',file([chapters(edition([atom(extra=atom(title='Nested')+display('Second display'))]))]))
+    put('chapters-empty',file([chapters()]))
+    put('chapters-duplicate',file([chapters(edition([atom(title='First')])),chapters(edition([atom(title='Ignored')]))]))
+    for codec in ['A_FLAC','A_OPUS','A_VORBIS','A_AAC','A_AAC/MPEG4/MAIN','A_AAC/MPEG4/LC','A_AAC/MPEG4/LC/SBR','A_AAC/MPEG2/SSR','A_AAC/MPEG4/LTP','A_MPEG/L3','A_MPEG/L2','A_AC3','A_EAC3','A_PCM/INT/LIT','A_ALAC','A_DTS','V_TEST','unknown']:
+        put('codec-'+codec.replace('/','-'),file(tracks=track(codec)))
+    for name,private in [('lc',bytes.fromhex('1190')),('he',bytes.fromhex('2b920800')),('ps',bytes.fromhex('eb920800')),('short',b'\xff'),('huge',bytes.fromhex('1190')+bytes(1100000))]:
+        put('aac-'+name,file(tracks=track('A_AAC',24000,1,private=private)))
+    put('aac-output',file(tracks=track('A_AAC/MPEG4/LC/SBR',24000,1,output=44100,private=bytes.fromhex('eb920800'))))
+    put('non-aac-private',file(tracks=track('A_FLAC',private=bytes(1100000))))
+    put('no-tracks',file(tracks=b''));put('video',file(tracks=track('V_TEST',type=1)));put('mixed',file(tracks=track()+track('V_TEST',type=1)));put('two-audio',file(tracks=track()+track('A_FLAC')))
+    put('empty-second-audio',file(tracks=track(audio=element(0xe1))))
+    for name,rate in [('nan',float('nan')),('inf',float('inf')),('negative',-1),('zero',0),('huge',2147483647)]:put('rate-'+name,file(tracks=track(rate=rate)))
+    for name,duration in [('nan',float('nan')),('inf',float('inf')),('negative',-1),('zero',0),('huge',2**62),('fractional',0.123456)]:put('duration-'+name,file(information=info(duration=duration)))
+    for dt in ['webm','WebM','','unknown'] :put('doctype-'+(dt or 'empty'),file(dt=dt),'webm' if dt.lower()=='webm' else 'mka')
+    put('clusterless',file(clusters=False));put('unknown-segment',file(unknown=True))
+    streamed=element(0x1f43b675,uint(0xe7,0)+element(0xa3,b'\x81\0\0\x80'+bytes(200)),True)
+    put('streamed-trailing-tags',file([streamed,tagblock(group([simple('TITLE','Trailing')]))],clusters=False,unknown=True))
+    put('intercluster-tags',file([cluster,tagblock(group([simple('ARTIST','Between')])),cluster],clusters=False))
+    put('clusters-many',file([cluster]*200,clusters=False))
+    put('segment-duplicate',file()+element(0x18538067,tagblock(group([simple('TITLE','Ignored')]))))
+    seed=file([tagblock(group([simple('TITLE','Owned')]))])
+    for cut in [1,3,4,5,8,12,17,20,25,31,40,60,80,100,len(seed)-1]:put(f'cut-{cut}',seed[:cut])
+    put('no-segment',element(0x1a45dfa3,text(0x4282,'matroska')))
+    put('invalid-vint',element(0x1a45dfa3)+b'\0garbage')
+    for codec,suffix in [('libopus','webm'),('libvorbis','webm'),('flac','mka'),('aac','mka'),('pcm_s16le','mka')]:
+        run(['ffmpeg','-nostdin','-v','error','-f','lavfi','-i','anullsrc=r=48000:cl=stereo','-t','0.2','-c:a',codec,'-metadata','title=Owned','-metadata','artist=Owned Artist','-y',owned/f'matroska-ffmpeg-{codec}.{suffix}'])
+    put('float32',file(information=element(0x1549a966,number(0x4489,1000.125,4)),tracks=element(0xae,uint(0x83,2)+text(0x86,'A_FLAC')+element(0xe1,number(0xb5,44100,4)+uint(0x9f,2)+uint(0x6264,24)))))
+    put('no-info',file(information=b''))
+    put('info-duplicate',file([info('Last',500)],information=info('First',1000)))
+    put('empty-info-last',file([element(0x1549a966)],information=info('First')))
+    put('unknown-info',file(information=element(0x1549a966,number(0x4489,1000)+text(0x7ba9,'Streamed'),True)))
+    put('invalid-floats',file(information=element(0x1549a966,element(0x4489,b'bad')),tracks=element(0xae,uint(0x83,2)+text(0x86,'A_FLAC')+element(0xe1,element(0xb5,b'bad')+uint(0x9f,2**64-1)+uint(0x6264,2**32)))))
+    put('empty-audio',file(tracks=element(0xae,uint(0x83,2)+text(0x86,'A_OPUS')+element(0xe1))))
+    put('attachment-invalid-names',file([attachments(attachment(b'cover\xff\xfe.png',b'image/\xff\xfe',description=b'D\xff\xfe'))]))
+    put('long-invalid-key',file([tagblock(group([simple(b'x'*95+b'\xff\xfe'+'العربية'.encode(),'value')]))]))
+    put('long-invalid-value',file([tagblock(group([simple('ENCODER',b'Lavf'+b'x'*100+b'\xff\xfe')]))]))
+    put('unicode-fold',file([tagblock(group([simple('ARTIST','ΟΣ'),simple('CUSTOM','İ')],30),group([simple('ARTIST','Οσ'),simple('CUSTOM','i')],50))]))
+    put('malformed-pairs',file([tagblock(group([simple(n,v) for n in ['PART_NUMBER','DISC'] for v in ['0/12','/4','4/','4/x','4/5/6','-2/09',' 04 / 09 ','']]))]))
+    put('duplicate-fields',file([tagblock(group([element(0x67c8,text(0x45a3,'ARTIST')+text(0x45a3,'TITLE')+text(0x4487,'First')+text(0x4487,'Last'))]))]))
+    return owned
+
 def oracle(source,binary,owned,step=1):
     helper = CACHE/"helper"
     helper.mkdir(exist_ok=True)
@@ -888,6 +1003,9 @@ def oracle(source,binary,owned,step=1):
     if step == 6:
         files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".wma",".asf"))
         files += sorted(p for p in owned.iterdir() if p.name.startswith("asf-") and p.suffix.lower() in (".wma",".asf"))
+    if step == 7:
+        files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".mka",".mkv",".webm",".mk3d",".mks"))
+        files += sorted(p for p in owned.iterdir() if p.name.startswith("matroska-") and p.suffix.lower() in (".mka",".mkv",".webm",".mk3d",".mks"))
     rows = []
     for path in files:
         ref = subprocess.run([str(binary),"dump","--native","--json",str(path)],capture_output=True,text=True)
@@ -940,12 +1058,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch-generate",action="store_true")
     parser.add_argument("--verify",action="store_true")
-    parser.add_argument("--step",type=int,choices=(1,2,3,4,5,6),default=1)
+    parser.add_argument("--step",type=int,choices=(1,2,3,4,5,6,7),default=1)
     args = parser.parse_args()
     safe_cache()
     if args.fetch_generate:
         source,binary = fetch()
-        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff,6:generate_asf}[args.step](source),args.step)
+        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff,6:generate_asf,7:generate_matroska}[args.step](source),args.step)
         verify()
     elif args.verify:
         verify()

@@ -267,6 +267,37 @@ No ASF synced-lyrics convention is invented. Contracts cover opaque/binary skips
 one-byte reads, picture modes, limits, lossless depth, byte truncations and seeded
 mutations. The upstream ASF path is read-only too.
 
+## Step-7 bounded Matroska/EBML parsing
+
+EBML VINT reads request only their actual header widths, rather than upstream's
+up-to-eight-byte lookahead that may cross into an encoded block. Known-size
+Cluster bodies are skipped wholesale. Unknown-size streamed Clusters walk child
+headers to locate following level-one siblings, skipping every block body. The
+port omits essence fingerprints and write-only raw captures of Tags, Chapters,
+SeekHead, Cues, attachments and Info. Non-image attachments, TagBinary and opaque
+structural bodies are not read. AAC CodecPrivate reads at most the same upstream
+32-byte prefix; other codecs' private data is skipped.
+
+There are no step-7 oracle JSON deltas. PATCH-1 applies to cover attachments:
+METADATA_ONLY streams hashes, NONE skips FileData, FULL returns fresh arrays lazily.
+Attachment native summaries remain present in NONE, including their cover label.
+PATCH-3 bounds reads, leaves and metadata breadth; depth is 64 as upstream. Known
+Cluster siblings do not consume the metadata breadth budget. Unlike the upstream
+unbounded resolver, unknown-size Cluster child headers additionally consume that
+budget. Source faults in informational DocType, track and language fields return
+IO under the existing source-failure policy rather than being silently swallowed.
+
+`MatroskaReadContractsTest` rejects Cluster/block, binary, non-image, opaque and
+non-AAC-private reads, guards the AAC prefix, and asserts picture modes, short
+reads, typed faults, limits, deep nesting, bytewise truncation and mutations.
+Canonical projection prefers album scope, preserves within-scope multi-values,
+suppresses folded cross-scope echoes and exposes conflicts. Only top-level
+SimpleTags project; the nested tree remains native. Empty text stays present,
+technical statistics stay native, and invalid key bytes retain upstream warning
+escapes. The default chapter edition keeps its flags/languages and explicit ends,
+including ends beyond segment duration. Ordering uses nanoseconds before rounding.
+No unsupported synced-lyrics convention or write path is added.
+
 ## Implementation boundary
 
 Step 1 includes canonical vocabulary/aliases, ID3v1 legacy provenance,
@@ -281,4 +312,5 @@ header/audio pages, comment padding and trailing bytes follow the pinned read
 projection. Step 3 adds MP4/M4A ilst/freeform/covr, native summaries, audio properties and
 Nero/QuickTime chapter tracks, plus classic udta and indexed mdta tags. Step 4 adds APEv1/v2 items, aliases, covers, legacy MP3 provenance, Monkey's Audio
 and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Step 6 adds ASF/WMA tags, pictures, markers and properties. Remaining
-readers (steps 7–8) are not ported yet. No application feature was removed.
+reader (step 8, DSF/DFF) is not ported yet. Step 7 adds Matroska/WebM scoped tags,
+attachments, chapter editions and audio properties. No application feature was removed.

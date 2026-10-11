@@ -33,6 +33,7 @@ object Metadata {
                 }
             }
             when {
+                magic.size==4 && magic.be(0,4)==0x1a45dfa3L || options.formatHint?.lowercase() in listOf("mka","mkv","webm","mk3d","mks") -> MatroskaReader(input,b).read()
                 magic.size>=4 && magic.latin(0,4)==AsfGuid.Header.take(4) && input.length>=16 && input.bytes(0,16).latin()==AsfGuid.Header || options.formatHint?.lowercase() in listOf("wma","asf") -> AsfReader(input,b).read()
                 magic.latin()=="MAC " || options.formatHint?.lowercase()=="ape" -> ApeContainers.monkeys(input,b)
                 magic.latin()=="wvpk" || options.formatHint?.lowercase()=="wv" -> ApeContainers.wavpack(input,b)
