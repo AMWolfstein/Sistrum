@@ -58,10 +58,10 @@ class Dsd internal constructor(private val source:RandomAccessSource,private val
             pcm.frames=pipeline.processBytes(planar,offsets,n,pcm.samples);pcm.position=pcmPosition;pcmPosition+=pcm.frames;pcm.discontinuity=discontinuity;discontinuity=false;if(pcm.frames>0)return pcm
         };return null
     }
-    /** Replay source state to the exact sample; seek is outside the decode-loop timing. */
+    /** Decode only the rounded-up FIR history, then discard warm-up to the exact sample. */
     fun seekSample(sample:Long){
         if(sample<0||sample>info.totalSamples)throw IOException("dsd: sample out of range")
-        pipeline.reset();bytePosition=0;pcmPosition=0;pending=false;discontinuity=false
+        pipeline.reset();bytePosition=pipeline.seekStartByte(sample);pcmPosition=bytePosition*8/(header.rate/info.sampleRate);pending=false;discontinuity=false
         if(sample==0L){discontinuity=true;return}
         if(sample==info.totalSamples){bytePosition=header.bytesPerChannel;pcmPosition=sample;discontinuity=true;return}
         while(pcmPosition<=sample){val b=decodeBlock()?:break;if(pcmPosition>sample){val skip=(sample-b.position).toInt();System.arraycopy(b.samples,skip*header.channels,b.samples,0,(b.frames-skip)*header.channels);b.frames-=skip;b.position=sample;pending=true;break}}

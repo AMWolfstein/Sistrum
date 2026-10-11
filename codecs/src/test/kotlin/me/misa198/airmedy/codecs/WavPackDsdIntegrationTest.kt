@@ -41,6 +41,34 @@ internal class WavPackDsdIntegrationTest(private val fixture:LibWavPackFixture,p
         }
         assertArrayEquals(wanted.digest(),got.digest())
     }
+    @Test fun randomPcmSeeksMatchUninterruptedBits() {
+        val rate=packed().info.dsdSampleRate
+        val targets=when (rate) {
+            2822400 -> intArrayOf(44100,88200,176400)
+            5644800 -> intArrayOf(44100,88200,176400,352800)
+            else -> intArrayOf(88200,176400,352800,705600)
+        }
+        for (target in targets) {
+            val stream=WavPackDsd.open(ByteBuffer.wrap(fixture.source.readBytes()),target)
+            val all=java.io.ByteArrayOutputStream()
+            while (true) { val b=stream.decodeBlock()?:break;all.write(pcmBytes(b)) }
+            val expected=all.toByteArray()
+            val random=kotlin.random.Random(27)
+            val positions=listOf(0L,1L,stream.info.totalSamples-1,stream.info.totalSamples)+
+                List(24) { random.nextLong(stream.info.totalSamples) }
+            for (position in positions) {
+                stream.seekSample(position)
+                val got=java.io.ByteArrayOutputStream();var cursor=position;var first=true
+                while (true) {
+                    val b=stream.decodeBlock()?:break
+                    assertEquals(cursor,b.position);assertEquals(first,b.discontinuity);first=false
+                    got.write(pcmBytes(b));cursor+=b.frames
+                }
+                assertEquals(stream.info.totalSamples,cursor)
+                assertArrayEquals(expected.copyOfRange((position*stream.info.channels*4).toInt(),expected.size),got.toByteArray())
+            }
+        }
+    }
     @Test fun dopMatchesExistingPackerAcrossOddBlocks() {
         val actual=packed();val reference=original()
         assertEquals(reference.info.dopSampleRate,actual.info.dopSampleRate)

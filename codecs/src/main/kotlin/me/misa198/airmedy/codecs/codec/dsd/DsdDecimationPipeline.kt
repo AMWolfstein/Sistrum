@@ -29,6 +29,24 @@ class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channe
         require(intermediate % targetPcmRate == 0)
     }
 
+    /** Total causal FIR history in input bytes, including the two downstream stages. */
+    internal val historyBytes: Long
+        get() = (byteTaps - 1L) + (halfBandCoefficients.size - 1L) * byteDecimation +
+            (finalCoefficients.size - 1L) * 2 * byteDecimation
+
+    /**
+     * Round the required history up to whole input blocks and restart before the target block.
+     * A block boundary is also a PCM boundary, so resetting every decimation phase to zero
+     * preserves the uninterrupted schedule. Ring-buffer indices need not match: each FIR
+     * evaluates its taps in the same order once the discarded history has been replaced.
+     */
+    internal fun seekStartByte(sample: Long): Long {
+        val blockBytes = 4096L
+        val framesPerBlock = blockBytes * 8 / (dsdRate / targetPcmRate)
+        val historyBlocks = (historyBytes + blockBytes - 1) / blockBytes
+        return maxOf(0L, sample / framesPerBlock - historyBlocks) * blockBytes
+    }
+
     fun processBytes(bytes: ByteArray, offsets: IntArray, bytesPerChannel: Int, output: FloatArray): Int {
         var frames = 0
         for (ch in 0 until channels) {
