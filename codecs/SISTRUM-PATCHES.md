@@ -409,3 +409,29 @@ original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
 - Exact seeking resets the same compensated phase at a whole-block boundary,
   warms the complete FIR history and trims to the absolute requested sample.
   Rounded EOF and near-end seeks retain uninterrupted float bits.
+
+## CUE sidecar parser
+
+- Ported `cue/cue.go` and `cue/decode.go` from the pinned MIT WaxFlow fork
+  `b7857aff88820ad37936026421d1641e64611dbe`. FILE-relative CD frames, integer
+  sample conversion, strict/tolerant parsing, ordered REMs, bounded warnings,
+  single-file selection, INDEX 01 validation and mixed-mode pieces/cuts retain
+  the package's semantics. JVM lists/data classes replace Go slices/structs;
+  track numbers use Long to preserve the pinned 64-bit Go operand range.
+- Retain SONGWRITER at sheet and track scope as requested; Go deliberately
+  skips it. Add BOM-marked UTF-16 LE/BE with strict malformed-text refusal; Go
+  supports UTF-8/BOM and best-effort Windows-1252 only. The fallback preserves
+  all 32 high-byte mappings, including undefined code points. Expose encoding
+  and a separate encoding warning without turning fallback into a syntax error.
+- `Sheet.trackList(rate, fileLengths)` adds file identity and exclusive sample
+  ends to the source's starts, retaining data tracks and -1 for unknown EOF.
+  Pregap/postgap are metadata for generated silence, not inserted file audio.
+  `File.pieces` remains the source-compatible split view, including lead-ins
+  and data-mode skips; no filesystem resolution, audio reading, scanner or
+  playback integration is included.
+- The thin Go driver delegates parsing and boundary decisions to the package.
+  Tests verify the source pin and both source SHA-256 values before building it
+  in a temporary cache, then compare owned generated sheets across three rates
+  and known/unknown file lengths. UTF-16 and SONGWRITER extension checks are
+  separate from pinned parity. Generated sheets and oracle binaries stay out
+  of git; no audio fixture is introduced.

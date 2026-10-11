@@ -697,3 +697,47 @@ its fixed 512-tap response attenuates 10 kHz by 0.651 dB at DSD256.
 See [the full measurements and source diagnosis](../docs/dsd/BYTE-TABLE-PERFORMANCE.md).
 The earlier bit-exact history optimization remains documented in
 [PERFORMANCE.md](../docs/dsd/PERFORMANCE.md) and `benchmarks/dsd.tsv`.
+
+## CUE sheets
+
+`cue.Cue.parse(bytes)` ports the pinned WaxFlow `cue/` package. The sidecar API
+is independent of the audio containers and has no player or scanner integration.
+It keeps FILE/TRACK/INDEX, PREGAP/POSTGAP, TITLE/PERFORMER/SONGWRITER, ISRC,
+CATALOG, FLAGS and ordered REM metadata, including GENRE, DATE and album/track
+REPLAYGAIN_* keys. `sheet.rem(key)` and `track.rem(key)` return the first
+case-insensitive match, with null distinguishing absence from an empty value.
+
+```kotlin
+val sheet = me.misa198.airmedy.codecs.cue.Cue.parse(cueBytes)
+val tracks = sheet.trackList(rate = 44100)
+```
+
+Positions are file-relative samples; `SampleTrack.file` identifies the FILE,
+`start` is inclusive and `end` is exclusive. Supply `fileLengths` in samples
+(one per FILE) to resolve final ends; unknown final ends are -1. Conversion
+uses integer CD frames × rate / 75, with truncation for rates not divisible by
+75. Missing INDEX 01 and nonascending starts are explicit refusals when asking
+for positions, even if the sheet parses successfully. Data tracks remain in
+the list with `track.isAudio == false`. PREGAP/POSTGAP describe generated silence
+and do not shift file positions. `File.pieces()` preserves WaxFlow's lead-in
+and mixed-mode splitting rules; use its audio flag when deciding which spans
+contain audio. `singleFile()` refuses ambiguous multi-audio-FILE sheets.
+
+Strict parsing reports the first unreadable line as `CueException`.
+`parseTolerant()` records up to 64 findings in `sheet.warnings` and continues;
+track numbers it cannot read are -1 and cannot produce a cut list. Unknown
+extension commands are skipped as in WaxFlow. CRLF, LF and classic CR line
+endings are accepted.
+
+UTF-8 with/without BOM and BOM-marked UTF-16 LE/BE are supported. Invalid UTF-8
+uses the pinned Windows-1252 fallback, preserving its undefined-byte mappings.
+Every result exposes `sheet.encoding`; a fallback also sets
+`sheet.encodingWarning`, so callers can report the interpretation. Malformed
+BOM-marked UTF-16 is refused. The parser does not guess other legacy codepages.
+
+`./gradlew :codecs:test --tests '*Cue*'` builds the thin Go oracle against the
+verified external pin and checks generated, owned temporary `.cue` files.
+Metadata, warnings, starts, pieces, cuts and refusal text are compared at
+44.1/48/32 kHz, including multi-FILE, data tracks, missing INDEX 01, CRLF, BOMs
+and legacy input. UTF-16 and SONGWRITER are covered as explicit extensions.
+Go must be installed; missing source/tooling fails the run rather than skipping.
