@@ -24,7 +24,18 @@ object Metadata {
                 val n=Id3.tagSize(input.bytes(0,10))
                 if(n!=null && n<=input.length-4 && input.bytes(n,4).latin()=="fLaC") flacStart=n
             }
+            var musepackStart: Long?=if(magic.latin()=="MPCK" || magic.size>=4 && magic.latin(0,3)=="MP+" && magic.u(3) in listOf(7,23)) 0 else null
+            if(magic.latin(0,3)=="ID3" && input.length>=10) {
+                val n=Id3.tagSize(input.bytes(0,10))
+                if(n!=null && n<=input.length-4) {
+                    val marker=input.bytes(n,4)
+                    if(marker.latin()=="MPCK" || marker.latin(0,3)=="MP+" && marker.u(3) in listOf(7,23)) musepackStart=n
+                }
+            }
             when {
+                magic.latin()=="MAC " || options.formatHint?.lowercase()=="ape" -> ApeContainers.monkeys(input,b)
+                magic.latin()=="wvpk" || options.formatHint?.lowercase()=="wv" -> ApeContainers.wavpack(input,b)
+                musepackStart!=null || options.formatHint?.lowercase() in listOf("mpc","mpp","mp+") -> Musepack.read(input,b,musepackStart ?: 0)
                 flacStart != null -> Flac.read(input,b,flacStart)
                 magic.latin() == "OggS" -> Ogg.read(input,b)
                 magic.size >= 12 && magic.latin(0,4) == "RIFF" && magic.latin(8,4) == "WAVE" -> Iff.read(input,b,false)
@@ -67,6 +78,9 @@ object Metadata {
         val trailerSize = input.length-end
         if (trailerSize > 0) b.warn("trailing-id3v1",if (trailerSize == 128L) "legacy ID3v1 tag follows the audio; preserved"
             else "${trailerSize/128} stacked legacy ID3v1 tags follow the audio; preserved")
+        val apeTag=Ape.parse(input,end,start)
+        val id3v1End=end
+        if(apeTag!=null) { end=apeTag.offset; b.warn("legacy-ape","APEv2 tag present; preserved") }
         b.properties = Mpeg.properties(input,start,end,b,probeStart).copy(paddingBytes=tag?.padding?.toLong() ?: 0)
         if (tag != null) {
             b.native += NativeBlock("ID3v2.${tag.version}",start,tag.note)
@@ -76,10 +90,12 @@ object Metadata {
             b.warnings += Id3.encoderWarnings(tag)
         }
         b.native += NativeBlock("MPEG audio",end-start,b.properties.profile.ifEmpty { b.properties.codec })
+        if(apeTag!=null) b.native+=NativeBlock("APEv2 (legacy)",apeTag.size,"preserved")
         if (trailerSize > 0) {
             b.native += NativeBlock("ID3v1 (trailing)",trailerSize,"preserved")
-            if (trailerSize == 128L) v1Families(input.bytes(end,128),b)
+            if (trailerSize == 128L) v1Families(input.bytes(id3v1End,128),b)
         }
+        Ape.legacy(apeTag,b)
         finish(b,end-start)
     }
 }

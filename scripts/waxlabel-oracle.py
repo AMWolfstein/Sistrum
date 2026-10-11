@@ -563,6 +563,114 @@ def generate_mp4(source):
     return owned
 
 
+def generate_ape(source):
+    """APEv1/v2 vectors, structural audio headers and ffmpeg/mutagen inputs, all external."""
+    import mutagen
+    from mutagen.apev2 import APEv2, APEBinaryValue
+    if mutagen.version_string != "1.47.0":
+        raise SystemExit("Owned APE vectors require mutagen 1.47.0")
+    owned=CACHE/"owned";owned.mkdir(exist_ok=True)
+    def entry(name,value,flags=0):
+        name=name.encode() if isinstance(name,str) else name
+        value=value.encode() if isinstance(value,str) else value
+        return struct.pack("<II",len(value),flags)+name+b"\0"+value
+    def ape(items,version=2000,header=True,count=None,flags=0):
+        body=b"".join(items); count=len(items) if count is None else count
+        record=lambda f:b"APETAGEX"+struct.pack("<IIII",version,len(body)+32,count,f)+bytes(8)
+        return (record(0xa0000000) if header else b"")+body+record(flags|(0x80000000 if header else 0))
+    def mac(version=3990,frames=1,final=9600,flags=0,rate=48000):
+        if version>=3980:
+            desc=b"MAC "+struct.pack("<HHIIIIII",version,0,52,24,0,0,512,0)+bytes(20)
+            h=struct.pack("<HHIIIHHI",2000,flags,73728*4,final,frames,24,2,rate)
+            return desc+h+bytes(512)
+        return b"MAC "+struct.pack("<HHHHIIIII",version,4000,flags,2,rate,0,0,frames,final)+bytes(512)
+    def wv(samples=9600,flags=(10<<23)|(1<<12)|1,version=0x410,body=bytes(64),index=0,high=0):
+        return b"wvpk"+struct.pack("<IHBBIIIII",24+len(body),version,(index>>32)&255,high,samples,index&0xffffffff,9600,flags,0)+body
+    def var(n):
+        out=[n&127];n>>=7
+        while n:out.insert(0,(n&127)|128);n>>=7
+        return bytes(out)
+    def packet(key,body):
+        n=len(body)+3
+        while n!=len(body)+2+len(var(n)):n=len(body)+2+len(var(n))
+        return key.encode()+var(n)+body
+    def sv8(samples=9600,silence=0,rate=1,ch=2,version=8,extra=b""):
+        return b"MPCK"+packet("SH",bytes(4)+bytes((version,))+var(samples)+var(silence)+bytes((rate<<5,(ch-1)<<4)))+extra+packet("AP",bytes(64))+packet("SE",b"")
+    def sv7(frames=8,version=7,rate=1):
+        h=bytearray(24);h[:4]=b"MP+"+bytes((version,));struct.pack_into("<I",h,4,frames);h[10]=rate
+        return bytes(h)+bytes(64)
+    def put(name,suffix,body):
+        (owned/f"ape-{name}.{suffix}").write_bytes(body)
+    bases={"ape":mac(),"wv":wv(),"mpc":sv8(),"mp3":(owned/"base.mp3").read_bytes()}
+    common=[entry("Title","Owned — صورة"),entry("Artist","One\0Two"),entry("Track","03/12"),entry("Disc","1/2"),entry("Album Artist","Artist"),entry("CUSTOM","a\0b"),entry("Cover Art (Front)",b"front.png\0"+png(),2)]
+    for suffix,body in bases.items():
+        put("base",suffix,body);put("structured",suffix,body+ape(common))
+        put("mutagen",suffix,body);path=owned/f"ape-mutagen.{suffix}";tags=APEv2();tags["Title"]="Mutagen — صورة";tags["Artist"]=["One","Two"];tags["Track"]="3/12";tags["Cover Art (Back)"]=APEBinaryValue(b"back.png\0"+png());tags.save(path)
+        put("id3v1",suffix,body+ape(common)+b"TAG"+b"Legacy".ljust(30,b"\0")+b"Artist".ljust(30,b"\0")+b"Album".ljust(30,b"\0")+b"2026"+bytes(28)+b"\0\x03\x11")
+        put("footer-only",suffix,body+ape(common,header=False))
+        put("v1",suffix,body+ape(common,version=1000,header=False))
+    ff=owned/"ape-ffmpeg.wv"
+    run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i","anullsrc=r=48000:cl=stereo","-t","0.2","-c:a","wavpack","-map_metadata","-1","-y",ff])
+    for rate in [12345,96000]:
+        run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i",f"anullsrc=r={rate}:cl=stereo","-t","0.2","-c:a","wavpack","-map_metadata","-1","-y",owned/f"ape-ffmpeg-{rate}.wv"])
+    for ch in ["mono","5.1"]:
+        run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i",f"anullsrc=r=48000:cl={ch}","-t","0.2","-c:a","wavpack","-y",owned/f"ape-ffmpeg-{ch}.wv"])
+    aliases=["album artist","MusicBrainz_AlbumStatus","MUSICBRAINZ_ALBUMTYPE","LEAD_PERFORMER","DATE_RECORDED","DATE_RELEASED","DATE_ORIGINAL","ENCODED_BY","PART_NUMBER","TOTAL_PARTS","TOTAL_DISCS","CATALOG_NUMBER","PUBLISHER","REMIXED_BY","CONTENT_GROUP","DJMIXER","MusicBrainz Track Id","YEAR","DISC","ISRC","LABEL"]
+    put("aliases","ape",mac()+ape([entry(n,"value") for n in aliases]))
+    put("conflicts","ape",mac()+ape([entry("Artist","A"),entry("artist","B"),entry("Track","3/12"),entry("TrackTotal","20"),entry("Title","a\0b"),entry("TITLE","a"),entry("Empty",""),entry("Nulls","\0\0"),entry("Runs","\0a\0\0b\0")]))
+    put("invalid-keys","ape",mac()+ape([entry(n,"value") for n in ["Bad=Key","~","", "TITLE\n","صورة","ID3","TAG","OggS","MP+"]]))
+    put("latin1","ape",mac()+ape([entry("Title",b"caf\xe9"),entry("Artist",b"\xff\0\xfe"),entry("Bad=Key",b"\xff")],version=1000))
+    put("noise","ape",mac()+ape([entry("Encoder","Lavf owned"),entry("Tool Name","Lavc owned"),entry("Encoded_By","libavcodec owned"),entry("Encoder",b"Lavf\0stamp")]))
+    for flags in [1,2,4,6,0x80000000]:put(f"flags-{flags}","ape",mac()+ape([entry("Title","value",flags),entry("Cover Art (Front)",b"art\0"+png(),flags)]))
+    for name,values in [("cover-empty",[entry("Cover Art (Front)",b"art\0",2)]),("cover-unterminated",[entry("Cover Art (Front)",b"art",2)]),("cover-unknown",[entry("Cover Art (Front)",b"art\0junk",2)]),("cover-duplicates",[entry("Cover Art (Front)",b"art\0"+png(),2),entry(" cover art (back) ",b"art\0"+png(),4)]),("cover-large",[entry("Cover Art (Front)",b"art\0"+png()+bytes(1100000),2)]),("binary-large",[entry("Binary",bytes(1100000),2)])]:put(name,"ape",mac()+ape(values))
+    for version in [3790,3800,3890,3900,3950,3970,3980,3990,5000]:
+        for flags in ([0,1,8] if version<3980 else [0]):put(f"mac-{version}-{flags}","ape",mac(version,flags=flags)+ape(common))
+    for name,off,n in [("descriptor-small",8,0),("descriptor-huge",8,0xffffffff),("header-huge",12,0xffffffff),("header-small",12,0)]:
+        b=bytearray(mac());struct.pack_into("<I",b,off,n);put(name,"ape",b+ape(common))
+    put("mac-zero","ape",mac(frames=0)+ape(common))
+    put("wv-unknown-samples","wv",wv(samples=0xffffffff)+ape(common))
+    put("wv-high-count","wv",wv(samples=5,high=0x12)+ape(common))
+    put("wv-float","wv",wv(flags=(10<<23)|(1<<12)|3|128)+ape(common))
+    put("wv-shift","wv",wv(flags=(10<<23)|(1<<12)|3|(8<<13))+ape(common))
+    put("wv-multichannel","wv",wv(flags=(10<<23)|1)+wv(flags=(10<<23)|(1<<12)|1|4)+ape(common))
+    put("wv-zero","wv",wv(samples=0)+ape(common))
+    sub=lambda i,b:bytes((i|(64 if len(b)%2 else 0),(len(b)+1)//2))+b+bytes(len(b)%2)
+    put("wv-custom-rate","wv",wv(flags=(15<<23)|(1<<12)|1,body=sub(0x27,(12345).to_bytes(3,"little"))+sub(0x0a,bytes(40)))+ape(common))
+    put("wv-dsd","wv",wv(flags=(15<<23)|(1<<12)|(1<<31),body=sub(0x27,(2822400).to_bytes(3,"little"))+sub(0x0e,bytes(40)))+ape(common))
+    put("wv-subblock-overrun","wv",wv(flags=(15<<23)|(1<<12),body=b"\x27\xff"+bytes(10))+ape(common))
+    for version in [0x401,0x402,0x410,0x411]:put(f"wv-version-{version}","wv",wv(version=version))
+    for version in [7,23,6]:put(f"sv7-{version}","mpc",sv7(version=version)+ape(common))
+    put("sv7-zero","mpc",sv7(frames=0)+ape(common))
+    put("sv8-unknown-rate","mpc",sv8(rate=7)+ape(common))
+    put("sv8-silence","mpc",sv8(silence=1000)+ape(common))
+    put("sv8-no-samples","mpc",sv8(silence=10000)+ape(common))
+    put("sv8-version","mpc",sv8(version=9)+ape(common))
+    put("sv8-leading-id3","mpc",tag([frame("TIT2",b"\x03Legacy"),frame("TPE1",b"\x03One")])+sv8()+ape(common))
+    put("mp3-id3-authority","mp3",(owned/"mutagen-v24.mp3").read_bytes()+ape([entry("Title","APE title"),entry("Artist","One\0Different"),entry("Track","03/12"),entry("Cover Art (Front)",b"art\0"+png(),2)]))
+    def ct(start,title=None,tail=None):
+        payload=var(start)+bytes(4)
+        if title is not None:payload+=struct.pack("<IIII",2000,0,1,0)+bytes(8)+entry("Title",title)
+        if tail is not None:payload+=tail
+        return packet("CT",payload)
+    sh=packet("SH",bytes(4)+b"\x08"+var(9600)+var(0)+b"\x20\x10")
+    put("chapters","mpc",b"MPCK"+sh+packet("AP",bytes(64))+ct(1200,"First")+ct(4800,"Second")+packet("SE",b"")+ape(common))
+    put("chapters-invisible","mpc",b"MPCK"+sh+ct(1200,"Invisible")+packet("AP",bytes(64))+packet("SE",b"")+ape(common))
+    put("chapters-faults","mpc",b"MPCK"+sh+packet("AP",bytes(64))+packet("CT",b"\x80")+ct(1000,tail=b"short")+ct(2000,"A\0B")+packet("SE",b"")+ape(common))
+    # SO points to an actual ST packet; titles after it are read even without a final SE.
+    st=packet("ST",bytes(8));so=packet("SO",var(3+1+len(packet("AP",bytes(64)))))
+    put("chapters-seek","mpc",b"MPCK"+sh+so+packet("AP",bytes(64))+st+ct(1200,"First")+ct(4800,"Second")+packet("SE",b"")+ape(common))
+    # Malicious SO aliases an ST/CT sequence inside encoded AP audio.
+    hidden=bytes(8)+st+ct(1200,"LEAK")+packet("SE",b"")+bytes(8)
+    so=packet("SO",var(4+3+8))
+    put("chapter-audio-alias","mpc",b"MPCK"+sh+so+packet("AP",hidden)+packet("SE",b"")+ape(common))
+    for name,tagbytes in [("lying-header",ape(common,header=False,flags=0x80000000)),("header-record",ape(common,header=False,flags=0x20000000)),("count-too-many",ape(common,count=0xffffffff)),("count-zero",ape(common,count=0)),("item-size-overrun",ape([struct.pack("<II",0xffffffff,0)+b"Title\0value"])),("item-key-unterminated",ape([struct.pack("<II",3,0)+b"Title"])),("item-short",ape([b"tiny"])),("unknown-tag-version",ape(common,version=9999))]:put(name,"ape",mac()+tagbytes)
+    for suffix in ["ape","wv","mpc","mp3"]:
+        data=bases[suffix]+ape(common)
+        for cut in sorted(set([1,3,4,5,6,10,24,31,32,51,52,75,76,100,len(data)-1,len(data)-16,len(data)-32])):
+            put(f"truncated-{cut}",suffix,data[:cut])
+    return owned
+
+
 def oracle(source,binary,owned,step=1):
     helper = CACHE/"helper"
     helper.mkdir(exist_ok=True)
@@ -575,6 +683,9 @@ def oracle(source,binary,owned,step=1):
         files = sorted(p for folder in (source/"testdata",owned) for p in folder.iterdir() if p.suffix.lower() in (".flac",".ogg",".opus",".oga"))
     if step == 3:
         files = sorted(p for folder in (source/"testdata",owned) for p in folder.iterdir() if p.suffix.lower() in (".m4a",".mp4",".m4b",".mov",".m4r",".alac"))
+    if step == 4:
+        files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".ape",".wv",".mpc",".mpp",".mp+"))
+        files += sorted(p for p in owned.iterdir() if p.name.startswith("ape-") and p.suffix.lower() in (".ape",".wv",".mpc",".mpp",".mp+",".mp3"))
     rows = []
     for path in files:
         ref = subprocess.run([str(binary),"dump","--native","--json",str(path)],capture_output=True,text=True)
@@ -627,12 +738,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch-generate",action="store_true")
     parser.add_argument("--verify",action="store_true")
-    parser.add_argument("--step",type=int,choices=(1,2,3),default=1)
+    parser.add_argument("--step",type=int,choices=(1,2,3,4),default=1)
     args = parser.parse_args()
     safe_cache()
     if args.fetch_generate:
         source,binary = fetch()
-        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4}[args.step](source),args.step)
+        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape}[args.step](source),args.step)
         verify()
     elif args.verify:
         verify()
