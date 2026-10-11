@@ -10,3 +10,8 @@
   overlaps. Unification can happen later after measuring definition, channel
   layout, EOF, checkpoint and tolerance parity; neither module depends on the other.
 - These ports read LGPL/GPL sources and are not clean-room contributions to WaxFlow.
+- Mood maths preserve operation order, weights, sigmoid steepness, tempo cap,
+  triangular tempo score, linear percentile ranks and NaN-first sorting. The
+  pure percentile API copies input arrays and returns results instead of
+  calling a database repository. All source Go tests and 1,024 numeric vectors
+  have Kotlin parity checks at 1e-12.

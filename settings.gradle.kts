@@ -34,3 +34,6 @@ include(":sharedLogic")
 include(":codecs")
 // WaxLabel read port (MIT, Cole Springer); see metadata/THIRD-PARTY-NOTICES.
 include(":metadata")
+
+// Independent Mood Radio PCM feature and mood maths port.
+include(":analysis")
