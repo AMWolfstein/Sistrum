@@ -28,9 +28,9 @@ class Dsd internal constructor(private val source:RandomAccessSource,private val
         /** Generic DFF IDs have no speaker position; index routing preserves every channel. */
         val channelIndexMask: Int = if (Integer.bitCount(channelMask)==channels) 0 else (1 shl channels)-1
     }
-    private val pipeline=DsdDecimationPipeline(header.rate,targetRate,header.channels)
+    private val pipeline=DsdDecimationPipeline(header.rate,targetRate,header.channels,true)
     private val packer=DopPacker(header.rate,header.channels)
-    val info=Info(targetRate,header.channels,32,header.bytesPerChannel*8/(header.rate/targetRate),header.rate,header.bytesPerChannel*8,header.layout,packer.carrierRate)
+    val info=Info(targetRate,header.channels,32,(header.bytesPerChannel*8+(header.rate/targetRate)/2)/(header.rate/targetRate),header.rate,header.bytesPerChannel*8,header.layout,packer.carrierRate)
     private val planar=ByteArray(4096*header.channels)
     private val interleaved=ByteArray(planar.size)
     private val input=ByteBuffer.wrap(interleaved)
@@ -67,8 +67,12 @@ class Dsd internal constructor(private val source:RandomAccessSource,private val
     }
     fun decodeBlock():FloatBuffer? {
         if(pending){pending=false;pcm.discontinuity=discontinuity;discontinuity=false;return pcm}
-        while(bytePosition<header.bytesPerChannel){val n=minOf(4096L,header.bytesPerChannel-bytePosition).toInt();readPlanar(bytePosition,n);bytePosition+=n
-            pcm.frames=pipeline.processBytes(planar,offsets,n,pcm.samples);pcm.position=pcmPosition;pcmPosition+=pcm.frames;pcm.discontinuity=discontinuity;discontinuity=false;if(pcm.frames>0)return pcm
+        while(pcmPosition<info.totalSamples){
+            if(bytePosition<header.bytesPerChannel){
+                val n=minOf(4096L,header.bytesPerChannel-bytePosition).toInt();readPlanar(bytePosition,n);bytePosition+=n
+                pcm.frames=pipeline.processBytes(planar,offsets,n,pcm.samples)
+            }else pcm.frames=pipeline.drain(pcm.samples)
+            pcm.frames=minOf(pcm.frames.toLong(),info.totalSamples-pcmPosition).toInt();pcm.position=pcmPosition;pcmPosition+=pcm.frames;if(pcm.frames>0){pcm.discontinuity=discontinuity;discontinuity=false;return pcm}
         };return null
     }
     /** Decode only the rounded-up FIR history, then discard warm-up to the exact sample. */

@@ -219,7 +219,7 @@ records JVM port deviations within the authorized Sistrum file scope.
   dff-meta's recognized property-chunk reader appears to omit this advance for
   odd payloads. The corpus's recognized properties have even sizes, so no
   claimed parity result relies on changing that suspected source behavior.
-- PCM seeking replays all preceding byte/FIR state and retains the requested
+- Production PCM seeking restores bounded block-aligned byte/FIR history and retains the requested
   remainder in the borrowed block. DoP seeking computes the byte offset and
   alternating marker from the absolute carrier sample. The two cursors are
   independent. Neither mode is wired into playback.
@@ -228,10 +228,10 @@ records JVM port deviations within the authorized Sistrum file scope.
   Flick's three-byte DoP words drop one byte at every 4096-byte input boundary,
   so a faithful exact-seek contract needs a separate covered decision before
   exposing that rate. The low-level DopPacker retains the source's 32-bit mode.
-- dff-meta's mono/stereo limit and DST refusal are retained verbatim. DSF's
-  whole-byte sample_count/8 rule and lack of a delayed-tail drain are retained.
-  Production retains partial decimation groups across calls, dropping only an
-  incomplete group at EOF. The test-only Flick path keeps the original behavior.
+- dff-meta's mono/stereo limit is retained only in FlickExactDff; production
+  extends it as described below. DST refusal and DSF's whole-byte sample_count/8
+  rule remain. Production compensates delay and drains the tail as described
+  below; the test-only Flick path keeps the original causal, undrained behavior.
 - The production converter replaces CIC with a raw-byte lookup FIR, then sparse
   half-band and symmetric output-decimated FIRs. Tables are constructed once per
   rate and shared; channel state is retained, with no per-call allocation. DSD
@@ -393,3 +393,19 @@ original hash expectation changed. See `docs/dsd/BYTE-TABLE-PERFORMANCE.md` and
   decode loops and is a deliberate time-for-bounded-memory tradeoff.
 - Owned DSF/DFF inputs accompany the encoded vectors so adapter parity and the
   existing DSD specification checks are available without external corpus data.
+
+### DSD delay compensation and tail drain
+
+- Production DSF/DFF and WavPack DSD PCM remove the combined three-stage FIR
+  startup delay. The byte FIR center is shifted by the fractional PCM phase
+  needed to put the first retained output on input sample zero, rather than
+  rounding away a fractional delay. The low-level causal mode and test-only
+  Flick converter remain available for the original analytic/hash references.
+- EOF feeds bounded, preallocated 0x69 idle-pattern DSD blocks, then trims to
+  round(dsdBits / decimation). Idle is balanced DSD, not all-zero bits (which
+  mean negative full scale). Both adapters return the final delayed source
+  samples and preserve borrowed buffers. Flick neither compensates startup
+  delay nor drains, and drops partial groups. No Flick golden hashes change.
+- Exact seeking resets the same compensated phase at a whole-block boundary,
+  warms the complete FIR history and trims to the absolute requested sample.
+  Rounded EOF and near-end seeks retain uninterrupted float bits.
