@@ -22,6 +22,8 @@ def records():
         if r['source'].startswith('python3 '):add('corpus/'+r['path'],r['source'].replace('{corpus}','{owned}/corpus'),r['sha256'])
     for r in csv.DictReader(open(REPO/'docs/waxflow/dsd-corpus-manifest.tsv'),delimiter='\t'):
         add('dsd/'+r['path'],r['source'].replace('{corpus}','{owned}/dsd'),r['sha256'])
+    for r in csv.DictReader(open(REPO/'docs/waxflow/dsd-multichannel-manifest.tsv'),delimiter='\t'):
+        add('dsd-multichannel/'+r['path'],'python3 scripts/dsd-multichannel-oracle.py --generate',r['sha256'])
     for r in csv.DictReader(open(REPO/'docs/wavpack/corpus-manifest.tsv'),delimiter='\t'):
         add('wavpack/generated/'+r['path'],r['generator']+'; '+r['encoder_command'],r['sha256'])
     for p in sorted((ROOT/'owned/wavpack/signals').glob('*')):
@@ -45,6 +47,7 @@ def main():
         run('scripts/waxflow-corpus.py','--fetch-generate')
         run('scripts/dsd-oracle.py','--fetch-generate')
         run('scripts/wavpack-oracle.py','--generate')
+        run('scripts/dsd-multichannel-oracle.py','--generate')
         run('codecs/tools/generate-max-width.py')
     elif mode=='--record-manifest':
         with MANIFEST.open('w') as f:
@@ -55,6 +58,7 @@ def main():
     run('scripts/waxflow-corpus.py','--verify',*sys.argv[2:4])
     run('scripts/dsd-oracle.py','--verify',*sys.argv[4:5])
     run('scripts/wavpack-oracle.py','--verify')
+    run('scripts/dsd-multichannel-oracle.py','--verify')
     verify_owned()
 if __name__=='__main__':
     try:main()

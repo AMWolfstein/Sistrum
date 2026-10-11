@@ -43,19 +43,24 @@ def dsf(rate,planes,tag=False,extra_bits=0,msb=False):
     for at in range(0,n,4096):
         for plane in planes:
             block=bytes(plane[at:at+4096]);payload+=(block if msb else block.translate(rev))+b'\x69'*(4096-len(block))
-    ct={1:1,2:2,6:7}[channels]
+    ct={1:1,2:2,3:3,4:4,5:6,6:7}[channels]
     fmt=b'fmt '+struct.pack('<QIIIIIIQII',52,1,0,ct,channels,rate,8 if msb else 1,n*8+extra_bits,4096,0)
     data=b'data'+struct.pack('<Q',12+len(payload))+payload
     end=28+len(fmt)+len(data);metadata=id3()if tag else b''
     return b'DSD '+struct.pack('<QQQ',28,end+len(metadata),end if tag else 0)+fmt+data+metadata
 
 def ck(name,data):return name+struct.pack('>Q',len(data))+data+(b'\0'if len(data)%2 else b'')
-def dff(rate,planes,tag=False,diin=False,dst=False):
-    ch=len(planes);ids={1:[b'C   '],2:[b'SLFT',b'SRGT'],6:[b'MLFT',b'MRGT',b'C   ',b'LFE ',b'LS  ',b'RS  ']}[ch]
+def dff(rate,planes,tag=False,diin=False,dst=False,ids=None,chnl_payload=None,include_chnl=True):
+    ch=len(planes)
+    if ids is None:
+        ids={1:[b'C   '],2:[b'SLFT',b'SRGT'],3:[b'MLFT',b'MRGT',b'C   '],
+             4:[b'MLFT',b'MRGT',b'LS  ',b'RS  '],5:[b'MLFT',b'MRGT',b'C   ',b'LS  ',b'RS  '],
+             6:[b'MLFT',b'MRGT',b'C   ',b'LFE ',b'LS  ',b'RS  ']}[ch]
     cmpr=b'DST '+bytes([11])+b'DST Encoded' if dst else b'DSD '+bytes([14])+b'not compressed'
     # Even CMPR payload keeps all declared property chunk boundaries unambiguous.
     if len(cmpr)%2:cmpr+=b'\0'
-    prop=b'SND '+ck(b'FS  ',struct.pack('>I',rate))+ck(b'CHNL',struct.pack('>H',ch)+b''.join(ids))+ck(b'CMPR',cmpr)
+    channel_data=chnl_payload if chnl_payload is not None else struct.pack('>H',ch)+b''.join(ids)
+    prop=b'SND '+ck(b'FS  ',struct.pack('>I',rate))+(ck(b'CHNL',channel_data) if include_chnl else b'')+ck(b'CMPR',cmpr)
     body=b'DSD '+ck(b'FVER',bytes.fromhex('01050000'))
     if diin:body+=ck(b'DIIN',ck(b'DITI',struct.pack('>I',9)+b'Synthetic'))
     body+=ck(b'PROP',prop)

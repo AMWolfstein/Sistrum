@@ -13,14 +13,21 @@ import me.misa198.airmedy.codecs.container.dsf.Dsf
 import me.misa198.airmedy.codecs.container.dff.Dff
 import me.misa198.airmedy.codecs.codec.dsd.*
 
-internal data class Header(val rate:Int,val channels:Int,val layout:String,val bytesPerChannel:Long,val dataOffset:Long,val blocked:Boolean,val reverse:Boolean)
+internal data class Header(val rate:Int,val channels:Int,val layout:String,val bytesPerChannel:Long,val dataOffset:Long,val blocked:Boolean,val reverse:Boolean,val channelOrder:IntArray?=null)
 internal fun readExact(source:RandomAccessSource,position:Long,buffer:ByteBuffer){var p=position;while(buffer.hasRemaining()){val n=source.read(p,buffer);if(n<=0)throw IOException("dsd: unexpected end of file");p+=n}}
 internal fun headerBytes(source:RandomAccessSource,position:Long,size:Int):ByteBuffer=ByteBuffer.allocate(size).also{readExact(source,position,it);it.flip()}
 internal fun tag(b:ByteBuffer,offset:Int)=String(ByteArray(4){b.get(offset+it)},Charsets.US_ASCII)
 
 /** Borrowed output blocks. PCM and DoP have independent sample cursors. */
 class Dsd internal constructor(private val source:RandomAccessSource,private val header:Header,targetRate:Int){
-    data class Info(val sampleRate:Int,val channels:Int,val bitsPerSample:Int,val totalSamples:Long,val dsdSampleRate:Int,val totalDsdSamples:Long,val channelLayout:String,val dopSampleRate:Int)
+    data class Info(val sampleRate:Int,val channels:Int,val bitsPerSample:Int,val totalSamples:Long,val dsdSampleRate:Int,val totalDsdSamples:Long,val channelLayout:String,val dopSampleRate:Int) {
+        /** Android speaker bits in the same ascending order as the DSF path. */
+        val channelMask: Int = channelLayout.split(',').fold(0) { mask, id ->
+            mask or when (id) { "FL"->4; "FR"->8; "C"->16; "LFE"->32; "BL"->64; "BR"->128; else->0 }
+        }
+        /** Generic DFF IDs have no speaker position; index routing preserves every channel. */
+        val channelIndexMask: Int = if (Integer.bitCount(channelMask)==channels) 0 else (1 shl channels)-1
+    }
     private val pipeline=DsdDecimationPipeline(header.rate,targetRate,header.channels)
     private val packer=DopPacker(header.rate,header.channels)
     val info=Info(targetRate,header.channels,32,header.bytesPerChannel*8/(header.rate/targetRate),header.rate,header.bytesPerChannel*8,header.layout,packer.carrierRate)
@@ -49,7 +56,13 @@ class Dsd internal constructor(private val source:RandomAccessSource,private val
         for(ch in 0 until header.channels)offsets[ch]=ch*n
         if(header.blocked){
             for(ch in 0 until header.channels){var done=0;while(done<n){val p=position+done;val count=minOf(n-done,4096-(p%4096).toInt());input.clear();input.limit(count);readExact(source,header.dataOffset+(p/4096)*(4096L*header.channels)+ch*4096+p%4096,input);System.arraycopy(interleaved,0,planar,ch*n+done,count);done+=count}}
-        }else{input.clear();input.limit(n*header.channels);readExact(source,header.dataOffset+position*header.channels,input);for(ch in 0 until header.channels)for(i in 0 until n)planar[ch*n+i]=interleaved[i*header.channels+ch]}
+        }else{
+            input.clear();input.limit(n*header.channels);readExact(source,header.dataOffset+position*header.channels,input)
+            for(ch in 0 until header.channels){
+                val physicalChannel=header.channelOrder?.get(ch)?:ch
+                for(i in 0 until n)planar[ch*n+i]=interleaved[i*header.channels+physicalChannel]
+            }
+        }
         if(header.reverse)for(i in 0 until n*header.channels)planar[i]=(Integer.reverse(planar[i].toInt() and 255) ushr 24).toByte()
     }
     fun decodeBlock():FloatBuffer? {
