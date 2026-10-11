@@ -9,7 +9,9 @@ iTunes ilst/freeform/covr, QuickTime mdta/udta tags and Nero/QuickTime chapters.
 chapters, are supported. APE tags are legacy-only on MP3. ASF/WMA content descriptions, extended/nested metadata, pictures, markers and
 audio properties are supported. Matroska/MKA/WebM supports scoped SimpleTags,
 Info.Title, image attachments, default-edition chapters and audio properties.
-DSF/DFF remains for step 8. WAV bext/iXML/cue and AIFF ancillary chunks are
+DSF reads ID3 at its metadata offset; DFF reads DIIN artist/title and top-level ID3
+chunks, including tags before audio. DSD properties follow pinned dsf-meta/dff-meta
+container behavior. DFF DST and multichannel layouts are rejected as in that reference. WAV bext/iXML/cue and AIFF ancillary chunks are
 reported as opaque native summaries, matching the pinned reader. There is no Android/player/scanner code.
 
 ```kotlin
