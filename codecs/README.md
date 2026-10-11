@@ -27,7 +27,9 @@ while (true) {
 stream.seekSample(12345) // next block starts at the exact requested sample
 ```
 
-Decodes native version-4 WavPack lossless integer mono/stereo, including
+Decodes native version-4 WavPack lossless integer PCM, including multichannel,
+float32, hybrid with optional correction, and raw DSD output. The original
+WaxFlow lossless subset includes
 false stereo, joint stereo, extended integers and custom sample rates. Sample
 CRC and extension CRC are checked in the same order as WaxFlow. Encoded-byte
 checksums are available separately through `verifyBlockChecksum`, returning
@@ -114,8 +116,11 @@ Relevant RIFF/WavPack format tests (511 leaf cases), suite conformance (56),
 and the separate oracle module (130) all pass. See `VALIDATION.md` for commands
 and scope. No failing test was removed, disabled or weakened.
 
-### The 30 refused `.wv` files, grouped by actual first refusal
+### Historical WaxFlow-subset refusals (2026-10-08)
 
+These are the initial pinned WaxFlow subset results, not current production
+refusals. Later libwavpack extensions support hybrid, float, multichannel, raw
+DSD and self-extracting native streams; damaged streams still fail CRC checks.
 Paths below are relative to `wavpack-test-suite-2.0/test_suite/`.
 
 **Hybrid (17)** — hybrid refusal precedes multichannel/float checks:
@@ -635,7 +640,7 @@ selects DSF or DFF. Zero selects `bestTargetRate`: 88200 for DSD64 and 176400
 for DSD128/256; existing explicit targets remain available. The stream exposes DSD/PCM rates, channels, physical layout
 and sample counts. `decodeBlock()` returns borrowed interleaved float32 PCM;
 `decodeDopBlock()` returns borrowed left-justified Int32 DoP words. Both reuse
-buffers. `seekSample()` restores byte/FIR history by replay; `seekDopSample()`
+buffers. `seekSample()` restores byte/FIR history with bounded block-aligned warm-up; `seekDopSample()`
 restores the exact carrier sample and alternating marker. Cursors are independent,
 so decoding PCM does not consume DoP. Caller retains ownership of the source.
 Only the requested DSD64/128/256 rates are admitted by the container API.
@@ -656,17 +661,25 @@ also cover output reuse, short reads, direct ByteBuffer regions and source
 metadata. Three contract tests cover bounded opening, reset without decoding,
 PCM-target rejection and the LSB DoP helper.
 
-| Refusal reason (exact oracle error) | Files |
+| Production refusal reason | Files |
 |---|---|
-| `dff: CHNL number not found or is unsupported.` | `dsd64-6ch.dff`, `dsd128-6ch.dff`, `dsd256-6ch.dff` |
 | `dff: Compression type must be 'DSD '. DST not supported.` | `dst-compressed.dff` |
 
-DFF 5.1 is a pinned parser limitation; DSF 5.1 is supported. The DST vector
-has a zero-frame compressed header and proves refusal only. DSF physical block
-padding/ID3 and DFF DIIN chunks never enter the audio decoder. The source has no
-FIR-tail drain and treats DSF samples as whole bytes; those semantics remain.
-The new pipeline retains partial decimation groups across calls and discards
-an incomplete final group at end of stream.
+Production accepts uncompressed DFF with one through six channels, validates
+CHNL identities, and reorders named speakers into DSF order. Generic c000–c999
+identities retain index routing. Speaker and index masks are exposed in `info`.
+The test-only `FlickExactDff` retains the pinned parser's reference refusals:
+
+| FlickExactDff reference refusal | Files |
+|---|---|
+| `dff: CHNL number not found or is unsupported.` | `dsd64-6ch.dff`, `dsd128-6ch.dff`, `dsd256-6ch.dff` |
+
+The DST vector has a zero-frame compressed header and proves refusal only.
+DSF physical padding/ID3 and DFF DIIN chunks never enter the audio decoder.
+DSF continues to expose whole-byte DSD sample counts. Production PCM compensates
+the FIR delay, aligning sample zero to input zero, and drains with the 0x69
+DSD idle pattern. Its length is round(dsdBits / decimation), including partial
+final groups. The test-only Flick path retains its causal delay and undrained tail.
 
 The byte-table converter uses a shared float lookup FIR to 352.8 kHz,
 a sparse half-band FIR to 176.4 kHz, and a symmetric output-decimated FIR to

@@ -1,4 +1,9 @@
-# WavPack validation — 2026-10-08
+# Historical WavPack subset validation — 2026-10-08
+
+This records the initial WaxFlow-only port. Later production commits add hybrid
+correction, float32, multichannel, raw DSD, bounded DSD seeking and multichannel
+DFF; the refusal counts and test counts below describe that historical run.
+Current production coverage is documented in README.md and SISTRUM-PATCHES.md.
 
 The external fork fix `b7857aff88820ad37936026421d1641e64611dbe` is published on
 `fix/riff-wrapped-wavpack`. GitHub's branch ref and commit API confirm the hash.
@@ -19,8 +24,8 @@ port commit on `port/waxflow`. Neither repository's main branch is changed.
   supported by a disk-spooling adapter only in tests. Unified version refusal
   in codec and container, including recognition of legacy RIFF wrappers.
 - Synthetic extended-integer maximum-width file: full/partial/no-bit branches
-  and signed samples. Expected PCM was decoded by the pinned Go CLI; the small
-  vector and JSON provenance are test assets, not a copy of the corpus fixtures.
+  and signed samples. Expected PCM was decoded by the pinned Go CLI; the
+  generator and JSON provenance are committed; generated audio lives in the external cache.
 - Source tests cover partial reads, buffer regions, EOF, offsets beyond 2 GiB
   and sticky zero-progress failures. Corpus tests also decode file-backed input.
 
@@ -118,7 +123,7 @@ performance conclusion. Actual per-file records: [before](benchmarks/before.tsv)
 [after](benchmarks/after.tsv), [comparison](benchmarks/comparison.tsv).
 The historical before report retains the eight old oracle mismatches.
 
-The [README refusal list](README.md#the-30-refused-wv-files-grouped-by-actual-first-refusal)
+The [historical README refusal list](README.md#historical-waxflow-subset-refusals-2026-10-08)
 contains every refused `.wv` file, grouped by actual first refusal: hybrid 17,
 float 1, DSD 2, channel count 0, version 8, sample CRC 1, framing 1.
 The six-channel file hits hybrid refusal first.
@@ -135,3 +140,12 @@ Known pre-existing failures: GainRampTest.targetRampReachesSixDbForSixteenBitInp
 
 Co-authored-by: Codex <noreply@openai.com>
 ```
+
+## DSD exact-length and documentation update — 2026-10-11
+
+`./gradlew :codecs:test :androidApp:assembleDevDebug --console=plain` passed:
+1,440 codec tests, zero failures, errors or skips; Android assembly succeeded.
+The new tests cover rounded lengths for every supported DSD/PCM rate, short
+streams and partial final groups, first-sample and step alignment, tail drain,
+and near-end seek parity. Existing random seeks, bounded seek cost, paired
+multichannel PCM/DoP and Flick reference hashes remain passing.

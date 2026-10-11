@@ -9,10 +9,24 @@ import kotlin.math.*
  * MSB-first DSD bits map to +/-1: a constant +1 stream produces PCM +1 (0 dBFS),
  * as in Flick. Tables/kernel are shared; all channel history and output are retained.
  */
-class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channels: Int) {
+class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channels: Int, private val compensateDelay: Boolean = false) {
     private val intermediate = maxOf(352800, targetPcmRate * 2)
     private val byteDecimation = dsdRate / intermediate / 8
-    private val kernel = kernels.computeIfAbsent(dsdRate to intermediate) { makeKernel(it.first, it.second) }
+    private val decimation = dsdRate / targetPcmRate
+    private val firstTaps = 128 * byteDecimation
+    private val finalTaps = dsdFinalCoefficients(intermediate, targetPcmRate).size
+    private val delayBits = (firstTaps - 1) / 2.0 + 32 * 8 * byteDecimation +
+        (finalTaps - 1) / 2.0 * 16 * byteDecimation
+    private val delayFrames = ((delayBits - (decimation - 1)) / decimation).roundToInt()
+    // A causal output is sampled at D-1+kD. Shift the first FIR's center so
+    // discarding delayFrames places the retained sample exactly at input bit 0.
+    private val centerShift = if (compensateDelay) delayFrames * decimation + decimation - 1 - delayBits else 0.0
+    private val kernel = kernels.computeIfAbsent(Triple(dsdRate, intermediate, centerShift)) {
+        makeKernel(it.first, it.second, it.third)
+    }
+    private var skipFrames = if (compensateDelay) delayFrames else 0
+    private val idle = ByteArray(4096 * channels) { 0x69 }
+    private val idleOffsets = IntArray(channels) { it * 4096 }
     private val byteTaps = kernel.size / 256
     private val finalCoefficients = finals.computeIfAbsent(intermediate to targetPcmRate) {
         dsdFinalCoefficients(it.first, it.second)
@@ -57,6 +71,7 @@ class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channe
             var valid = validBytes[ch]
             var bp = bytePhase[ch]
             var written = 0
+            var skip = skipFrames
             for (i in 0 until bytesPerChannel) {
                 bh = (bh - 1) and (byteTaps - 1)
                 val value = bytes[offsets[ch] + i]
@@ -77,6 +92,7 @@ class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channe
                 while (tap < valid) { s0 += kernel[tap * 256 + (raw[bh + tap].toInt() and 255)]; tap++ }
                 val sample = (s0 + s1) + (s2 + s3)
                 if (!half.push(sample) || !final.push(half.output)) continue
+                if (skip > 0) { skip--; continue }
                 output[written * channels + ch] = final.output.toFloat()
                 written++
             }
@@ -84,11 +100,21 @@ class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channe
             validBytes[ch] = valid
             bytePhase[ch] = bp
             frames = written
+            if (ch == channels - 1) skipFrames = skip
         }
         return frames
     }
 
+    /** Bounded idle-input drain; callers truncate output to their rounded source length. */
+    fun drain(output: FloatArray): Int {
+        val capacity = output.size / channels
+        val n = minOf(4096, capacity * decimation / 8)
+        require(n > 0)
+        return processBytes(idle, idleOffsets, n, output)
+    }
+
     fun reset() {
+        skipFrames = if (compensateDelay) delayFrames else 0
         for (s in byteHistory) s.fill(0)
         for (s in halfBands) s.reset()
         for (s in finalStages) s.reset()
@@ -97,10 +123,10 @@ class DsdDecimationPipeline(val dsdRate: Int, val targetPcmRate: Int, val channe
 
     companion object {
         private val halfBandCoefficients = lowPass(65, 0.25)
-        private val kernels = ConcurrentHashMap<Pair<Int, Int>, FloatArray>()
+        private val kernels = ConcurrentHashMap<Triple<Int, Int, Double>, FloatArray>()
         private val finals = ConcurrentHashMap<Pair<Int, Int>, DoubleArray>()
-        private fun makeKernel(rate: Int, intermediate: Int): FloatArray {
-            val coefficients = dsdByteCoefficients(rate, intermediate)
+        private fun makeKernel(rate: Int, intermediate: Int, shift: Double): FloatArray {
+            val coefficients = lowPass(128 * (rate / intermediate / 8), intermediate / 2.0 / rate, shift)
             return FloatArray(coefficients.size / 8 * 256) { index ->
                 val tap = index / 256
                 val byte = index and 255
@@ -163,13 +189,13 @@ private class FirDecimator(private val coefficients: DoubleArray, private val de
 }
 
 /** Unity-DC, symmetric Kaiser FIR; beta 14 gives margin over the 100 dB stopband. */
-internal fun lowPass(taps: Int, cutoff: Double): DoubleArray {
-    val center = (taps - 1) / 2.0
+internal fun lowPass(taps: Int, cutoff: Double, centerShift: Double = 0.0): DoubleArray {
+    val center = (taps - 1) / 2.0 + centerShift
     val denominator = besselI0(14.0)
     val h = DoubleArray(taps) { i ->
         val x = i - center
         val sinc = if (abs(x) < 1e-10) 2 * cutoff else sin(2 * PI * cutoff * x) / (PI * x)
-        val w = x / center
+        val w = x / ((taps - 1) / 2.0)
         sinc * besselI0(14.0 * sqrt(maxOf(0.0, 1 - w * w))) / denominator
     }
     val sum = h.sum()

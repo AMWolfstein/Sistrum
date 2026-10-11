@@ -21,11 +21,11 @@ class WavPackDsd private constructor(source:RandomAccessSource,targetRate:Int) {
     init { if (!rawInfo.isDsd) invalid("stream is not DSD") }
     private val dopSource=Wv.open(source)
     private val target=if (targetRate==0) Dsd.bestTargetRate(rawInfo.dsdSampleRate) else targetRate
-    private val pipeline=DsdDecimationPipeline(rawInfo.dsdSampleRate,target,rawInfo.channels)
+    private val pipeline=DsdDecimationPipeline(rawInfo.dsdSampleRate,target,rawInfo.channels,true)
     private val packer=DopPacker(rawInfo.dsdSampleRate,rawInfo.channels)
     data class Info(val sampleRate:Int,val channels:Int,val totalSamples:Long,val dsdSampleRate:Int,
                     val totalDsdSamples:Long,val channelMask:Long,val dopSampleRate:Int,val totalDopSamples:Long)
-    val info=Info(target,rawInfo.channels,rawInfo.totalDsdSamples/(rawInfo.dsdSampleRate/target),
+    val info=Info(target,rawInfo.channels,(rawInfo.totalDsdSamples+(rawInfo.dsdSampleRate/target)/2)/(rawInfo.dsdSampleRate/target),
         rawInfo.dsdSampleRate,rawInfo.totalDsdSamples,rawInfo.channelMask,packer.carrierRate,
         rawInfo.totalSamples/packer.bytesPerChannelPerFrame)
     private val pcmCapacity=pcmSource.demuxer.capacityFrames
@@ -45,17 +45,21 @@ class WavPackDsd private constructor(source:RandomAccessSource,targetRate:Int) {
     }
     fun decodeBlock():FloatBuffer? {
         if (pending) { pending=false;pcm.discontinuity=pcmDiscontinuity;pcmDiscontinuity=false;return pcm }
-        while (true) {
-            val raw=pcmSource.decodeDsdBlock() ?: return null
+        while (pcmPosition<info.totalSamples) {
+            val raw=pcmSource.decodeDsdBlock()
+            if (raw != null) {
             var ch=0
             while (ch<info.channels) {
                 var i=0;while (i<raw.bytesPerChannel) { pcmPlanar[pcmOffsets[ch]+i]=raw.bytes[i*info.channels+ch];i++ };ch++
             }
             pcm.frames=pipeline.processBytes(pcmPlanar,pcmOffsets,raw.bytesPerChannel,pcm.samples)
+            } else pcm.frames=pipeline.drain(pcm.samples)
+            pcm.frames=minOf(pcm.frames.toLong(),info.totalSamples-pcmPosition).toInt()
             pcm.position=pcmPosition;pcmPosition+=pcm.frames
             if (pcm.frames==0) continue
             pcm.discontinuity=pcmDiscontinuity;pcmDiscontinuity=false;return pcm
         }
+        return null
     }
     /** Decode only the rounded-up FIR history, then trim to the exact requested PCM sample. */
     fun seekSample(sample:Long) {
