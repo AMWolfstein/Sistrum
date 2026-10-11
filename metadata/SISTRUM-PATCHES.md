@@ -177,6 +177,35 @@ unchanged: parity targets the pinned reader, not ffprobe. No new deviation is
 claimed for those upstream errors. Classic QuickTime udta and indexed mdta tag
 stores are included because they are part of the same pinned MP4 READ path.
 
+## PATCH-7 — bounded APE/WavPack/Musepack reads and validated chapter seeks
+
+Monkey's Audio and Musepack upstream property readers allocate a broad 4096/8192
+byte prefix. Kotlin reads fixed descriptor/stream fields and packet keys/varints,
+skipping encoded bodies. WavPack reads block/subblock headers and only the three
+sample-rate metadata bytes, never the DSD or compressed subblock payload. APE
+items retain offsets; binary values are skipped except selected picture metadata.
+The APE footer discovery probe is eight bytes at end minus 32, following validated
+ID3v1 removal; only a matching APETAGEX signature permits the remaining footer.
+This probe is required on MP3 as well as native APE-family containers. The existing
+MP3 guard now permits this exact fixed signature probe, retaining its other bounds.
+
+Musepack SO seeks must resolve to ST at a packet boundary reached by structural
+walking. The pinned reader follows arbitrary SO offsets into AP bodies. Owned
+`ape-chapter-audio-alias.mpc` embeds ST/CT/SE in encoded audio: the oracle exposes
+one chapter at 25 ms titled LEAK and a 51-byte CT native block. Kotlin omits that
+chapter and native block; every other field matches. `ApeOracleParityTest` asserts
+the exact upstream premise and permitted delta without altering reference JSON.
+`musepackSkipsEveryAudioPacketBody` rejects AP reads for normal chapters, real SO/ST
+seeks and the hostile vector. Fixed-header and WavPack subblock guards cover the
+other containers.
+
+PATCH-1 applies to APE covers: METADATA_ONLY hashes in 8 KiB buffers, NONE skips
+binary bodies and picture warnings, FULL loads fresh arrays lazily. PATCH-3 bounds
+APE item/key/filename/text amplification, Musepack packets/chapters and total reads.
+APEv2 is authoritative for native APE, WavPack and Musepack; it remains legacy
+provenance on MP3. No unsupported APE lyrics or chapter convention is invented;
+Musepack's native CT chapters are read.
+
 ## Implementation boundary
 
 Step 1 includes canonical vocabulary/aliases, ID3v1 legacy provenance,
@@ -184,11 +213,12 @@ ID3v2.2/2.3/2.4 text/flags/unsynchronization/extended headers/footer, APIC/PIC,
 CHAP/CTOC, SYLT, MP3 properties, and embedded ID3 in ordinary WAV/AIFF/AIFF-C.
 Minimal INFO/AIFF text fallback and PCM framing preserve the pinned embedded-ID3
 projection; full IFF recovery, RF64/BW64, bext, and compressed property details
-remain step 5. APEv2 on MP3 remains step 4. Step 2 adds native FLAC, Ogg Vorbis/Opus/FLAC,
+remain step 5. APEv2 on MP3 is included in step 4. Step 2 adds native FLAC, Ogg Vorbis/Opus/FLAC,
 Vorbis-comment aliases/number pairs/provenance, native and base64 PICTURE, LRC
 synced lyrics and CHAPTER comments. Leading ID3 before FLAC is detected and kept
 non-authoritative. Ogg gain, pre-skip, chained streams, continued packets, shared
 header/audio pages, comment padding and trailing bytes follow the pinned read
 projection. Step 3 adds MP4/M4A ilst/freeform/covr, native summaries, audio properties and
-Nero/QuickTime chapter tracks, plus classic udta and indexed mdta tags. Remaining
-readers (steps 4–8) are not ported yet. No application feature was removed.
+Nero/QuickTime chapter tracks, plus classic udta and indexed mdta tags. Step 4 adds APEv1/v2 items, aliases, covers, legacy MP3 provenance, Monkey's Audio
+and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Remaining
+readers (steps 5–8) are not ported yet. No application feature was removed.

@@ -127,10 +127,34 @@ The two known pinned upstream ffprobe differential failures for high-resolution
 for these ffmpeg files. Kotlin preserves that exact result; reference output and
 upstream source/tests are unmodified.
 
+## Step 4 — APEv2, Monkey's Audio, WavPack and Musepack
+
+```sh
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 4
+```
+
+The same exact source pin is built and invoked with `dump --native --json`.
+`oracle-step4.json` has 180 records: five pinned upstream testdata inputs and
+175 owned vectors. Owned inputs combine mutagen 1.47.0 APEv2 tags, ffmpeg WavPack
+silence and deterministic structural APE/WavPack/Musepack packets. Cases include
+APEv1/v2 footer-only/header tags, aliases, multi-values, conflicting provenance,
+legacy MP3/ID3v1, Latin-1 fallback, malformed items, flags, large covers/binary data,
+modern/legacy Monkey's Audio, WavPack 40-bit counts/custom rates/DSD/multichannel,
+Musepack SV7/SV8 leading ID3, silence, CT chapters and SO/ST seeks. Every fetched
+source/test/testdata and owned file has a manifest SHA-256 in the external cache.
+
+140 records parse successfully and 40 return typed errors. There are 179 exact
+matches and one precisely asserted PATCH-7 safety delta: a corrupt Musepack seek
+aliases encoded audio containing a fake chapter. Kotlin omits that chapter and its
+native block, retaining all other fields. Reference JSON remains unmodified.
+Successful records compare both picture modes, public total samples and SHA-256.
+Guarded sources, one-byte reads, I/O failures, resource limits, all byte truncations
+through 2048 bytes and 1000 seeded mutations verify bounded, nonthrowing reads.
+
 ## Benchmark
 
 `:metadata:benchmark` measures each file (step 1 by default, `-PwaxlabelStep=2`
-for step 2, `-PwaxlabelStep=3` for step 3) on a warm filesystem cache
+for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4) on a warm filesystem cache
 with an open `FileChannelSource`: 25 warmups, 101 trials, median nanoseconds and
 median per-thread allocated bytes from HotSpot's `ThreadMXBean`. File opening and
 corpus verification are outside the measured call; parsing, document construction,
@@ -140,7 +164,7 @@ none are reported as successful metadata parses.
 
 Generated output: `metadata/build/reports/metadata-benchmark.tsv`.
 Recorded snapshots: `docs/waxlabel/step1-benchmark.tsv` and
-`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv`.
+`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv`.
 These are per-file measurements, not a hard performance threshold; host/JIT/I/O
 noise means a new run can differ.
 

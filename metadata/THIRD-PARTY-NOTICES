@@ -6,8 +6,10 @@ No upstream write code, external codec, or CLI dependency is bundled in this mod
 
 WaxLabel: https://github.com/AMWolfstein/WaxLabel (fork of ColeSpringer/WaxLabel)
 Pinned commit: cfbb45d13135a76f5df6781fdeec75f5cfe63bf9
-Sources: tag/, internal/mapping/id3.go, internal/id3/, internal/mp3/, internal/core/,
-internal/bits/image.go, and minimal WAV/AIFF framing for embedded ID3.
+Sources: tag/, internal/mapping/, internal/id3/, internal/mp3/, internal/core/,
+internal/bits/image.go, internal/flac/, internal/ogg/, internal/vorbis/,
+internal/mp4/, internal/mpeg4audio/, internal/ape/, internal/apen/,
+internal/wavpack/, internal/musepack/, and minimal WAV/AIFF framing for embedded ID3.
 
 The upstream LICENSE is reproduced verbatim:
 

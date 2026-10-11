@@ -74,7 +74,7 @@ class ReadContractsTest {
         val first = Mpeg.header(data.copyOfRange(tagEnd.toInt(),tagEnd.toInt()+4))!!
         val allowed = listOf(0L to tagEnd,tagEnd to tagEnd+4,tagEnd+first.length to tagEnd+first.length+4,
             tagEnd+21 to tagEnd+33,tagEnd+23 to tagEnd+27,tagEnd+36 to tagEnd+40,
-            data.size-128L to data.size-125L)
+            data.size-128L to data.size-125L,data.size-32L to data.size-24L)
         val observed = Observed(data,allowed={ p,n -> allowed.any { p >= it.first && p+n <= it.second } })
         assertNull(Metadata.read(observed).error)
     }

@@ -1,0 +1,183 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; WaxLabel MIT, Cole Springer
+# JDK 21.0.12.1; amd64; warm filesystem cache; METADATA_ONLY; 25 warmups, 101 trials per file
+format	file	median_ns	median_allocated_bytes
+Musepack	src/testdata/chapters.mpc	449328	14960
+Monkey's Audio	src/testdata/notags.ape	53801	2768
+WavPack	src/testdata/notags.wv	182193	9512
+Monkey's Audio	src/testdata/sample.ape	165263	16544
+WavPack	src/testdata/sample.wv	211743	21872
+Monkey's Audio	owned/ape-aliases.ape	510499	70368
+Monkey's Audio	owned/ape-base.ape	16640	2768
+MP3	owned/ape-base.mp3	45061	3312
+Musepack	owned/ape-base.mpc	39041	4088
+WavPack	owned/ape-base.wv	16780	2688
+Monkey's Audio	owned/ape-binary-large.ape	28770	4480
+Musepack	owned/ape-chapter-audio-alias.mpc	535220	54688
+Musepack	owned/ape-chapters-faults.mpc	482679	59072
+Musepack	owned/ape-chapters-invisible.mpc	397807	54584
+Musepack	owned/ape-chapters-seek.mpc	432618	59296
+Musepack	owned/ape-chapters.mpc	429677	59464
+Monkey's Audio	owned/ape-conflicts.ape	171273	29632
+Monkey's Audio	owned/ape-count-too-many.ape	364426	52864
+Monkey's Audio	owned/ape-count-zero.ape	13860	3376
+Monkey's Audio	owned/ape-cover-duplicates.ape	366196	53856
+Monkey's Audio	owned/ape-cover-empty.ape	44240	6008
+Monkey's Audio	owned/ape-cover-large.ape	1715820	44200
+Monkey's Audio	owned/ape-cover-unknown.ape	82811	27544
+Monkey's Audio	owned/ape-cover-unterminated.ape	40901	5936
+Monkey's Audio	owned/ape-descriptor-huge.ape	227214	51840
+Monkey's Audio	owned/ape-descriptor-small.ape	222494	50304
+WavPack	owned/ape-ffmpeg-12345.wv	67062	10152
+WavPack	owned/ape-ffmpeg-5.1.wv	48191	9912
+WavPack	owned/ape-ffmpeg-96000.wv	41750	9512
+WavPack	owned/ape-ffmpeg-mono.wv	41611	9512
+WavPack	owned/ape-ffmpeg.wv	41641	9512
+Monkey's Audio	owned/ape-flags-1.ape	113442	13624
+Monkey's Audio	owned/ape-flags-2.ape	86712	26248
+Monkey's Audio	owned/ape-flags-2147483648.ape	102152	13624
+Monkey's Audio	owned/ape-flags-4.ape	82702	26248
+Monkey's Audio	owned/ape-flags-6.ape	83112	26248
+Monkey's Audio	owned/ape-footer-only.ape	215773	49408
+MP3	owned/ape-footer-only.mp3	152673	16944
+Musepack	owned/ape-footer-only.mpc	235044	50856
+WavPack	owned/ape-footer-only.wv	224104	49584
+Monkey's Audio	owned/ape-header-huge.ape	228744	49536
+Monkey's Audio	owned/ape-header-record.ape	11280	2864
+Monkey's Audio	owned/ape-header-small.ape	213714	49536
+Monkey's Audio	owned/ape-id3v1.ape	304035	52384
+MP3	owned/ape-id3v1.mp3	166093	20024
+Musepack	owned/ape-id3v1.mpc	281955	53832
+WavPack	owned/ape-id3v1.wv	260964	52560
+Monkey's Audio	owned/ape-invalid-keys.ape	198594	25056
+Monkey's Audio	owned/ape-item-key-unterminated.ape	21890	3912
+Monkey's Audio	owned/ape-item-short.ape	15470	3376
+Monkey's Audio	owned/ape-item-size-overrun.ape	22921	3992
+Monkey's Audio	owned/ape-latin1.ape	101872	16696
+Monkey's Audio	owned/ape-lying-header.ape	244304	49536
+error	owned/ape-mac-3790-0.ape	9300	2600
+error	owned/ape-mac-3790-1.ape	9050	2600
+error	owned/ape-mac-3790-8.ape	8880	2600
+Monkey's Audio	owned/ape-mac-3800-0.ape	243435	49416
+Monkey's Audio	owned/ape-mac-3800-1.ape	243684	49416
+Monkey's Audio	owned/ape-mac-3800-8.ape	240754	49416
+Monkey's Audio	owned/ape-mac-3890-0.ape	239174	49416
+Monkey's Audio	owned/ape-mac-3890-1.ape	216964	49416
+Monkey's Audio	owned/ape-mac-3890-8.ape	215954	49416
+Monkey's Audio	owned/ape-mac-3900-0.ape	214694	49416
+Monkey's Audio	owned/ape-mac-3900-1.ape	214114	49416
+Monkey's Audio	owned/ape-mac-3900-8.ape	214044	49416
+Monkey's Audio	owned/ape-mac-3950-0.ape	216134	49416
+Monkey's Audio	owned/ape-mac-3950-1.ape	214144	49416
+Monkey's Audio	owned/ape-mac-3950-8.ape	213393	49416
+Monkey's Audio	owned/ape-mac-3970-0.ape	202843	49248
+Monkey's Audio	owned/ape-mac-3970-1.ape	201664	49248
+Monkey's Audio	owned/ape-mac-3970-8.ape	202214	49248
+Monkey's Audio	owned/ape-mac-3980-0.ape	203364	49368
+Monkey's Audio	owned/ape-mac-3990-0.ape	203254	49368
+Monkey's Audio	owned/ape-mac-5000-0.ape	202743	49368
+Monkey's Audio	owned/ape-mac-zero.ape	203243	49456
+MP3	owned/ape-mp3-id3-authority.mp3	777753	92136
+Monkey's Audio	owned/ape-mutagen.ape	190334	37304
+MP3	owned/ape-mutagen.mp3	103332	11168
+Musepack	owned/ape-mutagen.mpc	207894	38752
+WavPack	owned/ape-mutagen.wv	191843	37480
+Monkey's Audio	owned/ape-noise.ape	164173	26400
+Monkey's Audio	owned/ape-structured.ape	289525	49536
+MP3	owned/ape-structured.mp3	162603	17072
+Musepack	owned/ape-structured.mpc	306305	50984
+WavPack	owned/ape-structured.wv	288645	49712
+Musepack	owned/ape-sv7-23.mpc	295976	49712
+error	owned/ape-sv7-6.mpc	10520	2944
+Musepack	owned/ape-sv7-7.mpc	290736	49712
+Musepack	owned/ape-sv7-zero.mpc	291015	49800
+Musepack	owned/ape-sv8-leading-id3.mpc	419357	57776
+Musepack	owned/ape-sv8-no-samples.mpc	354046	51176
+Musepack	owned/ape-sv8-silence.mpc	346456	51088
+Musepack	owned/ape-sv8-unknown-rate.mpc	334996	50168
+error	owned/ape-sv8-version.mpc	12150	2952
+error	owned/ape-truncated-1.ape	3590	2008
+error	owned/ape-truncated-1.mp3	3550	2008
+error	owned/ape-truncated-1.mpc	3540	2008
+error	owned/ape-truncated-1.wv	3520	2008
+error	owned/ape-truncated-10.ape	8750	2600
+MP3	owned/ape-truncated-10.mp3	8980	2696
+error	owned/ape-truncated-10.mpc	12130	2832
+error	owned/ape-truncated-10.wv	8040	2520
+Monkey's Audio	owned/ape-truncated-100.ape	11890	2512
+MP3	owned/ape-truncated-100.mp3	12890	3120
+Musepack	owned/ape-truncated-100.mpc	28911	4088
+WavPack	owned/ape-truncated-100.wv	11260	2688
+MP3	owned/ape-truncated-2365.mp3	15560	3312
+MP3	owned/ape-truncated-2381.mp3	15481	3312
+MP3	owned/ape-truncated-2396.mp3	15570	3312
+error	owned/ape-truncated-24.ape	8620	2600
+MP3	owned/ape-truncated-24.mp3	9051	2696
+Musepack	owned/ape-truncated-24.mpc	25191	3648
+error	owned/ape-truncated-24.wv	7470	2520
+error	owned/ape-truncated-3.ape	7950	2408
+error	owned/ape-truncated-3.mp3	6010	2104
+error	owned/ape-truncated-3.mpc	8820	2560
+error	owned/ape-truncated-3.wv	7351	2376
+error	owned/ape-truncated-31.ape	8160	2600
+MP3	owned/ape-truncated-31.mp3	9190	2696
+Musepack	owned/ape-truncated-31.mpc	25161	3648
+error	owned/ape-truncated-31.wv	7730	2520
+error	owned/ape-truncated-32.ape	8250	2600
+MP3	owned/ape-truncated-32.mp3	10461	2824
+Musepack	owned/ape-truncated-32.mpc	25321	3648
+error	owned/ape-truncated-32.wv	9090	2672
+Musepack	owned/ape-truncated-364.mpc	30621	4216
+WavPack	owned/ape-truncated-373.wv	14160	2944
+Musepack	owned/ape-truncated-380.mpc	30800	4216
+WavPack	owned/ape-truncated-389.wv	14190	2944
+Musepack	owned/ape-truncated-395.mpc	30930	4216
+error	owned/ape-truncated-4.ape	8060	2552
+MP3	owned/ape-truncated-4.mp3	7770	2560
+error	owned/ape-truncated-4.mpc	8790	2600
+error	owned/ape-truncated-4.wv	7560	2520
+WavPack	owned/ape-truncated-404.wv	14290	2944
+error	owned/ape-truncated-5.ape	8120	2552
+MP3	owned/ape-truncated-5.mp3	7850	2560
+error	owned/ape-truncated-5.mpc	8870	2600
+error	owned/ape-truncated-5.wv	7480	2520
+error	owned/ape-truncated-51.ape	8190	2600
+MP3	owned/ape-truncated-51.mp3	13180	3120
+Musepack	owned/ape-truncated-51.mpc	26640	3776
+error	owned/ape-truncated-51.wv	8980	2672
+error	owned/ape-truncated-52.ape	9480	2728
+MP3	owned/ape-truncated-52.mp3	13810	3120
+Musepack	owned/ape-truncated-52.mpc	26701	3776
+error	owned/ape-truncated-52.wv	9070	2672
+error	owned/ape-truncated-6.ape	8270	2600
+MP3	owned/ape-truncated-6.mp3	8410	2560
+error	owned/ape-truncated-6.mpc	8890	2600
+error	owned/ape-truncated-6.wv	7540	2520
+error	owned/ape-truncated-75.ape	9460	2728
+MP3	owned/ape-truncated-75.mp3	14000	3120
+Musepack	owned/ape-truncated-75.mpc	26691	3776
+error	owned/ape-truncated-75.wv	9090	2672
+Monkey's Audio	owned/ape-truncated-76.ape	11931	2512
+MP3	owned/ape-truncated-76.mp3	14200	3120
+Musepack	owned/ape-truncated-76.mpc	26750	3776
+error	owned/ape-truncated-76.wv	9070	2672
+Monkey's Audio	owned/ape-truncated-865.ape	14850	2768
+Monkey's Audio	owned/ape-truncated-881.ape	14540	2768
+Monkey's Audio	owned/ape-truncated-896.ape	14700	2768
+Monkey's Audio	owned/ape-unknown-tag-version.ape	328796	49536
+Monkey's Audio	owned/ape-v1.ape	326926	49408
+MP3	owned/ape-v1.mp3	162793	16944
+Musepack	owned/ape-v1.mpc	346416	50856
+WavPack	owned/ape-v1.wv	327456	49584
+WavPack	owned/ape-wv-custom-rate.wv	334566	49952
+WavPack	owned/ape-wv-dsd.wv	333536	49952
+WavPack	owned/ape-wv-float.wv	325606	49712
+WavPack	owned/ape-wv-high-count.wv	327666	49712
+WavPack	owned/ape-wv-multichannel.wv	334006	49912
+WavPack	owned/ape-wv-shift.wv	326345	49712
+WavPack	owned/ape-wv-subblock-overrun.wv	327725	49792
+WavPack	owned/ape-wv-unknown-samples.wv	329486	49800
+error	owned/ape-wv-version-1025.wv	8540	2672
+WavPack	owned/ape-wv-version-1026.wv	11510	2688
+WavPack	owned/ape-wv-version-1040.wv	11510	2688
+error	owned/ape-wv-version-1041.wv	8611	2672
+WavPack	owned/ape-wv-zero.wv	334286	49800
