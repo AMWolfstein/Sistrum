@@ -63,7 +63,11 @@ This is the deliberate bounded-read tradeoff, not a dropped playback feature.
 The default single tag/allocation ceiling is 64 MiB (upstream general allocation
 ceiling: 256 MiB), with a 128 MiB read budget per input view and 100,000 frame/chunk
 entries (same default breadth as upstream). A text frame cannot amplify into more
-than 100,000 values. APIC MIME and description fields have separate 64 KiB ceilings.
+than 100,000 values. APIC MIME and description fields have separate 64 KiB ceilings. Vorbis comment
+names are scanned with a 64 KiB header ceiling; comment packets, native FLAC
+blocks and decoded picture blocks share the single tag ceiling. Ogg page
+descriptors have a separate 64 MiB budget, as upstream. Sparse packet/base64
+region inventories are bounded by `maxElements`.
 These guards return `SIZE_TOO_LARGE` instead of allocating an unbounded JVM object
 graph. The limits can be configured with `ReadOptions`; the text/header amplification
 ceilings are fixed. Sparse transformed views have their own bounded read budgets;
@@ -94,6 +98,44 @@ where its false MPEG detection differs. Document collections, nested values, and
 vocabulary sets are unmodifiable. `documentsAndNestedCollectionsCannotBeMutated`
 asserts the immutable API.
 
+## PATCH-5 — FLAC frame scanning omitted
+
+Upstream scans encoded FLAC frame headers/tails to diagnose truncated essence and
+separate trailing junk. Sistrum reads STREAMINFO and metadata blocks, probes a
+possible ID3v1 trailer, and treats the remaining file extent as the encoded stream.
+It does not scan frames or fingerprint essence. STREAMINFO remains authoritative
+for samples, duration, channels, rate and depth; bitrate uses that structural extent.
+Ogg scans page headers/lacing for granules and audio byte counts, skipping all audio
+packet bodies, including a body shared with the last metadata packet.
+
+These three owned inputs intentionally differ from the unmodified CLI JSON:
+
+- `owned/vorbis-tail-junk.flac`: upstream separates 4096 bytes of junk. Kotlin has
+  no `trailing-bytes` warning/native tail block, and reports 169520 rather than
+  5680 bits/s because its structural extent includes those bytes.
+- `owned/vorbis-truncated-audio.flac` and `owned/vorbis-truncated-8427.flac`: Kotlin
+  omits only the upstream `truncated-audio` warning. All other fields, including
+  hashes and STREAMINFO samples, match exactly.
+
+`VorbisOracleParityTest.expected` asserts the precise upstream premise and allowed
+delta for each; every unaffected field is compared. Guarded-source tests
+`flacReadsNoEncodedFramesEvenForTruncatedOrJunkAudio` and
+`oggReadsPageHeadersAndTagPacketsWithoutAudioBodies` reject payload reads.
+
+PATCH-1 also applies to native FLAC and base64 comment pictures. Packet source views
+retain source offsets; base64 views validate and decode in bounded chunks, ignoring
+CR/LF as upstream does. METADATA_ONLY retains no complete image or encoded-image
+string. NONE skips those payloads and invalid-picture warnings; picture-comment
+native entries in Ogg are absent when no pictures are projected. FULL clones the
+packet/base64 view budgets per payload load. Tests:
+`metadataOnlyStreamsNativeAndBase64ArtInBoundedBuffers`,
+`noneSkipsNativeAndBase64PicturePayloads`,
+`fullBase64ReadsHaveFreshBudgetsAndDetachedBytes`, plus all picture oracle cases.
+
+The native API additionally exposes Ogg's `unit = "pages"` descriptor; the pinned
+CLI JSON omits units, so its JSON projection does likewise. Error messages remain
+source-relative; malformed corpus error classes are compared with CLI exits.
+
 ## Implementation boundary
 
 Step 1 includes canonical vocabulary/aliases, ID3v1 legacy provenance,
@@ -101,6 +143,9 @@ ID3v2.2/2.3/2.4 text/flags/unsynchronization/extended headers/footer, APIC/PIC,
 CHAP/CTOC, SYLT, MP3 properties, and embedded ID3 in ordinary WAV/AIFF/AIFF-C.
 Minimal INFO/AIFF text fallback and PCM framing preserve the pinned embedded-ID3
 projection; full IFF recovery, RF64/BW64, bext, and compressed property details
-remain step 5. APEv2 on MP3 remains step 4. The dispatcher is limited to the step-1 signatures; the remaining container
-readers and detection after stray leading ID3 are not ported yet. No application
-feature was removed.
+remain step 5. APEv2 on MP3 remains step 4. Step 2 adds native FLAC, Ogg Vorbis/Opus/FLAC,
+Vorbis-comment aliases/number pairs/provenance, native and base64 PICTURE, LRC
+synced lyrics and CHAPTER comments. Leading ID3 before FLAC is detected and kept
+non-authoritative. Ogg gain, pre-skip, chained streams, continued packets, shared
+header/audio pages, comment padding and trailing bytes follow the pinned read
+projection. Remaining readers are not ported yet. No application feature was removed.

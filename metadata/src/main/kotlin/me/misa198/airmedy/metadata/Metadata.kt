@@ -19,7 +19,14 @@ object Metadata {
             var magic = input.bytes(0,minOf(input.length,4).toInt())
             if (magic.size == 4 && magic.latin() in listOf("RIFF","FORM") && input.length >= 12)
                 magic = input.bytes(0,12)
+            var flacStart: Long? = if(magic.latin() == "fLaC") 0 else null
+            if(magic.latin(0,3) == "ID3" && input.length >= 10) {
+                val n=Id3.tagSize(input.bytes(0,10))
+                if(n!=null && n<=input.length-4 && input.bytes(n,4).latin()=="fLaC") flacStart=n
+            }
             when {
+                flacStart != null -> Flac.read(input,b,flacStart)
+                magic.latin() == "OggS" -> Ogg.read(input,b)
                 magic.size >= 12 && magic.latin(0,4) == "RIFF" && magic.latin(8,4) == "WAVE" -> Iff.read(input,b,false)
                 magic.size >= 12 && magic.latin(0,4) == "FORM" && magic.latin(8,4) in listOf("AIFF","AIFC") -> Iff.read(input,b,true)
                 magic.size >= 3 && magic.latin(0,3) == "ID3" || Mpeg.header(magic) != null || options.formatHint?.lowercase() == "mp3" -> mp3(input,b)
@@ -83,7 +90,7 @@ internal fun finish(b: Builder, audioBytes: Long) {
         b.warn("no-audio","no audio essence found; file may be tag-only or truncated")
     }
 }
-private fun looksLikeV1(b: ByteArray): Boolean {
+internal fun looksLikeV1(b: ByteArray): Boolean {
     if (b.size != 128 || b.latin(0,3) != "TAG") return false
     if ((93..96).any { b.u(it) !in 48..57 && b.u(it) != 32 && b.u(it) != 0 }) return false
     fun text(p: Int) = b.u(p) !in 1..8 && b.u(p) !in 11..12 && b.u(p) !in 14..31 && b.u(p) != 127
@@ -91,7 +98,7 @@ private fun looksLikeV1(b: ByteArray): Boolean {
     val end = if(b[125] == 0.toByte() && b[126] != 0.toByte()) 125 else 127
     return (97 until end).all(::text)
 }
-private fun v1Families(raw: ByteArray, b: Builder) {
+internal fun v1Families(raw: ByteArray, b: Builder) {
     fun add(key: String, value: String) {
         if (value.isNotEmpty()) b.families += FamilyValue(key,"id3v1",listOf(value),b.tags[key]?.any { it.trim().equals(value.trim(),true) } ?: true,true)
     }

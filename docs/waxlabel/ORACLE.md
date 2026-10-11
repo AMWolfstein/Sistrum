@@ -9,20 +9,23 @@ License: MIT, Copyright (c) 2026 Cole Springer; copied verbatim into
 
 `Metadata.read(RandomAccessSource, ReadOptions)` lives in the pure-JVM `:metadata`
 module. It is independent of Android and uses `:codecs` only for the existing source
-contract. Step 1 is the ID3/MP3 and embedded-ID3 boundary. There is no writer,
+contract. Steps 1–2 cover ID3/MP3/embedded ID3 and FLAC/Ogg Vorbis/Opus/FLAC. There is no writer,
 player integration, or scanner integration.
 
 ## Reproduce
 
-Use Go 1.26 or a Go launcher with automatic toolchain download, ffmpeg with libmp3lame,
+Use Go 1.26 or a Go launcher with automatic toolchain download, ffmpeg with
+libmp3lame/libvorbis/libopus/FLAC encoders,
 and Python with mutagen **1.47.0**. Cache root defaults to
 `~/.cache/sistrum-waxlabel-oracle`; override with `SISTRUM_WAXLABEL_ORACLE_DIR`.
 The harness rejects cache paths within this repository.
 
 ```sh
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 2
 python3 scripts/waxlabel-oracle.py --verify
-./gradlew :codecs:test :metadata:test :androidApp:assembleDevDebug :metadata:benchmark
+./gradlew :codecs:test --rerun :metadata:test --rerun :androidApp:assembleDevDebug
+./gradlew :metadata:benchmark -PwaxlabelStep=2
 ```
 
 The Python path above reuses this session's existing corpus virtualenv; another
@@ -39,7 +42,7 @@ builds the pinned `./cmd/waxlabel` with `CGO_ENABLED=0 go build -trimpath`. It e
 3 (`UNSUPPORTED_FORMAT`) or 4 (`INVALID_DATA`), never an invented reference document.
 It strips only the absolute CLI filename from successful JSON.
 
-`oracle-step1.json` preserves the reference output. A tiny external Go helper,
+`oracle-step1.json` and `oracle-step2.json` preserve the reference output. A tiny external Go helper,
 compiled against the exact same source using a local module replacement, supplies
 only total samples and SHA-256 of each upstream picture's bytes: neither exists in
 CLI JSON. Kotlin comparison retains ordered tags/values, native blocks, properties,
@@ -74,9 +77,29 @@ files. They check every byte truncation through the first 2048 bytes, 1000 seede
 malformations, source failures/short reads, immutability, amplification/allocation
 limits, picture loading policy, and guarded ranges that reject sample payload reads.
 
+## Step-2 coverage
+
+All eight pinned `testdata` FLAC/Ogg Vorbis/Opus/FLAC files are compared, alongside
+owned ffmpeg silence encoded in each format, mutagen comments/art, and Opus output
+gain written by the pinned WaxLabel CLI. Structural owned vectors cover aliases,
+conflicts, slash pairs, malformed names/unseparated entries, invalid UTF-8, duplicate
+comment blocks, padding, unknown blocks, native and base64 pictures (large, invalid,
+linked, unrecognized bytes, over-byte-range type), stray leading ID3 and trailing
+ID3v1, tag-only FLAC, damaged STREAMINFO/block framing, continued Ogg packets,
+shared metadata/audio pages, chains, trailing junk, LRC offsets/line cap and chapter
+ordering. Every generated file is hashed in the same external manifest.
+
+The unmodified JSON includes the three frame-scan differences enumerated in
+`metadata/SISTRUM-PATCHES.md`. Guarded source tests verify that no encoded frames or
+Ogg audio bodies are read. Default picture hashing is streamed; NONE skips native
+and encoded-comment image payloads. FULL loads are lazy and repeatable, including
+fresh transformed-source budgets. Bytewise truncations through 2048 bytes and 1000
+seeded mutations supplement the corpus cases without creating unmanifested files.
+
 ## Benchmark
 
-`:metadata:benchmark` measures each of the step-1 files on a warm filesystem cache
+`:metadata:benchmark` measures each file (step 1 by default, `-PwaxlabelStep=2`
+for step 2) on a warm filesystem cache
 with an open `FileChannelSource`: 25 warmups, 101 trials, median nanoseconds and
 median per-thread allocated bytes from HotSpot's `ThreadMXBean`. File opening and
 corpus verification are outside the measured call; parsing, document construction,
@@ -85,7 +108,8 @@ outside this scan benchmark. Errors and malformed files are included and named;
 none are reported as successful metadata parses.
 
 Generated output: `metadata/build/reports/metadata-benchmark.tsv`.
-Recorded step-1 snapshot: `docs/waxlabel/step1-benchmark.tsv`.
+Recorded snapshots: `docs/waxlabel/step1-benchmark.tsv` and
+`docs/waxlabel/step2-benchmark.tsv`.
 These are per-file measurements, not a hard performance threshold; host/JIT/I/O
 noise means a new run can differ.
 

@@ -21,11 +21,13 @@ tasks.test {
     systemProperty("waxlabel.repo", rootProject.layout.projectDirectory.asFile.absolutePath)
     inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/corpus-manifest.tsv"))
     inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/oracle-step1.json"))
+    inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/oracle-step2.json"))
     maxHeapSize = "512m"
 }
 tasks.register<JavaExec>("benchmark") {
     dependsOn(tasks.testClasses, verifyWaxLabelCorpus)
     classpath = sourceSets.test.get().runtimeClasspath
+    systemProperty("waxlabel.step", providers.gradleProperty("waxlabelStep").getOrElse("1"))
     mainClass.set("me.misa198.airmedy.metadata.MetadataBenchmark")
     systemProperty("waxlabel.cache", oracleRoot.get())
     systemProperty("waxlabel.repo", rootProject.layout.projectDirectory.asFile.absolutePath)

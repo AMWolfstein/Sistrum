@@ -2,9 +2,10 @@
 <!-- WaxLabel read port; Copyright (c) 2026 Cole Springer, MIT. -->
 # Metadata
 
-Pure-JVM, read-only WaxLabel port. Step 1 supports MP3 ID3v1 legacy sources and
-ID3v2.2/2.3/2.4, plus ID3 chunks in ordinary WAV/AIFF/AIFF-C. Other containers are
-reserved for the subsequent ordered steps. There is no Android/player/scanner code.
+Pure-JVM, read-only WaxLabel port. Supports MP3 ID3v1 legacy sources and
+ID3v2.2/2.3/2.4, ID3 chunks in ordinary WAV/AIFF/AIFF-C, native FLAC and
+Ogg Vorbis/Opus/FLAC comments, pictures, synced lyrics and chapters. Other containers
+remain reserved for the subsequent ordered steps. There is no Android/player/scanner code.
 
 ```kotlin
 FileChannel.open(path).use { channel ->
@@ -33,9 +34,9 @@ Each call returns a fresh array. NONE skips pictures entirely.
 
 Properties expose codec/profile, sample rate, channels, bits, total samples,
 duration in nanoseconds and rounded milliseconds, bitrate, Opus output gain in
-Q7.8 units (reserved until step 2), and metadata padding. Empty/unknown fields are
+signed Q7.8 units, and metadata padding. Empty/unknown fields are
 zero or empty strings. ID3v1 is non-authoritative, as in the pinned upstream reader.
 
 `SISTRUM-PATCHES.md` documents bounded probes, picture loading, limits, and the
-three precise oracle differences. `docs/waxlabel/ORACLE.md` explains corpus setup,
+precisely tested oracle differences. `docs/waxlabel/ORACLE.md` explains corpus setup,
 comparison, and benchmarks. No test media belongs in Git.

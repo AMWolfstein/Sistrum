@@ -43,11 +43,18 @@ internal object PictureReader {
         val description = Encoded(enc,descBytes).decode(0,descBytes.size)
         val payload = offset+pos
         val count = size-pos
-        val image = if (mime == "-->") ImageInfo("-->") else sniff(input,payload,count)
-        val hash = input.hash(payload,count)
-        val loader: (() -> ByteArray)? = if (input.options.pictures == Pictures.FULL)
-            { { Input(input.source,input.options).bytes(payload,count) } } else null
-        return Picture(type,image.mime,description,image.width,image.height,image.depth,image.colors,count,hash,loader)
+        return region(input,payload,count,type,mime,description)
+    }
+    fun region(input: Input, offset: Long, size: Int, type: Int, mime: String, description: String,
+               width: Int=0, height: Int=0, depth: Int=0, colors: Int=0): Picture {
+        val image = if(mime == "-->") ImageInfo(mime,width,height,depth,colors) else sniff(input,offset,size)
+        val recognized = image.mime != "application/octet-stream"
+        fun dimension(sniffed: Int, stored: Int) = if(!recognized) 0 else sniffed.takeIf { it != 0 } ?: stored
+        val hash = input.hash(offset,size)
+        val loader: (() -> ByteArray)? = if(input.options.pictures == Pictures.FULL)
+            { { Input(input.source.freshView(),input.options).bytes(offset,size) } } else null
+        return Picture(type,image.mime,description,dimension(image.width,width),dimension(image.height,height),
+            dimension(image.depth,depth),dimension(image.colors,colors),size,hash,loader)
     }
     private fun sniff(input: Input, offset: Long, size: Int): ImageInfo {
         val h = input.bytes(offset,minOf(32,size))
