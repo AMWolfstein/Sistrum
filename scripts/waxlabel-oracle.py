@@ -768,6 +768,105 @@ def generate_iff(source):
         id3=tag([frame("TIT2",b"\x03"+title.encode())]);put(f"fold-{name}",wav([chunk("LIST",info([("INAM",native)])),chunk("id3 ",id3)]))
     return owned
 
+def generate_asf(source):
+    """Owned ASF objects and mutagen/ffmpeg silence, external only."""
+    import uuid,mutagen
+    from mutagen.asf import ASF,ASFUnicodeAttribute,ASFByteArrayAttribute,ASFDWordAttribute
+    if mutagen.version_string!="1.47.0":raise SystemExit("ASF vectors require mutagen 1.47.0")
+    owned=CACHE/"owned";owned.mkdir(exist_ok=True)
+    guid=lambda s:uuid.UUID(s).bytes_le
+    ids={"header":"75b22630-668e-11cf-a6d9-00aa0062ce6c","file":"8cabdca1-a947-11cf-8ee4-00c00c205365","stream":"b7dc0791-a9b7-11cf-8ee6-00c00c205365","audio":"f8699e40-5b4d-11cf-a8fd-00805f5c442b","content":"75b22633-668e-11cf-a6d9-00aa0062ce6c","ext":"d2d0a440-e307-11d2-97f0-00a0c95ea850","extension":"5fbf03b5-a92e-11cf-8ee3-00c00c205365","metadata":"c5f8cbea-5baf-4877-8467-aa8c44fa4cca","library":"44231c94-9498-49d1-a141-1d134e457054","marker":"f487cd01-a951-11cf-8ee6-00c00c205365","data":"75b22636-668e-11cf-a6d9-00aa0062ce6c","codec":"86d15240-311d-11d0-a3a4-00a0c90348f6","bitrate":"7bf875ce-468d-11d1-8d82-006097c9a2b2","encryption":"2211b3fb-bd23-11d2-b4b7-00a0c955fc6e","extencryption":"298ae614-2622-4c17-b935-dae07ee9289c"}
+    g={k:guid(v) for k,v in ids.items()}
+    def obj(k,body,size=None):return g.get(k,guid('11111111-2222-3333-4444-555555555555'))+struct.pack('<Q',len(body)+24 if size is None else size)+body
+    def u(s):return (s+'\0').encode('utf-16le')
+    def file(play=12000000,preroll=200,bitrate=128000):
+        b=bytearray(80);struct.pack_into('<Q',b,40,play);struct.pack_into('<Q',b,56,preroll);struct.pack_into('<I',b,76,bitrate);return obj('file',b)
+    def stream(tag=0x161,rate=48000,ch=2,bits=16,byteRate=16000,extra=b'',audio=True):
+        w=struct.pack('<HHIIHH',tag,ch,rate,byteRate,4,bits)+extra
+        b=(g['audio'] if audio else bytes(16))+bytes(24)+struct.pack('<IIHI',len(w),0,1,0)+w
+        return obj('stream',b)
+    def content(vals):
+        vals=[u(v) for v in vals];return obj('content',struct.pack('<5H',*[len(v) for v in vals])+b''.join(vals))
+    def descriptor(name,value,kind=0,meta=False):
+        name=u(name);value=u(value) if isinstance(value,str) else value
+        return (struct.pack('<HHHHI',0,0,len(name),kind,len(value))+name+value if meta else struct.pack('<H',len(name))+name+struct.pack('<HH',kind,len(value))+value)
+    def records(items,kind='ext'):
+        return obj(kind,struct.pack('<H',len(items))+b''.join(descriptor(*it,meta=kind!='ext') for it in items))
+    def extension(children,declared=None):
+        body=b''.join(children);return obj('extension',bytes(18)+struct.pack('<I',len(body) if declared is None else declared)+body)
+    def picture(image=None,mime='image/png',desc='Owned',kind=3,declared=None):
+        image=png() if image is None else image
+        return bytes((kind,))+struct.pack('<I',len(image) if declared is None else declared)+u(mime)+u(desc)+image
+    def marker(items,count=None,name='',tail=b''):
+        name=u(name);body=bytes(16)+struct.pack('<IHH',len(items) if count is None else count,0,len(name))+name
+        for at,desc in items:
+            raw=u(desc);body+=struct.pack('<QQI I H I',0,at,30+len(raw),0,0,len(raw)//2)+raw
+        return obj('marker',body+tail)
+    def asf(extra=[],props=None,audio=None,count=None,headerSize=None,data=True,dataSize=None,packets=bytes(128),tail=b''):
+        children=[file() if props is None else props,stream() if audio is None else audio,*extra];children=[x for x in children if x]
+        body=struct.pack('<I',len(children) if count is None else count)+b'\x01\x02'+b''.join(children)
+        h=obj('header',body,headerSize)
+        return h+(obj('data',bytes(26)+packets,dataSize) if data else b'')+tail
+    def put(name,body,suffix='wma'):(owned/f'asf-{name}.{suffix}').write_bytes(body)
+    common=[('WM/AlbumTitle','Album',0),('Author','One',0),('Author','Two',0),('WM/TrackNumber','03/12',0),('WM/PartOfSet','1/2',0),('WM/Picture',picture(),1)]
+    put('base',asf());put('structured',asf([content(['Title','Artist','Copyright','Comment','Rating']),records(common)]))
+    put('dedup',asf([content(['Same','Artist','','','']),records([('Title','Same',0),('Title','Same',0),('Author','Artist',0),('WM/AlbumTitle','Album',0)])]))
+    put('conflicts',asf([content(['One','','','','']),records([('Title','Two',0),('WM/Year','2026',0),('WM/OriginalReleaseYear','1999',0),('WM/OriginalReleaseTime','2000',0)])]))
+    aliases=list(__import__('re').findall(r'"([^"]+)":\s*tag\.',(source/'internal/mapping/asf.go').read_text()))
+    put('aliases',asf([records([(k,'value',0) for k in aliases])]))
+    suppressed=list(__import__('re').findall(r'"([^"]+)":\s*""',(source/'internal/mapping/asf.go').read_text()))
+    put('suppressed',asf([records([(k,'not a tag',0) for k in suppressed])]))
+    put('fallback',asf([records([(k,'value',0) for k in ['CUSTOM','WM/CUSTOM','Vendor/Album Artist','WM/Bad=Key','WM/~','WM/صورة','WM/',' A/B/C ','WM/PUBLISHER']])]))
+    for name,kind,value in [('unicode',0,u('Text')),('bool16',2,struct.pack('<H',3)),('bool32',2,struct.pack('<I',0)),('boolbad',2,b'x'),('dword',3,struct.pack('<I',0xffffffff)),('qword',4,struct.pack('<Q',0xffffffffffffffff)),('word',5,struct.pack('<H',65535)),('bytes',1,b'blob'),('unknown',99,b'unknown'),('shortnum',4,b'short'),('unpaired',0,b'\0\xd8\0\0'),('oddunicode',0,b'A\0B'),('interiornul',0,u('A\0B')),('empty',0,b'')]:
+        put(f'value-{name}',asf([records([('WM/CUSTOM',value,kind)])]))
+    for kind in ['metadata','library']:
+        put(kind,asf([extension([records(common,kind)])]))
+        put(f'{kind}-top',asf([records(common,kind)]))
+    put('nested-conflicts',asf([records([('Title','One',0)]),extension([records([('Title','Two',0)],'metadata'),records([('WM/AlbumTitle','Album',0)],'library')])]))
+    for n in [0,1,10,0xffffffff]:put(f'extension-size-{n}',asf([extension([records(common,'library')],n)]))
+    for name,pic in [('short',b'x'),('no-mime',b'\x03'+bytes(4)+b'A\0'),('no-desc',b'\x03'+bytes(4)+u('image/png')+b'A\0'),('empty',picture(b'')),('unknown',picture(b'junk','image/custom')),('wrong-mime',picture(mime='image/jpeg')),('empty-mime',picture(mime='')),('declared-short',picture(declared=10)),('declared-long',picture(declared=0xffffffff)),('type255',picture(kind=255)),('linked',picture(b'https://example.invalid/art','-->'))]:
+        put(f'picture-{name}',asf([records([('WM/Picture',pic,1)])]))
+    put('pictures-multiple',asf([records([('WM/Picture',picture(),0),(' wm/picture ',picture(kind=4),1)])]))
+    put('large-picture',asf([extension([records([('WM/Picture',picture(png()+bytes(1100000)),1)],'library')])]))
+    put('large-binary',asf([extension([records([('WM/UnknownBlob',bytes(1100000),1)],'library')])]))
+    put('opaque',asf([obj(k,bytes(110000)) for k in ['codec','bitrate','encryption','extencryption','unknown']]))
+    put('markers',asf([marker([(7000000,'Second'),(1000000,'Preroll'),(2000000,'Zero'),(5000000,'First'),(5000000,'Equal')])]))
+    put('marker-subms',asf([marker([(2004999,'Later'),(2001000,'Earlier')])]))
+    put('marker-short',asf([marker([(2000000,'One')],count=3)]))
+    put('marker-overflow',asf([marker([(0xffffffffffffffff,'Impossible'),(2000000,'Okay')])]))
+    put('marker-cut-description',asf([marker([(3000000,'Cut')])[:-3]]))
+    for tag in [0,1,2,3,6,7,10,17,80,85,255,0x160,0x161,0x162,0x163,65534,0x1234]:put(f'codec-{tag}',asf(audio=stream(tag)))
+    for depth,cb in [(16,18),(24,18),(32,18),(24,17),(24,50)]:put(f'lossless-{depth}-{cb}',asf(audio=stream(0x163,bits=16,extra=struct.pack('<HH',cb,depth)+bytes(16))))
+    for name,props in [('zero',file(0)),('below-preroll',file(1)),('overflow-play',file(0xffffffffffffffff)),('overflow-preroll',file(preroll=0xffffffffffffffff)),('no-preroll',file(preroll=0)),('huge',file(play=92233720368547758,preroll=0))]:put(f'duration-{name}',asf(props=props))
+    put('bitrate-fallback',asf(audio=stream(byteRate=0)));put('bitrate-clamp',asf(audio=stream(byteRate=0xffffffff)))
+    put('no-stream',asf(audio=b''));put('video',asf(audio=stream(audio=False)));put('duplicate-stream',asf([stream(0x163,rate=96000)]))
+    put('no-fileprops',asf(props=b''));put('fileprops-short',asf(props=obj('file',bytes(20))))
+    put('stream-short',asf(audio=obj('stream',bytes(20))))
+    put('header-only',asf(data=False));put('data-short-size',asf(dataSize=40));put('data-overrun',asf(dataSize=10000));put('data-trailing-index',asf(tail=obj('unknown',bytes(100))))
+    for n in [0,1,29,30,31,0xffffffff,0xffffffffffffffff]:put(f'header-size-{n}',asf([records(common)],headerSize=n))
+    for n in [0,1,2,3,0xffffffff]:put(f'header-count-{n}',asf([records(common)],count=n))
+    for n in [0,1,23,24,10000,0xffffffffffffffff]:put(f'object-size-{n}',asf([obj('ext',bytes(20),n)]))
+    for body in [b'x',b'\x03\0',b'\x01\0\xff\xff',b'\x01\0\x02\0T\0\0\0\xff\xff']:
+        put(f'bad-descriptor-{body.hex()}',asf([obj('ext',body)]))
+    put('noise',asf([records([('WM/ToolName','Lavf owned',0),('WM/EncodedBy','Lavc owned',0)])]))
+    seed=asf([records(common)])
+    for cut in [1,3,4,10,15,16,23,24,29,30,31,54,100,200,len(seed)-1]:put(f'cut-{cut}',seed[:cut])
+    for codec in ['wmav1','wmav2']:
+        target=owned/f'asf-ffmpeg-{codec}.wma'
+        run(['ffmpeg','-nostdin','-v','error','-f','lavfi','-i','anullsrc=r=48000:cl=stereo','-t','0.2','-c:a',codec,'-metadata','title=Owned — صورة','-y',target])
+        tagged=owned/f'asf-mutagen-{codec}.wma';shutil.copyfile(target,tagged);tags=ASF(tagged)
+        tags['WM/AlbumTitle']=[ASFUnicodeAttribute('Album')];tags['Author']=[ASFUnicodeAttribute('One'),ASFUnicodeAttribute('Two')];tags['WM/TrackNumber']=[ASFDWordAttribute(3)];tags['WM/Picture']=[ASFByteArrayAttribute(picture())];tags.save()
+    put('rate-over-int',asf(audio=stream(rate=0xffffffff)))
+    hidden=bytes(16)+obj('data',bytes(26)+bytes(64))+bytes(70)
+    real_header=30+len(file())+len(stream())
+    put('data-audio-alias',asf(headerSize=real_header+50+16,packets=hidden))
+    put('header-in-packets',asf(headerSize=real_header+50+16))
+    put('unicode-keys',asf([records([(k,'value',0) for k in ['WM/ ALBUM ARTIST','WM/ß','WM/İSRC','\u0085Title\u0085']])]))
+    for name,left,right in [('dotted','İ','i'),('sigma','ΟΣ','Οσ')]:
+        put(f'fold-{name}',asf([content([left,'','','','']),records([('Title',right,0),('WM/OriginalReleaseYear',left,0),('WM/OriginalReleaseTime',right,0)])]))
+    put('picture-lookalike',asf([records([('WM/Pıcture',picture(),1),('WM/Pİcture',picture(),1)])]))
+    return owned
+
 def oracle(source,binary,owned,step=1):
     helper = CACHE/"helper"
     helper.mkdir(exist_ok=True)
@@ -786,6 +885,9 @@ def oracle(source,binary,owned,step=1):
     if step == 5:
         files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".wav",".aiff",".aifc",".aif"))
         files += sorted(p for p in owned.iterdir() if p.name.startswith("iff-") and p.suffix.lower() in (".wav",".aiff",".aifc",".aif"))
+    if step == 6:
+        files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".wma",".asf"))
+        files += sorted(p for p in owned.iterdir() if p.name.startswith("asf-") and p.suffix.lower() in (".wma",".asf"))
     rows = []
     for path in files:
         ref = subprocess.run([str(binary),"dump","--native","--json",str(path)],capture_output=True,text=True)
@@ -838,12 +940,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch-generate",action="store_true")
     parser.add_argument("--verify",action="store_true")
-    parser.add_argument("--step",type=int,choices=(1,2,3,4,5),default=1)
+    parser.add_argument("--step",type=int,choices=(1,2,3,4,5,6),default=1)
     args = parser.parse_args()
     safe_cache()
     if args.fetch_generate:
         source,binary = fetch()
-        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff}[args.step](source),args.step)
+        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff,6:generate_asf}[args.step](source),args.step)
         verify()
     elif args.verify:
         verify()

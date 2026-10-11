@@ -237,6 +237,36 @@ present entries. Picture tests cover large covers, NONE payload skips and repeat
 lazy FULL loads; malformed contracts cover source errors, limits, byte truncations
 and seeded mutations without writing unmanifested media.
 
+## PATCH-8 — bounded ASF Data probes and unsigned sample rates
+
+ASF parsing walks structural object headers and relevant tag/property regions.
+Opaque objects, binary descriptors and Data packet bodies are skipped. The port
+omits upstream whole-header allocation and audio fingerprints. If a corrupt Header
+size points inside a structurally located Data packet range, that locator is not
+read. `owned/asf-data-audio-alias.wma` deliberately places a fake Data object there:
+Kotlin reports native Data size 0 instead of 64 and adds the standard no-audio
+warning. Every other field matches the untouched pinned JSON.
+
+The public sample-rate field is Int. `owned/asf-rate-over-int.wma` clamps the
+upstream unsigned 4294967295 Hz to 2147483647; total samples still use the raw rate
+and match the pinned public API. These are the only two step-6 JSON deltas.
+`AsfOracleParityTest.expected` asserts the upstream premises and exact permitted
+changes. `noDataPacketsAreReadIncludingCorruptHeaderAliases` rejects packet reads.
+
+PATCH-1 applies to WM/Picture: NONE skips the whole value, its derived native block
+and picture warnings; default hashing streams, FULL is lazy with fresh arrays.
+PATCH-3 bounds objects, descriptors, label sizes, read bytes and marker counts.
+Header-window clipping and lenient marker truncation preserve upstream behavior.
+I/O faults, including optional Data-locator faults swallowed upstream, return typed
+IO as the existing source-failure policy requires; `sourceFailuresBecomeTypedIo`
+tests this difference. All normal on-disk error classes match the CLI.
+
+Native source families use Go whitespace and simple Unicode case semantics. Marker
+ordering precedes millisecond rounding; final preroll applies to all markers.
+No ASF synced-lyrics convention is invented. Contracts cover opaque/binary skips,
+one-byte reads, picture modes, limits, lossless depth, byte truncations and seeded
+mutations. The upstream ASF path is read-only too.
+
 ## Implementation boundary
 
 Step 1 includes canonical vocabulary/aliases, ID3v1 legacy provenance,
@@ -250,5 +280,5 @@ non-authoritative. Ogg gain, pre-skip, chained streams, continued packets, share
 header/audio pages, comment padding and trailing bytes follow the pinned read
 projection. Step 3 adds MP4/M4A ilst/freeform/covr, native summaries, audio properties and
 Nero/QuickTime chapter tracks, plus classic udta and indexed mdta tags. Step 4 adds APEv1/v2 items, aliases, covers, legacy MP3 provenance, Monkey's Audio
-and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Remaining
-readers (steps 6–8) are not ported yet. No application feature was removed.
+and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Step 6 adds ASF/WMA tags, pictures, markers and properties. Remaining
+readers (steps 7–8) are not ported yet. No application feature was removed.
