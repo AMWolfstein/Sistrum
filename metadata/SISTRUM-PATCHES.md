@@ -206,14 +206,44 @@ APEv2 is authoritative for native APE, WavPack and Musepack; it remains legacy
 provenance on MP3. No unsupported APE lyrics or chapter convention is invented;
 Musepack's native CT chapters are read.
 
+## Step-5 bounded RIFF/IFF parsing
+
+RF64/BW64 uses only the ds64 fixed fields and declared table entries, rather than
+allocating its entire body. WAV fmt/fact reads are 16/4 bytes; AIFF COMM reads are
+18 or 22 bytes and SSND reads only its offset field. Ancillary bext/iXML/cue/adtl,
+AIFF marker/comment/instrument chunks, and sound payloads remain unread ranges.
+The pinned reader projects no bext/iXML/cue tags or native cue chapters, so the
+port preserves their native summaries without inventing a canonical convention.
+Duplicate INFO/ID3 chunks stay native but only the first INFO and first valid ID3
+are projected; payload reads used solely for upstream rewrite grading are omitted.
+`readsOnlyStructuralFieldsAndTagRegions` rejects every other body read on owned
+WAV/RF64/BW64 and AIFF/AIFF-C, including compressed packets and large opaque chunks.
+
+There are no step-5 oracle projection differences. Container-size recovery, trusted
+ds64 boundaries, repeated ds64 table identifiers, streaming sentinel sizes,
+clamped/oversized chunks, in-container and outer trailing regions, INFO missing-pad
+resynchronization and unparsed-byte warnings follow the pinned read path. INFO and
+AIFF native text use UTF-8 with Latin-1 fallback and preserve present-empty items.
+Repeated ds64 sizes and native family selection are indexed to avoid quadratic
+work; Unicode simple folding retains separate Turkish-I classes and Go whitespace.
+Compressed WAV duration accepts fact/ds64 samples only with upstream's bitrate and
+nominal-duration sanity checks. AIFF-C derives known packet widths/counts and caps
+COMM overstatements to SSND; unknown layouts preserve the declared sample count.
+
+PATCH-1 applies to embedded pictures in all these containers. PATCH-3 applies to
+chunks, INFO items, ds64 entries, allocations and read bytes. The known ds64 table
+cap stays 65536 entries; the caller's smaller element cap additionally limits its
+present entries. Picture tests cover large covers, NONE payload skips and repeated
+lazy FULL loads; malformed contracts cover source errors, limits, byte truncations
+and seeded mutations without writing unmanifested media.
+
 ## Implementation boundary
 
 Step 1 includes canonical vocabulary/aliases, ID3v1 legacy provenance,
 ID3v2.2/2.3/2.4 text/flags/unsynchronization/extended headers/footer, APIC/PIC,
 CHAP/CTOC, SYLT, MP3 properties, and embedded ID3 in ordinary WAV/AIFF/AIFF-C.
-Minimal INFO/AIFF text fallback and PCM framing preserve the pinned embedded-ID3
-projection; full IFF recovery, RF64/BW64, bext, and compressed property details
-remain step 5. APEv2 on MP3 is included in step 4. Step 2 adds native FLAC, Ogg Vorbis/Opus/FLAC,
+Step 5 completes INFO/AIFF text, IFF recovery, RF64/BW64 sizes, opaque bext/native
+summaries, compressed WAV fact duration and AIFF-C packet geometry. APEv2 on MP3 is included in step 4. Step 2 adds native FLAC, Ogg Vorbis/Opus/FLAC,
 Vorbis-comment aliases/number pairs/provenance, native and base64 PICTURE, LRC
 synced lyrics and CHAPTER comments. Leading ID3 before FLAC is detected and kept
 non-authoritative. Ogg gain, pre-skip, chained streams, continued packets, shared
@@ -221,4 +251,4 @@ header/audio pages, comment padding and trailing bytes follow the pinned read
 projection. Step 3 adds MP4/M4A ilst/freeform/covr, native summaries, audio properties and
 Nero/QuickTime chapter tracks, plus classic udta and indexed mdta tags. Step 4 adds APEv1/v2 items, aliases, covers, legacy MP3 provenance, Monkey's Audio
 and WavPack properties, Musepack SV7/SV8 properties and native CT chapters. Remaining
-readers (steps 5–8) are not ported yet. No application feature was removed.
+readers (steps 6–8) are not ported yet. No application feature was removed.

@@ -671,6 +671,103 @@ def generate_ape(source):
     return owned
 
 
+def generate_iff(source):
+    """Owned RIFF/RF64/BW64 and AIFF/C structural vectors; external only."""
+    import math
+    owned=CACHE/"owned";owned.mkdir(exist_ok=True)
+    def chunk(key,body,be=False,size=None,pad=True):
+        return key.encode()+struct.pack(">I" if be else "<I",len(body) if size is None else size)+body+(bytes(len(body)%2) if pad else b"")
+    def container(chunks,form="WAVE",declared=None,tail=b""):
+        be=form!="WAVE";body=form.encode()+b"".join(chunks)
+        return (b"FORM" if be else b"RIFF")+struct.pack(">I" if be else "<I",len(body) if declared is None else declared)+body+tail
+    def fmt(tag=1,rate=48000,ch=2,bits=16,byteRate=None,align=None):
+        align=ch*((bits+7)//8) if align is None else align
+        return struct.pack("<HHIIHH",tag,ch,rate,rate*align if byteRate is None else byteRate,align,bits)
+    def rate80(rate):
+        if rate==0:return bytes(10)
+        exp=int(math.floor(math.log2(abs(rate))));mant=int(abs(rate)*2**(63-exp))
+        return struct.pack(">HQ",exp+16383+(0x8000 if rate<0 else 0),mant)
+    def comm(comp=None,count=16,rate=48000,bits=16,ch=2):
+        return struct.pack(">HIH",ch,count,bits)+rate80(rate)+(comp if comp else b"")
+    def info(items,pads=True):
+        return b"INFO"+b"".join(chunk(k,v if isinstance(v,bytes) else v.encode()+b"\0",pad=pads) for k,v in items)
+    def wav(extra=[],f=None,data=bytes(64),declared=None,tail=b""):
+        return container([chunk("fmt ",fmt() if f is None else f),*extra,chunk("data",data)],declared=declared,tail=tail)
+    def aiff(extra=[],comp=None,c=None,data=bytes(64),offset=0,declared=None,tail=b""):
+        return container([chunk("COMM",comm(comp) if c is None else c,True),*extra,chunk("SSND",struct.pack(">II",offset,0)+data,True)],form="AIFC" if comp else "AIFF",declared=declared,tail=tail)
+    def put(name,body,suffix="wav"):(owned/f"iff-{name}.{suffix}").write_bytes(body)
+    keys=["INAM","IART","IPRD","ICRD","IGNR","ICMT","ICOP","IPRT","ITRK","ISFT","ITCH","IENG","ILNG","ISBJ"]
+    common=info([(k,"4/9" if k=="IPRT" else "Owned — صورة") for k in keys])
+    embedded=tag([frame("TIT2",b"\x03ID3 authoritative"),frame("APIC",b"\0image/png\0\x03owned\0"+png()),frame("SYLT",b"\0eng\x02\x01\0line\0"+struct.pack(">I",10)),frame("CHAP",b"one\0"+struct.pack(">IIII",0,1000,0xffffffff,0xffffffff)+frame("TIT2",b"\x03Chapter"))])
+    for suffix in ["wav","aiff"]:
+        be=suffix=="aiff";base=aiff if be else wav
+        texts=[chunk("NAME",b"Native",True),chunk("AUTH",b"Artist",True),chunk("(c) ",b"Copyright",True),chunk("ANNO",b"Comment",True)] if be else [chunk("LIST",common)]
+        put("base",base(),suffix);put("native",base(texts),suffix);put("id3",base(texts+[chunk("ID3 " if be else "id3 ",embedded,be)]),suffix)
+        put("duplicate-id3",base([chunk("ID3 ",embedded,be),chunk("id3 ",tag([frame("TIT2",b"\x03Second")]),be)]),suffix)
+        put("corrupt-then-id3",base([chunk("ID3 ",b"bad",be),chunk("id3 ",embedded,be)]),suffix)
+        put("no-valid-id3",base([chunk("ID3 ",b"bad",be)]),suffix)
+        put("opaque",base([chunk(k,bytes(100),be) for k in (["bext","iXML","cue ","LIST","JUNK"] if not be else ["FVER","MARK","COMT","INST","JUNK"])]),suffix)
+        for n in [0,1,4,8,20,0xffffffff]:put(f"declared-{n}",base(texts,declared=n),suffix)
+        for tail in [b"junk",b"TAG"+bytes(125),bytes(7)]:
+            put(f"outer-{len(tail)}",base(tail=tail),suffix)
+            b=base()+tail;b=b[:4]+struct.pack(">I" if be else "<I",len(b)-8)+b[8:];put(f"inner-{len(tail)}",b,suffix)
+        for size in [1,10,0xffffffff]:
+            body=(chunk("COMM",comm(),True) if be else chunk("fmt ",fmt()))+chunk("SSND" if be else "data",bytes(8)+bytes(16) if be else bytes(16),be,size=size)
+            put(f"audio-size-{size}",container([body],form="AIFF" if be else "WAVE"),suffix)
+        for key in ["JUNK","NAME" if be else "LIST"]:
+            put(f"oversized-{key}",container([chunk(key,b"INFOjunk" if key=="LIST" else b"value",be,size=5000)],form="AIFF" if be else "WAVE"),suffix)
+        seed=base(texts+[chunk("ID3 ",embedded,be)])
+        for cut in [1,3,4,8,11,12,15,19,25,31,39,50,80,len(seed)-1]:put(f"cut-{cut}",seed[:cut],suffix)
+    for name,items in [("empty",[("INAM",b"\0"),("IART",b"")]),("duplicate",[("INAM","One"),("INAM","Two"),("IPRT","03/12"),("ITRK","9/99")]),("latin1",[("INAM",b"caf\xe9\0")]),("nul-tail",[("INAM",b"Title\0lost")]),("zeros",[("INAM",b"Title\0\0\0")]),("noise",[("ISFT","Lavf owned")]),("total-only",[("IPRT","/12")])]:put(f"info-{name}",wav([chunk("LIST",info(items))]))
+    put("info-duplicates",wav([chunk("LIST",info([("INAM","One")])),chunk("LIST",info([("INAM","Two")]))]))
+    put("info-missing-pad",wav([chunk("LIST",info([("INAM",b"abc"),("IART",b"def")],False))]))
+    for tail in [b"bad",bytes(9),b"INAM\xff\xff\xff\xffbad",b"\x01xxx"+bytes(4)]:put(f"info-tail-{tail.hex()}",wav([chunk("LIST",info([("INAM","Title")])+tail)]))
+    for n in [0,1,2,3,6,7,10,17,80,85,255,0x160,0x161,0x162,0x163,65534,0x1234]:
+        for fact in [None,160,0,0xffffffff]:
+            extras=[] if fact is None else [chunk("fact",struct.pack("<I",fact)+bytes(100))]
+            put(f"fmt-{n}-fact-{fact}",wav(extras,fmt(n,byteRate=1600),data=bytes(320)))
+    put("fmt-invalid-first",container([chunk("fmt ",b"short"),chunk("fmt ",fmt()),chunk("data",bytes(64))]))
+    put("fmt-missing",container([chunk("data",bytes(64))]))
+    put("fmt-zero-rate",wav(f=fmt(rate=0)))
+    put("fmt-high-rate",wav(f=fmt(rate=0xffffffff,byteRate=0xffffffff)))
+    for comp in [b"NONE",b"sowt",b"twos",b"in24",b"in32",b"fl32",b"FL64",b"ulaw",b"alaw",b"ima4",b"MAC3",b"mac6",b"zzzz",b"alac",b"fLaC",b"mp4a",b"ac-3",b"ec-3",b".mp3",b"ms\0\x06",b"ms\0\x02",b"\x01\x02\x03\x04",bytes(4)]:
+        put(f"aifc-{comp.hex()}",aiff(comp=comp,data=bytes(512)),"aifc")
+    for name,c,data,offset in [("overstates",comm(count=100),bytes(64),0),("offset",comm(),bytes(64),8),("offset-past",comm(),bytes(64),100),("no-channel",comm(ch=0),bytes(64),0),("no-bits",comm(bits=0),bytes(64),0),("negative-rate",comm(rate=-48000),bytes(64),0),("zero-rate",comm(rate=0),bytes(64),0),("odd-depth",comm(bits=17),bytes(64),0)]:put(f"aiff-{name}",aiff(c=c,data=data,offset=offset),"aiff")
+    put("aiff-latin1",aiff([chunk("NAME",b"caf\xe9\0",True),chunk("NAME",b"",True)]),"aiff")
+    def rf64(extra=[],form=b"RF64",data=bytes(64),table=[],sample=16,riff=None,dataSize=None):
+        entries=b"".join(k.encode()+struct.pack("<Q",n) for k,n in table)
+        ds=struct.pack("<QQQI",0,len(data) if dataSize is None else dataSize,sample,len(table))+entries
+        body=chunk("ds64",ds)+chunk("fmt ",fmt())+b"".join(extra)+chunk("data",data,size=0xffffffff)
+        ds=struct.pack("<QQQI",len(body)+4 if riff is None else riff,len(data) if dataSize is None else dataSize,sample,len(table))+entries
+        body=chunk("ds64",ds)+body[len(chunk("ds64",ds)):]
+        return form+struct.pack("<I",0xffffffff)+b"WAVE"+body
+    for form in [b"RF64",b"BW64"]:
+        put(form.decode().lower(),rf64([chunk("LIST",common),chunk("id3 ",embedded)],form))
+    put("rf64-table",rf64([chunk("JUNK",bytes(6),size=0xffffffff),chunk("JUNK",bytes(10),size=0xffffffff)],table=[("JUNK",6),("JUNK",10)]))
+    put("rf64-data-overrun",rf64(dataSize=10000));put("rf64-no-ds64",b"RF64"+struct.pack("<I",0xffffffff)+b"WAVE"+chunk("fmt ",fmt()))
+    put("rf64-short-ds64",b"RF64"+struct.pack("<I",0xffffffff)+b"WAVE"+chunk("ds64",bytes(8)))
+    put("rf64-high-riff",rf64(riff=0xffffffffffffffff));put("rf64-high-data",rf64(dataSize=0xffffffffffffffff))
+    put("rf64-trusted-end",rf64(riff=40))
+    for codec,suffix in [("pcm_s16le","wav"),("pcm_f32le","wav"),("adpcm_ima_wav","wav"),("pcm_s16be","aiff"),("pcm_alaw","aifc"),("adpcm_ima_qt","aifc")]:
+        target=owned/f"iff-ffmpeg-{codec}.{suffix}"
+        run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i","anullsrc=r=48000:cl=stereo","-t","0.2","-c:a",codec,"-metadata","title=Owned","-f","wav" if suffix=="wav" else "aiff","-y",target])
+    large=tag([frame("TIT2",b"\x03Large cover"),frame("APIC",b"\0image/png\0\x03owned\0"+png()+bytes(1100000))])
+    put("large-art",wav([chunk("id3 ",large)]))
+    put("large-art",aiff([chunk("ID3 ",large,True)]),"aiff")
+    put("large-opaque",wav([chunk("bext",bytes(1100000)),chunk("LIST",b"adtl"+bytes(1100000))]))
+    put("track-number-only",wav([chunk("LIST",info([("IPRT","03/")]))]))
+    for name,ratebytes in [("nan",bytes.fromhex("7fff8000000000000000")),("zero-mantissa",bytes.fromhex("7fff0000000000000000")),("huge",bytes.fromhex("41008000000000000000"))]:
+        c=comm();put(f"rate-{name}",aiff(c=c[:8]+ratebytes),"aiff")
+    for name,sample in [("normal",160),("zero",0),("huge",0xffffffffffffffff)]:
+        b=bytearray(rf64([chunk("fact",struct.pack("<I",0xffffffff))],data=bytes(320),sample=sample))
+        b[56:72]=fmt(17,byteRate=1600);put(f"rf64-fact-{name}",b)
+    put("fact-accepted",wav([chunk("fact",struct.pack("<I",160))],fmt(17,byteRate=96000),data=bytes(320)))
+    b=bytearray(rf64([chunk("fact",struct.pack("<I",0xffffffff))],data=bytes(320),sample=160));b[56:72]=fmt(17,byteRate=96000)
+    put("rf64-fact-accepted",b)
+    for name,native,title in [("turkish-i","ı","I"),("dotted-i","İ","i"),("sigma","ς","Σ"),("kelvin","K","k"),("nel","\u0085Title\u0085","Title")]:
+        id3=tag([frame("TIT2",b"\x03"+title.encode())]);put(f"fold-{name}",wav([chunk("LIST",info([("INAM",native)])),chunk("id3 ",id3)]))
+    return owned
+
 def oracle(source,binary,owned,step=1):
     helper = CACHE/"helper"
     helper.mkdir(exist_ok=True)
@@ -686,6 +783,9 @@ def oracle(source,binary,owned,step=1):
     if step == 4:
         files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".ape",".wv",".mpc",".mpp",".mp+"))
         files += sorted(p for p in owned.iterdir() if p.name.startswith("ape-") and p.suffix.lower() in (".ape",".wv",".mpc",".mpp",".mp+",".mp3"))
+    if step == 5:
+        files = sorted(p for p in (source/"testdata").iterdir() if p.suffix.lower() in (".wav",".aiff",".aifc",".aif"))
+        files += sorted(p for p in owned.iterdir() if p.name.startswith("iff-") and p.suffix.lower() in (".wav",".aiff",".aifc",".aif"))
     rows = []
     for path in files:
         ref = subprocess.run([str(binary),"dump","--native","--json",str(path)],capture_output=True,text=True)
@@ -738,12 +838,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch-generate",action="store_true")
     parser.add_argument("--verify",action="store_true")
-    parser.add_argument("--step",type=int,choices=(1,2,3,4),default=1)
+    parser.add_argument("--step",type=int,choices=(1,2,3,4,5),default=1)
     args = parser.parse_args()
     safe_cache()
     if args.fetch_generate:
         source,binary = fetch()
-        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape}[args.step](source),args.step)
+        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4,4:generate_ape,5:generate_iff}[args.step](source),args.step)
         verify()
     elif args.verify:
         verify()

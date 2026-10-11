@@ -9,7 +9,8 @@ License: MIT, Copyright (c) 2026 Cole Springer; copied verbatim into
 
 `Metadata.read(RandomAccessSource, ReadOptions)` lives in the pure-JVM `:metadata`
 module. It is independent of Android and uses `:codecs` only for the existing source
-contract. Steps 1–3 cover ID3/MP3/embedded ID3, FLAC/Ogg Vorbis/Opus/FLAC and MP4/M4A/QuickTime. There is no writer,
+contract. Steps 1–5 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
+APE-family containers and WAV/RF64/BW64/AIFF/AIFF-C. There is no writer,
 player integration, or scanner integration.
 
 ## Reproduce
@@ -24,6 +25,8 @@ The harness rejects cache paths within this repository.
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 2
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 3
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 4
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 5
 python3 scripts/waxlabel-oracle.py --verify
 ./gradlew :codecs:test --rerun :metadata:test --rerun :androidApp:assembleDevDebug
 ./gradlew :metadata:benchmark -PwaxlabelStep=2
@@ -44,7 +47,7 @@ builds the pinned `./cmd/waxlabel` with `CGO_ENABLED=0 go build -trimpath`. It e
 3 (`UNSUPPORTED_FORMAT`) or 4 (`INVALID_DATA`), never an invented reference document.
 It strips only the absolute CLI filename from successful JSON.
 
-`oracle-step1.json`, `oracle-step2.json` and `oracle-step3.json` preserve the reference output. A tiny external Go helper,
+`oracle-step1.json` through `oracle-step5.json` preserve the reference output. A tiny external Go helper,
 compiled against the exact same source using a local module replacement, supplies
 only total samples and SHA-256 of each upstream picture's bytes: neither exists in
 CLI JSON. Kotlin comparison retains ordered tags/values, native blocks, properties,
@@ -64,7 +67,7 @@ copied into Git or modified to obtain different reference behavior.
 The manifest includes all upstream formats and tests for subsequent steps; the
 step-1 comparison includes all four MP3 fixtures, ordinary WAV fixtures, all AIFF/
 AIFF-C fixtures, and generated ID3 vectors. `sample-rf64.wav` is retained and hashed
-but reserved for step 5. Upstream APE-on-MP3 vectors will enter step 4.
+and compared in step 5. APE-on-MP3 vectors are compared in step 4.
 
 Owned cases include mutagen 2.3/2.4 with multi-value text, Arabic, MusicBrainz and
 custom keys, comments/lyrics, chapter titles and SYLT; hand-generated 2.2 PIC/unknown
@@ -120,7 +123,7 @@ in each hostile input. A chapter offset pointing at audio samples or file header
 must not make a bounded metadata read consume those bytes. METADATA_ONLY streams
 covers, NONE skips their payloads, FULL loads lazily with fresh budgets. Contracts
 check forbidden audio reads, chapter-title-only reads, short/error sources, explicit
-limits, bytewise truncations through 2048 bytes and 3000 seeded mutations.
+limits, a 2000-item family-selection flood, bytewise truncations through 2048 bytes and 3000 seeded mutations.
 
 The two known pinned upstream ffprobe differential failures for high-resolution
 `ipcm`/`fpcm` remain upstream behavior: WaxLabel reports 48000 rather than 96000 Hz
@@ -151,10 +154,35 @@ Successful records compare both picture modes, public total samples and SHA-256.
 Guarded sources, one-byte reads, I/O failures, resource limits, all byte truncations
 through 2048 bytes and 1000 seeded mutations verify bounded, nonthrowing reads.
 
+## Step 5 — WAV/RF64/BW64 and AIFF/AIFF-C
+
+```sh
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 5
+```
+
+The same pinned CLI builds and supplies unmodified `dump --native --json` output.
+`oracle-step5.json` contains 232 records: all seven upstream WAV/AIFF-family
+inputs (including sample-rf64.wav) and 225 owned vectors. Owned ffmpeg silence
+covers PCM, float, IMA WAV, PCM AIFF, A-law and IMA AIFF-C. Structural vectors cover
+all INFO mappings, empty/duplicate values, Latin-1, slash pairs, ID3 precedence,
+pictures/lyrics/chapters, duplicate/corrupt ID3, missing INFO pads, unread tails,
+container-size recovery/trusted boundaries, malformed/truncated/sentinel chunks,
+opaque bext/iXML/cue/adtl/native blocks, compressed fact sanity, RF64/BW64/repeated
+ds64 identifiers, extended sample rates and AIFF-C fixed/packet/unknown layouts.
+
+All 232 records match exactly: 205 successful projections and 22 typed errors;
+zero intentional or unexplained JSON differences. Pictures compare METADATA_ONLY
+and FULL plus public total samples and SHA-256. Guards reject audio and opaque
+bodies and test streamed/lazy/NONE image policies. Source faults, one-byte reads,
+limits, a 2000-item family-selection flood, bytewise truncations through 2048 bytes and 1500 seeded mutations verify
+nonthrowing bounded reads. All 1421 fetched/generated files have manifest hashes.
+The pinned reader treats bext/iXML and native cue/marker chapters as opaque; no
+additional canonical mapping is claimed.
+
 ## Benchmark
 
 `:metadata:benchmark` measures each file (step 1 by default, `-PwaxlabelStep=2`
-for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4) on a warm filesystem cache
+for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5) on a warm filesystem cache
 with an open `FileChannelSource`: 25 warmups, 101 trials, median nanoseconds and
 median per-thread allocated bytes from HotSpot's `ThreadMXBean`. File opening and
 corpus verification are outside the measured call; parsing, document construction,
@@ -164,7 +192,7 @@ none are reported as successful metadata parses.
 
 Generated output: `metadata/build/reports/metadata-benchmark.tsv`.
 Recorded snapshots: `docs/waxlabel/step1-benchmark.tsv` and
-`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv`.
+`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv`.
 These are per-file measurements, not a hard performance threshold; host/JIT/I/O
 noise means a new run can differ.
 
