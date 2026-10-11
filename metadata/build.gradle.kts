@@ -25,6 +25,7 @@ tasks.test {
     inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/oracle-step3.json"))
     inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/oracle-step4.json"))
     inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/oracle-step5.json"))
+    inputs.file(rootProject.layout.projectDirectory.file("docs/waxlabel/oracle-step6.json"))
     maxHeapSize = "512m"
 }
 tasks.register<JavaExec>("benchmark") {

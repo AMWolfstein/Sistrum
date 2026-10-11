@@ -9,8 +9,8 @@ License: MIT, Copyright (c) 2026 Cole Springer; copied verbatim into
 
 `Metadata.read(RandomAccessSource, ReadOptions)` lives in the pure-JVM `:metadata`
 module. It is independent of Android and uses `:codecs` only for the existing source
-contract. Steps 1–5 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
-APE-family containers and WAV/RF64/BW64/AIFF/AIFF-C. There is no writer,
+contract. Steps 1–6 cover ID3/MP3, FLAC/Ogg Vorbis/Opus/FLAC, MP4/M4A/QuickTime,
+APE-family containers, WAV/RF64/BW64/AIFF/AIFF-C and ASF/WMA. There is no writer,
 player integration, or scanner integration.
 
 ## Reproduce
@@ -27,6 +27,7 @@ The harness rejects cache paths within this repository.
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 3
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 4
 ~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 5
+~/.cache/sistrum-corpus-venv/bin/python scripts/waxlabel-oracle.py --fetch-generate --step 6
 python3 scripts/waxlabel-oracle.py --verify
 ./gradlew :codecs:test --rerun :metadata:test --rerun :androidApp:assembleDevQa
 ./gradlew :metadata:benchmark -PwaxlabelStep=2
@@ -47,7 +48,7 @@ builds the pinned `./cmd/waxlabel` with `CGO_ENABLED=0 go build -trimpath`. It e
 3 (`UNSUPPORTED_FORMAT`) or 4 (`INVALID_DATA`), never an invented reference document.
 It strips only the absolute CLI filename from successful JSON.
 
-`oracle-step1.json` through `oracle-step5.json` preserve the reference output. A tiny external Go helper,
+`oracle-step1.json` through `oracle-step6.json` preserve the reference output. A tiny external Go helper,
 compiled against the exact same source using a local module replacement, supplies
 only total samples and SHA-256 of each upstream picture's bytes: neither exists in
 CLI JSON. Kotlin comparison retains ordered tags/values, native blocks, properties,
@@ -179,10 +180,30 @@ nonthrowing bounded reads. All 1421 fetched/generated files have manifest hashes
 The pinned reader treats bext/iXML and native cue/marker chapters as opaque; no
 additional canonical mapping is claimed.
 
+## Step 6 — ASF/WMA
+
+`oracle-step6.json` contains 142 records: three pinned upstream testdata files and
+139 owned inputs; 130 successful projections and 12 typed errors. There are 140
+exact matches and two precisely tested PATCH-8 differences, zero unexplained
+mismatches. All 1560 external source/test/testdata and owned files have SHA-256.
+The pinned CLI is built and its output remains unchanged.
+
+Owned ffmpeg WMA v1/v2 silence and mutagen tags supplement structural vectors for
+all mappings, suppressed/unknown keys, multi-values, source conflicts, numeric and
+UTF-16 descriptors, Unicode folding, nested metadata, pictures and markers.
+Cases cover lossless depth, WAVE codec identifiers, preroll/duration/bitrate/rate
+limits, duplicate properties, opaque objects, corrupt Header/Data boundaries,
+truncated descriptors, marker ordering and large binary/image values. Both
+picture modes compare every public field, plus sample counts and image hashes.
+Guards prohibit Data packet and opaque-object reads. NONE skips WM/Picture values;
+default hashing streams and FULL loads lazily. Short reads, I/O faults, resource
+limits, byte truncations through 2048 bytes and 1250 seeded mutations never throw.
+See [STEP6.md](STEP6.md) for counts, benchmarks and exact deviations.
+
 ## Benchmark
 
 `:metadata:benchmark` measures each file (step 1 by default, `-PwaxlabelStep=2`
-for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5) on a warm filesystem cache
+for step 2, `-PwaxlabelStep=3` for step 3, `-PwaxlabelStep=4` for step 4, `-PwaxlabelStep=5` for step 5, `-PwaxlabelStep=6` for step 6) on a warm filesystem cache
 with an open `FileChannelSource`: 25 warmups, 101 trials, median nanoseconds and
 median per-thread allocated bytes from HotSpot's `ThreadMXBean`. File opening and
 corpus verification are outside the measured call; parsing, document construction,
@@ -192,7 +213,7 @@ none are reported as successful metadata parses.
 
 Generated output: `metadata/build/reports/metadata-benchmark.tsv`.
 Recorded snapshots: `docs/waxlabel/step1-benchmark.tsv` and
-`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv`.
+`docs/waxlabel/step2-benchmark.tsv` and `docs/waxlabel/step3-benchmark.tsv` and `docs/waxlabel/step4-benchmark.tsv` and `docs/waxlabel/step5-benchmark.tsv` and `docs/waxlabel/step6-benchmark.tsv`.
 These are per-file measurements, not a hard performance threshold; host/JIT/I/O
 noise means a new run can differ.
 

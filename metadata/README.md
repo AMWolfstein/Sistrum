@@ -6,8 +6,8 @@ Pure-JVM, read-only WaxLabel port. Supports MP3 ID3v1 legacy sources and
 ID3v2.2/2.3/2.4, WAV/RF64/BW64 INFO and ID3 chunks, AIFF/AIFF-C text and ID3 chunks, native FLAC and
 Ogg Vorbis/Opus/FLAC comments, pictures, synced lyrics and chapters, and MP4/M4A
 iTunes ilst/freeform/covr, QuickTime mdta/udta tags and Nero/QuickTime chapters. APEv1/v2 tags on Monkey's Audio, WavPack, Musepack and MP3, plus native Musepack
-chapters, are supported. APE tags are legacy-only on MP3. Other containers
-remain reserved for steps 6–8. WAV bext/iXML/cue and AIFF ancillary chunks are
+chapters, are supported. APE tags are legacy-only on MP3. ASF/WMA content descriptions, extended/nested metadata, pictures, markers and
+audio properties are supported. Other containers remain reserved for steps 7–8. WAV bext/iXML/cue and AIFF ancillary chunks are
 reported as opaque native summaries, matching the pinned reader. There is no Android/player/scanner code.
 
 ```kotlin

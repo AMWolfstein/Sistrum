@@ -35,7 +35,7 @@ internal fun jsonProjection(doc: Document): JsonElement {
     result["properties"] = props
     result["tags"] = doc.tags.map { (key,values) -> linkedMapOf<String,Any>("key" to key,"values" to values).apply {
         if(key in TagVocabulary.knownKeys && key !in TagVocabulary.multivaluedKeys && values.size > 1)
-            put("cardinality",if(values.map { it.trim().lowercase() }.distinct().size == 1) "duplicate" else "conflict")
+            put("cardinality",if(values.map { AsfText.fold(it) }.distinct().size == 1) "duplicate" else "conflict")
     } }
     result["pictures"] = doc.pictures.map { pic -> linkedMapOf<String,Any>("type" to pic.typeName,"mime" to pic.mime,"bytes" to pic.size).apply {
         if(pic.width != 0) put("width",pic.width); if(pic.height != 0) put("height",pic.height)
