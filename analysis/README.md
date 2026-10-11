@@ -28,3 +28,32 @@ cp scripts/analysis-oracle/mood-parity_test.go "$HOME/.cache/sistrum-analysis-or
 cd "$HOME/.cache/sistrum-analysis-oracle/src-airmedy"
 SISTRUM_MOOD_FIXTURES=/absolute/path/to/Sistrum/docs/analysis/mood-oracle.json go test -v ./internal/app/analysis/mood
 ```
+
+## Incremental PCM features
+
+Construct `PcmAnalyzer(channels, sampleRate)`, then call
+`feed(interleaved, channels, sampleRate)` with complete interleaved frames.
+The format remains fixed. The current supported bounds are 1–9 channels and
+8,000–2,822,400 Hz, including the pinned DSD decoder's PCM rates. Channel order
+is FFmpeg's default for the channel count. `finish()` seals the analyzer and
+returns an immutable `AnalysisResult` with upstream field names and units;
+repeated finish calls return the same result.
+
+`cancel()` makes the next feed return false with the entire block unconsumed.
+`clearCancellation()` or `resume(checkpoint)` enables continuation. `frames`
+is the consumed PCM cursor. Checkpoints contain all bounded DSP histories and
+are for trusted local state with the same checkpoint version. The caller
+records the source fingerprint and decoded cursor. Byte-array and stream
+checkpoint/resume APIs are available; the caller owns streams. Use the stream
+variant for high-rate multichannel state to avoid duplicate byte arrays.
+
+The loudness histories reserve 3.4 seconds of double energy values per channel
+at construction (about `27.2 * channels * sampleRate` bytes), plus filter and
+histogram state. At 6 channels / 1.4112 MHz this is about 220 MiB. Feed never
+grows these buffers and makes no allocations. Silence/non-finite results retain
+the pinned oracle's semantics, including -Infinity RMS and NaN crest in the
+floating-point torture vectors. Integration and storage policy belong to future
+work; this module has neither.
+
+Run `./gradlew :analysis:test :analysis:benchmark`. Results and endpoint fixes
+are documented in [VALIDATION.md](../docs/analysis/VALIDATION.md).
