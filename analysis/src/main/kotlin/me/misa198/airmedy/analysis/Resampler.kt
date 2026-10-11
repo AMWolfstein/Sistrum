@@ -8,6 +8,7 @@ import kotlin.math.*
 /** Streaming libswresample default Kaiser resampling. No EOF drain, as in Airmedy. */
 internal class Resampler(private val inputRate: Int, private val outputRate: Int,
                          private val channels: Int, private val floatPrecision: Boolean = false): Serializable {
+    private val bypass = inputRate == outputRate
     private val factor = min(outputRate * .97 / inputRate, 1.0)
     private val length = ((ceil(32 / factor).toInt() + 1) / 2) * 2
     private val center = (length - 1) / 2
@@ -44,6 +45,13 @@ internal class Resampler(private val inputRate: Int, private val outputRate: Int
     fun putMono(value: Float) { ring[(received.toInt() and ringMask)] = value.toDouble(); received++ }
     /** Returns one ready output frame in [output]. False when more input is needed. */
     fun next(): Boolean {
+        if (bypass) {
+            if (outputIndex >= received) return false
+            var ch = 0
+            while (ch < channels) { output[ch] = ring[(outputIndex.toInt() and ringMask)*channels+ch];ch++ }
+            outputIndex++
+            return true
+        }
         if (received < length + 1) return false
         val numerator = outputIndex * inputRate
         val base = numerator / outputRate

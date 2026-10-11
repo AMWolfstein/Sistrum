@@ -27,6 +27,7 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
     private val loudness = if (groups and LOUDNESS != 0) Loudness(channels,sampleRate) else null
     private val peakResampler = if (groups and LOUDNESS != 0) Resampler(sampleRate,192000,channels) else null
     private val spectral = if (groups and SPECTRAL != 0) Spectral(sampleRate) else null
+    private val rhythm = if (groups and RHYTHM != 0) Rhythm(channels,sampleRate) else null
     private val sums = DoubleArray(channels)
     private var firstPeak = 0.0
     private var samplePeak = 0.0
@@ -47,6 +48,7 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
         if (cancelled) return false
         var offset = 0
         while (offset < interleaved.size) {
+            rhythm?.frame(interleaved,offset)
             spectral?.put(interleaved[offset])
             loudness?.frame(interleaved,offset)
             peakResampler?.let { resampler ->
@@ -103,7 +105,8 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
             if (dynamics) roundMetadata(if(sums[0]!=0.0) firstPeak/sqrt(sums[0]/frames) else 1.0,1e6) else 0.0,
             spectral_centroid = sp[0], spectral_rolloff = sp[1],
             spectral_flatness = sp[2], spectral_flux = sp[3],
-            zcr = if(dynamics) roundMetadata(crossings.toDouble()/frames,1e6) else 0.0
+            zcr = if(dynamics) roundMetadata(crossings.toDouble()/frames,1e6) else 0.0,
+            tempo = rhythm?.tempo() ?: 0.0, onset_variance = rhythm?.variance() ?: 0.0
         )
         result = res
         return res
@@ -123,8 +126,9 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
         const val DYNAMICS = 1
         const val LOUDNESS = 2
         const val SPECTRAL = 4
-        const val ALL = DYNAMICS or LOUDNESS or SPECTRAL
-        private const val CHECKPOINT_VERSION = 2
+        const val RHYTHM = 8
+        const val ALL = DYNAMICS or LOUDNESS or SPECTRAL or RHYTHM
+        private const val CHECKPOINT_VERSION = 3
         fun resume(checkpoint: ByteArray): PcmAnalyzer = resume(ByteArrayInputStream(checkpoint))
         /** The caller owns the stream. */
         fun resume(input: InputStream): PcmAnalyzer {

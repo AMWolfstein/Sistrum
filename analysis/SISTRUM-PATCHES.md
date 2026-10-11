@@ -33,3 +33,21 @@
   of FFmpeg's architecture-specific AVTX codelets; all four descriptor errors
   remain within the requested 0.5%. Checkpoint format advances to version 2
   to include the spectral window, previous magnitudes and accumulators.
+
+- Aubio 0.4.9 tempo/onset retain periodic Hann 1024/512 analysis at 44.1 kHz,
+  native mono downmix coefficients, positive spectral flux for tempo, compressed
+  HFC for onset, the historical biquad coefficients, adaptive mean/median peak
+  picking, 512/128 beat tracking, Rayleigh/Gaussian weighting, last-maximum tie
+  behavior, unsigned onset time, silence/minimum-interval/warm-up rules, mean
+  per-beat BPM and sample-interval Welford variance. No octave corrections.
+- Mathematical FFT butterflies are expressed on the JVM rather than shipping
+  FFTW. All 368 tempo/onset results meet the requested tolerances. Zero-valued
+  rematrix coefficients are skipped, matching libswresample (including NaNs).
+- Native aubio can round a phase-comb index beyond its observation buffer, and
+  time-signature harmonics can exceed the same window. These reads use zero
+  outside the window in the JVM port. The oracle DSP source is unchanged; the
+  three encountered phase-boundary cases all pass the native comparison.
+- Equal-rate resampling bypasses the FIR, as libswresample does by default.
+  Checkpoint version 3 adds every rhythm buffer/counter and the resampler state.
+  Attribution includes Matthew Davies' beat tracker and Paul B Mahol's 2015
+  window helper, in addition to the original notices.

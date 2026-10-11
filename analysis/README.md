@@ -60,5 +60,12 @@ are documented in [VALIDATION.md](../docs/analysis/VALIDATION.md).
 
 Spectral features use channel 1 and preserve FFmpeg's magnitude-based units,
 Hann window and hop cadence. `PcmAnalyzer.ALL` enables every implemented group;
-explicit `DYNAMICS`, `LOUDNESS` and `SPECTRAL` masks support individual profiling.
+explicit `DYNAMICS`, `LOUDNESS`, `SPECTRAL` and `RHYTHM` masks support individual profiling.
 The checkpoint format is versioned as groups are added.
+
+Tempo and onset analysis share a mono float stream at 44.1 kHz, with native
+channel coefficients and no EOF resampler drain or partial-hop processing.
+Tempo is the mean of aubio's per-beat estimates; `onset_variance` is sample
+variance of intervals in **samples squared**, not seconds squared. All native
+octave decisions are retained. Checkpoint format version 3 includes every
+rhythm state. `:analysis:testRhythm` runs the complete native rhythm comparison.

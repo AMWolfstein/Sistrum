@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Port of FFmpeg 8.1.2 libavfilter/af_aspectralstats.c and window_func.h (LGPL-2.1-or-later).
-// Copyright (c) 2021 Paul B Mahol. Mathematical FFT is expressed as radix-2 butterflies on the JVM.
+// Copyright (c) 2015, 2021 Paul B Mahol. Mathematical FFT is expressed as radix-2 butterflies on the JVM.
 package me.misa198.airmedy.analysis
 import java.io.Serializable
 import kotlin.math.*
