@@ -10,7 +10,9 @@ https://ffmpeg.org/releases/ffmpeg-8.1.2.tar.gz
 SHA-256: 32faba5ef67340d54724941eae1425580791195312a4fd13bf6f820a2818bf22
 
 Aubio 0.4.9: GPL-3.0-or-later, per its source headers and COPYING.
-Copyright Paul Brossier and the aubio authors.
+Copyright (C) 2003-2014 Paul Brossier <piem@aubio.org>.
+Beat tracking: Copyright (C) 2005-2009 Matthew Davies and Paul Brossier.
+Original per-file years are retained in Aubio.kt.
 https://aubio.org
 Archive SHA-256: df1244f6c4cf5bea382c8c2d35aa43bc31f4cf631fe325ae3992c219546a4202
 Airmedy's NOTICES labels aubio GPL-2.0-or-later in error:

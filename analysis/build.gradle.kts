@@ -47,3 +47,9 @@ tasks.register<Test>("testSpectral") {
     classpath = sourceSets.test.get().runtimeClasspath
     filter { includeTestsMatching("*SpectralOracleTest*") }
 }
+tasks.register<Test>("testRhythm") {
+    dependsOn(tasks.testClasses)
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    filter { includeTestsMatching("*RhythmOracleTest*") }
+}
