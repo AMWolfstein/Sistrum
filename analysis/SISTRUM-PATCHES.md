@@ -15,3 +15,13 @@
   pure percentile API copies input arrays and returns results instead of
   calling a database repository. All source Go tests and 1,024 numeric vectors
   have Kotlin parity checks at 1e-12.
+
+- Dynamics/loudness preserve 100 ms metadata boundaries, 0.01 LU energy bins,
+  absolute/relative gates, FFmpeg's LRA ranks and channel weights, 192 kHz
+  Kaiser true-peak resampling (including initial reflection and no EOF drain),
+  metadata rounding and astats sample-peak fallback/extrema behavior. The
+  resampler uses a power-of-two ring to remove modulo divisions from each tap.
+- PCM format and buffers are fixed at construction; `feed` allocates nothing.
+  Cancellation stops before consuming a block. Local versioned Java
+  serialization captures all DSP state; stream overloads avoid duplicate
+  state-sized byte arrays on high-rate multichannel input.

@@ -27,3 +27,17 @@ tasks.register<Test>("testMood") {
     classpath = sourceSets.test.get().runtimeClasspath
     filter { includeTestsMatching("*Mood*") }
 }
+tasks.register<Test>("testBoundary") {
+    dependsOn(tasks.testClasses)
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    filter { includeTestsMatching("*MetadataBoundaryTest*") }
+}
+tasks.register<JavaExec>("benchmark") {
+    dependsOn(tasks.testClasses, verifyAnalysisCorpus)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("me.misa198.airmedy.analysis.AnalysisBenchmark")
+    systemProperty("analysis.cache", cache.get())
+    systemProperty("analysis.repo", rootProject.layout.projectDirectory.asFile.absolutePath)
+    args(layout.buildDirectory.file("reports/benchmark.tsv").get().asFile.absolutePath)
+}
