@@ -41,3 +41,9 @@ tasks.register<JavaExec>("benchmark") {
     systemProperty("analysis.repo", rootProject.layout.projectDirectory.asFile.absolutePath)
     args(layout.buildDirectory.file("reports/benchmark.tsv").get().asFile.absolutePath)
 }
+tasks.register<Test>("testSpectral") {
+    dependsOn(tasks.testClasses)
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    filter { includeTestsMatching("*SpectralOracleTest*") }
+}

@@ -41,3 +41,20 @@ dynamics	1048576	3.797170085906982E-4	0	0.0
 loudness_true_peak	1048576	0.03805358368177414	0	0.0
 
 The JVM allocation test independently asserts zero warmed feed allocations.
+
+## Spectral descriptors (commit 4)
+
+All 368 files pass through the public incremental API, with no files outside
+tolerance. The two checkpoint tests and zero-allocation test also pass with
+spectral processing enabled. No oracle expectations or tolerances changed.
+
+| Feature | Maximum relative error | Tolerance |
+| --- | ---: | ---: |
+| spectral_centroid | 0.00223722343041% | 0.5% |
+| spectral_rolloff | 0.000967619845226% | 0.5% |
+| spectral_flatness | 0.0183155759675% | 0.5% |
+| spectral_flux | 0.000188560606027% | 0.5% |
+
+Spectral RTF: 0.00504036; feed allocation: zero bytes over 1,048,576 frames.
+
+Laptop CPU: AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx (4 cores / 8 threads).

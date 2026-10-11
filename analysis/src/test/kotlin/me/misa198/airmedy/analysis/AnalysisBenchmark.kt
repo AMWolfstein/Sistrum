@@ -13,7 +13,7 @@ object AnalysisBenchmark {
         val rate=44100;val channels=2
         val block=FloatArray(8192*channels) { .6f*sin(2*PI*997*(it/channels)/rate).toFloat() }
         val rows=mutableListOf("group\tframes\tRTF\tfeed_allocated_bytes\tbytes_per_frame")
-        for((name,group) in listOf("dynamics" to PcmAnalyzer.DYNAMICS,"loudness_true_peak" to PcmAnalyzer.LOUDNESS)) {
+        for((name,group) in listOf("dynamics" to PcmAnalyzer.DYNAMICS,"loudness_true_peak" to PcmAnalyzer.LOUDNESS,"spectral" to PcmAnalyzer.SPECTRAL)) {
             repeat(3) { val warm=PcmAnalyzer(channels,rate,group); repeat(64){warm.feed(block,channels,rate)} }
             val analyzer=PcmAnalyzer(channels,rate,group)
             val before=bean.getThreadAllocatedBytes(id);val start=System.nanoTime()

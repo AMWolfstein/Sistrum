@@ -57,3 +57,8 @@ work; this module has neither.
 
 Run `./gradlew :analysis:test :analysis:benchmark`. Results and endpoint fixes
 are documented in [VALIDATION.md](../docs/analysis/VALIDATION.md).
+
+Spectral features use channel 1 and preserve FFmpeg's magnitude-based units,
+Hann window and hop cadence. `PcmAnalyzer.ALL` enables every implemented group;
+explicit `DYNAMICS`, `LOUDNESS` and `SPECTRAL` masks support individual profiling.
+The checkpoint format is versioned as groups are added.
