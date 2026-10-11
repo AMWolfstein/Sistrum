@@ -243,3 +243,13 @@ val checkNoTrackedAudio = tasks.register<Exec>("checkNoTrackedAudio") {
 rootProject.allprojects {
     tasks.matching { it.name == "check" }.configureEach { dependsOn(checkNoTrackedAudio) }
 }
+
+tasks.register<JavaExec>("benchmarkDsdSeek") {
+    group = "verification"
+    description = "Measure seek+decode at 1% and 99% of generated ten-minute DSD256 streams."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("com.amwolfstein.sistrum.codecs.DsdSeekBenchmark")
+    args(providers.gradleProperty("dsdSeekTrials").orElse("9").get())
+    maxHeapSize = "512m"
+}

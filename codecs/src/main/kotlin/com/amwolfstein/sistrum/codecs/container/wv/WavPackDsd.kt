@@ -57,10 +57,12 @@ class WavPackDsd private constructor(source:RandomAccessSource,targetRate:Int) {
             pcm.discontinuity=pcmDiscontinuity;pcmDiscontinuity=false;return pcm
         }
     }
-    /** Replay decimation history, then trim to the exact requested PCM sample. */
+    /** Decode only the rounded-up FIR history, then trim to the exact requested PCM sample. */
     fun seekSample(sample:Long) {
         if (sample<0 || sample>info.totalSamples) invalid("PCM sample out of range")
-        pcmSource.seekSample(0);pipeline.reset();pcmPosition=0;pending=false;pcmDiscontinuity=false
+        val startByte=pipeline.seekStartByte(sample)
+        pcmSource.seekSample(startByte);pipeline.reset()
+        pcmPosition=startByte*8/(info.dsdSampleRate/target);pending=false;pcmDiscontinuity=false
         if (sample==info.totalSamples) { pcmSource.seekSample(rawInfo.totalSamples);pcmPosition=sample }
         else if (sample>0) {
             while (true) {
