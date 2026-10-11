@@ -19,7 +19,7 @@ object MetadataBenchmark {
         val rows = mutableListOf("# SPDX-License-Identifier: GPL-3.0-or-later; WaxLabel MIT, Cole Springer",
             "# JDK ${System.getProperty("java.version")}; ${System.getProperty("os.arch")}; warm filesystem cache; METADATA_ONLY; 25 warmups, 101 trials per file",
             "format\tfile\tmedian_ns\tmedian_allocated_bytes")
-        for(row in fixtures()) {
+        for(row in fixtures(System.getProperty("waxlabel.step","1").toInt())) {
             val path = row["path"].asString
             FileChannel.open(cache.resolve(path)).use { channel ->
                 val source = FileChannelSource(channel)

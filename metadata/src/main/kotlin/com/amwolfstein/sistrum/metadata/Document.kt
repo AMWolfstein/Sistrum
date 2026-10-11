@@ -23,7 +23,7 @@ data class AudioProperties(
     val totalSamples: Long = 0, val durationNs: Long = 0, val bitrate: Int = 0,
     val opusOutputGain: Int = 0, val paddingBytes: Long = 0,
 ) { val durationMs: Long get() = durationNs / 1_000_000 + if (durationNs % 1_000_000 >= 500_000) 1 else 0 }
-data class NativeBlock(val kind: String, val size: Long, val note: String = "")
+data class NativeBlock(val kind: String, val size: Long, val note: String = "", val unit: String = "")
 data class Chapter(val startMs: Long, val endMs: Long = 0, val title: String = "")
 data class SyncedLine(val timeMs: Long, val text: String)
 class SyncedLyrics(val language: String, val description: String, lines: List<SyncedLine>) {

@@ -13,7 +13,7 @@ import java.security.MessageDigest
 
 internal val cache: Path = Path.of(System.getProperty("waxlabel.cache"))
 internal val repository: Path = Path.of(System.getProperty("waxlabel.repo"))
-internal fun fixtures(): List<JsonObject> = JsonParser.parseString(Files.readString(repository.resolve("docs/waxlabel/oracle-step1.json")))
+internal fun fixtures(step: Int=1): List<JsonObject> = JsonParser.parseString(Files.readString(repository.resolve("docs/waxlabel/oracle-step$step.json")))
     .asJsonObject.getAsJsonArray("files").map { it.asJsonObject }
 internal fun fixtureBytes(row: JsonObject): ByteArray {
     val data = Files.readAllBytes(cache.resolve(row["path"].asString))

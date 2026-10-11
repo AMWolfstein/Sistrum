@@ -1,0 +1,203 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; WaxLabel MIT, Cole Springer
+# JDK 21.0.12.1; amd64; warm filesystem cache; METADATA_ONLY; 25 warmups, 101 trials per file
+format	file	median_ns	median_allocated_bytes
+FLAC	owned/vorbis-bad-base64.flac	333700	8304
+FLAC	owned/vorbis-bad-picture.flac	147640	5928
+FLAC	owned/vorbis-base.flac	212810	10464
+Ogg FLAC	owned/vorbis-base.oga	404800	18704
+Ogg Vorbis	owned/vorbis-base.ogg	260500	19568
+Ogg Opus	owned/vorbis-base.opus	162800	18160
+Ogg Opus	owned/vorbis-chained.opus	116490	19200
+FLAC	owned/vorbis-comment-picture.flac	1006820	64832
+FLAC	owned/vorbis-conflicts.flac	257980	30528
+FLAC	owned/vorbis-duplicates.flac	51810	8264
+FLAC	owned/vorbis-empty-comments.flac	23420	4688
+FLAC	owned/vorbis-encoder-noise.flac	66030	12000
+Ogg Opus	owned/vorbis-gain--3.5.opus	156740	19904
+Ogg Opus	owned/vorbis-gain-0.00390625.opus	120630	19088
+Ogg Opus	owned/vorbis-gain-12.25.opus	110130	19128
+error	owned/vorbis-invalid-block.flac	11240	2384
+FLAC	owned/vorbis-large-comment-picture.flac	7300440	9719120
+FLAC	owned/vorbis-large-native-picture.flac	1515510	39152
+FLAC	owned/vorbis-leading-id3.flac	562220	60648
+FLAC	owned/vorbis-linked-image.flac	79580	23376
+FLAC	owned/vorbis-lyric-cap.flac	79852508	84293040
+FLAC	owned/vorbis-lyric-edge-cases.flac	250210	29080
+FLAC	owned/vorbis-mutagen.flac	101140	30328
+Ogg FLAC	owned/vorbis-mutagen.oga	297590	48112
+Ogg Vorbis	owned/vorbis-mutagen.ogg	157470	49312
+Ogg Opus	owned/vorbis-mutagen.opus	161941	47984
+FLAC	owned/vorbis-no-comments.flac	9940	3416
+Ogg FLAC	owned/vorbis-ogg-bad-picture.oga	83100	15296
+Ogg Vorbis	owned/vorbis-ogg-bad-picture.ogg	75190	15456
+Ogg Opus	owned/vorbis-ogg-bad-picture.opus	67920	14184
+Ogg FLAC	owned/vorbis-ogg-chapter-lyrics.oga	341130	61992
+Ogg Vorbis	owned/vorbis-ogg-chapter-lyrics.ogg	321170	62072
+Ogg Opus	owned/vorbis-ogg-chapter-lyrics.opus	314160	60880
+Ogg FLAC	owned/vorbis-ogg-large-packet.oga	5026102	2618440
+Ogg Vorbis	owned/vorbis-ogg-large-packet.ogg	4462812	2619080
+Ogg Opus	owned/vorbis-ogg-large-packet.opus	4451022	2617944
+Ogg FLAC	owned/vorbis-ogg-native-picture.oga	290460	69848
+Ogg Opus	owned/vorbis-ogg-tail.opus	48450	17512
+FLAC	owned/vorbis-oversize-type.flac	56950	23808
+Ogg Opus	owned/vorbis-shared-page.opus	194330	45016
+FLAC	owned/vorbis-structured.flac	238980	53744
+FLAC	owned/vorbis-tag-only.flac	238080	53704
+FLAC	owned/vorbis-tail-junk.flac	232280	53744
+FLAC	owned/vorbis-trailing-v1.flac	289290	55640
+error	owned/vorbis-truncated-0.flac	3710	1976
+error	owned/vorbis-truncated-0.oga	3560	1976
+error	owned/vorbis-truncated-0.ogg	3660	1976
+error	owned/vorbis-truncated-0.opus	3390	1976
+error	owned/vorbis-truncated-1.flac	3310	1976
+error	owned/vorbis-truncated-1.oga	3380	1976
+error	owned/vorbis-truncated-1.ogg	3400	1976
+error	owned/vorbis-truncated-1.opus	3350	1976
+error	owned/vorbis-truncated-10.flac	6360	2352
+error	owned/vorbis-truncated-10.oga	5460	2296
+error	owned/vorbis-truncated-10.ogg	5410	2296
+error	owned/vorbis-truncated-10.opus	5440	2296
+error	owned/vorbis-truncated-11.flac	6360	2352
+error	owned/vorbis-truncated-11.oga	5430	2296
+error	owned/vorbis-truncated-11.ogg	5360	2296
+error	owned/vorbis-truncated-11.opus	5280	2296
+error	owned/vorbis-truncated-12.flac	6420	2352
+error	owned/vorbis-truncated-12.oga	5370	2296
+error	owned/vorbis-truncated-12.ogg	5370	2296
+error	owned/vorbis-truncated-12.opus	5380	2296
+error	owned/vorbis-truncated-13.flac	6410	2352
+error	owned/vorbis-truncated-13.oga	5380	2296
+error	owned/vorbis-truncated-13.ogg	5450	2296
+error	owned/vorbis-truncated-13.opus	5400	2296
+error	owned/vorbis-truncated-14.flac	6410	2352
+error	owned/vorbis-truncated-14.oga	5410	2296
+error	owned/vorbis-truncated-14.ogg	5420	2296
+error	owned/vorbis-truncated-14.opus	5360	2296
+error	owned/vorbis-truncated-1441.opus	14700	3400
+error	owned/vorbis-truncated-15.flac	6380	2352
+error	owned/vorbis-truncated-15.oga	5430	2296
+error	owned/vorbis-truncated-15.ogg	5470	2296
+error	owned/vorbis-truncated-15.opus	5510	2296
+error	owned/vorbis-truncated-16.flac	6420	2352
+error	owned/vorbis-truncated-16.oga	5430	2296
+error	owned/vorbis-truncated-16.ogg	5410	2296
+error	owned/vorbis-truncated-16.opus	5410	2296
+error	owned/vorbis-truncated-17.flac	6490	2352
+error	owned/vorbis-truncated-17.oga	5370	2296
+error	owned/vorbis-truncated-17.ogg	5410	2296
+error	owned/vorbis-truncated-17.opus	5410	2296
+error	owned/vorbis-truncated-18.flac	6450	2352
+error	owned/vorbis-truncated-18.oga	5380	2296
+error	owned/vorbis-truncated-18.ogg	6060	2296
+error	owned/vorbis-truncated-18.opus	5430	2296
+error	owned/vorbis-truncated-19.flac	6350	2352
+error	owned/vorbis-truncated-19.oga	5350	2296
+error	owned/vorbis-truncated-19.ogg	5400	2296
+error	owned/vorbis-truncated-19.opus	5440	2296
+error	owned/vorbis-truncated-2.flac	3380	1976
+error	owned/vorbis-truncated-2.oga	3350	1976
+error	owned/vorbis-truncated-2.ogg	3380	1976
+error	owned/vorbis-truncated-2.opus	3320	1976
+error	owned/vorbis-truncated-20.flac	6340	2352
+error	owned/vorbis-truncated-20.oga	5380	2296
+error	owned/vorbis-truncated-20.ogg	5360	2296
+error	owned/vorbis-truncated-20.opus	5360	2296
+error	owned/vorbis-truncated-21.flac	6350	2352
+error	owned/vorbis-truncated-21.oga	5370	2296
+error	owned/vorbis-truncated-21.ogg	5380	2296
+error	owned/vorbis-truncated-21.opus	5380	2296
+error	owned/vorbis-truncated-22.flac	6340	2352
+error	owned/vorbis-truncated-22.oga	5480	2296
+error	owned/vorbis-truncated-22.ogg	7120	2296
+error	owned/vorbis-truncated-22.opus	6070	2296
+error	owned/vorbis-truncated-23.flac	6420	2352
+error	owned/vorbis-truncated-23.oga	5430	2296
+error	owned/vorbis-truncated-23.ogg	5410	2296
+error	owned/vorbis-truncated-23.opus	5460	2296
+error	owned/vorbis-truncated-24.flac	6360	2352
+error	owned/vorbis-truncated-24.oga	5390	2296
+error	owned/vorbis-truncated-24.ogg	5400	2296
+error	owned/vorbis-truncated-24.opus	5390	2296
+error	owned/vorbis-truncated-25.flac	6400	2352
+error	owned/vorbis-truncated-25.oga	5410	2296
+error	owned/vorbis-truncated-25.ogg	5430	2296
+error	owned/vorbis-truncated-25.opus	5450	2296
+error	owned/vorbis-truncated-26.flac	6380	2352
+error	owned/vorbis-truncated-26.oga	5420	2296
+error	owned/vorbis-truncated-26.ogg	5460	2296
+error	owned/vorbis-truncated-26.opus	5410	2296
+error	owned/vorbis-truncated-2642.ogg	12370	3120
+error	owned/vorbis-truncated-27.flac	6380	2352
+error	owned/vorbis-truncated-27.oga	6490	2376
+error	owned/vorbis-truncated-27.ogg	6460	2376
+error	owned/vorbis-truncated-27.opus	6470	2376
+error	owned/vorbis-truncated-273.oga	12290	3104
+error	owned/vorbis-truncated-28.flac	9100	2352
+error	owned/vorbis-truncated-28.oga	11770	2472
+error	owned/vorbis-truncated-28.ogg	6660	2472
+error	owned/vorbis-truncated-28.opus	6480	2472
+error	owned/vorbis-truncated-29.flac	6420	2352
+error	owned/vorbis-truncated-29.oga	7470	2504
+error	owned/vorbis-truncated-29.ogg	7550	2504
+error	owned/vorbis-truncated-29.opus	7520	2504
+error	owned/vorbis-truncated-3.flac	5260	2248
+error	owned/vorbis-truncated-3.oga	5310	2248
+error	owned/vorbis-truncated-3.ogg	5300	2248
+error	owned/vorbis-truncated-3.opus	5290	2248
+error	owned/vorbis-truncated-30.flac	6340	2352
+error	owned/vorbis-truncated-30.oga	7700	2504
+error	owned/vorbis-truncated-30.ogg	7690	2504
+error	owned/vorbis-truncated-30.opus	7670	2504
+error	owned/vorbis-truncated-31.flac	6460	2352
+error	owned/vorbis-truncated-31.oga	7620	2504
+error	owned/vorbis-truncated-31.ogg	7590	2504
+error	owned/vorbis-truncated-31.opus	7650	2504
+error	owned/vorbis-truncated-32.flac	6500	2352
+error	owned/vorbis-truncated-32.oga	7570	2504
+error	owned/vorbis-truncated-32.ogg	7510	2504
+error	owned/vorbis-truncated-32.opus	7540	2504
+error	owned/vorbis-truncated-33.flac	6390	2352
+error	owned/vorbis-truncated-33.oga	9750	2760
+error	owned/vorbis-truncated-33.ogg	7520	2504
+error	owned/vorbis-truncated-33.opus	7620	2504
+error	owned/vorbis-truncated-4.flac	11460	2272
+error	owned/vorbis-truncated-4.oga	5450	2296
+error	owned/vorbis-truncated-4.ogg	5410	2296
+error	owned/vorbis-truncated-4.opus	5410	2296
+error	owned/vorbis-truncated-4214.flac	9800	2744
+error	owned/vorbis-truncated-5.flac	5650	2272
+error	owned/vorbis-truncated-5.oga	5460	2296
+error	owned/vorbis-truncated-5.ogg	5440	2296
+error	owned/vorbis-truncated-5.opus	5410	2296
+error	owned/vorbis-truncated-5283.ogg	16130	3416
+error	owned/vorbis-truncated-546.oga	16200	3400
+error	owned/vorbis-truncated-6.flac	6280	2272
+error	owned/vorbis-truncated-6.oga	5990	2296
+error	owned/vorbis-truncated-6.ogg	5400	2296
+error	owned/vorbis-truncated-6.opus	5430	2296
+error	owned/vorbis-truncated-7.flac	5710	2272
+error	owned/vorbis-truncated-7.oga	5430	2296
+error	owned/vorbis-truncated-7.ogg	5520	2296
+error	owned/vorbis-truncated-7.opus	5470	2296
+error	owned/vorbis-truncated-721.opus	12600	3104
+error	owned/vorbis-truncated-8.flac	6540	2352
+error	owned/vorbis-truncated-8.oga	5450	2296
+error	owned/vorbis-truncated-8.ogg	5480	2296
+error	owned/vorbis-truncated-8.opus	5500	2296
+FLAC	owned/vorbis-truncated-8427.flac	84940	30568
+error	owned/vorbis-truncated-9.flac	6590	2352
+error	owned/vorbis-truncated-9.oga	5520	2296
+error	owned/vorbis-truncated-9.ogg	5510	2296
+error	owned/vorbis-truncated-9.opus	5520	2296
+FLAC	owned/vorbis-truncated-audio.flac	253670	53744
+FLAC	owned/vorbis-unknown-image.flac	57670	23792
+error	owned/vorbis-wrong-first.flac	6760	2440
+error	owned/vorbis-zero-rate.flac	8530	2552
+FLAC	src/testdata/notags.flac	17870	4672
+Ogg FLAC	src/testdata/notags.oga	50900	18168
+Ogg Vorbis	src/testdata/notags.ogg	45780	18712
+Ogg Opus	src/testdata/notags.opus	47340	17896
+FLAC	src/testdata/sample.flac	63090	16856
+Ogg FLAC	src/testdata/sample.oga	106460	33224
+Ogg Vorbis	src/testdata/sample.ogg	101990	33704
+Ogg Opus	src/testdata/sample.opus	100260	32576
