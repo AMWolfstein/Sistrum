@@ -149,3 +149,21 @@ The new tests cover rounded lengths for every supported DSD/PCM rate, short
 streams and partial final groups, first-sample and step alignment, tail drain,
 and near-end seek parity. Existing random seeks, bounded seek cost, paired
 multichannel PCM/DoP and Flick reference hashes remain passing.
+
+## CUE sheet parser — 2026-10-11
+
+`./gradlew :codecs:test --tests '*Cue*' --console=plain` passed: 37 tests,
+zero failures, errors or skips. The 31 Go-oracle vectors each compare three
+sample rates (44.1/48/32 kHz) and three known/unknown total lengths. They cover
+metadata and REM scopes, multi-FILE cues, mixed/raw/cooked data modes, missing
+INDEX 01, implied files, LF/CRLF/CR, UTF-8/BOM, Windows-1252 (including undefined
+bytes), malformed operands, bounded warnings, starts/pieces/cutpoints and
+refusal messages. The external commit and cue source hashes are verified before
+the thin Go oracle builds. Six contract tests cover UTF-16 LE/BE, SONGWRITER,
+reported fallback, file-relative start/end lists and exact CD-frame conversion.
+
+`./gradlew :codecs:test :androidApp:assembleDevQa --console=plain` passed:
+**1,477 codec tests, zero failures, errors or skips; Android assembly succeeded**.
+`python3 scripts/check-no-audio.py` passed. All generated CUE inputs and Go build
+artifacts use a temporary directory; no audio, player or scanner changes are
+included.

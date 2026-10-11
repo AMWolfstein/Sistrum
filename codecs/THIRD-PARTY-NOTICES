@@ -1,12 +1,17 @@
 # Third-party notices
 
 This module is GPL-3.0-or-later, like Sistrum. Ported files identify the pinned
-WaxFlow source in their headers. Only decoder and framing dependencies are ported.
+WaxFlow source in their headers. Decoder/framing dependencies and the standalone
+CUE sidecar parser are ported.
 
 ## WaxFlow (MIT)
 
 https://github.com/AMWolfstein/WaxFlow
 Commit: b7857aff88820ad37936026421d1641e64611dbe
+
+CUE source: cue/cue.go and cue/decode.go. Their parser, CD-frame boundary
+semantics and Windows-1252 mapping are adapted to Kotlin under
+com/amwolfstein/sistrum/codecs/cue.
 
 MIT License
 
