@@ -385,6 +385,184 @@ json.NewEncoder(os.Stdout).Encode(map[string]any{"totalSamples":p.TotalSamples,"
 '''
 
 
+def generate_mp4(source):
+    """Owned silence and deterministic MP4 metadata/structure vectors, always external."""
+    import mutagen
+    from mutagen.mp4 import MP4, MP4Cover, MP4FreeForm
+    if mutagen.version_string != "1.47.0":
+        raise SystemExit("Owned MP4 vectors require mutagen 1.47.0")
+    owned = CACHE/"owned"
+    owned.mkdir(exist_ok=True)
+    def atom(name, body=b"", extended=False):
+        name = name.encode("latin1") if isinstance(name,str) else name
+        return (struct.pack(">I4sQ",1,name,len(body)+16) if extended else struct.pack(">I4s",len(body)+8,name))+body
+    def data(value,typ=1):
+        value=value.encode() if isinstance(value,str) else value
+        return atom("data",struct.pack(">II",typ,0)+value)
+    def item(name,*values,typ=1):
+        return atom(name,b"".join(data(v,typ) for v in values))
+    def free(name,*values,mean="com.apple.iTunes",typ=1):
+        return atom("----",atom("mean",bytes(4)+mean.encode())+atom("name",bytes(4)+name.encode())+b"".join(data(v,typ) for v in values))
+    ftyp=atom("ftyp",b"M4A "+bytes(4)+b"isomM4A ")
+    hdlr=atom("hdlr",bytes(8)+b"mdir"+bytes(13))
+    def minimal(items=b"",other=b"",meta_extra=b"",prefix=b"",body=None):
+        return prefix+ftyp+atom("moov",body if body is not None else atom("udta",atom("meta",bytes(4)+hdlr+atom("ilst",items)+meta_extra)+other))
+    def put(name,body):
+        (owned/("mp4-"+name+".m4a")).write_bytes(body)
+    base=owned/"mp4-base.m4a"
+    run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i","anullsrc=r=48000:cl=stereo","-t","0.2","-c:a","aac","-map_metadata","-1","-y",base])
+    tagged=owned/"mp4-mutagen.m4a"; tagged.write_bytes(base.read_bytes()); m=MP4(tagged)
+    m["\xa9nam"]=["Owned — صورة"]; m["\xa9ART"]=["One","Two"]; m["\xa9alb"]=["Album"]
+    m["trkn"]=[(3,12)]; m["disk"]=[(1,2)]; m["cpil"]=[True]; m["tmpo"]=[125]
+    m["\xa9lyr"]=["unsynced\nlyrics"]; m["covr"]=[MP4Cover(png(),imageformat=MP4Cover.FORMAT_PNG)]
+    m["----:com.apple.iTunes:MusicBrainz Track Id"]=[MP4FreeForm(b"owned-recording-id")]
+    m["----:com.apple.iTunes:CUSTOM"]=[MP4FreeForm(b"a"),MP4FreeForm(b"b")]; m.save()
+    for codec,suffix,opts in [("alac","m4a",[]),("flac","mp4",["-strict","-2"]),("pcm_s24be","mov",[]),("pcm_f64le","mov",[])]:
+        run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i","anullsrc=r=96000:cl=stereo","-t","0.2","-c:a",codec,*opts,"-metadata","title=Owned","-y",owned/f"mp4-{codec}.{suffix}"])
+    for suffix,flags in [("mdta","+use_metadata_tags"),("fragmented","+frag_keyframe+empty_moov")]:
+        run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i","anullsrc=r=48000:cl=stereo","-t","0.2","-c:a","aac","-movflags",flags,"-metadata","title=Owned","-metadata","custom=value","-y",owned/f"mp4-{suffix}.m4a"])
+    for codec in ("pcm_s24le","pcm_f32le"):
+        for rate in (44100,96000):
+            run(["ffmpeg","-nostdin","-v","error","-f","lavfi","-i",f"anullsrc=r={rate}:cl=stereo","-t","0.2","-c:a",codec,"-y",owned/f"mp4-{codec}-{rate}.mp4"])
+    meta=owned/"mp4-chapters.ffmeta"
+    meta.write_text(";FFMETADATA1\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=25\nEND=100\ntitle=First\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=100\nEND=200\ntitle=Second\n")
+    run(["ffmpeg","-nostdin","-v","error","-i",base,"-i",meta,"-map_metadata","1","-map_chapters","1","-c","copy","-y",owned/"mp4-chapters.m4b"])
+    text_names=["\xa9nam","\xa9ART","aART","\xa9alb","\xa9wrt","\xa9day","\xa9cmt","\xa9gen","\xa9too","cprt","\xa9grp","\xa9lyr","desc","ldes","soal","soaa","soar","sonm","soco","\xa9wrk","\xa9mvn","\xa9enc"]
+    put("all-text",minimal(b"".join(item(n,"First","Second") for n in text_names)))
+    put("conflict",minimal(item("\xa9nam","A")+item("\xa9nam","B")+item("gnre",struct.pack(">H",18),typ=0)+item("\xa9gen","Other")))
+    put("pairs",minimal(item("trkn",bytes(2)+struct.pack(">HHH",3,12,0),typ=0)+item("disk",bytes(2)+struct.pack(">HH",0,2),typ=21)))
+    for name,typ,values in [("cpil",21,[b"\xff"]),("pgap",0,[b"\0"]),("shwm",21,[b"\1"]),("stik",21,[b"\xff\xff\xff\xff"]),("tmpo",21,[b"\0\x80"]),("\xa9mvi",21,[b"\x03"]),("\xa9mvc",0,[b"\x04"]),("rtng",21,[b"\x02"])]:
+        put("int-"+name.replace("\xa9","c"),minimal(item(name,*values,typ=typ)))
+    names=["MusicBrainz Track Id","musicbrainz album id","replaygain_track_gain","DJ MIXER","MUSICBRAINZ_ALBUMSTATUS","LEAD_PERFORMER","DATE_RELEASED","ENCODED_BY","CUSTOM","iTunNORM","Bad=Key","lowercase","MusicBrainz Album Release Country","NARRATOR"]
+    put("freeforms",minimal(b"".join(free(n,"one","two") for n in names)+free("TITLE","foreign",mean="org.example")))
+    put("freeform-binary",minimal(free("CUSTOM",b"\0\xff",typ=21)))
+    put("freeform-invalid-utf8",minimal(free("CUSTOM",b"\xff")))
+    put("covers",minimal(item("covr",png(),b"junk",bytes.fromhex("47494638396102000300800000"),typ=13)))
+    put("large-cover",minimal(item("covr",png()+bytes(1100000),typ=14)))
+    put("padding",minimal(item("\xa9nam","Owned"),meta_extra=atom("skip",bytes(128))))
+    put("leading-padding",minimal(item("\xa9nam","Owned"),prefix=atom("wide")+atom("free",bytes(8))))
+    for ver in (0,1):
+        ch=bytes((ver,0,0,0))+(bytes(4) if ver else b"")+bytes((2,))+struct.pack(">QB",250000,5)+b"First"+struct.pack(">QB",1000000,6)+b"Second"
+        put("nero-v"+str(ver),minimal(other=atom("chpl",ch)))
+    for name,version,starts in [("nero-v2",2,[250000,1000000]),("nero-fractional",1,[255001,1005001]),("nero-saturation",1,[0,0xffffffffffffffff]),("nero-unordered",1,[1000000,250000])]:
+        ch=bytes((version,0,0,0))+bytes(4)+bytes((2,))+b"".join(struct.pack(">QB",start,len(title))+title for start,title in zip(starts,[b"First",b"Second"]))
+        put(name,minimal(other=atom("chpl",ch)))
+    put("nero-invalid-utf8",minimal(other=atom("chpl",bytes(4)+bytes((1,))+struct.pack(">QB",0,1)+b"\xff")))
+    put("nero-malformed",minimal(other=atom("chpl",b"\1\0\0\0")))
+    qttext=lambda v,lang=0: struct.pack(">HH",len(v.encode()),lang)+v.encode()
+    put("udta",minimal(item("\xa9nam","ilst"),other=atom("\xa9nam",qttext("different"))+atom("\xa9ART",qttext("Arabic",0x1601)+qttext("English",0x15c7))+atom("\xa9swr",qttext("Lavf owned"))))
+    put("udta-data",minimal(other=item("\xa9nam","title")))
+    put("udta-invalid",minimal(other=atom("\xa9nam",b"\0\1\0\0\xff")))
+    keynames=["title","com.apple.quicktime.artist","custom_key","bad=key","covr"]
+    keys=atom("keys",bytes(4)+struct.pack(">I",len(keynames))+b"".join(atom("mdta",n.encode()) for n in keynames))
+    indexed=b"".join(item(struct.pack(">I",i+1),png() if n=="covr" else "value",typ=14 if n=="covr" else 1) for i,n in enumerate(keynames))
+    put("indexed",ftyp+atom("moov",atom("udta",atom("meta",bytes(4)+atom("hdlr",bytes(8)+b"mdta"+bytes(13))+keys+atom("ilst",indexed)))))
+    for name,body in [("unknown",item("abcd",b"xyz",typ=99)),("text-type",item("\xa9nam","text",typ=21)),("text-utf8",item("\xa9nam",b"\xff")),("int-type",item("cpil",b"0",typ=1)),("int-width",item("tmpo",bytes(5),typ=21)),("int-multiple",item("tmpo",b"\1",b"\2",typ=21)),("pair-short",item("trkn",bytes(5))), ("genre-out",item("gnre",b"\xff\xff")),("data-short",atom("\xa9nam",atom("data",bytes(4)))),("data-tail",atom("\xa9nam",data("a")+b"x")),("data-zero",atom("\xa9nam",bytes(16)))]:
+        put(name,minimal(body))
+    put("no-moov",ftyp+atom("mdat",bytes(10)))
+    put("segment",ftyp+atom("moof"))
+    put("nested-overrun",ftyp+atom("moov",struct.pack(">I4s",1000,b"udta")))
+    put("nested-zero",ftyp+atom("moov",bytes(8)))
+    put("meta-zero-gap",ftyp+atom("moov",atom("udta",atom("meta",bytes(4)+hdlr+bytes(4)))))
+    put("moov-nonzero-tail",ftyp+atom("moov",b"abc"))
+    put("moov-extended",ftyp+atom("moov",atom("udta",atom("meta",bytes(4)+hdlr+atom("ilst",item("\xa9nam","extended"),True))),True))
+    put("top-zero",minimal()+bytes(4)+b"mdat"+bytes(10))
+    put("top-overrun",minimal()+struct.pack(">I4s",100,b"junk")+bytes(10))
+    put("mdat-overrun",minimal()+struct.pack(">I4s",100,b"mdat")+bytes(10))
+    put("moov-overrun",ftyp+struct.pack(">I4s",100,b"moov"))
+    put("extended-short",ftyp+struct.pack(">I4s",1,b"moov"))
+    # Synthetic sample entries isolate the pinned high-rate PCM quirk without relying on a ffmpeg version.
+    for codec in ["ipcm","fpcm","alac","fLaC","mp4a","sowt","fl64","ulaw"]:
+        for version in [0,1,2]:
+            fixed=bytearray(28); struct.pack_into(">H",fixed,8,version); struct.pack_into(">HH",fixed,16,2,16); struct.pack_into(">I",fixed,24,48000<<16)
+            ext=b""
+            if version==1: fixed+=bytes(16)
+            if version==2: fixed+=struct.pack(">IdIIIII",72,96000.0,2,0x7f000000,32,0,0)+bytes(8)
+            if codec in ["ipcm","fpcm"]: ext=atom("pcmC",bytes(4)+bytes((0,32)))
+            if codec=="alac":
+                cookie=bytearray(28); cookie[9]=24;cookie[13]=2;struct.pack_into(">I",cookie,24,96000);ext=atom("alac",cookie)
+            if codec=="fLaC":
+                si=bytearray(34);struct.pack_into(">Q",si,10,(96000<<44)|(1<<41)|(23<<36)|19200);ext=atom("dfLa",bytes(4)+b"\x80\0\0\x22"+si)
+            if codec=="mp4a":
+                desc=lambda t,v:bytes((t,len(v)))+v
+                ext=atom("esds",bytes(4)+desc(3,b"\0\1\0"+desc(4,b"\x40\x15"+bytes(11)+desc(5,b"\x11\x90"))))
+            stsd=atom("stsd",bytes(4)+struct.pack(">I",1)+atom(codec,fixed+ext))
+            mdhd=atom("mdhd",bytes(12)+struct.pack(">II",96000,19200)+bytes(4))
+            trak=atom("trak",atom("mdia",mdhd+atom("hdlr",bytes(8)+b"soun"+bytes(13))+atom("minf",atom("stbl",stsd))))
+            put(f"entry-{codec}-v{version}",minimal(body=trak)+atom("mdat",bytes(10)))
+    original=tagged.read_bytes()
+    for cut in sorted(set([1,3,4,7,8,12,20,28,40,64,128,256,512,1024,len(original)-1,len(original)//2])):
+        put(f"truncated-{cut}",original[:cut])
+    # Mutate metadata paths only; sample data remains generated silence except the explicit hostile vector.
+    containers={b"moov",b"trak",b"mdia",b"minf",b"stbl",b"udta",b"meta",b"ilst"}
+    def boxes(blob,start=0,end=None):
+        end=len(blob) if end is None else end
+        out=[]; pos=start
+        while pos+8<=end:
+            size,kind=struct.unpack_from(">I4s",blob,pos); header=8
+            if size==1: size=struct.unpack_from(">Q",blob,pos+8)[0];header=16
+            if size==0: size=end-pos
+            if size<header or size>end-pos:break
+            child=pos+header+(4 if kind==b"meta" and blob[pos+header:pos+header+4]==bytes(4) else 0)
+            out.append((kind,pos,size,header,boxes(blob,child,pos+size) if kind in containers else []));pos+=size
+        return out
+    def flatten(nodes):
+        return [n for node in nodes for n in [node,*flatten(node[4])]]
+    chbytes=(owned/"mp4-chapters.m4b").read_bytes()
+    tree=boxes(chbytes); flat=flatten(tree)
+    chpl=next(n for n in flat if n[0]==b"chpl")
+    # Remove chpl without shifting any sample offset: the same-sized unknown atom is preserved.
+    patched=bytearray(chbytes);patched[chpl[1]+4:chpl[1]+8]=b"zzzz";put("qt-only",patched)
+    patched=bytearray(chbytes);title=chpl[1]+chpl[3]+9+9;patched[title:title+5]=b"Other";put("chapter-conflict",patched)
+    traks=[n for n in flat if n[0]==b"trak"]
+    audio=next(t for t in traks if any(n[0]==b"hdlr" and chbytes[n[1]+n[3]+8:n[1]+n[3]+12]==b"soun" for n in flatten(t[4])))
+    text=next(t for t in traks if t!=audio)
+    audio_stco=next(n for n in flatten(audio[4]) if n[0]==b"stco")
+    text_stco=next(n for n in flatten(text[4]) if n[0]==b"stco")
+    text_stsz=next(n for n in flatten(text[4]) if n[0]==b"stsz")
+    first_audio=struct.unpack_from(">I",chbytes,audio_stco[1]+audio_stco[3]+8)[0]
+    patched=bytearray(chbytes);struct.pack_into(">I",patched,text_stco[1]+text_stco[3]+8,first_audio)
+    patched[first_audio:first_audio+6]=b"\0\4LEAK";put("chapter-audio-alias",patched)
+    for name,box,offset,value in [("stco-count",audio_stco,4,0xffffffff),("stsz-count",text_stsz,8,0xffffffff)]:
+        patched=bytearray(chbytes);struct.pack_into(">I",patched,box[1]+box[3]+offset,value);put(name,patched)
+    for name,offset,value in [("stco-outside",text_stco[1]+text_stco[3]+8,len(chbytes)+100),("stco-structural",text_stco[1]+text_stco[3]+8,0)]:
+        patched=bytearray(chbytes);struct.pack_into(">I",patched,offset,value);put(name,patched)
+    # Property configs from the pinned tests: hierarchical/sync AAC, integer float rate overflow, wave ALAC.
+    def sound(codec,ext=b"",version=0,rate=48000,ch=2,depth=16,mdversion=0):
+        fixed=bytearray(28);struct.pack_into(">H",fixed,8,version);struct.pack_into(">HH",fixed,16,ch,depth);struct.pack_into(">I",fixed,24,rate<<16)
+        if version==1:fixed+=bytes(16)
+        if version==2:fixed+=struct.pack(">IdIIIIII",72,float(rate),ch,0x7f000000,depth,0,0,0)+bytes(8)
+        stsd=atom("stsd",bytes(4)+struct.pack(">I",1)+atom(codec,fixed+ext))
+        md=bytes((mdversion,0,0,0))+ (bytes(8)+struct.pack(">II",48000,9600) if mdversion==0 else bytes(16)+struct.pack(">IQ",48000,9600))+bytes(4)
+        trak=atom("trak",atom("mdia",atom("mdhd",md)+atom("hdlr",bytes(8)+b"soun"+bytes(13))+atom("minf",atom("stbl",stsd))))
+        return minimal(body=trak)+atom("mdat",bytes(10))
+    def bits(seq):
+        b="".join(f"{n:0{width}b}" for n,width in seq);return int(b.ljust((len(b)+7)//8*8,"0"),2).to_bytes((len(b)+7)//8,"big")
+    def esds(config,oti=0x40):
+        desc=lambda t,v:bytes((t,len(v)))+v
+        return atom("esds",bytes(4)+desc(3,b"\0\1\0"+desc(4,bytes((oti,0x15))+bytes(11)+desc(5,config))))
+    configs={"lc":bits([(2,5),(3,4),(2,4),(0,3)]),"he":bits([(5,5),(6,4),(1,4),(3,4),(2,5),(0,3)]),"hev2":bits([(29,5),(6,4),(1,4),(3,4),(2,5),(0,3)]),"main":bits([(1,5),(3,4),(2,4),(0,3)]),"explicit-rate":bits([(2,5),(15,4),(96000,24),(2,4),(0,3)]),"sync-he":bits([(2,5),(6,4),(1,4),(0,3),(0x2b7,11),(5,5),(1,1),(3,4),(0x548,11),(1,1)]),"denied":bits([(2,5),(6,4),(1,4),(0,3),(0x2b7,11),(5,5),(0,1)]),"pce":bits([(2,5),(3,4),(0,4),(0,3)]),"empty":b"", "escaped":bits([(31,5),(10,6),(3,4),(2,4)])}
+    for name,cfg in configs.items():put("asc-"+name,sound("mp4a",esds(cfg)))
+    put("asc-wave",sound("mp4a",atom("wave",atom("mp4a",bytes(4))+esds(configs["lc"])),version=1))
+    put("asc-oti-mp3",sound("mp4a",esds(b"",0x6b)))
+    put("asc-malformed-descriptor",sound("mp4a",atom("esds",bytes(4)+b"\3\x80\x80\x80\x80")))
+    cookie=bytearray(28);cookie[9]=24;cookie[13]=6;struct.pack_into(">I",cookie,24,96000)
+    put("alac-wave",sound("alac",atom("wave",atom("alac",cookie)),version=1))
+    put("alac-v2",sound("alac",atom("alac",cookie),version=2,rate=48000))
+    put("mdhd-v1",sound("sowt",mdversion=1))
+    put("ima4-v1",sound("ima4",version=1))
+    put("wave-mp3",sound("ms\x00\x55"))
+    put("fpcm-64",sound("fpcm",atom("pcmC",bytes(4)+bytes((0,64)))))
+    put("unknown-codec",sound("ZZZZ"))
+    for codec in ("ipcm","fpcm"):
+        put(codec+"-hires-pinned",sound(codec,atom("pcmC",bytes(4)+bytes((0,32))),rate=48000))
+    for name,size in [("extended-small",15),("extended-negative",0xffffffffffffffff)]:
+        put(name,ftyp+struct.pack(">I4sQ",1,b"moov",size))
+    put("nested-short-size",ftyp+atom("moov",struct.pack(">I4s",4,b"udta")))
+    put("bare-meta",ftyp+atom("moov",atom("udta",atom("meta",hdlr+atom("ilst",item("\xa9nam","QuickTime"))))))
+    return owned
+
+
 def oracle(source,binary,owned,step=1):
     helper = CACHE/"helper"
     helper.mkdir(exist_ok=True)
@@ -395,6 +573,8 @@ def oracle(source,binary,owned,step=1):
     files += sorted(p for p in owned.iterdir() if p.suffix in (".mp3",".wav",".aiff"))
     if step == 2:
         files = sorted(p for folder in (source/"testdata",owned) for p in folder.iterdir() if p.suffix.lower() in (".flac",".ogg",".opus",".oga"))
+    if step == 3:
+        files = sorted(p for folder in (source/"testdata",owned) for p in folder.iterdir() if p.suffix.lower() in (".m4a",".mp4",".m4b",".mov",".m4r",".alac"))
     rows = []
     for path in files:
         ref = subprocess.run([str(binary),"dump","--native","--json",str(path)],capture_output=True,text=True)
@@ -447,12 +627,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch-generate",action="store_true")
     parser.add_argument("--verify",action="store_true")
-    parser.add_argument("--step",type=int,choices=(1,2),default=1)
+    parser.add_argument("--step",type=int,choices=(1,2,3),default=1)
     args = parser.parse_args()
     safe_cache()
     if args.fetch_generate:
         source,binary = fetch()
-        oracle(source,binary,generate(source) if args.step==1 else generate_vorbis(source),args.step)
+        oracle(source,binary,{1:generate,2:generate_vorbis,3:generate_mp4}[args.step](source),args.step)
         verify()
     elif args.verify:
         verify()

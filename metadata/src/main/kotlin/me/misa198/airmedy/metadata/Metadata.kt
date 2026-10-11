@@ -30,6 +30,7 @@ object Metadata {
                 magic.size >= 12 && magic.latin(0,4) == "RIFF" && magic.latin(8,4) == "WAVE" -> Iff.read(input,b,false)
                 magic.size >= 12 && magic.latin(0,4) == "FORM" && magic.latin(8,4) in listOf("AIFF","AIFC") -> Iff.read(input,b,true)
                 magic.size >= 3 && magic.latin(0,3) == "ID3" || Mpeg.header(magic) != null || options.formatHint?.lowercase() == "mp3" -> mp3(input,b)
+                Mp4.sniff(input) || options.formatHint?.lowercase() in listOf("mp4","m4a","m4b","m4r","mov","alac") -> Mp4.read(input,b)
                 else -> throw ReadFailure(ErrorClass.UNSUPPORTED_FORMAT,"unrecognized or not-yet-ported container")
             }
             return b.document()

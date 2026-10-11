@@ -29,7 +29,7 @@ internal fun jsonProjection(doc: Document): JsonElement {
     fun field(key: String, value: Any) { if(value != "" && value != 0 && value != 0L && value != 0.0) props[key] = value }
     field("container",p.container); field("codec",p.codec); field("codecProfile",p.profile)
     field("sampleRate",p.sampleRate); field("channels",p.channels)
-    if(p.codec in listOf("PCM","IEEE float","ALAC","FLAC","WavPack","Monkey's Audio","WMA Lossless")) field("bitsPerSample",p.bitsPerSample)
+    if(p.codec.uppercase() !in listOf("AAC","MP1","MP2","MP3","OPUS","VORBIS","AC-3","E-AC-3","MPC","MUSEPACK","WMA V1","WMA V2","WMA PRO","WMA VOICE")) field("bitsPerSample",p.bitsPerSample)
     field("durationMs",p.durationMs); if(p.durationMs != 0L) field("bitrateBps",p.bitrate)
     field("paddingBytes",p.paddingBytes); field("outputGainDb",p.opusOutputGain.toDouble()/256)
     result["properties"] = props
