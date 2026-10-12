@@ -113,6 +113,19 @@ known limitations and edge cases.
 - Q: Honour `REPLAYGAIN_REFERENCE_LOUDNESS`? → A: Yes, when present: adjusted gain = tag gain + (−18 −
   reference). Without it, gains are taken against −18, and R128 against −23 with +5 dB.
 
+### Session 2026-10-13 (owner, T051d speed stop)
+
+- Q: The first analysis of the owner's library measured above the 5 h estimate (Opus decode 143 ms per audio second
+  through the platform decoder; decode + meter in one callback 408 ms). What now? → A: Option 1, accept a slower
+  first analysis: resumable, charging-only, tags used until a track is measured. Before T051d is committed:
+  decode and meter on separate threads; analyse several files at once with a worker count adapted to cores and
+  thermal status (1, 2 and 3 benchmarked on the test device); find and remove the overhead between 408 ms and the
+  143 + 38 ms parts (e.g. feed MediaCodec directly if the ExoPlayer pipeline is the cost); report the library
+  estimate and the per-format rates (Opus, FLAC, MP3, AAC), because other users' libraries are mostly not Opus.
+  The target becomes "the first analysis completes within a few charging nights and resumes correctly" (SC-018).
+  For 002: a Kotlin Opus decoder (WaxFlow port) may serve the analysis path if it beats MediaCodec; benchmarked
+  separately.
+
 ### Session 2026-10-07 (owner, after the M5 hi-res report; written 2026-10-08)
 
 - Q: Where does normalization get loudness? → A: Measured on the device, as the original Airmedy did (measured,
@@ -579,7 +592,8 @@ FR-040…FR-041 and FR-047 govern tracks that are not analyzed yet (tag gains); 
   or with no block above the absolute gate are recorded as silent, with no loudness value.
 - **FR-047c**: Analysis MUST run as a background job (WorkManager): constraints charging, battery not low and
   storage not low; each run bounded below the 10-minute worker limit and re-scheduled while tracks are pending;
-  every finished track saved at once; a long track checkpointed so an interrupted run resumes it; only new or
+  every finished track saved at once; several files analysed at once, with the worker count adapted to the CPU cores
+  and thermal status (owner, 2026-10-13); decode and meter on separate threads; a long track checkpointed so an interrupted run resumes it; only new or
   changed files (audio fingerprint path + size + modification time) or files measured by an older analyzer
   version. Scheduled after every scan.
 - **FR-047d**: Analysis MUST decode through the Decoder Registry's provider for the file, with its own decoder
@@ -802,10 +816,12 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   the WaxFlow oracle within 0.01 LU (integrated) and 0.05 dB (true peak); on the device, lossless corpus files
   within 0.01 LU and lossy ones within 0.1 LU of the oracle; album loudness from stored histograms within 0.05 LU
   of WaxFlow's group measurement.
-- **SC-018**: On the test device, the first analysis of the owner's library (775 tracks, ~50 h) completes within
-  the estimate recorded in HANDOFF (re-measured in T051d) using only charging time by default, no run exceeds its
-  budget, playback during analysis shows no underruns, and stored analysis data stays under 2 KB per track on
-  average. Raw battery percentage is reported only for a run on battery, as information.
+- **SC-018** (owner, 2026-10-13): On the test device, the first analysis of the owner's library (775 tracks, ~50 h)
+  completes within a few charging nights using only charging time by default and resumes correctly after every
+  interruption (worker stop, reboot, rescan); no run exceeds its budget, playback during analysis shows no
+  underruns, the device does not throttle or overheat from it, and stored analysis data stays under 2 KB per track
+  on average. The library estimate and the per-format rates (Opus, FLAC, MP3, AAC) are recorded in HANDOFF. Raw
+  battery percentage is reported only for a run on battery, as information.
 
 ## Assumptions
 

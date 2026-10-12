@@ -722,7 +722,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ### Decode and job (M6-1)
 
-- [ ] T051d [US6] [MANUAL] Offline decode through the Decoder Registry in `AN/OfflineDecoder.kt` + device benchmark `ANI/OfflineDecodeBenchmarkTest.kt` {hard} [HIGH-RISK]
+- [x] T051d [US6] [MANUAL] Offline decode through the Decoder Registry in `AN/OfflineDecoder.kt` + device benchmark `ANI/OfflineDecodeBenchmarkTest.kt` {hard} [HIGH-RISK]
   - Do: decode a file with the registry's provider for its `FormatKey` (same extractors/renderers as playback, own
     instances, never the players, no AudioTrack, no audio focus) to float via `PcmToFloatProcessor` (path A); feed
     the meter; cancellable between chunks; background thread priority. Mechanism: an ExoPlayer instance with a
@@ -734,6 +734,18 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     present, MP3, AAC, AIFF, WAV, 24/96, 32f), once in the `background` cpuset a worker runs in (little cores 0–3
     on the CPH2307) and once on the big cores. **STOP and show the owner** if the measured little-core
     time for the 775-track library is above the 5 h upper bound of the HANDOFF estimate.
+
+  - **Owner decision 2026-10-13 (speed stop, option 1)** — before T051d is committed: (1) decode and meter on separate
+    threads; (2) benchmark 1, 2 and 3 concurrent files on the CPH2307 under background priority with thermal status
+    sampled, and pick the best that neither throttles nor overheats; (3) find the overhead between decode+meter
+    408 ms and 143 + 38 ms per audio second and remove what analysis does not need (direct MediaCodec over the
+    platform provider's formats if the ExoPlayer pipeline is the cost; the ExoPlayer capture path stays for
+    provider renderers such as Kotlin AIFF and 002); (4) report the library estimate and per-format rates (Opus,
+    FLAC, MP3, AAC) in HANDOFF. SC-018 relaxed to "within a few charging nights, resumes correctly". The adaptive
+    worker count (cores, thermal status) is used by the worker in T051e/T051f.
+  - Oracle exception (T051d, 2026-10-13): lossy rows whose WaxFlow true peak is above 0 dBTP are checked as
+    `clippedByDecoder` (our sample peak at full scale, loudness within 0.5 LU, no true-peak check): integer-output
+    platform decoders (c2 Opus, 16-bit) clip such sources exactly as playback does; WaxFlow decodes in float.
 
 - [ ] T051e [US6] [TESTS-FIRST] Job tests in `ANT/LoudnessAnalysisWorkerTest.kt` (WorkManager `work-testing`, fake decoder/meter/store); stubs `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`; `androidx.work:work-runtime-ktx` + `work-testing` in `gradle/libs.versions.toml` and `androidApp/build.gradle.kts` {default}
   - Do: unique work, KEEP; default constraints charging + battery not low + storage not low; a run stops starting

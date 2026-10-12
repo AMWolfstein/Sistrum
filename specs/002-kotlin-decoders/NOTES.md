@@ -107,3 +107,9 @@ into normalization (001 treats them as untagged).
 ## Never use
 
 JustDSD (no license), JMAC (license unclear: LGPL vs GPL-2 reports), MediaChest (no license).
+
+## Analysis path (owner, 2026-10-13)
+
+001's loudness analysis decodes Opus through the platform decoder at ~143 ms per audio second on the CPH2307
+(T051d), the bottleneck of a first analysis. A Kotlin Opus decoder (WaxFlow port) MAY serve the analysis path if it
+beats MediaCodec there. Codex benchmarks it separately; the result decides.

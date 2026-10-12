@@ -212,6 +212,7 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+    sourceSets.getByName("androidTest").assets.srcDir("src/test/resources/waxflow")
 }
 
 dependencies {

@@ -1,0 +1,270 @@
+package me.misa198.airmedy.analysis
+
+import android.content.Context
+import android.net.Uri
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Looper
+import android.os.Process
+import android.os.SystemClock
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.TrackSelectionParameters
+import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.audio.AudioRendererEventListener
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import java.io.File
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
+import me.misa198.airmedy.player.decoders.DecoderProvider
+import me.misa198.airmedy.player.decoders.DecoderRegistry
+import me.misa198.airmedy.player.decoders.FormatKey
+import me.misa198.airmedy.player.decoders.ProcessCodecProbe
+import me.misa198.airmedy.player.decoders.defaultDecoderProviders
+import me.misa198.airmedy.player.decoders.defaultDecoderRegistry
+import me.misa198.airmedy.player.media3.ProviderExtractorsFactory
+import me.misa198.airmedy.player.media3.ProviderRecorder
+
+/**
+ * Decodes one audio file into interleaved float PCM using the same extractors and
+ * renderers as playback, but with its own ExoPlayer and a capture [AudioSink]: no
+ * AudioTrack, no focus, no media session. Each [decode] runs on a fresh pair of
+ * [HandlerThread]s — an application thread and a playback thread, both started at
+ * [threadPriority] so the renderers and consumer run at our priority instead of
+ * ExoPlayer's audio priority — and blocks the caller until the file is fully
+ * decoded, fails, or [isCancelled] turns true (checked per buffer).
+ */
+@OptIn(UnstableApi::class)
+internal class OfflineDecoder(
+    private val context: Context,
+    private val providers: List<DecoderProvider> = defaultDecoderProviders(ProcessCodecProbe),
+    private val registry: DecoderRegistry = defaultDecoderRegistry(ProcessCodecProbe),
+    private val threadPriority: Int = Process.THREAD_PRIORITY_BACKGROUND,
+) : PcmDecoder {
+
+    /** The [HandlerThread]s of the most recent [decode]: application first, playback second. */
+    @Volatile
+    internal var decodeThreads: List<HandlerThread> = emptyList()
+        private set
+
+    /**
+     * Blocks the caller until the file is fully decoded, fails, or [isCancelled] turns
+     * true (checked per buffer).
+     */
+    override fun decode(
+        path: String,
+        key: FormatKey?,
+        consumer: PcmConsumer,
+        isCancelled: () -> Boolean,
+    ): DecodeOutcome {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "OfflineDecoder.decode must not run on the main thread"
+        }
+        if (key != null) {
+            val reason = registry.skipReason(key)
+            if (reason != null || registry.resolve(key) == null) {
+                return DecodeOutcome.Unsupported(reason ?: "no provider for $key")
+            }
+        }
+        val appThread = HandlerThread("sistrum-offline-decode", threadPriority).apply { start() }
+        val playbackThread = HandlerThread("sistrum-offline-playback", threadPriority).apply { start() }
+        val appLooper = appThread.looper
+        val playbackLooper = playbackThread.looper
+        decodeThreads = listOf(appThread, playbackThread)
+        val handler = Handler(appLooper)
+        val latch = CountDownLatch(1)
+        val outcome = AtomicReference<DecodeOutcome?>()
+        val cancelRequested = AtomicBoolean(false)
+        val playerRef = AtomicReference<ExoPlayer?>()
+        handler.post {
+            runDecodeOnThread(
+                appThread,
+                playbackThread,
+                appLooper,
+                playbackLooper,
+                handler,
+                latch,
+                outcome,
+                path,
+                consumer,
+                isCancelled,
+                cancelRequested,
+                playerRef,
+            )
+        }
+        try {
+            latch.await()
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            cancelRequested.set(true)
+            playerRef.get()?.let { player -> handler.post { player.stop() } }
+            return DecodeOutcome.Failed(null, "decode interrupted")
+        }
+        return outcome.get() ?: DecodeOutcome.Failed(null, "decode ended without an outcome")
+    }
+
+    /** Builds, runs and releases one ExoPlayer on the two decode threads; completes [outcome] exactly once. */
+    private fun runDecodeOnThread(
+        appThread: HandlerThread,
+        playbackThread: HandlerThread,
+        appLooper: Looper,
+        playbackLooper: Looper,
+        handler: Handler,
+        latch: CountDownLatch,
+        outcome: AtomicReference<DecodeOutcome?>,
+        path: String,
+        consumer: PcmConsumer,
+        isCancelled: () -> Boolean,
+        cancelRequested: AtomicBoolean,
+        playerRef: AtomicReference<ExoPlayer?>,
+    ) {
+        val recorder = ProviderRecorder()
+        val uriString = Uri.fromFile(File(path)).toString()
+        val cancelled = AtomicBoolean(false)
+        val lastProgressMs = AtomicLong(SystemClock.elapsedRealtime())
+
+        val sink = CaptureAudioSink { samples, frames, rate, channels ->
+            lastProgressMs.set(SystemClock.elapsedRealtime())
+            if (isCancelled() || cancelRequested.get()) {
+                cancelled.set(true)
+                handler.post { playerRef.get()?.stop() }
+            } else {
+                consumer.accept(samples, frames, rate, channels)
+            }
+        }
+
+        fun complete(result: DecodeOutcome) {
+            if (!outcome.compareAndSet(null, result)) return
+            try {
+                playerRef.get()?.release()
+            } catch (t: Throwable) {
+                // best-effort cleanup
+            }
+            playbackThread.quitSafely()
+            appThread.quitSafely()
+            latch.countDown()
+        }
+
+        val stallWatchdog = object : Runnable {
+            override fun run() {
+                if (outcome.get() != null) return
+                if (SystemClock.elapsedRealtime() - lastProgressMs.get() > STALL_TIMEOUT_MS) {
+                    complete(DecodeOutcome.Failed(recorder.providerFor(uriString), "decode stalled"))
+                } else {
+                    handler.postDelayed(this, STALL_CHECK_INTERVAL_MS)
+                }
+            }
+        }
+
+        val listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                when (playbackState) {
+                    Player.STATE_ENDED -> handler.post { complete(buildCompleted(sink, recorder.providerFor(uriString))) }
+                    Player.STATE_IDLE -> if (cancelled.get() || cancelRequested.get()) handler.post { complete(DecodeOutcome.Cancelled) }
+                }
+            }
+
+            /** An audio track no renderer can decode (e.g. no codec on this device) would "play" silently forever. */
+            override fun onTracksChanged(tracks: Tracks) {
+                val audio = tracks.groups.filter { it.type == C.TRACK_TYPE_AUDIO }
+                if (audio.isNotEmpty() && audio.none { it.isSelected }) {
+                    val format = audio.first().getTrackFormat(0).sampleMimeType
+                    handler.post { complete(DecodeOutcome.Failed(recorder.providerFor(uriString), "no decoder for $format")) }
+                }
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
+                handler.post { complete(DecodeOutcome.Failed(recorder.providerFor(uriString), error.message ?: error.errorCodeName)) }
+            }
+        }
+
+        try {
+            val providerRenderers = providers.flatMap { it.audioRenderers(context) }
+            val renderersFactory = object : DefaultRenderersFactory(context) {
+                override fun buildAudioSink(
+                    context: Context,
+                    enableFloatOutput: Boolean,
+                    enableAudioOutputPlaybackParams: Boolean,
+                ): AudioSink = sink
+
+                override fun buildAudioRenderers(
+                    context: Context,
+                    extensionRendererMode: Int,
+                    mediaCodecSelector: MediaCodecSelector,
+                    enableDecoderFallback: Boolean,
+                    audioSink: AudioSink,
+                    eventHandler: Handler,
+                    eventListener: AudioRendererEventListener,
+                    out: ArrayList<Renderer>,
+                ) {
+                    super.buildAudioRenderers(
+                        context,
+                        extensionRendererMode,
+                        mediaCodecSelector,
+                        enableDecoderFallback,
+                        audioSink,
+                        eventHandler,
+                        eventListener,
+                        out,
+                    )
+                    out.addAll(providerRenderers)
+                }
+            }
+            val trackSelector = DefaultTrackSelector(context).apply {
+                setParameters(
+                    DefaultTrackSelector.Parameters.Builder()
+                        .setAudioOffloadPreferences(
+                            TrackSelectionParameters.AudioOffloadPreferences.Builder()
+                                .setAudioOffloadMode(
+                                    TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED,
+                                )
+                                .build(),
+                        )
+                        .build(),
+                )
+            }
+            val p = ExoPlayer.Builder(context)
+                .setLooper(appLooper)
+                .setPlaybackLooper(playbackLooper)
+                .setTrackSelector(trackSelector)
+                .setHandleAudioBecomingNoisy(false)
+                .setMediaSourceFactory(
+                    DefaultMediaSourceFactory(context, ProviderExtractorsFactory(providers, recorder = recorder)),
+                )
+                .experimentalSetDynamicSchedulingEnabled(false)
+                .setRenderersFactory(renderersFactory)
+                .build()
+            playerRef.set(p)
+            p.addListener(listener)
+            p.setMediaItem(MediaItem.fromUri(Uri.fromFile(File(path))))
+            p.prepare()
+            p.playWhenReady = true
+            handler.postDelayed(stallWatchdog, STALL_CHECK_INTERVAL_MS)
+        } catch (t: Throwable) {
+            complete(DecodeOutcome.Failed(recorder.providerFor(uriString), t.message ?: t.javaClass.simpleName))
+        }
+    }
+
+    private fun buildCompleted(sink: CaptureAudioSink, providerId: String?): DecodeOutcome =
+        if (sink.formatChanged) {
+            DecodeOutcome.Failed(providerId, "audio format changed mid-stream")
+        } else {
+            DecodeOutcome.Completed(sink.sampleRate, sink.channelCount, sink.framesWritten, providerId)
+        }
+
+    private companion object {
+        const val STALL_TIMEOUT_MS = 30_000L
+        const val STALL_CHECK_INTERVAL_MS = 1_000L
+    }
+}
