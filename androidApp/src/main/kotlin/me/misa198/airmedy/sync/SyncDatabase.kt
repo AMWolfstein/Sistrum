@@ -182,6 +182,27 @@ internal data class DailyPlaybackAttemptStatEntity(val sourceDeviceId: String, v
 
 internal data class AnalysisDocumentRow(val documentKey: String, val rawJson: String)
 
+internal data class PendingTrackRow(
+    val trackId: String,
+    val audioPath: String,
+    val fingerprint: String,
+    val rawJson: String,
+)
+
+internal data class LoudnessPlannerTrackRow(
+    val trackId: String,
+    val albumId: String,
+    val album: String,
+    val audioPath: String?,
+    val fingerprint: String?,
+    val rawJson: String,
+    val unavailableReason: String?,
+    val analysisJson: String?,
+    val histogramJson: String?,
+)
+
+internal data class AlbumDocumentRow(val albumId: String, val rawJson: String)
+
 internal data class LibraryTrackRow(
     val id: String,
     val title: String,
@@ -383,6 +404,74 @@ internal interface SyncDao {
     // Mood Radio in SQLite instead of materialising its full JSON in Room.
     @Query("SELECT COALESCE(json_extract(manifestJson, '$.library_analysis_enabled'), 0) FROM sync_plans WHERE active = 1 LIMIT 1")
     fun observeLibraryAnalysisEnabled(): Flow<Boolean?>
+
+    @Query("SELECT a.sha256 FROM sync_assets a INNER JOIN sync_plans p ON p.planId = a.planId WHERE p.active = 1 AND a.assetId = 'audio:' || :trackId")
+    suspend fun activeAudioSha(trackId: String): String?
+    @Query("INSERT OR REPLACE INTO sync_documents(planId, kind, documentKey, rawJson) SELECT p.planId, :kind, :documentKey, :rawJson FROM sync_plans p WHERE p.active = 1")
+    suspend fun upsertActiveDocument(kind: String, documentKey: String, rawJson: String)
+    @Query("DELETE FROM sync_documents WHERE kind = :kind AND documentKey = :documentKey AND planId IN (SELECT planId FROM sync_plans WHERE active = 1)")
+    suspend fun deleteActiveDocument(kind: String, documentKey: String)
+    @Query("""
+        SELECT t.trackId AS trackId, audio.relativePath AS audioPath, audio.sha256 AS fingerprint, t.rawJson AS rawJson
+        FROM sync_tracks t
+        INNER JOIN sync_plans p ON p.planId = t.planId
+        INNER JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = 'audio:' || t.trackId
+        LEFT JOIN sync_documents d ON d.planId = t.planId AND d.kind = 'analysis' AND d.documentKey = t.trackId
+        WHERE p.active = 1 AND t.unavailableReason IS NULL
+          AND (d.rawJson IS NULL
+               OR CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.source_fingerprint') END IS NOT audio.sha256
+               OR CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.analyzer_version') END IS NOT :analyzerVersion)
+        ORDER BY t.syncOrder
+    """)
+    suspend fun pendingTrackRows(analyzerVersion: String): List<PendingTrackRow>
+    @Query("SELECT COUNT(*) FROM sync_tracks t INNER JOIN sync_plans p ON p.planId = t.planId INNER JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = 'audio:' || t.trackId WHERE p.active = 1 AND t.unavailableReason IS NULL")
+    suspend fun availableAudioTrackCount(): Int
+    @Query("""
+        SELECT COUNT(*) FROM sync_tracks t
+        INNER JOIN sync_plans p ON p.planId = t.planId
+        INNER JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = 'audio:' || t.trackId
+        INNER JOIN sync_documents d ON d.planId = t.planId AND d.kind = 'analysis' AND d.documentKey = t.trackId
+        WHERE p.active = 1 AND t.unavailableReason IS NULL
+          AND CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.source_fingerprint') END IS audio.sha256
+          AND CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.analyzer_version') END IS :analyzerVersion
+    """)
+    suspend fun analyzedAudioTrackCount(analyzerVersion: String): Int
+    @Query("""
+        SELECT t.trackId AS trackId, t.albumId AS albumId, t.album AS album,
+               audio.relativePath AS audioPath, audio.sha256 AS fingerprint,
+               t.rawJson AS rawJson, t.unavailableReason AS unavailableReason,
+               da.rawJson AS analysisJson, dh.rawJson AS histogramJson
+        FROM sync_tracks t
+        INNER JOIN sync_plans p ON p.planId = t.planId
+        LEFT JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = 'audio:' || t.trackId
+        LEFT JOIN sync_documents da ON da.planId = t.planId AND da.kind = 'analysis' AND da.documentKey = t.trackId
+        LEFT JOIN sync_documents dh ON dh.planId = t.planId AND dh.kind = 'loudness_histogram' AND dh.documentKey = t.trackId
+        WHERE p.active = 1
+        ORDER BY t.syncOrder
+    """)
+    suspend fun loudnessPlannerTrackRows(): List<LoudnessPlannerTrackRow>
+    @Query("SELECT d.documentKey AS albumId, d.rawJson AS rawJson FROM sync_documents d INNER JOIN sync_plans p ON p.planId = d.planId WHERE p.active = 1 AND d.kind = 'album_loudness'")
+    suspend fun activeAlbumLoudnessRows(): List<AlbumDocumentRow>
+    @Query("SELECT d.rawJson FROM sync_documents d INNER JOIN sync_plans p ON p.planId = d.planId WHERE p.active = 1 AND d.kind = :kind AND d.documentKey = :documentKey LIMIT 1")
+    suspend fun activeDocumentJson(kind: String, documentKey: String): String?
+    @Query("""
+        INSERT OR REPLACE INTO sync_documents(planId, kind, documentKey, rawJson)
+        SELECT :planId, d.kind, d.documentKey, d.rawJson
+        FROM sync_documents d
+        WHERE d.planId != :planId
+          AND d.kind IN ('analysis', 'loudness_histogram', 'loudness_progress')
+          AND CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.source_fingerprint') END = (
+            SELECT a.sha256 FROM sync_assets a WHERE a.planId = :planId AND a.assetId = 'audio:' || d.documentKey
+          )
+    """)
+    suspend fun copyLoudnessDocuments(planId: String)
+    @Query("""
+        INSERT OR REPLACE INTO sync_documents(planId, kind, documentKey, rawJson)
+        SELECT :planId, d.kind, d.documentKey, d.rawJson
+        FROM sync_documents d
+        WHERE d.planId != :planId AND d.kind = 'album_loudness'
+    """)
+    suspend fun copyAlbumLoudnessDocuments(planId: String)
 }
 
 @Database(
@@ -915,6 +1004,8 @@ internal class AndroidLibrarySyncStore(
             dao.insertSearchDocuments(searchDocumentsFor(planId, trackEntities.filter { it.unavailableReason == null }, emptyList()))
             dao.deactivatePlans()
             dao.activatePlan(planId)
+            dao.copyLoudnessDocuments(planId)
+            dao.copyAlbumLoudnessDocuments(planId)
             val active = dao.assetPaths(planId).toSet()
             dao.staleAssets(planId).also {
                 dao.deleteStaleAssets(planId)

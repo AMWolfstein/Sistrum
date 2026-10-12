@@ -712,7 +712,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.analysis.AlbumLoudnessPlannerTest'`; instrumented class run
     with `QA-I` and its expected failures listed in the commit message. migration-guard (Room).
 
-- [ ] T051c [US6] Implement `AN/LoudnessStore.kt`, `AN/AlbumLoudnessPlanner.kt`, new DAO queries and the rescan carry-over in `A/sync/SyncDatabase.kt` {hard} [HIGH-RISK]
+- [x] T051c [US6] Implement `AN/LoudnessStore.kt`, `AN/AlbumLoudnessPlanner.kt`, new DAO queries and the rescan carry-over in `A/sync/SyncDatabase.kt` {hard} [HIGH-RISK]
   - Do: document kinds `analysis`, `loudness_histogram`, `album_loudness`, `loudness_progress`
     (`contracts/loudness-analysis.md`); upserts in the active plan; `writeLocalLibrary` copies the per-track kinds
     with unchanged fingerprints, and the album records, into the new plan before it deletes stale documents (album
