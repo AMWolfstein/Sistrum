@@ -3,6 +3,7 @@ package me.misa198.airmedy.dsp
 import com.sun.management.ThreadMXBean
 import java.lang.management.ManagementFactory
 import me.misa198.airmedy.dsp.resample.*
+import me.misa198.airmedy.dsp.silence.Detector
 
 object DspBenchmark {
     @JvmStatic fun main(args:Array<String>) {
@@ -13,6 +14,9 @@ object DspBenchmark {
             val run={ var at=0;while(at<1024){r.process(dst,src,at,1024-at);at+=r.consumed} }
             measure("resample-${p.id}",1024,run)
         }
+        val detector=Detector(48000,2,-55.0,1,1024)
+        val silenceInput=Array(2){FloatArray(1024){if(it%16<8)0f else .25f}}
+        measure("silence",1024){detector.reset();detector.process(silenceInput);detector.flush()}
     }
     fun measure(name:String,frames:Int,run:()->Unit):Long {
         val bean=ManagementFactory.getThreadMXBean() as ThreadMXBean

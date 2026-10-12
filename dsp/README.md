@@ -8,3 +8,7 @@ Equal rates are identity at the caller and are refused by the kernel.
 
 See [oracle and tolerances](../docs/dsp/ORACLE.md). No kernels are wired into
 playback by this port. Dither and psy are excluded.
+
+`silence.Detector` takes minimum duration in integer nanoseconds. Allocate enough
+span capacity before processing, then read `from(i)`/`to(i)` and dropped/total
+counters after `flush()`. `reset()` reuses storage. Algorithm version: silence-1.
