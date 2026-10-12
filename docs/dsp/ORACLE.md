@@ -24,3 +24,13 @@ allocation checks. Benchmarks warm 20,000 chunks, then measure 10,000 chunks
 using the JVM thread allocation counter. Construction and JSON loading are
 outside measurement. Performance numbers are local evidence, not a portable
 latency guarantee.
+
+Silence: 81 vectors cover studio/room-tone/analog guidance (-80/-55/-40 dBFS),
+8/44.1/48 kHz, 1/2/6 channels, exact and fractional nanosecond bounds,
+leading/trailing spans and threshold equality/adjacent float32 values.
+Endpoints, minimum frames and all counters compare exactly, including one-frame
+and fragmented runs. NaN/Infinity follow Go's peak comparison behavior.
+Spans are stored in caller-sized preallocated primitive arrays; endpoint reads
+are allocation-free, snapshots allocate outside processing. Default capacity
+is 4096 spans; exhaustion is explicit. This capacity policy is the only
+storage adaptation from Go's growable slice.

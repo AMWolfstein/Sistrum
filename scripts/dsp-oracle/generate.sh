@@ -14,4 +14,11 @@ require github.com/colespringer/waxflow v0.0.0
 replace github.com/colespringer/waxflow => $src
 MOD
 cd "$work"
-GOWORK=off GOFLAGS=-mod=mod go run . > "$root/docs/dsp/resample-oracle.json"
+for package in ${1:-resample silence}; do
+  if [[ "$package" == resample ]]; then
+    cp "$root/scripts/dsp-oracle/main.go" "$work/main.go"
+  else
+    cp "$root/scripts/dsp-oracle/$package/main.go" "$work/main.go"
+  fi
+  GOWORK=off GOFLAGS=-mod=mod go run . > "$root/docs/dsp/$package-oracle.json"
+done
