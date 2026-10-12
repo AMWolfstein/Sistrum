@@ -4,6 +4,7 @@ import com.sun.management.ThreadMXBean
 import java.lang.management.ManagementFactory
 import me.misa198.airmedy.dsp.resample.*
 import me.misa198.airmedy.dsp.silence.Detector
+import me.misa198.airmedy.dsp.mix.*
 
 object DspBenchmark {
     @JvmStatic fun main(args:Array<String>) {
@@ -17,6 +18,9 @@ object DspBenchmark {
         val detector=Detector(48000,2,-55.0,1,1024)
         val silenceInput=Array(2){FloatArray(1024){if(it%16<8)0f else .25f}}
         measure("silence",1024){detector.reset();detector.process(silenceInput);detector.flush()}
+        val matrix=Matrix.forLayouts(Speakers.SURROUND_51,Speakers.STEREO)
+        val mixInput=Array(6){FloatArray(1024){((it%127)-63)/128f}};val mixOutput=Array(2){FloatArray(1024)}
+        measure("mix-5.1-stereo",1024){matrix.apply(mixOutput,mixInput,1024)}
     }
     fun measure(name:String,frames:Int,run:()->Unit):Long {
         val bean=ManagementFactory.getThreadMXBean() as ThreadMXBean
