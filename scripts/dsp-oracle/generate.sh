@@ -14,7 +14,7 @@ require github.com/colespringer/waxflow v0.0.0
 replace github.com/colespringer/waxflow => $src
 MOD
 cd "$work"
-for package in ${1:-resample silence mix}; do
+for package in ${1:-resample silence mix gain}; do
   if [[ "$package" == resample ]]; then
     cp "$root/scripts/dsp-oracle/main.go" "$work/main.go"
   else

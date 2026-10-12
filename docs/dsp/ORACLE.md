@@ -52,3 +52,18 @@ bits refuse. The adapter is available for spec 002 and is not wired into playbac
 The count masks match the installed Media3 1.11.1 Util.getAudioTrackChannelConfig(int)
 (bytecode inspected locally): mono, stereo, FL/FR/FC, quad, five-channel rear,
 rear 5.1, rear 6.1, and rear+side 7.1. Android mask numbers are not WAVE mask numbers.
+
+Gain: 72 compressor/limiter vectors (8/44.1/48/96 kHz; 1/2/6 channels;
+broadband, isolated transients and high-frequency tones) plus six scalar gain
+vectors. Voice preset, compressor-1, gain-1, and limiter-3 are preserved.
+The linked peak detector caps at 2.0 and ignores NaN in its peak comparisons;
+samples themselves retain NaN/Infinity behavior. Scalar outputs are bit-exact;
+FromDB allows relative 1e-12 for Go/JVM pow. Compressor/limiter PCM allows absolute
+4e-7 for transcendental design/envelope and fused float32 arithmetic differences.
+JVM chunking and horizon rejoin compare output bits exactly. Fixed-point smoother
+operations use the same signed integer arithmetic and 2^-40 truncation.
+Under-ceiling limiter input is bit-identical; clamp is inert on ceiling fixtures.
+NaN ceiling is rejected before allocation (Go lacks that validation); -Infinity
+is allowed as in Go. The deque is preallocated; it has no growable objects.
+Compressor and limiter are available only as kernels and are not wired into
+Media3; the optional dynamics feature remains for later.
