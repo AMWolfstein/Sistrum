@@ -37,3 +37,5 @@ include(":metadata")
 
 // Independent Mood Radio PCM feature and mood maths port.
 include(":analysis")
+
+include(":dsp")

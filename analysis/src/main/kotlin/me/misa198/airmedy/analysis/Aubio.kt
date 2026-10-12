@@ -9,12 +9,13 @@
 // phasevoc.c, mathutils.c: Copyright (C) 2003-2014 Paul Brossier.
 // Aggregation follows Airmedy 7d3a08d0eaa2c88d3518f19665eaffc4762dd6a1.
 package me.misa198.airmedy.analysis
+import me.misa198.airmedy.dsp.resample.AnalysisResampler
 import java.io.Serializable
 import kotlin.math.*
 
 internal class Rhythm(private val channels: Int, private val rate: Int): Serializable {
     private val enabled = channels != 9 // libswresample cannot downmix an unspecified nine-channel layout.
-    private val resampler = if(rate != 44100 && enabled) Resampler(rate,44100,1,true) else null
+    private val resampler = if(rate != 44100 && enabled) AnalysisResampler(rate,44100,1,true) else null
     private val matrix = FloatArray(channels) { ch -> when {
         channels == 1 -> 1f
         ch < 2 -> .7071067811865476f
