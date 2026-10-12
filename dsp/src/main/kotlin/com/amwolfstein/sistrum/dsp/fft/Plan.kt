@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Ported from WaxFlow dsp/fft/fft.go, fork github.com/AMWolfstein/WaxFlow at b7857aff88820ad37936026421d1641e64611dbe,
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
-package com.amwolfstein.sistrum.codecs.dsp.fft
+package com.amwolfstein.sistrum.dsp.fft
 
 /** WaxFlow FFT's radix-4/2 path; these are the only factors WMA's powers of two use. */
 class Plan(val n:Int) {

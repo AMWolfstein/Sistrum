@@ -67,3 +67,19 @@ NaN ceiling is rejected before allocation (Go lacks that validation); -Infinity
 is allowed as in Go. The deque is preallocated; it has no growable objects.
 Compressor and limiter are available only as kernels and are not wired into
 Media3; the optional dynamics feature remains for later.
+
+FFT: the existing radix-4/2 power-of-two kernel is relocated without changing its
+operation order. Codec imports and the JVM module dependency are its only
+consumer changes. 24 Go complex-FFT vectors (impulse, real broadband and complex
+broadband; lengths 1..4096) allow absolute 2e-5 for Go Sincos/JVM twiddle rounding.
+Additionally, 27 output SHA-256 vectors at lengths 1..8192 were recorded from the
+old codec class before moving it, using `scripts/dsp-oracle/FftBaseline.java`.
+The moved kernel must match those hashes exactly. It retains its existing
+power-of-two restriction; this move does not extend the codec FFT to radices 3/5.
+Codec corpus SHA-256 gates remain unmodified and must stay bit-identical.
+
+Final benchmark snapshot: `docs/dsp/benchmarks.tsv`, OpenJDK 21 on the local host,
+20,000 warmup chunks followed by 10,000 measured chunks. All eight rows measured
+zero thread-allocated bytes; final measurements ran while the module gate was
+active, so timings include host contention. Tests independently assert zero
+allocations while resetting/draining state and recording silence spans.

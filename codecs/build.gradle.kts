@@ -4,7 +4,7 @@ plugins {
 
 kotlin { jvmToolchain(21) }
 
-dependencies { testImplementation(libs.junit) }
+dependencies { implementation(project(":dsp")); testImplementation(libs.junit) }
 
 tasks.jar {
     from("THIRD-PARTY-NOTICES") { into("META-INF") }
