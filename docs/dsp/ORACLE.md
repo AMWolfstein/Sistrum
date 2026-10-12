@@ -34,3 +34,21 @@ Spans are stored in caller-sized preallocated primitive arrays; endpoint reads
 are allocation-free, snapshots allocate outside processing. Default capacity
 is 4096 spans; exhaustion is explicit. This capacity policy is the only
 storage adaptation from Go's growable slice.
+
+Mix: 240 generated layout pairs cover every named WAVE speaker bit, mono/stereo,
+quad, rear/side 5.1, 6.1, 7.1, all 18 positions, identity and unsupported layouts.
+Impulse responses assert every float32 coefficient bit-exactly; MaxGain sums
+compare exactly. Mixed float32 PCM allows absolute 2e-7 for fused arithmetic.
+Rows are energy-normalized before narrowing, LFE is dropped on stereo/mono
+fold-down, and widening retains WaxFlow's single-channel placement convention.
+
+The separate Media3Layout adapter preserves named speakers even for single-channel
+masks. It chooses the smallest compatible count-only layout among 1..8; missing
+positions are silence. Every subset of the canonical eight-speaker layout is
+covered by placement tests. Side 5.1 becomes eight channels with silent rear slots;
+LFE alone becomes six channels with a silent centre. Height/front-of-centre/back-
+centre combinations outside those envelopes use the stereo gain table; undefined
+bits refuse. The adapter is available for spec 002 and is not wired into playback.
+The count masks match the installed Media3 1.11.1 Util.getAudioTrackChannelConfig(int)
+(bytecode inspected locally): mono, stereo, FL/FR/FC, quad, five-channel rear,
+rear 5.1, rear 6.1, and rear+side 7.1. Android mask numbers are not WAVE mask numbers.

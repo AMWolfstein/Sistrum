@@ -1,4 +1,4 @@
-DSP ports: WaxFlow dsp/resample, dsp/silence and dsp/internal/firwin; the analysis
+DSP ports: WaxFlow dsp/resample, dsp/silence, dsp/mix and dsp/internal/firwin; the analysis
 resampler is preserved from libswresample. Sistrum: GPL-3.0-or-later.
 
 ## WaxFlow (MIT)
