@@ -19,3 +19,8 @@ layouts, with silence padding. Pass the matrix's output count to Media3 after
 applying it; passing the source count would mislabel speakers. Correlated downmix
 content can exceed unity (`maxGain` reports the bound); normalization is by energy,
 not a clip guarantee. No limiter or audio sink is wired by this module.
+
+`gain.Compressor` supports the pinned `voice` preset with a linked peak detector
+and 10-second settle horizon. `gain.Limiter` ports the package's 4x true-peak
+min-hold kernel, with a 2-second horizon and compensated drain. `gain.Gain` is
+the scalar kernel. These optional dynamics kernels are not wired into playback.

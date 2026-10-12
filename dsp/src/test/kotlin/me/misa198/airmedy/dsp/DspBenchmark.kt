@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory
 import me.misa198.airmedy.dsp.resample.*
 import me.misa198.airmedy.dsp.silence.Detector
 import me.misa198.airmedy.dsp.mix.*
+import me.misa198.airmedy.dsp.gain.*
 
 object DspBenchmark {
     @JvmStatic fun main(args:Array<String>) {
@@ -21,6 +22,11 @@ object DspBenchmark {
         val matrix=Matrix.forLayouts(Speakers.SURROUND_51,Speakers.STEREO)
         val mixInput=Array(6){FloatArray(1024){((it%127)-63)/128f}};val mixOutput=Array(2){FloatArray(1024)}
         measure("mix-5.1-stereo",1024){matrix.apply(mixOutput,mixInput,1024)}
+        val compressor=Compressor(48000,2);val limiter=Limiter(48000,2)
+        val gainInput=Array(2){FloatArray(1024){if(it%16==0)1.5f else .25f}};val gainOutput=Array(2){FloatArray(1024)}
+        measure("compressor-voice",1024){compressor.process(gainOutput,gainInput)}
+        measure("limiter",1024){var at=0;while(at<1024){limiter.process(gainOutput,gainInput,at,1024-at);at+=limiter.consumed}}
+        measure("gain-scalar",1024){Gain.apply(gainOutput[0],1.00001f)}
     }
     fun measure(name:String,frames:Int,run:()->Unit):Long {
         val bean=ManagementFactory.getThreadMXBean() as ThreadMXBean
