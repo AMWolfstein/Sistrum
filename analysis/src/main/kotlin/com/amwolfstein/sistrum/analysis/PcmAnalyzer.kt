@@ -2,6 +2,7 @@
 // Airmedy feature aggregation port: 7d3a08d0eaa2c88d3518f19665eaffc4762dd6a1, GPL-3.0.
 // astats statistics: FFmpeg 8.1.2, LGPL-2.1-or-later, Copyright (c) 2012 Paul B Mahol.
 package com.amwolfstein.sistrum.analysis
+import com.amwolfstein.sistrum.dsp.resample.AnalysisResampler
 import java.io.*
 import kotlin.math.*
 
@@ -25,7 +26,7 @@ class PcmAnalyzer(val channels: Int, val sampleRate: Int,
                   private val groups: Int = ALL): Serializable {
     init { require(channels in 1..9 && sampleRate in 8000..2822400); require(groups > 0 && groups and ALL.inv() == 0) }
     private val loudness = if (groups and LOUDNESS != 0) Loudness(channels,sampleRate) else null
-    private val peakResampler = if (groups and LOUDNESS != 0) Resampler(sampleRate,192000,channels) else null
+    private val peakResampler = if (groups and LOUDNESS != 0) AnalysisResampler(sampleRate,192000,channels) else null
     private val spectral = if (groups and SPECTRAL != 0) Spectral(sampleRate) else null
     private val rhythm = if (groups and RHYTHM != 0) Rhythm(channels,sampleRate) else null
     private val sums = DoubleArray(channels)

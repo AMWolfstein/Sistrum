@@ -1,0 +1,3 @@
+kernel	frames	ns_per_frame	allocated_bytes
+resample-hq	10240000	137.7784275390625	0
+resample-fast	10240000	66.28860966796876	0

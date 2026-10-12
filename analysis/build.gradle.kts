@@ -2,6 +2,7 @@
 plugins { kotlin("jvm") }
 kotlin { jvmToolchain(21) }
 dependencies {
+    implementation(project(":dsp"))
     testImplementation(libs.junit)
     testImplementation("com.google.code.gson:gson:2.13.2")
 }

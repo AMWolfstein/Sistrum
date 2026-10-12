@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Port of FFmpeg 8.1.2 libswresample/resample.c and resample_template.c (LGPL-2.1-or-later).
 // Copyright (c) 2004-2012 Michael Niedermayer. Kaiser polyphase bank and initial reflection.
-package com.amwolfstein.sistrum.analysis
+package com.amwolfstein.sistrum.dsp.resample
 import java.io.Serializable
 import kotlin.math.*
 
 /** Streaming libswresample default Kaiser resampling. No EOF drain, as in Airmedy. */
-internal class Resampler(private val inputRate: Int, private val outputRate: Int,
+class AnalysisResampler(private val inputRate: Int, private val outputRate: Int,
                          private val channels: Int, private val floatPrecision: Boolean = false): Serializable {
     private val bypass = inputRate == outputRate
     private val factor = min(outputRate * .97 / inputRate, 1.0)
