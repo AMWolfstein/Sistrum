@@ -24,3 +24,7 @@ not a clip guarantee. No limiter or audio sink is wired by this module.
 and 10-second settle horizon. `gain.Limiter` ports the package's 4x true-peak
 min-hold kernel, with a 2-second horizon and compensated drain. `gain.Gain` is
 the scalar kernel. These optional dynamics kernels are not wired into playback.
+
+`fft.Plan` is the existing codec radix-4/2 FFT, relocated without arithmetic
+changes. It accepts positive powers of two and reusable separate complex buffers.
+Codecs now depend on DSP; codec output hashes remain the parity gate.

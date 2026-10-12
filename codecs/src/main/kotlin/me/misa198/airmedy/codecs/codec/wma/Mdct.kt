@@ -3,7 +3,7 @@
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
 package me.misa198.airmedy.codecs.codec.wma
 
-import me.misa198.airmedy.codecs.dsp.fft.Plan
+import me.misa198.airmedy.dsp.fft.Plan
 internal class ImdctScratch(maxN:Int){val cr=FloatArray(maxN/4);val ci=FloatArray(maxN/4);val dr=FloatArray(maxN/4);val di=FloatArray(maxN/4)}
 internal class ImdctPlan(val blockLen:Int) {
  private val m=blockLen/2;private val fp=Plan(m)

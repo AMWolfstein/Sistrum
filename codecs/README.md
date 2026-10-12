@@ -741,3 +741,7 @@ Metadata, warnings, starts, pieces, cuts and refusal text are compared at
 44.1/48/32 kHz, including multi-FILE, data tracks, missing INDEX 01, CRLF, BOMs
 and legacy input. UTF-16 and SONGWRITER are covered as explicit extensions.
 Go must be installed; missing source/tooling fails the run rather than skipping.
+
+Shared radix-4/2 FFT kernels live in the pure JVM `:dsp` module. The move only
+changes imports and the module dependency; codec arithmetic and parity hashes
+are unchanged. See `docs/dsp/ORACLE.md` for the frozen pre-move FFT output gate.

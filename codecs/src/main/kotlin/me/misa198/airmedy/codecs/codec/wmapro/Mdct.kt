@@ -3,7 +3,7 @@
 // Copyright (c) 2026 Cole Springer, MIT License (see THIRD-PARTY-NOTICES).
 package me.misa198.airmedy.codecs.codec.wmapro
 
-import me.misa198.airmedy.codecs.dsp.fft.Plan
+import me.misa198.airmedy.dsp.fft.Plan
 import kotlin.math.*
 internal class ImdctScratch(n:Int){val cr=FloatArray(n/2);val ci=FloatArray(n/2);val dr=FloatArray(n/2);val di=FloatArray(n/2)}
 internal class ImdctPlan(val length:Int) {

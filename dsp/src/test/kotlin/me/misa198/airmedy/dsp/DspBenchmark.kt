@@ -6,6 +6,7 @@ import me.misa198.airmedy.dsp.resample.*
 import me.misa198.airmedy.dsp.silence.Detector
 import me.misa198.airmedy.dsp.mix.*
 import me.misa198.airmedy.dsp.gain.*
+import me.misa198.airmedy.dsp.fft.Plan
 
 object DspBenchmark {
     @JvmStatic fun main(args:Array<String>) {
@@ -27,6 +28,9 @@ object DspBenchmark {
         measure("compressor-voice",1024){compressor.process(gainOutput,gainInput)}
         measure("limiter",1024){var at=0;while(at<1024){limiter.process(gainOutput,gainInput,at,1024-at);at+=limiter.consumed}}
         measure("gain-scalar",1024){Gain.apply(gainOutput[0],1.00001f)}
+        val fft=Plan(1024);val real=FloatArray(1024){((it%127)-63)/128f};val imag=FloatArray(1024)
+        val fftReal=FloatArray(1024);val fftImag=FloatArray(1024)
+        measure("fft-1024",1024){fft.transform(fftReal,fftImag,real,imag)}
     }
     fun measure(name:String,frames:Int,run:()->Unit):Long {
         val bean=ManagementFactory.getThreadMXBean() as ThreadMXBean

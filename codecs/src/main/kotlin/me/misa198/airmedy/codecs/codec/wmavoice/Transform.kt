@@ -5,7 +5,7 @@ package me.misa198.airmedy.codecs.codec.wmavoice
 
 import kotlin.math.*
 import java.util.Arrays
-import me.misa198.airmedy.codecs.dsp.fft.Plan
+import me.misa198.airmedy.dsp.fft.Plan
 internal class Transforms {
     private val plan=Plan(128)
     private val re=FloatArray(128);private val im=FloatArray(128);private val outRe=FloatArray(128);private val outIm=FloatArray(128);private val ext=DoubleArray(130)
