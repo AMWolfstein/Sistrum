@@ -51,6 +51,9 @@ the bin count, not the track length (typically 0.5–1.5 KB).
 
 - **Members**: available (not hidden) tracks with the same `albumId` whose album name comes from a tag. MediaStore's
   folder fallback ("Music" for untagged files) is not an album; those tracks have no album record.
+  Test (T051b, 2026-10-12): a track is a folder fallback when its album equals its parent folder's name AND it has no
+  `tag_album`. An album that differs from the folder name counts as tagged even without `tag_album` (MediaStore read a
+  tag our reader could not). `failed` tracks are not members; `silent` members count but add no blocks or peak.
 - **Value**: BS.1770 gating over the union of all members' blocks (absolute gate −70 LUFS, relative gate −10 LU of
   the pooled ungated mean), computed from the merged member histograms, as WaxFlow's `loudness.Group` and
   libebur128's multi-state loudness do. Never an average of track values. Album true peak = max of members.

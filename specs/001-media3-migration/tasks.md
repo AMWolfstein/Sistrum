@@ -700,7 +700,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ### Storage, album loudness, rescans (M6-1, M6-3)
 
-- [ ] T051b [US6] [TESTS-FIRST] Analysis store tests in `ANI/LoudnessStoreTest.kt` (instrumented, Room on `.qa`) and `ANT/AlbumLoudnessPlannerTest.kt` (JVM); stubs `AN/LoudnessStore.kt`, `AN/AlbumLoudnessPlanner.kt` {default}
+- [x] T051b [US6] [TESTS-FIRST] Analysis store tests in `ANI/LoudnessStoreTest.kt` (instrumented, Room on `.qa`) and `ANT/AlbumLoudnessPlannerTest.kt` (JVM); stubs `AN/LoudnessStore.kt`, `AN/AlbumLoudnessPlanner.kt` {default}
   - Do: a written `analysis` document is read back unchanged by the **existing** `activeAnalyses()` (loudness_lufs,
     true_peak in dBTP); silent/failed documents carry no `loudness_lufs` and are skipped by it; documents survive a
     rescan when the track's audio fingerprint (`identityHash(path|size|mtime)`) is unchanged and are dropped when it
