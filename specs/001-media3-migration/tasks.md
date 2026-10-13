@@ -851,7 +851,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     end (fade length + lead), and a snap on pause/seek/skip leaves no frame at the old gain after the flush.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.dsp.EqualPowerFadeTest'`. migration-guard.
 
-- [ ] T057 [US5] Implement `A/player/media3/TransitionController.kt` {hard} [HIGH-RISK]
+- [x] T057 [US5] Implement `A/player/media3/TransitionController.kt` {hard} [HIGH-RISK]
   - Tests: `TransitionControllerTest` passes without modifying it; `GATE`.
 
 - [ ] T058 [US5] Implement the fade in `A/player/dsp/GainProcessor.kt` {hard} [HIGH-RISK]

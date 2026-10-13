@@ -32,25 +32,118 @@ internal sealed interface TransitionCommand {
 }
 
 internal class TransitionController(settings: TransitionSettings) {
-    val phase: TransitionPhase get() = TransitionPhase.Idle
+    private var settings = settings
+    private var currentPhase = TransitionPhase.Idle
+    private var fadeDurationMs: Long? = null
+    private var incoming: PlaybackItem? = null
+    private var incomingReady = false
+    // The incoming item that failed to prepare; not retried while it stays the next item.
+    private var suppressedTrackId: String? = null
+
+    val phase: TransitionPhase get() = currentPhase
     /** Duration of the running fade, null when not Transitioning. */
-    val runningFadeMs: Long? get() = null
+    val runningFadeMs: Long? get() = fadeDurationMs
     /** Item B holds (Preparing or Transitioning), else null. */
-    val incomingItem: PlaybackItem? get() = null
+    val incomingItem: PlaybackItem? get() = incoming
     /** New settings; apply to later transitions only, never to a running fade (FR-032). */
-    fun updateSettings(settings: TransitionSettings): List<TransitionCommand> = emptyList()
+    fun updateSettings(settings: TransitionSettings): List<TransitionCommand> {
+        this.settings = settings
+        if (phase == TransitionPhase.Preparing && settings.crossfadeMs == 0L) {
+            return releaseIncoming()
+        }
+        return emptyList()
+    }
     /** Position tick of the current track. [next] = queue successor (with repeat-one: the current item itself). */
-    fun onPosition(current: PlaybackItem, remainingMs: Long, next: PlaybackItem?, repeatOne: Boolean): List<TransitionCommand> = emptyList()
-    fun onIncomingReady(): List<TransitionCommand> = emptyList()
+    fun onPosition(current: PlaybackItem, remainingMs: Long, next: PlaybackItem?, repeatOne: Boolean): List<TransitionCommand> {
+        if (phase != TransitionPhase.Idle && phase != TransitionPhase.Scheduled) return emptyList()
+        if (next?.trackId != suppressedTrackId) suppressedTrackId = null
+        if (settings.crossfadeMs <= 0L || next == null || next.trackId == suppressedTrackId ||
+            (repeatOne && !settings.repeatOneCrossfade)
+        ) {
+            reset()
+            return emptyList()
+        }
+        if (remainingMs > settings.crossfadeMs + settings.preBufferMs) {
+            currentPhase = TransitionPhase.Scheduled
+            return emptyList()
+        }
+        incoming = next
+        incomingReady = false
+        currentPhase = TransitionPhase.Preparing
+        return listOf(TransitionCommand.PrepareIncoming(next))
+    }
+
+    fun onIncomingReady(): List<TransitionCommand> {
+        if (phase == TransitionPhase.Preparing) incomingReady = true
+        return emptyList()
+    }
     /** The coordinator decided the fade starts now with [durationMs] (already clamped). */
-    fun beginFade(durationMs: Long): List<TransitionCommand> = emptyList()
-    fun onFadeComplete(): List<TransitionCommand> = emptyList()
-    fun snap(reason: SnapReason): List<TransitionCommand> = emptyList()
+    fun beginFade(durationMs: Long): List<TransitionCommand> {
+        if (phase != TransitionPhase.Preparing) return emptyList()
+        if (!incomingReady) {
+            val item = checkNotNull(incoming)
+            reset()
+            return listOf(TransitionCommand.ReleaseIncoming, TransitionCommand.AppendGapless(item))
+        }
+        currentPhase = TransitionPhase.Transitioning
+        fadeDurationMs = durationMs
+        return listOf(TransitionCommand.StartFade(durationMs))
+    }
+
+    fun onFadeComplete(): List<TransitionCommand> {
+        if (phase != TransitionPhase.Transitioning) return emptyList()
+        reset()
+        return listOf(TransitionCommand.ReleaseOutgoing)
+    }
+
+    fun snap(reason: SnapReason): List<TransitionCommand> = when (phase) {
+        TransitionPhase.Transitioning -> snapFade()
+        TransitionPhase.Preparing -> if (reason == SnapReason.QueueEdit || reason == SnapReason.Stop) {
+            releaseIncoming()
+        } else {
+            emptyList()
+        }
+        else -> emptyList()
+    }
     /** Manual next; [afterIncoming] = the queue item after the incoming one (i+2), null at queue end. */
-    fun onNext(afterIncoming: PlaybackItem?): List<TransitionCommand> = emptyList()
+    fun onNext(afterIncoming: PlaybackItem?): List<TransitionCommand> = when (phase) {
+        TransitionPhase.Transitioning -> {
+            val commands = snapFade()
+            if (afterIncoming != null) commands + TransitionCommand.HardCut(afterIncoming, 0L) else commands
+        }
+        TransitionPhase.Preparing -> releaseIncoming()
+        else -> emptyList()
+    }
     /** Manual previous; [incomingPositionMs] = incoming player's position; [outgoing] = outgoing item. */
-    fun onPrevious(incomingPositionMs: Long, outgoing: PlaybackItem): List<TransitionCommand> = emptyList()
-    fun onIncomingError(): List<TransitionCommand> = emptyList()
+    fun onPrevious(incomingPositionMs: Long, outgoing: PlaybackItem): List<TransitionCommand> {
+        if (phase != TransitionPhase.Transitioning) return emptyList()
+        val item = if (incomingPositionMs <= 3_000L) outgoing else checkNotNull(incoming)
+        return snapFade() + TransitionCommand.HardCut(item, 0L)
+    }
+
+    fun onIncomingError(): List<TransitionCommand> {
+        if (phase != TransitionPhase.Preparing) return emptyList()
+        suppressedTrackId = checkNotNull(incoming).trackId
+        return releaseIncoming()
+    }
     /** A player error while Transitioning (either player). */
-    fun onPlayerError(): List<TransitionCommand> = emptyList()
+    fun onPlayerError(): List<TransitionCommand> =
+        if (phase == TransitionPhase.Transitioning) snapFade() else emptyList()
+
+    private fun releaseIncoming(): List<TransitionCommand> {
+        reset()
+        return listOf(TransitionCommand.ReleaseIncoming)
+    }
+
+    private fun snapFade(): List<TransitionCommand> {
+        reset()
+        return listOf(TransitionCommand.SnapFade, TransitionCommand.ReleaseOutgoing)
+    }
+
+    private fun reset() {
+        currentPhase = TransitionPhase.Idle
+        incoming = null
+        incomingReady = false
+        fadeDurationMs = null
+    }
 }
