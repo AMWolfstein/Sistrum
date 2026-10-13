@@ -35,6 +35,7 @@ import com.amwolfstein.sistrum.player.EqualizerSettings
 import com.amwolfstein.sistrum.player.NormalizationSettings
 import com.amwolfstein.sistrum.player.equalizerDspConfig
 import com.amwolfstein.sistrum.player.PlaybackItem
+import com.amwolfstein.sistrum.player.engine.EngineDecodeException
 import com.amwolfstein.sistrum.player.engine.EngineEvent
 import com.amwolfstein.sistrum.player.engine.EngineKind
 import com.amwolfstein.sistrum.player.engine.ItemGain
@@ -350,7 +351,7 @@ internal class Media3Engine(
             throw error
         }
         try {
-            awaitReady(candidate)
+            awaitReady(candidate, item)
         } catch (error: Throwable) {
             releaseCurrentPlayer()
             throw error
@@ -373,11 +374,25 @@ internal class Media3Engine(
         if (!startPaused) play()
     }
 
-    private suspend fun awaitReady(candidate: ExoPlayer) {
+    private suspend fun awaitReady(candidate: ExoPlayer, item: PlaybackItem) {
         val deadline = SystemClock.elapsedRealtime() + PREPARE_TIMEOUT_MS
         while (SystemClock.elapsedRealtime() < deadline) {
             val error = factory.call { candidate.playerError }
-            if (error != null) throw IOException("prepare failed: ${error.errorCodeName}", error)
+            if (error != null) {
+                if (error.errorCode in 3000..4999) {
+                    // Capture attribution before prepare's catch releases the player (FR-086).
+                    throw factory.call {
+                        val provider = factory.providerRecorder.providerFor(
+                            Uri.fromFile(File(item.audioPath)).toString(),
+                        ) ?: "none"
+                        val format = candidate.audioFormat?.sampleMimeType
+                            ?: currentSlot?.knownMime?.takeIf { it.first == item.trackId }?.second
+                            ?: item.audioPath.substringAfterLast('.', "").ifEmpty { "unknown" }
+                        EngineDecodeException(provider, format, error)
+                    }
+                }
+                throw IOException("prepare failed: ${error.errorCodeName}", error)
+            }
             val state = factory.call { candidate.playbackState }
             if (state == Player.STATE_READY) return
             delay(PREPARE_POLL_MS)

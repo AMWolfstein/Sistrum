@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.player.media3
 
 import android.os.SystemClock
+import androidx.media3.common.PlaybackException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.ByteArrayOutputStream
@@ -10,22 +11,65 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlinx.coroutines.runBlocking
 import com.amwolfstein.sistrum.player.PlaybackItem
+import com.amwolfstein.sistrum.player.engine.EngineDecodeException
 import com.amwolfstein.sistrum.player.engine.EngineEvent
 import com.amwolfstein.sistrum.player.engine.ItemGain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Instrumented checks that a decode error after an automatic gapless advance names the item
- * that is actually playing, not the first track of the run (T041a, FR-064/FR-064a).
+ * Instrumented checks for prepare failures and attribution after an automatic gapless advance
+ * (T041a/T062e, FR-064/FR-064a).
  */
 @RunWith(AndroidJUnit4::class)
 class Media3ErrorAttributionTest {
 
     private fun context() = InstrumentationRegistry.getInstrumentation().targetContext
+
+    @Test(timeout = 120_000)
+    fun wmaPrepareFailureNamesNoProvider() {
+        assertPrepareDecodeFailure("wma_v2.wma", "none", expectedFormat = "wma")
+    }
+
+    @Test(timeout = 120_000)
+    fun adpcmWavPrepareFailureNamesPlatformProvider() {
+        assertPrepareDecodeFailure("wav_adpcm_ms.wav", "platform")
+    }
+
+    @Test(timeout = 120_000)
+    fun ima4PrepareFailureNamesKotlinAiffProvider() {
+        assertPrepareDecodeFailure("aifc_ima4.aifc", "kotlin-aiff")
+    }
+
+    private fun assertPrepareDecodeFailure(name: String, provider: String, expectedFormat: String? = null) {
+        val file = File("/sdcard/Music/SistrumTestCorpus", name)
+        assumeTrue("missing corpus fixture: $name", file.isFile)
+        val factory = Media3PlayerFactory(context())
+        val engine = Media3Engine(factory)
+        try {
+            val error = try {
+                runBlocking { engine.prepare(item(file.absolutePath), ItemGain.Unity, 0L, startPaused = true) }
+                throw AssertionError("prepare must throw EngineDecodeException for $name")
+            } catch (e: EngineDecodeException) {
+                e
+            }
+            assertEquals(provider, error.provider)
+            if (expectedFormat != null) assertEquals(expectedFormat, error.format)
+            assertTrue("format must be attributed", error.format.isNotBlank())
+            val cause = error.cause
+            assertTrue("cause must be the player error", cause is PlaybackException)
+            assertTrue("cause must be a parsing/decoding error", (cause as PlaybackException).errorCode in 3000..4999)
+            assertEquals("prepare failure must release its player", 0, factory.livePlayers)
+            assertTrue("prepare failure must not also emit an Error", engine.pollEvents().none { it is EngineEvent.Error })
+        } finally {
+            engine.close()
+            assertEquals("live players leaked", 0, factory.livePlayers)
+        }
+    }
 
     @Test(timeout = 120_000)
     fun errorAfterGaplessAdvanceNamesTheSecondItem() {

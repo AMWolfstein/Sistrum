@@ -72,7 +72,8 @@ is broken for them:** a failure thrown by `prepare()` makes `PlaybackCoordinator
 (`PlaybackCoordinator.kt:931`), which stops playback and writes nothing to the decode-failure log; only failures
 reported as `EngineEvent.Error` after prepare go through FR-064 (log + skip). So these files are neither logged nor
 skipped (FR-064, FR-064a, SC-014). Also, when no extractor accepts a file the provider is blank in the prepare path,
-while the event path falls back to "platform". → follow-up task.
+while the event path falls back to "platform". → fixed by T062d/T062e: rerun after T062e (debug `.qa`) — aifc_fl32/aifc_ima4
+kotlin-aiff, wav_adpcm_ms platform, wma_v2 "none", every cause an `ExoPlaybackException` (3xxx/4xxx), method PASS.
 
 ## CPU and memory (60 s per mode, silent, two FLAC files, last 10 s of each track; process utime+stime)
 
@@ -95,4 +96,4 @@ conversion for 16-bit input with a neutral chain). → follow-up task.
 | SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL, engine-side |
 | SC-006 | FAIL, 2.1–3.7× native on the release-like build |
 | SC-013 | NOT RUN (1 h, owner); short runs predict FAIL (crossfade off ≈ 2× native CPU) |
-| SC-014 | Attribution present on every failure except WMA's blank provider; prepare-time failures are not logged or skipped — FAIL |
+| SC-014 | FAIL at measurement → **PASS after T062e** (2026-10-14): all 4 prepare-time failures attributed (WMA provider "none"), logged and skipped by the coordinator; 44 OK |

@@ -214,11 +214,14 @@ class Regression001MeasurementTest {
                 errors += engine.pollEvents().filterIsInstance<EngineEvent.Error>()
                 val failures = errors.map { Failure(it.provider, it.format, it.cause, "event") }.toMutableList()
                 prepareException?.let { e ->
-                    // prepare() releases its player before rethrowing, and emits no Error when not
-                    // yet prepared. Use the accepting extractor's recorded provider, never invent
-                    // one. Extension is the engine's own format fallback when no Format exists.
-                    failures += Failure(factory!!.providerRecorder.providerFor(Uri.fromFile(file).toString()).orEmpty(),
-                        file.extension, e, "prepare")
+                    // Decode exceptions carry attribution captured before prepare releases its
+                    // player. Keep the recorder/extension fallback for other prepare exceptions.
+                    failures += if (e is com.amwolfstein.sistrum.player.engine.EngineDecodeException) {
+                        Failure(e.provider, e.format, e.cause ?: e, "prepare")
+                    } else {
+                        Failure(factory!!.providerRecorder.providerFor(Uri.fromFile(file).toString()).orEmpty(),
+                            file.extension, e, "prepare")
+                    }
                 }
                 if (failures.isEmpty()) {
                     val provider = factory!!.providerRecorder.providerFor(Uri.fromFile(file).toString()) ?: "none"

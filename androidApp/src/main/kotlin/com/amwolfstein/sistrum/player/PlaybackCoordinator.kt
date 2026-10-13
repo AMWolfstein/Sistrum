@@ -13,6 +13,7 @@ import java.io.File
 import com.amwolfstein.sistrum.mood.MoodRadioBatchSize
 import com.amwolfstein.sistrum.mood.MoodRadioRefillThreshold
 import com.amwolfstein.sistrum.mood.selectMoodRadio
+import com.amwolfstein.sistrum.player.engine.EngineDecodeException
 import com.amwolfstein.sistrum.player.engine.EngineEvent
 import com.amwolfstein.sistrum.player.engine.ItemGain
 import com.amwolfstein.sistrum.player.engine.EngineKind
@@ -670,6 +671,11 @@ internal class PlaybackCoordinator(
             preloadNext()
             nowPlaying.showForeground(item)
             log.d("Playback started id=$trackId durationMs=${engine?.durationMs()}")
+        } catch (error: EngineDecodeException) {
+            // The failed engine is already closed and was never installed. Preserve the paused
+            // hold through further prepare failures while skipping a restored session's queue.
+            if (startPaused) flows.state.value = PlaybackState.Paused(item, startPositionMs, 0L)
+            handleEngineError(EngineEvent.Error(error.provider, error.format, error.cause ?: error))
         } catch (error: Throwable) {
             fail(trackId, error.message ?: "Unable to decode audio")
         }
@@ -710,6 +716,8 @@ internal class PlaybackCoordinator(
                 preparedEngine.close()
                 throw error
             }
+        } catch (error: EngineDecodeException) {
+            handleEngineError(EngineEvent.Error(error.provider, error.format, error.cause ?: error))
         } catch (error: Throwable) {
             log.w("Unable to restore playback id=$trackId; clearing session", error)
             clearRestoredSession()

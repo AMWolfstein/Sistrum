@@ -966,7 +966,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     `PlaybackState.Failed` (unchanged); (e) the failed engine is closed. Contract: `contracts/player-engine.md`
     amendment (orchestrator) — decode failures during `prepare` throw `EngineDecodeException`; blank provider → "none".
     {hard} [HIGH-RISK]
-- [ ] T062e Implement T062d: `EngineDecodeException` in `A/player/engine/EngineEvent.kt`; `Media3Engine.prepare` wraps
+- [x] T062e Implement T062d: `EngineDecodeException` in `A/player/engine/EngineEvent.kt`; `Media3Engine.prepare` wraps
   source/renderer failures with the recorded provider (none → "none") and format (`audioFormat` mime, else known mime,
   else extension); `PlaybackCoordinator` routes it through the `handleEngineError` path. Device: SC-014 harness method
   green (`wma_v2.wma` provider "none"), failures appear in the decode-failure log. Make T062d pass unmodified. {hard} [HIGH-RISK]
