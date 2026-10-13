@@ -20,7 +20,7 @@ You never delegate: do not start other agents, `codex`, `opencode` or `relay.mjs
 - Delete, skip (`@Ignore`) or weaken tests, or change expected values to make them pass.
 
 ## Where things are
-- App: Kotlin + Jetpack Compose in `androidApp/src/main/kotlin/me/misa198/airmedy/`;
+- App: Kotlin + Jetpack Compose in `androidApp/src/main/kotlin/com/amwolfstein/sistrum/`;
   shared module `sharedLogic/`. Unit tests in `androidApp/src/test/`, device tests in `androidApp/src/androidTest/`.
 - Build: `./gradlew :androidApp:assembleDevDebug`
 - Unit tests: `./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest`

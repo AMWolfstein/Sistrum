@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Airmedy</string>
+    <string name="app_name">Sistrum</string>
     <string name="destination_home">Trang chủ</string>
     <string name="home_greeting_morning">Chào buổi sáng</string>
     <string name="home_greeting_afternoon">Chào buổi chiều</string>
@@ -197,7 +197,7 @@
     <string name="about_version">Phiên bản</string>
     <string name="about_github">GitHub</string>
     <string name="about_license">Giấy phép</string>
-    <string name="about_sponsor">Tài trợ cho Airmedy</string>
+    <string name="about_sponsor">Tài trợ cho Sistrum</string>
     <string name="about_sponsor_github">GitHub Sponsors</string>
     <string name="about_sponsor_kofi">Ko-fi</string>
     <string name="about_sponsor_bmac">Buy Me a Coffee</string>

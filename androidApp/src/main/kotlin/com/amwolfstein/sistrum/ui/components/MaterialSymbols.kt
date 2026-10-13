@@ -1,0 +1,159 @@
+@file:OptIn(ExperimentalTextApi::class)
+
+package com.amwolfstein.sistrum.ui.components
+
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.amwolfstein.sistrum.R
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+
+val MaterialSymbolsFilledFontFamily = FontFamily(
+    Font(
+        resId = R.font.material_symbols_rounded,
+        variationSettings = FontVariation.Settings(
+            FontVariation.Setting("FILL", 1f),
+        ),
+    ),
+)
+
+val MaterialSymbolsOutlinedFontFamily = FontFamily(
+    Font(
+        resId = R.font.material_symbols_rounded,
+        variationSettings = FontVariation.Settings(
+            FontVariation.Setting("FILL", 0f),
+        ),
+    ),
+)
+
+object MaterialSymbols {
+    const val Home = "home"
+    const val Library = "music_video"
+    const val GraphicEq = "graphic_eq"
+    const val BarChart = "bar_chart"
+    const val LegendToggle = "legend_toggle"
+    const val Search = "search"
+    const val Settings = "settings"
+    const val Schedule = "schedule"
+    const val QueueMusic = "queue_music"
+    const val Sensors = "sensors"
+    const val PlaylistAdd = "playlist_add"
+    const val PlaylistRemove = "playlist_remove"
+    const val QueuePlayNext = "queue_play_next"
+    const val AddToQueue = "add_to_queue"
+    const val RemoveFromQueue = "remove_from_queue"
+    const val Tune = "tune"
+    const val MaskedTransitions = "masked_transitions"
+
+    const val Subwoofer = "subwoofer"
+    const val ChevronRight = "chevron_right"
+    const val ChevronLeft = "chevron_left"
+    const val UnfoldMore = "unfold_more"
+    const val Check = "check"
+    const val Close = "close"
+    const val MusicNote = "music_note"
+    const val Bolt = "bolt"
+    const val Crown = "crown"
+    const val Menu = "menu"
+    const val MoreVert = "more_vert"
+    const val ArrowUpward = "arrow_upward"
+    const val ArrowDownward = "arrow_downward"
+    const val SkipPrevious = "skip_previous"
+    const val PlayArrow = "play_arrow"
+    const val Pause = "pause"
+    const val SkipNext = "skip_next"
+    const val Shuffle = "shuffle"
+    const val Repeat = "repeat"
+    const val RepeatOne = "repeat_one"
+    const val Reorder = "reorder"
+    const val Mic = "mic"
+    const val Chat = "chat"
+    const val Cast = "cast"
+    const val Airplay = "airplay"
+    const val VolumeDown = "volume_down"
+    const val VolumeUp = "volume_up"
+    const val People = "group"
+    const val Person = "person"
+    const val Album = "album"
+    const val Label = "label"
+    const val Palette = "palette"
+    const val Refresh = "refresh"
+    const val Info = "info"
+    const val Power = "power"
+    const val DesktopWindows = "desktop_windows"
+    const val Sync = "sync"
+    const val Add = "add"
+    const val Image = "image"
+    const val FavoriteBorder = "favorite"
+    const val Favorite = "favorite"
+    const val HeartPlus = "heart_plus"
+    const val HeartMinus = "heart_minus"
+    const val FilterList = "filter_list"
+    const val GridView = "grid_view"
+    const val ViewList = "view_list"
+    const val StylusFountainPen = "stylus_fountain_pen"
+    const val Edit = "edit"
+    const val Delete = "delete"
+    const val Folder = "folder"
+}
+
+/**
+ * Glyphs that point along the reading direction and are flipped in right-to-left layouts,
+ * following Material's auto-mirrored icons. Media transport glyphs (play, skip) and
+ * symmetric icons are deliberately absent. The volume speakers are listed so they face the
+ * right way in RTL text; inside the left-to-right player controls they stay unflipped.
+ */
+internal val MirroredInRtlSymbols: Set<String> = setOf(
+    MaterialSymbols.ChevronLeft,
+    MaterialSymbols.ChevronRight,
+    MaterialSymbols.QueueMusic,
+    MaterialSymbols.PlaylistAdd,
+    MaterialSymbols.PlaylistRemove,
+    MaterialSymbols.QueuePlayNext,
+    MaterialSymbols.ViewList,
+    MaterialSymbols.Label,
+    MaterialSymbols.Chat,
+    MaterialSymbols.VolumeDown,
+    MaterialSymbols.VolumeUp,
+)
+
+@Composable
+fun MaterialSymbol(
+    symbol: String,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp,
+    tint: Color = LocalSistrumColors.current.textMain,
+    filled: Boolean = false,
+) {
+    Text(
+        text = symbol,
+        fontFamily = if (filled) MaterialSymbolsFilledFontFamily else MaterialSymbolsOutlinedFontFamily,
+        style = TextStyle(
+            fontSize = size.value.sp,
+            color = tint,
+            textAlign = TextAlign.Center,
+        ),
+        // The glyph is drawn from ligature text ("search", "more_vert"). Replace the text's
+        // semantics so screen readers announce only the description, or nothing for a
+        // decorative icon, never the ligature name.
+        modifier = modifier
+            .then(if (symbol in MirroredInRtlSymbols && isLayoutRtl()) Modifier.graphicsLayer { scaleX = -1f } else Modifier)
+            .clearAndSetSemantics {
+                if (contentDescription != null) this.contentDescription = contentDescription
+            },
+    )
+}

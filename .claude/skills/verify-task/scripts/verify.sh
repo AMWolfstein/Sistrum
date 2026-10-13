@@ -190,8 +190,9 @@ if [ -n "$instrumented" ]; then
     aapt2="$(ls -d "$sdk"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)"
     app_id="$("$aapt2" dump packagename "$app_apk" 2>/dev/null)"
     test_id="$("$aapt2" dump packagename "$test_apk" 2>/dev/null)"
-    # The owner's daily app. Never install over it, instrument it or force-stop it (CLAUDE.md).
-    daily_id=me.misa198.airmedy.dev
+    # The owner's daily apps (old and rebranded dev IDs). Never install over them, instrument them or force-stop
+    # them (CLAUDE.md). Only the .qa test build of the current ID is allowed.
+    daily_id=com.amwolfstein.sistrum.dev
     if [ -z "$app_id" ] || [ -z "$test_id" ]; then
       report "instrumented" BLOCKED "could not read the APK application IDs (aapt2: ${aapt2:-not found})"
       classes=()

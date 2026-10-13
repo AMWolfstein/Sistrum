@@ -1,0 +1,54 @@
+package com.amwolfstein.sistrum.ui.navigation
+
+import androidx.annotation.StringRes
+import com.amwolfstein.sistrum.AppDestination
+import com.amwolfstein.sistrum.AppStackPage
+import com.amwolfstein.sistrum.R
+import com.amwolfstein.sistrum.ui.components.MaterialSymbols
+
+@StringRes
+internal fun AppStackPage.titleRes(destination: AppDestination): Int = when (this) {
+    AppStackPage.LibrarySearch -> R.string.library_search
+    AppStackPage.LibraryArtists -> R.string.library_artists
+    AppStackPage.ArtistDetails -> R.string.artist_details_title
+    AppStackPage.LibraryAlbums -> R.string.library_albums
+    AppStackPage.AlbumDetails -> R.string.album_details_title
+    AppStackPage.LibraryTracks -> R.string.library_tracks
+    AppStackPage.LibraryGenres -> R.string.library_genres
+    AppStackPage.GenreDetails -> R.string.genre_details_title
+    AppStackPage.LibraryComposers -> R.string.library_composers
+    AppStackPage.ComposerDetails -> R.string.composer_details_title
+    AppStackPage.LibraryPlaylists -> R.string.library_playlists
+    AppStackPage.PlaylistDetails -> R.string.playlist_details_title
+    AppStackPage.SettingsAppearance -> R.string.appearance_title
+    AppStackPage.SettingsPlayback -> R.string.playback_settings_title
+    AppStackPage.SettingsSongTransition -> R.string.song_transition_title
+    AppStackPage.SettingsVolumeNormalization -> R.string.playback_volume_normalization
+    AppStackPage.SettingsEqualizer -> R.string.equalizer_title
+    AppStackPage.SettingsScan -> R.string.scan_title
+    AppStackPage.SettingsScanFilter -> R.string.scan_filter_title
+    AppStackPage.SettingsTagSeparators -> R.string.tag_separators_title
+    AppStackPage.SettingsIntegration -> R.string.integration_title
+    AppStackPage.SettingsLastFm -> R.string.lastfm_title
+    AppStackPage.SettingsLyrics -> R.string.lyrics_title
+    AppStackPage.SettingsAbout -> R.string.about_title
+    AppStackPage.SettingsDeveloper -> R.string.developer_title
+    AppStackPage.SettingsDecodeFailures -> R.string.decode_log_title
+    AppStackPage.Root -> destination.titleRes
+}
+
+internal val AppDestination.titleRes: Int
+    @StringRes get() = when (this) {
+        AppDestination.Home -> R.string.destination_home
+        AppDestination.Insight -> R.string.destination_insight
+        AppDestination.Library -> R.string.destination_library
+        AppDestination.Settings -> R.string.destination_settings
+    }
+
+internal val AppDestination.symbol: String
+    get() = when (this) {
+        AppDestination.Home -> MaterialSymbols.Home
+        AppDestination.Insight -> MaterialSymbols.BarChart
+        AppDestination.Library -> MaterialSymbols.Library
+        AppDestination.Settings -> MaterialSymbols.Settings
+    }

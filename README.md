@@ -1,8 +1,10 @@
-# Airmedy Mobile
+<p align="center"><img src="branding/logo.png" alt="Sistrum logo" width="160"></p>
 
-Android-first Kotlin Multiplatform mobile app for Airmedy. The application is
-currently independent from the desktop app; it does not share the desktop
-database, Wails bindings, or Remote API.
+# Sistrum
+
+Android music player for your local library. Sistrum is a GPL-3.0 hard fork of
+[misa198/airmedy](https://github.com/misa198/airmedy); desktop sync was removed and
+it plays only files on the device.
 
 ## Status
 
@@ -70,8 +72,9 @@ Run from `mobile/`:
 ```
 
 The Android app has two installable variants: `dev` uses application ID
-`me.misa198.airmedy.dev`; `prod` uses `me.misa198.airmedy`. This allows both
-variants to be installed on the same device.
+`com.amwolfstein.sistrum.dev`; `prod` uses `com.amwolfstein.sistrum`. This allows both
+variants to be installed on the same device. The `qa` build type (device tests) adds
+`.qa`. Icons are generated from `branding/` with `bash tools/brand/generate_icons.sh`.
 
 ### Android versioning
 
@@ -122,7 +125,8 @@ feature-specific Android host or UI test task.
 ## Last.fm
 
 Android authenticates independently from desktop through the browser and the
-`airmedy://lastfm/auth` callback. Supply its dedicated API credentials in the
+`airmedy://lastfm/auth` callback (the scheme keeps the upstream name: it is the
+callback registered for the Last.fm API account). Supply its dedicated API credentials in the
 Git-ignored `mobile/local.properties` file (environment variables remain the CI
 fallback):
 

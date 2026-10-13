@@ -1,4 +1,4 @@
-rootProject.name = "Airmedy"
+rootProject.name = "Sistrum"
 
 pluginManagement {
     repositories {

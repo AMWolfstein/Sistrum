@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Airmedy</string>
+    <string name="app_name">Sistrum</string>
     <string name="destination_home">Главная</string>
     <string name="home_greeting_morning">Доброе утро</string>
     <string name="home_greeting_afternoon">Добрый день</string>
@@ -212,7 +212,7 @@
     <string name="about_version">Версия</string>
     <string name="about_github">GitHub</string>
     <string name="about_license">Лицензия</string>
-    <string name="about_sponsor">Поддержать Airmedy</string>
+    <string name="about_sponsor">Поддержать Sistrum</string>
     <string name="about_sponsor_github">GitHub Sponsors</string>
     <string name="about_sponsor_kofi">Ko-fi</string>
     <string name="about_sponsor_bmac">Buy Me a Coffee</string>

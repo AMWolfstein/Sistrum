@@ -919,7 +919,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ## Milestone M8 — Phase 10: Regression, resources, polish
 
-- [ ] T062a {hard} [HIGH-RISK] Rebranding: new identity, logo, Kotlin package and application ID (owner 2026-10-13; first task of M8, its own commit) — **added**
+- [x] T062a {hard} [HIGH-RISK] Rebranding: new identity, logo, Kotlin package and application ID (owner 2026-10-13; first task of M8, its own commit) — **added**
   - Owner inputs before it starts: the new logo files (SVG or high-res PNG; a one-colour version for themed/monochrome
     icons if available) and colours, and the new application ID (owner decides; Kotlin namespace defaults to it). The
     name stays **Sistrum**.

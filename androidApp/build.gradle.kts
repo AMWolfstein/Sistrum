@@ -66,7 +66,7 @@ plugins {
 
 val subsetMaterialSymbolsFont =
     tasks.register<SubsetMaterialSymbolsFontTask>("subsetMaterialSymbolsFont") {
-        symbolsKt = file("src/main/kotlin/me/misa198/airmedy/ui/components/MaterialSymbols.kt")
+        symbolsKt = file("src/main/kotlin/com/amwolfstein/sistrum/ui/components/MaterialSymbols.kt")
         sourceFont = rootProject.file("tools/fonts/material_symbols_rounded.ttf")
         subsetScript = rootProject.file("tools/font-subset/subset_font.py")
         outputFont = file("src/main/res/font/material_symbols_rounded.ttf")
@@ -119,7 +119,7 @@ dependencies {
 }
 
 android {
-    namespace = "me.misa198.airmedy"
+    namespace = "com.amwolfstein.sistrum"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     ndkVersion = "30.0.15729638"
 
@@ -154,11 +154,11 @@ android {
     productFlavors {
         create("dev") {
             dimension = "environment"
-            applicationId = "me.misa198.airmedy.dev"
+            applicationId = "com.amwolfstein.sistrum.dev"
         }
         create("prod") {
             dimension = "environment"
-            applicationId = "me.misa198.airmedy"
+            applicationId = "com.amwolfstein.sistrum"
         }
     }
     packaging {

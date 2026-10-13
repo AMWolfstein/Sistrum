@@ -1,0 +1,253 @@
+package com.amwolfstein.sistrum.ui.navigation
+
+import com.amwolfstein.sistrum.ui.components.isRtlText
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.AbsoluteAlignment
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
+import com.amwolfstein.sistrum.sync.isExplicit
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import dev.chrisbanes.haze.HazeState
+import com.amwolfstein.sistrum.R
+import com.amwolfstein.sistrum.player.ArtworkCrossfadeTransition
+import com.amwolfstein.sistrum.player.PlaybackItem
+import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
+import com.amwolfstein.sistrum.sync.LibraryTrack
+import com.amwolfstein.sistrum.ui.components.SistrumIconButton
+import com.amwolfstein.sistrum.ui.components.SistrumIconButtonVariant
+import com.amwolfstein.sistrum.ui.components.SistrumMarqueeText
+import com.amwolfstein.sistrum.ui.components.SistrumPillButton
+import com.amwolfstein.sistrum.ui.components.SistrumPillButtonVariant
+import com.amwolfstein.sistrum.ui.components.MaterialSymbol
+import com.amwolfstein.sistrum.ui.components.MaterialSymbols
+import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
+import com.amwolfstein.sistrum.ui.components.TrackContextMenu
+import com.amwolfstein.sistrum.ui.components.TrackContextMenuActions
+import com.amwolfstein.sistrum.ui.components.TrackInfoValue
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+
+internal const val FullScreenPlayerMetadataSwipeTestTag = "full_screen_player_metadata_swipe_target"
+
+@Composable
+internal fun FullScreenPlayerMetadataTransition(
+    item: PlaybackItem,
+    crossfade: ArtworkCrossfadeTransition?,
+    displayedHorizontalSwipeOffset: Float,
+    hazeState: HazeState?,
+    compact: Boolean,
+    isPlaying: Boolean,
+    isFavorite: Boolean,
+    onFavoriteToggle: (String, Boolean) -> Unit,
+    contextTrack: LibraryTrack?,
+    contextMenuExpanded: Boolean,
+    onContextMenuOpen: () -> Unit,
+    onContextMenuDismiss: () -> Unit,
+    playbackQueue: PlaybackQueueSnapshot,
+    onTrackPlayNext: (String) -> Unit,
+    onTrackAddToQueue: (String) -> Unit,
+    moodRadioEligibleTrackIds: Set<String>,
+    onStartMoodRadio: (String) -> Unit,
+    onTrackGoToAlbum: (String) -> Unit,
+    onTrackGoToArtist: (String) -> Unit,
+    onTrackContextBottomSheet: (TrackContextBottomSheetRequest) -> Unit,
+    onCloseFullscreenThen: ((() -> Unit) -> Unit),
+) {
+    androidx.compose.animation.AnimatedContent(
+        targetState = item,
+        transitionSpec = {
+            if (crossfade != null) {
+                (slideInHorizontally(tween(200, easing = FastOutSlowInEasing)) { it / 4 } + fadeIn(tween(200, easing = FastOutSlowInEasing))) togetherWith
+                    (slideOutHorizontally(tween(180, easing = FastOutSlowInEasing)) { -it / 4 } + fadeOut(tween(160, easing = FastOutSlowInEasing)))
+            } else EnterTransition.None togetherWith ExitTransition.None
+        },
+        label = "full-screen-player-metadata-crossfade",
+    ) { animatedItem ->
+        FullScreenPlayerMetadata(
+            animatedItem, displayedHorizontalSwipeOffset, hazeState, compact, isPlaying, isFavorite, onFavoriteToggle,
+            contextTrack, contextMenuExpanded, onContextMenuOpen, onContextMenuDismiss, playbackQueue,
+            onTrackPlayNext, onTrackAddToQueue, moodRadioEligibleTrackIds, onStartMoodRadio, onTrackGoToAlbum, onTrackGoToArtist,
+            onTrackContextBottomSheet, onCloseFullscreenThen,
+        )
+    }
+}
+
+@Composable
+private fun FullScreenPlayerMetadata(
+    item: PlaybackItem,
+    displayedHorizontalSwipeOffset: Float,
+    hazeState: HazeState?,
+    compact: Boolean,
+    isPlaying: Boolean,
+    isFavorite: Boolean,
+    onFavoriteToggle: (String, Boolean) -> Unit,
+    contextTrack: LibraryTrack?,
+    contextMenuExpanded: Boolean,
+    onContextMenuOpen: () -> Unit,
+    onContextMenuDismiss: () -> Unit,
+    playbackQueue: PlaybackQueueSnapshot,
+    onTrackPlayNext: (String) -> Unit,
+    onTrackAddToQueue: (String) -> Unit,
+    moodRadioEligibleTrackIds: Set<String>,
+    onStartMoodRadio: (String) -> Unit,
+    onTrackGoToAlbum: (String) -> Unit,
+    onTrackGoToArtist: (String) -> Unit,
+    onTrackContextBottomSheet: (TrackContextBottomSheetRequest) -> Unit,
+    onCloseFullscreenThen: ((() -> Unit) -> Unit),
+) {
+    val colors = LocalSistrumColors.current
+    val hapticFeedback = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val favoriteScale = remember(item.trackId) { Animatable(1f) }
+    var previousFavorite by remember(item.trackId) { mutableStateOf(isFavorite) }
+    LaunchedEffect(item.trackId, isFavorite) {
+        val wasAdded = isFavorite && !previousFavorite
+        previousFavorite = isFavorite
+        if (wasAdded) {
+            favoriteScale.snapTo(1f)
+            favoriteScale.animateTo(1.14f, tween(120, easing = FastOutSlowInEasing))
+            favoriteScale.animateTo(1f, tween(180, easing = FastOutSlowInEasing))
+        } else if (!isFavorite) favoriteScale.snapTo(1f)
+    }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).clipToBounds().graphicsLayer { translationX = displayedHorizontalSwipeOffset }
+            .semantics { testTag = FullScreenPlayerMetadataSwipeTestTag }) {
+            val titleStyle = if (compact) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold) else MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            if (contextTrack?.isExplicit() == true) {
+                // The alternate text stands in for the badge in the title's text, so TalkBack
+                // reads "<title> Explicit".
+                val explicitLabel = stringResource(R.string.track_explicit)
+                val title = buildAnnotatedString { append(item.title); appendInlineContent(ExplicitBadgeId, " $explicitLabel") }
+                val titleIsRtl = isRtlText(item.title, LocalLayoutDirection.current)
+                SistrumMarqueeText(title, colors.onPrimary, titleStyle, animate = isPlaying, inlineContent = explicitBadgeInlineContent(titleIsRtl))
+            } else {
+                SistrumMarqueeText(item.title, colors.onPrimary, titleStyle, animate = isPlaying)
+            }
+            SistrumMarqueeText(item.artist, colors.foregroundSubtle, if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium, animate = isPlaying)
+        }
+        Spacer(Modifier.width(4.dp))
+        if (!compact) SistrumIconButton(
+            symbol = if (isFavorite) MaterialSymbols.Favorite else MaterialSymbols.FavoriteBorder,
+            label = stringResource(R.string.player_heart),
+            onClick = { if (!isFavorite) hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm); onFavoriteToggle(item.trackId, !isFavorite) },
+            modifier = Modifier.graphicsLayer { scaleX = favoriteScale.value; scaleY = favoriteScale.value },
+            variant = SistrumIconButtonVariant.Glass, tint = colors.onPrimary,
+            glassColor = fullScreenSecondaryControlBackground(colors), hazeState = hazeState, showGlassBorder = false,
+            circleSize = 36.dp, iconSize = 20.dp, filled = isFavorite, suppressPressedIndication = true,
+        )
+        @Composable fun moreButton(onClick: () -> Unit) = SistrumIconButton(
+            MaterialSymbols.MoreVert, stringResource(R.string.player_more), onClick,
+            variant = SistrumIconButtonVariant.Glass, tint = colors.onPrimary,
+            glassColor = fullScreenSecondaryControlBackground(colors), hazeState = hazeState, showGlassBorder = false,
+            circleSize = if (compact) 32.dp else 36.dp, iconSize = if (compact) 18.dp else 20.dp,
+        )
+        if (contextTrack == null) moreButton({}) else TrackContextMenu(
+            track = contextTrack, expanded = contextMenuExpanded, onDismiss = onContextMenuDismiss, hazeState = hazeState,
+            playbackQueue = playbackQueue, onPlayNext = { onTrackPlayNext(it.id) }, onAddToQueue = { onTrackAddToQueue(it.id) },
+            actions = TrackContextMenuActions(moodRadio = contextTrack.id in moodRadioEligibleTrackIds), onStartMoodRadio = { onStartMoodRadio(it.id) },
+            onFavoriteChange = { track, favorite -> onFavoriteToggle(track.id, favorite) }, onGoToAlbum = { onTrackGoToAlbum(it.albumId) },
+            onGoToArtist = { onTrackGoToArtist(it.id) },
+            onBottomSheetRequested = { onCloseFullscreenThen { onTrackContextBottomSheet(it) } },
+            onCloseFullscreenThen = onCloseFullscreenThen,
+        ) { moreButton(onContextMenuOpen) }
+    }
+}
+
+@Composable
+internal fun FullScreenQualityDialog(labelRes: Int, symbol: String, details: List<TrackInfoValue>, onDismiss: () -> Unit) {
+    val colors = LocalSistrumColors.current
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true, usePlatformDefaultWidth = false)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).background(colors.card, RoundedCornerShape(24.dp)), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    MaterialSymbol(symbol, null, size = 32.dp, tint = colors.textMain)
+                    Text(stringResource(labelRes), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = colors.textMain)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    details.forEach { detail -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(stringResource(detail.labelRes), style = MaterialTheme.typography.bodyMedium, color = colors.textMuted)
+                        Text(detail.value, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = colors.textMain)
+                    } }
+                }
+            }
+            SistrumPillButton(stringResource(R.string.ok), onDismiss, SistrumPillButtonVariant.Primary, Modifier.padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 16.dp))
+        }
+    }
+}
+
+private const val ExplicitBadgeId = "explicit"
+internal const val FullScreenPlayerExplicitBadgeTestTag = "full_screen_explicit_badge"
+
+/**
+ * An "E" in a small rounded square, placed 6dp after the title. The badge follows the title's
+ * own direction, so it sits to the left of an Arabic title and to the right of a Latin one.
+ */
+@Composable
+private fun explicitBadgeInlineContent(titleIsRtl: Boolean): Map<String, InlineTextContent> {
+    val colors = LocalSistrumColors.current
+    val density = LocalDensity.current
+    val placeholder = with(density) { Placeholder(24.dp.toSp(), 18.dp.toSp(), PlaceholderVerticalAlign.TextCenter) }
+    return mapOf(
+        ExplicitBadgeId to InlineTextContent(placeholder) {
+            Box(Modifier.fillMaxSize(), contentAlignment = if (titleIsRtl) AbsoluteAlignment.CenterLeft else AbsoluteAlignment.CenterRight) {
+                Box(
+                    Modifier.size(18.dp).clip(RoundedCornerShape(4.dp))
+                        .background(colors.foregroundSubtle.copy(alpha = 0.85f))
+                        .clearAndSetSemantics { testTag = FullScreenPlayerExplicitBadgeTestTag },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("E", color = colors.playerBackdrop, fontSize = with(density) { 12.dp.toSp() }, fontWeight = FontWeight.Bold, lineHeight = with(density) { 12.dp.toSp() })
+                }
+            }
+        },
+    )
+}

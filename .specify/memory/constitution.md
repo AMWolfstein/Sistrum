@@ -167,9 +167,10 @@ loses a format. 003 merges separately, after its own gate.
 ## Test builds and test corpus
 
 - Test/debug builds use a **separate application ID suffix** so they install
-  next to the owner's daily app (`me.misa198.airmedy.dev`) and never touch
+  next to the owner's daily app (`me.misa198.airmedy.dev` before the T062a
+  rebrand, `com.amwolfstein.sistrum.dev` after it; both protected) and never touch
   its data. No uninstalls. The suffix must not be `.test`: the
-  instrumentation APK is already `me.misa198.airmedy.dev.test`; use e.g.
+  instrumentation APK is already `<dev id>.test`; use e.g.
   `.qa`. CLAUDE.md's adb test commands are updated in the same task.
 - A generated test corpus (all formats and tag forms of Principle 10,
   including untagged files) lives in `/sdcard/Music/SistrumTestCorpus`; the
