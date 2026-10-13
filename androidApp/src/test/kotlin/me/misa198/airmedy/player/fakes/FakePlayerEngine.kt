@@ -55,6 +55,9 @@ internal class FakePlayerEngine(
      */
     var emitTransitionOnCrossfade: Boolean = false
 
+    /** Opt-in to an incoming player's position on promotion; native characterization keeps its original position. */
+    var crossfadeIncomingPosition: Long? = null
+
     /** Invoked inside [prepare] before any state changes, so tests can observe the coordinator mid-prepare. */
     var onPrepare: (() -> Unit)? = null
 
@@ -144,6 +147,13 @@ internal class FakePlayerEngine(
         if (emitTransitionOnCrossfade) {
             val incoming = preloadedItem
             preloadedItem = null
+            crossfadeIncomingPosition?.let { incomingPosition ->
+                position = incomingPosition
+                if (incoming != null) {
+                    preparedItem = incoming
+                    duration = durationFor(incoming)
+                }
+            }
             if (incoming != null) pendingEvents += EngineEvent.TransitionStarted(incoming, durationMs)
         }
         return true
@@ -157,6 +167,12 @@ internal class FakePlayerEngine(
     }
 
     override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean) {
+        // LegacyNativeEngine's setter is a no-op. Keep its effect log stable for T015,
+        // while recording settings delivery for tests of the shared coordinator path.
+        if (kind == EngineKind.Native) {
+            crossfadeSettingsCalls += durationMs to repeatOneCrossfade
+            return
+        }
         calls += "setCrossfade"
         crossfadeSettingsCalls += durationMs to repeatOneCrossfade
     }
@@ -206,6 +222,9 @@ internal class FakeEngineFactory(
     /** Applied to every created engine before it is returned. */
     var emitTransitionOnCrossfade: Boolean = false
 
+    /** Applied on promotion to model a Media3 incoming player's position without changing native tests. */
+    var crossfadeIncomingPosition: Long? = null
+
     /** Applied to every created engine before it is returned; used to force prepare failures. */
     var failPrepare: Throwable? = null
 
@@ -221,6 +240,7 @@ internal class FakeEngineFactory(
         engine.kind = kind
         engine.onPrepare = onPrepare
         engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
+        engine.crossfadeIncomingPosition = crossfadeIncomingPosition
         engine.failPrepare = failPrepare
         engine.autoOutputStarted = autoOutputStarted
         engine.failPosition = failPosition

@@ -873,7 +873,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     normal error path with the right attribution (G3); position/duration report the incoming player from fade start
     (G4)); `GATE`.
 
-- [ ] T060 [US5] Crossfade orchestration on the shared path in `A/player/PlaybackCoordinator.kt` with `AT/player/PlaybackCoordinatorCrossfadeMedia3Test.kt` {hard} [HIGH-RISK]
+- [x] T060 [US5] Crossfade orchestration on the shared path in `A/player/PlaybackCoordinator.kt` with `AT/player/PlaybackCoordinatorCrossfadeMedia3Test.kt` {hard} [HIGH-RISK]
   - Do: next/previous during a fade per FR-031; Mood Radio refill during a fade; artwork event and overlap split for
     Media3 transitions; the media session switches to the incoming track at fade start and sees one player (FR-024);
     T015 stays green unmodified.
