@@ -958,7 +958,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     with a neutral chain skips the float conversion entirely.
   - Corpus (owner, not a blocker): add an 8–16 kHz AAC file when convenient and check the possible one-time position
     jump at start (T048b note).
-- [ ] T062d [TESTS-FIRST] Prepare-time decode failures follow FR-064 — **added 2026-10-14 (T062 finding, SC-014)**
+- [x] T062d [TESTS-FIRST] Prepare-time decode failures follow FR-064 — **added 2026-10-14 (T062 finding, SC-014)**
   - Tests in `AT/player/PlaybackCoordinatorPrepareFailureTest.kt` (fake engine whose `prepare()` throws
     `EngineDecodeException(provider, format, cause)`): (a) one decode-failure log entry with that provider, codec = format,
     file extension as format, error text; (b) queue skips to the next track and it starts; (c) consecutive-failure cap

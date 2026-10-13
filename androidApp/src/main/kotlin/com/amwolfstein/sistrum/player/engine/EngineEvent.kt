@@ -1,6 +1,14 @@
 package com.amwolfstein.sistrum.player.engine
 
 import com.amwolfstein.sistrum.player.PlaybackItem
+import java.io.IOException
+
+/**
+ * Decode failure during prepare, as specified by the 2026-10-14 T062d/T062e amendment in
+ * `specs/001-media3-migration/contracts/player-engine.md` (FR-064).
+ */
+internal class EngineDecodeException(val provider: String, val format: String, cause: Throwable) :
+    IOException(cause.message, cause)
 
 /**
  * Events emitted by a [PlayerEngine]. An automatic advance emits exactly one

@@ -37,6 +37,8 @@ internal class FakePlayerEngine(
     var beginCrossfadeResult: Boolean = true
     var crossfadeToResult: Boolean = true
     var failPrepare: Throwable? = null
+    /** Selectively fails prepare for an item, after the existing [failPrepare] hook. */
+    var failPrepareFor: (PlaybackItem) -> Throwable? = { null }
     var failPreload: Throwable? = null
 
     /**
@@ -67,6 +69,8 @@ internal class FakePlayerEngine(
     var preparedItem: PlaybackItem? = null
     var preloadedItem: PlaybackItem? = null
     val prepareCalls = mutableListOf<PrepareCall>()
+    /** Every attempted item, including prepares that throw before completing. */
+    val prepareAttempts = mutableListOf<PlaybackItem>()
     val calls = mutableListOf<String>()
     val seeks = mutableListOf<Long>()
     val crossfades = mutableListOf<Long>()
@@ -95,8 +99,10 @@ internal class FakePlayerEngine(
 
     override suspend fun prepare(item: PlaybackItem, gain: ItemGain, startPositionMs: Long, startPaused: Boolean) {
         calls += "prepare"
+        prepareAttempts += item
         onPrepare?.invoke()
         failPrepare?.let { throw it }
+        failPrepareFor(item)?.let { throw it }
         preparedItem = item
         duration = durationFor(item)
         position = startPositionMs
@@ -247,6 +253,9 @@ internal class FakeEngineFactory(
     /** Applied to every created engine before it is returned; used to force prepare failures. */
     var failPrepare: Throwable? = null
 
+    /** Copied to every created engine; selectively fails only the chosen items. */
+    var failPrepareFor: (PlaybackItem) -> Throwable? = { null }
+
     /** Applied to every created engine before it is returned; false disables auto OutputStarted. */
     var autoOutputStarted: Boolean = true
 
@@ -262,6 +271,7 @@ internal class FakeEngineFactory(
         engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
         engine.crossfadeIncomingPosition = crossfadeIncomingPosition
         engine.failPrepare = failPrepare
+        engine.failPrepareFor = failPrepareFor
         engine.autoOutputStarted = autoOutputStarted
         engine.failPosition = failPosition
         created += engine

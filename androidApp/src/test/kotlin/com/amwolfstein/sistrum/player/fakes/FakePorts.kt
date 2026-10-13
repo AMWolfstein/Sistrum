@@ -11,6 +11,8 @@ import kotlinx.coroutines.test.TestScope
 import com.amwolfstein.sistrum.mood.MoodRadioTrack
 import com.amwolfstein.sistrum.player.ArtworkCrossfadeTransition
 import com.amwolfstein.sistrum.player.Clock
+import com.amwolfstein.sistrum.player.DecodeFailureEntry
+import com.amwolfstein.sistrum.player.DecodeFailureSink
 import com.amwolfstein.sistrum.player.FocusPort
 import com.amwolfstein.sistrum.player.LibraryPort
 import com.amwolfstein.sistrum.player.ListeningSink
@@ -184,6 +186,15 @@ internal class FakeLog : PlaybackLog {
     }
 }
 
+/** Records coordinator decode failures in order without writing a host file. */
+internal class FakeDecodeFailureSink : DecodeFailureSink {
+    val entries = mutableListOf<DecodeFailureEntry>()
+
+    override fun record(entry: DecodeFailureEntry) {
+        entries += entry
+    }
+}
+
 internal class FakeLibrary : LibraryPort {
     var analysisEnabled = true
     var moodTracks: List<MoodRadioTrack> = emptyList()
@@ -266,6 +277,7 @@ internal class PlaybackCoordinatorHarness(
     val sessionStore = FakeSessionStore()
     val clock = FakeClock()
     val log = FakeLog()
+    val decodeFailures = FakeDecodeFailureSink()
 
     private var idCounter = 0
     val listeningTracker = ListeningTracker("test-device") { "id-${idCounter++}" }
@@ -287,6 +299,7 @@ internal class PlaybackCoordinatorHarness(
         log = log,
         listeningTracker = listeningTracker,
         nextArtworkCrossfadeId = { ++artworkCrossfadeId },
+        decodeFailures = decodeFailures,
     )
 
     val engine: FakePlayerEngine get() = engines.current
