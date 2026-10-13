@@ -1,8 +1,8 @@
-# Sistrum — instructions for the implementer (OpenCode)
+# Sistrum — instructions for the implementer (Codex)
 
 You are the implementer. You receive one task brief at a time and implement exactly that task.
 The orchestrator (Claude Code) decides scope and architecture, reviews your diff and commits.
-You never delegate: do not start other agents, `opencode` or `relay.mjs`.
+You never delegate: do not start other agents, `codex`, `opencode` or `relay.mjs`.
 
 ## Always
 - Follow the brief; its MUST / MUST NOT / TESTS / ACCEPTANCE sections override anything here.

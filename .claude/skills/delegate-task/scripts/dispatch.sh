@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
-# Dispatch a brief to OpenCode through the opencode-delegate relay, the only way this repo
-# delegates code. Every run (fresh, --resume-last, --session) gets OPENCODE_DISABLE_CLAUDE_CODE=1,
+# Dispatch a brief to the coder, the only way this repo delegates code.
+# Codex is the coder (owner, 2026-10-13): gpt-* models and Codex session UUIDs go to codex-run.sh.
+# OpenCode (opencode-go/* models, ses_* sessions) stays as the old path through the
+# opencode-delegate relay. Every run (fresh, --resume-last, --session) gets OPENCODE_DISABLE_CLAUDE_CODE=1,
 # so the coder never loads CLAUDE.md or .claude/skills and cannot re-delegate.
 #
 # Usage: dispatch.sh --brief FILE --model ID --out-dir DIR            (fresh run)
 #        dispatch.sh --brief FILE --resume-last|--session ID --out-dir DIR  (follow-up)
 # Extra arguments are passed to relay.mjs unchanged. The relay writes DIR/result.json.
 set -euo pipefail
+
+model="" session=""
+prev=""
+for arg in "$@"; do
+  [ "$prev" = "--model" ] && model="$arg"
+  [ "$prev" = "--session" ] && session="$arg"
+  prev="$arg"
+done
+if [[ "$model" == gpt-* ]] || [[ "$session" =~ ^[0-9a-f]{8}- ]]; then
+  exec bash "$(dirname "$0")/codex-run.sh" "$@"
+fi
 
 relay="${OPENCODE_RELAY:-$HOME/.claude/skills/opencode-delegate/scripts/relay.mjs}"
 if [ ! -f "$relay" ]; then

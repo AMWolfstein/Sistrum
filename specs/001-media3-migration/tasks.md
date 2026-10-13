@@ -783,7 +783,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   implementation and the orchestrator reviews the test diff and runs migration-guard as usual. Tests-first still
   applies to T052 (gain on the audio path).
 
-- [ ] T051g [US6] [TESTS-FIRST] "Analyze now" tests in `ANT/AnalyzeNowTest.kt` (WorkManager `work-testing`, fakes as T051e); stubs in `AN/LoudnessAnalysisScheduler.kt` (`analyzeNow()`, `cancelAnalyzeNow()`), `AN/AnalysisNotification.kt` {default}
+- [x] T051g [US6] [TESTS-FIRST] "Analyze now" tests in `ANT/AnalyzeNowTest.kt` (WorkManager `work-testing`, fakes as T051e); stubs in `AN/LoudnessAnalysisScheduler.kt` (`analyzeNow()`, `cancelAnalyzeNow()`), `AN/AnalysisNotification.kt` {default}
   - Do: `analyzeNow()` enqueues a separate unique one-time work (not expedited) (`loudness-analysis-now`, REPLACE) with
     no charging constraint (storage not low only) that calls `setForeground` with type
     `FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING` on API 35+ and `FOREGROUND_SERVICE_TYPE_DATA_SYNC` on API 34 (none needed
@@ -796,7 +796,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     work never happens automatically; the notification text says it uses the battery.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.analysis.AnalyzeNowTest'`. migration-guard.
 
-- [ ] T051h [US6] Implement "Analyze now" in `AN/LoudnessAnalysisScheduler.kt`, `AN/LoudnessAnalysisWorker.kt` (foreground mode), `AN/AnalysisNotification.kt`, `androidApp/src/main/AndroidManifest.xml` (WorkManager `SystemForegroundService` merged with `foregroundServiceType="mediaProcessing|dataSync"`, permissions `FOREGROUND_SERVICE_MEDIA_PROCESSING`, `FOREGROUND_SERVICE_DATA_SYNC`; `POST_NOTIFICATIONS` already handled by playback), `RES/values/strings.xml`, `RES/values-ar/strings.xml` {hard} [HIGH-RISK]
+- [x] T051h [US6] Implement "Analyze now" in `AN/LoudnessAnalysisScheduler.kt`, `AN/LoudnessAnalysisWorker.kt` (foreground mode), `AN/AnalysisNotification.kt`, `androidApp/src/main/AndroidManifest.xml` (WorkManager `SystemForegroundService` merged with `foregroundServiceType="mediaProcessing|dataSync"`, permissions `FOREGROUND_SERVICE_MEDIA_PROCESSING`, `FOREGROUND_SERVICE_DATA_SYNC`; `POST_NOTIFICATIONS` already handled by playback), `RES/values/strings.xml`, `RES/values-ar/strings.xml` {hard} [HIGH-RISK]
   - Do: own notification channel "Loudness analysis" (low importance, no sound); foreground runs in the foreground
     cpuset (all cores incl. the big ones; the scheduler, not the app, places threads); thread priority default rather
     than background in this mode. The settings button itself is in T053.

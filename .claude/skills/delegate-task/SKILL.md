@@ -1,12 +1,12 @@
 ---
 name: delegate-task
-description: Delegate one Spec Kit task (by id, e.g. T012) of the playback migration to OpenCode. Fills the CLAUDE.md brief template from tasks.md and the spec, picks the model per the Models section, and dispatches with OPENCODE_DISABLE_CLAUDE_CODE=1. Use whenever a task from specs/<feature>/tasks.md is ready to implement, and for review follow-ups on a delegated task.
+description: Delegate one Spec Kit task (by id, e.g. T012) of the playback migration to the coder (Codex). Fills the CLAUDE.md brief template from tasks.md and the spec, picks the model per the Models section, and dispatches through dispatch.sh. Use whenever a task from specs/<feature>/tasks.md is ready to implement, and for review follow-ups on a delegated task.
 argument-hint: "<task-id> [--followup]"
 ---
 
 # /delegate-task <task-id>
 
-Implementation in this repo happens only through OpenCode. This skill turns one task from
+Implementation in this repo happens only through the coder (Codex, `codex exec`). This skill turns one task from
 `specs/<feature>/tasks.md` into a brief and dispatches it. Review and verification come after,
 with `/verify-task`.
 
@@ -19,11 +19,11 @@ with `/verify-task`.
   contracts instead of reading broadly.
 
 ## 2. Pick the model (CLAUDE.md "Models")
-- `opencode-go/deepseek-v4-pro` if the task is crossfade, MediaSession, or its line carries
+- `gpt-6.1-sol --effort high` if the task is crossfade, MediaSession, or its line carries
   `[HIGH-RISK]`.
-- Otherwise `opencode-go/deepseek-v4.1-flash`.
-- `opencode-go/glm-5.3-flash` only after the default has failed twice on this same task.
-- Never `opencode/*-free` or `opencode-go/glm-5.3` (dispatch.sh refuses them).
+- Otherwise `gpt-6.1-sol --effort medium`.
+- `gpt-6-astra --effort high` only after the task's model has failed twice on this same task.
+- Old OpenCode path only if the owner asks; never `opencode/*-free` or `opencode-go/glm-5.3` (dispatch.sh refuses them).
 
 ## 3. Write the brief
 Copy the template from CLAUDE.md "Delegation brief template" exactly, ROLE block first, and fill
@@ -41,10 +41,10 @@ Save it outside the repo: `${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegat
 ```bash
 D="${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/<task-id>"
 bash .claude/skills/delegate-task/scripts/dispatch.sh --brief "$D/brief-1.md" \
-  --model <model> --out-dir "$D/run-1"
+  --model <model> --effort <low|medium|high> --out-dir "$D/run-1"
 ```
 Run it with `run_in_background: true`; the run is done when `$D/run-1/result.json` exists.
-`dispatch.sh` always sets `OPENCODE_DISABLE_CLAUDE_CODE=1`; never call `relay.mjs` directly.
+`dispatch.sh` routes `gpt-*` models and Codex session UUIDs to `codex-run.sh`; never call `codex`, `codex-run.sh` or `relay.mjs` directly.
 
 ## 5. Follow-ups (`--followup`)
 For review rounds on the same task, write a delta brief (only what must change) and resume the

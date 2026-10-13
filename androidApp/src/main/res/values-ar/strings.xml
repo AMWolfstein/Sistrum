@@ -529,4 +529,15 @@
     <string name="composers_empty_title">لا يوجد ملحّنون في المكتبة</string>
     <string name="composers_empty_description">سيظهر الملحّنون هنا بعد اكتمال فحص المكتبة.</string>
     <string name="composers_no_match_title">لا يوجد ملحّنون مطابقون</string>
+    <string name="loudness_analysis_channel">تحليل الجهارة</string>
+    <string name="loudness_analysis_now_title">جارٍ تحليل الجهارة</string>
+    <string name="loudness_analysis_cancel">إلغاء</string>
+    <plurals name="loudness_analysis_now_progress">
+        <item quantity="zero">%1$d من %2$d مسار · يستهلك البطارية</item>
+        <item quantity="one">%1$d من %2$d مسار · يستهلك البطارية</item>
+        <item quantity="two">%1$d من %2$d مسارين · يستهلك البطارية</item>
+        <item quantity="few">%1$d من %2$d مسارات · يستهلك البطارية</item>
+        <item quantity="many">%1$d من %2$d مسارًا · يستهلك البطارية</item>
+        <item quantity="other">%1$d من %2$d مسار · يستهلك البطارية</item>
+    </plurals>
 </resources>

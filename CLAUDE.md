@@ -116,7 +116,7 @@ device (constitution Principle 10).
 architecture decisions, task breakdown, delegation briefs, review, running
 tests/builds, verification, commits.
 
-**OpenCode (via `opencode-delegate`) = coder only.** Implements one bounded task
+**Codex (`codex exec`, via `/delegate-task`) = coder only** (owner, 2026-10-13; OpenCode before). Implements one bounded task
 per brief. Never decides architecture, API contracts, scope, feature removal,
 or when legacy code is deleted. Never commits.
 
@@ -129,17 +129,16 @@ or when legacy code is deleted. Never commits.
   dispatching-parallel-agents, test-driven-development, using-git-worktrees,
   finishing-a-development-branch). Its debugging and verification skills
   (systematic-debugging, verification-before-completion) are fine.
-- Feature code is written ONLY through `opencode-delegate`, via `/delegate-task`. Do NOT
+- Feature code is written ONLY by the coder, via `/delegate-task`. Do NOT
   use Spec Kit's `implement` command. You may make trivial review fixes (imports, typos) yourself
   when re-delegating costs more; say so in the status report.
 - Always pass `--model` with a model chosen per the Models section below. Use
-  `--resume-last` / `--session` for review follow-ups on the same task.
-- Run EVERY relay invocation with `OPENCODE_DISABLE_CLAUDE_CODE=1` in its environment:
-  fresh runs and `--resume-last` / `--session` follow-ups alike, e.g.
-  `OPENCODE_DISABLE_CLAUDE_CODE=1 node <skill-dir>/scripts/relay.mjs --brief … --model …`.
-  It stops OpenCode from loading this CLAUDE.md and every `.claude/skills` folder
-  (`opencode-delegate`, `graphify`), so the coder can't re-delegate or run Graphify.
-  The coder's own instructions are in `AGENTS.md`.
+  `--session <id from result.json>` for review follow-ups on the same task.
+- Dispatch ONLY through `dispatch.sh`, which runs `codex exec` via `codex-run.sh`: workspace-write
+  sandbox (repo + Gradle/Kotlin/Android caches), approvals never, `AGENTS.md` as the only project doc
+  (CLAUDE.md and `.claude/` are not loaded), so the coder can't re-delegate or run Graphify.
+  The coder's own instructions are in `AGENTS.md`. The old OpenCode path (`opencode-go/*` models,
+  `ses_*` sessions) still runs through the relay with `OPENCODE_DISABLE_CLAUDE_CODE=1`.
 - Max 3 review rounds per task; then stop, record the problem in `HANDOFF.md`, ask the user.
 - Memory check before every dispatch (fresh or follow-up) and every `verify.sh` gate run (owner, 2026-10-06):
   1. Stop leftover daemons: `./gradlew --stop` and `pkill -f '[K]otlinCompileDaemon'` (the brackets keep
@@ -163,8 +162,7 @@ or when legacy code is deleted. Never commits.
 ## Tooling (`.claude/`, tracked)
 
 - `/delegate-task <id>`: builds the brief from `tasks.md`, picks the model, dispatches through
-  `.claude/skills/delegate-task/scripts/dispatch.sh` (always sets `OPENCODE_DISABLE_CLAUDE_CODE=1`,
-  refuses banned models). Use it for every dispatch and follow-up.
+  `.claude/skills/delegate-task/scripts/dispatch.sh` (Codex via `codex-run.sh`; refuses banned models). Use it for every dispatch and follow-up.
 - `/verify-task <id>`: diff review, `migration-guard` when needed, then
   `.claude/skills/verify-task/scripts/verify.sh --files '<task files>'` (refuses when Kotlin files
   outside the task's list changed; then tests, build, optional device tests, graph refresh).
@@ -179,11 +177,12 @@ or when legacy code is deleted. Never commits.
 
 ## Models
 
-- Default: `opencode-go/deepseek-v4.1-flash`.
-- Fallback, if the default fails twice on a task: `opencode-go/glm-5.3-flash`.
-- Hard tasks only (crossfade, MediaSession, anything flagged high-risk in `tasks.md`):
-  `opencode-go/deepseek-v4-pro`.
-- Never use `opencode/*-free` models or `opencode-go/glm-5.3`.
+Codex models (owner, 2026-10-13; `--effort` sets the reasoning level):
+- Default: `gpt-6.1-sol`, `--effort medium`.
+- Hard tasks (crossfade, MediaSession, anything flagged high-risk in `tasks.md`): `gpt-6.1-sol`, `--effort high`
+  (near-Astra coding results at about a fifth of the cost; owner, 2026-10-13).
+- Fallback, if a task fails twice on its model: `gpt-6-astra`, `--effort high` (most capable, most expensive).
+- OpenCode (old path, only if the owner asks): never `opencode/*-free` or `opencode-go/glm-5.3`.
 
 ## Testing split
 
@@ -245,14 +244,14 @@ or when legacy code is deleted. Never commits.
   entry marks them as generated so diffs stay collapsed.
 - The coder never runs or edits Graphify; exclude graph files from its briefs.
   The Graphify hook note that asks to include the graphify rule in subagent prompts
-  does not apply to `opencode-delegate` briefs.
+  does not apply to coder briefs.
 
 ## Delegation brief template
 
 ```
 ROLE: You are the IMPLEMENTER (coder), not the orchestrator. The "Delegated workflow"
       section in CLAUDE.md describes the orchestrator's job and does NOT apply to you.
-      Do not load or use the opencode-delegate skill, do not run `opencode`, `relay.mjs`
+      Do not load or use the opencode-delegate skill, do not run `codex`, `opencode`, `relay.mjs`
       or any other agent, and do not write brief files. Make the changes yourself with
       your own file-editing tools, then report.
 TASK: <id> — <one line>
@@ -271,9 +270,8 @@ REPORT: files changed, commands run with results, anything left undone.
 ```
 
 Briefs must be self-contained: the coder has no chat history. Always keep the ROLE
-block as a second guard next to the `OPENCODE_DISABLE_CLAUDE_CODE=1` rule: without
-both, OpenCode can load this CLAUDE.md and the delegate skill and re-delegate the brief
-to another OpenCode run.
+block as a second guard next to the dispatch isolation: without both, the coder could load
+this CLAUDE.md or a delegate skill and re-delegate the brief to another agent run.
 
 ## Commits
 

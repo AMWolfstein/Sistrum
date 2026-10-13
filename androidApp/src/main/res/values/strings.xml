@@ -462,4 +462,11 @@
     <string name="composers_empty_title">No composers in library</string>
     <string name="composers_empty_description">Synced composers will appear here once mobile sync completes.</string>
     <string name="composers_no_match_title">No matching composers</string>
+    <string name="loudness_analysis_channel">Loudness analysis</string>
+    <string name="loudness_analysis_now_title">Analyzing loudness</string>
+    <string name="loudness_analysis_cancel">Cancel</string>
+    <plurals name="loudness_analysis_now_progress">
+        <item quantity="one">%1$d of %2$d track · uses battery</item>
+        <item quantity="other">%1$d of %2$d tracks · uses battery</item>
+    </plurals>
 </resources>

@@ -1,6 +1,6 @@
 ---
 name: verify-task
-description: Final gate for a task OpenCode implemented in the playback migration. Reviews the diff against the brief, calls the migration-guard reviewer when tests, PlaybackController or Room are touched, re-runs tests and build yourself, refreshes the Graphify graph, stages by explicit path and prints the status block. Use after every /delegate-task run, before any commit.
+description: Final gate for a task the coder implemented in the playback migration. Reviews the diff against the brief, calls the migration-guard reviewer when tests, PlaybackController or Room are touched, re-runs tests and build yourself, refreshes the Graphify graph, stages by explicit path and prints the status block. Use after every /delegate-task run, before any commit.
 argument-hint: "<task-id>"
 ---
 

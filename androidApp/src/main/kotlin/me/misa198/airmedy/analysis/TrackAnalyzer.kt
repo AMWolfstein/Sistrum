@@ -39,6 +39,7 @@ internal class TrackAnalyzer(
     private val bufferFrames: Int = 16_384,
     private val checkpointIntervalMs: Long = 60_000L,
     private val clockMs: () -> Long = { SystemClock.elapsedRealtime() },
+    private val meterThreadPriority: Int = Process.THREAD_PRIORITY_BACKGROUND,
 ) {
 
     /** Peak number of chunks in flight in the most recent [measure], for backpressure tests. */
@@ -112,7 +113,7 @@ internal class TrackAnalyzer(
         }
 
         val meterThread = Thread({
-            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
+            Process.setThreadPriority(meterThreadPriority)
             var error: Throwable? = null
             var framesMetered = resume?.framesMetered ?: 0L
             var lastCheckpointMs = clockMs()
