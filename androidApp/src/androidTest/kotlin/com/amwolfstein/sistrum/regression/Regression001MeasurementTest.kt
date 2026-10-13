@@ -209,6 +209,442 @@ class Regression001MeasurementTest {
         }
     }
 
+    @Test(timeout = 180_000)
+    fun sc003Mp3JoinPaths() {
+        guard()
+        val files = fixtures("gapless_mp3_1.mp3", "gapless_mp3_2.mp3", "gapless_mp3_3.mp3",
+            "gapless_flac_1.flac", "gapless_flac_2.flac")
+        // Nine bounded runs; leave time within the three-minute limit for releasing resources.
+        val methodDeadline = SystemClock.elapsedRealtime() + 150_000L
+        for ((a, b) in listOf(files[0] to files[1], files[1] to files[2], files[3] to files[4])) {
+            for (path in listOf("float_sink", "int_sink", "exo_stock")) {
+                val pair = "${token(a.name)}->${token(b.name)}"
+                val deadline = minOf(methodDeadline, SystemClock.elapsedRealtime() + 16_000L)
+                fun remaining(): Long {
+                    val ms = deadline - SystemClock.elapsedRealtime()
+                    if (ms <= 0L) throw TimeoutException("SC-003p run budget exhausted")
+                    return ms
+                }
+                var tap: JoinTap? = null
+                var failure: Throwable? = null
+                var captured: Silence? = null
+                try {
+                    remaining()
+                    if (path != "exo_stock") {
+                        val taps = mutableListOf<JoinTap>()
+                        lateinit var factory: Media3PlayerFactory
+                        lateinit var engine: Media3Engine
+                        factory = Media3PlayerFactory(context, floatSink = path == "float_sink",
+                            afterGainProcessors = {
+                                val phase = if (taps.isEmpty()) "probe" else "join"
+                                val joinTap = JoinTap().also { taps += it }
+                                // This hook runs during newPlayer(), before prepare(). Post attachment
+                                // on the same looper: the engine publishes the player before this task,
+                                // and renderer analytics callbacks from prepare() are queued after it.
+                                Handler(android.os.Looper.myLooper()!!).post {
+                                    engine.playersForTest().forEach { player ->
+                                        player.addAnalyticsListener(object : AnalyticsListener {
+                                            override fun onAudioInputFormatChanged(
+                                                eventTime: AnalyticsListener.EventTime,
+                                                format: androidx.media3.common.Format,
+                                                decoderReuseEvaluation: androidx.media3.exoplayer.DecoderReuseEvaluation?,
+                                            ) {
+                                                row("sc003p_event path=$path pair=$pair phase=$phase event=input_format " +
+                                                    "position_ms=${player.currentPosition} " +
+                                                    "event_position_ms=${eventTime.eventPlaybackPositionMs} " +
+                                                    "encoder_delay=${format.encoderDelay} encoder_padding=${format.encoderPadding} " +
+                                                    "input_rate_hz=${format.sampleRate} channels=${format.channelCount}")
+                                            }
+
+                                            override fun onPositionDiscontinuity(
+                                                eventTime: AnalyticsListener.EventTime,
+                                                oldPosition: Player.PositionInfo,
+                                                newPosition: Player.PositionInfo,
+                                                reason: Int,
+                                            ) {
+                                                row("sc003p_event path=$path pair=$pair phase=$phase event=discontinuity " +
+                                                    "reason=$reason old_position_ms=${oldPosition.positionMs} " +
+                                                    "new_position_ms=${newPosition.positionMs} position_ms=${player.currentPosition}")
+                                            }
+
+                                            override fun onMediaItemTransition(
+                                                eventTime: AnalyticsListener.EventTime,
+                                                mediaItem: MediaItem?,
+                                                reason: Int,
+                                            ) {
+                                                row("sc003p_event path=$path pair=$pair phase=$phase event=transition " +
+                                                    "reason=$reason file=${token(mediaItem?.mediaId.orEmpty())} " +
+                                                    "position_ms=${player.currentPosition} " +
+                                                    "event_position_ms=${eventTime.eventPlaybackPositionMs}")
+                                            }
+                                        })
+                                    }
+                                }
+                                // Both factory paths place this after gain, before width/EQ/preamp,
+                                // and after their respective trimmers. No audioProcessors fallback needed.
+                                arrayOf(TeeAudioProcessor(object : TeeAudioProcessor.AudioBufferSink {
+                                    override fun flush(sampleRateHz: Int, channelCount: Int, encoding: Int) {
+                                        joinTap.flush(sampleRateHz, channelCount, encoding)
+                                        // A processor flush is observable here; it is not a sink configure callback.
+                                        row("sc003p_event path=$path pair=$pair phase=$phase event=tap_flush " +
+                                            "output_rate_hz=$sampleRateHz channels=$channelCount encoding=$encoding")
+                                    }
+                                    override fun handleBuffer(buffer: ByteBuffer) = joinTap.handleBuffer(buffer)
+                                }))
+                            })
+                        engine = Media3Engine(factory)
+                        try {
+                            engine.setFocusGain(0f)
+                            runBlocking { withTimeout(remaining()) {
+                                engine.prepare(item(a), ItemGain.Unity, 0L, startPaused = true)
+                            } }
+                            val duration = engine.durationMs()
+                            check(duration > 0L) { "SC-003p duration unavailable" }
+                            val origin = (duration - 3_000L).coerceAtLeast(0L)
+                            runBlocking { withTimeout(remaining()) {
+                                engine.prepare(item(a), ItemGain.Unity, origin, startPaused = true)
+                            } }
+                            val joinTap = factory.call { taps.last() }.also { tap = it }
+                            joinTap.setWindow(duration - origin)
+                            runBlocking { withTimeout(remaining()) { engine.preloadNext(item(b), ItemGain.Unity) } }
+                            engine.play()
+                            var advanced = false
+                            val playDeadline = minOf(deadline, SystemClock.elapsedRealtime() + 15_000L)
+                            while (SystemClock.elapsedRealtime() < playDeadline) {
+                                val events = engine.pollEvents()
+                                events.filterIsInstance<EngineEvent.Error>().firstOrNull()?.let { throw it.cause }
+                                advanced = advanced || events.any { it is EngineEvent.GaplessAdvanced }
+                                if (events.any { it is EngineEvent.Ended } ||
+                                    (advanced && engine.positionMs() >= 1_500L)) break
+                                SystemClock.sleep(5L)
+                            }
+                        } finally {
+                            captured = tap?.snapshot()
+                            engine.close()
+                        }
+                    } else {
+                        val thread = HandlerThread("sc003p-stock").apply { start() }
+                        val handler = Handler(thread.looper)
+                        var player: ExoPlayer? = null
+                        fun <T> call(block: () -> T): T {
+                            val task = FutureTask(Callable { block() })
+                            check(handler.post(task)) { "SC-003p stock looper stopped" }
+                            return task.get(5_000L, TimeUnit.MILLISECONDS)
+                        }
+                        fun media(file: File) = MediaItem.Builder().setUri(Uri.fromFile(file))
+                            .setMediaId(file.absolutePath).build()
+                        fun awaitReady() {
+                            while (true) {
+                                remaining()
+                                if (call {
+                                    val p = checkNotNull(player)
+                                    p.playerError?.let { throw it }
+                                    p.playbackState == Player.STATE_READY
+                                }) return
+                                SystemClock.sleep(5L)
+                            }
+                        }
+                        try {
+                            // Probe duration separately, then use a fresh player/tap at the origin,
+                            // just as in the engine paths (no duration-probe PCM in the join window).
+                            call {
+                                player = ExoPlayer.Builder(context).setLooper(thread.looper).build().apply {
+                                    volume = 0f
+                                    setMediaItem(media(a))
+                                    prepare()
+                                }
+                            }
+                            awaitReady()
+                            val duration = call { checkNotNull(player).duration }
+                            check(duration > 0L) { "SC-003p stock duration unavailable" }
+                            val origin = (duration - 3_000L).coerceAtLeast(0L)
+                            val joinTap = JoinTap().also { tap = it; it.setWindow(duration - origin) }
+                            call {
+                                player?.release()
+                                player = null
+                                val renderers = object : androidx.media3.exoplayer.DefaultRenderersFactory(context) {
+                                    override fun buildAudioSink(
+                                        context: android.content.Context,
+                                        enableFloatOutput: Boolean,
+                                        enableAudioOutputPlaybackParams: Boolean,
+                                    ): AudioSink = androidx.media3.exoplayer.audio.DefaultAudioSink.Builder(context)
+                                        // Stock integer PCM pipeline: after conversion/channel mapping/trimming,
+                                        // before the default silence-skipping and Sonic processors; no app DSP.
+                                        .setAudioProcessors(arrayOf(TeeAudioProcessor(joinTap))).build()
+                                }
+                                player = ExoPlayer.Builder(context).setLooper(thread.looper)
+                                    .setRenderersFactory(renderers).build().apply {
+                                        volume = 0f
+                                        setMediaItems(listOf(media(a), media(b)), 0, origin)
+                                        prepare()
+                                    }
+                            }
+                            awaitReady()
+                            call { checkNotNull(player).play() }
+                            val playDeadline = minOf(deadline, SystemClock.elapsedRealtime() + 15_000L)
+                            while (SystemClock.elapsedRealtime() < playDeadline) {
+                                if (call {
+                                    val p = checkNotNull(player)
+                                    p.playerError?.let { throw it }
+                                    p.playbackState == Player.STATE_ENDED ||
+                                        (p.currentMediaItemIndex == 1 && p.currentPosition >= 1_500L)
+                                }) break
+                                SystemClock.sleep(5L)
+                            }
+                        } finally {
+                            captured = tap?.snapshot()
+                            try {
+                                call { player?.release(); player = null }
+                            } finally {
+                                thread.quitSafely()
+                                thread.join(5_000L)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    failure = e
+                }
+                val measurement = captured ?: Silence(0L, 0, 0L, false)
+                row("sc003p path=$path pair=$pair frames=${measurement.longest} " +
+                    "ms=${number(if (measurement.rate > 0) measurement.longest * 1000.0 / measurement.rate else Double.NaN)} " +
+                    "output_rate_hz=${measurement.rate} window_complete=${measurement.complete}")
+                failure?.let {
+                    row("sc003p_event path=$path pair=$pair event=failure cause=${token(it.javaClass.name)}")
+                }
+            }
+        }
+    }
+
+    @Test(timeout = 120_000)
+    fun sc003Mp3RawDecode() {
+        guard()
+        val files = fixtures("gapless_mp3_1.mp3", "gapless_mp3_2.mp3", "gapless_mp3_3.mp3")
+        val methodDeadline = SystemClock.elapsedRealtime() + 115_000L
+        // Online counts across the entire file; flush updates format without resetting counts.
+        class PcmCounts : TeeAudioProcessor.AudioBufferSink {
+            private var rate = 0
+            private var channels = 0
+            private var encoding = C.ENCODING_INVALID
+            private var frames = 0L
+            private var leading = 0L
+            private var trailing = 0L
+            private var heardSignal = false
+
+            @Synchronized override fun flush(sampleRateHz: Int, channelCount: Int, encoding: Int) {
+                check(sampleRateHz > 0 && channelCount > 0)
+                check(encoding == C.ENCODING_PCM_16BIT || encoding == C.ENCODING_PCM_FLOAT)
+                check(frames == 0L || (rate == sampleRateHz && channels == channelCount)) {
+                    "SC-003r PCM format changed within a file"
+                }
+                rate = sampleRateHz
+                channels = channelCount
+                this.encoding = encoding
+            }
+
+            @Synchronized override fun handleBuffer(buffer: ByteBuffer) {
+                val pcm = buffer.duplicate().order(ByteOrder.LITTLE_ENDIAN)
+                check(channels > 0) { "SC-003r missing PCM format" }
+                val bytesPerSample = if (encoding == C.ENCODING_PCM_FLOAT) 4 else 2
+                check(pcm.remaining() % (bytesPerSample * channels) == 0) { "SC-003r partial PCM frame" }
+                while (pcm.hasRemaining()) {
+                    var silent = true
+                    repeat(channels) {
+                        val channelSilent = if (encoding == C.ENCODING_PCM_FLOAT) {
+                            abs(pcm.float) < 1e-4f
+                        } else {
+                            // Exactly the normalized-float threshold: integer magnitudes 0..3.
+                            abs(pcm.short.toInt()) < 4
+                        }
+                        if (!channelSilent) silent = false
+                    }
+                    if (!heardSignal && silent) leading++
+                    if (!silent) heardSignal = true
+                    trailing = if (silent) trailing + 1L else 0L
+                    frames++
+                }
+            }
+
+            @Synchronized fun fields() = "frames=$frames rate=$rate ch=$channels " +
+                "lead_silent=$leading tail_silent=$trailing pcm_encoding=$encoding"
+        }
+        for (file in files) {
+            val raw = PcmCounts()
+            val extractor = android.media.MediaExtractor()
+            var codec: android.media.MediaCodec? = null
+            var started = false
+            var codecName = "unavailable"
+            var firstSampleTime = -1L
+            var inputUnits = 0L
+            var outputBuffers = 0L
+            var pcmBuffers = 0L
+            var delay = -1
+            var padding = -1
+            var rawComplete = false
+            var rawFailure: Exception? = null
+            try {
+                val deadline = minOf(methodDeadline, SystemClock.elapsedRealtime() + 5_000L)
+                extractor.setDataSource(file.absolutePath)
+                val track = (0 until extractor.trackCount).first { index ->
+                    extractor.getTrackFormat(index).getString(android.media.MediaFormat.KEY_MIME)
+                        ?.startsWith("audio/") == true
+                }
+                extractor.selectTrack(track)
+                firstSampleTime = extractor.sampleTime
+                val format = extractor.getTrackFormat(track)
+                fun value(key: String, fallback: Int) = if (format.containsKey(key)) format.getInteger(key) else fallback
+                delay = value(android.media.MediaFormat.KEY_ENCODER_DELAY, -1)
+                padding = value(android.media.MediaFormat.KEY_ENCODER_PADDING, -1)
+                val inputRate = format.getInteger(android.media.MediaFormat.KEY_SAMPLE_RATE)
+                val inputChannels = format.getInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT)
+                format.setInteger(android.media.MediaFormat.KEY_PCM_ENCODING, android.media.AudioFormat.ENCODING_PCM_16BIT)
+                // Pass extractor metadata unchanged (apart from requesting PCM16); no test-side trim.
+                val decoder = android.media.MediaCodec.createDecoderByType(
+                    checkNotNull(format.getString(android.media.MediaFormat.KEY_MIME)),
+                ).also { codec = it }
+                codecName = decoder.name
+                decoder.configure(format, null, null, 0)
+                decoder.start()
+                started = true
+                raw.flush(inputRate, inputChannels, C.ENCODING_PCM_16BIT)
+                val info = android.media.MediaCodec.BufferInfo()
+                var inputEnded = false
+                while (!rawComplete) {
+                    if (SystemClock.elapsedRealtime() >= deadline) throw TimeoutException("SC-003r raw decode timeout")
+                    if (!inputEnded) {
+                        val index = decoder.dequeueInputBuffer(1_000L)
+                        if (index >= 0) {
+                            val input = checkNotNull(decoder.getInputBuffer(index))
+                            input.clear()
+                            val size = extractor.readSampleData(input, 0)
+                            if (size < 0) {
+                                decoder.queueInputBuffer(index, 0, 0, 0L, android.media.MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                inputEnded = true
+                            } else {
+                                decoder.queueInputBuffer(index, 0, size, extractor.sampleTime, 0)
+                                inputUnits++
+                                extractor.advance()
+                            }
+                        }
+                    }
+                    when (val index = decoder.dequeueOutputBuffer(info, 1_000L)) {
+                        android.media.MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                            val output = decoder.outputFormat
+                            val encoding = if (output.containsKey(android.media.MediaFormat.KEY_PCM_ENCODING)) {
+                                output.getInteger(android.media.MediaFormat.KEY_PCM_ENCODING)
+                            } else android.media.AudioFormat.ENCODING_PCM_16BIT
+                            check(encoding == android.media.AudioFormat.ENCODING_PCM_16BIT) {
+                                "SC-003r decoder did not produce PCM16: $encoding"
+                            }
+                            raw.flush(output.getInteger(android.media.MediaFormat.KEY_SAMPLE_RATE),
+                                output.getInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT), encoding)
+                        }
+                        else -> if (index >= 0) {
+                            outputBuffers++ // Includes empty EOS buffers; pcm_buffers counts nonempty PCM buffers.
+                            try {
+                                if (info.size > 0 && info.flags and android.media.MediaCodec.BUFFER_FLAG_CODEC_CONFIG == 0) {
+                                    val output = checkNotNull(decoder.getOutputBuffer(index)).duplicate()
+                                    output.position(info.offset)
+                                    output.limit(info.offset + info.size)
+                                    raw.handleBuffer(output)
+                                    pcmBuffers++
+                                }
+                                rawComplete = info.flags and android.media.MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0
+                            } finally {
+                                decoder.releaseOutputBuffer(index, false)
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                rawFailure = e
+            } finally {
+                try {
+                    codec?.let { decoder ->
+                        try { if (started) decoder.stop() } finally { decoder.release() }
+                    }
+                } finally {
+                    extractor.release()
+                }
+            }
+            row("sc003r mode=mediacodec file=${token(file.name)} ${raw.fields()} " +
+                "codec=${token(codecName)} first_sample_time_us=$firstSampleTime input_access_units=$inputUnits " +
+                "output_buffers=$outputBuffers pcm_buffers=$pcmBuffers encoder_delay=$delay encoder_padding=$padding " +
+                "complete=$rawComplete cause=${rawFailure?.let { token(it.javaClass.name) } ?: "none"}")
+
+            val tap = PcmCounts()
+            val thread = HandlerThread("sc003r-stock").apply { start() }
+            val handler = Handler(thread.looper)
+            var player: ExoPlayer? = null
+            var exoComplete = false
+            var exoFailure: Exception? = null
+            var exoCodecName = "unavailable"
+            fun <T> call(block: () -> T): T {
+                val task = FutureTask(Callable { block() })
+                check(handler.post(task)) { "SC-003r stock looper stopped" }
+                return task.get(2_000L, TimeUnit.MILLISECONDS)
+            }
+            try {
+                val deadline = minOf(methodDeadline, SystemClock.elapsedRealtime() + 38_000L)
+                if (SystemClock.elapsedRealtime() >= deadline) throw TimeoutException("SC-003r method budget exhausted")
+                call {
+                    val renderers = object : androidx.media3.exoplayer.DefaultRenderersFactory(context) {
+                        override fun buildAudioSink(
+                            context: android.content.Context,
+                            enableFloatOutput: Boolean,
+                            enableAudioOutputPlaybackParams: Boolean,
+                        ): AudioSink = androidx.media3.exoplayer.audio.DefaultAudioSink.Builder(context)
+                            // Same stock tap as SC-003p: after sink trimming, before silence/Sonic; no app DSP.
+                            .setAudioProcessors(arrayOf(TeeAudioProcessor(tap))).build()
+                    }
+                    player = ExoPlayer.Builder(context).setLooper(thread.looper)
+                        .setRenderersFactory(renderers).build().apply {
+                            volume = 0f
+                            addAnalyticsListener(object : AnalyticsListener {
+                                override fun onAudioDecoderInitialized(
+                                    eventTime: AnalyticsListener.EventTime,
+                                    decoderName: String,
+                                    initializedTimestampMs: Long,
+                                    initializationDurationMs: Long,
+                                ) { exoCodecName = decoderName }
+                            })
+                            setMediaItem(MediaItem.Builder().setUri(Uri.fromFile(file))
+                                .setMediaId(file.absolutePath).build(), 0L)
+                            prepare()
+                            play()
+                        }
+                }
+                while (!exoComplete) {
+                    if (SystemClock.elapsedRealtime() >= deadline) throw TimeoutException("SC-003r stock playback timeout")
+                    exoComplete = call {
+                        val p = checkNotNull(player)
+                        p.playerError?.let { throw it }
+                        p.playbackState == Player.STATE_ENDED
+                    }
+                    if (!exoComplete) SystemClock.sleep(10L)
+                }
+            } catch (e: Exception) {
+                exoFailure = e
+            } finally {
+                // Read counters before release can flush/reset processors, on the player looper.
+                try {
+                    call {
+                        try {
+                            row("sc003r mode=exo_tap file=${token(file.name)} ${tap.fields()} " +
+                                "codec=${token(exoCodecName)} complete=$exoComplete " +
+                                "cause=${exoFailure?.let { token(it.javaClass.name) } ?: "none"}")
+                        } finally {
+                            player?.release()
+                            player = null
+                        }
+                    }
+                } finally {
+                    thread.quitSafely()
+                    thread.join(1_000L)
+                }
+            }
+        }
+    }
+
     @Test(timeout = 590_000)
     fun sc014EveryCorpusFileFailureIsAttributed() {
         val files = guard()

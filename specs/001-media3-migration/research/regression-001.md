@@ -37,6 +37,29 @@ Host ffmpeg (LAME gapless honoured) decodes the same pair with a 1-frame join; e
 files are fine and the extra ~511 frames come from the engine side (decoder-delay trimming at the item transition).
 This closes the "Open: MP3 gapless join" note from T021: cause is in the engine/decoder setup, not the files.
 
+### MP3 join diagnosis (T062h parts 1–2, 2026-10-14)
+
+Deterministic over 3 more runs (511 / 55 / 1 frames). Same pairs through three paths (`sc003Mp3JoinPaths`):
+
+| Path | mp3 1→2 | mp3 2→3 | flac 1→2 |
+|---|---|---|---|
+| our float sink (`FloatChainAudioSink`) | 511 | 55 | 1 |
+| our int sink path (stock `DefaultAudioSink` trimming) | 511 | 55 | 1 |
+| stock `ExoPlayer.Builder` + tap (no app code) | 511 | 55 | 1 |
+
+So the gap is not caused by our sink. Raw decode per file (`sc003Mp3RawDecode`; 48 kHz stereo, 1460 MP3 frames):
+
+| Decoder | frames | lead / tail near-silent |
+|---|---|---|
+| host ffmpeg, gapless-trimmed | 1,680,000 | 0 / 1 |
+| platform `MediaExtractor` + `c2.android.mp3.decoder` (MediaFormat delay 576 / padding 1344) | **1,680,000** | 0 / 0 |
+| stock ExoPlayer (Media3 1.11.1), single file | **1,680,815** | 0 / 1326 (file 1), 619 (file 2) |
+
+ExoPlayer trims the 1105-frame start delay but leaves the 815-frame LAME end padding in the output; the padding's
+near-silent part is what the join measures. This is Media3 behaviour (its `TrimmingAudioProcessor` outputs the held-back
+end buffer unless a reconfiguration is pending before end-of-stream) and our engine inherits it. MP3 SC-003 miss: 0.65 ms
+on one join; up to 815 frames (~17 ms) of padding per MP3 boundary in the worst case.
+
 ## SC-006 start latency (prepare call → first `positionMs() > 0`; 3 runs per file, medians)
 
 `OutputStarted` is not comparable across engines: native queues it as soon as `prepare()` returns
