@@ -100,7 +100,9 @@ class Media3EngineGaplessTest {
 
     @Test(timeout = 120_000)
     fun corpusMp3AdvancesGaplessly() {
-        assertCorpusGapless("gapless_mp3_1.mp3", "gapless_mp3_2.mp3", silentFramesLimit = 1152)
+        // SC-003: T062h/T062j platform MP3 trim; was 1152. The ±1 s window holds a 3-frame near-silent run that is
+        // in the music (host ffmpeg decode: same run, 32376 frames after the join); the join itself is 1 frame.
+        assertCorpusGapless("gapless_mp3_1.mp3", "gapless_mp3_2.mp3", silentFramesLimit = 3)
     }
 
     @Test(timeout = 120_000)

@@ -3,14 +3,23 @@
 package com.amwolfstein.sistrum.player.media3
 
 import android.net.Uri
+import androidx.media3.common.Format
+import androidx.media3.common.Metadata
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.Extractor
 import androidx.media3.extractor.ExtractorInput
 import androidx.media3.extractor.ExtractorOutput
 import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.ForwardingTrackOutput
+import androidx.media3.extractor.MpegAudioUtil
 import androidx.media3.extractor.PositionHolder
+import androidx.media3.extractor.SeekMap
 import androidx.media3.extractor.SniffFailure
+import androidx.media3.extractor.TrackOutput
+import androidx.media3.extractor.mp3.Mp3Extractor
 import com.amwolfstein.sistrum.player.decoders.DecoderProvider
+import java.io.EOFException
+import java.io.IOException
 
 /**
  * Remembers which provider's extractor accepted a URI, so [Media3Engine] can name the
@@ -72,6 +81,97 @@ internal fun tagSniff(delegate: Extractor, onAccepted: () -> Unit): Extractor =
     }
 
 /**
+ * Adds first-frame LAME provenance without consuming input or changing Media3's trim values.
+ * Parse once before the first read; retain the result across seeks and format re-emissions.
+ */
+private class LameProvenanceExtractor(private val delegate: Extractor) : Extractor by delegate {
+    private var parsed = false
+    private var info: LameGaplessInfo? = null
+
+    override fun sniff(input: ExtractorInput): Boolean {
+        // Mp3Extractor.sniff consumes leading ID3 bytes on success, so capture provenance first.
+        parseOnce(input)
+        return try {
+            delegate.sniff(input)
+        } catch (_: EOFException) {
+            false // Media3 throws when a short input cannot contain even one header.
+        }
+    }
+
+    override fun init(output: ExtractorOutput) {
+        delegate.init(object : ExtractorOutput {
+            override fun track(id: Int, type: Int): TrackOutput =
+                object : ForwardingTrackOutput(output.track(id, type)) {
+                    override fun format(format: Format) {
+                        val lame = info
+                        super.format(if (lame == null) format else format.buildUpon()
+                            .setMetadata(format.metadata?.copyWithAppendedEntries(lame) ?: Metadata(lame))
+                            .build())
+                    }
+                }
+
+            override fun endTracks() = output.endTracks()
+            override fun seekMap(seekMap: SeekMap) = output.seekMap(seekMap)
+        })
+    }
+
+    override fun read(input: ExtractorInput, seekPosition: PositionHolder): Int {
+        parseOnce(input)
+        return delegate.read(input, seekPosition)
+    }
+
+    private fun parseOnce(input: ExtractorInput) {
+        if (!parsed) {
+            parsed = true
+            if (input.position == 0L) info = peekLameInfo(input)
+        }
+    }
+
+    override fun getUnderlyingImplementation(): Extractor = delegate.underlyingImplementation
+
+    private fun peekLameInfo(input: ExtractorInput): LameGaplessInfo? {
+        try {
+            input.resetPeekPosition()
+            val id3 = ByteArray(10)
+            input.peekFully(id3, 0, id3.size)
+            if (id3[0] == 'I'.code.toByte() && id3[1] == 'D'.code.toByte() && id3[2] == '3'.code.toByte()) {
+                if ((6..9).any { id3[it].toInt() and 0x80 != 0 }) return null
+                var size = 0
+                for (index in 6..9) size = (size shl 7) or (id3[index].toInt() and 0x7F)
+                if (id3[5].toInt() and 0x10 != 0) size += 10 // ID3v2 footer.
+                input.advancePeekPosition(size)
+            } else {
+                input.resetPeekPosition()
+            }
+            val bytes = ByteArray(4)
+            input.peekFully(bytes, 0, bytes.size)
+            var headerData = 0
+            for (byte in bytes) headerData = (headerData shl 8) or (byte.toInt() and 0xFF)
+            val header = MpegAudioUtil.Header()
+            repeat(64 * 1024) {
+                if (headerData ushr 17 and 3 == 1 && header.setForHeaderData(headerData)) {
+                    val frame = ByteArray(header.frameSize)
+                    for (index in 0..3) frame[index] = (headerData ushr (24 - 8 * index)).toByte()
+                    input.peekFully(frame, 4, frame.size - 4)
+                    return parseLameGaplessInfo(frame)
+                }
+                input.peekFully(bytes, 0, 1)
+                headerData = (headerData shl 8) or (bytes[0].toInt() and 0xFF)
+            }
+            return null
+        } catch (_: IOException) {
+            // Best-effort provenance: EOF or a failed peek must not affect the delegate.
+            return null
+        } finally {
+            input.resetPeekPosition()
+        }
+    }
+}
+
+private fun withLameProvenance(extractor: Extractor): Extractor =
+    if (extractor.underlyingImplementation is Mp3Extractor) LameProvenanceExtractor(extractor) else extractor
+
+/**
  * The Media3 default extractors plus every registered provider's extractors, in
  * provider order. Media3's own set comes first because a provider only adds formats
  * Media3 cannot demux; when a URI is known, each extractor is tagged so the accepting
@@ -88,7 +188,7 @@ internal class ProviderExtractorsFactory(
         for (provider in providers) {
             for (factory in provider.extractors()) extractors += factory()
         }
-        return extractors.toTypedArray()
+        return extractors.map(::withLameProvenance).toTypedArray()
     }
 
     override fun createExtractors(
@@ -98,11 +198,11 @@ internal class ProviderExtractorsFactory(
         val key = uri.toString()
         val extractors = mutableListOf<Extractor>()
         for (extractor in base.createExtractors(uri, responseHeaders)) {
-            extractors += tagSniff(extractor) { recorder.record(key, "platform") }
+            extractors += tagSniff(withLameProvenance(extractor)) { recorder.record(key, "platform") }
         }
         for (provider in providers) {
             for (factory in provider.extractors()) {
-                extractors += tagSniff(factory()) { recorder.record(key, provider.id) }
+                extractors += tagSniff(withLameProvenance(factory())) { recorder.record(key, provider.id) }
             }
         }
         return extractors.toTypedArray()

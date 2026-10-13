@@ -280,6 +280,16 @@ internal class Media3PlayerFactory(
                     eventListener,
                     out,
                 )
+                replacePlatformAudioRenderer(
+                    context,
+                    getCodecAdapterFactory(),
+                    mediaCodecSelector,
+                    enableDecoderFallback,
+                    audioSink,
+                    eventHandler,
+                    eventListener,
+                    out,
+                )
                 out.addAll(providerRenderers)
             }
         }

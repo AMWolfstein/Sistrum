@@ -121,3 +121,13 @@ private fun firstFrame(
     writeByte(0x40)
     return frame
 }
+
+class LameTagParserMpeg2MonoTest {
+    @Test
+    fun mpegTwoMonoInfoAtOffset13() {
+        assertEquals(
+            LameGaplessInfo("LAME3.100", 576, 1344),
+            parseLameGaplessInfo(firstFrame(header = intArrayOf(0xFF, 0xF3, 0x80, 0xC0), tagOffset = 13, frameSize = 208)),
+        )
+    }
+}

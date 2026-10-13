@@ -35,6 +35,7 @@ import com.amwolfstein.sistrum.player.decoders.defaultDecoderProviders
 import com.amwolfstein.sistrum.player.decoders.defaultDecoderRegistry
 import com.amwolfstein.sistrum.player.media3.ProviderExtractorsFactory
 import com.amwolfstein.sistrum.player.media3.ProviderRecorder
+import com.amwolfstein.sistrum.player.media3.replacePlatformAudioRenderer
 
 /**
  * Decodes one audio file into interleaved float PCM using the same extractors and
@@ -217,6 +218,16 @@ internal class OfflineDecoder(
                     super.buildAudioRenderers(
                         context,
                         extensionRendererMode,
+                        mediaCodecSelector,
+                        enableDecoderFallback,
+                        audioSink,
+                        eventHandler,
+                        eventListener,
+                        out,
+                    )
+                    replacePlatformAudioRenderer(
+                        context,
+                        getCodecAdapterFactory(),
                         mediaCodecSelector,
                         enableDecoderFallback,
                         audioSink,

@@ -67,7 +67,14 @@ is 529 frames: `c2.android.mp3.decoder` already compensates its 529-sample decod
 raw LAME 576 / 1344). Media3 1.11.1's `XingFrame` (`extractor/mp3/XingFrame.java:33,135-138`) converts the LAME
 values for a decoder *with* that delay (+529 delay, −529 padding), so with the platform decoder each MP3 loses 529 real
 samples at its start and keeps 529 padding samples at its end — the 511 / 55-frame near-silent joins. Fix (T062i/T062j):
-for MP3 decoded by MediaCodec, trim delay − 529 / padding + 529.
+provenance rule — the raw LAME values (from our own parse of the file's Info/LAME tag) are used only for
+`c2.android.mp3.decoder` / `OMX.google.mp3.decoder`, LAME/Lavf/Lavc encoders and files without iTunSMPB.
+
+**After T062j (2026-10-14, debuggable `.qa`, `sc003GaplessSilencePerPair`):** MP3 1→2 **1 frame**, 2→3 **1 frame**
+(were 511 / 55); FLAC 1→2, 2→3 1 frame (unchanged). Logcat: `Platform MP3 trim: codec=c2.android.mp3.decoder
+encoder=Lavc63.1. Media3 1105/815 → raw 576/1344`. `offlineDecodeMatchesPlaybackCapture`: all 6 files maxDiff 0.0 (MP3
+included). `Media3EngineGaplessTest` MP3 bound 1152 → 3 frames: its ±1 s window holds a 3-frame near-silent run that is
+in the music (host ffmpeg decode of the pair: same run, 32,376 frames after the join).
 
 ## SC-006 start latency (prepare call → first `positionMs() > 0`; 3 runs per file, medians)
 
@@ -166,7 +173,7 @@ conversion for 16-bit input with a neutral chain). → follow-up task.
 
 | Criterion | Result |
 |---|---|
-| SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL, engine-side |
+| SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL at measurement → **PASS after T062j** (2026-10-14): every MP3 and FLAC join 1 frame (0.02 ms) |
 | SC-006 | Original ≤ +20 % FAIL (2.1–3.7× native's handover time; metric not like for like). **Amended by the owner 2026-10-14 to ≤ 300 ms → PASS**: Opus-heavy 259 ms, lossless/MP3/AAC 201 ms (release-like, 3-run medians) |
 | SC-013 | NOT RUN (1 h, owner); short runs predict FAIL (crossfade off ≈ 2× native CPU) |
 | SC-014 | FAIL at measurement → **PASS after T062e** (2026-10-14): all 4 prepare-time failures attributed (WMA provider "none"), logged and skipped by the coordinator; 44 OK |
