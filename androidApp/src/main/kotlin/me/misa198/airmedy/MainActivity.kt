@@ -36,6 +36,9 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.WindowInsetsController
 import android.view.KeyEvent
+import me.misa198.airmedy.analysis.LoudnessAnalysisScheduler
+import me.misa198.airmedy.player.engine.EngineSelectionPreferences
+import me.misa198.airmedy.player.engine.EngineKind
 import me.misa198.airmedy.settings.ThemeMode
 import me.misa198.airmedy.settings.ThemePreferences
 import me.misa198.airmedy.sync.AndroidSyncRuntime
@@ -72,6 +75,7 @@ private data class ManualLyricsOverride(val trackId: String, val content: String
 
 class MainActivity : ComponentActivity() {
     private lateinit var lastFm: LastFmService
+    private var analysisNotificationPermissionRequested = false
     private var systemMusicVolumeState by mutableFloatStateOf(0f)
     private val viewModel: MainViewModel by viewModels {
         MainViewModel.Factory(ThemePreferences(applicationContext))
@@ -128,6 +132,11 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(newBase.withLatinDigits())
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("analysis_notification_requested", analysisNotificationPermissionRequested)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -138,6 +147,7 @@ class MainActivity : ComponentActivity() {
         // Start the service once per app process so it can rebuild the last
         // private playback session before Compose observes its StateFlows.
         startService(Intent(this, PlaybackService::class.java))
+        analysisNotificationPermissionRequested = savedInstanceState?.getBoolean("analysis_notification_requested") ?: false
         systemMusicVolumeState = currentSystemMusicVolume()
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), NotificationPermissionRequest)
@@ -196,11 +206,19 @@ class MainActivity : ComponentActivity() {
                 initialValue = me.misa198.airmedy.player.EqualizerSettings(),
             )
             val lyricsSettings by lyricsPreferences.settings.collectAsStateWithLifecycle(initialValue = me.misa198.airmedy.lyrics.LyricsSettings())
-            // Avoid clearing a valid preference while Room is still loading the active manifest.
-            val normalizationAvailable by AndroidSyncRuntime.syncStore().analysisAvailable.collectAsStateWithLifecycle(initialValue = true)
+            val enginePreferences = remember { EngineSelectionPreferences(applicationContext) }
+            // Unknown selection must not clear saved settings while DataStore is loading.
+            val selectedEngine by enginePreferences.engine.collectAsStateWithLifecycle(initialValue = null)
+            val normalizationAvailable = selectedEngine == EngineKind.Media3
+            val analysisScheduler = remember { LoudnessAnalysisScheduler.get(applicationContext) }
+            val analysisProgress by analysisScheduler.progress.collectAsStateWithLifecycle()
+            val nowRunning by analysisScheduler.nowRunning.collectAsStateWithLifecycle(initialValue = false)
+            LaunchedEffect(activePage) {
+                if (activePage == AppStackPage.SettingsVolumeNormalization) analysisScheduler.loadProgress()
+            }
             val limiterState by LimiterStatus.state.collectAsStateWithLifecycle()
-            LaunchedEffect(normalizationAvailable) {
-                if (!normalizationAvailable) normalizationPreferences.disable()
+            LaunchedEffect(selectedEngine) {
+                if (selectedEngine == EngineKind.Native) normalizationPreferences.disable()
             }
             val playbackState by playbackController.state.collectAsStateWithLifecycle()
             val playbackQueue by playbackController.queue.collectAsStateWithLifecycle()
@@ -388,6 +406,19 @@ class MainActivity : ComponentActivity() {
                     onBlendArtworkDuringCrossfadeChanged = playbackController::setBlendArtworkDuringCrossfade,
                     showFullscreenQualityBadge = showFullscreenQualityBadge,
                     onShowFullscreenQualityBadgeChanged = { enabled -> preferenceScope.launch { playbackPreferences.setShowFullscreenQualityBadge(enabled) } },
+                    analysisProgress = analysisProgress,
+                    nowRunning = nowRunning,
+                    onAnalyzeNow = {
+                        if (Build.VERSION.SDK_INT >= 33 &&
+                            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+                            !analysisNotificationPermissionRequested
+                        ) {
+                            analysisNotificationPermissionRequested = true
+                            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), NotificationPermissionRequest)
+                        }
+                        analysisScheduler.analyzeNow()
+                    },
+                    onStopAnalysis = analysisScheduler::cancelAnalyzeNow,
                     normalizationAvailable = normalizationAvailable,
                     normalization = normalizationSettings,
                     limiterState = limiterState,

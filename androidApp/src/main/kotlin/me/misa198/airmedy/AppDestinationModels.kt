@@ -174,6 +174,10 @@ internal data class SettingsDestinationModel(
     val onEqualizerProfileCreate: (String) -> Unit = {},
     val onEqualizerProfileReset: (String) -> Unit = {},
     val onEqualizerProfileDelete: (String) -> Unit = {},
+    val analysisProgress: me.misa198.airmedy.analysis.AnalysisProgress? = null,
+    val nowRunning: Boolean = false,
+    val onAnalyzeNow: () -> Unit = {},
+    val onStopAnalysis: () -> Unit = {},
 )
 
 internal data class AppDestinationModels(

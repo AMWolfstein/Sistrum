@@ -9,22 +9,15 @@ internal class StreamGainControl(
     private var settings: NormalizationSettings = NormalizationSettings(),
 ) {
     private var currentInfo: GainInfo? = null
-    private var untaggedPreampDb = 0f
-
-    @Synchronized
-    internal fun setUntaggedPreampDb(db: Float) {
-        if (db.isFinite()) untaggedPreampDb = db
-    }
-
     @Synchronized
     fun onStreamStart(info: GainInfo): Float {
         currentInfo = info
-        return itemGainDb(info, settings, untaggedPreampDb)
+        return itemGainDb(info, settings, settings.untaggedPreampDb)
     }
 
     @Synchronized
     fun setNormalization(settings: NormalizationSettings): Float? {
         this.settings = settings
-        return currentInfo?.let { itemGainDb(it, settings, untaggedPreampDb) }
+        return currentInfo?.let { itemGainDb(it, settings, settings.untaggedPreampDb) }
     }
 }

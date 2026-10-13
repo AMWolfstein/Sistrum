@@ -13,6 +13,8 @@ private val NormalizationModeKey = stringPreferencesKey("normalization_mode")
 private val NormalizationTargetKey = floatPreferencesKey("normalization_target_lufs")
 private val NormalizationPreventClipKey = booleanPreferencesKey("normalization_prevent_clip")
 
+private val NormalizationUntaggedPreampKey = floatPreferencesKey("normalization_untagged_preamp_db")
+
 internal class NormalizationPreferences(private val context: Context) {
     val settings: Flow<NormalizationSettings> = context.playbackPreferencesDataStore.data.map { value ->
         NormalizationSettings(
@@ -20,6 +22,7 @@ internal class NormalizationPreferences(private val context: Context) {
             mode = if (value[NormalizationModeKey] == NormalizationMode.Album.name) NormalizationMode.Album else NormalizationMode.Track,
             targetLufs = (value[NormalizationTargetKey] ?: -14f).coerceIn(-30f, -5f),
             preventClip = value[NormalizationPreventClipKey] ?: true,
+            untaggedPreampDb = (value[NormalizationUntaggedPreampKey] ?: 0f).coerceIn(-15f, 15f),
         )
     }
 
@@ -29,12 +32,14 @@ internal class NormalizationPreferences(private val context: Context) {
                 values[NormalizationEnabledKey] ?: false,
                 if (values[NormalizationModeKey] == NormalizationMode.Album.name) NormalizationMode.Album else NormalizationMode.Track,
                 (values[NormalizationTargetKey] ?: -14f).coerceIn(-30f, -5f), values[NormalizationPreventClipKey] ?: true,
+                (values[NormalizationUntaggedPreampKey] ?: 0f).coerceIn(-15f, 15f),
             )
             val next = transform(current)
             values[NormalizationEnabledKey] = next.enabled
             values[NormalizationModeKey] = next.mode.name
             values[NormalizationTargetKey] = next.targetLufs.coerceIn(-30f, -5f)
             values[NormalizationPreventClipKey] = next.preventClip
+            values[NormalizationUntaggedPreampKey] = next.untaggedPreampDb.coerceIn(-15f, 15f)
         }
     }
     suspend fun disable() = update { it.copy(enabled = false) }

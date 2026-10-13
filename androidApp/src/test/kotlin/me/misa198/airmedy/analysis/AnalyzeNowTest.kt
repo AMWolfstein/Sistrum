@@ -1,6 +1,9 @@
 package me.misa198.airmedy.analysis
 
 import android.content.pm.ServiceInfo
+import androidx.work.WorkInfo
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import java.util.concurrent.ConcurrentHashMap
@@ -24,6 +27,37 @@ import org.junit.Test
  * foreground-service typing, the notification throttle, and saving finished work on a cancelled run.
  */
 class AnalyzeNowTest {
+
+    @Test
+    fun nowRunningReflectsAllActiveAndTerminalStates() = runBlocking {
+        val snapshots = listOf(
+            emptyList(), listOf(WorkInfo.State.ENQUEUED), listOf(WorkInfo.State.SUCCEEDED),
+            listOf(WorkInfo.State.RUNNING), listOf(WorkInfo.State.FAILED),
+            listOf(WorkInfo.State.BLOCKED), listOf(WorkInfo.State.CANCELLED),
+            listOf(WorkInfo.State.SUCCEEDED, WorkInfo.State.ENQUEUED), emptyList(),
+        )
+        val scheduler = LoudnessAnalysisScheduler(FakeEnqueuer(), nowStates = flowOf(*snapshots.toTypedArray()))
+        assertEquals(listOf(false, true, false, true, false, true, false, true, false), scheduler.nowRunning.toList())
+    }
+
+    @Test
+    fun loadProgressPublishesPersistedCounts() = runBlocking {
+        val store = TestStore(listOf(track("a"), track("b")))
+        store.writeResult(TrackLoudnessResult.Silent("a", "fp-a"))
+        val scheduler = LoudnessAnalysisScheduler(FakeEnqueuer(), progressLoader = store::progress)
+        scheduler.loadProgress()
+        assertEquals(AnalysisProgress(1, 2), scheduler.progress.value)
+    }
+
+    @Test
+    fun loadProgressFailurePreservesLatestCountsAndDoesNotThrow() = runBlocking {
+        val scheduler = LoudnessAnalysisScheduler(FakeEnqueuer(), progressLoader = { error("store unavailable") })
+        scheduler.loadProgress()
+        assertEquals(null, scheduler.progress.value)
+        scheduler.publishProgress(AnalysisProgress(3, 5))
+        scheduler.loadProgress()
+        assertEquals(AnalysisProgress(3, 5), scheduler.progress.value)
+    }
 
     @Test
     fun analyzeNowEnqueuesReplaceUniqueNowWork() {

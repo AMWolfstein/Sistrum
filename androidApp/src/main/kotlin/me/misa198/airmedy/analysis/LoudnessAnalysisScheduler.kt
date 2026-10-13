@@ -1,6 +1,14 @@
 package me.misa198.airmedy.analysis
 
 import android.content.Context
+import android.util.Log
+import androidx.work.WorkInfo
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
+import me.misa198.airmedy.sync.AndroidSyncRuntime
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -23,12 +31,29 @@ internal fun interface AnalysisWorkEnqueuer {
 internal class LoudnessAnalysisScheduler(
     private val enqueuer: AnalysisWorkEnqueuer,
     private val canceller: (String) -> Unit = {},
+    nowStates: Flow<List<WorkInfo.State>> = flowOf(emptyList()),
+    private val progressLoader: suspend () -> AnalysisProgress? = { null },
 ) {
 
     private val _progress = MutableStateFlow<AnalysisProgress?>(null)
 
     /** The latest published progress, or null before the first report. */
     val progress: StateFlow<AnalysisProgress?> = _progress.asStateFlow()
+
+    val nowRunning: Flow<Boolean> = nowStates.map { states ->
+        states.any { it == WorkInfo.State.ENQUEUED || it == WorkInfo.State.RUNNING || it == WorkInfo.State.BLOCKED }
+    }.distinctUntilChanged()
+
+    /** Loads persisted counts even when no worker has run in this process. */
+    suspend fun loadProgress() {
+        try {
+            progressLoader()?.let(::publishProgress)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w("LoudnessScheduler", "Unable to load analysis progress", e)
+        }
+    }
 
     /** Publishes [progress] to observers. */
     fun publishProgress(progress: AnalysisProgress) {
@@ -80,6 +105,9 @@ internal class LoudnessAnalysisScheduler(
                         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(name, policy, request)
                     },
                     canceller = { name -> WorkManager.getInstance(context.applicationContext).cancelUniqueWork(name) },
+                    nowStates = WorkManager.getInstance(context.applicationContext)
+                        .getWorkInfosForUniqueWorkFlow(NOW_WORK_NAME).map { infos -> infos.map { it.state } },
+                    progressLoader = { LoudnessStore(AndroidSyncRuntime.database()).progress() },
                 ).also { instance = it }
             }
         }

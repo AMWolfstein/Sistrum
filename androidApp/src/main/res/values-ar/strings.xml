@@ -540,4 +540,23 @@
         <item quantity="many">%1$d من %2$d مسارًا · يستهلك البطارية</item>
         <item quantity="other">%1$d من %2$d مسار · يستهلك البطارية</item>
     </plurals>
+
+    <string name="playback_normalization_requires_media3">يتطلب محرك التشغيل الجديد</string>
+    <string name="playback_normalization_untagged_preamp">التضخيم المسبق للمقاطع بلا بيانات جهارة</string>
+    <string name="playback_normalization_untagged_caption">للمقاطع التي لا تحتوي على بيانات جهارة</string>
+    <string name="playback_normalization_preamp_value">%1$s dB</string>
+    <string name="playback_normalization_preamp_minimum">-15 dB</string>
+    <string name="playback_normalization_preamp_maximum">+15 dB</string>
+    <string name="playback_loudness_analysis_charging">يستمر تلقائيًا أثناء الشحن</string>
+    <string name="playback_loudness_analysis_now">حلّل الآن</string>
+    <string name="playback_loudness_analysis_stop">إيقاف</string>
+    <string name="playback_loudness_analysis_battery">يستهلك البطارية</string>
+    <plurals name="playback_loudness_analysis_progress">
+        <item quantity="zero">تحليل الجهارة: %1$d من %2$d مسار</item>
+        <item quantity="one">تحليل الجهارة: %1$d من %2$d مسار</item>
+        <item quantity="two">تحليل الجهارة: %1$d من %2$d مسارين</item>
+        <item quantity="few">تحليل الجهارة: %1$d من %2$d مسارات</item>
+        <item quantity="many">تحليل الجهارة: %1$d من %2$d مسارًا</item>
+        <item quantity="other">تحليل الجهارة: %1$d من %2$d مسار</item>
+    </plurals>
 </resources>

@@ -1,5 +1,25 @@
 package me.misa198.airmedy.ui.screens
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.horizontalDrag
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.roundToInt
+import androidx.compose.material3.Button
+import me.misa198.airmedy.analysis.AnalysisProgress
+import me.misa198.airmedy.ui.components.formatDisplay
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -170,7 +190,12 @@ internal fun VolumeNormalizationContent(
     limiterState: LimiterState? = null,
     onNormalizationChanged: (me.misa198.airmedy.player.NormalizationSettings) -> Unit,
     modifier: Modifier = Modifier,
+    analysisProgress: AnalysisProgress? = null,
+    nowRunning: Boolean = false,
+    onAnalyzeNow: () -> Unit = {},
+    onStopAnalysis: () -> Unit = {},
 ) {
+    val preampLabel = stringResource(R.string.playback_normalization_untagged_preamp)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         me.misa198.airmedy.ui.components.Card {
             ActionList(
@@ -202,6 +227,43 @@ internal fun VolumeNormalizationContent(
                 )
             }
         }
+        if (!normalizationAvailable) {
+            Text(
+                stringResource(R.string.playback_normalization_requires_media3),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalAirmedyColors.current.textMuted,
+            )
+        } else {
+            if (analysisProgress != null && analysisProgress.total > 0) {
+                Column(Modifier.padding(horizontal = 16.dp)) {
+                    Text(
+                        pluralStringResource(R.plurals.playback_loudness_analysis_progress,
+                            analysisProgress.total, analysisProgress.analyzed, analysisProgress.total),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LocalAirmedyColors.current.textMuted,
+                    )
+                    Text(
+                        stringResource(R.string.playback_loudness_analysis_charging),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LocalAirmedyColors.current.textMuted,
+                    )
+                }
+            }
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                Button(
+                    onClick = { if (nowRunning) onStopAnalysis() else onAnalyzeNow() },
+                    enabled = nowRunning || analysisProgress == null || analysisProgress.analyzed != analysisProgress.total,
+                ) {
+                    Text(stringResource(if (nowRunning) R.string.playback_loudness_analysis_stop else R.string.playback_loudness_analysis_now))
+                }
+                if (!nowRunning) Text(
+                    stringResource(R.string.playback_loudness_analysis_battery),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalAirmedyColors.current.textMuted,
+                )
+            }
+        }
         limiterNoteRes(limiterState)?.let { noteRes ->
             Text(
                 text = stringResource(noteRes),
@@ -215,14 +277,36 @@ internal fun VolumeNormalizationContent(
             enter = fadeIn(animationSpec = tween(durationMillis = 200)),
             exit = fadeOut(animationSpec = tween(durationMillis = 150)),
         ) {
-            LabeledCard(label = stringResource(R.string.playback_normalization_target)) {
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                    Text(text = stringResource(R.string.playback_normalization_target_value, normalization.targetLufs.toInt()), style = MaterialTheme.typography.labelMedium, color = me.misa198.airmedy.ui.theme.LocalAirmedyColors.current.textMuted)
-                    LufsTargetSlider(
-                        targetLufs = normalization.targetLufs,
-                        enabled = true,
-                        onTargetChanged = { onNormalizationChanged(normalization.copy(targetLufs = it)) },
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                LabeledCard(label = stringResource(R.string.playback_normalization_target)) {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                        Text(text = stringResource(R.string.playback_normalization_target_value, normalization.targetLufs.toInt()), style = MaterialTheme.typography.labelMedium, color = me.misa198.airmedy.ui.theme.LocalAirmedyColors.current.textMuted)
+                        LufsTargetSlider(
+                            targetLufs = normalization.targetLufs,
+                            enabled = true,
+                            onTargetChanged = { onNormalizationChanged(normalization.copy(targetLufs = it)) },
+                        )
+                    }
+                }
+                LabeledCard(label = stringResource(R.string.playback_normalization_untagged_preamp)) {
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                        Text(
+                            stringResource(R.string.playback_normalization_preamp_value, formatDisplay("%+.1f", normalization.untaggedPreampDb)),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = LocalAirmedyColors.current.textMuted,
+                        )
+                        UntaggedPreampSlider(
+                            preampDb = normalization.untaggedPreampDb,
+                            enabled = true,
+                            onPreampChanged = { onNormalizationChanged(normalization.copy(untaggedPreampDb = it)) },
+                            modifier = Modifier.semantics { contentDescription = preampLabel },
+                        )
+                        Text(
+                            stringResource(R.string.playback_normalization_untagged_caption),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LocalAirmedyColors.current.textMuted,
+                        )
+                    }
                 }
             }
         }
@@ -310,6 +394,49 @@ internal fun SongTransitionContent(
                     )
                 }
             }
+        }
+    }
+}
+
+/** Theme-aware half-dB pre-amp slider, following the target slider RTL behavior. */
+@Composable
+private fun UntaggedPreampSlider(preampDb: Float, enabled: Boolean, onPreampChanged: (Float) -> Unit, modifier: Modifier = Modifier) {
+    val colors = LocalAirmedyColors.current
+    // The slider fills from the layout's start edge, so it runs right to left in RTL.
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val range = -15f..15f
+    val value = preampDb.coerceIn(range.start, range.endInclusive)
+    fun updateAt(x: Float, width: Float) {
+        val startX = if (isRtl) width - x else x
+        if (enabled && width > 0f) onPreampChanged(((range.start + (range.endInclusive - range.start) * (startX / width).coerceIn(0f, 1f)) * 2f).roundToInt() / 2f)
+    }
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Box(
+            modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().height(48.dp).semantics {
+                progressBarRangeInfo = ProgressBarRangeInfo(value, range, 59)
+                if (enabled) setProgress { requested -> onPreampChanged(((requested * 2f).roundToInt() / 2f).coerceIn(range.start, range.endInclusive)); true }
+            }.pointerInput(enabled, isRtl) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    updateAt(down.position.x, size.width.toFloat())
+                    horizontalDrag(down.id) { change -> change.consume(); updateAt(change.position.x, size.width.toFloat()) }
+                }
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Canvas(Modifier.fillMaxWidth().height(48.dp)) { scale(scaleX = if (isRtl) -1f else 1f, scaleY = 1f) {
+                val fraction = (value - range.start) / (range.endInclusive - range.start)
+                val height = 6.dp.toPx(); val centerY = 24.dp.toPx(); val radius = height / 2f
+                drawRoundRect(colors.buttonSecondary, Offset(0f, centerY - radius), Size(size.width, height), CornerRadius(radius, radius))
+                val thumbX = size.width * fraction
+                drawRoundRect(colors.primary, Offset(0f, centerY - radius), Size(thumbX, height), CornerRadius(radius, radius))
+                drawCircle(colors.primary, radius = 10.dp.toPx(), center = Offset(thumbX, centerY))
+            } }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(stringResource(R.string.playback_normalization_preamp_minimum), style = MaterialTheme.typography.labelSmall, color = colors.textMuted)
+            Text(stringResource(R.string.playback_normalization_preamp_maximum), style = MaterialTheme.typography.labelSmall, color = colors.textMuted)
         }
     }
 }

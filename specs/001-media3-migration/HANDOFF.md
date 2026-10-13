@@ -2,7 +2,7 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M6 in progress — T052 done; next T053 (Codex, gpt-6.1-sol medium) (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
+**Phase:** M6 in progress — T053 done; next T054 (automated device parts only; owner parts deferred), then Checkpoint M6 (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
 rules"). M1–M5 approved.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
@@ -769,6 +769,7 @@ SC-004, new SC-017/SC-018, edge cases, assumptions, clarification session 2026-1
 | T051e | new | Job tests first (WorkManager `work-testing`): constraints, 8-min budget, checkpoint, pending-only, failures, planner run |
 | T051f | new | LoudnessAnalysisWorker + scheduler, enqueue after scans; WorkManager notice — {hard} |
 | T052 | changed | Engine gain from GainResolver; **coordinator calls `setNormalization`**; native lookup only on native; no mid-track source change — {hard} |
+| T053 normalization settings UI | Codex gpt-6.1-sol medium (session `01a134cc-7c60-7b81-b7cc-df32ded9074c`, brief `~/.local/state/sistrum-delegate/T053/brief-1.md`) + orchestrator | 1 | PASS. `NormalizationSettings.untaggedPreampDb` (last field, default 0; −15…+15 dB, 0.5 dB slider, persisted) reaches the engine via setNormalization/StreamGainControl; settings enabled only with Media3 selected (native: disabled + note; auto-disable only on native; null-while-loading never disables); progress line (plurals, loads from the store on open) + "continues while charging"; Analyze now ("Uses battery") ↔ Stop via `nowRunning` (WorkManager unique-work flow); POST_NOTIFICATIONS asked once on tap (13+). Scope added by coder with reason: AppDestinationModels.kt, ui/navigation/AppDestinationContent.kt (callbacks pass through navigation); orchestrator added sharedLogic VolumeNormalization.kt and LoudnessAnalysisScheduler.kt in the brief. migration-guard PASS; orchestrator fixed the Arabic plural nouns (مسار/مسارين/مسارات/مسارًا, as the existing plural). Gate PASS; lint +11 MissingTranslation only (other locales lag, allowed). Device `.qa` (CPH2307, API 35) — also closes the T051h device check: Analyze now → FGS notification on `loudness_analysis` with Cancel, progress 0→1→12/766 (UI line updates), Cancel → notification gone in 67 ms and stays gone, UI back to "Analyze now", 12 tracks kept, background job enqueued (CHARGING/BATNOTLOW/STORENOTLOW, READY). Opus analysis is slow on platform decoding (as T051d). |
 | T053 | changed | Settings: untagged pre-amp, Media3-only gate, **analysis progress line** (+ "Analyze now" if approved) |
 | T054 | changed | [MANUAL] On `.qa`: first analysis of the 775-track library (time, runs, batterystats), SC-004 before/after analysis, SC-017 spot check, rescan keeps rows; listening batched with T061 |
 

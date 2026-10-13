@@ -814,7 +814,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     its gain until its next start; Opus header gain never added by `GainProcessor` (T005); log the Opus decoder name.
   - Tests: `GainRampTest` passes without modifying it; coordinator test for the call/skip (`PlaybackCoordinatorNormalizationTest`, new); `GATE`. migration-guard (coordinator).
 
-- [ ] T053 [US6] Normalization settings in `A/player/NormalizationPreferences.kt`, `A/ui/screens/PlaybackSettingsContent.kt`, `A/MainActivity.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default} — **changed**
+- [x] T053 [US6] Normalization settings in `A/player/NormalizationPreferences.kt`, `A/ui/screens/PlaybackSettingsContent.kt`, `A/MainActivity.kt`, `RES/values/strings.xml`, `RES/values-ar/strings.xml` {default} — **changed**
   - Do: `untaggedPreampDb` (default 0); settings enabled only with Media3 selected, disabled with a note on native
     (replaces the `analysisAvailable` gate for the UI); a progress line "Loudness analysis: N of M tracks" (plurals,
     Western digits) that also says analysis continues automatically while charging; an "Analyze now" button

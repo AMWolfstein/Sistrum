@@ -9,6 +9,7 @@ data class NormalizationSettings(
     val mode: NormalizationMode = NormalizationMode.Track,
     val targetLufs: Float = -14f,
     val preventClip: Boolean = true,
+    val untaggedPreampDb: Float = 0f,
 )
 
 data class TrackAnalysis(val loudnessLufs: Float, val truePeak: Float)

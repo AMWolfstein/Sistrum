@@ -16,6 +16,21 @@ class StreamGainControlTest {
     private val settings = NormalizationSettings(enabled = true, targetLufs = -18f)
 
     @Test
+    fun untaggedStreamUsesPreampFromSettings() {
+        val untagged = GainInfo(null, null, null, null, GainForm.None)
+        val withPreamp = settings.copy(untaggedPreampDb = 3f)
+        assertEquals(3f, StreamGainControl(withPreamp).onStreamStart(untagged), 0f)
+    }
+
+    @Test
+    fun preampOnlySettingsChangeRetargetsCurrentStream() {
+        val untagged = GainInfo(null, null, null, null, GainForm.None)
+        val control = StreamGainControl(settings)
+        assertEquals(0f, control.onStreamStart(untagged), 0f)
+        assertEquals(3f, control.setNormalization(settings.copy(untaggedPreampDb = 3f))!!, 0f)
+    }
+
+    @Test
     fun streamStartUsesItemGainMath() {
         val control = StreamGainControl(settings)
         assertEquals(itemGainDb(info, settings, 0f), control.onStreamStart(info), 0f)
