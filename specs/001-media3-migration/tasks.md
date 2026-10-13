@@ -958,6 +958,30 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     with a neutral chain skips the float conversion entirely.
   - Corpus (owner, not a blocker): add an 8–16 kHz AAC file when convenient and check the possible one-time position
     jump at start (T048b note).
+- [ ] T062d [TESTS-FIRST] Prepare-time decode failures follow FR-064 — **added 2026-10-14 (T062 finding, SC-014)**
+  - Tests in `AT/player/PlaybackCoordinatorPrepareFailureTest.kt` (fake engine whose `prepare()` throws
+    `EngineDecodeException(provider, format, cause)`): (a) one decode-failure log entry with that provider, codec = format,
+    file extension as format, error text; (b) queue skips to the next track and it starts; (c) consecutive-failure cap
+    and the "last track" case behave as for `EngineEvent.Error`; (d) a non-decode exception from `prepare()` still ends in
+    `PlaybackState.Failed` (unchanged); (e) the failed engine is closed. Contract: `contracts/player-engine.md`
+    amendment (orchestrator) — decode failures during `prepare` throw `EngineDecodeException`; blank provider → "none".
+    {hard} [HIGH-RISK]
+- [ ] T062e Implement T062d: `EngineDecodeException` in `A/player/engine/EngineEvent.kt`; `Media3Engine.prepare` wraps
+  source/renderer failures with the recorded provider (none → "none") and format (`audioFormat` mime, else known mime,
+  else extension); `PlaybackCoordinator` routes it through the `handleEngineError` path. Device: SC-014 harness method
+  green (`wma_v2.wma` provider "none"), failures appear in the decode-failure log. Make T062d pass unmodified. {hard} [HIGH-RISK]
+- [ ] T062f Spike: SC-006 start-latency breakdown on the release-like `.qa` build (player build, limiter check,
+  prepare → READY, play → first position, AudioTrack start) and the effect of candidate fixes (reuse the player across
+  starts, smaller start buffer / `bufferForPlaybackMs`, AudioTrack buffer size). Measurement code in
+  `AI/regression/Regression001MeasurementTest.kt` only; results + recommendation in `research/regression-001.md`;
+  the orchestrator then defines the fix task (ADR check first). {default}
+- [ ] T062g CPU with crossfade off ≤ native (SC-013 short-run proxy): profile per thread on the release-like build, then
+  optimize the Media3 path (owner note Checkpoint M5: e.g. 16-bit input with a neutral chain skips the float
+  conversion). Defined in detail after T062f. {hard}
+- [ ] T062h MP3 gapless join ≤ 10 ms on Media3: ExoPlayer reads the right LAME delay/padding (1105/815) and host
+  ffmpeg joins the pair in 1 frame, but the 1→2 join keeps ~511 near-silent frames; find the engine-side cause
+  (decoder delay at the item transition) and fix it; `Media3EngineGaplessTest` + harness SC-003 row. {hard} [HIGH-RISK]
+
 - [ ] T063 {orchestrator} Full regression: `GATE`, `./gradlew :androidApp:lintDevDebug` (only known lint classes), every instrumented class on `.qa` one at a time (known failures listed in CLAUDE.md only), SC-001, SC-010 diff check; results in `specs/001-media3-migration/research/regression-001.md`
 - [ ] T064 {orchestrator} Docs: `THIRD-PARTY-NOTICES` completeness (Media3, Choir, Rhythm), CLAUDE.md "Playback" section (seam, switch, `.qa`), `quickstart.md`, `HANDOFF.md` (default stays Native until 002 is done; FR-003 flip is a pre-merge task)
 

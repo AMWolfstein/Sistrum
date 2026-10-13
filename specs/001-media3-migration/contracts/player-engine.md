@@ -75,6 +75,11 @@ Rules:
 - Exactly one `TransitionStarted` or `GaplessAdvanced` per automatic advance, in order (FR-089).
 - `prepare` failure throws after releasing anything it created (FR-086); "playing" only after output started
   (FR-090).
+- *(Amendment 2026-10-14, T062d/T062e, SC-014.)* A **decode** failure during `prepare` (no extractor accepts the
+  file, or the extractor/decoder fails before READY) throws `EngineDecodeException(provider, format, cause)`; provider
+  = the accepting provider's name, or `"none"` when no extractor accepted the file. The coordinator handles it like
+  `EngineEvent.Error` (FR-064: log, decode-failure log, skip). Any other `prepare` exception keeps the old path
+  (`PlaybackState.Failed`). `LegacyNativeEngine` is unchanged (it never throws the new type).
 - `LegacyNativeEngine`: `ItemGain` → the existing native dB parameter; `setDsp` → `GlobalDspConfig`;
   events from polls. No behaviour change.
 - `Media3Engine`: ignores `ItemGain`; resolves each item's gain itself when the track's `Format` is known

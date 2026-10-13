@@ -1,0 +1,98 @@
+# Regression 001 — measurements (T062) and full regression (T063)
+
+Device: CPH2307 (Android 14), corpus `/sdcard/Music/SistrumTestCorpus` (49 files). Harness:
+`androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/regression/Regression001MeasurementTest.kt`, run one method
+at a time on `com.amwolfstein.sistrum.dev.qa` (never the daily app). Raw rows: instrumentation key `T062`, logcat tag
+`T062`.
+
+Two builds were measured (2026-10-13/14, commit `c6f5e7f` + the harness):
+
+- **debug** = the normal `.qa` build (debuggable). Relative numbers only.
+- **release-like** = the same `.qa` build with `isDebuggable = false`, `isJniDebuggable = false` (temporary local edit
+  of the `qa` build type, reverted right after the build, never committed; minify off so the test APK can reach
+  internal classes). Same application ID `.dev.qa`. This is part B ("measure CPU on a release build") without
+  installing a release variant, whose IDs belong to the owner's apps.
+
+## Measurement hygiene
+
+- The `.qa` app's background loudness-analysis job (WorkManager, charging-only, T051f) runs inside the test process
+  when the phone charges over USB. In two CPU runs it started about 3 minutes in and pushed every later mode, native
+  included, to ~335 % CPU (job history: START/STOP of `#u0a281/17`, `/18` during those runs; live-thread deltas
+  outside the job ~20 %). Those runs are discarded. Clean runs use `adb shell dumpsys battery unplug` for the run and
+  `dumpsys battery reset` after.
+- `wavpack_lossless.wv` is invisible to the app: MediaStore does not treat `.wv` as audio, so under scoped storage
+  `File.listFiles()` (and the library scan) never see it. 48 of 49 corpus files were exercised.
+
+## SC-003 gapless (Media3, gain tap, near-silent = |x| < 1e-4, 48 kHz)
+
+| Join | Longest near-silent run | Verdict (≤ 10 ms) |
+|---|---|---|
+| gapless_flac_1 → 2 | 1 frame (0.02 ms) | PASS |
+| gapless_flac_2 → 3 | 1 frame (0.02 ms) | PASS |
+| gapless_mp3_1 → 2 | 511 frames (10.65 ms) | **FAIL (marginal)** |
+| gapless_mp3_2 → 3 | 55 frames (1.15 ms) | PASS |
+
+ExoPlayer reads `encoderDelay = 1105`, `encoderPadding = 815` for all three MP3s (LAME 576 + decoder 529: correct).
+Host ffmpeg (LAME gapless honoured) decodes the same pair with a 1-frame join; each file is exactly 35.000 s. So the
+files are fine and the extra ~511 frames come from the engine side (decoder-delay trimming at the item transition).
+This closes the "Open: MP3 gapless join" note from T021: cause is in the engine/decoder setup, not the files.
+
+## SC-006 start latency (prepare call → first `positionMs() > 0`; 3 runs per file, medians)
+
+`OutputStarted` is not comparable across engines: native queues it as soon as `prepare()` returns
+(`LegacyNativeEngine.kt:136`), Media3 only on rendered-position advance. The position metric is used for the verdict.
+Native's position may count frames written to AAudio rather than heard, which flatters native by the output latency
+(tens of ms), not by the measured gap.
+
+| Build | Mix | native ms | Media3 ms | ratio | Verdict (≤ 1.20) |
+|---|---|---|---|---|---|
+| debug | Opus-heavy (6 files) | 79 | 327 | 4.13 | FAIL |
+| debug | lossless/MP3/AAC (6 files) | 84 | 241 | 2.85 | FAIL |
+| release-like | Opus-heavy | 72 | 264 | 3.68 | **FAIL** |
+| release-like | lossless/MP3/AAC | 78 | 167 | 2.15 | **FAIL** |
+
+Per file (debug): ALAC 139 ms and WAV 163 ms are the fastest on Media3 (WAV is the one file where Media3 beats native:
+171 ms native). Opus/Ogg 278–370 ms, FLAC/MP3/AAC 238–294 ms. Every Media3 start builds a new ExoPlayer
+(`Media3Engine.prepare` → `factory.newPlayer`), checks the limiter session and waits for READY before playing; the
+breakdown is not measured yet (follow-up task).
+
+## SC-014 failure attribution (Media3, every visible corpus file, prepare paused + 1 s play)
+
+44 OK, 4 FAIL — all four fail inside `prepare()`:
+
+| File | Provider | Format | Cause |
+|---|---|---|---|
+| aifc_fl32.aifc | kotlin-aiff | aifc | IOException |
+| aifc_ima4.aifc | kotlin-aiff | aifc | IOException |
+| wav_adpcm_ms.wav | platform | wav | IOException |
+| wma_v2.wma | *(none: no extractor accepted it)* | wma | IOException |
+
+These formats are expected to fail in 001 (ADPCM-MS, IMA4 AIFC, float AIFC, WMA are 002 decoders). **But the app path
+is broken for them:** a failure thrown by `prepare()` makes `PlaybackCoordinator` call `fail()`
+(`PlaybackCoordinator.kt:931`), which stops playback and writes nothing to the decode-failure log; only failures
+reported as `EngineEvent.Error` after prepare go through FR-064 (log + skip). So these files are neither logged nor
+skipped (FR-064, FR-064a, SC-014). Also, when no extractor accepts a file the provider is blank in the prepare path,
+while the event path falls back to "platform". → follow-up task.
+
+## CPU and memory (60 s per mode, silent, two FLAC files, last 10 s of each track; process utime+stime)
+
+Crossfade-on schedules a 4 s fade every ~10 s (6 fades a minute): a stress case, far heavier than real listening.
+
+| Build | native | Media3 crossfade off | Media3 crossfade on | PSS native / off / on (MB) |
+|---|---|---|---|---|
+| debug (2 clean runs × 2 sets) | 8.2–8.7 % | 22.5–30.8 % | 50.8–56.5 % | ~86–97 / ~94–96 / ~96–98 |
+| release-like (1 run × 2 sets) | 7.8–8.0 % | 14.2–17.6 % | 27.7–30.2 % | 33–49 / 45 / 48 |
+
+SC-013's 1 h screen-off `batterystats` run is not done (exceeds the 10-minute device time-box; deferred to the owner).
+But the short runs already show Media3 with crossfade off at about **2× native CPU** on the release-like build, so
+SC-013's "no higher than native" would fail. The owner's Checkpoint M5 note applies: optimize (e.g. skip the float
+conversion for 16-bit input with a neutral chain). → follow-up task.
+
+## Summary
+
+| Criterion | Result |
+|---|---|
+| SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL, engine-side |
+| SC-006 | FAIL, 2.1–3.7× native on the release-like build |
+| SC-013 | NOT RUN (1 h, owner); short runs predict FAIL (crossfade off ≈ 2× native CPU) |
+| SC-014 | Attribution present on every failure except WMA's blank provider; prepare-time failures are not logged or skipped — FAIL |

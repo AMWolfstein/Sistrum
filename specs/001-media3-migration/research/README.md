@@ -19,6 +19,7 @@ External reports (marked "external research") are condensed leads to verify, not
 | `analyzer-future.md` | On-device analysis, true LUFS + Mood Radio (future) | Record only |
 | `future-settings.md` | Settings after the migration (future) | Record only |
 | `home-mixes.md` | Home-screen auto playlists (future) | Record only |
+| `regression-001.md` | T062 measurements (SC-003/006/013/014) and T063 regression | Own measurement, 2026-10-14 |
 
 ## History: the Jellyfin decoder plan (dropped 2026-10-05)
 
