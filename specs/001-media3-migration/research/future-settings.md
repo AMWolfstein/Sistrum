@@ -7,8 +7,8 @@ None of this is built in 001, but the 001 design must not rule any of it out (sp
 
 - **Toggle separate from duration.** Turning crossfade off keeps the last duration (Rhythm's
   `LastEnabledCrossfadeSecondsKey` pattern); turning it on restores it.
-- **Crossfade in repeat-one** toggle (today: fade or gapless join into itself).
-- **Crossfade on skip**: manual next/previous crossfade too, including next during a running fade (today: hard
+- *(Moved into 001 as FR-031a / T060a, owner 2026-10-13.)* **Crossfade in repeat-one** toggle (today: fade or gapless join into itself).
+- *(Moved into 001 as FR-031a / T060a–T060c, owner 2026-10-13.)* **Crossfade on skip**: manual next/previous crossfade too, including next during a running fade (today: hard
   cut, spec Clarifications 2026-10-01).
 - **Fractional durations**: 0.5–12 s in 0.5 s steps, stored as tenths of a second.
 - **Minimum track length for crossfade** (possible): MPD skips crossfade for tracks under 20 s

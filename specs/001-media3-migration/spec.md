@@ -527,6 +527,16 @@ and the daily app's library, statistics and settings are untouched.
   applies the normal 3 s rule to the incoming track. The design MUST NOT rule out the future settings in
   `research/future-settings.md`: crossfade on manual skip (incl. next during a fade), a repeat-one
   crossfade toggle, and fractional durations (0.5 s steps).
+- **FR-031a** (owner, 2026-10-13; after Rhythm 5.5.498.1300 `CrossfadeSettingsScreen`/`skipWithCrossfade`): two crossfade
+  settings, shown under the crossfade length, both off when crossfade is 0:
+  - **Crossfade on repeat-one** (default on = today's behaviour): off → repeat-one joins the track into itself gaplessly,
+    no second player. Works on both engines (decided in Kotlin).
+  - **Crossfade on skip** (default off = today's behaviour; Media3 engine only, disabled with the "Requires the new
+    playback engine" note on native): a manual next/previous/tap while playing crossfades into the target with the
+    same equal-power curve and lead compensation; fade length = crossfade length clamped to 0.5–2 s. Plain hard cut
+    instead when: paused; a fade is already running (snap, then hard cut, as FR-031); within 600 ms of the previous
+    skip (rapid presses); previous past 3 s (restart the track); the target is not ready within 300 ms of the press.
+    The queue, media session, artwork transition and statistics overlap split behave as for an automatic crossfade.
 - **FR-032**: A crossfade setting change MUST never alter a running fade.
 - **FR-033**: With crossfade disabled, the new engine MUST NOT create or pre-buffer a second player;
   gapless advance uses a single player. With crossfade enabled, the second player MUST be created and

@@ -879,6 +879,23 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     T015 stays green unmodified.
   - Tests: `UT me.misa198.airmedy.player.PlaybackCoordinatorCrossfadeMedia3Test`; `GATE`. migration-guard.
 
+- [ ] T060a [US5] Crossfade settings: "Crossfade on repeat-one" and "Crossfade on skip" (FR-031a; owner 2026-10-13) in `A/player/PlaybackPreferences.kt`, settings UI, strings (en + ar), coordinator wiring of repeat-one {default} — **added**
+  - Do: DataStore keys `crossfade_repeat_one` (default true) and `crossfade_on_skip` (default false); toggles under the
+    crossfade length, disabled when crossfade is 0; skip toggle Media3-only (native: disabled + note, as T053);
+    repeat-one off → the coordinator never starts a crossfade on repeat-one (both engines) and the Media3 engine passes
+    `repeatOneCrossfade` to `TransitionSettings`; preference updates de-duplicated (FR-092).
+  - Tests: `UT` PlaybackPreferences defaults/round-trip; coordinator repeat-one-off test; `ArabicTranslationCompletenessTest`; `GATE`.
+
+- [ ] T060b [US5] [TESTS-FIRST] Crossfade on skip tests in `AT/player/PlaybackCoordinatorSkipCrossfadeTest.kt` and `AT/player/media3/TransitionControllerSkipTest.kt` {hard} [HIGH-RISK] — **added**
+  - Do: every FR-031a rule: fade only while playing and with the setting on and Media3; length clamp 0.5–2 s; snap +
+    hard cut when a fade runs; 600 ms debounce; previous past 3 s restarts without fade; target not ready in 300 ms →
+    hard cut; queue/session/artwork/stats at fade start as for an automatic fade; setting off → today's hard cut.
+  - Tests: `verify.sh --expect-fail` on both classes. migration-guard.
+
+- [ ] T060c [US5] Implement crossfade on skip (controller `crossfadeOnManualSkip` path, Media3 engine on-demand B, coordinator skip path) {hard} [HIGH-RISK] — **added**
+  - Tests: T060b classes pass without modifying them; T015 and `TransitionControllerTest` stay green; device check in
+    `Media3CrossfadeTest` (skip fade curve audible starts within 50 ms, no old-gain frame after a snap); `GATE`.
+
 - [ ] T061 [US5] [MANUAL] {orchestrator} US5 scenarios 1–8 on `.qa` vs native (SC-007 start within 200 ms), 12 s fade and snaps by ear (owner), SC-015 during a fade
   - Owner listening session (one session for all, owner 2026-10-07): 12 s fade and snaps; SC-015 two overlapping tones
     that clip only when summed come out limited during a crossfade; moved from T048: loud material through the limiter

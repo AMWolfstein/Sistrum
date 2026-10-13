@@ -2,7 +2,7 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M7 in progress (owner approved M6 and "start M7", 2026-10-13). Crossfade audit done (`research/crossfade-audit.md`; owner: add all gaps G1–G5 as proposed). Next: T059 (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
+**Phase:** M7 in progress (owner approved M6 and "start M7", 2026-10-13). Crossfade audit done (`research/crossfade-audit.md`; owner: add all gaps G1–G5 as proposed). Owner 2026-10-13: add "Crossfade on repeat-one" and "Crossfade on skip" from Rhythm (FR-031a, T060a–T060c; Rhythm 5.5.498.1300 checked: same volume-stepping mechanics as `ef16e7b`, skip rules adopted). Next: T059 (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
 rules"). M1–M5 approved.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
