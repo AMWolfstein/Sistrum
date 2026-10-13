@@ -822,7 +822,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     active.
   - Tests: `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T054 [US6] [MANUAL] {orchestrator} On `.qa`: first analysis of the 775-track library (wall time, worker runs, `batterystats` CPU/wakelock, discharge if run on battery) for SC-018; SC-004 corpus loudness after analysis and before it (tags fallback); SC-017 device spot check; album records for the corpus albums; rescan keeps documents; owner listens to slider drags, album mode, Opus header gain (batched with T061 if the owner prefers) — **changed**
+- [x] T054 [US6] [MANUAL] {orchestrator} On `.qa`: first analysis of the 775-track library (wall time, worker runs, `batterystats` CPU/wakelock, discharge if run on battery) for SC-018; SC-004 corpus loudness after analysis and before it (tags fallback); SC-017 device spot check; album records for the corpus albums; rescan keeps documents; owner listens to slider drags, album mode, Opus header gain (batched with T061 if the owner prefers) — **changed**
 
 **Checkpoint M6** — status report; owner approval.
 
