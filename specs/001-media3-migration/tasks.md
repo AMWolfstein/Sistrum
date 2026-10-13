@@ -833,7 +833,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 **Goal**: dual-player crossfade with our curve and contract.
 **Independent test**: US5 scenarios on the corpus vs the native engine (SC-007).
 
-- [ ] T055 [US5] [TESTS-FIRST] Transition state machine tests in `AT/player/media3/TransitionControllerTest.kt` {hard} [HIGH-RISK]
+- [x] T055 [US5] [TESTS-FIRST] Transition state machine tests in `AT/player/media3/TransitionControllerTest.kt` {hard} [HIGH-RISK]
   - Do: Idle → Scheduled → Preparing → Transitioning → Cleanup → Idle; any snap → Cleanup; B not ready at fade start →
     gapless on A; B scheduled only when remaining ≤ fade + pre-buffer (T004) and never with crossfade off (FR-033);
     next during a fade → hard cut to i+2; previous ≤ 3 s into incoming → outgoing restarts, > 3 s → incoming restarts;
