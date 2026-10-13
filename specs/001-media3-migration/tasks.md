@@ -885,6 +885,31 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ## Milestone M8 — Phase 10: Regression, resources, polish
 
+- [ ] T062a {hard} [HIGH-RISK] Rebranding: new identity, logo, Kotlin package and application ID (owner 2026-10-13; first task of M8, its own commit) — **added**
+  - Owner inputs before it starts: the new logo files (SVG or high-res PNG; a one-colour version for themed/monochrome
+    icons if available) and colours, and the new application ID (owner decides; Kotlin namespace defaults to it). The
+    name stays **Sistrum**.
+  - Do: launcher icon (adaptive foreground/background, monochrome for themed icons, round, all densities), notification
+    small icons (playback, analysis — `ic_launcher_monochrome`), in-app logo and About screen; labels "Sistrum" /
+    "Sistrum QA"; `applicationId` (prod, `.dev`, `.dev.qa`) and Gradle `namespace` (androidApp, sharedLogic); Kotlin
+    packages of every source set (main, test, androidTest, commonMain, commonTest), manifest component names, R8/ProGuard
+    rules, string resources (en + ar) that name the app.
+  - Exception: `player/FfmpegDecoder.kt` keeps `me.misa198.airmedy.player` until 003 removes it — its JNI symbols
+    (`Java_me_misa198_airmedy_player_FfmpegDecoder_*` in `cpp/**`) bind to that exact class, and `cpp/**` /
+    `FfmpegDecoder.kt` are off-limits in 001.
+  - Not carried over (owner accepted 2026-10-13): library, settings and analysis of the old application ID; the new ID
+    installs as a separate app. The old daily app `me.misa198.airmedy.dev` stays installed and stays protected (never
+    instrumented, installed over or force-stopped); the new dev ID becomes protected the same way.
+  - Tooling and docs in the same commit: CLAUDE.md (IDs, `.qa` commands, package paths), `verify.sh --instrumented` guard,
+    `.claude/hooks`, `.graphifyignore`/graph scope paths if they name the package, `docs/dev-setup.md`, AGENTS.md;
+    full graph rebuild.
+  - Keep: `signingConfigs`, GPL headers and third-party attributions, Room schema/version (no change), WorkManager unique
+    names, DataStore keys.
+  - 002 note: `port/waxflow` / `port/analysis` use `me.misa198.airmedy`; record the mechanical rename needed when 002 is
+    integrated.
+  - Tests: `GATE`, lint (known classes only), `ArabicTranslationCompletenessTest`, every instrumented class on the new
+    `.qa` one at a time, fresh-install smoke run (start, scan, play) on `.qa`.
+
 - [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ +20 %, SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
   - CPU (owner, Checkpoint M5 approval 2026-10-08): measure on a **release** build (debug `.qa` numbers: float neutral
     13.7 vs int 7.8 points). If Media3 with crossfade off still costs more than native, optimize, e.g. 16-bit input
