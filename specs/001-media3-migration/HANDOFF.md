@@ -2,7 +2,7 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M6 tasks done (T054 automated parts PASS; owner parts deferred) — next: Checkpoint M6 status report and owner approval (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
+**Phase:** M7 in progress (owner approved M6 and "start M7", 2026-10-13). Crossfade audit done (`research/crossfade-audit.md`; owner: add all gaps G1–G5 as proposed). Next: T055 (owner approved the M6 plan 2026-10-08: "Start M6 and run it to the end per the stop
 rules"). M1–M5 approved.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 

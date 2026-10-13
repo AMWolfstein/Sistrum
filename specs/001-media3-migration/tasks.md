@@ -838,7 +838,9 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     gapless on A; B scheduled only when remaining ≤ fade + pre-buffer (T004) and never with crossfade off (FR-033);
     next during a fade → hard cut to i+2; previous ≤ 3 s into incoming → outgoing restarts, > 3 s → incoming restarts;
     repeat-one → B prepares the same item; a setting change never alters a running fade (FR-032); hooks for the
-    future settings exist (FR-031).
+    future settings exist (FR-031). Audit additions (owner 2026-10-13, `research/crossfade-audit.md`): a seek right
+    after the fade starts and two automatic transitions within one position tick (G5); B fails before the fade → no
+    fade, stays on A; an error on either player during the fade → Cleanup (snap) (G3).
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.media3.TransitionControllerTest'`. migration-guard.
 
 - [ ] T056 [P] [US5] [TESTS-FIRST] Fade curve tests in `AT/player/dsp/EqualPowerFadeTest.kt` {hard} [HIGH-RISK]
@@ -865,7 +867,11 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   - Tests: `QA-I me.misa198.airmedy.player.media3.Media3CrossfadeTest` (event once per fade, one player when crossfade
     off, B gone after fade, tee curve check, both curves' audible starts within 50 ms after lead compensation — ADR-003
     "S1 result"; pause and skip during/after a fade: no audible frame at the old gain after the snap, pause lands at
-    the fade's audible end); `GATE`.
+    the fade's audible end; audit additions, owner 2026-10-13: focus duck/volume during a fade reach both players and
+    B starts at the current duck level (G1); B is built with the gain hook, current normalization settings and
+    EQ/preamp/width, sum equals processing the mix (G2); an error on either player during a fade snaps, then the
+    normal error path with the right attribution (G3); position/duration report the incoming player from fade start
+    (G4)); `GATE`.
 
 - [ ] T060 [US5] Crossfade orchestration on the shared path in `A/player/PlaybackCoordinator.kt` with `AT/player/PlaybackCoordinatorCrossfadeMedia3Test.kt` {hard} [HIGH-RISK]
   - Do: next/previous during a fade per FR-031; Mood Radio refill during a fade; artwork event and overlap split for

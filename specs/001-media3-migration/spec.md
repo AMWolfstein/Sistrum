@@ -457,6 +457,9 @@ and the daily app's library, statistics and settings are untouched.
   CPH2307, see `research/platform-codecs-cph2307.md`): the registry probes the device's codecs at runtime and
   tells codecs apart inside a container (ALAC vs AAC in M4A), never assuming one device's codec list.
 - A seek right after the fade starts, or two automatic transitions within one position tick.
+- An error during a crossfade (owner, 2026-10-13): if the incoming player fails before the fade, no fade starts and
+  playback stays on the current track (its advance then follows the normal decode-failure path, FR-064); an error
+  on either player during the fade snaps it, then the normal error path runs with the failing track attributed.
 
 ## Requirements *(mandatory)*
 
