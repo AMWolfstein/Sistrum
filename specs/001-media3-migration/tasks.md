@@ -854,7 +854,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 - [x] T057 [US5] Implement `A/player/media3/TransitionController.kt` {hard} [HIGH-RISK]
   - Tests: `TransitionControllerTest` passes without modifying it; `GATE`.
 
-- [ ] T058 [US5] Implement the fade in `A/player/dsp/GainProcessor.kt` {hard} [HIGH-RISK]
+- [x] T058 [US5] Implement the fade in `A/player/dsp/GainProcessor.kt` {hard} [HIGH-RISK]
   - Do: curves keyed to the audible timeline (processed frame − sink lead, 0.46–0.69 s measured in S1) for the
     crossfade and for fades on pause/skip (ADR-003 "S1 result").
   - Tests: `EqualPowerFadeTest` and `GainRampTest` pass without modifying them; `GATE`.
