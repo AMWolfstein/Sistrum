@@ -27,9 +27,11 @@ import kotlinx.coroutines.runBlocking
 import me.misa198.airmedy.player.EqualizerSettings
 import me.misa198.airmedy.player.NormalizationSettings
 import me.misa198.airmedy.player.PlaybackItem
+import me.misa198.airmedy.player.crossfadeDurationMs
 import me.misa198.airmedy.player.equalizerDspConfig
 import me.misa198.airmedy.player.engine.EngineEvent
 import me.misa198.airmedy.player.engine.ItemGain
+import me.misa198.airmedy.player.shouldStartCrossfade
 import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -154,6 +156,91 @@ class Media3CrossfadeTest {
         r.audibleOffsetMs = offset
         r.details = "audibleA=$audibleA audibleB=$audibleB delayMs=${r.engine.incomingDelayMsForTest}"
         assertTrue("lead=${r.engine.outgoingLeadMsForTest}ms audible start offset=${offset}ms", abs(offset) <= 50.0)
+    }
+
+    @Test(timeout = 120_000)
+    fun endOfTrackFadeDecidedOnProcessedTimelineEndsWithTrackA() = withRig("processedTimeline") { r ->
+        val originMs = 6_000L
+        r.prepareTone(startPositionMs = originMs)
+        val outgoing = r.engine.playersForTest().single()
+        val duration = r.engine.durationMs()
+        r.schedule(r.toneItem("b"))
+        val clocks = mutableListOf<Clock>()
+        var decisionLeadMs = 0L
+        var decisionMs = 0L
+        var fadeMs = 0L
+        val decisionDeadline = SystemClock.elapsedRealtime() + 5_000L
+        while (fadeMs == 0L && SystemClock.elapsedRealtime() < decisionDeadline) {
+            val position = r.engine.positionMs()
+            val lead = r.engine.fadeLeadMs()
+            val d = position + lead
+            r.factory.call {
+                clocks += Clock(SystemClock.elapsedRealtime(), outgoing.currentPosition, 0L)
+            }
+            if (shouldStartCrossfade(2, d, duration, r.engine.hasPreloaded())) {
+                decisionMs = d
+                decisionLeadMs = lead
+                fadeMs = crossfadeDurationMs(2, d, duration)
+                assertTrue("ready B must begin its fade", r.engine.beginCrossfade(fadeMs))
+            } else {
+                SystemClock.sleep(200L) // Playback service decision cadence.
+            }
+        }
+        assertTrue("automatic fade never started", fadeMs > 0L)
+        val incoming = r.engine.playersForTest().first()
+        await {
+            r.factory.call {
+                // Completion releases A; never read a released player's clock.
+                if (outgoing in r.engine.playersForTest()) {
+                    clocks += Clock(SystemClock.elapsedRealtime(), outgoing.currentPosition, incoming.currentPosition)
+                }
+            }
+            !r.engine.isCrossfading()
+        }
+        r.awaitComplete()
+        r.drain()
+        val transitions = r.events.filterIsInstance<EngineEvent.TransitionStarted>()
+        val effectiveFadeMs = transitions.single().fadeMs
+        val curve = fitCurve(r.gainTaps[0], incoming = false, durationMs = effectiveFadeMs)
+        val startMediaMs = originMs + curve.startFrame * 1000.0 / RATE
+        val fadeEndMediaMs = startMediaMs + effectiveFadeMs
+        val audibleStart = crossingTime(clocks, startMediaMs, incoming = false)
+        val expectedStart = crossingTime(clocks, (duration - FADE_MS).toDouble(), incoming = false)
+        val offset = audibleStart - expectedStart
+        val endFrame = (duration - originMs) * RATE / 1000L
+        val tailFrames = 100L * RATE / 1000L
+        val tail = curve.rows.filter { it.frame >= endFrame - tailFrames && it.frame + WINDOW <= endFrame }
+        val tailPeak = tail.maxOfOrNull { it.gain }
+        val lastTailGain = tail.lastOrNull()?.gain
+        r.audibleOffsetMs = offset
+        r.details = "audibleStartMediaMs=$startMediaMs expectedStartMediaMs=${duration - FADE_MS} " +
+            "offsetMs=$offset decisionMs=$decisionMs decisionOffsetMs=${startMediaMs - decisionMs} " +
+            "smoothedLeadMs=$decisionLeadMs instantaneousLeadMs=${r.engine.outgoingLeadMsForTest} " +
+            "fadeMs=$fadeMs effectiveFadeMs=$effectiveFadeMs fadeEndMediaMs=$fadeEndMediaMs tailWindows=${tail.size} " +
+            "tailPeak=$tailPeak lastTailGain=$lastTailGain"
+        assertTrue("audible fade start differs from the decision: ${r.details}", abs(startMediaMs - decisionMs) <= 100.0)
+        assertTrue("audible fade start outside the end-of-track window: ${r.details}",
+            startMediaMs in (duration - FADE_MS - 150.0)..(duration - FADE_MS + 250.0))
+        // Require a full 100 ms at A's actual source end, so early release cannot hide a truncated tail.
+        assertEquals("missing final 100ms of A's PCM: ${r.details}", (tailFrames / WINDOW).toInt(), tail.size)
+        assertTrue("A's fitted fade ends after its audio: ${r.details}", fadeEndMediaMs <= duration + 50.0)
+        assertEquals("last tail window must end at A's source end: ${r.details}", endFrame, tail.last().frame + WINDOW)
+        assertTrue("A's last tail window is not fully faded: ${r.details}", tail.last().gain <= 0.01)
+        for (window in tail) {
+            val progress = (window.frame + WINDOW / 2.0 - curve.startFrame) / (effectiveFadeMs * RATE / 1000.0)
+            // Evaluate the fitted outgoing cosine, rather than sampling the measured PCM via Curve.gainAt.
+            val fittedGain = cos(progress.coerceIn(0.0, 1.0) * PI / 2)
+            assertTrue("A's tail exceeds the fitted curve: frame=${window.frame} gain=${window.gain} " +
+                "fittedGain=$fittedGain; ${r.details}", window.gain <= fittedGain + 0.05)
+        }
+        r.drain()
+        assertEquals("one automatic transition", 1, transitions.size)
+        assertEquals("b", transitions.single().incoming.trackId)
+        assertTrue("event fade length must stay within 150ms of the request: ${r.details}",
+            transitions.single().fadeMs in (fadeMs - 150L)..fadeMs)
+        assertTrue(r.events.none { it is EngineEvent.GaplessAdvanced || it is EngineEvent.Error })
+        assertEquals("outgoing released after completion", 1, r.factory.livePlayers)
+        // withRig closes the survivor and asserts zero leaked players.
     }
 
     @Test(timeout = 120_000)
@@ -594,13 +681,13 @@ class Media3CrossfadeTest {
             return rows.minBy { abs(it.frame + WINDOW / 2.0 - frame) }.gain
         }
     }
-    private fun fitCurve(tap: Tap, incoming: Boolean): Curve {
+    private fun fitCurve(tap: Tap, incoming: Boolean, durationMs: Long = FADE_MS): Curve {
         val all = tap.windows()
         val generation = all.maxOf { it.generation }
         val rows = all.filter { it.generation == generation }
         val middle = rows.filter { it.gain in 0.15..0.95 }
         assertTrue("not enough curve samples", middle.size >= 20)
-        val durationFrames = FADE_MS * RATE / 1000.0
+        val durationFrames = durationMs * RATE / 1000.0
         val start = middle.map {
             val phase = if (incoming) asin(it.gain.coerceIn(0.0, 1.0)) else acos(it.gain.coerceIn(0.0, 1.0))
             it.frame + WINDOW / 2.0 - phase / (PI / 2) * durationFrames

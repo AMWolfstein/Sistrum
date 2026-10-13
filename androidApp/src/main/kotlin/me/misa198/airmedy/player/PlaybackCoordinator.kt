@@ -1295,16 +1295,17 @@ internal class PlaybackCoordinator(
         val currentEngine = engine ?: return false
         val incoming = preloadedItem ?: return false
         if (currentEngine.isCrossfading()) return false
+        val decisionMs = currentEngine.positionMs() + currentEngine.fadeLeadMs()
         if (!shouldStartCrossfade(
                 crossfadeSeconds = flows.crossfadeSeconds.value,
-                positionMs = currentEngine.positionMs(),
+                positionMs = decisionMs,
                 durationMs = current.durationMs,
                 hasPreloadedNext = preloadedItem != null && currentEngine.hasPreloaded(),
             )
         ) return false
         val effectiveDurationMs = crossfadeDurationMs(
             crossfadeSeconds = flows.crossfadeSeconds.value,
-            positionMs = currentEngine.positionMs(),
+            positionMs = decisionMs,
             durationMs = current.durationMs,
         )
         if (!currentEngine.beginCrossfade(effectiveDurationMs)) return false

@@ -21,6 +21,7 @@ import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.source.MediaSource
 import java.io.File
 import java.io.IOException
+import java.util.ArrayDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
@@ -170,6 +171,11 @@ internal class Media3Engine(
     private var rawMs = 0L
     private var rawAtMs = 0L
     private var lastReturnedMs = 0L
+    // Playback-looper-only upper envelope of the current slot's buffer-sized processing advances.
+    private data class LeadReading(val timeMs: Long, val leadMs: Long)
+    private val fadeLeadReadings = ArrayDeque<LeadReading>()
+    private var fadeLeadSlot: Slot? = null
+    private var fadeLeadItem: PlaybackItem? = null
     private val preloadedByMediaId = ConcurrentHashMap<String, PlaybackItem>()
     @Volatile
     private var closed = false
@@ -312,6 +318,7 @@ internal class Media3Engine(
         releaseCurrentPlayer()
         val candidate = try {
             factory.call {
+                resetFadeLeadWindow()
                 val gainState = PlayerStreamGain(resolver, normalizationSettings, item, startPositionMs)
                 streamGain = gainState
                 val p = factory.newPlayer(gainState)
@@ -444,7 +451,10 @@ internal class Media3Engine(
     override fun play() {
         factory.call {
             val p = player ?: return@call
-            if (!p.playWhenReady) armStartProbe(p)
+            if (!p.playWhenReady) {
+                resetFadeLeadWindow()
+                armStartProbe(p)
+            }
             p.playWhenReady = true
             awaitingOutput = true
             outputBaseMs = p.currentPosition
@@ -533,6 +543,7 @@ internal class Media3Engine(
 
     override fun pause() {
         factory.call {
+            resetFadeLeadWindow()
             cancelPendingSkipFade()
             stopIncomingWarmup()
             execute(transition.snap(SnapReason.Pause))
@@ -548,6 +559,7 @@ internal class Media3Engine(
 
     override fun seekTo(positionMs: Long) {
         factory.call {
+            resetFadeLeadWindow()
             cancelPendingSkipFade()
             stopIncomingWarmup()
             execute(transition.snap(SnapReason.Seek))
@@ -594,7 +606,9 @@ internal class Media3Engine(
         if (duration == C.TIME_UNSET) currentSlot?.knownDurationMs ?: 0L else duration
     }
 
-    override fun fadeLeadMs(): Long = 0L // T061b
+    override fun fadeLeadMs(): Long = runCatching {
+        factory.call { sampleFadeLeadMs() }
+    }.getOrDefault(0L)
 
     override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean {
         val deadline = SystemClock.elapsedRealtime() + 300L
@@ -751,6 +765,7 @@ internal class Media3Engine(
             releaseOutgoing()
             currentSlot?.let { releaseSlot(it) }
             currentSlot = null
+            resetFadeLeadWindow()
             player = null
             streamGain = null
             currentItem = null
@@ -765,6 +780,7 @@ internal class Media3Engine(
     }
 
     private fun resetPosition(position: Long) {
+        resetFadeLeadWindow()
         rawMs = position.coerceAtLeast(0L)
         rawAtMs = SystemClock.elapsedRealtime()
         lastReturnedMs = rawMs
@@ -910,23 +926,75 @@ internal class Media3Engine(
         execute(transition.onIncomingReady())
     }
 
+    private fun resetFadeLeadWindow() {
+        fadeLeadReadings.clear()
+        fadeLeadSlot = null
+        fadeLeadItem = null
+    }
+
+    /** Sample only the current playing slot, retaining its maximum instantaneous lead for 500 ms. */
+    private fun sampleFadeLeadMs(): Long {
+        val slot = currentSlot
+        if (slot == null || player !== slot.p || !slot.p.isPlaying || isCrossfading()) {
+            resetFadeLeadWindow()
+            return 0L
+        }
+        val clock = slot.gain.processor?.processingPosition
+        if (clock == null || clock.sampleRate <= 0) {
+            resetFadeLeadWindow()
+            return 0L
+        }
+        if (fadeLeadSlot !== slot || fadeLeadItem !== slot.item) {
+            resetFadeLeadWindow()
+            fadeLeadSlot = slot
+            fadeLeadItem = slot.item
+        }
+        val now = SystemClock.elapsedRealtime()
+        while (fadeLeadReadings.isNotEmpty() && fadeLeadReadings.first.timeMs < now - FADE_LEAD_WINDOW_MS) {
+            fadeLeadReadings.removeFirst()
+        }
+        fadeLeadReadings.addLast(LeadReading(now, processingLeadMs(slot, clock)))
+        return fadeLeadReadings.maxOf { it.leadMs }.coerceIn(0L, MAX_LEAD_MS)
+    }
+
+    /** Playback-looper calculation shared by the decision, pre-buffer schedule and fade start. */
+    private fun processingLeadMs(
+        slot: Slot?,
+        clock: GainProcessor.ProcessingPosition? = slot?.gain?.processor?.processingPosition,
+    ): Long {
+        if (slot == null) return 0L
+        val processedMs = processedPositionMs(slot, clock) ?: return 0L
+        return (processedMs - slot.p.currentPosition).coerceIn(0L, MAX_LEAD_MS)
+    }
+
+    private fun processedPositionMs(slot: Slot, clock: GainProcessor.ProcessingPosition?): Long? {
+        if (clock == null || clock.sampleRate <= 0) return null
+        return slot.gain.positionOriginMs + clock.frames * 1000L / clock.sampleRate
+    }
+
     private fun startFade(durationMs: Long) {
+        resetFadeLeadWindow()
         stopIncomingWarmup()
         val outgoing = checkNotNull(currentSlot)
         val incoming = checkNotNull(incomingSlot)
         val clock = outgoing.gain.processor?.processingPosition
         fadeSampleRate = clock?.sampleRate?.takeIf { it > 0 } ?: 48_000
-        val processedMs = outgoing.gain.positionOriginMs +
-            (clock?.frames ?: 0L) * 1000L / fadeSampleRate
-        val startLeadMs = (processedMs - outgoing.p.currentPosition).coerceIn(0L, MAX_LEAD_MS)
+        val startLeadMs = processingLeadMs(outgoing, clock)
+        val processedMs = processedPositionMs(outgoing, clock) ?: outgoing.p.currentPosition
+        val outgoingDurationMs = outgoing.p.duration
+        val effective = if (skipRequestDurationMs == null && outgoingDurationMs != C.TIME_UNSET) {
+            min(durationMs, outgoingDurationMs - processedMs).coerceAtLeast(1L)
+        } else durationMs
+        Log.i("Media3Engine", "fade requestedMs=$durationMs effectiveMs=$effective " +
+            "processedMs=$processedMs outgoingDurationMs=$outgoingDurationMs")
         outgoingLeadMsForTest = startLeadMs
         fadeLeadFrames = outgoingLeadMsForTest * fadeSampleRate / 1000L
         val outgoingFadeGeneration = clock?.fadeGeneration ?: 0L
         val now = SystemClock.elapsedRealtime()
-        fadeNotBeforeMs = now + durationMs + outgoingLeadMsForTest
+        fadeNotBeforeMs = now + effective + outgoingLeadMsForTest
         fadeDrainDeadlineMs = 0L
-        outgoing.gain.processor?.startFade(FadeDirection.Out, durationMs)
-        incoming.gain.fadeInAfterFlush(durationMs)
+        outgoing.gain.processor?.startFade(FadeDirection.Out, effective)
+        incoming.gain.fadeInAfterFlush(effective)
         // Replacing the single-item timeline forces a sink flush, even at paused position zero
         // where seekTo(0) may be optimized away. Arm the curve on that flush, after silent preroll.
         val incomingPositionMs = 0L
@@ -981,7 +1049,7 @@ internal class Media3Engine(
                     if (leadMs != null) {
                         outgoingLeadMsForTest = leadMs
                         fadeLeadFrames = leadMs * fadeSampleRate / 1000L
-                        fadeNotBeforeMs = elapsed + leadMs + durationMs
+                        fadeNotBeforeMs = elapsed + leadMs + effective
                         // B's curve starts at its first post-flush frame, heard one output start latency after play.
                         val latencyMs = incomingStartLatencyMs ?: startLatencyMs
                         incomingDelayMsForTest = (leadMs - latencyMs).coerceAtLeast(0L)
@@ -1007,7 +1075,7 @@ internal class Media3Engine(
         incomingStart = start
         handler.post(start)
         applyFocusGainOnLooper(SystemClock.uptimeMillis())
-        if (skipRequestDurationMs == null) pendingEvents += EngineEvent.TransitionStarted(incoming.item, durationMs)
+        if (skipRequestDurationMs == null) pendingEvents += EngineEvent.TransitionStarted(incoming.item, effective)
         scheduleTransitionTick()
     }
 
@@ -1057,6 +1125,7 @@ internal class Media3Engine(
     }
 
     private fun releaseOutgoing() {
+        resetFadeLeadWindow()
         val startPending = incomingStart != null
         cancelIncomingStart()
         val slot = outgoingSlot ?: return
@@ -1088,11 +1157,13 @@ internal class Media3Engine(
                 if (closed) return
                 val p = player ?: return
                 sampleStartProbe()
+                sampleFadeLeadMs()
                 val item = currentItem ?: return
                 if (p.isPlaying && p.duration != C.TIME_UNSET) {
                     val next = pendingNext
                     val repeatOne = next?.trackId == item.trackId
-                    execute(transition.onPosition(item, (p.duration - p.currentPosition).coerceAtLeast(0L),
+                    val lead = processingLeadMs(currentSlot)
+                    execute(transition.onPosition(item, (p.duration - (p.currentPosition + lead)).coerceAtLeast(0L),
                         next, repeatOne))
                     // The controller declines repeat-one fades when disabled. Keep that advance
                     // on the normal playlist path, after preloadNext has only stored the pending item.
@@ -1197,6 +1268,7 @@ internal class Media3Engine(
         const val DEFAULT_START_LATENCY_MS = 50L
         const val MAX_START_LATENCY_MS = 500L
         const val MAX_LEAD_MS = 1_500L
+        const val FADE_LEAD_WINDOW_MS = 500L
         const val OBSERVE_FALLBACK_MS = 200L
         const val START_PROBE_SAMPLES = 5
         const val START_PROBE_MAX_ADVANCE_MS = 2_000L

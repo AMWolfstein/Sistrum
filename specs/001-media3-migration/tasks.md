@@ -896,7 +896,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   - Tests: T060b classes pass without modifying them; T015 and `TransitionControllerTest` stay green; device check in
     `Media3CrossfadeTest` (skip fade curve audible starts within 50 ms, no old-gain frame after a snap); `GATE`.
 
-- [ ] T061 [US5] [MANUAL] {orchestrator} US5 scenarios 1–8 on `.qa` vs native (SC-007 start within 200 ms), 12 s fade and snaps by ear (owner), SC-015 during a fade
+- [ ] T061 [US5] [MANUAL] {orchestrator} US5 scenarios 1–8 on `.qa` vs native (SC-007 start within 200 ms), 12 s fade and snaps by ear (owner), SC-015 during a fade — automated parts DONE (SC-007 fixed by T061a/T061b); open: owner listening session only (deferred to the end)
   - Owner listening session (one session for all, owner 2026-10-07): 12 s fade and snaps; SC-015 two overlapping tones
     that clip only when summed come out limited during a crossfade; moved from T048: loud material through the limiter
     incl. SC-011 (clip prevention on/off, max EQ boost + preamp, two loud tracks overlapping in a crossfade), and
@@ -908,7 +908,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     `position + L`, lead 0 = today (T015 green unmodified), both engine kinds, skip fades unaffected.
   - Tests: `verify.sh --expect-fail`. migration-guard.
 
-- [ ] T061b [US5] Implement the processed-timeline fade decision (coordinator + `Media3Engine.fadeLeadMs()` + Media3 pre-buffer schedule) {hard} [HIGH-RISK] — **added**
+- [x] T061b [US5] Implement the processed-timeline fade decision (coordinator + `Media3Engine.fadeLeadMs()` + Media3 pre-buffer schedule) {hard} [HIGH-RISK] — **added**
   - Tests: T061a class green unmodified; T015, T060 classes green; device `Media3CrossfadeTest` new test: end-of-track
     fade driven like the coordinator (poll `positionMs() + fadeLeadMs()`), outgoing tap < −40 dB before A ends, audible
     curve start within 200 ms of `duration − fade` in A's media time; all Media3 classes green; `GATE`.
