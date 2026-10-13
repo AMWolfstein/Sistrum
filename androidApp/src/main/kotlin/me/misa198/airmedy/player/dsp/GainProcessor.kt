@@ -9,6 +9,12 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.pow
 
+internal enum class FadeDirection { In, Out }
+
+/** Milliseconds until a fade with [remainingFrames] curve frames left is audibly finished, given [leadFrames]
+ *  processed-but-not-yet-audible frames: ceil((remainingFrames + leadFrames) * 1000 / sampleRate). */
+internal fun fadeAudibleEndMs(remainingFrames: Long, leadFrames: Long, sampleRate: Int): Long = 0L   // stub
+
 /** Per-player normalization gain, ramped in linear amplitude over 200 ms. */
 @OptIn(UnstableApi::class)
 internal class GainProcessor : BaseAudioProcessor() {
@@ -20,6 +26,18 @@ internal class GainProcessor : BaseAudioProcessor() {
     private var appliedGain = 1.0
     private var step = 0.0
     private var remainingFrames = 0
+
+    /**
+     * Starts an equal-power fade from any thread; the audio thread observes it at the next buffer (like the gain
+     * target). The first frame processed after observation is curve frame `-startOffsetFrames`: a positive offset
+     * holds the start value (In 0, Out 1) for that many frames first; a negative offset starts part-way into the
+     * curve. A new call replaces any running fade.
+     */
+    fun startFade(direction: FadeDirection, durationMs: Long, startOffsetFrames: Long = 0L) {}   // stub
+    /** Ends the fade at once from any thread: from the next processed frame In = 1, Out = 0. Survives a flush. */
+    fun snapFade() {}   // stub
+    /** Curve frames still to process (held offset frames included); 0 with no fade, after the end, after a snap. */
+    val fadeRemainingFrames: Long get() = 0L   // stub
 
     /** Publishes a target from any thread; the audio thread observes it once per buffer. */
     fun setTargetGainDb(db: Float) {

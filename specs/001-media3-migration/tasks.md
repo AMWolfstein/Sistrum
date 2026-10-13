@@ -843,7 +843,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     fade, stays on A; an error on either player during the fade → Cleanup (snap) (G3).
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.player.media3.TransitionControllerTest'`. migration-guard.
 
-- [ ] T056 [P] [US5] [TESTS-FIRST] Fade curve tests in `AT/player/dsp/EqualPowerFadeTest.kt` {hard} [HIGH-RISK]
+- [x] T056 [P] [US5] [TESTS-FIRST] Fade curve tests in `AT/player/dsp/EqualPowerFadeTest.kt` {hard} [HIGH-RISK]
   - Do: per-frame gain = native formula (`phase = at/total·π/2`, out `cos`, in `sin`); multiplies with normalization
     (FR-035); snap forces incoming 1.0 and outgoing 0 at once; 12 s fade has no step above ε; the outgoing curve can
     start at a frame offset in the past/future (lead compensation, ADR-003 "S1 result"); the same holds for every
