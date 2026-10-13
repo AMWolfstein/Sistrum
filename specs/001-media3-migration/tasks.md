@@ -879,7 +879,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     T015 stays green unmodified.
   - Tests: `UT me.misa198.airmedy.player.PlaybackCoordinatorCrossfadeMedia3Test`; `GATE`. migration-guard.
 
-- [ ] T060a [US5] Crossfade settings: "Crossfade on repeat-one" and "Crossfade on skip" (FR-031a; owner 2026-10-13) in `A/player/PlaybackPreferences.kt`, settings UI, strings (en + ar), coordinator wiring of repeat-one {default} — **added**
+- [x] T060a [US5] Crossfade settings: "Crossfade on repeat-one" and "Crossfade on skip" (FR-031a; owner 2026-10-13) in `A/player/PlaybackPreferences.kt`, settings UI, strings (en + ar), coordinator wiring of repeat-one {default} — **added**
   - Do: DataStore keys `crossfade_repeat_one` (default true) and `crossfade_on_skip` (default false); toggles under the
     crossfade length, disabled when crossfade is 0; skip toggle Media3-only (native: disabled + note, as T053);
     repeat-one off → the coordinator never starts a crossfade on repeat-one (both engines) and the Media3 engine passes

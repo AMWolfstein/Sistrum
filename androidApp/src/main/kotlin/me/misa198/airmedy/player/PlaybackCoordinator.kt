@@ -74,7 +74,16 @@ internal class PlaybackCoordinator(
     private var equalizerSettings = EqualizerSettings()
     // FR-092: de-duplicate preference re-emissions. A shared DataStore re-emits every
     // settings flow on any write, so remember the last applied values and skip repeats.
-    private var appliedPlaybackSettings: Pair<Int, Boolean>? = null
+    private data class AppliedPlaybackSettings(
+        val seconds: Int,
+        val blendArtwork: Boolean,
+        val repeatOneCrossfade: Boolean,
+        val crossfadeOnSkip: Boolean,
+    )
+    private var appliedPlaybackSettings: AppliedPlaybackSettings? = null
+    private var repeatOneCrossfade = true
+    internal var crossfadeOnSkip = false
+        private set
     private var appliedEqualizerSettings = EqualizerSettings()
     private var isDucked = false
     private var pendingStart: PendingStart? = null
@@ -489,17 +498,28 @@ internal class PlaybackCoordinator(
         }
     }
 
-    internal suspend fun onPlaybackSettings(seconds: Int, blendArtwork: Boolean) {
+    internal suspend fun onPlaybackSettings(
+        seconds: Int,
+        blendArtwork: Boolean,
+        repeatOneCrossfade: Boolean = true,
+        crossfadeOnSkip: Boolean = false,
+    ) {
         // FR-092: a repeated write re-emits identical values; do not touch flows, artwork
         // crossfade or the engine unless something that affects playback actually changed.
-        val requested = seconds to blendArtwork
+        val requested = AppliedPlaybackSettings(seconds, blendArtwork, repeatOneCrossfade, crossfadeOnSkip)
         if (appliedPlaybackSettings == requested) return
         val secondsChanged = flows.crossfadeSeconds.value != seconds
+        val repeatOneChanged = this.repeatOneCrossfade != repeatOneCrossfade
+        val blendChanged = flows.blendArtworkDuringCrossfade.value != blendArtwork
         appliedPlaybackSettings = requested
+        this.repeatOneCrossfade = repeatOneCrossfade
+        this.crossfadeOnSkip = crossfadeOnSkip
+        // Skip is stored for T060c and must have no playback side effects yet.
+        if (!secondsChanged && !repeatOneChanged && !blendChanged) return
         flows.crossfadeSeconds.value = seconds
         flows.blendArtworkDuringCrossfade.value = blendArtwork
         // Engines capture the running fade's settings; this applies to later fades (FR-032).
-        if (secondsChanged) engine?.setCrossfade(seconds * 1_000L, true)
+        if (secondsChanged || repeatOneChanged) engine?.setCrossfade(seconds * 1_000L, repeatOneCrossfade)
         if (!blendArtwork) clearArtworkCrossfade()
         // A preference update must never change a fade already
         // running, but it does refresh the idle source afterward.
@@ -592,7 +612,7 @@ internal class PlaybackCoordinator(
                     else ItemGain(normalizationGain(item, queue.peekNext()))
                 preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
-                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, true)
+                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 preparedEngine.prepare(item, gain, startPositionMs, startPaused)
                 engine = preparedEngine
@@ -639,7 +659,7 @@ internal class PlaybackCoordinator(
                     else ItemGain(normalizationGain(item, queue.peekNext()))
                 preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
-                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, true)
+                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 preparedEngine.prepare(item, gain, savedPositionMs, startPaused = true)
                 val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
@@ -1231,6 +1251,7 @@ internal class PlaybackCoordinator(
     }
 
     private fun maybeStartCrossfade(): Boolean {
+        if (!repeatOneCrossfade && queue.snapshot().repeatMode == RepeatMode.One) return false
         val current = flows.state.value as? PlaybackState.Playing ?: return false
         val currentEngine = engine ?: return false
         val incoming = preloadedItem ?: return false

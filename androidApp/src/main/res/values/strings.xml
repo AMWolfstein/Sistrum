@@ -241,6 +241,9 @@
     </plurals>
     <string name="playback_crossfade_minimum">1s</string>
     <string name="playback_crossfade_maximum">12s</string>
+    <string name="playback_crossfade_repeat_one">Crossfade on repeat-one</string>
+    <string name="playback_crossfade_on_skip">Crossfade on skip</string>
+    <string name="playback_crossfade_on_skip_description">Fade between tracks when you skip (0.5–2 s).</string>
     <string name="playback_blend_artwork_during_crossfade">Blend artwork and background</string>
     <string name="playback_show_quality_badge">Show audio quality badge</string>
     <string name="equalizer_title">Equalizer</string>

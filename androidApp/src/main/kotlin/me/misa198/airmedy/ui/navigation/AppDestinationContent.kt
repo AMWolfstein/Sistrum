@@ -450,6 +450,11 @@ internal fun AppDestinationContent(
                                 onCrossfadeSecondsChanged = onCrossfadeSecondsChanged,
                                 blendArtworkDuringCrossfade = blendArtworkDuringCrossfade,
                                 onBlendArtworkDuringCrossfadeChanged = onBlendArtworkDuringCrossfadeChanged,
+                                repeatOneCrossfade = settings.repeatOneCrossfade,
+                                onRepeatOneCrossfadeChanged = settings.onRepeatOneCrossfadeChanged,
+                                crossfadeOnSkip = settings.crossfadeOnSkip,
+                                onCrossfadeOnSkipChanged = settings.onCrossfadeOnSkipChanged,
+                                normalizationAvailable = normalizationAvailable,
                                 modifier = settingsPageModifier,
                             )
                             AppStackPage.SettingsVolumeNormalization -> VolumeNormalizationContent(

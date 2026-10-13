@@ -276,6 +276,9 @@
     </plurals>
     <string name="playback_crossfade_minimum">1 ث</string>
     <string name="playback_crossfade_maximum">12 ث</string>
+    <string name="playback_crossfade_repeat_one">التلاشي المتداخل عند تكرار مقطع واحد</string>
+    <string name="playback_crossfade_on_skip">التلاشي المتداخل عند التخطي</string>
+    <string name="playback_crossfade_on_skip_description">تلاشي متداخل بين المقاطع عند التخطي (0.5–2 ثانية).</string>
     <string name="playback_blend_artwork_during_crossfade">مزج صورة الغلاف والخلفية</string>
     <string name="playback_show_quality_badge">إظهار شارة جودة الصوت</string>
     <string name="equalizer_title">معادل الصوت</string>
