@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
@@ -25,6 +26,7 @@ import androidx.media3.exoplayer.audio.AudioTrackAudioOutput
 import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.ForwardingAudioOutputProvider
+import androidx.media3.exoplayer.audio.ForwardingAudioSink
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -44,6 +46,15 @@ import me.misa198.airmedy.player.dsp.EqualizerProcessor
 import me.misa198.airmedy.player.dsp.GainProcessor
 import me.misa198.airmedy.player.dsp.PreampProcessor
 import me.misa198.airmedy.player.dsp.StereoWidthProcessor
+
+/** Bridges processor creation and the renderer's stream boundary to per-player gain state. */
+@OptIn(UnstableApi::class)
+internal interface StreamGainHook {
+    fun onGainProcessor(processor: GainProcessor)
+    fun onStreamStart(config: AudioSink.AudioSinkConfig)
+}
+
+private val gainUnavailableLogged = AtomicBoolean(false)
 
 /**
  * Process-wide playback [HandlerThread], lazily started and shared by every
@@ -176,7 +187,7 @@ internal class Media3PlayerFactory(
      * audio focus or becoming-noisy handling. Must run on the looper (call through
      * [call]).
      */
-    fun newPlayer(): ExoPlayer {
+    fun newPlayer(streamGainHook: StreamGainHook? = null): ExoPlayer {
         check(Looper.myLooper() == looper) { "newPlayer must run on the playback looper" }
         val attributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
@@ -195,7 +206,10 @@ internal class Media3PlayerFactory(
                     .build()
             )
         }
-        val chain = buildDspChain(audioProcessors())
+        val chain = buildDspChain(audioProcessors(), streamGainHook)
+        if (!dspChainEnabled && gainUnavailableLogged.compareAndSet(false, true)) {
+            Log.i("Media3Engine", "DSP chain disabled; per-track normalization gain is not applied")
+        }
         val providerRenderers = providers.flatMap { it.audioRenderers(context) }
         val renderersFactory = object : DefaultRenderersFactory(context) {
             override fun buildAudioSink(
@@ -204,11 +218,17 @@ internal class Media3PlayerFactory(
                 enableAudioOutputPlaybackParams: Boolean,
             ): AudioSink {
                 if (!floatSink) {
-                    return DefaultAudioSink.Builder(context)
+                    val intSink = DefaultAudioSink.Builder(context)
                         .setAudioProcessorChain(chain)
                         .setEnableFloatOutput(false)
                         .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
                         .build()
+                    return object : ForwardingAudioSink(intSink) {
+                        override fun configure(config: AudioSink.AudioSinkConfig) {
+                            streamGainHook?.onStreamStart(config)
+                            super.configure(config)
+                        }
+                    }
                 }
                 val inner = DefaultAudioSink.Builder(context)
                     .setAudioProcessorChain(EmptyAudioProcessorChain)
@@ -218,7 +238,9 @@ internal class Media3PlayerFactory(
                         MeasuringAudioOutputProvider(AudioTrackAudioOutputProvider.Builder(context).build(), mixerProbe)
                     )
                     .build()
-                return FloatChainAudioSink(inner, chain.getAudioProcessors().toList())
+                return FloatChainAudioSink(inner, chain.getAudioProcessors().toList(), streamGainHook?.let { hook ->
+                    { config -> hook.onStreamStart(config) }
+                })
             }
 
             override fun buildAudioRenderers(
@@ -309,13 +331,17 @@ internal class Media3PlayerFactory(
     }
 
     /** Builds the per-player [DspChain]: the DSP processors (when enabled) followed by [extraProcessors]. */
-    private fun buildDspChain(extraProcessors: Array<AudioProcessor>): DspChain {
+    private fun buildDspChain(
+        extraProcessors: Array<AudioProcessor>,
+        streamGainHook: StreamGainHook?,
+    ): DspChain {
         if (!dspChainEnabled) return DspChain(extraProcessors, null, null, null)
+        val gain = GainProcessor().also { streamGainHook?.onGainProcessor(it) }
         val width = StereoWidthProcessor()
         val equalizer = EqualizerProcessor()
         val preamp = PreampProcessor()
         return DspChain(
-            arrayOf<AudioProcessor>(GainProcessor(), width, equalizer, preamp) + extraProcessors,
+            arrayOf<AudioProcessor>(gain, width, equalizer, preamp) + extraProcessors,
             width,
             equalizer,
             preamp,

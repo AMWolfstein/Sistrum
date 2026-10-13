@@ -28,6 +28,7 @@ import me.misa198.airmedy.player.dsp.PcmToFloatProcessor
 internal class FloatChainAudioSink(
     private val delegate: AudioSink,
     chainProcessors: List<AudioProcessor>,
+    private val onStreamStart: ((AudioSink.AudioSinkConfig) -> Unit)? = null,
 ) : ForwardingAudioSink(delegate) {
 
     private val trimming = TrimmingAudioProcessor()
@@ -65,6 +66,7 @@ internal class FloatChainAudioSink(
         trimming.setTrimFrameCount(format.encoderDelay, format.encoderPadding)
         val out = try {
             val output = pipeline.configure(AudioProcessor.AudioFormat(format))
+            onStreamStart?.invoke(config)
             pipeline.flush(AudioProcessor.StreamMetadata.DEFAULT)
             output
         } catch (e: AudioProcessor.UnhandledAudioFormatException) {

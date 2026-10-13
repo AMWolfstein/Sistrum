@@ -30,7 +30,7 @@ crossfade, queue/state, normalization and the EQ match, and every task carries i
 
 **Markers** (after the description):
 - `[P]` parallelizable (different files, no dependency on an open task) · `[USn]` user story
-- `{default}` = `opencode-go/deepseek-v4.1-flash` · `{hard}` + `[HIGH-RISK]` = `opencode-go/deepseek-v4-pro`.
+- `{default}` = Codex `gpt-6.1-sol --effort medium` · `{hard}` + `[HIGH-RISK]` = `gpt-6.1-sol --effort high` (owner 2026-10-13; was OpenCode deepseek).
   The fallback `opencode-go/glm-5.3-flash` is not pre-assigned: it replaces `{default}` on any task where the
   default has failed twice (CLAUDE.md Models).
 - `{orchestrator}` = done by Claude Code itself (workflow tooling under `.claude/`, CLAUDE.md, docs, device runs);
@@ -805,7 +805,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ### Engine, settings, acceptance (M6-2, M6-4)
 
-- [ ] T052 [US6] Gain ramps in `A/player/dsp/GainProcessor.kt`, gain resolution in `A/player/media3/Media3Engine.kt`, normalization settings wiring in `A/player/PlaybackCoordinator.kt` {hard} [HIGH-RISK] — **changed**
+- [x] T052 [US6] Gain ramps in `A/player/dsp/GainProcessor.kt`, gain resolution in `A/player/media3/Media3Engine.kt`, normalization settings wiring in `A/player/PlaybackCoordinator.kt` {hard} [HIGH-RISK] — **changed**
   - Do: on each player's track format, `GainResolver` → `itemGainDb` → `GainProcessor` target; `setNormalization`
     retargets the current and prepared player with ramps; **the coordinator calls `engine.setNormalization` at engine
     creation and on every `NormalizationPreferences` change** ("Prevent clipping" off → no peak cap and the limiter

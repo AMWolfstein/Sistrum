@@ -189,11 +189,19 @@ internal class FakeLibrary : LibraryPort {
     var moodTracks: List<MoodRadioTrack> = emptyList()
     var analyses: Map<String, TrackAnalysis> = emptyMap()
 
-    override suspend fun activeAnalyses(): Map<String, TrackAnalysis> = analyses
+    var activeAnalysesCalls = 0
+    var disableNormalizationCalls = 0
+
+    override suspend fun activeAnalyses(): Map<String, TrackAnalysis> {
+        activeAnalysesCalls++
+        return analyses
+    }
 
     override suspend fun tracks(): List<LibraryTrack> = emptyList()
 
-    override suspend fun disableNormalization() = Unit
+    override suspend fun disableNormalization() {
+        disableNormalizationCalls++
+    }
 
     override suspend fun libraryAnalysisEnabled(): Boolean = analysisEnabled
 

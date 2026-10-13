@@ -15,6 +15,7 @@ import me.misa198.airmedy.mood.MoodRadioRefillThreshold
 import me.misa198.airmedy.mood.selectMoodRadio
 import me.misa198.airmedy.player.engine.EngineEvent
 import me.misa198.airmedy.player.engine.ItemGain
+import me.misa198.airmedy.player.engine.EngineKind
 import me.misa198.airmedy.player.engine.PlayerEngine
 
 private const val DuckedFocusGain = 0.2f
@@ -515,6 +516,7 @@ internal class PlaybackCoordinator(
 
     internal suspend fun onNormalizationSettings(settings: NormalizationSettings) {
         normalizationSettings = settings
+        engine?.setNormalization(settings)
         refreshNormalizationGains()
     }
 
@@ -578,12 +580,14 @@ internal class PlaybackCoordinator(
             outputDisconnected = false
             endedPending = false
             pendingStart = null
-            val gainDb = normalizationGain(item, queue.peekNext())
             val preparedEngine = engineFactory()
             try {
+                val gain = if (preparedEngine.kind == EngineKind.Media3) ItemGain.Unity
+                    else ItemGain(normalizationGain(item, queue.peekNext()))
+                preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-                preparedEngine.prepare(item, ItemGain(gainDb), startPositionMs, startPaused)
+                preparedEngine.prepare(item, gain, startPositionMs, startPaused)
                 engine = preparedEngine
                 if (startPaused) {
                     flows.state.value = PlaybackState.Paused(item, preparedEngine.positionMs(), preparedEngine.durationMs())
@@ -622,12 +626,14 @@ internal class PlaybackCoordinator(
             outputDisconnected = false
             endedPending = false
             pendingStart = null
-            val gain = normalizationGain(item, queue.peekNext())
             val preparedEngine = engineFactory()
             try {
+                val gain = if (preparedEngine.kind == EngineKind.Media3) ItemGain.Unity
+                    else ItemGain(normalizationGain(item, queue.peekNext()))
+                preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
-                preparedEngine.prepare(item, ItemGain(gain), savedPositionMs, startPaused = true)
+                preparedEngine.prepare(item, gain, savedPositionMs, startPaused = true)
                 val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
                 engine = preparedEngine
                 flows.state.value = PlaybackState.Paused(item, positionMs, preparedEngine.durationMs())
@@ -1061,7 +1067,12 @@ internal class PlaybackCoordinator(
         currentEngine.clearPreloaded()
         preloadedItem = nextId?.let { id -> resolver.resolve(id) }
         preloadedItem?.let { item ->
-            runCatching { currentEngine.preloadNext(item, ItemGain(normalizationGain(item, queue.peekNext()))); currentEngine.hasPreloaded() }
+            runCatching {
+                val gain = if (currentEngine.kind == EngineKind.Media3) ItemGain.Unity
+                    else ItemGain(normalizationGain(item, queue.peekNext()))
+                currentEngine.preloadNext(item, gain)
+                currentEngine.hasPreloaded()
+            }
                 .onSuccess { loaded ->
                     if (!loaded) preloadedItem = null
                 }
@@ -1206,6 +1217,7 @@ internal class PlaybackCoordinator(
     }
 
     private suspend fun refreshNormalizationGains() {
+        if (engine?.kind == EngineKind.Media3) return
         val current = when (val value = flows.state.value) {
             is PlaybackState.Playing -> value.item
             is PlaybackState.Paused -> value.item

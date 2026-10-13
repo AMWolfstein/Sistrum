@@ -4,15 +4,23 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import androidx.media3.common.C
+import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.DecoderReuseEvaluation
+import androidx.media3.exoplayer.analytics.AnalyticsListener
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.source.MediaSource
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.delay
@@ -26,6 +34,13 @@ import me.misa198.airmedy.player.engine.EngineEvent
 import me.misa198.airmedy.player.engine.EngineKind
 import me.misa198.airmedy.player.engine.ItemGain
 import me.misa198.airmedy.player.engine.PlayerEngine
+import me.misa198.airmedy.player.dsp.GainProcessor
+import me.misa198.airmedy.player.normalization.AlbumLoudnessLookup
+import me.misa198.airmedy.player.normalization.GainForm
+import me.misa198.airmedy.player.normalization.GainInfo
+import me.misa198.airmedy.player.normalization.GainResolver
+import me.misa198.airmedy.player.normalization.MeasuredGainSource
+import me.misa198.airmedy.player.normalization.TagGainSource
 
 /**
  * Media3 single-player engine (T020). Every seam call marshals through
@@ -39,6 +54,9 @@ import me.misa198.airmedy.player.engine.PlayerEngine
 @OptIn(UnstableApi::class)
 internal class Media3Engine(
     private val factory: Media3PlayerFactory,
+    private val gainResolverProvider: suspend () -> GainResolver = {
+        GainResolver(MeasuredGainSource(AlbumLoudnessLookup { null }), TagGainSource())
+    },
 ) : PlayerEngine {
 
     override val kind: EngineKind = EngineKind.Media3
@@ -86,6 +104,7 @@ internal class Media3Engine(
     }
 
     private var player: ExoPlayer? = null
+    @Volatile
     private var currentItem: PlaybackItem? = null
     private var prepared = false
     private var awaitingOutput = false
@@ -94,13 +113,92 @@ internal class Media3Engine(
     private var rawMs = 0L
     private var rawAtMs = 0L
     private var lastReturnedMs = 0L
-    private val preloadedByMediaId = mutableMapOf<String, PlaybackItem>()
+    private val preloadedByMediaId = ConcurrentHashMap<String, PlaybackItem>()
     @Volatile
     private var closed = false
     private val pendingEvents = ConcurrentLinkedQueue<EngineEvent>()
     private val focusRamp = FocusVolumeRamp()
     private var focusHandler: Handler? = null
     private var focusStepper: Runnable? = null
+    private var normalizationSettings = NormalizationSettings()
+    private var gainResolver: GainResolver? = null
+    // Registered and retargeted on the application playback looper; hook state has its own lock.
+    private var streamGain: PlayerStreamGain? = null
+
+    /** Each player's renderer stream and setting changes publish targets under the same lock. */
+    private inner class PlayerStreamGain(
+        private val resolver: GainResolver,
+        settings: NormalizationSettings,
+    ) : StreamGainHook, AnalyticsListener {
+        private val control = StreamGainControl(settings)
+        private var processor: GainProcessor? = null
+        private var loggedDecoderPeriod: MediaSource.MediaPeriodId? = null
+        private var decoderLogged = false
+
+        @Synchronized
+        override fun onGainProcessor(processor: GainProcessor) {
+            this.processor = processor
+        }
+
+        @Synchronized
+        override fun onStreamStart(config: AudioSink.AudioSinkConfig) {
+            val timeline = config.timeline
+            val periodId = config.mediaPeriodId
+            val periodIndex = if (periodId != null) {
+                timeline.getIndexOfPeriod(periodId.periodUid)
+            } else C.INDEX_UNSET
+            val mediaId = if (periodIndex != C.INDEX_UNSET) {
+                val period = timeline.getPeriod(periodIndex, Timeline.Period())
+                timeline.getWindow(period.windowIndex, Timeline.Window()).mediaItem.mediaId
+            } else null
+            // Read the preload first: promotion publishes currentItem before removing the map entry.
+            val item = mediaId?.let { preloadedByMediaId[it] }
+                ?: currentItem?.takeIf { it.trackId == mediaId }
+            val info = item?.let { resolver.resolve(it, config.format) }
+                ?: GainInfo(null, null, null, null, GainForm.None)
+            processor?.setTargetGainDb(control.onStreamStart(info))
+        }
+
+        @Synchronized
+        fun setNormalization(settings: NormalizationSettings) {
+            control.setNormalization(settings)?.let { processor?.setTargetGainDb(it) }
+        }
+
+        @Synchronized
+        override fun onAudioDecoderInitialized(
+            eventTime: AnalyticsListener.EventTime,
+            decoderName: String,
+            initializedTimestampMs: Long,
+            initializationDurationMs: Long,
+        ) {
+            logDecoder(eventTime, decoderName)
+        }
+
+        @Synchronized
+        override fun onAudioInputFormatChanged(
+            eventTime: AnalyticsListener.EventTime,
+            format: Format,
+            decoderReuseEvaluation: DecoderReuseEvaluation?,
+        ) {
+            // Gapless tracks may reuse a decoder, so there is no initialization event for them.
+            if (decoderReuseEvaluation != null &&
+                decoderReuseEvaluation.result != DecoderReuseEvaluation.REUSE_RESULT_NO
+            ) {
+                logDecoder(eventTime, decoderReuseEvaluation.decoderName)
+            }
+        }
+
+        private fun logDecoder(eventTime: AnalyticsListener.EventTime, name: String) {
+            val periodId = eventTime.mediaPeriodId
+            if (decoderLogged && loggedDecoderPeriod == periodId) return
+            val mediaId = if (eventTime.windowIndex in 0 until eventTime.timeline.windowCount) {
+                eventTime.timeline.getWindow(eventTime.windowIndex, Timeline.Window()).mediaItem.mediaId
+            } else null
+            Log.i("Media3Engine", "Audio decoder=$name mediaId=$mediaId")
+            loggedDecoderPeriod = periodId
+            decoderLogged = true
+        }
+    }
 
     /** Clip-prevention flag stored from [setNormalization], seeded into the limiter when it opens. */
     @Volatile
@@ -119,11 +217,15 @@ internal class Media3Engine(
         startPaused: Boolean,
     ) {
         check(!closed) { "engine is closed" }
+        val resolver = gainResolver ?: gainResolverProvider().also { gainResolver = it }
         ensureLimiter()
         releaseCurrentPlayer()
         val candidate = try {
             factory.call {
-                val p = factory.newPlayer()
+                val gainState = PlayerStreamGain(resolver, normalizationSettings)
+                streamGain = gainState
+                val p = factory.newPlayer(gainState)
+                p.addAnalyticsListener(gainState)
                 player = p
                 currentItem = item
                 prepared = false
@@ -215,13 +317,14 @@ internal class Media3Engine(
         val added = factory.call {
             val p = player ?: return@call false
             clearPreloadedOnLooper(p)
+            // Publish before the renderer can configure the incoming stream.
+            preloadedByMediaId[item.trackId] = item
             p.addMediaItem(
                 MediaItem.Builder()
                     .setUri(Uri.fromFile(file))
                     .setMediaId(item.trackId)
                     .build(),
             )
-            preloadedByMediaId[item.trackId] = item
             true
         }
         if (added && !file.exists()) {
@@ -327,8 +430,12 @@ internal class Media3Engine(
     override fun setGains(current: ItemGain, preloaded: ItemGain?) = Unit
 
     override fun setNormalization(settings: NormalizationSettings) {
-        preventClip = settings.preventClip
-        limiter?.setClipPrevention(settings.preventClip)
+        factory.call {
+            normalizationSettings = settings
+            streamGain?.setNormalization(settings)
+            preventClip = settings.preventClip
+            limiter?.setClipPrevention(settings.preventClip)
+        }
     }
 
     override fun pollEvents(): List<EngineEvent> = factory.call {
@@ -365,6 +472,7 @@ internal class Media3Engine(
             cancelFocusStepper()
             val p = player
             player = null
+            streamGain = null
             currentItem = null
             prepared = false
             awaitingOutput = false

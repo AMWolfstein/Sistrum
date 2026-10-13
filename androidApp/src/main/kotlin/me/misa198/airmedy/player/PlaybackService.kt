@@ -45,6 +45,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import me.misa198.airmedy.MainActivity
+import me.misa198.airmedy.analysis.LoudnessStore
+import me.misa198.airmedy.player.normalization.AlbumLoudnessLookup
+import me.misa198.airmedy.player.normalization.GainResolver
+import me.misa198.airmedy.player.normalization.MeasuredGainSource
+import me.misa198.airmedy.player.normalization.TagGainSource
 import me.misa198.airmedy.R
 import me.misa198.airmedy.sync.AndroidSyncRuntime
 import me.misa198.airmedy.sync.LibraryTrack
@@ -178,7 +183,17 @@ class PlaybackService : Service() {
                 selection = EngineSelectionPreferences(applicationContext).engine,
                 builders = playbackEngineBuilders(
                     native = { LegacyNativeEngine() },
-                    media3 = { Media3Engine(media3PlayerFactory) },
+                    media3 = {
+                        Media3Engine(media3PlayerFactory, gainResolverProvider = {
+                            val albums = try {
+                                LoudnessStore(AndroidSyncRuntime.database()).albumLoudnessSnapshot()
+                            } catch (error: Exception) {
+                                Log.w("Media3Engine", "Unable to read album loudness; using track gain", error)
+                                AlbumLoudnessLookup { null }
+                            }
+                            GainResolver(MeasuredGainSource(albums), TagGainSource())
+                        })
+                    },
                 ),
             )::create,
             resolver = PlaybackItemResolver { id -> AndroidPlaybackRuntime.controller().resolve(id) },

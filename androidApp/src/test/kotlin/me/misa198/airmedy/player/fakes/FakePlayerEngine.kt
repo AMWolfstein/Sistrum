@@ -20,7 +20,7 @@ import me.misa198.airmedy.player.engine.PlayerEngine
 internal class FakePlayerEngine(
     private val durationFor: (PlaybackItem) -> Long = { DefaultDurationMs },
 ) : PlayerEngine {
-    override val kind: EngineKind = EngineKind.Native
+    override var kind: EngineKind = EngineKind.Native
     override val events: Flow<EngineEvent> = emptyFlow()
 
     data class PrepareCall(
@@ -66,6 +66,9 @@ internal class FakePlayerEngine(
     val seeks = mutableListOf<Long>()
     val crossfades = mutableListOf<Long>()
     val focusGains = mutableListOf<Float>()
+    val normalizationCalls = mutableListOf<NormalizationSettings>()
+    val gainCalls = mutableListOf<Pair<ItemGain, ItemGain?>>()
+    val preloadCalls = mutableListOf<Pair<PlaybackItem, ItemGain>>()
     var closed: Boolean = false
 
     private val pendingEvents = mutableListOf<EngineEvent>()
@@ -98,6 +101,7 @@ internal class FakePlayerEngine(
         calls += "preloadNext"
         failPreload?.let { throw it }
         preloadedItem = item
+        preloadCalls += item to gain
     }
 
     override fun clearPreloaded() {
@@ -162,10 +166,12 @@ internal class FakePlayerEngine(
 
     override fun setGains(current: ItemGain, preloaded: ItemGain?) {
         calls += "setGains"
+        gainCalls += current to preloaded
     }
 
     override fun setNormalization(settings: NormalizationSettings) {
         calls += "setNormalization"
+        normalizationCalls += settings
     }
 
     override fun close() {
@@ -186,6 +192,7 @@ internal class FakeEngineFactory(
     private val durationFor: (PlaybackItem) -> Long = { FakePlayerEngine.DefaultDurationMs },
 ) : () -> PlayerEngine {
     val created = mutableListOf<FakePlayerEngine>()
+    var kind: EngineKind = EngineKind.Native
 
     /** Applied to every created engine before it is returned. */
     var onPrepare: (() -> Unit)? = null
@@ -205,6 +212,7 @@ internal class FakeEngineFactory(
     val current: FakePlayerEngine get() = created.last()
 
     override fun invoke(): PlayerEngine = FakePlayerEngine(durationFor).also { engine ->
+        engine.kind = kind
         engine.onPrepare = onPrepare
         engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
         engine.failPrepare = failPrepare
