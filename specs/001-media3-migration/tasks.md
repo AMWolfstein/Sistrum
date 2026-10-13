@@ -764,10 +764,24 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     (checkpointed) at 9 min, so a long track never pushes a run past the 10-minute limit; re-enqueue is an
     `APPEND_OR_REPLACE` continuation (thermal pause: 10 min delay).
 
-- [ ] T051f [US6] Implement `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`, enqueue after scans in `A/sync/` (scan completion hook), `AndroidManifest.xml` only if WorkManager needs it; `THIRD-PARTY-NOTICES` (WorkManager, Apache-2.0) {hard} [HIGH-RISK]
+- [x] T051f [US6] Implement `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`, enqueue after scans in `A/sync/` (scan completion hook), `AndroidManifest.xml` only if WorkManager needs it; `THIRD-PARTY-NOTICES` (WorkManager, Apache-2.0) {hard} [HIGH-RISK]
   - Tests: `LoudnessAnalysisWorkerTest` passes without modifying it; `GATE`.
+  - Scope added (orchestrator, 2026-10-13): resume needs the decoder to start mid-file. At ~7× real time a track
+    longer than about an hour cannot finish inside one 9-minute run, and re-decoding from the start each run would
+    never finish it. So T051f also changes `AN/PcmDecoder.kt` / `AN/OfflineDecoder.kt` / `AN/CaptureAudioSink.kt`
+    (start position, frames before it dropped after the float pipeline), `AN/TrackAnalyzer.kt` (meter checkpoints
+    on the meter thread every 60 s and on cancel; resume from `MeterResume`), and adds `AN/AnalysisMeasurer.kt`
+    (`AnalyzerTrackMeasurer`, `MeterResumeCodec`), `A/sync/AndroidSyncRuntime.kt` (database accessor) and
+    `A/sync/LibraryScanRunner.kt` (enqueue after a completed scan). A resumed lossy decode is not bit-identical
+    (decoder pre-roll after the seek): device tolerance |Δ| ≤ 0.01 LU and ≤ 0.05 dB true peak
+    (`ANI/AnalysisResumeDeviceTest.kt`). Delegated in two parts (resume, then worker wiring), one commit.
 
 ### "Analyze now" (owner, M6 approval 2026-10-08)
+
+- **Owner decision 2026-10-13:** T051g and T051h are delegated as ONE task (tests and implementation together, one
+  commit) instead of tests-first. `AnalyzeNowTest` keeps every case listed under T051g; the coder writes it with the
+  implementation and the orchestrator reviews the test diff and runs migration-guard as usual. Tests-first still
+  applies to T052 (gain on the audio path).
 
 - [ ] T051g [US6] [TESTS-FIRST] "Analyze now" tests in `ANT/AnalyzeNowTest.kt` (WorkManager `work-testing`, fakes as T051e); stubs in `AN/LoudnessAnalysisScheduler.kt` (`analyzeNow()`, `cancelAnalyzeNow()`), `AN/AnalysisNotification.kt` {default}
   - Do: `analyzeNow()` enqueues a separate unique one-time work (not expedited) (`loudness-analysis-now`, REPLACE) with

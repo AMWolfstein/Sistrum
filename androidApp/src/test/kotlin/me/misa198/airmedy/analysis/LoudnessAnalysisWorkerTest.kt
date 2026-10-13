@@ -574,7 +574,7 @@ class LoudnessAnalysisWorkerTest {
 
         private val scripts = ConcurrentHashMap<String, Script>()
         private val callCounts = ConcurrentHashMap<String, AtomicInteger>()
-        private val resumes = ConcurrentHashMap<String, ByteArray?>()
+        private val resumes = java.util.Collections.synchronizedMap(HashMap<String, ByteArray?>())
         private val inFlight = AtomicInteger(0)
         private val finished = AtomicInteger(0)
         private val lock = Any()

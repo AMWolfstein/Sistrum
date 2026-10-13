@@ -181,6 +181,92 @@ class CaptureAudioSinkTest {
         assertFalse("same rate/channels reconfigure should not report a format change", sink.formatChanged)
     }
 
+    @Test
+    fun startPositionDropsEarlierFrames() {
+        val channels = CHANNELS
+        val totalFrames = 960
+        val perBufferFrames = 480
+        val cutFrame = 600
+        val values = FloatArray(totalFrames * channels) { it.toFloat() }
+        val all = floatBytes(values)
+        val perBufferBytes = perBufferFrames * channels * 4
+
+        val recorder = Recorder()
+        val startPositionUs = cutFrame.toLong() * C.MICROS_PER_SECOND / RATE
+        val sink = CaptureAudioSink(recorder, startPositionUs = startPositionUs)
+        sink.configure(config(pcmFormat(RATE, channels, C.ENCODING_PCM_FLOAT)))
+
+        sink.handleBuffer(ByteBuffer.wrap(all, 0, perBufferBytes).order(ByteOrder.LITTLE_ENDIAN), 0L, 1)
+        sink.handleBuffer(ByteBuffer.wrap(all, perBufferBytes, perBufferBytes).order(ByteOrder.LITTLE_ENDIAN), 0L, 1)
+
+        val expected = values.copyOfRange(cutFrame * channels, totalFrames * channels)
+        assertArrayEquals("first delivered sample must be at the start position", expected, recorder.all(), 0f)
+        assertEquals((totalFrames - cutFrame).toLong(), sink.framesWritten)
+    }
+
+    @Test
+    fun startPositionHonoursOutputStreamOffset() {
+        val channels = CHANNELS
+        val totalFrames = 960
+        val perBufferFrames = 480
+        val cutFrame = 600
+        val offset = 1_000_000_000_000L
+        val values = FloatArray(totalFrames * channels) { it.toFloat() }
+        val all = floatBytes(values)
+        val perBufferBytes = perBufferFrames * channels * 4
+
+        val recorder = Recorder()
+        val startPositionUs = cutFrame.toLong() * C.MICROS_PER_SECOND / RATE
+        val sink = CaptureAudioSink(recorder, startPositionUs = startPositionUs)
+        sink.configure(config(pcmFormat(RATE, channels, C.ENCODING_PCM_FLOAT)))
+        sink.setOutputStreamOffsetUs(offset)
+
+        sink.handleBuffer(ByteBuffer.wrap(all, 0, perBufferBytes).order(ByteOrder.LITTLE_ENDIAN), offset, 1)
+        sink.handleBuffer(
+            ByteBuffer.wrap(all, perBufferBytes, perBufferBytes).order(ByteOrder.LITTLE_ENDIAN),
+            offset + perBufferFrames.toLong() * C.MICROS_PER_SECOND / RATE,
+            1,
+        )
+
+        val expected = values.copyOfRange(cutFrame * channels, totalFrames * channels)
+        assertArrayEquals("first delivered sample must be at the media start position", expected, recorder.all(), 0f)
+        assertEquals((totalFrames - cutFrame).toLong(), sink.framesWritten)
+    }
+
+    @Test
+    fun outputStreamOffsetDoesNotChangePosition() {
+        val recorder = Recorder()
+        val frames = 480
+        val bytes = shortBytes(ShortArray(frames * CHANNELS) { (it % 200).toShort() })
+        val startUs = 1_000_000_000_000L
+
+        val sink = CaptureAudioSink(recorder)
+        sink.configure(config(pcmFormat(RATE, CHANNELS, C.ENCODING_PCM_16BIT)))
+        sink.handleBuffer(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN), startUs, 1)
+        val before = sink.getCurrentPositionUs(false)
+        sink.setOutputStreamOffsetUs(123_456L)
+        val after = sink.getCurrentPositionUs(false)
+
+        assertEquals("position should be unaffected by the output-stream offset", before, after)
+        assertEquals(startUs + frames * C.MICROS_PER_SECOND / RATE, after)
+    }
+
+    @Test
+    fun startPositionZeroIsUnchanged() {
+        val channels = CHANNELS
+        val frames = 480
+        val values = FloatArray(frames * channels) { (it % 200).toFloat() }
+        val bytes = floatBytes(values)
+
+        val recorder = Recorder()
+        val sink = CaptureAudioSink(recorder, startPositionUs = 0L)
+        sink.configure(config(pcmFormat(RATE, channels, C.ENCODING_PCM_FLOAT)))
+        sink.handleBuffer(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN), 0L, 1)
+
+        assertArrayEquals(values, recorder.all(), 0f)
+        assertEquals(frames.toLong(), sink.framesWritten)
+    }
+
     private class Recorder : PcmConsumer {
         val chunks = mutableListOf<FloatArray>()
         var sampleRate = 0
@@ -242,6 +328,11 @@ class CaptureAudioSinkTest {
     private fun shortBytes(shorts: ShortArray): ByteArray =
         ByteBuffer.allocate(shorts.size * 2).order(ByteOrder.LITTLE_ENDIAN).apply {
             shorts.forEach { putShort(it) }
+        }.array()
+
+    private fun floatBytes(values: FloatArray): ByteArray =
+        ByteBuffer.allocate(values.size * 4).order(ByteOrder.LITTLE_ENDIAN).apply {
+            values.forEach { putFloat(it) }
         }.array()
 
     private fun int24Bytes(values: IntArray): ByteArray {

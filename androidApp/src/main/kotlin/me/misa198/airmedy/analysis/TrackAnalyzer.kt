@@ -1,6 +1,7 @@
 package me.misa198.airmedy.analysis
 
 import android.os.Process
+import android.os.SystemClock
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -9,6 +10,14 @@ import java.util.concurrent.atomic.AtomicReference
 import me.misa198.airmedy.analysis.loudness.LoudnessHistogram
 import me.misa198.airmedy.analysis.loudness.LoudnessMeter
 import me.misa198.airmedy.player.decoders.FormatKey
+
+/** Where to continue an interrupted measurement: frames already metered and the meter state after them. */
+internal class MeterResume(
+    val framesMetered: Long,
+    val sampleRate: Int,
+    val channels: Int,
+    val meterState: ByteArray,
+)
 
 /** Result of measuring one track. */
 internal data class TrackMeasurement(
@@ -21,12 +30,15 @@ internal data class TrackMeasurement(
 
 /**
  * Decodes on the decoder's thread and meters on its own background thread, connected by a bounded
- * buffer pool that applies backpressure when the meter cannot keep up.
+ * buffer pool that applies backpressure when the meter cannot keep up. Supports resuming from a
+ * [MeterResume] checkpoint and periodic [onCheckpoint] callbacks from the meter thread.
  */
 internal class TrackAnalyzer(
     private val decoder: PcmDecoder,
     private val poolBuffers: Int = 8,
     private val bufferFrames: Int = 16_384,
+    private val checkpointIntervalMs: Long = 60_000L,
+    private val clockMs: () -> Long = { SystemClock.elapsedRealtime() },
 ) {
 
     /** Peak number of chunks in flight in the most recent [measure], for backpressure tests. */
@@ -34,35 +46,76 @@ internal class TrackAnalyzer(
 
     private val peakInFlightCount = AtomicInteger(0)
 
-    fun measure(path: String, key: FormatKey?, isCancelled: () -> Boolean = { false }): TrackMeasurement {
+    fun measure(
+        path: String,
+        key: FormatKey?,
+        isCancelled: () -> Boolean = { false },
+        resume: MeterResume? = null,
+        onCheckpoint: (MeterResume) -> Unit = {},
+    ): TrackMeasurement {
         peakInFlightCount.set(0)
+        val prepared = restoreOrNull(resume)
+        val first = runPass(path, key, isCancelled, onCheckpoint, prepared)
+        return if (first.hadFormatMismatch) {
+            runPass(path, key, isCancelled, onCheckpoint, null).measurement
+        } else {
+            first.measurement
+        }
+    }
+
+    /** One decode pass; [resume] is null for a full measurement from frame 0. */
+    private fun runPass(
+        path: String,
+        key: FormatKey?,
+        isCancelled: () -> Boolean,
+        onCheckpoint: (MeterResume) -> Unit,
+        resume: PreparedResume?,
+    ): PassResult {
         val free = ArrayBlockingQueue<Chunk>(poolBuffers)
         val filled = ArrayBlockingQueue<Chunk>(poolBuffers)
         val meterRef = AtomicReference<LoudnessMeter?>()
         val meterErrorRef = AtomicReference<Throwable?>()
+        val decodeOutcomeRef = AtomicReference<DecodeOutcome?>()
         val done = AtomicBoolean(false)
         val outstanding = AtomicInteger(0)
         val poolBuilt = AtomicBoolean(false)
+        val mismatch = AtomicBoolean(false)
+        val firstChunkSeen = AtomicBoolean(false)
+
+        if (resume != null) meterRef.set(resume.meter)
+
+        val startUs = if (resume != null) resume.framesMetered * 1_000_000L / resume.sampleRate else 0L
 
         val consumer = PcmConsumer { samples, frames, rate, channels ->
-            ensurePool(free, channels, poolBuilt)
-            var off = 0
-            while (off < frames) {
-                val take = minOf(bufferFrames, frames - off)
-                val chunk = free.take()
-                chunk.rate = rate
-                chunk.channels = channels
-                chunk.frames = take
-                samples.copyInto(chunk.data, 0, off * channels, (off + take) * channels)
-                peakInFlightCount.updateAndGet { maxOf(it, outstanding.incrementAndGet()) }
-                filled.put(chunk)
-                off += take
+            var consume = true
+            if (resume != null && firstChunkSeen.compareAndSet(false, true)) {
+                if (rate != resume.sampleRate || channels != resume.channels) {
+                    mismatch.set(true)
+                    consume = false
+                }
+            }
+            if (consume && !mismatch.get()) {
+                ensurePool(free, channels, poolBuilt)
+                var off = 0
+                while (off < frames) {
+                    val take = minOf(bufferFrames, frames - off)
+                    val chunk = free.take()
+                    chunk.rate = rate
+                    chunk.channels = channels
+                    chunk.frames = take
+                    samples.copyInto(chunk.data, 0, off * channels, (off + take) * channels)
+                    peakInFlightCount.updateAndGet { maxOf(it, outstanding.incrementAndGet()) }
+                    filled.put(chunk)
+                    off += take
+                }
             }
         }
 
         val meterThread = Thread({
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
             var error: Throwable? = null
+            var framesMetered = resume?.framesMetered ?: 0L
+            var lastCheckpointMs = clockMs()
             while (true) {
                 // Read `done` BEFORE polling: every put happens-before done.set(true), so an empty poll after seeing
                 // `finished` means the queue is really drained (polling first could drop the last chunks).
@@ -73,6 +126,7 @@ internal class TrackAnalyzer(
                         try {
                             val meter = meterRef.get() ?: LoudnessMeter(chunk.rate, chunk.channels).also { meterRef.set(it) }
                             meter.process(chunk.data, 0, chunk.frames)
+                            framesMetered += chunk.frames
                         } catch (t: Throwable) {
                             error = t
                             meterErrorRef.set(t)
@@ -81,15 +135,31 @@ internal class TrackAnalyzer(
                     }
                     outstanding.decrementAndGet()
                     free.put(chunk)
+                    if (error == null) {
+                        val meter = meterRef.get()
+                        if (meter != null && clockMs() - lastCheckpointMs >= checkpointIntervalMs) {
+                            emitCheckpoint(onCheckpoint, mismatch, meter, framesMetered)
+                            lastCheckpointMs = clockMs()
+                        }
+                    }
                 } else if (finished) {
                     break
                 }
             }
-            if (error == null) meterRef.get()?.flush()
+            if (error == null) {
+                val meter = meterRef.get()
+                if (meter != null) {
+                    if (decodeOutcomeRef.get() is DecodeOutcome.Cancelled) {
+                        emitCheckpoint(onCheckpoint, mismatch, meter, framesMetered)
+                    } else {
+                        meter.flush()
+                    }
+                }
+            }
         }, "sistrum-analysis-meter").apply { start() }
 
         val outcome = try {
-            decoder.decode(path, key, consumer, isCancelled)
+            decoder.decode(path, key, consumer, { isCancelled() || mismatch.get() }, startUs).also { decodeOutcomeRef.set(it) }
         } finally {
             done.set(true)
             try {
@@ -110,12 +180,15 @@ internal class TrackAnalyzer(
 
         // Values only for a complete measurement; a cancelled or failed one never carries partial loudness.
         val meter = meterRef.get()?.takeIf { finalOutcome is DecodeOutcome.Completed }
-        return TrackMeasurement(
-            outcome = finalOutcome,
-            integratedLufs = meter?.integratedLufs(),
-            truePeakDbtp = meter?.truePeakDbtp(),
-            samplePeakDbfs = meter?.samplePeakDbfs(),
-            histogram = meter?.histogram(),
+        return PassResult(
+            TrackMeasurement(
+                outcome = finalOutcome,
+                integratedLufs = meter?.integratedLufs(),
+                truePeakDbtp = meter?.truePeakDbtp(),
+                samplePeakDbfs = meter?.samplePeakDbfs(),
+                histogram = meter?.histogram(),
+            ),
+            hadFormatMismatch = mismatch.get(),
         )
     }
 
@@ -124,6 +197,22 @@ internal class TrackAnalyzer(
         if (!poolBuilt.compareAndSet(false, true)) return
         for (i in 0 until poolBuffers) {
             free.put(Chunk(FloatArray(bufferFrames * channels), 0, 0, channels))
+        }
+    }
+
+    /** Restores [resume]'s meter, or returns null when it is unusable (bad state, mismatch or a corrupt meter state). */
+    private fun restoreOrNull(resume: MeterResume?): PreparedResume? {
+        if (resume == null) return null
+        if (resume.framesMetered < 0L) return null
+        return try {
+            val meter = LoudnessMeter.restore(resume.meterState)
+            if (meter.sampleRate != resume.sampleRate || meter.channels != resume.channels) {
+                null
+            } else {
+                PreparedResume(meter, resume.framesMetered, resume.sampleRate, resume.channels)
+            }
+        } catch (t: Throwable) {
+            null
         }
     }
 
@@ -137,5 +226,31 @@ internal class TrackAnalyzer(
 
     private companion object {
         const val METER_POLL_MS = 10L
+
+        /** Emits one checkpoint, swallowing any exception thrown by [onCheckpoint]. */
+        fun emitCheckpoint(
+            onCheckpoint: (MeterResume) -> Unit,
+            mismatch: AtomicBoolean,
+            meter: LoudnessMeter,
+            framesMetered: Long,
+        ) {
+            if (mismatch.get()) return
+            try {
+                onCheckpoint(MeterResume(framesMetered, meter.sampleRate, meter.channels, meter.checkpoint()))
+            } catch (t: Throwable) {
+                // an exception from the callback must not stop the measurement
+            }
+        }
     }
+
+    /** A resume that restored successfully, with the decoder's expected output format. */
+    private data class PreparedResume(
+        val meter: LoudnessMeter,
+        val framesMetered: Long,
+        val sampleRate: Int,
+        val channels: Int,
+    )
+
+    /** One [measure] pass's result, plus whether a resume format mismatch forced a restart from zero. */
+    private data class PassResult(val measurement: TrackMeasurement, val hadFormatMismatch: Boolean)
 }

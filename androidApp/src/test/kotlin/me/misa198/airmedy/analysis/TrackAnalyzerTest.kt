@@ -2,6 +2,7 @@ package me.misa198.airmedy.analysis
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.PI
 import kotlin.math.sin
@@ -72,7 +73,7 @@ class TrackAnalyzerTest {
         )
         val flip = AtomicBoolean(false)
         val resultRef = AtomicReference<TrackMeasurement?>()
-        val thread = Thread({ resultRef.set(analyzer.measure("path", null) { flip.get() }) }, "measure-thread")
+        val thread = Thread({ resultRef.set(analyzer.measure("path", null, isCancelled = { flip.get() })) }, "measure-thread")
         thread.start()
         Thread.sleep(30)
         flip.set(true)
@@ -143,6 +144,157 @@ class TrackAnalyzerTest {
         assertNull(result.histogram)
     }
 
+    @Test(timeout = 10_000)
+    fun resumeAfterCancelEqualsUninterrupted() {
+        val rate = 48_000
+        val channels = 2
+        val frames = 120_000
+        val samples = signal(frames, channels, rate)
+        val chunkSizes = listOf(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 12000, 100_000, 200_000)
+        val cancelAt = 48_000L
+
+        val emitted = AtomicLong(0)
+        val analyzer = TrackAnalyzer(
+            ResumeFakeDecoder(chunkSizes, samples, channels, rate, afterEmit = { emitted.set(it) }),
+            poolBuffers = 4,
+            bufferFrames = 4096,
+        )
+        val checkpoints = mutableListOf<MeterResume>()
+        val first = analyzer.measure(
+            "path",
+            null,
+            isCancelled = { emitted.get() >= cancelAt },
+            onCheckpoint = { checkpoints.add(it) },
+        )
+        assertTrue("expected Cancelled, got ${first.outcome}", first.outcome is DecodeOutcome.Cancelled)
+        assertEquals("exactly one final checkpoint", 1, checkpoints.size)
+        val resume = checkpoints.single()
+        assertEquals("checkpoint frames metered", cancelAt, resume.framesMetered)
+
+        val resumedAnalyzer = TrackAnalyzer(
+            ResumeFakeDecoder(chunkSizes, samples, channels, rate),
+            poolBuffers = 4,
+            bufferFrames = 4096,
+        )
+        val resumedCheckpoints = mutableListOf<MeterResume>()
+        val resumed = resumedAnalyzer.measure("path", null, resume = resume, onCheckpoint = { resumedCheckpoints.add(it) })
+        assertCompletedMatchesDirect(resumed, samples, channels, rate)
+        assertTrue("no checkpoint after a completed resumed measurement", resumedCheckpoints.isEmpty())
+    }
+
+    @Test(timeout = 10_000)
+    fun periodicCheckpointsFollowTheClock() {
+        val rate = 48_000
+        val channels = 2
+        val frames = 24_000
+        val samples = signal(frames, channels, rate)
+        val interval = 1_000L
+        val clock = AtomicLong(0)
+        val chunkSizes = List(50) { if (it % 2 == 0) 300 else 660 }
+
+        val analyzer = TrackAnalyzer(
+            ResumeFakeDecoder(chunkSizes, samples, channels, rate, beforeEmit = { clock.addAndGet(interval) }),
+            poolBuffers = 1,
+            bufferFrames = 240,
+            checkpointIntervalMs = interval,
+            clockMs = clock::get,
+        )
+        val checkpoints = mutableListOf<MeterResume>()
+        val result = analyzer.measure("path", null, onCheckpoint = { checkpoints.add(it) })
+
+        assertTrue("expected Completed, got ${result.outcome}", result.outcome is DecodeOutcome.Completed)
+        assertTrue("expected periodic checkpoints, got ${checkpoints.size}", checkpoints.size >= 2)
+        for (i in 1 until checkpoints.size) {
+            assertTrue(
+                "framesMetered must strictly increase (${checkpoints[i - 1].framesMetered} -> ${checkpoints[i].framesMetered})",
+                checkpoints[i].framesMetered > checkpoints[i - 1].framesMetered,
+            )
+        }
+        assertTrue("no checkpoint may claim more frames than the track", checkpoints.last().framesMetered <= frames.toLong())
+    }
+
+    @Test(timeout = 10_000)
+    fun resumeFormatMismatchRestartsFromZero() {
+        val rate = 48_000
+        val channels = 2
+        val frames = 24_000
+        val samples = signal(frames, channels, rate)
+        val resume = MeterResume(1_000, rate, 1, LoudnessMeter(rate, 1).checkpoint())
+        val analyzer = TrackAnalyzer(
+            ResumeFakeDecoder(listOf(1000, 7000, 4096, 50_000), samples, channels, rate),
+            poolBuffers = 4,
+            bufferFrames = 4096,
+        )
+        val result = analyzer.measure("path", null, resume = resume)
+        assertCompletedMatchesDirect(result, samples, channels, rate)
+    }
+
+    @Test(timeout = 10_000)
+    fun formatMismatchStopsTheFirstPassEarly() {
+        val rate = 48_000
+        val channels = 2
+        val frames = 24_000
+        val samples = signal(frames, channels, rate)
+        val resume = MeterResume(1_000, rate, 1, LoudnessMeter(rate, 1).checkpoint())
+        val decoder = MismatchChunkCounter(samples, channels, rate)
+        val analyzer = TrackAnalyzer(decoder, poolBuffers = 4, bufferFrames = 4096)
+
+        val result = analyzer.measure("path", null, resume = resume)
+        assertCompletedMatchesDirect(result, samples, channels, rate)
+        assertTrue(
+            "first pass should stop within one chunk after the mismatch (emitted ${decoder.firstPassChunks.get()})",
+            decoder.firstPassChunks.get() <= 1,
+        )
+    }
+
+    @Test(timeout = 10_000)
+    fun corruptResumeStateRestartsFromZero() {
+        val rate = 48_000
+        val channels = 2
+        val frames = 24_000
+        val samples = signal(frames, channels, rate)
+        val resume = MeterResume(1_000, rate, channels, byteArrayOf(1, 2, 3, 4, 5))
+        val analyzer = TrackAnalyzer(
+            ResumeFakeDecoder(listOf(1000, 7000, 4096, 50_000), samples, channels, rate),
+            poolBuffers = 4,
+            bufferFrames = 4096,
+        )
+        val result = analyzer.measure("path", null, resume = resume)
+        assertCompletedMatchesDirect(result, samples, channels, rate)
+    }
+
+    @Test(timeout = 10_000)
+    fun checkpointCallbackExceptionIsIgnored() {
+        val rate = 48_000
+        val channels = 2
+        val frames = 24_000
+        val samples = signal(frames, channels, rate)
+        val interval = 1_000L
+        val clock = AtomicLong(0)
+        val chunkSizes = List(50) { if (it % 2 == 0) 300 else 660 }
+
+        val analyzer = TrackAnalyzer(
+            ResumeFakeDecoder(chunkSizes, samples, channels, rate, beforeEmit = { clock.addAndGet(interval) }),
+            poolBuffers = 1,
+            bufferFrames = 240,
+            checkpointIntervalMs = interval,
+            clockMs = clock::get,
+        )
+        val result = analyzer.measure("path", null, onCheckpoint = { throw RuntimeException("boom") })
+        assertCompletedMatchesDirect(result, samples, channels, rate)
+    }
+
+    private fun assertCompletedMatchesDirect(result: TrackMeasurement, samples: FloatArray, channels: Int, rate: Int) {
+        assertTrue("expected Completed, got ${result.outcome}", result.outcome is DecodeOutcome.Completed)
+        val direct = LoudnessMeter(rate, channels)
+        direct.process(samples, 0, samples.size / channels)
+        direct.flush()
+        assertEquals("integrated loudness", direct.integratedLufs(), result.integratedLufs)
+        assertEquals("true peak", direct.truePeakDbtp(), result.truePeakDbtp)
+        assertEquals("sample peak", direct.samplePeakDbfs(), result.samplePeakDbfs)
+        assertEquals("histogram", direct.histogram().encode(), result.histogram?.encode())
+    }
+
     private fun assertMatchesDirect(analyzer: TrackAnalyzer, path: String, samples: FloatArray, channels: Int, rate: Int) {
         val result = analyzer.measure(path, null)
         assertTrue("expected Completed for $path, got ${result.outcome}", result.outcome is DecodeOutcome.Completed)
@@ -178,6 +330,7 @@ class TrackAnalyzerTest {
             key: FormatKey?,
             consumer: PcmConsumer,
             isCancelled: () -> Boolean,
+            startUs: Long,
         ): DecodeOutcome {
             val latch = CountDownLatch(1)
             val outcome = AtomicReference<DecodeOutcome?>()
@@ -218,6 +371,7 @@ class TrackAnalyzerTest {
             key: FormatKey?,
             consumer: PcmConsumer,
             isCancelled: () -> Boolean,
+            startUs: Long,
         ): DecodeOutcome {
             val signal = signals[path] ?: return DecodeOutcome.Failed("fake", "no signal for $path")
             val totalFrames = signal.samples.size / signal.channels
@@ -231,6 +385,79 @@ class TrackAnalyzerTest {
                 off += take
             }
             return DecodeOutcome.Completed(signal.rate, signal.channels, totalFrames.toLong(), "fake")
+        }
+    }
+
+    /** Emits [samples] in uneven chunks starting at frame `startUs * rate / 1e6`, checking [isCancelled] per chunk. */
+    private class ResumeFakeDecoder(
+        private val chunkSizes: List<Int>,
+        private val samples: FloatArray,
+        private val channels: Int,
+        private val rate: Int,
+        private val beforeEmit: ((Long) -> Unit)? = null,
+        private val afterEmit: ((Long) -> Unit)? = null,
+    ) : PcmDecoder {
+        override fun decode(
+            path: String,
+            key: FormatKey?,
+            consumer: PcmConsumer,
+            isCancelled: () -> Boolean,
+            startUs: Long,
+        ): DecodeOutcome {
+            val totalFrames = samples.size / channels
+            val startFrame = (startUs * rate / 1_000_000L).toInt()
+            var off = startFrame
+            for (size in chunkSizes) {
+                if (isCancelled()) return DecodeOutcome.Cancelled
+                val take = minOf(size, totalFrames - off)
+                if (take <= 0) break
+                val chunk = FloatArray(take * channels)
+                samples.copyInto(chunk, 0, off * channels, (off + take) * channels)
+                beforeEmit?.invoke(off.toLong())
+                consumer.accept(chunk, take, rate, channels)
+                off += take
+                afterEmit?.invoke(off.toLong())
+            }
+            return DecodeOutcome.Completed(rate, channels, (off - startFrame).toLong(), "fake")
+        }
+    }
+
+    /** Emits [samples] in uneven chunks, recording how many chunks the first [decode] call emitted. */
+    private class MismatchChunkCounter(
+        private val samples: FloatArray,
+        private val channels: Int,
+        private val rate: Int,
+    ) : PcmDecoder {
+        val firstPassChunks = AtomicLong(0)
+        private val firstCall = AtomicBoolean(true)
+
+        override fun decode(
+            path: String,
+            key: FormatKey?,
+            consumer: PcmConsumer,
+            isCancelled: () -> Boolean,
+            startUs: Long,
+        ): DecodeOutcome {
+            val isFirst = firstCall.compareAndSet(true, false)
+            val totalFrames = samples.size / channels
+            val startFrame = (startUs * rate / 1_000_000L).toInt()
+            var off = startFrame
+            var chunks = 0L
+            for (size in listOf(1000, 7000, 4096, 50_000)) {
+                if (isCancelled()) {
+                    if (isFirst) firstPassChunks.set(chunks)
+                    return DecodeOutcome.Cancelled
+                }
+                val take = minOf(size, totalFrames - off)
+                if (take <= 0) break
+                val chunk = FloatArray(take * channels)
+                samples.copyInto(chunk, 0, off * channels, (off + take) * channels)
+                consumer.accept(chunk, take, rate, channels)
+                off += take
+                chunks++
+            }
+            if (isFirst) firstPassChunks.set(chunks)
+            return DecodeOutcome.Completed(rate, channels, (off - startFrame).toLong(), "fake")
         }
     }
 }

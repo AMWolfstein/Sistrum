@@ -22,5 +22,11 @@ internal sealed interface DecodeOutcome {
 
 /** Decodes one file to interleaved float PCM; blocks the caller. */
 internal interface PcmDecoder {
-    fun decode(path: String, key: FormatKey?, consumer: PcmConsumer, isCancelled: () -> Boolean = { false }): DecodeOutcome
+    fun decode(
+        path: String,
+        key: FormatKey?,
+        consumer: PcmConsumer,
+        isCancelled: () -> Boolean = { false },
+        startUs: Long = 0L,
+    ): DecodeOutcome
 }

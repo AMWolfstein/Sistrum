@@ -67,6 +67,7 @@ internal class OfflineDecoder(
         key: FormatKey?,
         consumer: PcmConsumer,
         isCancelled: () -> Boolean,
+        startUs: Long,
     ): DecodeOutcome {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "OfflineDecoder.decode must not run on the main thread"
@@ -101,6 +102,7 @@ internal class OfflineDecoder(
                 isCancelled,
                 cancelRequested,
                 playerRef,
+                startUs,
             )
         }
         try {
@@ -128,21 +130,25 @@ internal class OfflineDecoder(
         isCancelled: () -> Boolean,
         cancelRequested: AtomicBoolean,
         playerRef: AtomicReference<ExoPlayer?>,
+        startUs: Long,
     ) {
         val recorder = ProviderRecorder()
         val uriString = Uri.fromFile(File(path)).toString()
         val cancelled = AtomicBoolean(false)
         val lastProgressMs = AtomicLong(SystemClock.elapsedRealtime())
 
-        val sink = CaptureAudioSink { samples, frames, rate, channels ->
-            lastProgressMs.set(SystemClock.elapsedRealtime())
-            if (isCancelled() || cancelRequested.get()) {
-                cancelled.set(true)
-                handler.post { playerRef.get()?.stop() }
-            } else {
-                consumer.accept(samples, frames, rate, channels)
-            }
-        }
+        val sink = CaptureAudioSink(
+            consumer = PcmConsumer { samples, frames, rate, channels ->
+                lastProgressMs.set(SystemClock.elapsedRealtime())
+                if (isCancelled() || cancelRequested.get()) {
+                    cancelled.set(true)
+                    handler.post { playerRef.get()?.stop() }
+                } else {
+                    consumer.accept(samples, frames, rate, channels)
+                }
+            },
+            startPositionUs = startUs,
+        )
 
         fun complete(result: DecodeOutcome) {
             if (!outcome.compareAndSet(null, result)) return
@@ -247,7 +253,8 @@ internal class OfflineDecoder(
                 .build()
             playerRef.set(p)
             p.addListener(listener)
-            p.setMediaItem(MediaItem.fromUri(Uri.fromFile(File(path))))
+            val mediaItem = MediaItem.fromUri(Uri.fromFile(File(path)))
+            p.setMediaItem(mediaItem, if (startUs > 0L) startUs / 1000L else C.TIME_UNSET)
             p.prepare()
             p.playWhenReady = true
             handler.postDelayed(stallWatchdog, STALL_CHECK_INTERVAL_MS)

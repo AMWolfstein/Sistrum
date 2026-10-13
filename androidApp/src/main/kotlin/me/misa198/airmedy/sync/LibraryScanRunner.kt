@@ -18,6 +18,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.misa198.airmedy.R
+import me.misa198.airmedy.analysis.LoudnessAnalysisScheduler
 import me.misa198.airmedy.player.decoders.ProcessCodecProbe
 import me.misa198.airmedy.player.decoders.defaultDecoderRegistry
 import me.misa198.airmedy.player.engine.EngineKind
@@ -91,6 +92,8 @@ internal object LibraryScanRunner {
                         Log.i("AirmedyScan", "Skipped $total file(s) by reason: $byReason")
                     }
                     separatorPreferences.setAppliedSignature(separators.signature)
+                    runCatching { LoudnessAnalysisScheduler.get(context).onScanCompleted() }
+                        .onFailure { Log.w("AirmedyScan", "Failed to schedule loudness analysis", it) }
                     // FR-065a: hidden tracks (no decoder on this device) are kept but not shown, so they don't count.
                     val visibleTracks = result.snapshot.tracks.filter { it.decoderUnavailable.isBlank() }
                     val albums = visibleTracks.map { it.album.id }.distinct().size

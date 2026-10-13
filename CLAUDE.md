@@ -145,7 +145,9 @@ or when legacy code is deleted. Never commits.
   1. Stop leftover daemons: `./gradlew --stop` and `pkill -f '[K]otlinCompileDaemon'` (the brackets keep
      pkill from matching its own shell).
   2. Read `MemAvailable` from `/proc/meminfo`. If it is below 2 GB, don't start: tell the owner instead.
-  If the memory reaper kills a run anyway, don't restart it on your own; report it and wait.
+  If the memory reaper kills a run anyway, report it, wait 20 minutes, re-run this check and resume on your own
+  (coder: same session); still below 2 GB → wait another 20 minutes; after 3 failed waits, stop and tell the owner
+  (owner, 2026-10-13).
 - Run a milestone's tasks back to back (`/delegate-task` → `/verify-task` → commit → push → next task), without
   pausing between tasks. Stop ONLY when: (1) a milestone ends (status report + owner approval), (2) a MANUAL
   task needs the owner or the device, (3) a task fails 3 review rounds, (4) an architectural problem requires

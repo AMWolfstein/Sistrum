@@ -13,12 +13,17 @@ import android.content.Context
 internal object AndroidSyncRuntime {
     private lateinit var store: AndroidLibrarySyncStore
     private lateinit var appContext: Context
+    private lateinit var database: SyncDatabase
 
+    @Synchronized
     fun initialize(context: Context) {
         if (::appContext.isInitialized) return
         appContext = context.applicationContext
-        store = AndroidLibrarySyncStore(SyncDatabase.create(appContext), appContext.filesDir)
+        database = SyncDatabase.create(appContext)
+        store = AndroidLibrarySyncStore(database, appContext.filesDir)
     }
 
     internal fun syncStore(): AndroidLibrarySyncStore = store
+
+    internal fun database(): SyncDatabase = database
 }

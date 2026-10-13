@@ -36,6 +36,7 @@ internal fun interface PcmConsumer {
 @OptIn(UnstableApi::class)
 internal class CaptureAudioSink(
     private val consumer: PcmConsumer,
+    private val startPositionUs: Long = 0L,
 ) : AudioSink {
 
     private val trimming = TrimmingAudioProcessor()
@@ -57,6 +58,7 @@ internal class CaptureAudioSink(
     private var rate = 0
     private var channels = 0
     private var frameCount = 0L
+    private var totalFrames = 0L
     private var startUs = AudioSink.CURRENT_POSITION_NOT_SET
     private var started = false
     private var ended = false
@@ -65,6 +67,7 @@ internal class CaptureAudioSink(
     private var playbackParameters = PlaybackParameters.DEFAULT
     private var audioAttributes = AudioAttributes.DEFAULT
     private var skipSilenceEnabled = false
+    private var outputStreamOffsetUs = 0L
 
     /** Total frames handed to [consumer], for the decoder's [DecodeOutcome.Completed]. */
     val framesWritten: Long get() = frameCount
@@ -95,6 +98,11 @@ internal class CaptureAudioSink(
     override fun getCurrentPositionUs(sourceEnded: Boolean): Long =
         if (!started) AudioSink.CURRENT_POSITION_NOT_SET
         else startUs + frameCount * C.MICROS_PER_SECOND / rate
+
+    /** Records the renderer's output-stream offset so [deliver] can map renderer time back to media time. */
+    override fun setOutputStreamOffsetUs(outputStreamOffsetUs: Long) {
+        this.outputStreamOffsetUs = outputStreamOffsetUs
+    }
 
     override fun configure(config: AudioSink.AudioSinkConfig) {
         val format = config.format
@@ -219,6 +227,7 @@ internal class CaptureAudioSink(
         if (pcm) pipeline.flush(AudioProcessor.StreamMetadata.DEFAULT)
         ended = false
         frameCount = 0L
+        totalFrames = 0L
         startUs = AudioSink.CURRENT_POSITION_NOT_SET
         started = false
     }
@@ -232,6 +241,7 @@ internal class CaptureAudioSink(
         rate = 0
         channels = 0
         frameCount = 0L
+        totalFrames = 0L
         startUs = AudioSink.CURRENT_POSITION_NOT_SET
         started = false
         ended = false
@@ -239,8 +249,24 @@ internal class CaptureAudioSink(
 
     /** Hands [samples] samples of [scratch] to [consumer] and advances the frame count. */
     private fun deliver(samples: Int) {
-        val frames = samples / channels
+        var frames = samples / channels
         if (frames <= 0) return
+        if (startPositionUs > 0L) {
+            var drop = 0
+            while (drop < frames &&
+                startUs - outputStreamOffsetUs + (totalFrames + drop) * C.MICROS_PER_SECOND / rate < startPositionUs
+            ) {
+                drop++
+            }
+            totalFrames += frames
+            if (drop > 0) scratch.copyInto(scratch, 0, drop * channels, frames * channels)
+            frames -= drop
+            if (frames <= 0) return
+            frameCount += frames
+            consumer.accept(scratch, frames, rate, channels)
+            return
+        }
+        totalFrames += frames
         frameCount += frames
         consumer.accept(scratch, frames, rate, channels)
     }
