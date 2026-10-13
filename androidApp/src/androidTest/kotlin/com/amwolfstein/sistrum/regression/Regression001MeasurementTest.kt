@@ -645,6 +645,267 @@ class Regression001MeasurementTest {
         }
     }
 
+    @Test(timeout = 60_000)
+    fun sc003Mp3SinkCallLog() {
+        guard()
+        val files = fixtures("gapless_mp3_1.mp3", "gapless_mp3_2.mp3",
+            "gapless_flac_1.flac", "gapless_flac_2.flac")
+        for ((case, pair) in listOf("mp3" to (files[0] to files[1]), "flac" to (files[2] to files[3]))) {
+            val (a, b) = pair
+            val lock = Any()
+            var sequence = 0L
+            // Renderer calls and application-looper analytics share one ordered log.
+            fun log(call: String, fields: String = "") {
+                row("sc003s case=$case seq=${++sequence} call=$call $fields".trimEnd())
+            }
+            data class BufferCall(val number: Long, val frames: Long, val timeUs: Long,
+                val consumed: Long, val accepted: Boolean, val accessUnits: Int)
+            class RecordingSink(delegate: AudioSink) : androidx.media3.exoplayer.audio.ForwardingAudioSink(delegate) {
+                private var stream = -1L
+                private var bytesPerFrame = 0
+                private var formatId = "missing"
+                private var streamFrames = 0L
+                private var streamConsumed = 0L
+                private var streamBuffers = 0L
+                private var totalsReported = false
+                private var bufferNumber = 0L
+                private var batchCount = 0
+                private var batchFrames = 0L
+                private var first: BufferCall? = null
+                private var last: BufferCall? = null
+
+                private fun bufferRow(buffer: BufferCall, edge: String) {
+                    log("handleBuffer", "stream=$stream buffer=${buffer.number} edge=$edge " +
+                        "frames=${buffer.frames} presentationTimeUs=${buffer.timeUs} " +
+                        "consumed_frames=${buffer.consumed} accepted=${buffer.accepted} " +
+                        "encoded_access_units=${buffer.accessUnits}")
+                }
+
+                fun drainBuffers() {
+                    val start = first ?: return
+                    val end = checkNotNull(last)
+                    if (batchCount > 1) {
+                        log("handleBufferBatch", "stream=$stream buffers=$batchCount frames=$batchFrames " +
+                            "first_buffer=${start.number} last_buffer=${end.number} " +
+                            "first_presentationTimeUs=${start.timeUs} last_presentationTimeUs=${end.timeUs}")
+                        bufferRow(end, "last")
+                    }
+                    // A single logged buffer is both the first and last in its run.
+                    first = null
+                    last = null
+                    batchCount = 0
+                    batchFrames = 0L
+                }
+
+                fun finish(reason: String) {
+                    drainBuffers()
+                    if (stream >= 0L && !totalsReported) {
+                        // Arrival totals include retry calls; consumed totals avoid counting the same
+                        // input twice when the sink returns false after consuming some/all of it.
+                        log("streamTotals", "stream=$stream format_id=$formatId frames=$streamFrames " +
+                            "consumed_frames=$streamConsumed buffers=$streamBuffers reason=$reason")
+                        totalsReported = true
+                    }
+                }
+
+                private fun nextStream(reason: String) {
+                    finish(reason)
+                    stream++
+                    totalsReported = false
+                    streamFrames = 0L
+                    streamConsumed = 0L
+                    streamBuffers = 0L
+                }
+
+                override fun configure(config: AudioSink.AudioSinkConfig) = synchronized(lock) {
+                    nextStream("configure")
+                    val format = config.format
+                    formatId = token(format.id.orEmpty())
+                    bytesPerFrame = androidx.media3.common.util.Util.getPcmFrameSize(format.pcmEncoding, format.channelCount)
+                    log("configure", "stream=$stream format_id=$formatId sampleMimeType=${token(format.sampleMimeType.orEmpty())} " +
+                        "pcmEncoding=${format.pcmEncoding} rate=${format.sampleRate} channels=${format.channelCount} " +
+                        "encoderDelay=${format.encoderDelay} encoderPadding=${format.encoderPadding}")
+                    super.configure(config)
+                }
+
+                override fun handleBuffer(buffer: ByteBuffer, presentationTimeUs: Long, encodedAccessUnitCount: Int): Boolean =
+                    synchronized(lock) {
+                        check(bytesPerFrame > 0) { "SC-003s missing PCM configuration" }
+                        val before = buffer.remaining()
+                        check(before % bytesPerFrame == 0) { "SC-003s partial PCM frame" }
+                        val frames = before.toLong() / bytesPerFrame
+                        streamFrames += frames
+                        streamBuffers++
+                        var accepted = false
+                        try {
+                            accepted = super.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount)
+                            accepted
+                        } finally {
+                            val consumed = (before - buffer.remaining()).toLong() / bytesPerFrame
+                            streamConsumed += consumed
+                            val entry = BufferCall(++bufferNumber, frames, presentationTimeUs, consumed, accepted, encodedAccessUnitCount)
+                            if (first == null) {
+                                first = entry
+                                bufferRow(entry, "first_or_only")
+                            }
+                            last = entry
+                            batchCount++
+                            batchFrames += frames
+                            if (batchCount == 50) drainBuffers()
+                        }
+                    }
+
+                override fun setOutputStreamOffsetUs(outputStreamOffsetUs: Long) = synchronized(lock) {
+                    nextStream("setOutputStreamOffsetUs")
+                    log("setOutputStreamOffsetUs", "stream=$stream offset_us=$outputStreamOffsetUs")
+                    super.setOutputStreamOffsetUs(outputStreamOffsetUs)
+                }
+
+                override fun handleDiscontinuity() = synchronized(lock) {
+                    drainBuffers(); log("handleDiscontinuity", "stream=$stream")
+                    super.handleDiscontinuity()
+                }
+                override fun flush() = synchronized(lock) {
+                    drainBuffers(); log("flush", "stream=$stream")
+                    super.flush()
+                }
+                override fun playToEndOfStream() = synchronized(lock) {
+                    drainBuffers(); log("playToEndOfStream", "stream=$stream")
+                    super.playToEndOfStream()
+                }
+                override fun reset() = synchronized(lock) {
+                    finish("reset"); log("reset", "stream=$stream")
+                    super.reset()
+                }
+                override fun play() = synchronized(lock) {
+                    drainBuffers(); log("play", "stream=$stream")
+                    super.play()
+                }
+                override fun pause() = synchronized(lock) {
+                    drainBuffers(); log("pause", "stream=$stream")
+                    super.pause()
+                }
+                override fun release() = synchronized(lock) {
+                    finish("release"); log("release", "stream=$stream")
+                    super.release()
+                }
+            }
+            var recording: RecordingSink? = null
+            fun analytics(call: String, fields: String) = synchronized(lock) {
+                recording?.drainBuffers()
+                log(call, fields)
+            }
+            val thread = HandlerThread("sc003s-$case").apply { start() }
+            val handler = Handler(thread.looper)
+            var player: ExoPlayer? = null
+            val deadline = SystemClock.elapsedRealtime() + 20_000L
+            fun <T> call(block: () -> T): T {
+                val task = FutureTask(Callable { block() })
+                check(handler.post(task)) { "SC-003s looper stopped" }
+                return task.get(5_000L, TimeUnit.MILLISECONDS)
+            }
+            fun remaining() {
+                if (SystemClock.elapsedRealtime() >= deadline) throw TimeoutException("SC-003s playback timeout")
+            }
+            fun media(file: File) = MediaItem.Builder().setUri(Uri.fromFile(file)).setMediaId(file.absolutePath).build()
+            try {
+                // A separate plain player probes duration; only the fresh join player is recorded.
+                call {
+                    player = ExoPlayer.Builder(context).setLooper(thread.looper).build().apply {
+                        volume = 0f
+                        setMediaItem(media(a))
+                        prepare()
+                    }
+                }
+                while (true) {
+                    remaining()
+                    if (call {
+                        val p = checkNotNull(player)
+                        p.playerError?.let { throw it }
+                        p.playbackState == Player.STATE_READY
+                    }) break
+                    SystemClock.sleep(5L)
+                }
+                val duration = call { checkNotNull(player).duration }
+                check(duration > 0L) { "SC-003s duration unavailable" }
+                val origin = (duration - 3_000L).coerceAtLeast(0L)
+                call {
+                    player?.release()
+                    player = null
+                    val renderers = object : androidx.media3.exoplayer.DefaultRenderersFactory(context) {
+                        override fun buildAudioSink(
+                            context: android.content.Context,
+                            enableFloatOutput: Boolean,
+                            enableAudioOutputPlaybackParams: Boolean,
+                        ): AudioSink = RecordingSink(com.amwolfstein.sistrum.player.media3.FloatChainAudioSink(
+                            androidx.media3.exoplayer.audio.DefaultAudioSink.Builder(context)
+                                .setEnableFloatOutput(true).build(), emptyList(),
+                        )).also { sink -> synchronized(lock) { recording = sink } }
+                    }
+                    player = ExoPlayer.Builder(context).setLooper(thread.looper)
+                        .setRenderersFactory(renderers).build().apply {
+                            volume = 0f
+                            addAnalyticsListener(object : AnalyticsListener {
+                                override fun onAudioInputFormatChanged(
+                                    eventTime: AnalyticsListener.EventTime,
+                                    format: androidx.media3.common.Format,
+                                    decoderReuseEvaluation: androidx.media3.exoplayer.DecoderReuseEvaluation?,
+                                ) {
+                                    analytics("onAudioInputFormatChanged", "format_id=${token(format.id.orEmpty())} " +
+                                        "encoderDelay=${format.encoderDelay} encoderPadding=${format.encoderPadding} " +
+                                        "position_ms=${eventTime.eventPlaybackPositionMs}")
+                                }
+                                override fun onMediaItemTransition(
+                                    eventTime: AnalyticsListener.EventTime,
+                                    mediaItem: MediaItem?,
+                                    reason: Int,
+                                ) {
+                                    analytics("onMediaItemTransition", "file=${token(mediaItem?.mediaId.orEmpty())} " +
+                                        "reason=$reason position_ms=${eventTime.eventPlaybackPositionMs}")
+                                }
+                                override fun onPositionDiscontinuity(
+                                    eventTime: AnalyticsListener.EventTime,
+                                    oldPosition: Player.PositionInfo,
+                                    newPosition: Player.PositionInfo,
+                                    reason: Int,
+                                ) {
+                                    analytics("onPositionDiscontinuity", "reason=$reason " +
+                                        "old_position_ms=${oldPosition.positionMs} new_position_ms=${newPosition.positionMs}")
+                                }
+                            })
+                            setMediaItems(listOf(media(a), media(b)), 0, origin)
+                            prepare()
+                            play()
+                        }
+                }
+                while (true) {
+                    remaining()
+                    if (call {
+                        val p = checkNotNull(player)
+                        p.playerError?.let { throw it }
+                        if (p.currentMediaItemIndex == 1 && p.currentPosition >= 1_500L) true else {
+                            check(p.playbackState != Player.STATE_ENDED) { "SC-003s ended before B window" }
+                            false
+                        }
+                    }) break
+                    SystemClock.sleep(5L)
+                }
+                analytics("measurementComplete", "origin_ms=$origin boundary_ms=${duration - origin}")
+            } finally {
+                try {
+                    call { player?.release(); player = null }
+                } finally {
+                    try {
+                        synchronized(lock) { recording?.finish("close") }
+                    } finally {
+                        thread.quitSafely()
+                        thread.join(5_000L)
+                    }
+                }
+            }
+        }
+    }
+
     @Test(timeout = 590_000)
     fun sc014EveryCorpusFileFailureIsAttributed() {
         val files = guard()

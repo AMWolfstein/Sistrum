@@ -60,6 +60,15 @@ near-silent part is what the join measures. This is Media3 behaviour (its `Trimm
 end buffer unless a reconfiguration is pending before end-of-stream) and our engine inherits it. MP3 SC-003 miss: 0.65 ms
 on one join; up to 815 frames (~17 ms) of padding per MP3 boundary in the worst case.
 
+**Root cause (T062h part 3, device AudioSink call log `sc003Mp3SinkCallLog`, 2026-10-14):** a real join reconfigures
+the sink (`setOutputStreamOffsetUs` → `handleDiscontinuity` → `configure(B, delay 1105, padding 815)`), and our sink
+trims correctly on that path. But the platform decoder's first buffer of B is 623 frames (= 1152 − 529) and A's last
+is 529 frames: `c2.android.mp3.decoder` already compensates its 529-sample decoder delay (the framework hands it the
+raw LAME 576 / 1344). Media3 1.11.1's `XingFrame` (`extractor/mp3/XingFrame.java:33,135-138`) converts the LAME
+values for a decoder *with* that delay (+529 delay, −529 padding), so with the platform decoder each MP3 loses 529 real
+samples at its start and keeps 529 padding samples at its end — the 511 / 55-frame near-silent joins. Fix (T062i/T062j):
+for MP3 decoded by MediaCodec, trim delay − 529 / padding + 529.
+
 ## SC-006 start latency (prepare call → first `positionMs() > 0`; 3 runs per file, medians)
 
 `OutputStarted` is not comparable across engines: native queues it as soon as `prepare()` returns
