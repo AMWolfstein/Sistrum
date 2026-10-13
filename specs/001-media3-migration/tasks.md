@@ -747,7 +747,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     `clippedByDecoder` (our sample peak at full scale, loudness within 0.5 LU, no true-peak check): integer-output
     platform decoders (c2 Opus, 16-bit) clip such sources exactly as playback does; WaxFlow decodes in float.
 
-- [ ] T051e [US6] [TESTS-FIRST] Job tests in `ANT/LoudnessAnalysisWorkerTest.kt` (WorkManager `work-testing`, fake decoder/meter/store); stubs `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`; `androidx.work:work-runtime-ktx` + `work-testing` in `gradle/libs.versions.toml` and `androidApp/build.gradle.kts` {default}
+- [x] T051e [US6] [TESTS-FIRST] Job tests in `ANT/LoudnessAnalysisWorkerTest.kt` (WorkManager `work-testing`, fake decoder/meter/store); stubs `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`; `androidx.work:work-runtime-ktx` + `work-testing` in `gradle/libs.versions.toml` and `androidApp/build.gradle.kts` {default}
   - Do: unique work, KEEP; default constraints charging + battery not low + storage not low; a run stops starting
     new tracks after its 8-minute budget and re-enqueues itself while tracks are pending; `isStopped` honoured
     between chunks; each finished track is written before the next starts (checkpoint); a long track interrupted
@@ -757,6 +757,12 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     whichever engine is selected (the documents serve both; owner may change this, HANDOFF); progress counts exposed
     as a Flow.
   - Tests: `verify.sh --expect-fail 'me.misa198.airmedy.analysis.LoudnessAnalysisWorkerTest'`. migration-guard.
+  - Note (orchestrator, 2026-10-13): the project has no Robolectric, so `work-testing` cannot run in JVM tests. The
+    job logic sits in `LoudnessAnalysisRunner` behind seams (`AnalysisJobStore`, `TrackMeasurer`, worker count,
+    clock) and the scheduler behind `AnalysisWorkEnqueuer`; the JVM tests cover those. `work-testing` is added as
+    `androidTestImplementation` for the device checks. A run stops new tracks at 8 min and cancels in-flight ones
+    (checkpointed) at 9 min, so a long track never pushes a run past the 10-minute limit; re-enqueue is an
+    `APPEND_OR_REPLACE` continuation (thermal pause: 10 min delay).
 
 - [ ] T051f [US6] Implement `AN/LoudnessAnalysisWorker.kt`, `AN/LoudnessAnalysisScheduler.kt`, enqueue after scans in `A/sync/` (scan completion hook), `AndroidManifest.xml` only if WorkManager needs it; `THIRD-PARTY-NOTICES` (WorkManager, Apache-2.0) {hard} [HIGH-RISK]
   - Tests: `LoudnessAnalysisWorkerTest` passes without modifying it; `GATE`.

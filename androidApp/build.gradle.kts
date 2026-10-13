@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.vico.compose)
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.common)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
@@ -112,6 +113,7 @@ dependencies {
     testImplementation(libs.media3.test.utils)
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.compose.uiTestJunit4)
+    androidTestImplementation(libs.androidx.work.testing)
     debugImplementation(libs.compose.uiTooling)
     debugImplementation(libs.compose.uiTestManifest)
 }
