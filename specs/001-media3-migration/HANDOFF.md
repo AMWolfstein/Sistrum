@@ -2,7 +2,7 @@
 
 **Current branch:** `feature/media3-migration` (check this out at session start)
 **Feature directory:** `specs/001-media3-migration/`
-**Phase:** M8 in progress. T062a/b/c done 2026-10-13. T062 part A (harness) + part B (release-like `.qa` numbers) measured 2026-10-14 → `research/regression-001.md`: SC-003 MP3 join 10.65 ms (FAIL, engine-side), SC-006 2.1–3.7× native (FAIL), CPU crossfade-off ≈ 2× native (SC-013 predicted FAIL; 1 h run deferred to owner), SC-014 prepare-time failures not logged/skipped (FAIL). Follow-up tasks T062d–T062h added. T062d/e/f committed. **STOPPED 2026-10-14 for the owner: SC-006 decision** (options a/b/c in `research/regression-001.md`). Independent of it: T062h (MP3 join), T062g (CPU, owner-authorized at Checkpoint M5). Then T064 → T063 → T062f spike → T062g/T062h → T064 → T063. M7 owner listening checks deferred. M1–M7 approved/closed.
+**Phase:** M8 in progress (2026-10-14). Done: T062a/b/c, T062 parts A/B (`research/regression-001.md`), T062d/T062e (SC-014 PASS), T062f (SC-006 breakdown). Owner 2026-10-14: SC-006 restated as ≤ 300 ms → PASS (Opus-heavy 259 ms, lossless/MP3/AAC 201 ms). Open: SC-003 MP3 join 10.65 ms (T062h), CPU crossfade-off ≈ 2× native (T062g, owner-authorized), SC-013 1 h run (owner, deferred). Next: T062h → T062g → T064 → T063. M7 owner listening checks deferred. M1–M7 approved/closed.
 **Last commit:** see `git log` (M1 closed with "docs(playback): record M1 owner decisions")
 
 ## Spec Kit feature directory

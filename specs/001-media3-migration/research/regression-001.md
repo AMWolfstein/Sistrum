@@ -91,6 +91,12 @@ which Media3 meets: 200 ms) or "no worse than stock ExoPlayer"; or (b) keep it a
 engine across taps; expected ~150 ms, still ~2× native's handover number); or (c) first measure audible latency fairly
 on both engines (acoustic loopback or AAudio timestamps, the latter needs a native change).
 
+### SC-006 against the amended target (owner 2026-10-14: option (a), ≤ 300 ms)
+
+Release-like `.qa`, `sc006StartLatencyNativeVsMedia3` three times (charging faked off), Media3 tap-to-position mix medians:
+Opus-heavy 256 / 259 / 264 → **259 ms**; lossless/MP3/AAC 178 / 201 / 211 → **201 ms**. Per Opus/Ogg file 190–301 ms
+(Ogg Vorbis-tagged files slightly faster). Both ≤ 300 ms: **PASS**.
+
 ## SC-014 failure attribution (Media3, every visible corpus file, prepare paused + 1 s play)
 
 44 OK, 4 FAIL — all four fail inside `prepare()`:
@@ -129,6 +135,6 @@ conversion for 16-bit input with a neutral chain). → follow-up task.
 | Criterion | Result |
 |---|---|
 | SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL, engine-side |
-| SC-006 | FAIL as specified (2.1–3.7× native's handover time); ExoPlayer floor ~200 ms, stock ExoPlayer 257 ms; metric not like for like — **owner decision** (T062f) |
+| SC-006 | Original ≤ +20 % FAIL (2.1–3.7× native's handover time; metric not like for like). **Amended by the owner 2026-10-14 to ≤ 300 ms → PASS**: Opus-heavy 259 ms, lossless/MP3/AAC 201 ms (release-like, 3-run medians) |
 | SC-013 | NOT RUN (1 h, owner); short runs predict FAIL (crossfade off ≈ 2× native CPU) |
 | SC-014 | FAIL at measurement → **PASS after T062e** (2026-10-14): all 4 prepare-time failures attributed (WMA provider "none"), logged and skipped by the coordinator; 44 OK |

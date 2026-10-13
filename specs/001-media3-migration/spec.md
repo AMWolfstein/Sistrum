@@ -113,6 +113,13 @@ known limitations and edge cases.
 - Q: Honour `REPLAYGAIN_REFERENCE_LOUDNESS`? → A: Yes, when present: adjusted gain = tag gain + (−18 −
   reference). Without it, gains are taken against −18, and R128 against −23 with +5 dB.
 
+### Session 2026-10-14 (owner, T062 SC-006 stop)
+
+- Q: SC-006 (≤ +20 % vs native start latency) can't be met by any ExoPlayer configuration measured (engine 200 ms,
+  stock ExoPlayer 257 ms, native ~75 ms = first buffer handed to AAudio, not heard). Restate, add engine reuse, or
+  measure audible latency first? → A: (a) restate as an absolute target. Then: which target, given Opus-heavy 259 ms
+  and lossless/MP3/AAC 201 ms (release-like build, 3-run medians)? → A: ≤ 300 ms (SC-006 amended).
+
 ### Session 2026-10-13 (owner, T051d speed stop)
 
 - Q: The first analysis of the owner's library measured above the 5 h estimate (Opus decode 143 ms per audio second
@@ -798,9 +805,11 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   each other's expected level; no corpus track clips with clip prevention on.
 - **SC-005**: The lock screen and notification show the correct artist for 100 % of corpus tracks with a
   known artist (0 "Unknown artist").
-- **SC-006**: Time from tapping a track to hearing audio on the new engine is no worse than on the current
-  engine by more than 20 %, measured on at least two different format mixes (Opus-heavy and
-  lossless/MP3/AAC-heavy), not only the owner's library.
+- **SC-006** *(amended 2026-10-14, owner)*: Time from starting a track (engine `prepare`) to the new engine's
+  played position advancing is ≤ 300 ms (median of each mix's file medians, 3 runs) on a non-debuggable build,
+  measured on at least two different format mixes (Opus-heavy and lossless/MP3/AAC-heavy), not only the owner's
+  library. (Was "no worse than the current engine by more than 20 %"; replaced because the native engine's position
+  counts frames handed to AAudio, not frames heard, and a stock ExoPlayer is not faster than this engine.)
 - **SC-007**: Crossfade on the new engine starts within 200 ms of the same point as on the current engine
   and completes without clicks, stuck volume or double playback across all User Story 5 scenarios.
 - **SC-008**: Changing the engine switch never interrupts a playing track (0 interruptions in the test

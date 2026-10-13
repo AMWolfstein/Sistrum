@@ -952,7 +952,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     tests that pinned the Native default updated with this spec reason. Then a signed `prodRelease` APK for the owner.
   - Tests: `GATE`; engine-selection tests; device: `.qa` fresh state starts on Media3.
 
-- [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ +20 %, SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
+- [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ 300 ms (amended 2026-10-14; was ≤ +20 %), SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
   - CPU (owner, Checkpoint M5 approval 2026-10-08): measure on a **release** build (debug `.qa` numbers: float neutral
     13.7 vs int 7.8 points). If Media3 with crossfade off still costs more than native, optimize, e.g. 16-bit input
     with a neutral chain skips the float conversion entirely.

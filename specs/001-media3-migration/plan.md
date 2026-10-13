@@ -31,7 +31,7 @@ via exoplayer). Existing: coroutines 1.11.0, DataStore 1.2.1, Room 2.8.5. No FFm
 
 **Project Type**: mobile app (`androidApp` + `sharedLogic`)
 
-**Performance Goals**: SC-006 start latency ≤ +20 %; SC-013 CPU/wakelock/memory 0 % (crossfade off) and ≤ +10 %
+**Performance Goals**: SC-006 start latency ≤ 300 ms absolute (amended 2026-10-14); SC-013 CPU/wakelock/memory 0 % (crossfade off) and ≤ +10 %
 (on); SC-003 gapless ≤ 10 ms; SC-007 fade start within 200 ms of native
 
 **Constraints**: `PlaybackQueue.kt` / `ListeningTracker.kt` zero changes; native code and `FfmpegDecoder` untouched;
