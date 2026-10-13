@@ -22,8 +22,8 @@ You never delegate: do not start other agents, `codex`, `opencode` or `relay.mjs
 ## Where things are
 - App: Kotlin + Jetpack Compose in `androidApp/src/main/kotlin/com/amwolfstein/sistrum/`;
   shared module `sharedLogic/`. Unit tests in `androidApp/src/test/`, device tests in `androidApp/src/androidTest/`.
-- Build: `./gradlew :androidApp:assembleDevDebug`
-- Unit tests: `./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest`
+- Build: `./gradlew :androidApp:assembleDevQa`
+- Unit tests: `./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest`
 - Playback migration rules: `.specify/memory/constitution.md`
 - Strings: `androidApp/src/main/res/values/strings.xml` is the source; every new key also needs
   `values-ar/strings.xml` (`ArabicTranslationCompletenessTest`). Counts use `<plurals>`.

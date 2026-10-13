@@ -20,16 +20,18 @@ device (constitution Principle 10).
 
 ## Build and test
 
-- `./gradlew :androidApp:assembleDevDebug`
+- Variants (owner 2026-10-13, T062b): only `devQa` (tests), `devRelease` (the owner's daily app) and `prodRelease`
+  (release). devDebug, prodDebug and prodQa are disabled.
+- `./gradlew :androidApp:assembleDevQa`
 - `./gradlew :androidApp:assembleDevRelease` (unsigned unless MOBILE_KEYSTORE_* env vars are set;
   sign locally with zipalign + apksigner and `~/.android/debug.keystore`; don't edit signingConfigs)
-- `./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest`
-- `./gradlew :androidApp:lintDevDebug`
+- `./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest`
+- `./gradlew :androidApp:lintDevQa`
 - **Never run instrumentation, install test APKs, or force-stop anything against the owner's daily
   apps `com.amwolfstein.sistrum.dev` and `me.misa198.airmedy.dev`** (or their `.test` instrumentation packages).
   All on-device tests use the separate test build `com.amwolfstein.sistrum.dev.qa` (build type `qa`, label
   "Sistrum QA"; ADR-007) and its instrumentation package `com.amwolfstein.sistrum.dev.qa.test`. `verify.sh --instrumented` enforces this.
-  Never install `devDebug` on the device: it has the daily app's ID.
+  Never install `devRelease` on the device yourself: it has the daily app's ID.
 - With the test build: `./gradlew :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest`
   (`testBuildType = "qa"`), check both APKs' IDs (`aapt2 dump packagename <apk>`), install them with
   `adb install -r` (`-t` for the test APK), and run classes one at a time:

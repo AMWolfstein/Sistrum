@@ -20,8 +20,8 @@ crossfade, queue/state, normalization and the EQ match, and every task carries i
 - `RES/` = `androidApp/src/main/res/`
 
 **Commands**:
-- `UT <Class…>` = `./gradlew :androidApp:testDevDebugUnitTest --tests '<fully.qualified.Class>'` (one `--tests` per class)
-- `GATE` = `./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest && ./gradlew :androidApp:assembleDevDebug`
+- `UT <Class…>` = `./gradlew :androidApp:testDevQaUnitTest --tests '<fully.qualified.Class>'` (one `--tests` per class)
+- `GATE` = `./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest && ./gradlew :androidApp:assembleDevQa`
   (from T001 on, also `./gradlew :androidApp:assembleDevQa`)
 - `QA-I <Class>` = `./gradlew :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest`; check both IDs with
   `aapt2 dump packagename` (`me.misa198.airmedy.dev.qa` / `me.misa198.airmedy.dev.qa.test`); `adb install -r` both;
@@ -943,6 +943,9 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     integrated.
   - Tests: `GATE`, lint (known classes only), `ArabicTranslationCompletenessTest`, every instrumented class on the new
     `.qa` one at a time, fresh-install smoke run (start, scan, play) on `.qa`.
+
+- [x] T062b Remove unused build variants devDebug, prodDebug, prodQa (owner 2026-10-13: "Remove them"); keep devQa (tests), devRelease (daily app), prodRelease (release); host tests and lint move to devQa (`testDevQaUnitTest`, `lintDevQa`); tooling/docs updated in the same commit — **added**
+  - Tests: `GATE` (devQa), test count unchanged; assemble devQa + androidTest, devRelease, prodRelease; lint known classes.
 
 - [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ +20 %, SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
   - CPU (owner, Checkpoint M5 approval 2026-10-08): measure on a **release** build (debug `.qa` numbers: float neutral

@@ -34535,13 +34535,13 @@
       "source_location": "L19"
     },
     {
-      "id": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeusesdarkforegroundongoldprimaryforprimaryanddestructiveactions",
-      "label": ".darkThemeUsesDarkForegroundOnGoldPrimaryForPrimaryAndDestructiveActions()",
+      "id": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeuseswhiteprimaryforegroundforprimaryanddestructiveactions",
+      "label": ".darkThemeUsesWhitePrimaryForegroundForPrimaryAndDestructiveActions()",
       "_callable": true,
       "_origin": "ast",
       "community": 243,
       "file_type": "code",
-      "norm_label": ".darkthemeusesdarkforegroundongoldprimaryforprimaryanddestructiveactions()",
+      "norm_label": ".darkthemeuseswhiteprimaryforegroundforprimaryanddestructiveactions()",
       "source_file": "androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/ui/components/SistrumPillButtonTest.kt",
       "source_location": "L40"
     },
@@ -86259,7 +86259,7 @@
       "weight": 1.0
     },
     {
-      "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeusesdarkforegroundongoldprimaryforprimaryanddestructiveactions",
+      "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeuseswhiteprimaryforegroundforprimaryanddestructiveactions",
       "target": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_kt_test",
       "relation": "references",
       "_origin": "ast",
@@ -119307,7 +119307,7 @@
       "weight": 1.0
     },
     {
-      "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeusesdarkforegroundongoldprimaryforprimaryanddestructiveactions",
+      "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeuseswhiteprimaryforegroundforprimaryanddestructiveactions",
       "target": "androidapp_src_main_kotlin_com_amwolfstein_sistrum_ui_theme_sistrumtheme_sistrumtheme",
       "relation": "calls",
       "_origin": "ast",
@@ -119315,7 +119315,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/ui/components/SistrumPillButtonTest.kt",
-      "source_location": "L46",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -342660,7 +342660,7 @@
     },
     {
       "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest",
-      "target": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeusesdarkforegroundongoldprimaryforprimaryanddestructiveactions",
+      "target": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeuseswhiteprimaryforegroundforprimaryanddestructiveactions",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -379552,7 +379552,7 @@
       "weight": 1.0
     },
     {
-      "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeusesdarkforegroundongoldprimaryforprimaryanddestructiveactions",
+      "source": "androidapp_src_androidtest_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbuttontest_sistrumpillbuttontest_darkthemeuseswhiteprimaryforegroundforprimaryanddestructiveactions",
       "target": "androidapp_src_main_kotlin_com_amwolfstein_sistrum_ui_components_sistrumpillbutton_sistrumpillbutton",
       "relation": "calls",
       "_origin": "ast",
@@ -379560,7 +379560,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/ui/components/SistrumPillButtonTest.kt",
-      "source_location": "L48",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -395501,5 +395501,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "29f85fe6348a1607a26dcfb6bdb6182c0db45396"
+  "built_at_commit": "ea34914fdbf79b9246d4056848da1041bdf035d6"
 }

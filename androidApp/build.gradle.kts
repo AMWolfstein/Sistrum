@@ -127,8 +127,8 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 11
-        versionName = "1.1.1"
+        versionCode = 1
+        versionName = "1.0"
 
         val lastFmApiKey = localProperties.getProperty("LASTFM_API_KEY")
             ?: providers.environmentVariable("LASTFM_API_KEY").getOrElse("")
@@ -224,6 +224,12 @@ dependencies {
 
 androidComponents {
     beforeVariants(selector().withBuildType("debug")) { variantBuilder ->
+        variantBuilder.enable = false
+    }
+    beforeVariants(selector().withFlavor("environment" to "prod").withBuildType("qa")) { variantBuilder ->
+        variantBuilder.enable = false
+    }
+    beforeVariants(selector().withBuildType("qa")) { variantBuilder ->
         (variantBuilder as HasUnitTestBuilder).enableUnitTest = true
     }
 }

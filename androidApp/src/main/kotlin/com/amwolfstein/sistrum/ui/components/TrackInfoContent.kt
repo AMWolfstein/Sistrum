@@ -61,7 +61,7 @@ internal fun trackQualityBadgeStyle(
         background = colors.textMain.copy(alpha = 0.08f),
         border = colors.textMain.copy(alpha = 0.15f),
     )
-    // Use the theme primary for the badge background, text, and border.
+    // Desktop: bg-[#E11D48]/10 text-[#E11D48] border-[#E11D48]/20.
     TrackAudioQuality.Lossless -> TrackQualityBadgeStyle(
         foreground = colors.primary,
         background = colors.primary.copy(alpha = 0.10f),

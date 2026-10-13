@@ -32,7 +32,7 @@ every field. The brief must stand alone: the coder sees no chat, no CLAUDE.md, n
 - CONTEXT: the interfaces/contracts to use, with paths and signatures.
 - MUST NOT: always include the fixed list from the template.
 - TESTS: the tests the spec requires (you choose them, never the coder) and the exact command,
-  e.g. `./gradlew :androidApp:testDevDebugUnitTest --tests '<Class>'`. For a high-risk area
+  e.g. `./gradlew :androidApp:testDevQaUnitTest --tests '<Class>'`. For a high-risk area
   whose tests were committed earlier, add "make these tests pass without modifying them".
 - ACCEPTANCE: objective, checkable criteria.
 Save it outside the repo: `${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/<task-id>/brief-<n>.md`.

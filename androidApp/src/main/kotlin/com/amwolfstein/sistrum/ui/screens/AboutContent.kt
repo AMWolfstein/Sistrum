@@ -22,8 +22,8 @@ import com.amwolfstein.sistrum.ui.components.HeroCard
 import com.amwolfstein.sistrum.ui.components.LabeledCard
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
 
-private const val SistrumGithubUrl = "https://github.com/misa198/airmedy"
-private const val SistrumLicenseUrl = "https://github.com/misa198/airmedy/blob/master/LICENSE"
+private const val SistrumGithubUrl = "https://github.com/AMWolfstein/Sistrum"
+private const val SistrumLicenseUrl = "https://github.com/AMWolfstein/Sistrum/blob/main/LICENSE"
 private const val SistrumGithubSponsorsUrl = "https://github.com/sponsors/misa198"
 private const val SistrumKofiUrl = "https://ko-fi.com/misa198"
 private const val SistrumBuyMeACoffeeUrl = "https://buymeacoffee.com/misa1982"

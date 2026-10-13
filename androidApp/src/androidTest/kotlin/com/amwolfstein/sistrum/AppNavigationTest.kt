@@ -470,7 +470,7 @@ class AppNavigationTest {
         composeTestRule.onNodeWithContentDescription(string(R.string.about_github)).performClick()
 
         assertEquals(
-            AppIntent.OpenExternalUrl("https://github.com/misa198/airmedy"),
+            AppIntent.OpenExternalUrl("https://github.com/AMWolfstein/Sistrum"),
             harness.intents.last(),
         )
     }

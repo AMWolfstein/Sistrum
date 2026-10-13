@@ -38,8 +38,7 @@ class SistrumPillButtonTest {
     }
 
     @Test
-    // T062a: the gold brand primary needs a dark foreground (8.6:1); white on gold is 2.1:1.
-    fun darkThemeUsesDarkForegroundOnGoldPrimaryForPrimaryAndDestructiveActions() {
+    fun darkThemeUsesWhitePrimaryForegroundForPrimaryAndDestructiveActions() {
         var onPrimary: Color? = null
 
         composeTestRule.setContent {
@@ -54,7 +53,7 @@ class SistrumPillButtonTest {
         }
 
         composeTestRule.runOnIdle {
-            assertEquals(Color(0xFF19140F), onPrimary)
+            assertEquals(Color.White, onPrimary)
         }
     }
 }

@@ -8,7 +8,7 @@
 #                   names), repo-relative, space-separated. Any modified, deleted or new Kotlin file
 #                   outside this list makes the gate refuse to run (exit 3).
 #   --tests         restrict the unit-test run (repeatable); default: the full unit suites
-#   --lint          also run :androidApp:lintDevDebug and print the error count
+#   --lint          also run :androidApp:lintDevQa and print the error count
 #   --instrumented  device tests to run one class at a time, only if a device is connected
 #   --expect-fail   [TESTS-FIRST] tasks: androidApp host tests that must compile and fail on an assertion
 #                   (AssertionError, AssertionFailedError, ComparisonFailure); a pass, a skip, or any other exception
@@ -60,7 +60,7 @@ report() { printf '%-14s %-8s %s\n' "$1" "$2" "$3"; [ "$2" = FAIL ] && overall=F
 
 # Unit tests
 if [ -z "$expect_fail" ]; then
-  if ./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest "${filters[@]}" --continue \
+  if ./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest "${filters[@]}" --continue \
       > "$logs/unit.log" 2>&1; then
     report "unit tests" PASS "${filters[*]:-full suites}"
   else
@@ -78,13 +78,13 @@ else
       grep -E 'FAILED|^e: |What went wrong' -A2 "$logs/unit-shared.log" | head -20
     fi
   fi
-  app_results=androidApp/build/test-results/testDevDebugUnitTest
+  app_results=androidApp/build/test-results/testDevQaUnitTest
   IFS=, read -r -a expect_classes <<< "$expect_fail"
   if [ "${#filters[@]}" -gt 0 ]; then
     for cls in "${expect_classes[@]}"; do filters+=(--tests "${cls%%#*}"); done
   fi
   rm -rf "$app_results"   # no stale XML: missing results mean "did not compile or run"
-  ./gradlew :androidApp:testDevDebugUnitTest "${filters[@]}" --continue > "$logs/unit.log" 2>&1
+  ./gradlew :androidApp:testDevQaUnitTest "${filters[@]}" --continue > "$logs/unit.log" 2>&1
   if python3 - "$expect_fail" "$app_results" > "$logs/expect-fail.txt" 2>&1 <<'PY'
 import glob, os, sys
 import xml.etree.ElementTree as ET
@@ -164,8 +164,8 @@ PY
 fi
 
 # Build
-if ./gradlew -q :androidApp:assembleDevDebug > "$logs/build.log" 2>&1; then
-  report "build" PASS ":androidApp:assembleDevDebug"
+if ./gradlew -q :androidApp:assembleDevQa > "$logs/build.log" 2>&1; then
+  report "build" PASS ":androidApp:assembleDevQa"
 else
   report "build" FAIL "see $logs/build.log"
   grep -E '^e: |What went wrong' -A3 "$logs/build.log" | head -40
@@ -173,7 +173,7 @@ fi
 
 # Lint (optional)
 if [ "$lint" = 1 ]; then
-  ./gradlew :androidApp:lintDevDebug --continue > "$logs/lint.log" 2>&1
+  ./gradlew :androidApp:lintDevQa --continue > "$logs/lint.log" 2>&1
   report "lint" INFO "$(grep -m1 -o 'Lint found [0-9]* errors' "$logs/lint.log" || echo 'no summary; see log')"
 fi
 

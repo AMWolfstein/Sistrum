@@ -6,8 +6,8 @@ in `/sdcard/Music/SistrumTestCorpus` (FR-071); a device on adb with the screen k
 ## Host (every task)
 
 ```
-./gradlew :androidApp:testDevDebugUnitTest :sharedLogic:testAndroidHostTest
-./gradlew :androidApp:assembleDevDebug
+./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest
+./gradlew :androidApp:assembleDevQa
 .claude/skills/verify-task/scripts/verify.sh --files '<task files>'
 ```
 
