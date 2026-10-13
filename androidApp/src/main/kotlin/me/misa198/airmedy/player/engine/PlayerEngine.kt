@@ -91,7 +91,16 @@ internal interface PlayerEngine : Closeable {
     fun snapCrossfade()
 
     /** Applies to future transitions; a running fade keeps its captured settings. */
-    fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean)
+    fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean = false)
+
+    /**
+     * Prepares [item] on demand and waits at most 300 ms for a session-verified
+     * incoming source. True means the fade started and [item] is current; no
+     * TransitionStarted event is emitted because the caller publishes the switch.
+     * False means the caller must hard-cut (not ready, failed, or setting off).
+     * A running fade is snapped before returning false. Native always returns false.
+     */
+    suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean
 
     /** Sets the focus gain (1.0 or 0.2), ramped inside the engine. */
     fun setFocusGain(gain: Float)

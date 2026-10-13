@@ -886,7 +886,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     `repeatOneCrossfade` to `TransitionSettings`; preference updates de-duplicated (FR-092).
   - Tests: `UT` PlaybackPreferences defaults/round-trip; coordinator repeat-one-off test; `ArabicTranslationCompletenessTest`; `GATE`.
 
-- [ ] T060b [US5] [TESTS-FIRST] Crossfade on skip tests in `AT/player/PlaybackCoordinatorSkipCrossfadeTest.kt` and `AT/player/media3/TransitionControllerSkipTest.kt` {hard} [HIGH-RISK] — **added**
+- [x] T060b [US5] [TESTS-FIRST] Crossfade on skip tests in `AT/player/PlaybackCoordinatorSkipCrossfadeTest.kt` and `AT/player/media3/TransitionControllerSkipTest.kt` {hard} [HIGH-RISK] — **added**
   - Do: every FR-031a rule: fade only while playing and with the setting on and Media3; length clamp 0.5–2 s; snap +
     hard cut when a fade runs; 600 ms debounce; previous past 3 s restarts without fade; target not ready in 300 ms →
     hard cut; queue/session/artwork/stats at fade start as for an automatic fade; setting off → today's hard cut.

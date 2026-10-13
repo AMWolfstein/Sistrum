@@ -34,6 +34,7 @@ internal class FakePlayerEngine(
     var duration: Long = DefaultDurationMs
     var crossfading: Boolean = false
     var beginCrossfadeResult: Boolean = true
+    var crossfadeToResult: Boolean = true
     var failPrepare: Throwable? = null
     var failPreload: Throwable? = null
 
@@ -69,6 +70,8 @@ internal class FakePlayerEngine(
     val seeks = mutableListOf<Long>()
     val crossfades = mutableListOf<Long>()
     val crossfadeSettingsCalls = mutableListOf<Pair<Long, Boolean>>()
+    val crossfadeOnSkipCalls = mutableListOf<Boolean>()
+    val crossfadeToCalls = mutableListOf<Pair<PlaybackItem, Long>>()
     val focusGains = mutableListOf<Float>()
     val normalizationCalls = mutableListOf<NormalizationSettings>()
     val gainCalls = mutableListOf<Pair<ItemGain, ItemGain?>>()
@@ -166,7 +169,19 @@ internal class FakePlayerEngine(
         crossfading = false
     }
 
-    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean) {
+    override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean {
+        crossfadeToCalls += item to durationMs
+        if (!crossfadeToResult) return false
+        preparedItem = item
+        preloadedItem = null
+        duration = durationFor(item)
+        position = 0L
+        crossfading = true
+        return true
+    }
+
+    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean) {
+        crossfadeOnSkipCalls += crossfadeOnSkip
         // LegacyNativeEngine's setter is a no-op. Keep its effect log stable for T015,
         // while recording settings delivery for tests of the shared coordinator path.
         if (kind == EngineKind.Native) {

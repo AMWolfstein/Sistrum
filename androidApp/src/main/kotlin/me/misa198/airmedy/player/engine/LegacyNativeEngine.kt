@@ -183,7 +183,9 @@ internal class LegacyNativeEngine(
 
     override fun snapCrossfade() { port?.snapCrossfade() }
 
-    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean) = Unit
+    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean) = Unit
+
+    override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean = false
 
     override fun setFocusGain(gain: Float) {
         focusGain = gain

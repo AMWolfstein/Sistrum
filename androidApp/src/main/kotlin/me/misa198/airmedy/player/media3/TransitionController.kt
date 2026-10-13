@@ -45,6 +45,11 @@ internal class TransitionController(settings: TransitionSettings) {
     val runningFadeMs: Long? get() = fadeDurationMs
     /** Item B holds (Preparing or Transitioning), else null. */
     val incomingItem: PlaybackItem? get() = incoming
+
+    fun onManualSkip(target: PlaybackItem): List<TransitionCommand> = emptyList() // T060c
+
+    fun onSkipReadyTimeout(): List<TransitionCommand> = emptyList() // T060c
+
     /** New settings; apply to later transitions only, never to a running fade (FR-032). */
     fun updateSettings(settings: TransitionSettings): List<TransitionCommand> {
         this.settings = settings

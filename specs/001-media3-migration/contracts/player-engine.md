@@ -20,8 +20,18 @@ interface PlayerEngine : Closeable {
     fun beginCrossfade(durationMs: Long): Boolean  // false = nothing preloaded or fade running (no-op)
     fun isCrossfading(): Boolean
     fun snapCrossfade()                            // outgoing stops now; incoming continues at full level
-    fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean)  // added T059 (2026-10-13): Media3 schedules B
+    fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean = false)
+                                                   // added T059 (2026-10-13), crossfadeOnSkip T060b: Media3 schedules B
                                                    // from it (ADR-003, FR-033, FR-031a); native: no-op; never alters a running fade
+    suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean
+                                                   // added T060b (FR-031a crossfade on skip): Media3 prepares B with [item]
+                                                   // on demand and starts a [durationMs] fade into it once B is ready and
+                                                   // session-verified, waiting at most 300 ms; returns true when the fade
+                                                   // started (B is then current; no TransitionStarted is emitted: the caller
+                                                   // already moved the queue and publishes the switch itself); false = nothing
+                                                   // changed (not ready in time, B failed, setting off) and the caller hard-cuts.
+                                                   // Called while a fade runs: snaps it and returns false (hard cut).
+                                                   // Native: always false.
 
     fun setFocusGain(gain: Float)                  // 1.0 or 0.2, ramped inside the engine
     fun setDsp(settings: EqualizerSettings)        // 10 bands, preamp, width

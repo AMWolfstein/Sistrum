@@ -512,7 +512,9 @@ internal class Media3Engine(
         if (duration == C.TIME_UNSET) currentSlot?.knownDurationMs ?: 0L else duration
     }
 
-    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean) {
+    override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean = false // T060c
+
+    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean) {
         factory.call {
             transitionSettings = TransitionSettings(durationMs.coerceAtLeast(0L), repeatOneCrossfade = repeatOneCrossfade)
             execute(transition.updateSettings(transitionSettings), fallbackAfterRelease = true)
