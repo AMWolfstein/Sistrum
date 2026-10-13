@@ -13,9 +13,9 @@ internal val Context.enginePreferencesDataStore by preferencesDataStore(name = "
 private val EngineKey = stringPreferencesKey("engine")
 private val DeveloperUnlockedKey = booleanPreferencesKey("developer_unlocked")
 
-/** Exact enum name maps to its kind; null or anything unknown falls back to [EngineKind.Native]. */
+/** Exact enum names keep the saved choice; null, blank, unknown or wrong case defaults to [EngineKind.Media3]. */
 internal fun parseEngineKind(value: String?): EngineKind =
-    EngineKind.values().firstOrNull { it.name == value } ?: EngineKind.Native
+    EngineKind.values().firstOrNull { it.name == value } ?: EngineKind.Media3
 
 /** Persisted engine choice; the coordinator reads it once per engine creation. */
 internal class EngineSelectionPreferences(private val context: Context) {

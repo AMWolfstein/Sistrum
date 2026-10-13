@@ -947,6 +947,11 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 - [x] T062b Remove unused build variants devDebug, prodDebug, prodQa (owner 2026-10-13: "Remove them"); keep devQa (tests), devRelease (daily app), prodRelease (release); host tests and lint move to devQa (`testDevQaUnitTest`, `lintDevQa`); tooling/docs updated in the same commit — **added**
   - Tests: `GATE` (devQa), test count unchanged; assemble devQa + androidTest, devRelease, prodRelease; lint known classes.
 
+- [x] T062c Default engine = Media3 (FR-002 amended 2026-10-13, owner: "Flip default to Media3") — **added**
+  - Do: no saved engine choice (null/unknown) → Media3; a saved `Native` or `Media3` stays; UI initial values follow;
+    tests that pinned the Native default updated with this spec reason. Then a signed `prodRelease` APK for the owner.
+  - Tests: `GATE`; engine-selection tests; device: `.qa` fresh state starts on Media3.
+
 - [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ +20 %, SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
   - CPU (owner, Checkpoint M5 approval 2026-10-08): measure on a **release** build (debug `.qa` numbers: float neutral
     13.7 vs int 7.8 points). If Media3 with crossfade off still costs more than native, optimize, e.g. 16-bit input

@@ -471,7 +471,9 @@ and the daily app's library, statistics and settings are untouched.
   as its first implementation and zero observable behaviour change.
 - **FR-002**: The system MUST offer a hidden developer setting that selects the engine, defaulting to the
   current engine on the migration branch; a change MUST take effect at the next playback start, never
-  mid-track.
+  mid-track. *Amended 2026-10-13 (owner): the default is now the new (Media3) engine on the migration
+  branch too, so the owner can use it daily; the native engine stays selectable in the developer setting
+  until 003. An explicitly saved choice is kept.*
 - **FR-003**: Before any merge into `main`, the default MUST be the new engine, every requirement in
   this spec MUST pass on it, and feature 002 MUST be done (no format lost on `main`).
 - **FR-004**: The playback controller's public operations and observable state streams MUST stay as

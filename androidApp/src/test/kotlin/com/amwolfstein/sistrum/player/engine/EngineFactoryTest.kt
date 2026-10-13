@@ -15,11 +15,14 @@ class EngineFactoryTest {
     }
 
     @Test
-    fun `parseEngineKind falls back to Native for null unknown or wrong case`() {
-        assertEquals(EngineKind.Native, parseEngineKind(null))
-        assertEquals(EngineKind.Native, parseEngineKind(""))
-        assertEquals(EngineKind.Native, parseEngineKind("media3"))
-        assertEquals(EngineKind.Native, parseEngineKind("Exo"))
+    fun `parseEngineKind falls back to Media3 for null unknown or wrong case`() {
+        // FR-002 amendment (2026-10-13): Media3 is the default for an unset or invalid choice.
+        assertEquals(EngineKind.Media3, parseEngineKind(null))
+        assertEquals(EngineKind.Media3, parseEngineKind(""))
+        assertEquals(EngineKind.Media3, parseEngineKind(" \t"))
+        assertEquals(EngineKind.Media3, parseEngineKind("media3"))
+        assertEquals(EngineKind.Media3, parseEngineKind("native"))
+        assertEquals(EngineKind.Media3, parseEngineKind("Exo"))
     }
 
     @Test
@@ -164,11 +167,11 @@ class EngineFactoryTest {
     }
 
     @Test
-    fun `default selection uses the native builder`() = runTest {
+    fun `saved native selection uses the native builder`() = runTest {
         var nativeCalls = 0
         var media3Calls = 0
         val factory = EngineFactory(
-            selection = flowOf(parseEngineKind(null)),
+            selection = flowOf(parseEngineKind("Native")),
             builders = playbackEngineBuilders(
                 native = { nativeCalls++; FakePlayerEngine() },
                 media3 = { media3Calls++; FakePlayerEngine() },
@@ -180,5 +183,24 @@ class EngineFactoryTest {
         assertEquals(EngineKind.Native, engine.kind)
         assertEquals(1, nativeCalls)
         assertEquals(0, media3Calls)
+    }
+
+    @Test
+    fun `no saved choice uses the media3 builder`() = runTest {
+        var nativeCalls = 0
+        var media3Calls = 0
+        val factory = EngineFactory(
+            selection = flowOf(parseEngineKind(null)),
+            builders = playbackEngineBuilders(
+                native = { nativeCalls++; FakePlayerEngine() },
+                media3 = { media3Calls++; FakePlayerEngine().also { it.kind = EngineKind.Media3 } },
+            ),
+        )
+
+        val engine = factory.create()
+
+        assertEquals(EngineKind.Media3, engine.kind)
+        assertEquals(0, nativeCalls)
+        assertEquals(1, media3Calls)
     }
 }

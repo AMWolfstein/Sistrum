@@ -514,7 +514,7 @@ internal fun AppDestinationContent(
                                 val context = LocalContext.current.applicationContext
                                 val preferences = remember { EngineSelectionPreferences(context) }
                                 val engine by preferences.engine
-                                    .collectAsState(initial = EngineKind.Native)
+                                    .collectAsState(initial = EngineKind.Media3)
                                 val scope = rememberCoroutineScope()
                                 DeveloperContent(
                                     engine = engine,
