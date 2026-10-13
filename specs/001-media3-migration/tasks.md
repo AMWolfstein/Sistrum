@@ -982,20 +982,21 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   ffmpeg joins the pair in 1 frame, but the 1→2 join keeps ~511 near-silent frames; find the engine-side cause
   (decoder delay at the item transition) and fix it; `Media3EngineGaplessTest` + harness SC-003 row. {hard} [HIGH-RISK]
 
-- [ ] T062i [TESTS-FIRST] MP3 gapless trim for platform decoders (owner 2026-10-14: "fix in our sink"; device log
-  2026-10-14 moved the fix one layer up, see research/regression-001.md "MP3 join diagnosis") — Media3's `XingFrame`
-  adds 529 (LAME → decoded-PCM convention) to the LAME delay and subtracts it from the padding, but Android's MediaCodec
-  MP3 decoders already compensate their 529-sample delay (the framework passes the raw LAME 576/1344). Host tests:
-  `AT/player/media3/PlatformMp3TrimTest.kt` (expected-fail) for `platformDecoderTrim(format)` (seam in
-  `A/player/media3/PlatformMp3Trim.kt`, no-op until T062j): audio/mpeg with delay ≥ 529 → delay − 529, padding + 529;
-  delay < 529 / unset, other MIME types (FLAC, AAC 2112, audio/mpeg-L2) unchanged. Guards
-  `AT/player/media3/FloatChainAudioSinkGaplessTrimTest.kt` (`FloatChainAudioSinkGaplessTrimGuardTest`): the sink's
-  real join path (configure at the join), D = P = 0, seek flush, final EOS. {hard} [HIGH-RISK]
-- [ ] T062j Implement T062i: `platformDecoderTrim` + a `MediaCodecAudioRenderer` subclass (`onOutputFormatChanged`
-  passes the adjusted format) used by `A/player/media3/Media3PlayerFactory.kt` and `A/analysis/OfflineDecoder.kt`
-  (analysis must keep matching playback). Device: harness MP3 joins ≤ 2 frames, `Media3EngineGaplessTest` MP3 bound
-  tightened from 1152 to 2 frames (spec reason: SC-003, T062h), FLAC joins unchanged, `offlineDecodeMatchesPlaybackCapture`
-  still passes; make T062i pass unmodified. {hard} [HIGH-RISK]
+- [x] T062i [TESTS-FIRST] MP3 gapless trim for the platform decoder (owner 2026-10-14: "fix in our sink"; device log
+  2026-10-14 moved the fix to the extractor/renderer, see research/regression-001.md "MP3 join diagnosis") — Media3's
+  `XingFrame` adds 529 to LAME/Lavf/Lavc delays (subtracts from padding, clamped at 0), but AOSP's MP3 decoder already
+  compensates its 529-sample delay. Provenance-based rule (orchestrator, migration-guard note 2026-10-14): our parse of
+  the file's LAME/Info tag (encoder id, raw delay, raw padding) travels on the Format as a metadata entry; the renderer
+  uses the raw values only for `c2.android.mp3.decoder` / `OMX.google.mp3.decoder`, LAME/Lavf/Lavc encoder ids and no
+  iTunSMPB; everything else keeps Media3's values. Host tests: `AT/player/media3/PlatformMp3TrimTest.kt`
+  (expected-fail + guards) and `AT/player/media3/LameTagParserTest.kt`; seams in `A/player/media3/PlatformMp3Trim.kt`.
+  Sink guards `AT/player/media3/FloatChainAudioSinkGaplessTrimTest.kt`. {hard} [HIGH-RISK]
+- [ ] T062j Implement T062i: LAME tag parse in the MP3 extractor wrapper (`A/player/media3/ProviderExtractorsFactory.kt`),
+  a `MediaCodecAudioRenderer` subclass applying `platformMp3Trim` in `onOutputFormatChanged`, used by
+  `A/player/media3/Media3PlayerFactory.kt` and `A/analysis/OfflineDecoder.kt` (analysis must keep matching playback).
+  Device: harness MP3 joins ≤ 2 frames, `Media3EngineGaplessTest` MP3 bound tightened from 1152 to 2 frames (spec
+  reason: SC-003, T062h), FLAC joins unchanged, `offlineDecodeMatchesPlaybackCapture` still passes; make T062i pass
+  unmodified; add a parser guard for MPEG-2 mono (Xing at offset 13; migration-guard note on T062i). {hard} [HIGH-RISK]
 
 - [ ] T063 {orchestrator} Full regression: `GATE`, `./gradlew :androidApp:lintDevDebug` (only known lint classes), every instrumented class on `.qa` one at a time (known failures listed in CLAUDE.md only), SC-001, SC-010 diff check; results in `specs/001-media3-migration/research/regression-001.md`
 - [ ] T064 {orchestrator} Docs: `THIRD-PARTY-NOTICES` completeness (Media3, Choir, Rhythm), CLAUDE.md "Playback" section (seam, switch, `.qa`), `quickstart.md`, `HANDOFF.md` (default stays Native until 002 is done; FR-003 flip is a pre-merge task)
