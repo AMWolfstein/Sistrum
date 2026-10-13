@@ -66,11 +66,51 @@ internal class GainProcessor : BaseAudioProcessor() {
     /** Curve frames still to process (held offset frames included); 0 with no fade, after the end, after a snap. */
     val fadeRemainingFrames: Long get() = publishedFadeRemainingFrames
 
+    /** Read-only processing clock, reset on flush; no changes to gain or fade behaviour. */
+    internal data class ProcessingPosition(
+        val frames: Long,
+        val sampleRate: Int,
+        val positionOffsetUs: Long,
+        val fadeStartFrame: Long = 0L,
+        val fadeGeneration: Long = 0L,
+    )
+    // Written only by the audio thread under a sequence counter (odd while writing), so a reader gets a consistent
+    // snapshot without the audio thread allocating per buffer.
+    @Volatile private var clockSequence = 0L
+    @Volatile private var clockFrames = 0L
+    @Volatile private var clockSampleRate = 0
+    @Volatile private var clockPositionOffsetUs = 0L
+    @Volatile private var clockFadeStartFrame = 0L
+    @Volatile private var clockFadeGeneration = 0L
+
+    val processingPosition: ProcessingPosition
+        get() {
+            while (true) {
+                val before = clockSequence
+                if ((before and 1L) == 0L) {
+                    val position = ProcessingPosition(clockFrames, clockSampleRate, clockPositionOffsetUs,
+                        clockFadeStartFrame, clockFadeGeneration)
+                    if (clockSequence == before) return position
+                }
+                Thread.yield()
+            }
+        }
+
+    private inline fun writeClock(block: () -> Unit) {
+        clockSequence++
+        block()
+        clockSequence++
+    }
+
     private fun observeFadeRequest() {
         val request = fadeRequest.get() ?: return
         // Identity makes identical successive startFade calls restart the curve too.
         if (request === observedFadeRequest || inputAudioFormat.sampleRate < 1) return
         observedFadeRequest = request
+        writeClock {
+            clockFadeStartFrame = clockFrames
+            clockFadeGeneration++
+        }
         fadeDirection = request.direction
         fadeTotalFrames = (request.durationMs * inputAudioFormat.sampleRate / 1000L).coerceAtLeast(1L)
         fadeFrame = if (request.snapped) fadeTotalFrames else -request.startOffsetFrames
@@ -117,6 +157,12 @@ internal class GainProcessor : BaseAudioProcessor() {
     }
 
     override fun onFlush(streamMetadata: AudioProcessor.StreamMetadata) {
+        writeClock {
+            clockFrames = 0L
+            clockSampleRate = inputAudioFormat.sampleRate
+            clockPositionOffsetUs = streamMetadata.positionOffsetUs
+            clockFadeStartFrame = 0L
+        }
         val target = targetGain
         observedTarget = target
         appliedGain = target.toDouble()
@@ -164,6 +210,7 @@ internal class GainProcessor : BaseAudioProcessor() {
                 }
             }
         }
+        writeClock { clockFrames += frames }
         publishFadeRemainingFrames()
         // A finished fade-in holds unity, so the player gets the bulk-copy path back.
         if (fadeDirection == FadeDirection.In && fadeFrame >= fadeTotalFrames) fadeDirection = null

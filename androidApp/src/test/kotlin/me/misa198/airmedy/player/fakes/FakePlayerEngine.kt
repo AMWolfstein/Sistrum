@@ -65,6 +65,7 @@ internal class FakePlayerEngine(
     val calls = mutableListOf<String>()
     val seeks = mutableListOf<Long>()
     val crossfades = mutableListOf<Long>()
+    val crossfadeSettingsCalls = mutableListOf<Pair<Long, Boolean>>()
     val focusGains = mutableListOf<Float>()
     val normalizationCalls = mutableListOf<NormalizationSettings>()
     val gainCalls = mutableListOf<Pair<ItemGain, ItemGain?>>()
@@ -153,6 +154,11 @@ internal class FakePlayerEngine(
     override fun snapCrossfade() {
         calls += "snapCrossfade"
         crossfading = false
+    }
+
+    override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean) {
+        calls += "setCrossfade"
+        crossfadeSettingsCalls += durationMs to repeatOneCrossfade
     }
 
     override fun setFocusGain(gain: Float) {

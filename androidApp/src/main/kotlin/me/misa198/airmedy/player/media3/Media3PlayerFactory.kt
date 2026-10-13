@@ -8,6 +8,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
@@ -52,6 +53,7 @@ import me.misa198.airmedy.player.dsp.StereoWidthProcessor
 internal interface StreamGainHook {
     fun onGainProcessor(processor: GainProcessor)
     fun onStreamStart(config: AudioSink.AudioSinkConfig)
+    fun onSinkFlushed() = Unit
 }
 
 private val gainUnavailableLogged = AtomicBoolean(false)
@@ -100,12 +102,15 @@ internal class Media3PlayerFactory(
      * comparison tests.
      */
     private val floatSink: Boolean = true,
+    /** Optional test tap directly after normalization/fade and before width/EQ/preamp. */
+    private val afterGainProcessors: () -> Array<AudioProcessor> = { emptyArray() },
     /** Extra processors appended AFTER the DSP chain (test taps). */
     private val audioProcessors: () -> Array<AudioProcessor> = { emptyArray() },
 ) {
 
     private val looper: Looper = playbackThread.looper
     private val handler = Handler(looper)
+    private val createdPlayerCount = AtomicInteger(0)
     private val livePlayerCount = AtomicInteger(0)
     private val liveDspChainMap = ConcurrentHashMap<ExoPlayer, DspChain>()
 
@@ -135,6 +140,8 @@ internal class Media3PlayerFactory(
 
     /** Number of players created by [newPlayer] and not yet released. */
     val livePlayers: Int get() = livePlayerCount.get()
+
+    internal val createdPlayersForTest: Int get() = createdPlayerCount.get()
 
     /** Number of per-player DSP chains registered by [newPlayer] and not yet released. */
     internal val liveDspChains: Int get() = liveDspChainMap.size
@@ -228,6 +235,10 @@ internal class Media3PlayerFactory(
                             streamGainHook?.onStreamStart(config)
                             super.configure(config)
                         }
+                        override fun flush() {
+                            super.flush()
+                            streamGainHook?.onSinkFlushed()
+                        }
                     }
                 }
                 val inner = DefaultAudioSink.Builder(context)
@@ -238,9 +249,15 @@ internal class Media3PlayerFactory(
                         MeasuringAudioOutputProvider(AudioTrackAudioOutputProvider.Builder(context).build(), mixerProbe)
                     )
                     .build()
-                return FloatChainAudioSink(inner, chain.getAudioProcessors().toList(), streamGainHook?.let { hook ->
+                val floatAudioSink = FloatChainAudioSink(inner, chain.getAudioProcessors().toList(), streamGainHook?.let { hook ->
                     { config -> hook.onStreamStart(config) }
                 })
+                return object : ForwardingAudioSink(floatAudioSink) {
+                    override fun flush() {
+                        super.flush()
+                        streamGainHook?.onSinkFlushed()
+                    }
+                }
             }
 
             override fun buildAudioRenderers(
@@ -287,6 +304,7 @@ internal class Media3PlayerFactory(
                 chain.apply(dspConfig)
             }
         }
+        createdPlayerCount.incrementAndGet()
         livePlayerCount.incrementAndGet()
         return player
     }
@@ -341,7 +359,8 @@ internal class Media3PlayerFactory(
         val equalizer = EqualizerProcessor()
         val preamp = PreampProcessor()
         return DspChain(
-            arrayOf<AudioProcessor>(gain, width, equalizer, preamp) + extraProcessors,
+            arrayOf<AudioProcessor>(gain) + afterGainProcessors() +
+                arrayOf<AudioProcessor>(width, equalizer, preamp) + extraProcessors,
             width,
             equalizer,
             preamp,

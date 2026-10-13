@@ -90,6 +90,9 @@ internal interface PlayerEngine : Closeable {
     /** Stops the outgoing source immediately; the incoming source continues at full level. */
     fun snapCrossfade()
 
+    /** Applies to future transitions; a running fade keeps its captured settings. */
+    fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean)
+
     /** Sets the focus gain (1.0 or 0.2), ramped inside the engine. */
     fun setFocusGain(gain: Float)
 

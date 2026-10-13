@@ -20,6 +20,8 @@ interface PlayerEngine : Closeable {
     fun beginCrossfade(durationMs: Long): Boolean  // false = nothing preloaded or fade running (no-op)
     fun isCrossfading(): Boolean
     fun snapCrossfade()                            // outgoing stops now; incoming continues at full level
+    fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean)  // added T059 (2026-10-13): Media3 schedules B
+                                                   // from it (ADR-003, FR-033, FR-031a); native: no-op; never alters a running fade
 
     fun setFocusGain(gain: Float)                  // 1.0 or 0.2, ramped inside the engine
     fun setDsp(settings: EqualizerSettings)        // 10 bands, preamp, width

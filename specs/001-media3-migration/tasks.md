@@ -859,7 +859,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     crossfade and for fades on pause/skip (ADR-003 "S1 result").
   - Tests: `EqualPowerFadeTest` and `GainRampTest` pass without modifying them; `GATE`.
 
-- [ ] T059 [US5] Dual-player crossfade in `A/player/media3/Media3Engine.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AI/player/media3/Media3CrossfadeTest.kt` {hard} [HIGH-RISK]
+- [x] T059 [US5] Dual-player crossfade in `A/player/media3/Media3Engine.kt`, `A/player/media3/Media3PlayerFactory.kt` with `AI/player/media3/Media3CrossfadeTest.kt` {hard} [HIGH-RISK]
   - Do: B lifecycle driven by `TransitionController`; shared session id + identical attributes; `beginCrossfade`
     starts B, swaps roles, emits one `TransitionStarted`; `snapCrossfade` stops outgoing and flushes incoming at its
     position; B released after the fade; port of Rhythm `RhythmPlayerEngine`/`TransitionController` mechanics
