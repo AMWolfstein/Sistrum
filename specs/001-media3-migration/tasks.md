@@ -970,7 +970,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   source/renderer failures with the recorded provider (none → "none") and format (`audioFormat` mime, else known mime,
   else extension); `PlaybackCoordinator` routes it through the `handleEngineError` path. Device: SC-014 harness method
   green (`wma_v2.wma` provider "none"), failures appear in the decode-failure log. Make T062d pass unmodified. {hard} [HIGH-RISK]
-- [ ] T062f Spike: SC-006 start-latency breakdown on the release-like `.qa` build (player build, limiter check,
+- [x] T062f Spike: SC-006 start-latency breakdown on the release-like `.qa` build (player build, limiter check,
   prepare → READY, play → first position, AudioTrack start) and the effect of candidate fixes (reuse the player across
   starts, smaller start buffer / `bufferForPlaybackMs`, AudioTrack buffer size). Measurement code in
   `AI/regression/Regression001MeasurementTest.kt` only; results + recommendation in `research/regression-001.md`;

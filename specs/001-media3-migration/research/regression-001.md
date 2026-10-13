@@ -56,6 +56,41 @@ Per file (debug): ALAC 139 ms and WAV 163 ms are the fastest on Media3 (WAV is t
 (`Media3Engine.prepare` → `factory.newPlayer`), checks the limiter session and waits for READY before playing; the
 breakdown is not measured yet (follow-up task).
 
+## SC-006 breakdown (T062f spike, release-like `.qa`, 5 runs per file, medians; files Opus / FLAC / MP3)
+
+Method `sc006StartBreakdown`. "direct" = the same steps as `Media3Engine.prepare` driven from the test with listeners
+(adds thread hops, so its total is higher than the engine's own).
+
+| Variant | Total to position > 0 | READY | play → position > 0 | Other |
+|---|---|---|---|---|
+| `engine_fresh` (what the app does: new engine per tap) | **200 ms** (Opus 206, FLAC 193, MP3 200) | 152 | 129 | limiter 13 ms, player build 4 ms, session check < 1 ms; AudioTrack is created before `play` |
+| `engine_warm` (second start on the same engine) | 154 ms (Opus 243, FLAC 154, MP3 150) | — | — | |
+| `exo_plain` (stock `ExoPlayer.Builder`, no DSP, no limiter, default sink) | **257 ms** | 129 | 119 | |
+| `exo_plain_lowbuf` (load control 500/2000/50/50) | 249 ms | 117 | 123 | no gain |
+| `factory_nodsp` (our factory, DSP chain off, direct drive) | 289 ms | 150 | 139 | |
+
+Findings:
+
+1. Our own additions (limiter session, DSP chain, float sink, session check) cost ~15–20 ms. A stock ExoPlayer is not
+   faster than our engine. Smaller load-control buffers do nothing. ~200 ms is ExoPlayer's own floor on this device:
+   ~130–150 ms to READY (extractor + MediaCodec set-up + first buffers), ~120 ms from `play` until the AudioTrack's
+   played position moves.
+2. **The SC-006 comparison is not like for like.** Native's `positionMs()` counts frames handed to AAudio in the data
+   callback (`ffmpeg_player.cpp:299`, `rendered_frames`), with AAudio in `POWER_SAVING` (deep-buffer) mode, so native's
+   ~75 ms is "first buffer handed over", not "heard". Media3's position is the AudioTrack's played position. Native's
+   true time-to-sound is ~75 ms + its deep-buffer output latency (not measurable without changing native code, which
+   is frozen outside migration tasks). The real audible gap is therefore smaller than 2.1–3.7×, but Media3 is very
+   likely still slower.
+3. Remaining levers, none cheap: keep one engine/player alive across taps (warm start ~150 ms for FLAC/MP3, Opus not
+   better), pre-prepare the tapped item (only possible when it's the preloaded next), or a lower-latency output path
+   (AudioTrack performance mode / offload are not options with the float DSP chain and shared session).
+
+Recommendation (orchestrator): SC-006's "≤ +20 % vs native" can't be met by any ExoPlayer configuration measured here.
+Owner decision needed: (a) restate SC-006 as an absolute target (e.g. ≤ 250 ms tap-to-position on the release build,
+which Media3 meets: 200 ms) or "no worse than stock ExoPlayer"; or (b) keep it and add an engine-reuse task (warm
+engine across taps; expected ~150 ms, still ~2× native's handover number); or (c) first measure audible latency fairly
+on both engines (acoustic loopback or AAudio timestamps, the latter needs a native change).
+
 ## SC-014 failure attribution (Media3, every visible corpus file, prepare paused + 1 s play)
 
 44 OK, 4 FAIL — all four fail inside `prepare()`:
@@ -94,6 +129,6 @@ conversion for 16-bit input with a neutral chain). → follow-up task.
 | Criterion | Result |
 |---|---|
 | SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL, engine-side |
-| SC-006 | FAIL, 2.1–3.7× native on the release-like build |
+| SC-006 | FAIL as specified (2.1–3.7× native's handover time); ExoPlayer floor ~200 ms, stock ExoPlayer 257 ms; metric not like for like — **owner decision** (T062f) |
 | SC-013 | NOT RUN (1 h, owner); short runs predict FAIL (crossfade off ≈ 2× native CPU) |
 | SC-014 | FAIL at measurement → **PASS after T062e** (2026-10-14): all 4 prepare-time failures attributed (WMA provider "none"), logged and skipped by the coordinator; 44 OK |
