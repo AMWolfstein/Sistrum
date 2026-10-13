@@ -108,7 +108,7 @@ class PlaybackCoordinatorRepeatOneCrossfadeTest {
     }
 
     @Test
-    fun `identical writes and skip only changes make no engine calls on both engines`() = runTest {
+    fun `identical writes make no engine calls and a skip only change makes one setCrossfade call`() = runTest {
         EngineKind.entries.forEach { kind ->
             val h = start(this, kind, false)
             val calls = h.engine.calls.toList()
@@ -118,8 +118,11 @@ class PlaybackCoordinatorRepeatOneCrossfadeTest {
             h.coordinator.onPlaybackSettings(4, true, false, true)
             assertTrue(h.coordinator.crossfadeOnSkip)
             repeat(2) { h.coordinator.onPlaybackSettings(4, true, false, true) }
-            assertEquals(calls, h.engine.calls)
-            assertEquals(settings, h.engine.crossfadeSettingsCalls)
+            // T060b (contract): the skip flag reaches the engine through exactly one setCrossfade call.
+            val setCrossfadeLog = if (kind == EngineKind.Native) emptyList() else listOf("setCrossfade")
+            assertEquals(calls + setCrossfadeLog, h.engine.calls)
+            assertEquals(settings + (4_000L to false), h.engine.crossfadeSettingsCalls)
+            assertEquals(true, h.engine.crossfadeOnSkipCalls.last())
             assertNull(h.flows.artworkCrossfade.value)
         }
     }
@@ -138,9 +141,11 @@ class PlaybackCoordinatorRepeatOneCrossfadeTest {
             val settings = h.engine.crossfadeSettingsCalls.toList()
             h.coordinator.onPlaybackSettings(4, true)
             h.coordinator.onPlaybackSettings(4, true, crossfadeOnSkip = true)
+            // The running fade and its artwork stay; the skip flag is delivered for later skips (T060b contract).
             assertEquals(artwork, h.flows.artworkCrossfade.value)
-            assertEquals(calls, h.engine.calls)
-            assertEquals(settings, h.engine.crossfadeSettingsCalls)
+            val setCrossfadeLog = if (kind == EngineKind.Native) emptyList() else listOf("setCrossfade")
+            assertEquals(calls + setCrossfadeLog, h.engine.calls)
+            assertEquals(settings + (4_000L to true), h.engine.crossfadeSettingsCalls)
         }
     }
 }

@@ -19,7 +19,7 @@ internal sealed interface TransitionCommand {
     data class PrepareIncoming(val item: PlaybackItem) : TransitionCommand
     /** Release player B before any fade started with it. */
     data object ReleaseIncoming : TransitionCommand
-    /** Start B, swap roles (B becomes current), start both curves, emit one TransitionStarted. */
+    /** Start B, swap roles (B becomes current), start both curves; the executor owns publication. */
     data class StartFade(val durationMs: Long) : TransitionCommand
     /** Fallback when B is not ready at fade start: append [item] to A's playlist (gapless, no silence). */
     data class AppendGapless(val item: PlaybackItem) : TransitionCommand
@@ -37,6 +37,7 @@ internal class TransitionController(settings: TransitionSettings) {
     private var fadeDurationMs: Long? = null
     private var incoming: PlaybackItem? = null
     private var incomingReady = false
+    private var skipDurationMs: Long? = null
     // The incoming item that failed to prepare; not retried while it stays the next item.
     private var suppressedTrackId: String? = null
 
@@ -46,14 +47,36 @@ internal class TransitionController(settings: TransitionSettings) {
     /** Item B holds (Preparing or Transitioning), else null. */
     val incomingItem: PlaybackItem? get() = incoming
 
-    fun onManualSkip(target: PlaybackItem): List<TransitionCommand> = emptyList() // T060c
+    fun onManualSkip(target: PlaybackItem): List<TransitionCommand> {
+        if (phase == TransitionPhase.Transitioning) return snapFade() + TransitionCommand.HardCut(target)
+        if (!settings.crossfadeOnManualSkip || settings.crossfadeMs <= 0L) {
+            val commands = if (phase == TransitionPhase.Preparing) releaseIncoming() else {
+                reset()
+                emptyList()
+            }
+            return commands + TransitionCommand.HardCut(target)
+        }
+        val reuse = phase == TransitionPhase.Preparing && incoming == target
+        val commands = if (phase == TransitionPhase.Preparing && !reuse) releaseIncoming() else emptyList()
+        skipDurationMs = settings.crossfadeMs.coerceIn(500L, 2_000L)
+        suppressedTrackId = null
+        incoming = target
+        currentPhase = TransitionPhase.Preparing
+        if (reuse) return if (incomingReady) onIncomingReady() else emptyList()
+        incomingReady = false
+        return commands + TransitionCommand.PrepareIncoming(target)
+    }
 
-    fun onSkipReadyTimeout(): List<TransitionCommand> = emptyList() // T060c
+    fun onSkipReadyTimeout(): List<TransitionCommand> {
+        if (phase != TransitionPhase.Preparing || skipDurationMs == null) return emptyList()
+        val target = checkNotNull(incoming)
+        return releaseIncoming() + TransitionCommand.HardCut(target)
+    }
 
     /** New settings; apply to later transitions only, never to a running fade (FR-032). */
     fun updateSettings(settings: TransitionSettings): List<TransitionCommand> {
         this.settings = settings
-        if (phase == TransitionPhase.Preparing && settings.crossfadeMs == 0L) {
+        if (phase == TransitionPhase.Preparing && skipDurationMs == null && settings.crossfadeMs == 0L) {
             return releaseIncoming()
         }
         return emptyList()
@@ -79,7 +102,10 @@ internal class TransitionController(settings: TransitionSettings) {
     }
 
     fun onIncomingReady(): List<TransitionCommand> {
-        if (phase == TransitionPhase.Preparing) incomingReady = true
+        if (phase == TransitionPhase.Preparing) {
+            incomingReady = true
+            skipDurationMs?.let { return beginFade(it) }
+        }
         return emptyList()
     }
     /** The coordinator decided the fade starts now with [durationMs] (already clamped). */
@@ -103,7 +129,9 @@ internal class TransitionController(settings: TransitionSettings) {
 
     fun snap(reason: SnapReason): List<TransitionCommand> = when (phase) {
         TransitionPhase.Transitioning -> snapFade()
-        TransitionPhase.Preparing -> if (reason == SnapReason.QueueEdit || reason == SnapReason.Stop) {
+        TransitionPhase.Preparing -> if (skipDurationMs != null) {
+            onSkipReadyTimeout()
+        } else if (reason == SnapReason.QueueEdit || reason == SnapReason.Stop) {
             releaseIncoming()
         } else {
             emptyList()
@@ -128,6 +156,7 @@ internal class TransitionController(settings: TransitionSettings) {
 
     fun onIncomingError(): List<TransitionCommand> {
         if (phase != TransitionPhase.Preparing) return emptyList()
+        if (skipDurationMs != null) return onSkipReadyTimeout()
         suppressedTrackId = checkNotNull(incoming).trackId
         return releaseIncoming()
     }
@@ -150,5 +179,6 @@ internal class TransitionController(settings: TransitionSettings) {
         incoming = null
         incomingReady = false
         fadeDurationMs = null
+        skipDurationMs = null
     }
 }

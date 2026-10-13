@@ -23,6 +23,8 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.delay
@@ -126,15 +128,28 @@ internal class Media3Engine(
     private var transitionStepper: Runnable? = null
     private var incomingDeadlineMs = 0L
     private var incomingVerified = false
+    // Present throughout crossfadeTo's suspended readiness wait, including listener callbacks.
+    private var skipRequestDurationMs: Long? = null
+    private var skipReadyDeadlineMs = 0L
+    private var skipFadeStarted = false
+    // The controller has accepted a ready skip, but the audible fade waits for its first B calibration.
+    private var pendingSkipFadeMs: Long? = null
+    private var skipWarmupDeadlineMs = 0L
     private var sessionDeadlineMs = 0L
     // Output start latency (play call → the audible clock leaves its start position), measured on every start of
     // a player and used to time the incoming player's play call against the outgoing lead.
     private var startLatencyMs = DEFAULT_START_LATENCY_MS
+    // A's first start is not representative of a prerolled B on an already-active session.
+    private var incomingStartLatencyMs: Long? = null
     private var startProbePlayer: ExoPlayer? = null
+    private var startProbeIncoming = false
     private var startProbeBaseMs = 0L
     private var startProbeAtMs = 0L
     private var startProbeSumMs = 0L
     private var startProbeSamples = 0
+    private var incomingWarmup: Slot? = null
+    private var incomingWarmupComplete: CountDownLatch? = null
+    private var incomingWarmupAttempted = false
     private var incomingStart: Runnable? = null
     private var fadeNotBeforeMs = 0L
     private var fadeDrainDeadlineMs = 0L
@@ -179,6 +194,7 @@ internal class Media3Engine(
         var processor: GainProcessor? = null
             private set
         private var fadeAfterFlushMs: Long? = null
+        private var incomingHold = false
         private var loggedDecoderPeriod: MediaSource.MediaPeriodId? = null
         private var decoderLogged = false
 
@@ -191,7 +207,17 @@ internal class Media3Engine(
         fun cancelFadeAfterFlush() { fadeAfterFlushMs = null }
 
         @Synchronized
+        fun holdIncoming() {
+            incomingHold = true
+            processor?.startFade(FadeDirection.In, Long.MAX_VALUE / 768_000L)
+        }
+
+        @Synchronized
+        fun isIncomingHeld(): Boolean = incomingHold && (processor?.fadeRemainingFrames ?: 0L) > 0L
+
+        @Synchronized
         fun fadeInAfterFlush(durationMs: Long) {
+            incomingHold = false
             fadeAfterFlushMs = durationMs
         }
 
@@ -426,22 +452,39 @@ internal class Media3Engine(
         }
     }
 
-    private fun armStartProbe(p: ExoPlayer) {
+    private fun armStartProbe(p: ExoPlayer, incoming: Boolean = false) {
+        stopIncomingWarmup()
         startProbePlayer = p
+        startProbeIncoming = incoming
         startProbeBaseMs = p.currentPosition.coerceAtLeast(0L)
         startProbeAtMs = SystemClock.elapsedRealtime()
         startProbeSumMs = 0L
         startProbeSamples = 0
+        // Sample from the first moments of output, like every start: a tick already posted at the 250 ms position
+        // cadence would take the first samples late, after the clock has resynchronised, and skew the estimate.
+        transitionStepper?.let { transitionHandler?.removeCallbacks(it) }
+        transitionStepper = null
+        scheduleTransitionTick()
     }
 
     /** Extrapolates the audible clock back to its start position; averages the first few samples after it moves. */
     private fun sampleStartProbe() {
         val p = startProbePlayer ?: return
+        if (incomingWarmup != null && player?.isPlaying != true) {
+            stopIncomingWarmup()
+            return
+        }
+        if (SystemClock.elapsedRealtime() - startProbeAtMs >= START_PROBE_TIMEOUT_MS) {
+            stopIncomingWarmup()
+            startProbePlayer = null
+            return
+        }
         if (!p.isPlaying) return
         val now = SystemClock.elapsedRealtime()
         val advanced = p.currentPosition - startProbeBaseMs
         if (advanced <= 1L) return
         if (advanced > START_PROBE_MAX_ADVANCE_MS) {
+            stopIncomingWarmup()
             startProbePlayer = null
             return
         }
@@ -449,12 +492,49 @@ internal class Media3Engine(
         startProbeSamples++
         if (startProbeSamples < START_PROBE_SAMPLES) return
         val latency = startProbeSumMs / startProbeSamples
-        if (latency in 0L..MAX_START_LATENCY_MS) startLatencyMs = latency
+        Log.d("Media3Engine", "start probe latencyMs=$latency incoming=$startProbeIncoming")
+        if (latency in 0L..MAX_START_LATENCY_MS) {
+            if (startProbeIncoming) incomingStartLatencyMs = latency else startLatencyMs = latency
+        }
+        stopIncomingWarmup()
         startProbePlayer = null
+    }
+
+    private fun startIncomingWarmup(slot: Slot) {
+        if (incomingWarmupAttempted || (skipRequestDurationMs != null && pendingSkipFadeMs == null) ||
+            player?.isPlaying != true ||
+            !slot.gain.isIncomingHeld()
+        ) return
+        incomingWarmupAttempted = true
+        armStartProbe(slot.p, incoming = true)
+        incomingWarmup = slot
+        incomingWarmupComplete = CountDownLatch(1)
+        // Only the held gain curve reaches the sink; this start never arms OutputStarted or swaps slots.
+        slot.p.playWhenReady = true
+    }
+
+    private fun stopIncomingWarmup() {
+        val slot = incomingWarmup ?: return
+        incomingWarmup = null
+        if (startProbePlayer === slot.p) startProbePlayer = null
+        slot.p.playWhenReady = false
+        incomingWarmupComplete?.countDown()
+        incomingWarmupComplete = null
+    }
+
+    private fun cancelPendingSkipFade() {
+        if (pendingSkipFadeMs == null) return
+        pendingSkipFadeMs = null
+        stopIncomingWarmup()
+        // No curves or role swap happened: settle the accepted controller command without snapping A.
+        execute(transition.onFadeComplete())
+        releaseIncoming()
     }
 
     override fun pause() {
         factory.call {
+            cancelPendingSkipFade()
+            stopIncomingWarmup()
             execute(transition.snap(SnapReason.Pause))
             startProbePlayer = null
             val p = player ?: return@call
@@ -468,6 +548,8 @@ internal class Media3Engine(
 
     override fun seekTo(positionMs: Long) {
         factory.call {
+            cancelPendingSkipFade()
+            stopIncomingWarmup()
             execute(transition.snap(SnapReason.Seek))
             startProbePlayer = null
             val p = player ?: return@call
@@ -512,11 +594,50 @@ internal class Media3Engine(
         if (duration == C.TIME_UNSET) currentSlot?.knownDurationMs ?: 0L else duration
     }
 
-    override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean = false // T060c
+    override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean {
+        val deadline = SystemClock.elapsedRealtime() + 300L
+        val requested = factory.call {
+            if (closed || !prepared || player == null) return@call false
+            stopIncomingWarmup()
+            skipRequestDurationMs = durationMs
+            skipReadyDeadlineMs = deadline
+            skipFadeStarted = false
+            pendingNext = null
+            player?.let { clearPreloadedOnLooper(it) }
+            execute(transition.onManualSkip(item))
+            true
+        }
+        if (!requested) return false
+        try {
+            while (true) {
+                val result = factory.call {
+                    if (transition.phase == TransitionPhase.Preparing && SystemClock.elapsedRealtime() >= deadline) {
+                        execute(transition.onSkipReadyTimeout())
+                    } else {
+                        checkIncomingReady()
+                    }
+                    when {
+                        skipFadeStarted -> true
+                        transition.phase != TransitionPhase.Preparing && pendingSkipFadeMs == null -> false
+                        else -> null
+                    }
+                }
+                if (result != null) return result
+                delay(10L)
+            }
+        } finally {
+            factory.call {
+                cancelPendingSkipFade()
+                execute(transition.onSkipReadyTimeout())
+                skipRequestDurationMs = null
+            }
+        }
+    }
 
     override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean) {
         factory.call {
-            transitionSettings = TransitionSettings(durationMs.coerceAtLeast(0L), repeatOneCrossfade = repeatOneCrossfade)
+            transitionSettings = TransitionSettings(durationMs.coerceAtLeast(0L), repeatOneCrossfade = repeatOneCrossfade,
+                crossfadeOnManualSkip = crossfadeOnSkip)
             execute(transition.updateSettings(transitionSettings), fallbackAfterRelease = true)
             if (transitionSettings.crossfadeMs == 0L && transition.phase != TransitionPhase.Transitioning) {
                 pendingNext?.let { appendGapless(it) }
@@ -529,18 +650,35 @@ internal class Media3Engine(
         }
     }
 
-    override fun beginCrossfade(durationMs: Long): Boolean = factory.call {
-        if (transition.phase != TransitionPhase.Preparing) return@call false
-        checkIncomingReady()
-        val commands = transition.beginFade(durationMs)
-        execute(commands)
-        commands.any { it is TransitionCommand.StartFade }
+    override fun beginCrossfade(durationMs: Long): Boolean {
+        val warmup = factory.call {
+            if (transition.phase == TransitionPhase.Preparing) checkIncomingReady()
+            incomingWarmupComplete?.let { it to Looper.myLooper() }
+        }
+        // Normally B warms up in the pre-buffer window. An immediate automatic fade may need the remaining
+        // samples first; only its caller may wait, never the looper that samples and pauses B.
+        if (warmup != null && Looper.myLooper() != warmup.second) {
+            warmup.first.await(START_PROBE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        }
+        return factory.call {
+            if (transition.phase != TransitionPhase.Preparing) return@call false
+            checkIncomingReady()
+            val commands = transition.beginFade(durationMs)
+            execute(commands)
+            commands.any { it is TransitionCommand.StartFade }
+        }
     }
 
-    override fun isCrossfading(): Boolean = factory.call { transition.phase == TransitionPhase.Transitioning }
+    override fun isCrossfading(): Boolean = factory.call {
+        transition.phase == TransitionPhase.Transitioning && outgoingSlot != null
+    }
 
     override fun snapCrossfade() {
-        factory.call { execute(transition.snap(SnapReason.Pause)) }
+        factory.call {
+            cancelPendingSkipFade()
+            stopIncomingWarmup()
+            execute(transition.snap(SnapReason.Pause))
+        }
     }
 
     override fun setFocusGain(gain: Float) {
@@ -599,6 +737,8 @@ internal class Media3Engine(
 
     private fun releaseCurrentPlayer() {
         factory.call {
+            cancelPendingSkipFade()
+            stopIncomingWarmup()
             execute(transition.snap(SnapReason.Stop))
             cancelIncomingStart()
             startProbePlayer = null
@@ -645,11 +785,29 @@ internal class Media3Engine(
             is TransitionCommand.PrepareIncoming -> prepareIncoming(command.item)
             TransitionCommand.ReleaseIncoming -> {
                 releaseIncoming()
-                if (fallbackAfterRelease) pendingNext?.let { appendGapless(it) }
+                if (fallbackAfterRelease && skipRequestDurationMs == null &&
+                    commands.none { it is TransitionCommand.HardCut }
+                ) pendingNext?.let { appendGapless(it) }
             }
             is TransitionCommand.AppendGapless -> appendGapless(command.item)
-            is TransitionCommand.StartFade -> startFade(command.durationMs)
+            is TransitionCommand.StartFade -> {
+                val durationMs = skipRequestDurationMs ?: command.durationMs
+                if (skipRequestDurationMs != null && incomingStartLatencyMs == null) {
+                    pendingSkipFadeMs = durationMs
+                    skipWarmupDeadlineMs = SystemClock.elapsedRealtime() + SKIP_WARMUP_TIMEOUT_MS
+                    // A previous automatic warm-up may have been interrupted before it measured anything.
+                    incomingWarmupAttempted = false
+                    incomingSlot?.let { startIncomingWarmup(it) }
+                } else {
+                    startFade(durationMs)
+                    if (skipRequestDurationMs != null) skipFadeStarted = true
+                }
+            }
             TransitionCommand.SnapFade -> {
+                if (pendingSkipFadeMs != null) {
+                    cancelPendingSkipFade()
+                    continue
+                }
                 cancelIncomingStart()
                 outgoingSlot?.p?.stop()
                 streamGain?.cancelFadeAfterFlush()
@@ -668,7 +826,7 @@ internal class Media3Engine(
                 }
             }
             TransitionCommand.ReleaseOutgoing -> releaseOutgoing()
-            is TransitionCommand.HardCut -> Unit // T060 owns manual next/previous policy.
+            is TransitionCommand.HardCut -> Unit // Caller hard-cuts after crossfadeTo returns false; never start audio here.
         }
     }
 
@@ -677,7 +835,7 @@ internal class Media3Engine(
             val gain = PlayerStreamGain(checkNotNull(gainResolver), normalizationSettings, item)
             val p = factory.newPlayer(gain)
             // Paused preroll is silent; the actual incoming curve is armed on the start flush.
-            gain.processor?.startFade(FadeDirection.In, Long.MAX_VALUE / 48_000L)
+            gain.holdIncoming()
             val slot = Slot(p, item, gain)
             incomingSlot = slot
             p.addAnalyticsListener(gain)
@@ -688,10 +846,11 @@ internal class Media3Engine(
             p.playWhenReady = false
             incomingDeadlineMs = SystemClock.elapsedRealtime() + PREPARE_TIMEOUT_MS
             incomingVerified = false
+            incomingWarmupAttempted = false
             sessionDeadlineMs = 0L
             p.prepare()
         } catch (error: Throwable) {
-            Log.w("Media3Engine", "Incoming preparation failed; using gapless", error)
+            Log.w("Media3Engine", "Incoming preparation failed", error)
             execute(transition.onIncomingError(), fallbackAfterRelease = true)
         }
     }
@@ -699,15 +858,39 @@ internal class Media3Engine(
     /** Non-blocking equivalent of prepare's shared-session verification, before B may start. */
     private fun checkIncomingReady() {
         val slot = incomingSlot ?: return
+        if (pendingSkipFadeMs != null) {
+            if (slot.p.playerError != null) {
+                cancelPendingSkipFade()
+                return
+            }
+            if (incomingStartLatencyMs != null || SystemClock.elapsedRealtime() >= skipWarmupDeadlineMs ||
+                (incomingWarmupAttempted && incomingWarmup == null)
+            ) {
+                val durationMs = checkNotNull(pendingSkipFadeMs)
+                pendingSkipFadeMs = null
+                startFade(durationMs)
+                skipFadeStarted = true
+            } else {
+                startIncomingWarmup(slot)
+            }
+            return
+        }
         if (transition.phase != TransitionPhase.Preparing) return
         val now = SystemClock.elapsedRealtime()
+        if (skipRequestDurationMs != null && now >= skipReadyDeadlineMs) {
+            execute(transition.onSkipReadyTimeout())
+            return
+        }
         val p = slot.p
         if (p.playerError != null) {
             execute(transition.onIncomingError(), fallbackAfterRelease = true)
             return
         }
         // A ready, session-verified B stays prepared however long playback pauses before the fade.
-        if (incomingVerified) return
+        if (incomingVerified) {
+            startIncomingWarmup(slot)
+            return
+        }
         if (now >= incomingDeadlineMs) {
             execute(transition.onIncomingError(), fallbackAfterRelease = true)
             return
@@ -721,10 +904,12 @@ internal class Media3Engine(
             return
         }
         incomingVerified = true
+        startIncomingWarmup(slot)
         execute(transition.onIncomingReady())
     }
 
     private fun startFade(durationMs: Long) {
+        stopIncomingWarmup()
         val outgoing = checkNotNull(currentSlot)
         val incoming = checkNotNull(incomingSlot)
         val clock = outgoing.gain.processor?.processingPosition
@@ -742,8 +927,9 @@ internal class Media3Engine(
         incoming.gain.fadeInAfterFlush(durationMs)
         // Replacing the single-item timeline forces a sink flush, even at paused position zero
         // where seekTo(0) may be optimized away. Arm the curve on that flush, after silent preroll.
-        incoming.gain.positionOriginMs = incoming.p.currentPosition
-        incoming.p.setMediaItem(mediaItem(incoming.item), incoming.p.currentPosition)
+        val incomingPositionMs = 0L
+        incoming.gain.positionOriginMs = incomingPositionMs
+        incoming.p.setMediaItem(mediaItem(incoming.item), incomingPositionMs)
         incoming.p.prepare()
         outgoingSlot = outgoing
         incomingSlot = null
@@ -795,9 +981,10 @@ internal class Media3Engine(
                         fadeLeadFrames = leadMs * fadeSampleRate / 1000L
                         fadeNotBeforeMs = elapsed + leadMs + durationMs
                         // B's curve starts at its first post-flush frame, heard one output start latency after play.
-                        incomingDelayMsForTest = (leadMs - startLatencyMs).coerceAtLeast(0L)
+                        val latencyMs = incomingStartLatencyMs ?: startLatencyMs
+                        incomingDelayMsForTest = (leadMs - latencyMs).coerceAtLeast(0L)
                         playAtMs = elapsed + incomingDelayMsForTest
-                        Log.i("Media3Engine", "fade leadMs=$leadMs startLatencyMs=$startLatencyMs " +
+                        Log.i("Media3Engine", "fade leadMs=$leadMs incomingStartLatencyMs=$latencyMs " +
                             "incomingDelayMs=$incomingDelayMsForTest")
                     }
                 }
@@ -818,11 +1005,15 @@ internal class Media3Engine(
         incomingStart = start
         handler.post(start)
         applyFocusGainOnLooper(SystemClock.uptimeMillis())
-        pendingEvents += EngineEvent.TransitionStarted(incoming.item, durationMs)
+        if (skipRequestDurationMs == null) pendingEvents += EngineEvent.TransitionStarted(incoming.item, durationMs)
         scheduleTransitionTick()
     }
 
     private fun handlePlayerError(slot: Slot, error: PlaybackException) {
+        if (slot === incomingSlot && pendingSkipFadeMs != null) {
+            cancelPendingSkipFade()
+            return
+        }
         if (slot === incomingSlot && transition.phase == TransitionPhase.Preparing) {
             execute(transition.onIncomingError(), fallbackAfterRelease = true)
             return
@@ -856,6 +1047,8 @@ internal class Media3Engine(
     }
 
     private fun releaseIncoming() {
+        cancelPendingSkipFade()
+        stopIncomingWarmup()
         val slot = incomingSlot ?: return
         incomingSlot = null
         releaseSlot(slot)
@@ -875,7 +1068,7 @@ internal class Media3Engine(
         if (sharedSessionId != C.AUDIO_SESSION_ID_UNSET && p.audioSessionId != sharedSessionId) {
             p.setAudioSessionId(sharedSessionId)
         }
-        armStartProbe(p)
+        armStartProbe(p, incoming = true)
         p.playWhenReady = true
     }
 
@@ -1005,6 +1198,8 @@ internal class Media3Engine(
         const val OBSERVE_FALLBACK_MS = 200L
         const val START_PROBE_SAMPLES = 5
         const val START_PROBE_MAX_ADVANCE_MS = 2_000L
+        const val START_PROBE_TIMEOUT_MS = 1_000L
+        const val SKIP_WARMUP_TIMEOUT_MS = 250L
         const val PREPARE_TIMEOUT_MS = 10_000L
         const val PREPARE_POLL_MS = 10L
         const val MAX_EXTRAPOLATION_MS = 500L

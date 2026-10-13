@@ -70,6 +70,7 @@ internal class PlaybackCoordinator(
     private var listeningFadeStartedAt = 0L
     private var listeningFadeStartedElapsed = 0L
     private var listeningFadeMaxMs = 0L
+    private var lastSkipElapsedMs: Long? = null
     private var normalizationSettings = NormalizationSettings()
     private var equalizerSettings = EqualizerSettings()
     // FR-092: de-duplicate preference re-emissions. A shared DataStore re-emits every
@@ -364,6 +365,13 @@ internal class PlaybackCoordinator(
         }
         log.d("Handling action=$action queueSize=${queue.snapshot().activeTrackIds.size}")
         if (action in MoodRadioStoppingActions) stopMoodRadio()
+        val isSkip = action == PlaybackService.ActionNext || action == PlaybackService.ActionPrevious ||
+            action == PlaybackService.ActionSelect
+        val skipElapsed = clock.elapsedMs()
+        val fadeOnSkip = isSkip && crossfadeOnSkip && flows.crossfadeSeconds.value > 0 &&
+            engine?.kind == EngineKind.Media3 && flows.state.value is PlaybackState.Playing &&
+            !isCrossfading() && (lastSkipElapsedMs?.let { skipElapsed - it >= 600L } ?: true)
+        if (isSkip) lastSkipElapsedMs = skipElapsed
         if (action in PreloadResyncActions || action == PlaybackService.ActionNext || action == PlaybackService.ActionPrevious) {
             snapActiveCrossfade()
         }
@@ -386,10 +394,10 @@ internal class PlaybackCoordinator(
             }
             PlaybackService.ActionStop -> stopPlayback()
             PlaybackService.ActionClearQueue -> handleTransition(queue.clear())
-            PlaybackService.ActionNext -> handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+            PlaybackService.ActionNext -> handleSkipTransition(queue.next(), fadeOnSkip, preservePlaybackState = true)
             PlaybackService.ActionPrevious -> {
                 if (positionMs() > PreviousRestartThresholdMs) seekCurrent(0L)
-                else handleTransition(queue.previous(), PlaybackEndReason.SKIPPED, preservePlaybackState = true)
+                else handleSkipTransition(queue.previous(), fadeOnSkip, preservePlaybackState = true)
             }
             PlaybackService.ActionSeek -> seekCurrent(positionMs)
             PlaybackService.ActionSetShuffle -> handleTransition(queue.setShuffle(enabled))
@@ -397,7 +405,7 @@ internal class PlaybackCoordinator(
             PlaybackService.ActionPlayNext -> queue.playNext(trackIds)
             PlaybackService.ActionAppend -> queue.append(trackIds)
             PlaybackService.ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
-            PlaybackService.ActionSelect -> trackIds.firstOrNull()?.let { handleTransition(queue.select(it), PlaybackEndReason.SKIPPED) }
+            PlaybackService.ActionSelect -> trackIds.firstOrNull()?.let { handleSkipTransition(queue.select(it), fadeOnSkip) }
             PlaybackService.ActionRemove -> trackIds.firstOrNull()?.let { handleTransition(queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
             PlaybackService.ActionReorder -> queue.reorderQueue(trackIds)
         }
@@ -510,16 +518,18 @@ internal class PlaybackCoordinator(
         if (appliedPlaybackSettings == requested) return
         val secondsChanged = flows.crossfadeSeconds.value != seconds
         val repeatOneChanged = this.repeatOneCrossfade != repeatOneCrossfade
+        val skipChanged = this.crossfadeOnSkip != crossfadeOnSkip
         val blendChanged = flows.blendArtworkDuringCrossfade.value != blendArtwork
         appliedPlaybackSettings = requested
         this.repeatOneCrossfade = repeatOneCrossfade
         this.crossfadeOnSkip = crossfadeOnSkip
-        // Skip is stored for T060c and must have no playback side effects yet.
+        // Engines capture the running fade's settings; this applies to later fades (FR-032).
+        if (secondsChanged || repeatOneChanged || skipChanged) {
+            engine?.setCrossfade(seconds * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
+        }
         if (!secondsChanged && !repeatOneChanged && !blendChanged) return
         flows.crossfadeSeconds.value = seconds
         flows.blendArtworkDuringCrossfade.value = blendArtwork
-        // Engines capture the running fade's settings; this applies to later fades (FR-032).
-        if (secondsChanged || repeatOneChanged) engine?.setCrossfade(seconds * 1_000L, repeatOneCrossfade)
         if (!blendArtwork) clearArtworkCrossfade()
         // A preference update must never change a fade already
         // running, but it does refresh the idle source afterward.
@@ -590,6 +600,31 @@ internal class PlaybackCoordinator(
         }
     }
 
+    private suspend fun handleSkipTransition(
+        transition: QueueTransition,
+        fadeOnSkip: Boolean,
+        preservePlaybackState: Boolean = false,
+    ) {
+        val current = flows.state.value as? PlaybackState.Playing
+        val currentEngine = engine
+        // Re-selecting the playing track keeps today's restart (hard cut), never a fade into itself.
+        if (fadeOnSkip && transition is QueueTransition.Play && current != null && currentEngine != null &&
+            transition.trackId != current.item.trackId
+        ) {
+            val target = resolver.resolve(transition.trackId)
+            val fadeMs = (flows.crossfadeSeconds.value * 1_000L).coerceIn(500L, 2_000L)
+            if (target != null && currentEngine.crossfadeTo(target, fadeMs)) {
+                finishListeningCrossfade()
+                flows.artworkCrossfade.value = ArtworkCrossfadeTransition(
+                    nextArtworkCrossfadeId(), current.item.artworkPath, target.artworkPath, fadeMs,
+                )
+                publishEngineSwitch(target, PlaybackEndReason.SKIPPED, fadeMs)
+                return
+            }
+        }
+        handleTransition(transition, PlaybackEndReason.SKIPPED, preservePlaybackState)
+    }
+
     private suspend fun playCurrent(startPositionMs: Long = 0L, startPaused: Boolean = false, startTracking: Boolean = true) {
         snapActiveCrossfade()
         val trackId = queue.snapshot().currentTrackId ?: return stopPlayback()
@@ -612,7 +647,7 @@ internal class PlaybackCoordinator(
                     else ItemGain(normalizationGain(item, queue.peekNext()))
                 preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
-                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade)
+                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 preparedEngine.prepare(item, gain, startPositionMs, startPaused)
                 engine = preparedEngine
@@ -659,7 +694,7 @@ internal class PlaybackCoordinator(
                     else ItemGain(normalizationGain(item, queue.peekNext()))
                 preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
-                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade)
+                preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 preparedEngine.prepare(item, gain, savedPositionMs, startPaused = true)
                 val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
@@ -1199,18 +1234,23 @@ internal class PlaybackCoordinator(
             fail(incoming.trackId, "Native transition no longer matches the playback queue")
             return
         }
+        publishEngineSwitch(incoming, PlaybackEndReason.COMPLETED, (event as? EngineEvent.TransitionStarted)?.fadeMs)
+        log.d("Consumed engine transition=$event id=${incoming.trackId}")
+    }
+
+    private suspend fun publishEngineSwitch(incoming: PlaybackItem, reason: PlaybackEndReason, fadeMs: Long?) {
         preloadedItem = null
         val currentEngine = engine ?: return
         val positionMs = currentEngine.positionMs()
         val durationMs = currentEngine.durationMs()
-        if (event is EngineEvent.TransitionStarted) {
+        if (fadeMs != null) {
             listeningFadeOutgoing = (flows.state.value as? PlaybackState.Playing)?.item?.trackId
             listeningFadeStartedAt = clock.nowMs()
             listeningFadeStartedElapsed = clock.elapsedMs()
-            listeningFadeMaxMs = event.fadeMs
+            listeningFadeMaxMs = fadeMs
         }
         flows.state.value = PlaybackState.Playing(incoming, positionMs, durationMs)
-        enqueueListening(listeningTracker.finish(PlaybackEndReason.COMPLETED, clock.nowMs(), clock.elapsedMs()))
+        enqueueListening(listeningTracker.finish(reason, clock.nowMs(), clock.elapsedMs()))
         enqueueListening(listeningTracker.start(incoming.trackId, positionMs, clock.nowMs(), clock.elapsedMs()))
         scrobble.startPlayback(incoming.trackId, positionMs)
         nowPlaying.publishNowPlaying(incoming, TransportState.Playing, positionMs, durationMs, activeQueueItemId(queue.snapshot()))
@@ -1220,7 +1260,6 @@ internal class PlaybackCoordinator(
         // of letting it fade out. The ticker reloads after the fade completes.
         if (canPreloadNext(currentEngine.isCrossfading())) preloadNext()
         publishQueue()
-        log.d("Consumed engine transition=$event id=${incoming.trackId}")
     }
 
     private suspend fun normalizationGain(item: PlaybackItem, nextId: String?): Float {

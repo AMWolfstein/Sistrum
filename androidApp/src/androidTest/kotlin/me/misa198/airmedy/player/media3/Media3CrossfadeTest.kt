@@ -352,6 +352,155 @@ class Media3CrossfadeTest {
         r.details = "pausedMs=11000 incomingPosition=$position lead=${r.engine.outgoingLeadMsForTest}"
     }
 
+    @Test(timeout = 120_000)
+    fun skipFadeCurvesStartTogetherAndSnapLeavesNoOldGain() = withRig("skipTimingAndSnap") { r ->
+        r.engine.setCrossfade(2_000L, true, true)
+        r.prepareTone(startPositionMs = 4_000L)
+        val outgoing = r.engine.playersForTest().single()
+        val startedAt = SystemClock.elapsedRealtime()
+        assertTrue(runBlocking { r.engine.crossfadeTo(r.toneItem("skip"), 2_000L) })
+        val waitMs = SystemClock.elapsedRealtime() - startedAt
+        assertTrue("skip readiness wait=${waitMs}ms", waitMs <= 500L)
+        val incoming = r.engine.playersForTest().first()
+        val clocks = mutableListOf<Clock>()
+        val deadline = SystemClock.elapsedRealtime() + 1_800L
+        while (SystemClock.elapsedRealtime() < deadline) {
+            r.factory.call {
+                clocks += Clock(SystemClock.elapsedRealtime(), outgoing.currentPosition, incoming.currentPosition)
+            }
+            SystemClock.sleep(5L)
+        }
+        r.awaitComplete()
+        val a = fitCurve(r.gainTaps[0], incoming = false)
+        val b = fitCurve(r.gainTaps[1], incoming = true)
+        assertTrue("outgoing cosine error=${a.maxError}", a.maxError < 0.015)
+        assertTrue("incoming sine error=${b.maxError}", b.maxError < 0.015)
+        val audibleA = crossingTime(clocks, 4_000.0 + a.startFrame * 1000.0 / RATE, incoming = false)
+        val audibleB = crossingTime(clocks, b.startFrame * 1000.0 / RATE, incoming = true)
+        r.audibleOffsetMs = audibleB - audibleA
+        assertTrue("skip audible start offset=${r.audibleOffsetMs}ms", abs(r.audibleOffsetMs) <= 50.0)
+        r.drain()
+        assertEquals("caller publishes skip transitions", 0, r.events.count { it is EngineEvent.TransitionStarted })
+        assertEquals("skip does not restart output reporting", 1, r.events.count { it is EngineEvent.OutputStarted })
+        assertTrue(runBlocking { r.engine.crossfadeTo(r.toneItem("skipAgain"), 2_000L) })
+        val tap = r.gainTaps.last()
+        SystemClock.sleep(600L)
+        val snapAt = SystemClock.elapsedRealtimeNanos()
+        r.engine.snapCrossfade()
+        assertFalse(r.engine.isCrossfading())
+        assertEquals(1, r.factory.livePlayers)
+        assertUnfadedAfterFlush(r, tap, snapAt)
+        r.details = "skipWaitMs=$waitMs snapAfterMs=600 transitions=0"
+    }
+
+    @Test(timeout = 120_000)
+    fun skipToUnpreparableTargetReturnsFalseFast() = withRig("skipMissing") { r ->
+        r.engine.setCrossfade(2_000L, true, true)
+        r.prepareTone(startPositionMs = 4_000L)
+        val current = r.engine.playersForTest().single()
+        val missingFile = File(context.cacheDir, "t060c_missing.wav")
+        missingFile.delete()
+        val startedAt = SystemClock.elapsedRealtime()
+        assertFalse(runBlocking { r.engine.crossfadeTo(item(missingFile, "missingSkip"), 2_000L) })
+        val waitMs = SystemClock.elapsedRealtime() - startedAt
+        assertTrue("failed skip wait=${waitMs}ms", waitMs < 1_000L)
+        assertEquals(1, r.factory.livePlayers)
+        assertSame(current, r.engine.playersForTest().single())
+        assertFalse(r.engine.isCrossfading())
+        // Keep polling after refusal to catch a bad target accidentally appended to A's playlist.
+        val deadline = SystemClock.elapsedRealtime() + 500L
+        while (SystemClock.elapsedRealtime() < deadline) {
+            r.drain()
+            assertEquals(1, r.factory.livePlayers)
+            SystemClock.sleep(10L)
+        }
+        assertTrue(r.events.none { it is EngineEvent.Error || it is EngineEvent.TransitionStarted })
+        assertTrue(r.factory.call { current.isPlaying && current.playerError == null })
+        r.details = "failedSkipWaitMs=$waitMs live=1 errors=0"
+    }
+
+    @Test(timeout = 120_000)
+    fun incomingWarmupStaysSilentAndPausesWithoutAdvancingCurrentItem() = withRig("warmupSilence") { r ->
+        // Use full player volume: only B's held gain curve may silence the warm-up.
+        r.engine.setFocusGain(1f)
+        r.prepareTone(startPositionMs = 4_000L)
+        r.schedule(r.toneItem("warmup"))
+        val players = r.engine.playersForTest()
+        val outgoing = players.first()
+        val incoming = players.last()
+        val tap = r.gainTaps.last()
+        await {
+            r.factory.call { incoming.currentPosition > 1L && !incoming.playWhenReady } &&
+                tap.windows().size >= 20
+        }
+        val windows = tap.windows()
+        assertTrue("warm-up produced no PCM", windows.size >= 20)
+        val peak = windows.maxOf { it.peak }
+        assertTrue("audible incoming warm-up peak=$peak", peak < 1e-4)
+        assertTrue(r.factory.call { outgoing.isPlaying })
+        assertEquals(Player.STATE_READY, r.factory.call { incoming.playbackState })
+        assertEquals(r.engine.audioSessionIdForTest, r.factory.call { incoming.audioSessionId })
+        assertSame(outgoing, r.engine.playersForTest().first())
+        assertFalse(r.engine.isCrossfading())
+        r.drain()
+        assertEquals(1, r.events.count { it is EngineEvent.OutputStarted })
+        assertTrue(r.events.none { it is EngineEvent.TransitionStarted || it is EngineEvent.GaplessAdvanced })
+        // A ready, verified B remains held and prepared through pause/seek/snap until the actual fade.
+        r.engine.pause()
+        r.engine.seekTo(4_000L)
+        r.engine.snapCrossfade()
+        assertSame(incoming, r.engine.playersForTest().last())
+        assertFalse(r.factory.call { incoming.playWhenReady })
+        assertTrue(tap.windows().all { it.peak < 1e-4 })
+        r.engine.play()
+        assertTrue(r.engine.beginCrossfade(FADE_MS))
+        assertTrue("warm-up position leaked into fade", r.engine.positionMs() < 100L)
+        r.awaitComplete()
+        val curve = fitCurve(tap, incoming = true)
+        assertTrue("incoming curve after warm-up error=${curve.maxError}", curve.maxError < 0.015)
+        r.details = "warmupPeak=$peak warmupWindows=${windows.size} incomingCurveError=${curve.maxError}"
+    }
+
+    @Test(timeout = 120_000)
+    fun firstSkipWithoutHistoryWarmsUpAndStartsWithinFiftyMs() = withRig("firstSkipWarmupTiming") { r ->
+        r.engine.setCrossfade(2_000L, true, true)
+        r.prepareTone(startPositionMs = 4_000L)
+        assertEquals("fresh rig must have no incoming-player history", 1, r.factory.createdPlayersForTest)
+        val outgoing = r.engine.playersForTest().single()
+        val startedAt = SystemClock.elapsedRealtime()
+        assertTrue(runBlocking { r.engine.crossfadeTo(r.toneItem("firstSkip"), 2_000L) })
+        val waitMs = SystemClock.elapsedRealtime() - startedAt
+        assertTrue("first skip readiness and warm-up wait=${waitMs}ms", waitMs <= 300L + 250L + 200L)
+        val incoming = r.engine.playersForTest().first()
+        assertEquals("warm-up must reuse skip's B", 2, r.factory.createdPlayersForTest)
+        val clocks = mutableListOf<Clock>()
+        val deadline = SystemClock.elapsedRealtime() + 1_800L
+        while (SystemClock.elapsedRealtime() < deadline) {
+            r.factory.call {
+                clocks += Clock(SystemClock.elapsedRealtime(), outgoing.currentPosition, incoming.currentPosition)
+            }
+            SystemClock.sleep(5L)
+        }
+        r.awaitComplete()
+        val a = fitCurve(r.gainTaps[0], incoming = false)
+        val b = fitCurve(r.gainTaps[1], incoming = true)
+        assertTrue("outgoing cosine error=${a.maxError}", a.maxError < 0.015)
+        assertTrue("incoming sine error=${b.maxError}", b.maxError < 0.015)
+        val audibleA = crossingTime(clocks, 4_000.0 + a.startFrame * 1000.0 / RATE, incoming = false)
+        val audibleB = crossingTime(clocks, b.startFrame * 1000.0 / RATE, incoming = true)
+        r.audibleOffsetMs = audibleB - audibleA
+        assertTrue("first skip audible start offset=${r.audibleOffsetMs}ms", abs(r.audibleOffsetMs) <= 50.0)
+        val tap = r.gainTaps[1]
+        val heldWindows = tap.windows().filter { it.generation < tap.generation() }
+        assertTrue("missing held PCM before the first skip fade", heldWindows.isNotEmpty())
+        val warmupPeak = heldWindows.maxOf { it.peak }
+        assertTrue("audible first-skip warm-up peak=$warmupPeak", warmupPeak < 1e-4)
+        r.drain()
+        assertTrue(r.events.none { it is EngineEvent.TransitionStarted || it is EngineEvent.GaplessAdvanced || it is EngineEvent.Error })
+        assertEquals(1, r.events.count { it is EngineEvent.OutputStarted })
+        r.details = "firstSkipWaitMs=$waitMs warmupBoundMs=250 warmupPeak=$warmupPeak"
+    }
+
     private inner class Rig : AutoCloseable {
         val gainTaps = mutableListOf<Tap>()
         val dspTaps = mutableListOf<Tap>()

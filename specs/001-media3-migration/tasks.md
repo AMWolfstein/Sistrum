@@ -892,7 +892,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     hard cut; queue/session/artwork/stats at fade start as for an automatic fade; setting off → today's hard cut.
   - Tests: `verify.sh --expect-fail` on both classes. migration-guard.
 
-- [ ] T060c [US5] Implement crossfade on skip (controller `crossfadeOnManualSkip` path, Media3 engine on-demand B, coordinator skip path) {hard} [HIGH-RISK] — **added**
+- [x] T060c [US5] Implement crossfade on skip (controller `crossfadeOnManualSkip` path, Media3 engine on-demand B, coordinator skip path) {hard} [HIGH-RISK] — **added**
   - Tests: T060b classes pass without modifying them; T015 and `TransitionControllerTest` stay green; device check in
     `Media3CrossfadeTest` (skip fade curve audible starts within 50 ms, no old-gain frame after a snap); `GATE`.
 

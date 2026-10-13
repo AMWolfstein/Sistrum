@@ -26,7 +26,9 @@ interface PlayerEngine : Closeable {
     suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean
                                                    // added T060b (FR-031a crossfade on skip): Media3 prepares B with [item]
                                                    // on demand and starts a [durationMs] fade into it once B is ready and
-                                                   // session-verified, waiting at most 300 ms; returns true when the fade
+                                                   // session-verified, waiting at most 300 ms for READY (plus, on the first
+                                                   // skip without a learned incoming start latency, at most 250 ms of
+                                                   // silent warm-up, T060c); returns true when the fade
                                                    // started (B is then current; no TransitionStarted is emitted: the caller
                                                    // already moved the queue and publishes the switch itself); false = nothing
                                                    // changed (not ready in time, B failed, setting off) and the caller hard-cuts.
