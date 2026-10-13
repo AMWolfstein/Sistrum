@@ -32,6 +32,7 @@ internal class FakePlayerEngine(
 
     var position: Long = 0L
     var duration: Long = DefaultDurationMs
+    var fadeLead: Long = 0L
     var crossfading: Boolean = false
     var beginCrossfadeResult: Boolean = true
     var crossfadeToResult: Boolean = true
@@ -142,6 +143,8 @@ internal class FakePlayerEngine(
 
     override fun durationMs(): Long = duration
 
+    override fun fadeLeadMs() = fadeLead
+
     override fun beginCrossfade(durationMs: Long): Boolean {
         calls += "beginCrossfade"
         crossfades += durationMs
@@ -230,6 +233,7 @@ internal class FakeEngineFactory(
 ) : () -> PlayerEngine {
     val created = mutableListOf<FakePlayerEngine>()
     var kind: EngineKind = EngineKind.Native
+    var fadeLead: Long = 0L
 
     /** Applied to every created engine before it is returned. */
     var onPrepare: (() -> Unit)? = null
@@ -253,6 +257,7 @@ internal class FakeEngineFactory(
 
     override fun invoke(): PlayerEngine = FakePlayerEngine(durationFor).also { engine ->
         engine.kind = kind
+        engine.fadeLead = fadeLead
         engine.onPrepare = onPrepare
         engine.emitTransitionOnCrossfade = emitTransitionOnCrossfade
         engine.crossfadeIncomingPosition = crossfadeIncomingPosition

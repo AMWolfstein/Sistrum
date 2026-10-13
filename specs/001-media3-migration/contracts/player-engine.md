@@ -35,6 +35,10 @@ interface PlayerEngine : Closeable {
                                                    // Called while a fade runs: snaps it and returns false (hard cut).
                                                    // Native: always false.
 
+    fun fadeLeadMs(): Long                         // added T061a (ADR-003 amendment 2026-10-13): how far ahead of the
+                                                   // audible position a fade starting now is applied. Media3: current
+                                                   // player's processed − audible position, clamped 0..1500; native: 0.
+                                                   // The coordinator decides automatic fades at positionMs() + fadeLeadMs().
     fun setFocusGain(gain: Float)                  // 1.0 or 0.2, ramped inside the engine
     fun setDsp(settings: EqualizerSettings)        // 10 bands, preamp, width
     fun setGains(current: ItemGain, preloaded: ItemGain?)   // native only: service-side analysis gain

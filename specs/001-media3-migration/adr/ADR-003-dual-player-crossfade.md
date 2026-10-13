@@ -62,6 +62,23 @@ Harness: `androidTest/.../spikes/` (two ExoPlayers, one shared session, per-play
     + lead) before pausing the player, otherwise the unfaded buffered audio plays and is cut off with a click.
   Tested in T056 (curve offsets), T058 (processor) and T059 (device timing, pause/skip included).
 
+## Amendment 2026-10-13 (T061, owner-approved): key the fade decision to the processed timeline
+
+T061 found that compensating the lead only on the incoming side (delay B by the outgoing lead) keeps the two curves
+together but places both ≈ one processing lead (0.6–0.7 s measured on the CPH2307) later in the track than the native
+engine, which applies its fade gain in the output callback. SC-007 (within 200 ms of the native start point) fails, and a
+fade decided with remaining ≈ N runs past the outgoing track's end, cutting it at cos((N − lead)/N · π/2).
+
+**Decision**: the engine reports its current processing lead (`PlayerEngine.fadeLeadMs()`: Media3 = frames processed
+ahead of the audible position of the current player, clamped 0–1.5 s; native = 0). The coordinator evaluates the shared
+start rule and duration clamp (`shouldStartCrossfade`, `crossfadeDurationMs`, unchanged) at `positionMs() + fadeLeadMs()`,
+so the outgoing curve is applied to the frames that become audible at the native-equivalent point and ends no later than
+the outgoing track. The Media3 transition controller's pre-buffer schedule uses the same remaining time. Incoming-side
+timing (B delayed by lead − measured incoming start latency, T059/T060c) is unchanged. Manual skip fades (FR-031a) are
+user-initiated and keep the outgoing curve audible ≈ one lead after the press (documented, not changed).
+Tested by T061a (host, tests first) and T061b (device: end-of-track fade reaches < −40 dB before the outgoing track ends;
+audible fade start within 200 ms of the native-equivalent point).
+
 ## Consequences
 
 - Memory: two pipelines only during transitions; S3 measures it against SC-013.

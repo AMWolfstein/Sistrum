@@ -169,6 +169,8 @@ internal class LegacyNativeEngine(
 
     override fun durationMs(): Long = port?.durationMs() ?: 0L
 
+    override fun fadeLeadMs(): Long = 0L
+
     override fun beginCrossfade(durationMs: Long): Boolean {
         drain()
         val current = port ?: return false

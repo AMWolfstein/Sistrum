@@ -594,6 +594,8 @@ internal class Media3Engine(
         if (duration == C.TIME_UNSET) currentSlot?.knownDurationMs ?: 0L else duration
     }
 
+    override fun fadeLeadMs(): Long = 0L // T061b
+
     override suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean {
         val deadline = SystemClock.elapsedRealtime() + 300L
         val requested = factory.call {

@@ -902,6 +902,17 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     incl. SC-011 (clip prevention on/off, max EQ boost + preamp, two loud tracks overlapping in a crossfade), and
     "playback doesn't go silent" during `Media3EqAppImitationTest` with `-e audible true -e phaseSeconds 15`.
 
+- [x] T061a [US5] [TESTS-FIRST] Fade decision on the processed timeline (ADR-003 amendment 2026-10-13, SC-007) in `AT/player/PlaybackCoordinatorFadeLeadTest.kt` {hard} [HIGH-RISK] — **added** (owner 2026-10-13: "go ahead with T061a")
+  - Do: stub `PlayerEngine.fadeLeadMs()` (native 0 final; Media3 stub 0; fake configurable, default 0); tests: with lead L
+    the automatic fade starts when `position + L` enters the window and not one tick earlier, duration clamp from
+    `position + L`, lead 0 = today (T015 green unmodified), both engine kinds, skip fades unaffected.
+  - Tests: `verify.sh --expect-fail`. migration-guard.
+
+- [ ] T061b [US5] Implement the processed-timeline fade decision (coordinator + `Media3Engine.fadeLeadMs()` + Media3 pre-buffer schedule) {hard} [HIGH-RISK] — **added**
+  - Tests: T061a class green unmodified; T015, T060 classes green; device `Media3CrossfadeTest` new test: end-of-track
+    fade driven like the coordinator (poll `positionMs() + fadeLeadMs()`), outgoing tap < −40 dB before A ends, audible
+    curve start within 200 ms of `duration − fade` in A's media time; all Media3 classes green; `GATE`.
+
 **Checkpoint M7** — status report; owner approval.
 
 ---

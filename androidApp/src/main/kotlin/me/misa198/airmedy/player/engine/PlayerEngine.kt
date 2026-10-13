@@ -102,6 +102,13 @@ internal interface PlayerEngine : Closeable {
      */
     suspend fun crossfadeTo(item: PlaybackItem, durationMs: Long): Boolean
 
+    /**
+     * How far ahead of the audible position a fade starting now is applied.
+     * Media3: current player's processed minus audible position, clamped to 0..1500 ms.
+     * Native: 0. The coordinator decides automatic fades at [positionMs] + [fadeLeadMs].
+     */
+    fun fadeLeadMs(): Long
+
     /** Sets the focus gain (1.0 or 0.2), ramped inside the engine. */
     fun setFocusGain(gain: Float)
 
