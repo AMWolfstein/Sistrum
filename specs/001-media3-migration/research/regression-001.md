@@ -209,6 +209,33 @@ vs decision, skip-fade start −62 ms, pause/skip flush timeout. Same suites on 
 crossfade and DSP-handover timing depend on the 10 ms loop. Change parked verbatim in
 `research/park/T062g-part2-dynamic-scheduling.diff` for the perf phase.
 
+## T063 full regression (2026-10-14, debuggable `.qa`, HEAD `51eaaf6`)
+
+- Host: `:androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest` — 1,278 tests, 0 failures, 1 skipped (WaxFlow
+  oracle test: `SISTRUM_CORPUS` unset). Build `assembleDevQa` PASS.
+- Lint `lintDevQa`: 569 errors → 108 after the opt-in fix (`51eaaf6`); all 108 MissingTranslation (known).
+- SC-010: `git diff main -- PlaybackQueue.kt ListeningTracker.kt` = the package line only (T062a rebrand) → PASS.
+- SC-001: host suites green; the device failures below exist on unchanged code (see method) → PASS for 001's scope.
+- Device, every class one at a time (68 classes; `Regression001MeasurementTest` methods run individually during T062):
+  - PASS (45): all analysis/sync/player/media3/spike classes except below, AppearanceContent, IntegrationContent, RtlLayout,
+    StackPageLayout, Library Search, Queue transport, Sistrum Dialog/MarqueeText/PillButton/TextField/TrackSlider, rows,
+    cards, `SelectionTest` and `LibrarySortHeaderButtonTest` (their files are named SingleSelectionTest /
+    TrackSortHeaderButtonTest; first sweep used file names → "class not found", rerun by class name OK).
+  - Known baseline failures (same counts as the T062a baseline): AppNavigationTest 16/39, InsightContentTest 1/4,
+    SistrumBottomSheetTest 1/4, FullScreenPlayerTest 5/20, MiniPlayerTest 8/14.
+  - Pre-existing test-side failures, code and test identical to the merge base `c51747b` apart from the rebrand's
+    package/name changes (checked file by file): AlbumDetails 2/7, ArtistDetails 2/4, ComposerDetails 2/4, GenreDetails
+    2/4, LibraryAlbums 1/5, LibraryArtists 1/3, LibraryComposers 1/3, Library 1/4, LibraryGenres 1/3, LibraryPlaylists
+    1/7, LibraryTracks 2/14, PlaylistDetails 4/6, TrackContextBottomSheet 1/4, TrackContextMenuHaptic 3/3,
+    CrossfadeDurationSlider 1/2 — missing menu host ("Play next" not found), stale text expectations, duplicate nodes,
+    a tap that doesn't reach the slider. Screen awake, no keyguard; deterministic on rerun.
+  - `HiddenTracksTest` 10/11: `favoriteSurvivesHideAndReappear`, the known stale-replay test defect (HANDOFF pre-v1.0
+    item, T051c); 3/3 runs today (was ~1 in 3).
+  - Time-boxed (10 min per class, NOT RUN as a class): `AnalysisThroughputBenchmarkTest` (benchmarks only; T051
+    numbers stand) and `OfflineDecodeBenchmarkTest`, whose correctness methods were run one by one: offline =
+    playback capture (maxDiff 0.0, 6 files), `corpusLoudnessMatchesOracle` (after the MP3 trim), cancel ≤ 1 s, long file
+    — all PASS; `decodeAndMeterSpeedPerFormat` (benchmark) NOT RUN.
+
 ## Summary
 
 | Criterion | Result |

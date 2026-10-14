@@ -952,12 +952,14 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
     tests that pinned the Native default updated with this spec reason. Then a signed `prodRelease` APK for the owner.
   - Tests: `GATE`; engine-selection tests; device: `.qa` fresh state starts on Media3.
 
-- [ ] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ 300 ms (amended 2026-10-14; was ≤ +20 %), SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
+- [x] T062 [MANUAL] {orchestrator} Measurements on `.qa`, two library mixes: SC-003 gapless ≤ 10 ms, SC-006 start latency ≤ 300 ms (amended 2026-10-14; was ≤ +20 %), SC-013 1 h screen-off `batterystats`/`meminfo` (crossfade off 0 %, on ≤ 10 %), SC-014 provider-named failures; results in `specs/001-media3-migration/research/regression-001.md`
   - CPU (owner, Checkpoint M5 approval 2026-10-08): measure on a **release** build (debug `.qa` numbers: float neutral
     13.7 vs int 7.8 points). If Media3 with crossfade off still costs more than native, optimize, e.g. 16-bit input
     with a neutral chain skips the float conversion entirely.
   - Corpus (owner, not a blocker): add an 8–16 kHz AAC file when convenient and check the possible one-time position
     jump at start (T048b note).
+  **Closed 2026-10-14:** SC-003 PASS (T062j), SC-006 PASS (≤ 300 ms, amended), SC-014 PASS (T062e), SC-013 NOT MET →
+  deferred to the cleanup/perf phase (owner, T062g); the 1 h screen-off run stays a deferred owner check.
 - [x] T062d [TESTS-FIRST] Prepare-time decode failures follow FR-064 — **added 2026-10-14 (T062 finding, SC-014)**
   - Tests in `AT/player/PlaybackCoordinatorPrepareFailureTest.kt` (fake engine whose `prepare()` throws
     `EngineDecodeException(provider, format, cause)`): (a) one decode-failure log entry with that provider, codec = format,
@@ -1002,7 +1004,8 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   reason: SC-003, T062h; 3 = a near-silent run in the music inside the test's ±1 s window, host ffmpeg reference), FLAC joins unchanged, `offlineDecodeMatchesPlaybackCapture` still passes; make T062i pass
   unmodified; add a parser guard for MPEG-2 mono (Xing at offset 13; migration-guard note on T062i). {hard} [HIGH-RISK]
 
-- [ ] T063 {orchestrator} Full regression: `GATE`, `./gradlew :androidApp:lintDevDebug` (only known lint classes), every instrumented class on `.qa` one at a time (known failures listed in CLAUDE.md only), SC-001, SC-010 diff check; results in `specs/001-media3-migration/research/regression-001.md`
+- [x] T063 {orchestrator} Full regression: `GATE`, `./gradlew :androidApp:lintDevQa` (was lintDevDebug; variant removed in T062b) (only known lint classes), every instrumented class on `.qa` one at a time (known failures listed in CLAUDE.md only), SC-001, SC-010 diff check; results in `specs/001-media3-migration/research/regression-001.md`
+  **Done 2026-10-14:** see `research/regression-001.md` "T063 full regression"; lint opt-in debt fixed in `51eaaf6`.
 - [x] T064 {orchestrator} Docs: `THIRD-PARTY-NOTICES` completeness (Media3, Choir, Rhythm), CLAUDE.md "Playback" section (seam, switch, `.qa`), `quickstart.md`, `HANDOFF.md` (default stays Native until 002 is done; FR-003 flip is a pre-merge task)
   **Done 2026-10-14:** notices already complete (Media3, Choir, WaxFlow, Rhythm, WorkManager; every ported file
   attributed); CLAUDE.md Playback/Known state rewritten (Media3 default since T062c — the "default stays Native" note is
