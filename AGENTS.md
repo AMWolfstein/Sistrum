@@ -64,10 +64,14 @@ sections and files the task needs.
      together with the migration and a migration test.
 4. **Graph:** run `python3 .claude/hooks/graph_refresh.py auto`; if it prints `graph: changed`, stage
    `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json` in the same commit. Never edit graph files.
-5. **Commit** by explicit path only (never `git add -A`, `.`, `-u`): `<type>(<area>): <description>`, task id in
-   the body, the `Expected-fail:` line for tests-first tasks, and the trailer
-   `Co-authored-by: Codex <noreply@openai.com>`. One task = one commit. Then `git push` (current branch only;
-   never `main`, never force).
+5. **Commit (prepared, not run):** your sandbox keeps Git's metadata read-only, so never run `git add`, `commit`
+   or `push`. Instead write two files in the repo root folder `.codex-commit/`:
+   - `files.txt`: every path of this task's commit, one per line (task files, tests, `tasks.md`, `HANDOFF.md`,
+     `DECISIONS.md` if changed, and the two graph files if step 4 said `graph: changed`; deleted files too);
+   - `message.txt`: subject `<type>(<area>): <short description>`; body = the task id, then 2–5 plain lines saying
+     what changed and how it was verified (gate result, test counts, NOT RUN items); the `Expected-fail:` line for
+     tests-first tasks; and the trailer `Co-authored-by: Codex <noreply@openai.com>`.
+   The runner stages exactly those paths, commits on the current branch and pushes. One task = one commit.
 6. **Log:** tick the task in `tasks.md`, add a row to `HANDOFF.md`'s task log (task, commit, gate result, NOT RUN
    items with reason, decisions) and rewrite "Current status". Both files go in the task's commit.
 7. **Decisions** the task leaves open: pick the recommended option and log it in `specs/<feature>/DECISIONS.md`
@@ -76,10 +80,13 @@ sections and files the task needs.
 8. **Device:** only the milestone's last task (phone check) uses the phone, only with the `.qa` build
    (`verify.sh --instrumented`; it refuses other IDs). Never install, instrument or force-stop
    `com.amwolfstein.sistrum.dev` or `me.misa198.airmedy.dev`. Real listening / Bluetooth / headset checks go to the
-   owner's manual list in HANDOFF, never PASS. A phone-check failure: `git bisect` over the milestone's commits,
-   running only the failing test; fix it in a new commit.
+   owner's manual list in HANDOFF, never PASS. A phone-check failure: find the culprit by halving the milestone's commits
+   (read-only Git: `git archive <sha> | tar -x -C /tmp/<dir>` to build an older state), running only the failing
+   test; fix it in a new commit.
 9. **Retries:** up to 3 attempts per task. Still failing → don't commit; write the problem to HANDOFF and end with
    BLOCKED.
 
-End your final message with exactly one line: `RESULT: DONE <commit sha>` or `RESULT: BLOCKED <reason>`.
+End your final message with exactly one line: `RESULT: READY` (gate passed, `.codex-commit/` written) or
+`RESULT: BLOCKED <reason>`. Before you start, if `.codex-commit/` exists from an earlier task, the runner failed to
+commit it: stop with BLOCKED.
 Never invent results; anything not run is NOT RUN with the reason.

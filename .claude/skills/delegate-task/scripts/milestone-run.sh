@@ -35,8 +35,25 @@ MILESTONE TASKS (context only; do ONLY $1 in this session): $tasks
 BRANCH: $branch (commit and push here only; never main)
 MUST NOT: work on any other task; change ADRs, architecture or spec 001's shipped behaviour (stop BLOCKED instead);
           touch the owner's daily apps; fake or skip results (NOT RUN with reason).
-END: one line "RESULT: DONE <sha>" or "RESULT: BLOCKED <reason>".
+END: one line "RESULT: READY" (commit prepared in .codex-commit/) or "RESULT: BLOCKED <reason>".
 EOF
+}
+
+# Commit what the coder prepared (its sandbox can't write Git metadata): exactly the listed paths.
+commit_prepared() { # $1 task id
+  local f=.codex-commit/files.txt m=.codex-commit/message.txt
+  [ -s "$f" ] && [ -s "$m" ] || { echo "STOP: $1 READY without .codex-commit/files.txt+message.txt"; return 1; }
+  grep -q "$1" "$m" || { echo "STOP: $1 commit message lacks the task id"; return 1; }
+  python3 .claude/hooks/graph_refresh.py auto | tail -1 | grep -q changed \
+    && { grep -qx 'graphify-out/graph.json' "$f" || printf '%s\n' graphify-out/graph.json graphify-out/.graphify_analysis.json >> "$f"; }
+  mapfile -t paths < <(grep -v '^\s*$' "$f" | sort -u)
+  git add -A -- "${paths[@]}" || { echo "STOP: $1 staging failed"; return 1; }
+  left=$( { git diff --name-only -- '*.kt' '*.kts'; git ls-files --others --exclude-standard -- '*.kt' '*.kts'; } | sort -u)
+  [ -z "$left" ] || { echo "STOP: $1 left Kotlin changes outside its file list:"; echo "$left"; git reset -q; return 1; }
+  git commit -q -F "$m" || { echo "STOP: $1 commit failed"; git reset -q; return 1; }
+  git push -q || { echo "STOP: $1 push failed (commit $(git rev-parse --short HEAD) is local)"; return 1; }
+  rm -rf .codex-commit
+  echo "$1: committed and pushed $(git rev-parse --short HEAD)"
 }
 
 for t in $tasks; do
@@ -51,11 +68,13 @@ for t in $tasks; do
     echo "=== $t $model/$eff $(date +%H:%M)"
     bash "$dispatch" --brief "$d/brief.md" --model "$model" --effort "$eff" --out-dir "$d/run" > "$d/dispatch.log" 2>&1
     res=$(grep -o 'RESULT: [A-Z]*.*' "$d/run/final.txt" 2>/dev/null | tail -1)
-    after=$(git rev-parse HEAD)
-    echo "$t: ${res:-no RESULT line} (HEAD $before -> $after)"
-    if [[ "$res" == "RESULT: DONE"* ]] && [ "$after" != "$before" ] \
-       && [ -z "$(git log --oneline "@{u}..HEAD" 2>/dev/null)" ]; then done_ok=1; break; fi
-    [ "$after" != "$before" ] && { echo "STOP: $t moved HEAD without a DONE+pushed result; inspect $d"; exit 1; }
+    echo "$t: ${res:-no RESULT line}"
+    [ "$(git rev-parse HEAD)" = "$before" ] || { echo "STOP: $t moved HEAD itself; inspect $d"; exit 1; }
+    if [[ "$res" == "RESULT: READY"* ]]; then
+      commit_prepared "$t" && { done_ok=1; break; }
+      exit 1
+    fi
+    [ -d .codex-commit ] && { echo "STOP: $t BLOCKED but left .codex-commit/; inspect"; exit 1; }
   done
   [ $done_ok = 1 ] || { echo "STOP: $t not done after fallback; see $out/$t and $feature/HANDOFF.md"; exit 1; }
 done
