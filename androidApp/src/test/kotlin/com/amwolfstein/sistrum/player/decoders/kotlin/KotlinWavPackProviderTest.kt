@@ -84,6 +84,7 @@ class KotlinWavPackProviderTest {
         }
     }
 
+    // T007 replaces the temporary DSD refusal with production float PCM validation.
     @Test fun everyExtendedStandaloneFixtureMatchesLibwavpackOracleOrExplicitDsdRefusal() {
         assertTrue(extended.isNotEmpty())
         extended.forEach(::checkExtended)
@@ -91,14 +92,18 @@ class KotlinWavPackProviderTest {
 
     private fun checkExtended(row: Map<String, String>) {
         val info = row.getValue("info").split(';')
-        if (info.getOrNull(1) == "1") {
+        if (info.getOrNull(1) == "1" && row.getValue("exit") == "0") {
             val data = source(row)
-            val reason = "wavpack: DSD output requires PCM conversion"
-            assertEquals(reason, provider.refusal(data.take(provider.refusalHeaderBytes).toByteArray()))
-            val error = assertThrows(ParserException::class.java) { decode(data) }
-            assertFalse(error.contentIsMalformed)
-            assertEquals(reason, error.cause?.message)
-            assertEquals(ErrorCode.UNSUPPORTED, (error.cause as WavPackException).code)
+            val stream = com.amwolfstein.sistrum.codecs.container.wv.WavPackDsd.open(java.nio.ByteBuffer.wrap(data))
+            val expected = java.io.ByteArrayOutputStream()
+            while (true) {
+                val block = stream.decodeBlock() ?: break
+                val bytes = java.nio.ByteBuffer.allocate(block.frames * block.channels * 4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                for (i in 0 until block.frames * block.channels) bytes.putFloat(block.samples[i])
+                expected.write(bytes.array())
+            }
+            assertNull(provider.refusal(data.take(provider.refusalHeaderBytes).toByteArray()))
+            checkPcm(row, hash(expected.toByteArray()), stream.info.totalSamples, stream.info.sampleRate, stream.info.channels, 32, true)
         } else if (row.getValue("exit") != "0") {
             val error = assertThrows(ParserException::class.java) { decode(source(row)) }
             val legacyRefusal = row.getValue("info").isEmpty()
@@ -134,7 +139,7 @@ class KotlinWavPackProviderTest {
 
     @Test fun registryAddsWavPackAfterPlatformAndPreservesExistingProviders() {
         val providers = defaultDecoderProviders(CodecProbe { false })
-        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-aiff"), providers.map { it.id })
+        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-aiff"), providers.map { it.id })
         assertEquals(provider.id, defaultDecoderRegistry(CodecProbe { false }).resolve(FormatKey("wv", "wv"))?.id)
         assertTrue(provider.isAvailable(FormatKey("WV", "wv")))
         assertFalse(provider.isAvailable(FormatKey("flac", "flac")))

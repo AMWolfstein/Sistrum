@@ -273,3 +273,27 @@ The initial new assertion incorrectly trusted that label; only this new assertio
 exact depth/encoding/hash checks retained and no fixture or pre-existing expected value changed.
 Revisit if: T013 finds open-time memory or replay-seek latency problematic, or a task explicitly adds a
 platform WMA route; any architecture change must stop for the owner.
+
+## D-18: DSD production converter and rate conversion
+
+Case: T007 wires the imported DSD codecs into Pattern A. The original 20-row Rust manifest describes
+Flick's retained test-only converter and parser. Phase A production uses the approved flat-response
+byte-table converter and also admits six-channel DFF; these are already shipped module behaviours.
+Options:
+- Preserve production defaults and parser coverage; check provider PCM exactly against production,
+  and retain the unchanged Rust oracle and analytic signal tests as independent codec validation.
+- Reintroduce the old Flick filter or refuse DFF inputs already supported by production.
+Chosen: the first option, as documented by docs/dsd/ORACLE.md's production section and
+BYTE-TABLE-PERFORMANCE.md. Defaults remain 88.2 kHz for DSD64 and 176.4 kHz for DSD128/256.
+Nineteen original DSF/DFF fixtures now play; DST retains its named unsupported refusal. The fourteen
+standalone WavPack DSD rows comprise thirteen playable inputs and one intentionally corrupt input,
+which retains a typed malformed failure. Original oracle goldens and imported codec tests are untouched.
+Explicit higher DSD targets use :dsp Profile.HQ at 176.4 kHz for the 44.1 kHz family (192 kHz for
+48 kHz multiples). Conversion uses reusable planar/interleaved storage and delay-compensated drain;
+seeks restore 4096 input frames of HQ FIR history, aligned to the rational phase, after codec pre-roll,
+then discard to the requested output frame. Production defaults need no additional resampling.
+The provider wraps the parser's unsupported rate/target/DST IOExceptions in a named typed cause,
+keeping malformed input distinct and preserving the parser message through the normal failure log.
+Registry order remains Platform/WavPack/APE/Musepack/WMA, then DSD and the retained AIFF provider.
+Revisit if: T013 device output or M6 performance checks expose a supported-rate or seek issue.
+Channel placement/downmix remains T010; no imported codec API, filter, ADR or 001 behaviour changes.

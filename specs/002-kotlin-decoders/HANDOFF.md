@@ -4,27 +4,28 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T005 committed (T005: `ce81207`); T006 implements and registers
-  the ASF WMA family after Platform/WavPack/APE/Musepack, retaining AIFF. All 52 decodable WMA 1/2,
-  Lossless, Pro and Voice fixtures match exact oracle PCM hashes, sample counts and seek tails;
-  all 15 committed refusals preserve codec names and the provider failure-log ID.
+- **Phase:** M1 execution — T001–T006 committed (T006: `22473a4`); T007 adds the DSF/DFF
+  provider and WavPack DSD PCM conversion with exact seek pre-roll. All 19 production-playable original
+  DSF/DFF fixtures and 13 standalone WavPack DSD inputs pass PCM/seek checks; DST and corrupt WavPack
+  retain named unsupported/malformed failures. Explicit high rates pass HQ conversion and seek checks.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Blocked:** nothing. T006's commit is prepared in `.codex-commit/` for the runner;
+- **Blocked:** nothing. T007's commit is prepared in `.codex-commit/` for the runner;
   Git mutations and push are NOT RUN here per AGENTS.md step 5.
-- **Next step:** runner commits/pushes T006 on `feature/media3-migration`, then T007 adds DSD.
+- **Next step:** runner commits/pushes T007 on `feature/media3-migration`, then T008 adds PCM variants.
   Channel mapping/downmix belongs to T010, full/device validation to T013.
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-17 records ASF dispatch, advisory/unknown duration handling, buffer capacity
-  reservation, the bounded refusal probe and the oracle's multichannel WAVE label limitation.
+- **New decision:** D-18 preserves the existing production DSD converter/parser coverage and defaults,
+  describes HQ resampling/pre-roll and distinguishes original Rust reference goldens from production PCM.
   Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T007; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 79 app tests, 0 failures/errors/skips; :codecs:test UP-TO-DATE (1,477 cached passing tests); compileDevQaKotlin PASS; graph changed (10,834 nodes, 32,284 edges), both artifacts included. Production DSF/DFF and WavPack DSD PCM/seek tails match exactly; 352.8/705.6 kHz targets match :dsp HQ conversion and exact seeks. DST refusal and corrupt WavPack retain typed failures/provider logging. D-18 records production/reference distinctions and rate conversion. Attempt 1 FAIL: new test assumptions incorrectly treated production 6ch DFF as refused and corrupt WavPack as playable; corrected coverage per imported production behaviour and fixture status. Attempt 2 FAIL: missing provider header-probe size; fixed to 4 KiB. Full app/sharedLogic/other module suites, lint, assemble, DSD speed and phone checks NOT RUN: T013/M6 scope. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T006; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 73 tests, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,768 nodes, 32,103 edges), both artifacts included. All 52 playable WMA-family fixtures match exact oracle bytes and forward/backward/end seeks; all 15 refusals retain named typed causes and provider logging. Understated/unknown ASF durations preserve full PCM and seeks beyond estimates. D-17 records dispatch/duration/packing and the oracle label limitation. Attempt 1 FAIL: packing storage grew; fixed capacity reservation. Attempt 2 FAIL: new format assertion trusted outer WAVE tag; corrected per FR-002 and the imported raw-float oracle, retaining exact hashes/depth/encoding checks. Full suites, sharedLogic/module suites, lint, assemble, WMA speed and phone checks NOT RUN: T013/M6 scope. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T005; commit: prepared for runner (SHA pending) | GATE: PASS on attempt 2; 50 tests (11 unchanged T002, 10 T003, 6 WavPack, 6 APE/Musepack, 17 registry), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,711 nodes, 31,956 edges), both artifacts included. All 31 APE and 32 Musepack fixtures match exact oracle hashes and seek tails. D-16 records the float-buffer subtype and exact end seek. Attempt 1 FAIL: refusal probe size, EOF rounding and reflection compatibility; fixed in production without editing T002. Full suites, sharedLogic/module suites, lint, assemble and device checks NOT RUN: T013 owns the full/device gate. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T004; commit: prepared for runner (SHA pending) | GATE: PASS on attempt 2; 44 tests (11 unchanged T002, 10 T003, 6 provider, 17 registry), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,642 nodes, 31,788 edges), both artifacts included. Checks all 67 original WavPack inputs and 96 standalone libwavpack rows; 14 DSD rows explicitly refused pending T007. Host speed: 72 files, RTF median 0.005968458, worst 0.021165319 (47.247×). D-15 records scope/method. Attempt 1 FAIL: JVM constructor compatibility, duplicate refusal prefix, packed width; all fixed without editing T002. Full suites, sharedLogic/module tests, lint, assemble and device checks NOT RUN: T013 owns the full/device gate. Correction-paired decoding NOT RUN: single-source provider uses committed standalone hybrid oracle. Commit/push NOT RUN: runner handles Git metadata. |
@@ -37,6 +38,54 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T007 verification
+
+- Memory checks before all three attempts: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
+  `MemAvailable` 3,831,588 / 3,905,048 / 3,977,312 kB (all ≥ 2 GB).
+- Final quick gate (attempt 3, logs `/tmp/verify-task.DaigIA`):
+  `bash .claude/skills/verify-task/scripts/verify.sh --files '<ten Kotlin files below>' --quick ':codecs:test :androidApp:testDevQaUnitTest' --tests '*Dsd*' --tests 'com.amwolfstein.sistrum.player.decoders.*'`.
+  GATE: PASS; app 79 tests, zero failures/errors/skips; `:androidApp:compileDevQaKotlin` PASS.
+  `:codecs:test` UP-TO-DATE, with 1,477 cached tests and zero failures/errors/skips. Its imported
+  DSD Rust-oracle, production signal/specification and WavPack raw/decimator tests remain unchanged.
+  App checks comprise six new DSD tests plus all 73 previous decoder/provider/registry checks,
+  including the eleven unchanged T002 tests. Pinned corpus prerequisites passed.
+- PCM coverage: all 20 original DSF/DFF source hashes checked; 19 production-playable files compared
+  byte-for-byte to the production converter, including the three 6ch DFF files now admitted by Phase A.
+  Format/rate/channels, exact sample counts/durations, padding/delay, reusable packing storage and
+  forward/backward/end seek tails verified. DST preserves its original message, unsupported typed cause,
+  sniff provider recording and failure-log provider ID. The original Rust manifest describes the retained
+  test-only Flick converter, as documented by the production section of docs/dsd/ORACLE.md (D-18).
+- WavPack DSD: 14 standalone rows checked against committed source hashes. Thirteen playable rows now
+  emit float PCM matching the existing converter; all seek tails match uninterrupted PCM. The corrupt
+  row retains its typed malformed/CRC failure. Existing WavPack oracle checks now validate DSD PCM
+  format/count/hash while preserving all PCM/float, old-version and corrupt-input assertions.
+- Rate conversion: explicit 352800 and 705600 Hz DSD256 targets emit 176400 Hz and match direct
+  :dsp Profile.HQ output exactly, including delay compensation, drain length and seek tails. Default
+  DSD64 stays 88200 Hz; DSD128/256 stay 176400 Hz without a second conversion. HQ conversion restores
+  bounded FIR history after codec pre-roll and reuses all streaming buffers.
+- Changed production paths (under `androidApp/src/main/kotlin/com/amwolfstein/sistrum/`):
+  `player/decoders/kotlin/KotlinDsdProvider.kt` (new), `DsdRateConverter.kt` (new),
+  `KotlinWavPackProvider.kt`, `KotlinDecodingExtractor.kt`; `player/decoders/DecoderRegistry.kt`.
+  Changed test paths (under `androidApp/src/test/kotlin/com/amwolfstein/sistrum/`):
+  `player/decoders/kotlin/KotlinDsdProviderTest.kt` (new), `KotlinWavPackProviderTest.kt`,
+  `KotlinApeMusepackProviderTest.kt`, `KotlinWmaProviderTest.kt`; `player/decoders/DecoderRegistryTest.kt`.
+  Required documents: this HANDOFF, tasks.md and DECISIONS.md (D-18).
+  Generated artifacts: `graphify-out/graph.json`, `graphify-out/.graphify_analysis.json`.
+- Files outside the two named task paths: the rate-converter helper implements T007's HQ/pre-roll
+  requirement; WavPack enables the assigned DSD output path; the registry registers DSF/DFF; the
+  extractor classifies named DSD unsupported failures. Existing registration assertions change only
+  for the provider T007/FR-001 explicitly adds. Task/decision/graph files follow autonomous mode.
+- Migration-guard self-review: no tests deleted, renamed away, ignored, skipped or weakened; T002 and
+  imported codec tests/goldens untouched. Temporary WavPack DSD-refusal expectations are replaced with
+  PCM assertions because T007 explicitly supplies conversion; intentional corruption remains a failure.
+  PlaybackController, Room, native code and daily apps untouched; no feature, ADR, architecture or
+  unrelated 001 behaviour changed. `git diff --check` PASS.
+- Graph refresh: the quick gate runs `python3 .claude/hooks/graph_refresh.py auto`; final result
+  `graph: changed (10834 nodes, 32284 edges)`, both generated artifacts included.
+- NOT RUN: full app/sharedLogic/dsp/metadata/analysis suites, lint, assemble and device tests (T013);
+  DSD phone speed/seek-latency/CPU checks (T013/M6); real listening/Bluetooth/headset checks (owner
+  manual list); Git staging/commit/push (runner, AGENTS.md step 5). Codec suite was cached, not re-executed.
 
 ## T006 verification
 

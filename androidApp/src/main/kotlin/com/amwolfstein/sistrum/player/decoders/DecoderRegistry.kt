@@ -3,6 +3,7 @@ package com.amwolfstein.sistrum.player.decoders
 import com.amwolfstein.sistrum.player.decoders.aiff.KotlinAiffProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinWavPackProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinApeProvider
+import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinDsdProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinWmaProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinMusepackProvider
 
@@ -174,8 +175,8 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
         DecoderTableEntry("eac3", "eac3", listOf("platform"), listOf("audio/eac3"), "E-AC-3"),
         DecoderTableEntry("ape", "ape", listOf("kotlin-ape"), emptyList(), "APE"),
         DecoderTableEntry("wv", "wv", listOf("kotlin-wavpack"), emptyList(), "WavPack"),
-        DecoderTableEntry("dsf", "dsf", emptyList(), emptyList(), "DSD"),
-        DecoderTableEntry("dff", "dff", emptyList(), emptyList(), "DSD"),
+        DecoderTableEntry("dsf", "dsf", listOf("kotlin-dsd"), emptyList(), "DSD"),
+        DecoderTableEntry("dff", "dff", listOf("kotlin-dsd"), emptyList(), "DSD"),
         DecoderTableEntry("wma", "wma", listOf("kotlin-wma"), emptyList(), "WMA"),
         DecoderTableEntry("mpc", "mpc", listOf("kotlin-musepack"), emptyList(), "Musepack"),
         DecoderTableEntry("tta", "tta", emptyList(), emptyList(), "TTA"),
@@ -188,7 +189,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
  * (T038) so the table lookup and the player's extractors cannot drift apart.
  */
 fun defaultDecoderProviders(probe: CodecProbe): List<DecoderProvider> =
-    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinApeProvider(), KotlinMusepackProvider(), KotlinWmaProvider(), KotlinAiffProvider())
+    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinApeProvider(), KotlinMusepackProvider(), KotlinWmaProvider(), KotlinDsdProvider(), KotlinAiffProvider())
 
 /** The table-backed registry over [defaultDecoderProviders]. */
 fun defaultDecoderRegistry(probe: CodecProbe): DecoderRegistry =

@@ -26,8 +26,7 @@ internal class KotlinWavPackProvider : DecoderProvider {
     private fun open(source: RandomAccessSource): CodecStream {
         val wv = Wv.open(source)
         val info = wv.info
-        // Raw DSD bytes cannot be advertised as PCM. T007 supplies the DSD conversion path.
-        if (info.isDsd) throw WavPackException(ErrorCode.UNSUPPORTED, "DSD output requires PCM conversion")
+        if (info.isDsd) return KotlinDsdProvider.wavPack(source)
         val encoding = if (info.isFloat) C.ENCODING_PCM_FLOAT else when (info.bits) {
             8 -> C.ENCODING_PCM_8BIT
             16 -> C.ENCODING_PCM_16BIT

@@ -65,9 +65,10 @@ class DecoderRegistryTest {
     @Test
     fun `lossless formats without a provider report an unsupported format`() {
         val registry = defaultDecoderRegistry(probeAll)
-        assertNull(registry.resolve(FormatKey("dsf", "dsf")))
-        assertEquals("unsupported format (DSD)", registry.skipReason(FormatKey("dsf", "dsf")))
-        assertEquals("unsupported format (DSD)", registry.skipReason(FormatKey("dff", "dff")))
+        assertEquals("kotlin-dsd", registry.resolve(FormatKey("dsf", "dsf"))?.id)
+        assertNull(registry.skipReason(FormatKey("dsf", "dsf")))
+        assertEquals("kotlin-dsd", registry.resolve(FormatKey("dff", "dff"))?.id)
+        assertNull(registry.skipReason(FormatKey("dff", "dff")))
         // T005 registers APE/Musepack as required by 002 FR-001.
         assertEquals("kotlin-ape", registry.resolve(FormatKey("ape", "ape"))?.id)
         assertNull(registry.skipReason(FormatKey("ape", "ape")))
