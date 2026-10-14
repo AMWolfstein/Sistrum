@@ -47,7 +47,8 @@ device (constitution Principle 10).
   `ui/components/MaterialSymbols.kt`. Icons are font glyphs, not vector drawables.
 - FFmpeg shared libraries in `androidApp/src/main/jniLibs/` are not in git. If a build
   fails with "FFmpeg artifacts are missing", run `bash scripts/build-ffmpeg-android.sh arm64-v8a`.
-- The repo has no .gitignore; build outputs are ignored through `.git/info/exclude`.
+- Build outputs are ignored through `.git/info/exclude`; the tracked `.gitignore` (since 002 import 24) only lists audio
+  file types (test audio lives in `~/.cache`, never in git).
   Stage files by explicit path only.
 - Graphify: only `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json` are
   tracked. Everything else in `graphify-out/` (build/, cache/, manifest.json, .graphify_root, lock
