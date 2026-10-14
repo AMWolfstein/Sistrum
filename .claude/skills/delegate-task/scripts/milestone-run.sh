@@ -71,7 +71,7 @@ if [ -d .codex-commit ]; then
 fi
 
 for t in $tasks; do
-  line=$(grep -m1 -E "^- \[[ xX]\] $t\b" "$feature/tasks.md") || { echo "STOP: $t not in tasks.md"; exit 1; }
+  line=$(grep -m1 -E "^- \[[ xX]\] $t( |\$)" "$feature/tasks.md") || { echo "STOP: $t not in tasks.md"; exit 1; }
   case "$line" in "- [x]"*|"- [X]"*) echo "SKIP $t (already done)"; continue ;; esac
   effort=medium; case "$line" in *"[HIGH-RISK]"*) effort=high ;; esac
   done_ok=0
