@@ -44,7 +44,12 @@ sections and files the task needs.
    will change (`git grep`), data/contracts touched (Room, analysis documents, preferences, `DecoderProvider` order,
    `PlaybackController`), and the tests that must stay unmodified. After implementing, compare the diff with that
    list: every extra file needs a reason in the HANDOFF row.
-   **Implement** exactly that task. Tasks marked `[TESTS-FIRST]` write tests only; a later task makes them pass
+   **Implement** exactly that task, with the smallest diff that does it (minimal-change rules, adapted from
+   agency-agents): touch only files the task requires; no "while I'm here" refactors or improvements (list them as
+   follow-ups in the HANDOFF row); three similar lines beat a new helper (extract at the fourth); no defensive code for
+   cases that cannot happen — validate at boundaries (files, tags, user input, platform APIs); no compatibility shims
+   or `// removed` stubs for dead code. Before preparing the commit, walk the diff: each file "required because…",
+   and "could it be smaller?" — if yes, make it smaller. Tasks marked `[TESTS-FIRST]` write tests only; a later task makes them pass
    without modifying them. High-risk areas (crossfade, queue, state flows, normalization, Room, MediaSession) always
    get their tests first.
 2. **Quick gate** (every task): memory check first (`./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;

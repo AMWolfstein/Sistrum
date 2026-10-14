@@ -32,6 +32,23 @@ instrumented on `.qa`), M6 performance report, HANDOFF open issues and the owner
   checklist on the main screens.
 - **Privacy** — no personal paths or identifiers in logs; Last.fm credentials stored safely; scrobbling opt-in.
 
+## Release checklist (release-blocking; from agency-agents mobile-release-engineer, adapted)
+A shipped APK cannot be pulled back, only replaced by a fix, so each item is checked, not assumed.
+- [ ] `versionCode` bumped and higher than every published build (never reused); `versionName` matches the notes.
+- [ ] Signed with the intended key, verified with `apksigner verify --print-certs` (CLAUDE.md signing procedure);
+      the keystore is backed up somewhere other than this laptop — losing it means no updates ever.
+- [ ] The tested artifact is the release build itself (`prodRelease`, R8 on), not devQa/debug; smoke-tested on a device
+      under the release application ID (not the owner's daily apps).
+- [ ] R8 `mapping.txt` for this exact build archived with the release tag, so stack traces can be read later.
+- [ ] Release notes and store/listing text current and localized (English + Arabic); screenshots current.
+- [ ] Privacy declarations current (permissions used and why; Play "Data safety" form if published there).
+- [ ] minSdk/targetSdk and supported ABIs as intended; third-party notices complete.
+- [ ] Rollback = forward-fix plan written: which build replaces this one, who watches the first days.
+- [ ] Tag the release commit; archive APK + mapping + notes together.
+
+Staged rollout (if distributed through a store with staging): internal → closed testing → production
+1% → 5% → 20% → 50% → 100%; pause and fix forward on a crash-free drop, an ANR spike, or a P0 regression report.
+
 ## Score
 0–49 blocked · 50–69 risky (internal beta only) · 70–84 launchable with caveats · 85–100 strong.
 Cap at 69 if: a Room migration is untested, a crash path is known on a main flow, or secrets/personal data ship.

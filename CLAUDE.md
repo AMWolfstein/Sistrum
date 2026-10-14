@@ -197,6 +197,10 @@ or when legacy code is deleted. Never commits.
   (`docs/REGRESSION.md`), `loop-design-check` (runner/AGENTS.md changes), `santa-method` (high-risk review),
   `inherit-legacy-style`, `kotlin-coroutines-flows`, `compose-multiplatform-patterns`, `accessibility`,
   `brownfield-retrospective` (full review), `production-audit` (release), `security-scan` (AgentShield, scan-only).
+- Ported from agency-agents (MIT, `docs/AGENCY-AGENTS-LICENSE.md`, adapted, read-only): agents
+  `codebase-archaeologist` (cross-era drift: units, fallbacks, async ordering, duplicates, dead code; after M1, full
+  review, before 003) and `ui-finish-gate-reviewer` (UI phase: design contract + PASS/HOLD); the mobile release
+  checklist lives in skill `production-audit`; minimal-change rules in AGENTS.md step 1.
 - `migration-guard` agent: read-only test-integrity + contract review; only for tasks that touch
   tests, `player/PlaybackController.kt`, or Room.
 - Hooks (`.claude/hooks/git_hooks.py`, PreToolUse on Bash): `guard` blocks `git add -A`/`.`/`-u`,
