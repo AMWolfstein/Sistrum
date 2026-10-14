@@ -134,6 +134,12 @@ or when legacy code is deleted. Never commits.
 
 ## Rules
 
+- **Autonomous mode (owner, 2026-10-14; spec 002 Phase B onward, also 003 and bug-fix phases):** Claude writes the
+  spec, plan and tasks only. Codex implements, runs the gate (`verify.sh --quick` per task, full gate + `.qa` phone
+  check in each milestone's last task), self-reviews with the migration-guard checklist, refreshes the graph, commits
+  and pushes every task itself (`AGENTS.md` "Autonomous mode"), one fresh Codex session per task via
+  `.claude/skills/delegate-task/scripts/milestone-run.sh`. Claude checks the commit log and HANDOFF at milestone ends.
+  Where this conflicts with the rules below (coder never commits, Claude re-runs every gate), autonomous mode wins.
 - Spec Kit (`specs/`, `.specify/`) is the planning source: spec, plan and tasks come from
   the `speckit-*` skills (specify, clarify, plan, tasks, analyze).
 - Don't use superpowers' planning, execution or subagent skills for this migration

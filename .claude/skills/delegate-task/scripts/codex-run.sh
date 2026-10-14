@@ -34,7 +34,10 @@ cp "$brief" "$out/brief.txt"
 events="$out/events.jsonl" final="$out/final.txt" stderr_log="$out/stderr.txt"
 started=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
-roots="[\"$HOME/.gradle\", \"$HOME/.android\", \"$HOME/.local/share/kotlin\", \"$HOME/.konan\", \"$HOME/.m2\"]"
+# Autonomous mode (owner 2026-10-14, 002+): the coder commits and pushes, so the git common dir must be writable;
+# oracle corpora live in ~/.cache (sistrum-*), graphify needs its cache.
+gitdir=$(cd "$repo" && git rev-parse --path-format=absolute --git-common-dir)
+roots="[\"$HOME/.gradle\", \"$HOME/.android\", \"$HOME/.local/share/kotlin\", \"$HOME/.konan\", \"$HOME/.m2\", \"$gitdir\", \"$HOME/.cache\"]"
 cfg=(
   -c 'sandbox_mode="workspace-write"'
   -c "sandbox_workspace_write.writable_roots=$roots"

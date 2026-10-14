@@ -16,10 +16,14 @@
 #                   `<FQCN>` (every test in the class) or `<FQCN>#<method name>` (that test only; the class's other
 #                   tests must pass). All other tests in the run must pass. Prints an "Expected-fail:" line for the
 #                   commit message.
+#   --quick         per-task quick gate (owner 2026-10-14, 002+): run these Gradle test tasks instead of the full
+#                   unit suites (e.g. ':codecs:test' or ':androidApp:testDevQaUnitTest'), and compile
+#                   (:androidApp:compileDevQaKotlin) instead of assembling. Full suites, lint and assembleDevQa run at
+#                   the milestone's last task.
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-files="" files_given=0 filters=() lint=0 instrumented="" expect_fail=""
+files="" files_given=0 filters=() lint=0 instrumented="" expect_fail="" quick=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --files) files="$2"; files_given=1; shift 2 ;;
@@ -27,6 +31,7 @@ while [ $# -gt 0 ]; do
     --lint) lint=1; shift ;;
     --instrumented) instrumented="$2"; shift 2 ;;
     --expect-fail) expect_fail="$2"; shift 2 ;;
+    --quick) quick="$2"; shift 2 ;;
     *) echo "verify: unknown argument $1" >&2; exit 2 ;;
   esac
 done
@@ -60,9 +65,11 @@ report() { printf '%-14s %-8s %s\n' "$1" "$2" "$3"; [ "$2" = FAIL ] && overall=F
 
 # Unit tests
 if [ -z "$expect_fail" ]; then
-  if ./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest "${filters[@]}" --continue \
+  unit_tasks=(:androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest)
+  [ -n "$quick" ] && read -r -a unit_tasks <<< "$quick"
+  if ./gradlew "${unit_tasks[@]}" "${filters[@]}" --continue \
       > "$logs/unit.log" 2>&1; then
-    report "unit tests" PASS "${filters[*]:-full suites}"
+    report "unit tests" PASS "${unit_tasks[*]} ${filters[*]:-(all)}"
   else
     report "unit tests" FAIL "see $logs/unit.log"
     grep -E 'FAILED|^e: |What went wrong' -A2 "$logs/unit.log" | head -40
@@ -164,8 +171,10 @@ PY
 fi
 
 # Build
-if ./gradlew -q :androidApp:assembleDevQa > "$logs/build.log" 2>&1; then
-  report "build" PASS ":androidApp:assembleDevQa"
+build_task=:androidApp:assembleDevQa
+[ -n "$quick" ] && build_task=:androidApp:compileDevQaKotlin
+if ./gradlew -q "$build_task" > "$logs/build.log" 2>&1; then
+  report "build" PASS "$build_task"
 else
   report "build" FAIL "see $logs/build.log"
   grep -E '^e: |What went wrong' -A3 "$logs/build.log" | head -40
