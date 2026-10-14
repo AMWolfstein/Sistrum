@@ -200,11 +200,20 @@ Dynamic scheduling (disabled in T020 for position freshness), temporary local to
 fails with it on (2/2: "position drifted from wall time (t=201ms, p=50ms)"), so it needs a position-freshness fix
 before it can ship → T062g part 2.
 
+### T062g part 2 — dynamic scheduling attempt (parked)
+
+Coder implemented dynamic scheduling for playback players plus a `PositionSmoother` (9 host tests, migration-guard PASS).
+Device (debuggable `.qa`): `Media3EngineGaplessTest` 7/7, but `Media3EngineCoreTest` 11/12 (accumulated position drift)
+and `Media3CrossfadeTest` 12/16: EQ/preamp inheritance (1.206 expected, 0.589), end-of-track fade audible start −100 ms
+vs decision, skip-fade start −62 ms, pause/skip flush timeout. Same suites on the committed code: 16/16 and 12/12. The
+crossfade and DSP-handover timing depend on the 10 ms loop. Change parked verbatim in
+`research/park/T062g-part2-dynamic-scheduling.diff` for the perf phase.
+
 ## Summary
 
 | Criterion | Result |
 |---|---|
 | SC-003 | FLAC PASS; MP3 one join 10.65 ms (limit 10) — FAIL at measurement → **PASS after T062j** (2026-10-14): every MP3 and FLAC join 1 frame (0.02 ms) |
 | SC-006 | Original ≤ +20 % FAIL (2.1–3.7× native's handover time; metric not like for like). **Amended by the owner 2026-10-14 to ≤ 300 ms → PASS**: Opus-heavy 259 ms, lossless/MP3/AAC 201 ms (release-like, 3-run medians) |
-| SC-013 | NOT RUN (1 h, owner); short runs predict FAIL (crossfade off ≈ 2× native CPU) |
+| SC-013 | NOT RUN (1 h, owner); short proxy FAIL (steady crossfade-off CPU 1.7× native). **Owner 2026-10-14: not met for 001, deferred to the cleanup/perf phase** (T062g) |
 | SC-014 | FAIL at measurement → **PASS after T062e** (2026-10-14): all 4 prepare-time failures attributed (WMA provider "none"), logged and skipped by the coordinator; 44 OK |

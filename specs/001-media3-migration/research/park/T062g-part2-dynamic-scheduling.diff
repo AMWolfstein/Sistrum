@@ -1,0 +1,305 @@
+diff --git a/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3Engine.kt b/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3Engine.kt
+index df4a578..e22f8b5 100644
+--- a/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3Engine.kt
++++ b/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3Engine.kt
+@@ -170,8 +170,7 @@ internal class Media3Engine(
+     private var outputBaseMs = 0L
+     private var endedArmed = false
+     private var rawMs = 0L
+-    private var rawAtMs = 0L
+-    private var lastReturnedMs = 0L
++    private val positionSmoother = PositionSmoother(MAX_EXTRAPOLATION_MS)
+     // Playback-looper-only upper envelope of the current slot's buffer-sized processing advances.
+     private data class LeadReading(val timeMs: Long, val leadMs: Long)
+     private val fadeLeadReadings = ArrayDeque<LeadReading>()
+@@ -368,8 +367,7 @@ internal class Media3Engine(
+             prepared = true
+             endedArmed = true
+             rawMs = candidate.currentPosition.coerceAtLeast(0L)
+-            rawAtMs = SystemClock.elapsedRealtime()
+-            lastReturnedMs = rawMs
++            positionSmoother.reset(rawMs, SystemClock.elapsedRealtime())
+         }
+         if (!startPaused) play()
+     }
+@@ -467,6 +465,8 @@ internal class Media3Engine(
+         factory.call {
+             val p = player ?: return@call
+             if (!p.playWhenReady) {
++                rawMs = p.currentPosition.coerceAtLeast(0L)
++                positionSmoother.reset(rawMs, SystemClock.elapsedRealtime())
+                 resetFadeLeadWindow()
+                 armStartProbe(p)
+             }
+@@ -567,8 +567,7 @@ internal class Media3Engine(
+             p.playWhenReady = false
+             awaitingOutput = false
+             rawMs = p.currentPosition.coerceAtLeast(0L)
+-            rawAtMs = SystemClock.elapsedRealtime()
+-            lastReturnedMs = rawMs
++            positionSmoother.reset(rawMs, SystemClock.elapsedRealtime())
+         }
+     }
+ 
+@@ -585,8 +584,7 @@ internal class Media3Engine(
+             endedArmed = true
+             if (awaitingOutput) outputBaseMs = positionMs
+             rawMs = positionMs
+-            rawAtMs = SystemClock.elapsedRealtime()
+-            lastReturnedMs = positionMs
++            positionSmoother.reset(rawMs, SystemClock.elapsedRealtime())
+         }
+     }
+ 
+@@ -594,25 +592,17 @@ internal class Media3Engine(
+         val p = player ?: return@call 0L
+         val now = SystemClock.elapsedRealtime()
+         val current = p.currentPosition.coerceAtLeast(0L)
+-        if (current != rawMs) {
+-            rawMs = current
+-            rawAtMs = now
+-        }
+-        if (!p.isPlaying) {
+-            lastReturnedMs = rawMs
+-            return@call rawMs
+-        }
+-        val speed = p.playbackParameters.speed
+-        val extrapolated = rawMs + (min(now - rawAtMs, MAX_EXTRAPOLATION_MS) * speed).toLong()
+-        val result = max(lastReturnedMs, extrapolated)
++        val rawChanged = current != rawMs
++        rawMs = current
+         val duration = p.duration
+-        val clamped = if (duration != C.TIME_UNSET && duration > 0L) {
+-            result.coerceIn(0L, duration)
+-        } else {
+-            result.coerceAtLeast(0L)
+-        }
+-        lastReturnedMs = clamped
+-        clamped
++        positionSmoother.read(
++            rawMs = current,
++            rawChanged = rawChanged,
++            nowMs = now,
++            playing = p.isPlaying,
++            speed = p.playbackParameters.speed,
++            durationMs = duration.takeIf { it != C.TIME_UNSET && it > 0L },
++        )
+     }
+ 
+     override fun durationMs(): Long = factory.call {
+@@ -797,8 +787,7 @@ internal class Media3Engine(
+     private fun resetPosition(position: Long) {
+         resetFadeLeadWindow()
+         rawMs = position.coerceAtLeast(0L)
+-        rawAtMs = SystemClock.elapsedRealtime()
+-        lastReturnedMs = rawMs
++        positionSmoother.reset(rawMs, SystemClock.elapsedRealtime())
+     }
+ 
+     private fun appendGapless(item: PlaybackItem) {
+diff --git a/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3PlayerFactory.kt b/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3PlayerFactory.kt
+index 6f445a6..8ebb909 100644
+--- a/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3PlayerFactory.kt
++++ b/androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3PlayerFactory.kt
+@@ -304,9 +304,9 @@ internal class Media3PlayerFactory(
+                     ProviderExtractorsFactory(providers, recorder = providerRecorder),
+                 )
+             )
+-            // On by default in 1.11: the playback loop then sleeps ~250 ms between updates, so the position the
+-            // coordinator reads at its 200 ms tick goes stale (FR-012, lyrics sync). Measured on the CPH2307 (T020).
+-            .experimentalSetDynamicSchedulingEnabled(false)
++            // Let the playback loop sleep until buffers need work. PositionSmoother keeps the coordinator's
++            // 200 ms position tick fresh between raw updates, anchored to rendered audio (FR-012, T062g).
++            .experimentalSetDynamicSchedulingEnabled(true)
+         val player = builder.setRenderersFactory(renderersFactory).build()
+         if (dspChainEnabled) {
+             synchronized(dspLock) {
+diff --git a/graphify-out/.graphify_analysis.json b/graphify-out/.graphify_analysis.json
+index f4cef90..479426d 100644
+Binary files a/graphify-out/.graphify_analysis.json and b/graphify-out/.graphify_analysis.json differ
+diff --git a/graphify-out/graph.json b/graphify-out/graph.json
+index d9cabb8..35e31e6 100644
+Binary files a/graphify-out/graph.json and b/graphify-out/graph.json differ
+=== new file: PositionSmoother.kt
+package com.amwolfstein.sistrum.player.media3
+
+import kotlin.math.abs
+import kotlin.math.min
+
+/**
+ * Advances between rendered-position updates, correcting a small lead at half the playback rate.
+ * The engine uses a 500 ms guard: twice the dynamic scheduler's ~250 ms cadence, with bounded stall drift.
+ */
+internal class PositionSmoother(private val maxExtrapolationMs: Long) {
+
+    private var estimateMs = 0.0
+    private var rawTimelineMs = 0.0
+    private var rawAtMs = 0L
+    private var readAtMs = 0L
+
+    fun reset(positionMs: Long, nowMs: Long) {
+        estimateMs = positionMs.toDouble()
+        rawTimelineMs = estimateMs
+        rawAtMs = nowMs
+        readAtMs = nowMs
+    }
+
+    fun read(
+        rawMs: Long,
+        rawChanged: Boolean,
+        nowMs: Long,
+        playing: Boolean,
+        speed: Float,
+        durationMs: Long?,
+    ): Long {
+        if (!playing) {
+            reset(rawMs, nowMs)
+        } else {
+            // Only integrate time inside the last raw update's guard; repeated reads cannot extend it.
+            val elapsedMs = (nowMs - rawAtMs).coerceIn(0L, maxExtrapolationMs)
+            val previousElapsedMs = (readAtMs - rawAtMs).coerceIn(0L, maxExtrapolationMs)
+            val advanceMs = (elapsedMs - previousElapsedMs).coerceAtLeast(0L) * speed.toDouble()
+            val leadMs = (estimateMs - rawTimelineMs).coerceAtLeast(0.0)
+            estimateMs += advanceMs - min(leadMs, advanceMs * 0.5)
+            rawTimelineMs += advanceMs
+            readAtMs = nowMs
+
+            if (rawChanged) {
+                if (abs(rawMs - estimateMs) > 1_000.0) {
+                    // An unannounced seek or item change is allowed to break monotonicity.
+                    reset(rawMs, nowMs)
+                } else {
+                    estimateMs = estimateMs.coerceAtLeast(rawMs.toDouble())
+                    rawTimelineMs = rawMs.toDouble()
+                    rawAtMs = nowMs
+                }
+            }
+        }
+        val positionMs = estimateMs.toLong().coerceAtLeast(0L)
+        return if (durationMs != null) positionMs.coerceAtMost(durationMs) else positionMs
+    }
+}
+=== new file: PositionSmootherTest.kt
+package com.amwolfstein.sistrum.player.media3
+
+import kotlin.math.abs
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class PositionSmootherTest {
+
+    private val maxExtrapolationMs = 500L
+    private val smoother = PositionSmoother(maxExtrapolationMs)
+
+    @Test
+    fun rawUpdatedEvery10MsTracksWallTime() {
+        smoother.reset(0L, 0L)
+        var previous = read(0L, false, 0L)
+        for (nowMs in 10L..2_000L step 10L) {
+            val position = read(nowMs, true, nowMs)
+            assertTrue("position=$position wall=$nowMs", abs(position - nowMs) <= 1L)
+            assertTrue(position > previous)
+            previous = position
+        }
+    }
+
+    @Test
+    fun rawUpdatedEvery250MsKeeps200MsReadsFresh() {
+        smoother.reset(0L, 0L)
+        var previousRaw = 0L
+        var previous = read(0L, false, 0L)
+        for (nowMs in 200L..5_000L step 200L) {
+            val rawMs = nowMs / 250L * 250L
+            val position = read(rawMs, rawMs != previousRaw, nowMs)
+            assertTrue("position=$position previous=$previous", position > previous)
+            assertTrue("step=${position - previous}", abs(position - previous - 200L) <= 150L)
+            assertTrue("position=$position raw=$rawMs", position - rawMs <= 500L)
+            previousRaw = rawMs
+            previous = position
+        }
+    }
+
+    @Test
+    fun raw80MsBehindConvergesWithoutStallingOrGoingBackwards() {
+        smoother.reset(1_000L, 0L)
+        var previous = read(1_000L, false, 200L)
+        assertEquals(1_200L, previous)
+        val delayedRawMs = 1_320L
+        for (nowMs in 400L..2_400L step 200L) {
+            val rawMs = delayedRawMs + nowMs - 400L
+            val position = read(rawMs, true, nowMs)
+            assertTrue(position >= previous)
+            assertTrue("step=${position - previous}", position - previous in 50L..350L)
+            if (nowMs == 400L) assertEquals(1_400L, position)
+            if (nowMs == 2_400L) assertTrue(abs(position - (delayedRawMs + 2_000L)) <= 20L)
+            previous = position
+        }
+    }
+
+    @Test
+    fun raw80MsAheadIsAdoptedImmediately() {
+        smoother.reset(1_000L, 0L)
+        assertEquals(1_200L, read(1_000L, false, 200L))
+        assertEquals(1_480L, read(1_480L, true, 400L))
+    }
+
+    @Test
+    fun noRawUpdateFor2SecondsStopsAtExtrapolationLimit() {
+        smoother.reset(1_000L, 0L)
+        for (nowMs in 100L..2_000L step 100L) {
+            val position = read(1_000L, false, nowMs)
+            assertTrue(position <= 1_000L + maxExtrapolationMs)
+            assertEquals(1_000L + nowMs.coerceAtMost(maxExtrapolationMs), position)
+        }
+    }
+
+    @Test
+    fun pauseReturnsRawAndSeekResetReturnsTarget() {
+        smoother.reset(1_000L, 0L)
+        assertEquals(1_200L, read(1_000L, false, 200L))
+        assertEquals(1_080L, read(1_080L, true, 300L, playing = false))
+        assertEquals(1_080L, read(1_080L, false, 1_000L, playing = false))
+        // Paused reads also re-anchor the next playing read.
+        assertEquals(1_280L, read(1_080L, false, 1_200L))
+        smoother.reset(200L, 1_300L)
+        assertEquals(200L, read(200L, false, 1_300L))
+    }
+
+    @Test
+    fun raw5SecondsBehindIsAdoptedAsDiscontinuity() {
+        smoother.reset(10_000L, 0L)
+        assertEquals(10_200L, read(10_000L, false, 200L))
+        assertEquals(5_400L, read(5_400L, true, 400L))
+        assertEquals(5_600L, read(5_400L, false, 600L))
+    }
+
+    @Test
+    fun positionIsClampedToDuration() {
+        smoother.reset(900L, 0L)
+        assertEquals(1_000L, read(900L, false, 200L, durationMs = 1_000L))
+        assertEquals(1_000L, read(1_200L, true, 400L, durationMs = 1_000L))
+        assertEquals(1_000L, read(1_200L, false, 600L, playing = false, durationMs = 1_000L))
+        smoother.reset(-100L, 700L)
+        assertEquals(0L, read(-100L, false, 700L, durationMs = 1_000L))
+        assertEquals(0L, read(0L, true, 800L, durationMs = 0L))
+    }
+
+    @Test
+    fun speed2AdvancesTwiceWallTimeBetweenRawUpdates() {
+        smoother.reset(0L, 0L)
+        assertEquals(200L, read(0L, false, 100L, speed = 2.0f))
+        assertEquals(400L, read(0L, false, 200L, speed = 2.0f))
+        assertEquals(600L, read(600L, true, 300L, speed = 2.0f))
+        assertEquals(800L, read(600L, false, 400L, speed = 2.0f))
+    }
+
+    private fun read(
+        rawMs: Long,
+        rawChanged: Boolean,
+        nowMs: Long,
+        playing: Boolean = true,
+        speed: Float = 1.0f,
+        durationMs: Long? = null,
+    ): Long = smoother.read(rawMs, rawChanged, nowMs, playing, speed, durationMs)
+}

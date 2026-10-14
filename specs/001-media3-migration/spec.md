@@ -119,6 +119,11 @@ known limitations and edge cases.
   stock ExoPlayer 257 ms, native ~75 ms = first buffer handed to AAudio, not heard). Restate, add engine reuse, or
   measure audible latency first? → A: (a) restate as an absolute target. Then: which target, given Opus-heavy 259 ms
   and lossless/MP3/AAC 201 ms (release-like build, 3-run medians)? → A: ≤ 300 ms (SC-006 amended).
+- Q: SC-013 (crossfade-off CPU no higher than native) is not met: steady playback native 10.9 % vs Media3 18.6 % of
+  one core (release-like `.qa`, short proxy). The cost is Media3's 10 ms playback loop; dynamic scheduling gives 14.7 %
+  but breaks crossfade timing (4 device tests) and position freshness. Rework crossfade now, restate, or defer? → A:
+  defer. SC-013 is recorded as NOT MET for 001 and moves to the later cleanup/perf phase (dynamic scheduling + crossfade
+  timing rework + measurement on a real install); the owner's 1 h screen-off check stays deferred.
 
 ### Session 2026-10-13 (owner, T051d speed stop)
 
@@ -828,6 +833,8 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
   memory use (from `dumpsys meminfo`) are no higher than the current engine's with crossfade disabled
   (0 %), and at most 10 % higher with crossfade enabled, measured with the second-player lifetime of FR-033.
   Raw battery percentage is not used.
+  *Owner 2026-10-14: not met for 001 (short proxy: Media3 1.7× native steady CPU); deferred to the cleanup/perf
+  phase, see Session 2026-10-14.*
 - **SC-014**: Every decode failure in the test runs is logged with its format, codec, provider name and
   error, and appears in the exported decode-failure log (FR-064a); zero unexplained decode failures remain
   on corpus files when the default flips to the new engine.

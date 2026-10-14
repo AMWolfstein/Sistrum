@@ -975,9 +975,13 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   starts, smaller start buffer / `bufferForPlaybackMs`, AudioTrack buffer size). Measurement code in
   `AI/regression/Regression001MeasurementTest.kt` only; results + recommendation in `research/regression-001.md`;
   the orchestrator then defines the fix task (ADR check first). {default}
-- [ ] T062g CPU with crossfade off ≤ native (SC-013 short-run proxy): profile per thread on the release-like build, then
+- [x] T062g CPU with crossfade off ≤ native (SC-013 short-run proxy): profile per thread on the release-like build, then
   optimize the Media3 path (owner note Checkpoint M5: e.g. 16-bit input with a neutral chain skips the float
   conversion). Defined in detail after T062f. {hard}
+  **Closed 2026-10-14 (owner): measured, not optimized.** Part 1 `cpuSteadyAndTransition` (steady native 10.9 % vs
+  Media3 18.6 %; cost = Media3's playback loop, our DSP < 1 %). Part 2 (dynamic scheduling + `PositionSmoother`) broke
+  4 `Media3CrossfadeTest` cases and position freshness → parked in `research/park/T062g-part2-dynamic-scheduling.diff`.
+  SC-013 NOT MET for 001, deferred to the cleanup/perf phase.
 - [x] T062h MP3 gapless join ≤ 10 ms on Media3: ExoPlayer reads the right LAME delay/padding (1105/815) and host
   ffmpeg joins the pair in 1 frame, but the 1→2 join keeps ~511 near-silent frames; find the engine-side cause
   (decoder delay at the item transition) and fix it; `Media3EngineGaplessTest` + harness SC-003 row. {hard} [HIGH-RISK]
