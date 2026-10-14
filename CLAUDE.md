@@ -201,6 +201,9 @@ or when legacy code is deleted. Never commits.
   `codebase-archaeologist` (cross-era drift: units, fallbacks, async ordering, duplicates, dead code; after M1, full
   review, before 003) and `ui-finish-gate-reviewer` (UI phase: design contract + PASS/HOLD); the mobile release
   checklist lives in skill `production-audit`; minimal-change rules in AGENTS.md step 1.
+- From claude-code-templates (MIT, `docs/CLAUDE-CODE-TEMPLATES-LICENSE.md`): skill `mobile-design-android` (UI phase).
+  Quality tooling (spec 002 T013a, report-only): detekt + Compose rules, R8 `usage.txt`, lint UnusedResources,
+  Kover — commands in `docs/QUALITY.md`; Claude wires them into `verify.sh` after T013a.
 - `migration-guard` agent: read-only test-integrity + contract review; only for tasks that touch
   tests, `player/PlaybackController.kt`, or Room.
 - Hooks (`.claude/hooks/git_hooks.py`, PreToolUse on Bash): `guard` blocks `git add -A`/`.`/`-u`,
