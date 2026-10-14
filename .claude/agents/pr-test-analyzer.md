@@ -25,6 +25,14 @@ In autonomous mode Codex writes both the code and its tests, so tests can share 
 4. **Gaps** — rate each: critical (a real bug would ship), important, nice-to-have. Name the test to add (class,
    case, assertion).
 
+## Full-review mode (whole codebase, not a range)
+
+Build a risk → test matrix for these areas and list gaps as **risk → missing test → expected assertion**:
+playback operations and end-of-track; crossfade start/finish/interrupt and release during a transition; artwork sync;
+StateFlow/queue consistency and Mood Radio state; sample-rate/channel changes, decoder failure, duration,
+normalization and analysis values; scan, tags, sidecars, duplicates and Room persistence. Name existing tests that are
+too weak and why. Never ask for tests of trivial code.
+
 ## Output
 
 1. Coverage summary (changed unit → tests). 2. Critical gaps. 3. Weak tests (file:line, why). 4. Suggestions.

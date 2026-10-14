@@ -209,9 +209,15 @@ or when legacy code is deleted. Never commits.
   `audio-correctness-reviewer` (PCM formats, channels, gapless, DSP math, render-thread allocation),
   `spec-traceability-auditor` (FR/SC → test → commit, tasks.md ↔ log ↔ HANDOFF), `phone-log-triage` (per-class logcat
   that `verify.sh --instrumented` saves next to `instr-*.log`), `translation-reviewer` (Arabic vs English strings).
+- Full-review agents (2026-10-14; partly from the owner's sistrum-review-agents pack, merged): `android-security-reviewer`
+  (untrusted files through parsers, exported components, network, secrets, R8, dependencies), `playback-lifecycle-reviewer`
+  (PlaybackController contract table, races, MediaSession/foreground service, focus, process death; writes owner manual
+  checks), `performance-reviewer`, `architecture-boundary-reviewer`, and `review-synthesizer` (verifies, de-duplicates
+  and merges all reports into one fix list). Full review: run reviewers per module in parallel batches, reports to
+  `specs/review/full/<agent>.md`, then `review-synthesizer`; confirmed fixes become Codex tasks.
 - From claude-code-templates (MIT, `docs/CLAUDE-CODE-TEMPLATES-LICENSE.md`): skill `mobile-design-android` (UI phase).
-  Quality tooling (spec 002 T013a, report-only): detekt + Compose rules, R8 `usage.txt`, lint UnusedResources,
-  Kover — commands in `docs/QUALITY.md`; Claude wires them into `verify.sh` after T013a.
+  Quality tooling (report-only; first task of spec 003, moved from 002 T013a, D-26): detekt + Compose rules, R8
+  `usage.txt`, lint UnusedResources, Kover — commands in `docs/QUALITY.md`; Claude wires them into `verify.sh` after it.
 - `migration-guard` agent: read-only test-integrity + contract review; only for tasks that touch
   tests, `player/PlaybackController.kt`, or Room.
 - Hooks (`.claude/hooks/git_hooks.py`, PreToolUse on Bash): `guard` blocks `git add -A`/`.`/`-u`,

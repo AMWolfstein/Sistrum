@@ -32,6 +32,13 @@ swap surround channels or click at every track change. You review the audio mean
    lambdas, `List` building, string formatting/logging), no locks shared with the UI thread, no I/O, no `runBlocking`,
    no unbounded loops; buffers reused and sized from the format.
 
+9. **Signal-path integrity** — trace file → demux/decode → PCM → DSP/normalization → sink → transitions, and
+   separately the analysis path (decode → loudness/true peak/Mood Radio features: energy, danceability, brightness,
+   tempo). Analysis must never change the played signal; normalization changes it only as designed. Decoder flush on
+   seek/track change, end-of-track detection, buffer ownership (no buffer reused while still queued).
+
+For a full-review pass, open with a short **Signal-path audit**: the actual path you verified per engine/format family.
+
 ## Output (per finding)
 
 `[SEVERITY] file:line` — what is wrong in audio terms — input that exposes it (format, bit depth, channels, rate) —
