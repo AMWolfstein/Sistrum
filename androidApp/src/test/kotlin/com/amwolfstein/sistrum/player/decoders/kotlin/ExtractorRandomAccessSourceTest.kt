@@ -93,6 +93,80 @@ class ExtractorRandomAccessSourceTest {
         assertThrows(IOException::class.java) { source.read(0, ByteBuffer.allocate(4)) }
     }
 
+    @Test fun interruptedCacheReadsSurviveRebindingAndBackwardSeek() {
+        val delegate = input()
+        val input = object : ExtractorInput by delegate {
+            override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+                Thread.currentThread().interrupt()
+                return delegate.read(buffer, offset, length)
+            }
+        }
+        ExtractorRandomAccessSource(input).use { source ->
+            try {
+                val destination = ByteBuffer.allocate(16)
+                assertEquals(16, source.read(0, destination))
+                assertTrue(Thread.currentThread().isInterrupted)
+                assertArrayEquals(data.copyOfRange(0, 16), destination.array())
+            } finally { Thread.interrupted() }
+            source.bind(input())
+            val destination = ByteBuffer.allocateDirect(16)
+            Thread.currentThread().interrupt()
+            try { assertEquals(16, source.read(0, destination)) }
+            finally { Thread.interrupted() }
+            destination.clear()
+            assertEquals(16, source.read(100_000, destination))
+            destination.flip()
+            val actual = ByteArray(16).also { destination.get(it) }
+            assertArrayEquals(data.copyOfRange(100_000, 100_016), actual)
+        }
+    }
+
+    @Test fun failedConstructorDeletesItsCacheAndPreservesTheCause() {
+        val file = File.createTempFile("sistrum-source-test-", ".cache")
+        val failure = IOException("length unavailable")
+        val input = object : ExtractorInput by input() { override fun getLength(): Long = throw failure }
+        assertSame(failure, assertThrows(IOException::class.java) { ExtractorRandomAccessSource(input, file) })
+        assertFalse(file.exists())
+    }
+
+    @Test fun staleSweepOnlyDeletesCodecCaches() {
+        val directory = java.nio.file.Files.createTempDirectory("sistrum-cache-test-").toFile()
+        try {
+            val stale = File(directory, "sistrum-codec-stale.cache").apply { writeText("stale") }
+            val other = File(directory, "another.cache").apply { writeText("keep") }
+            val partialName = File(directory, "sistrum-codec-keep.bin").apply { writeText("keep") }
+            ExtractorRandomAccessSource.sweepStaleCaches(directory)
+            assertFalse(stale.exists())
+            assertEquals("keep", other.readText())
+            assertEquals("keep", partialName.readText())
+        } finally { directory.deleteRecursively() }
+    }
+
+    @Test fun undeletableCacheDoesNotMakeCloseThrow() {
+        val actual = File.createTempFile("sistrum-source-test-", ".cache")
+        val file = object : File(actual.path) { override fun delete() = false }
+        try {
+            val source = ExtractorRandomAccessSource(input(), file)
+            source.read(0, ByteBuffer.allocate(4))
+            source.close()
+            assertTrue(file.exists())
+            assertThrows(IOException::class.java) { source.read(0, ByteBuffer.allocate(4)) }
+        } finally { assertTrue(actual.delete()) }
+    }
+
+    @Test fun deletionPermissionFailureDoesNotReplaceAConstructorFailureOrMakeCloseThrow() {
+        val actual = File.createTempFile("sistrum-source-test-", ".cache")
+        val file = object : File(actual.path) { override fun delete(): Boolean = throw SecurityException("denied") }
+        val failure = IOException("length unavailable")
+        try {
+            val failed = object : ExtractorInput by input() { override fun getLength(): Long = throw failure }
+            assertSame(failure, assertThrows(IOException::class.java) { ExtractorRandomAccessSource(failed, file) })
+            val source = ExtractorRandomAccessSource(input(), file)
+            source.close()
+            assertTrue(actual.exists())
+        } finally { assertTrue(actual.delete()) }
+    }
+
     @Test fun transportFailuresPropagateWithTheirIdentity() {
         val failure = IOException("source disconnected")
         val input = object : ExtractorInput by input() {

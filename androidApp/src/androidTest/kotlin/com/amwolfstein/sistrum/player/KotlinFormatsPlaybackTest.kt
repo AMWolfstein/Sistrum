@@ -156,11 +156,21 @@ class KotlinFormatsPlaybackTest {
         }
     }
 
-    @Test(timeout = 300_000) fun wavpackApeAlacAndMusepackJoinWithinTwoFrames() {
-        val gapless = fixtures.filter { it.value("gapless") == "yes" }
-        assertEquals(setOf("wavpack", "ape", "alac", "musepack-sv7"), gapless.map { it.id }.toSet())
+    @Test(timeout = 300_000) fun everyCoveredLosslessFormatJoinsWithinTwoFrames() {
+        val added = setOf("wma-lossless", "aiff-pcm", "aifc-sowt", "aifc-float", "dsf", "dff")
+        val gapless = fixtures.filter { it.value("gapless") == "yes" || it.id in added }
+        assertEquals(setOf("wavpack", "ape", "alac", "musepack-sv7") + added, gapless.map { it.id }.toSet())
         for (fixture in gapless) {
-            val reference = decode(fixture)
+            val reference = if (fixture.value("capture_sha256") == "production-D18") {
+                // D-18: compare the join to the approved converter, not the different Flick filter.
+                val codec = Dsd.open(ByteBuffer.wrap(fixture.file.readBytes()))
+                val expected = ByteArrayOutputStream()
+                while (true) {
+                    val block = codec.decodeBlock() ?: break
+                    expected.write(floatBytes(block.samples, block.frames * block.channels))
+                }
+                decode(fixture, expectedHash = hash(expected.toByteArray()))
+            } else decode(fixture)
             val channels = fixture.value("channels").toInt()
             val frames = reference.size / channels
             withRig { rig ->

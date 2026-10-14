@@ -9,6 +9,10 @@ import com.amwolfstein.sistrum.player.decoders.DecoderTableEntry
 import com.amwolfstein.sistrum.player.decoders.FormatKey
 import com.amwolfstein.sistrum.player.decoders.TableDecoderRegistry
 import com.amwolfstein.sistrum.player.decoders.defaultDecoderRegistry
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
+import java.util.concurrent.CancellationException
+import com.amwolfstein.sistrum.player.decoders.DecoderRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -131,6 +135,35 @@ class ScanGateTest {
         val gate = RegistryScanGate(TableDecoderRegistry(table, listOf(throwing)))
 
         assertEquals(Admission.Admitted("boom"), gate.admit("x", "x") { ByteArray(it) })
+    }
+
+    @Test fun cancellationPropagatesFromEveryAdmissionBoundary() {
+        for (boundary in listOf("resolve", "skipReason", "header", "refusal")) {
+            val cancellation = CancellationException(boundary)
+            val provider = object : DecoderProvider {
+                override val id = "test-provider"
+                override fun isAvailable(key: FormatKey) = true
+                override fun extractors(): List<() -> Extractor> = emptyList()
+                override val refusalHeaderBytes = 16
+                override fun refusal(header: ByteArray): String? {
+                    if (boundary == "refusal") throw cancellation
+                    return null
+                }
+            }
+            val registry = object : DecoderRegistry {
+                override fun resolve(key: FormatKey): DecoderProvider? {
+                    if (boundary == "resolve") throw cancellation
+                    return if (boundary == "skipReason") null else provider
+                }
+                override fun skipReason(key: FormatKey): String? = throw cancellation
+            }
+            assertSame(cancellation, assertThrows(CancellationException::class.java) {
+                RegistryScanGate(registry).admit("x", "x") {
+                    if (boundary == "header") throw cancellation
+                    ByteArray(it)
+                }
+            })
+        }
     }
 
     @Test

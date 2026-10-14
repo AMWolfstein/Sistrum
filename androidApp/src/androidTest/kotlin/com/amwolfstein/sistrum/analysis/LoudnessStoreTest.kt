@@ -72,7 +72,7 @@ class LoudnessStoreTest {
         val keys = Json.parseToJsonElement(row!!).jsonObject.keys
         assertEquals(
             "exactly the loudness keys",
-            setOf("loudness_lufs", "true_peak", "sample_peak", "status", "source_fingerprint", "analyzer_version", "analyzed_at"),
+            setOf("loudness_lufs", "true_peak", "sample_peak", "status", "source_fingerprint", "analyzer_version", "decoder_set_version", "analyzed_at"),
             keys,
         )
         assertTrue(
@@ -174,6 +174,39 @@ class LoudnessStoreTest {
             listOf("A"),
             loudness.pendingTracks("other-version").map { it.trackId },
         )
+    }
+
+    @Test fun failedReanalysisPreservesMeasurementHistogramAndPlaybackReadSide() = runBlocking {
+        write(listOf(taggedTrack("A")))
+        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
+        val before = Json.parseToJsonElement(rawDocument("analysis", "A")!!).jsonObject
+        val histogram = rawDocument("loudness_histogram", "A")
+        loudness.writeResult(TrackLoudnessResult.Failed("A", "hash-A", "kotlin-wma", "boom"))
+        val after = Json.parseToJsonElement(rawDocument("analysis", "A")!!).jsonObject
+        before.forEach { (key, value) -> assertEquals("kept $key", value, after[key]) }
+        assertEquals("kotlin-wma", after["last_failure"]!!.jsonObject["provider"]!!.jsonPrimitive.content)
+        assertEquals("boom", after["last_failure"]!!.jsonObject["reason"]!!.jsonPrimitive.content)
+        assertNotNull(after["last_failed_at"])
+        assertEquals(histogram, rawDocument("loudness_histogram", "A"))
+        assertEquals(-14.2f, store.activeAnalyses().getValue("A").loudnessLufs, 0f)
+        assertEquals(-0.5f, store.activeAnalyses().getValue("A").truePeak, 0f)
+        assertTrue(loudness.pendingTracks().isEmpty())
+    }
+
+    @Test fun decoderSetChangeRetriesFailedDocumentsOnly() = runBlocking {
+        write(listOf(taggedTrack("A"), taggedTrack("B"), taggedTrack("C")))
+        loudness.writeResult(TrackLoudnessResult.Failed("A", "hash-A", "kotlin-wma", "boom"))
+        loudness.writeResult(TrackLoudnessResult.Measured("B", "hash-B", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
+        loudness.writeResult(TrackLoudnessResult.Silent("C", "hash-C"))
+        for (id in listOf("A", "B", "C")) {
+            val json = Json.parseToJsonElement(rawDocument("analysis", id)!!).jsonObject
+            assertEquals(DECODER_SET_VERSION, json["decoder_set_version"]!!.jsonPrimitive.content)
+            database.syncDao().upsertActiveDocument("analysis", id,
+                kotlinx.serialization.json.JsonObject(json - "decoder_set_version").toString())
+        }
+        assertEquals(listOf("A"), loudness.pendingTracks().map { it.trackId })
+        loudness.writeResult(TrackLoudnessResult.Failed("A", "hash-A", "kotlin-wma", "still refused"))
+        assertTrue(loudness.pendingTracks().isEmpty())
     }
 
     // -----------------------------------------------------------------------------------------

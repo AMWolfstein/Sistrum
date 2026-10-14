@@ -57,7 +57,7 @@ import com.amwolfstein.sistrum.player.media3.replacePlatformAudioRenderer
  * decoded, fails, or [isCancelled] turns true (checked per buffer).
  */
 @OptIn(UnstableApi::class, ExperimentalApi::class)
-internal class OfflineDecoder(
+internal open class OfflineDecoder(
     private val context: Context,
     private val providers: List<DecoderProvider> = defaultDecoderProviders(ProcessCodecProbe),
     private val registry: DecoderRegistry = TableDecoderRegistry(DefaultDecoderTable, providers),
@@ -87,10 +87,16 @@ internal class OfflineDecoder(
     /** Records only failures; the existing analysis job still receives the same typed outcome. */
     internal fun recordOutcome(path: String, key: FormatKey?, result: DecodeOutcome): DecodeOutcome {
         if (result is DecodeOutcome.Failed) {
-            decodeFailures.record(DecodeFailureEntry(
-                System.currentTimeMillis(), File(path).name, key?.format.orEmpty(), key?.codec.orEmpty(),
-                result.providerId ?: "unknown", result.reason,
-            ))
+            try {
+                decodeFailures.record(DecodeFailureEntry(
+                    System.currentTimeMillis(), File(path).name, key?.format.orEmpty(), key?.codec.orEmpty(),
+                    result.providerId ?: "unknown", result.reason,
+                ))
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.w("OfflineDecoder", "${result.providerId ?: "unknown"}: could not record decode failure", error)
+            }
         }
         return result
     }
@@ -110,7 +116,7 @@ internal class OfflineDecoder(
         return DecodeOutcome.Failed(providerId, cause.message ?: cause.javaClass.simpleName)
     }
 
-    private fun decodeFile(
+    internal open fun decodeFile(
         path: String,
         key: FormatKey?,
         consumer: PcmConsumer,

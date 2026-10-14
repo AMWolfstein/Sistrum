@@ -92,15 +92,93 @@ class OfflineDecoderKotlinFormatsTest {
     }
 
     @Test fun offlineFactoryOffersDsdProvidersAndRegistryUsesTheInjectedProviders() {
-        val registryField = OfflineDecoder::class.java.getDeclaredField("registry").apply { isAccessible = true }
-        val registry = registryField.get(decoder) as DecoderRegistry
-        val noProviders = OfflineDecoder(ContextWrapper(null), emptyList(), decodeFailures = DecodeFailureSink {})
-        assertNull((registryField.get(noProviders) as DecoderRegistry).resolve(FormatKey("ape", "ape")))
-        for (key in listOf(FormatKey("dsf", "dsf"), FormatKey("dff", "dff"))) {
-            assertEquals("kotlin-dsd", registry.resolve(key)?.id)
+        for (magic in listOf("DSD ", "FRM8")) {
+            val extractors = decoder.extractorsFactory(ProviderRecorder(), ExtractorsFactory { emptyArray() }).createExtractors()
+            try {
+                val matches = extractors.filter { it.sniff(input(magic.toByteArray(Charsets.US_ASCII))) }
+                assertEquals("$magic selects exactly the DSD extractor", 1, matches.size)
+            } finally { extractors.forEach { it.release() } }
+            val empty = OfflineDecoder(ContextWrapper(null), emptyList(), decodeFailures = DecodeFailureSink {})
+                .extractorsFactory(ProviderRecorder(), ExtractorsFactory { emptyArray() }).createExtractors()
+            assertTrue(empty.isEmpty())
         }
-        assertEquals(providers.sumOf { it.extractors().size },
-            decoder.extractorsFactory(ProviderRecorder(), ExtractorsFactory { emptyArray() }).createExtractors().size)
+    }
+
+    @Test fun decodeRecordsItsProviderFailureEvenWhenTheSinkThrows() {
+        val failure = DecodeOutcome.Failed("kotlin-wma", "unsupported channel layout")
+        for (throwing in listOf(false, true)) {
+            val decoder = object : OfflineDecoder(ContextWrapper(null), providers, decodeFailures = DecodeFailureSink {
+                entries += it
+                if (throwing) throw java.io.IOException("log unavailable")
+            }) {
+                override fun decodeFile(path: String, key: FormatKey?, consumer: PcmConsumer,
+                    isCancelled: () -> Boolean, startUs: Long): DecodeOutcome = failure
+            }
+            assertSame(failure, decoder.decode("/private/refused.wma", FormatKey("wma", "wma"), PcmConsumer { _, _, _, _ -> }))
+            assertEquals("kotlin-wma", entries.last().provider)
+            assertEquals("unsupported channel layout", entries.last().error)
+            assertEquals("refused.wma", entries.last().fileName)
+        }
+        assertEquals(2, entries.size)
+    }
+
+    @Test fun failureSinkCancellationPropagates() {
+        val cancellation = CancellationException("cancel recording")
+        val decoder = OfflineDecoder(ContextWrapper(null), providers, decodeFailures = DecodeFailureSink { throw cancellation })
+        assertSame(cancellation, assertThrows(CancellationException::class.java) {
+            decoder.recordOutcome("/private/refused", null, DecodeOutcome.Failed("kotlin-wma", "refused"))
+        })
+    }
+
+    @Test fun nonzeroInitialPositionAndInterruptedLoadResumeWithExactOraclePcm() {
+        val bytes = File(System.getProperty("waxflow.corpus") ?: System.getenv("WAXFLOW_CORPUS")
+            ?: "${System.getenv("SISTRUM_ORACLE_DIR") ?: "${System.getProperty("user.home")}/.cache/sistrum-waxflow-oracle"}/corpus",
+            "waxflow-testdata/sine-f32.aiff").readBytes()
+        assertEquals("43ea21f0c2434da0709f629eac4ca5fb24d7df73573d6926b761a6ed92b234d8", hash(bytes))
+        val extractor = com.amwolfstein.sistrum.player.decoders.aiff.KotlinAiffProvider().extractors().single().invoke()
+        val digest = MessageDigest.getInstance("SHA-256")
+        var size = 0
+        extractor.init(object : ExtractorOutput {
+            override fun track(id: Int, type: Int) = object : TrackOutput {
+                override fun format(format: Format) = Unit
+                override fun sampleData(data: ParsableByteArray, length: Int, sampleDataPart: Int) {
+                    digest.update(data.data, data.position, length); size += length; data.skipBytes(length)
+                }
+                override fun sampleData(input: DataReader, length: Int, allowEndOfInput: Boolean, sampleDataPart: Int): Int =
+                    throw AssertionError("expected PCM")
+                override fun sampleMetadata(timeUs: Long, flags: Int, size: Int, offset: Int, cryptoData: TrackOutput.CryptoData?) = Unit
+            }
+            override fun endTracks() = Unit
+            override fun seekMap(seekMap: SeekMap) = Unit
+        })
+        val holder = PositionHolder()
+        try {
+            val nonzero = input(bytes).also { it.skipFully(10) }
+            assertEquals(Extractor.RESULT_SEEK, extractor.read(nonzero, holder))
+            assertEquals(0L, holder.position)
+            val delegate = input(bytes)
+            var cancel = false
+            var interruptedReads = 0
+            val interrupted = object : ExtractorInput by delegate {
+                override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+                    if (cancel) { Thread.currentThread().interrupt(); interruptedReads++ }
+                    return delegate.read(buffer, offset, length)
+                }
+            }
+            assertEquals(Extractor.RESULT_CONTINUE, extractor.read(interrupted, holder))
+            cancel = true
+            try { assertEquals(Extractor.RESULT_CONTINUE, extractor.read(interrupted, holder)) }
+            finally { Thread.interrupted() }
+            assertTrue("interruption reached cache I/O", interruptedReads > 0)
+            digest.reset(); size = 0
+            extractor.seek(0, 0)
+            val reopened = input(bytes)
+            while (extractor.read(reopened, holder) != Extractor.RESULT_END_OF_INPUT) {
+                assertEquals(0L, holder.position)
+            }
+            assertEquals(2400 * 2 * 4, size)
+            assertEquals("9d10a64422894b335514a8fc20e83869a4e5d8502a4b8558d415d1d8d097276a", digest.digest().hex())
+        } finally { Thread.interrupted(); extractor.release() }
     }
 
     @Test fun providerRenderersReceiveTheCaptureSinkAndEvents() {

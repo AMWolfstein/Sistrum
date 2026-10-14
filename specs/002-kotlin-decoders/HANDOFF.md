@@ -4,24 +4,21 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T012a committed; M1 review done (below); next T013-fix (Codex), then T013.
+- **Phase:** M1 execution — T001–T012a committed; T013-fix implemented and verified, commit prepared in `.codex-commit/` for the runner on `feature/media3-migration`; next T013.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Next step:** T013-fix, then T013. (Done: the M1 milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
-  spec-traceability-auditor, audio-correctness-reviewer, port-fidelity-checker on the imported decoders;
-  confirmed findings → `T013-fix`; plus a one-time `codebase-archaeologist` drift audit across eras, findings to
-  `specs/review/drift/REGISTRY.md`), then T013 (M1 full gate + phone check; phone-log-triage on its saved logcat), then T013a (quality tooling,
-  report-only) — MOVED to 003 (D-26); after T013: signed devRelease APK for the owner (never installed by Claude), then M2; T021a (WaxLabel corpus, D-27) before M3.
+- **Next step:** T013 (M1 full gate + `.qa` phone check; triage its saved logcat). T013-fix's widened join test covers ten staged fixtures; device execution is still NOT RUN. The new LoudnessStore device cases also await permitted device access. M1 review and the one-time drift audit are complete; findings and deferred work remain in the task log and `specs/review/drift/REGISTRY.md`. T013a moved to 003 (D-26). After T013: signed devRelease APK for the owner (never installed by Claude), then M2; T021a (WaxLabel corpus, D-27) before M3.
+- **T013-fix gate:** PASS, final logs `/tmp/verify-task.SDRQjU`; app 1,379 cases, 0 failures/errors, 1 existing loudness-oracle assumption skip (`SISTRUM_CORPUS` unset); sharedLogic 39 and codecs 1,477 cached passing tests; production and device-test Kotlin compilation PASS. No new regression test skipped.
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-25 records the owner-approved single WaxFlow AIFF path and every migrated expectation change; D-24 still defines device PCM comparison boundaries and T013-only device access.
-  Execution by Codex in autonomous mode (D-9).
+- **Decisions:** D-28 defines failed-only decoder-set retries and same-source measurement retention without changing ANALYZER_VERSION. D-25 records the owner-approved single WaxFlow AIFF path and migrated expectations; D-24 still defines device PCM comparison boundaries and T013-only device access. Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T013-fix; commit: prepared, awaiting runner | GATE: PASS on final verification pass 3 (all three passes passed; passes 2/3 validate added boundary coverage and independently authored retained-measurement JSON). App 1,379 cases: 1,378 pass, 0 failures/errors, 1 existing oracle assumption skip. sharedLogic 39 and codecs 1,477 cached PASS; compileDevQaKotlin and compileDevQaAndroidTestKotlin PASS. All 43 cases in the six affected host classes pass without skips, including exact oracle PCM after interrupted cache I/O + seek, startup sweep/constructor cleanup, typed decode() failure logging, throwing/cancelled sinks, actual pending DAO SQL, retained activeAnalyses values, route limits and scan cancellation. D-28 addresses drift D-01/D-06. Original T002 unchanged; Room SQL only, schema/version unchanged. Graph changed (11,285 nodes / 33,313 edges), both generated files included. Final logs `/tmp/verify-task.SDRQjU`. NOT RUN: matchesWaxFlowOracleFixtures (SISTRUM_CORPUS unset; original assumption, unchanged); device classes, lint and assemble (T013 scope); listening/Bluetooth/headset and performance (owner/M6 scope); stage/commit/push (runner consumes .codex-commit). Extra-file reasons and full impact/command record below. |
 | 2026-10-14 | M1 milestone review (Claude) | Reviewers on ded051c^..HEAD: silent-failure-hunter PASS (5 MED), pr-test-analyzer NEEDS CHANGES (3 test gaps), kotlin-reviewer NEEDS CHANGES (1 HIGH), audio-correctness PASS (2 MED), spec-traceability PASS (3 MED), comment-analyzer (LOW only), codebase-archaeologist one-time drift audit → `specs/review/drift/REGISTRY.md` (12 rows). Port fidelity by script instead of the agent: 128/133 imported files identical to origin/port/waxflow; the 5 differences are the FFT Plan move to :dsp (3 import lines) and T012a's AiffException. Confirmed by Claude: interruptible FileChannel codec cache closed by Media3's `Thread.interrupt()` on seek (javap of 1.11.1 `Loader$LoadTask.cancel`); drift D-01 (failed analyses never retried, version unchanged) and D-02 (generic-ID DFF refused). → T013-fix (items 1–7). Deferred with reason: per-sample boxing in the packing loop (M6 perf), WMA seek decodes from start (T013's seek-latency test measures it), ALAC gapless delay/padding (T013-fix item 7 join test covers it on device), G.711 truncated-WAV clamp, unsupported-by-message-text classification, IOException vs malformed classification, downmix front L/R −3 dB (owner listening), D-02/D-03/D-04/D-05/D-07 per registry plan. Also fixed: runner task lookup `\b` matched `T013` to the `T013-fix` line. |
 | 2026-10-14 | T012a finished by Claude (Codex BLOCKED on the external WaxLabel corpus) | Codex's single WaxFlow AIFF path kept after review (D-25). Claude fix: decoder-table rows aiff/ima4, aiff/alaw, aiff/ulaw still named `kotlin-pcm-variants`, which no longer serves AIFF → repointed to `kotlin-aiff`. GATE: PASS, full `testDevQaUnitTest` + sharedLogic, `assembleDevQa`; `:codecs:test` PASS; `compileDevQaAndroidTestKotlin` PASS; graph changed. `:metadata:test`: corpus not reproducible (D-27), run with `-x verifyWaxLabelCorpus`: 1302/1391 pass, 89 `changed fixture` precondition failures on the non-reproducible files only; fix = T021a before M3. migration-guard: PASS (all 17 legacy tests mapped into 22; changed expectations all in D-25). Device classes NOT RUN: T013. |
 | 2026-10-14 | T012a Codex attempt; superseded (finished by Claude in d1b676d, row above) | Single WaxFlow AIFF path implemented; D-25 records owner decision and migrated expectations. Broad quick gate PASS: 444 tests, 0 failures, 1 existing corpus assumption skip; final focused gate PASS: 35 tests, 0 failures/errors/skips, logs `/tmp/verify-task.PmYN1k`. Codecs PASS: 1,477/0; instrumented-test compile PASS; 24 fixture hashes/staging PASS; graph changed (11,197 nodes / 33,141 edges). Required `:metadata:test` FAILED before tests in verifyWaxLabelCorpus: pinned external inputs missing/mismatched in both available caches; metadata tests NOT RUN. Full suite/lint/assemble/device/manual checks NOT RUN: T013/owner scope. No commit preparation, task remains unchecked. Scope/extra-file reasons and commands below. |
@@ -46,6 +43,50 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T013-fix scope and impact review
+
+Commands and results:
+
+- Before each of the three verification passes: `./gradlew --stop`, `pkill -f '[K]otlinCompileDaemon'`, `MemAvailable` check. No Gradle daemons were running; available memory was 3,525,756 / 3,586,620 / 3,581,728 kB, all above the 2 GB gate threshold.
+- `bash .claude/skills/verify-task/scripts/verify.sh --files '<the task Kotlin paths in .codex-commit/files.txt>' --quick ':androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest :codecs:test :androidApp:compileDevQaAndroidTestKotlin'`: all three passes printed `GATE: PASS`. Logs: `/tmp/verify-task.30KNIY`, `/tmp/verify-task.80eDQg`, final `/tmp/verify-task.SDRQjU`. The script also runs `:androidApp:compileDevQaKotlin` and `python3 .claude/hooks/graph_refresh.py auto`; both passed, graph changed. Final app run: 1,379 cases / 0 failures / 0 errors / 1 existing assumption skip. sharedLogic (39) and codecs (1,477) were UP-TO-DATE with passing XML; device-test compilation passed initially and remained UP-TO-DATE on later passes.
+- `git diff --check`: PASS. `git diff --quiet HEAD -- .../KotlinDecodingExtractorTest.kt`: exit 0, original T002 unchanged. `git branch --show-current`: `feature/media3-migration`.
+- NOT RUN: the original `WaxFlowOracleLoudnessTest.matchesWaxFlowOracleFixtures` because `SISTRUM_CORPUS` is unset (reported by its unchanged assumption); device execution, lint, assemble (T013), listening/Bluetooth/headset (owner), performance (M6). Other module suites are not required by the app-only scope and regression ledger. Staging/commit/push NOT RUN: runner owns those operations.
+
+
+Impact-first searches used `git grep` for `ExtractorRandomAccessSource`, `recordOutcome`,
+`pendingTrackRows`, `writeResult`, `ANALYZER_VERSION`, `RegistryScanGate`, `Media3PlayerFactory`
+and `maxOutputChannels`. Consumers: KotlinDecodingExtractor; offline TrackAnalyzer/analysis
+workers; LoudnessStore and scheduler progress readers; PlaybackService and album planning;
+MediaStoreLibraryScanner/LibraryScanRunner; ProviderExtractorsFactory/ChannelMapper. New
+symbols have only their task implementation and regression-test consumers.
+
+Contracts touched: positional cached reads (short reads remain allowed by RandomAccessSource);
+additive JSON `decoder_set_version`, `last_failure`, `last_failed_at`; the pending-row DAO's
+new decoder-version argument and SQL predicate. Room entities/schema/version/migrations,
+ANALYZER_VERSION, preferences, registry/provider order, PlaybackController API/StateFlows,
+DSP/codec numeric output and spec 001's shipped playback paths remain unchanged.
+
+Files required (all Kotlin paths under `androidApp/src/.../kotlin/com/amwolfstein/sistrum/`):
+
+| Paths | Required because |
+|---|---|
+| main/player/decoders/kotlin/ExtractorRandomAccessSource.kt; test counterpart | Non-interruptible owned cache reads/writes; startup stale sweep; constructor cleanup and release logging. Tests retain positions/bounds/unknown lengths/caller ownership and cover interrupted writes/reads, stale files, constructor failure and denied deletion. |
+| main/analysis/OfflineDecoder.kt; test/analysis/OfflineDecoderKotlinFormatsTest.kt | Keep a typed failed outcome when its log sink throws, while propagating cancellation. `decodeFile` becomes overridable only to drive `decode()` in the host test. Replace the DSD reflection/count assertion with DSF/DFF sniff results; nonzero first input requests zero, then interrupted load + seek reproduces the pinned float-AIFF PCM hash and exact frame count. |
+| test/player/decoders/kotlin/KotlinDecodingExtractorLifecycleTest.kt | Add unknown inexact duration coverage without editing the tests-first T002 file or production extractor. |
+| main/analysis/LoudnessModels.kt; main/analysis/LoudnessStore.kt; main/sync/SyncDatabase.kt; test/analysis/LoudnessDecoderVersionTest.kt | D-28 / drift D-01 and D-06: failed-only decoder-version retries and preservation of same-source successful measurements. Extract the existing document builder as a pure host-test boundary; prior measurement JSON is independently authored. Execute the actual DAO SQL against host Python SQLite and verify the actual activeAnalyses read path through a DAO snapshot. |
+| main/player/media3/Media3PlayerFactory.kt; test/player/media3/RouteChannelLimitTest.kt | Pure route limit and logged AudioManager failure fallback; all five specified route cases. |
+| main/sync/ScanGate.kt; test/sync/ScanGateTest.kt | Each existing fallback logs cause and provider id (or registry/unknown + FormatKey before resolution); preserve ordinary admission/refusal behaviour. Extra test-file reason: enforce cancellation propagation at resolve, skipReason, header and refusal boundaries. |
+| androidTest/player/KotlinFormatsPlaybackTest.kt | Expand and rename the existing join test to ten staged fixtures: original WavPack/APE/ALAC/Musepack plus WMA Lossless, PCM/sowt/float AIFF and DSF/DFF; unchanged <=2-frame assertions. DSD uses D-18's approved production converter comparison, not Flick oracle parity. No fixture inventory or hashes changed. |
+| androidTest/analysis/LoudnessStoreTest.kt | Extra file required because its exact measured-document key assertion must include the task's new decoder_set_version (D-28); add real transaction, histogram-retention and missing decoder-version retry tests. All prior assertions remain; the only existing expected-value change is that required additive key. |
+| tasks.md; HANDOFF.md; DECISIONS.md | Task completion/status, verification and scope report, D-28. |
+| graphify-out/graph.json; graphify-out/.graphify_analysis.json | Generated by the required automatic graph refresh; never edited manually. |
+
+Self-review: original T002 KotlinDecodingExtractorTest remains byte-for-byte unchanged; no
+test removed, ignored or weakened. The join method rename is explicitly requested by the task.
+All new fallbacks log their cause/path and preserve cancellation. Cache buffers stay bounded
+and reusable, with direct caller-owned FileChannel behaviour preserved. No follow-up refactor
+or other milestone work was included.
 
 ## T010 verification and impact review
 

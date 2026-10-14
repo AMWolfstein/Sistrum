@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum.analysis
 
+import android.util.Log
 import androidx.room.withTransaction
 import java.time.Instant
 import java.util.Base64
@@ -28,7 +29,7 @@ internal class LoudnessStore(private val database: SyncDatabase) {
 
     suspend fun pendingTracks(analyzerVersion: String = ANALYZER_VERSION): List<PendingTrack> =
         database.withTransaction {
-            dao.pendingTrackRows(analyzerVersion).map { row ->
+            dao.pendingTrackRows(analyzerVersion, DECODER_SET_VERSION).map { row ->
                 val json = runCatching { LibrarySyncProtocol.json.parseToJsonElement(row.rawJson).jsonObject }.getOrNull()
                 PendingTrack(
                     trackId = row.trackId,
@@ -47,32 +48,21 @@ internal class LoudnessStore(private val database: SyncDatabase) {
             if (sha != result.fingerprint) return@withTransaction
 
             val analyzedAt = Instant.now().toString()
-            val analysisJson = when (result) {
-                is TrackLoudnessResult.Measured -> buildJsonObject {
-                    put("loudness_lufs", result.integratedLufs)
-                    put("true_peak", result.truePeakDbtp)
-                    put("sample_peak", result.samplePeakDbfs)
-                    put("status", "ok")
-                    put("source_fingerprint", result.fingerprint)
-                    put("analyzer_version", ANALYZER_VERSION)
-                    put("analyzed_at", analyzedAt)
-                }.toString()
-                is TrackLoudnessResult.Silent -> buildJsonObject {
-                    put("status", "silent")
-                    put("source_fingerprint", result.fingerprint)
-                    put("analyzer_version", ANALYZER_VERSION)
-                    put("analyzed_at", analyzedAt)
-                }.toString()
-                is TrackLoudnessResult.Failed -> buildJsonObject {
-                    put("status", "failed")
-                    put("provider", result.provider)
-                    put("reason", result.reason)
-                    put("source_fingerprint", result.fingerprint)
-                    put("analyzer_version", ANALYZER_VERSION)
-                    put("analyzed_at", analyzedAt)
-                }.toString()
+            val previous = if (result is TrackLoudnessResult.Failed) {
+                dao.activeDocumentJson("analysis", result.trackId)?.let { raw ->
+                    try { LibrarySyncProtocol.json.parseToJsonElement(raw).jsonObject }
+                    catch (error: IllegalArgumentException) {
+                        Log.w("LoudnessStore", "${result.provider}: invalid prior analysis for ${result.trackId}", error)
+                        null
+                    }
+                }
+            } else null
+            val analysisJson = analysisDocument(result, analyzedAt, previous)
+            dao.upsertActiveDocument("analysis", result.trackId, analysisJson.toString())
+            if (result is TrackLoudnessResult.Failed && analysisJson.string("status") == "ok") {
+                dao.deleteActiveDocument("loudness_progress", result.trackId)
+                return@withTransaction
             }
-            dao.upsertActiveDocument("analysis", result.trackId, analysisJson)
 
             when (result) {
                 is TrackLoudnessResult.Measured -> {
@@ -83,6 +73,7 @@ internal class LoudnessStore(private val database: SyncDatabase) {
                         put("blocks", result.histogram.blockCount)
                         put("source_fingerprint", result.fingerprint)
                         put("analyzer_version", ANALYZER_VERSION)
+                        put("decoder_set_version", DECODER_SET_VERSION)
                     }.toString()
                     dao.upsertActiveDocument("loudness_histogram", result.trackId, histogramJson)
                 }
@@ -94,6 +85,7 @@ internal class LoudnessStore(private val database: SyncDatabase) {
                         put("blocks", 0L)
                         put("source_fingerprint", result.fingerprint)
                         put("analyzer_version", ANALYZER_VERSION)
+                        put("decoder_set_version", DECODER_SET_VERSION)
                     }.toString()
                     dao.upsertActiveDocument("loudness_histogram", result.trackId, histogramJson)
                 }
@@ -132,6 +124,7 @@ internal class LoudnessStore(private val database: SyncDatabase) {
                     put("members", record.members)
                     put("members_fingerprint", record.membersFingerprint)
                     put("analyzer_version", ANALYZER_VERSION)
+                    put("decoder_set_version", DECODER_SET_VERSION)
                 }.toString()
                 dao.upsertActiveDocument("album_loudness", albumId, json)
             }
@@ -165,6 +158,7 @@ internal class LoudnessStore(private val database: SyncDatabase) {
             val json = buildJsonObject {
                 put("source_fingerprint", fingerprint)
                 put("analyzer_version", ANALYZER_VERSION)
+                put("decoder_set_version", DECODER_SET_VERSION)
                 put("state", Base64.getEncoder().encodeToString(state))
             }.toString()
             dao.upsertActiveDocument("loudness_progress", trackId, json)
@@ -214,6 +208,53 @@ internal class LoudnessStore(private val database: SyncDatabase) {
             histogram = histogram,
             truePeakDbtp = current?.double("true_peak"),
         )
+    }
+}
+
+/** Keeps a usable measurement when a retry fails against the same audio bytes. */
+internal fun analysisDocument(
+    result: TrackLoudnessResult,
+    analyzedAt: String,
+    previous: JsonObject? = null,
+): JsonObject {
+    if (result is TrackLoudnessResult.Failed && previous?.string("status") == "ok" &&
+        previous.string("source_fingerprint") == result.fingerprint) {
+        return JsonObject(previous + buildJsonObject {
+            put("decoder_set_version", DECODER_SET_VERSION)
+            put("last_failure", buildJsonObject {
+                put("provider", result.provider)
+                put("reason", result.reason)
+            })
+            put("last_failed_at", analyzedAt)
+        })
+    }
+    return when (result) {
+        is TrackLoudnessResult.Measured -> buildJsonObject {
+            put("loudness_lufs", result.integratedLufs)
+            put("true_peak", result.truePeakDbtp)
+            put("sample_peak", result.samplePeakDbfs)
+            put("status", "ok")
+            put("source_fingerprint", result.fingerprint)
+            put("analyzer_version", ANALYZER_VERSION)
+            put("decoder_set_version", DECODER_SET_VERSION)
+            put("analyzed_at", analyzedAt)
+        }
+        is TrackLoudnessResult.Silent -> buildJsonObject {
+            put("status", "silent")
+            put("source_fingerprint", result.fingerprint)
+            put("analyzer_version", ANALYZER_VERSION)
+            put("decoder_set_version", DECODER_SET_VERSION)
+            put("analyzed_at", analyzedAt)
+        }
+        is TrackLoudnessResult.Failed -> buildJsonObject {
+            put("status", "failed")
+            put("provider", result.provider)
+            put("reason", result.reason)
+            put("source_fingerprint", result.fingerprint)
+            put("analyzer_version", ANALYZER_VERSION)
+            put("decoder_set_version", DECODER_SET_VERSION)
+            put("analyzed_at", analyzedAt)
+        }
     }
 }
 

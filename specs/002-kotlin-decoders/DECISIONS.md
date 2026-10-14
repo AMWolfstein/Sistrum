@@ -520,3 +520,38 @@ T021a before M3 (deterministic generation, re-pin with the WaxLabel CLI).
 
 **Revisit if:** T021a can't make generation deterministic; then pin the generated files in an external archive.
 
+
+## D-28: Retry failed analysis by decoder set and retain usable measurements
+
+**Case:** T013-fix addresses drift D-01/D-06. M1 adds or replaces decoder providers;
+failed tracks must be retried without remeasuring successful tracks. A failed retry
+must not discard the normalization values measured from the same audio bytes.
+
+**Options:** bump ANALYZER_VERSION and remeasure the entire library; track decoder
+availability separately and retry only failed documents from an older decoder set.
+
+**Chosen:** use `DECODER_SET_VERSION = "sistrum-decoders-002-m1"`; bump it whenever a
+provider is added or replaced. Write `decoder_set_version` in analysis, histogram,
+album loudness and checkpoint documents. `pendingTrackRows` treats failed documents
+with a missing/different decoder version as pending, while `ok`/`silent` documents
+retain the existing analyzer/fingerprint rules. `ANALYZER_VERSION` stays unchanged:
+the integer AIFF path is oracle-identical, so successful tracks need no full-library
+remeasure. Room's schema, entities, migrations and database version stay unchanged.
+
+A failed result against an existing `ok` document with the same fingerprint retains
+all measurement fields, original `analyzed_at` and `analyzer_version`, and its histogram.
+It records `last_failure` as `{provider, reason}`, `last_failed_at` as the failure time,
+and the current decoder-set version. Different source fingerprints and prior non-ok
+statuses use the ordinary failed document and remove its unusable histogram. The
+existing playback `activeAnalyses()` read path still receives the kept values.
+
+Host tests execute the production pending-row SQL with Python SQLite JSON support,
+and test the production document builder and actual `activeAnalyses()` with a DAO
+snapshot. Instrumented LoudnessStore tests additionally cover the real transaction
+and histogram retention; execution remains T013's device scope. Its exact measured
+key expectation adds `decoder_set_version` to the previous seven keys, as required
+by this task; no original measurement assertion is weakened. The original T002
+extractor contracts are untouched.
+
+**Revisit if:** a provider replacement changes valid PCM measurements; assess whether
+ANALYZER_VERSION must then change rather than silently reusing old values.

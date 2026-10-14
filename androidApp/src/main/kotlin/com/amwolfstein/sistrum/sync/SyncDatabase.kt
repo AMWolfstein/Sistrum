@@ -420,10 +420,12 @@ internal interface SyncDao {
         WHERE p.active = 1 AND t.unavailableReason IS NULL
           AND (d.rawJson IS NULL
                OR CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.source_fingerprint') END IS NOT audio.sha256
-               OR CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.analyzer_version') END IS NOT :analyzerVersion)
+               OR CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.analyzer_version') END IS NOT :analyzerVersion
+               OR (CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.status') END = 'failed'
+                   AND CASE WHEN json_valid(d.rawJson) THEN json_extract(d.rawJson, '$.decoder_set_version') END IS NOT :decoderSetVersion))
         ORDER BY t.syncOrder
     """)
-    suspend fun pendingTrackRows(analyzerVersion: String): List<PendingTrackRow>
+    suspend fun pendingTrackRows(analyzerVersion: String, decoderSetVersion: String): List<PendingTrackRow>
     @Query("SELECT COUNT(*) FROM sync_tracks t INNER JOIN sync_plans p ON p.planId = t.planId INNER JOIN sync_assets audio ON audio.planId = t.planId AND audio.assetId = 'audio:' || t.trackId WHERE p.active = 1 AND t.unavailableReason IS NULL")
     suspend fun availableAudioTrackCount(): Int
     @Query("""

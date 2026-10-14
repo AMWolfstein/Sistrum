@@ -48,6 +48,21 @@ class KotlinDecodingExtractorLifecycleTest {
         } finally { extractor.release() }
     }
 
+    @Test fun unknownInexactSampleCountHasUnsetDuration() {
+        val stream = object : CodecStream {
+            override val info = CodecStream.Info(48000, 2, C.ENCODING_PCM_16BIT, -1, samplesExact = false)
+            override fun decodeBlock(): com.amwolfstein.sistrum.codecs.audio.Buffer? = null
+            override fun seekSample(sample: Long) = Unit
+        }
+        val output = FakeExtractorOutput()
+        val extractor = KotlinDecodingExtractor({ true }, { stream })
+        extractor.init(output)
+        try {
+            assertEquals(Extractor.RESULT_CONTINUE, extractor.read(input(), PositionHolder()))
+            assertEquals(C.TIME_UNSET, output.seekMap!!.durationUs)
+        } finally { extractor.release() }
+    }
+
     @Test fun releaseClosesTheCodecAndItsCachedSourceExactlyOnce() {
         val stream = Stream()
         lateinit var source: RandomAccessSource

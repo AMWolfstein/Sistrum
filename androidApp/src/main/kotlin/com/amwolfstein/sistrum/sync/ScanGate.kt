@@ -1,5 +1,7 @@
 package com.amwolfstein.sistrum.sync
 
+import android.util.Log
+import java.util.concurrent.CancellationException
 import kotlinx.serialization.Serializable
 import com.amwolfstein.sistrum.player.decoders.DecoderRegistry
 import com.amwolfstein.sistrum.player.decoders.FormatKey
@@ -37,17 +39,29 @@ internal val AdmitAllGate = ScanGate { _, _, _ -> Admission.Admitted("native") }
 internal class RegistryScanGate(private val registry: DecoderRegistry) : ScanGate {
     override fun admit(format: String, codec: String, header: (Int) -> ByteArray?): Admission {
         val key = FormatKey(format, codec)
-        val provider = runCatching { registry.resolve(key) }.getOrNull()
+        val provider = runCatching { registry.resolve(key) }.onFailure {
+            if (it is CancellationException) throw it
+            Log.w("ScanGate", "registry/unknown ($key): resolve failed", it)
+        }.getOrNull()
             ?: return Admission.Skipped(
                 format = format,
                 codec = codec,
-                reason = runCatching { registry.skipReason(key) }.getOrNull() ?: "unsupported format",
+                reason = runCatching { registry.skipReason(key) }.onFailure {
+                    if (it is CancellationException) throw it
+                    Log.w("ScanGate", "registry/unknown ($key): skipReason failed", it)
+                }.getOrNull() ?: "unsupported format",
             )
         val needed = provider.refusalHeaderBytes
         if (needed > 0) {
-            val bytes = runCatching { header(needed) }.getOrNull()
+            val bytes = runCatching { header(needed) }.onFailure {
+                if (it is CancellationException) throw it
+                Log.w("ScanGate", "${provider.id}: header failed", it)
+            }.getOrNull()
             if (bytes != null) {
-                val refusal = runCatching { provider.refusal(bytes) }.getOrNull()
+                val refusal = runCatching { provider.refusal(bytes) }.onFailure {
+                    if (it is CancellationException) throw it
+                    Log.w("ScanGate", "${provider.id}: refusal failed", it)
+                }.getOrNull()
                 if (refusal != null) return Admission.Skipped(format, codec, refusal)
             }
         }

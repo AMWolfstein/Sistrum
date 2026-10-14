@@ -302,19 +302,24 @@ internal class Media3PlayerFactory(
                 DefaultMediaSourceFactory(
                     context,
                     ProviderExtractorsFactory(providers, recorder = providerRecorder, maxOutputChannels = {
-                        if (android.os.Build.VERSION.SDK_INT >= 33) {
-                            val manager = context.getSystemService(android.media.AudioManager::class.java)
-                            val devices = manager.getAudioDevicesForAttributes(
-                                android.media.AudioAttributes.Builder()
-                                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC).build())
-                            val count = devices.mapNotNull { it.channelCounts.maxOrNull() }.minOrNull()
-                            if (count == null) {
-                                Log.w("KotlinChannelMapper", "media route reports no channel count; retaining source layout")
+                        val sdk = android.os.Build.VERSION.SDK_INT
+                        try {
+                            val counts = if (sdk >= 33) {
+                                val manager = context.getSystemService(android.media.AudioManager::class.java)
+                                manager.getAudioDevicesForAttributes(
+                                    android.media.AudioAttributes.Builder()
+                                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                                    .map { it.channelCounts }
+                            } else emptyList()
+                            if (sdk < 33 || counts.none { it.isNotEmpty() }) {
+                                Log.w("KotlinChannelMapper", "media route channel count unavailable; retaining source layout")
                             }
-                            (count ?: 8).coerceIn(1, 8)
-                        } else {
-                            Log.w("KotlinChannelMapper", "route channel query requires API 33; retaining source layout")
+                            routeChannelLimit(counts, sdk)
+                        } catch (error: java.util.concurrent.CancellationException) {
+                            throw error
+                        } catch (error: Exception) {
+                            Log.w("KotlinChannelMapper", "media route query failed; retaining source layout", error)
                             8
                         }
                     }),
@@ -539,3 +544,7 @@ private class MeasuringAudioOutputProvider(
         })
     }
 }
+
+
+internal fun routeChannelLimit(deviceChannelCounts: List<IntArray>, sdkInt: Int): Int =
+    if (sdkInt < 33) 8 else (deviceChannelCounts.mapNotNull { it.maxOrNull() }.minOrNull() ?: 8).coerceIn(1, 8)

@@ -8,6 +8,9 @@ import com.amwolfstein.sistrum.analysis.loudness.LoudnessHistogram
  */
 const val ANALYZER_VERSION = "sistrum-loudness-1/waxflow-446ca31"
 
+/** Bump whenever a decoder provider is added or replaced; retries failed tracks only. */
+const val DECODER_SET_VERSION = "sistrum-decoders-002-m1"
+
 /** An available track that has no current `analysis` document for the requested analyzer version. */
 data class PendingTrack(
     val trackId: String,

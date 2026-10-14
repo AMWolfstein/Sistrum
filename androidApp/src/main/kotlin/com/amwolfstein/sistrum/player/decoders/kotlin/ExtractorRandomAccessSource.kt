@@ -2,6 +2,7 @@
 
 package com.amwolfstein.sistrum.player.decoders.kotlin
 
+import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.extractor.ExtractorInput
 import com.amwolfstein.sistrum.codecs.container.RandomAccessSource
@@ -22,23 +23,33 @@ import java.nio.channels.FileChannel
  */
 internal class ExtractorRandomAccessSource private constructor(
     private var input: ExtractorInput?,
-    private val channel: FileChannel,
+    private val channel: FileChannel?,
     private val cacheFile: File?,
 ) : RandomAccessSource, Closeable {
-    constructor(input: ExtractorInput, cacheFile: File = File.createTempFile("sistrum-codec-", ".cache")) :
-        this(input, RandomAccessFile(cacheFile, "rw").channel, cacheFile)
+    constructor(input: ExtractorInput, cacheFile: File = createCacheFile()) :
+        this(input, null, cacheFile)
 
     constructor(channel: FileChannel) : this(null, channel, null)
 
-    private val declaredLength = input?.length ?: channel.size()
+    private val declaredLength: Long
+    private var cache: RandomAccessFile? = null
     private val scratch = ByteArray(if (input != null) 64 * 1024 else 0)
-    private val scratchBuffer = ByteBuffer.wrap(scratch)
     private var cachedLength = 0L
     private var ended = false
     private var closed = false
 
     init {
-        if (input != null) channel.truncate(0)
+        try {
+            if (cacheFile != null) {
+                cache = RandomAccessFile(cacheFile, "rw")
+                checkNotNull(cache).setLength(0)
+            }
+            declaredLength = input?.length ?: checkNotNull(channel).size()
+        } catch (error: Exception) {
+            try { cache?.close() } catch (closeError: IOException) { error.addSuppressed(closeError) }
+            cacheFile?.let { deleteCache(it) }
+            throw error
+        }
     }
 
     override val length: Long
@@ -65,7 +76,11 @@ internal class ExtractorRandomAccessSource private constructor(
             cacheThrough(end)
             if (position >= cachedLength) return -1
         }
-        return channel.read(buffer, position)
+        val cache = cache ?: return checkNotNull(channel).read(buffer, position)
+        cache.seek(position)
+        val count = cache.read(scratch, 0, minOf(buffer.remaining().toLong(), scratch.size.toLong(), cachedLength - position).toInt())
+        if (count > 0) buffer.put(scratch, 0, count)
+        return count
     }
 
     private fun cacheThrough(requestedEnd: Long) {
@@ -82,15 +97,10 @@ internal class ExtractorRandomAccessSource private constructor(
             val count = current.read(scratch, 0, wanted)
             if (count == C.RESULT_END_OF_INPUT) { ended = true; return }
             if (count <= 0) throw IOException("Media3 input made no progress")
-            scratchBuffer.clear()
-            scratchBuffer.limit(count)
-            var position = cachedLength
-            while (scratchBuffer.hasRemaining()) {
-                val written = channel.write(scratchBuffer, position)
-                if (written <= 0) throw IOException("codec cache made no progress")
-                position += written
-            }
-            cachedLength = position
+            val cache = checkNotNull(cache)
+            cache.seek(cachedLength)
+            cache.write(scratch, 0, count)
+            cachedLength += count
         }
     }
 
@@ -103,8 +113,38 @@ internal class ExtractorRandomAccessSource private constructor(
         closed = true
         input = null
         if (cacheFile != null) {
-            try { channel.close() } finally {
-                if (!cacheFile.delete() && cacheFile.exists()) throw IOException("could not delete codec cache")
+            try { cache?.close() } finally { deleteCache(cacheFile) }
+        }
+    }
+
+    companion object {
+        private var swept = false
+
+        // Serialize the sweep and first creation: no live extractor cache can be deleted.
+        @Synchronized private fun createCacheFile(): File {
+            val directory = File(checkNotNull(System.getProperty("java.io.tmpdir")))
+            if (!swept) {
+                sweepStaleCaches(directory)
+                swept = true
+            }
+            return File.createTempFile("sistrum-codec-", ".cache", directory)
+        }
+
+        internal fun sweepStaleCaches(directory: File) {
+            val files = directory.listFiles()
+            if (files == null) {
+                Log.w("KotlinCodecCache", "could not list codec cache directory: $directory")
+                return
+            }
+            files.filter { it.isFile && it.name.startsWith("sistrum-codec-") && it.name.endsWith(".cache") }
+                .forEach { deleteCache(it) }
+        }
+
+        private fun deleteCache(file: File) {
+            try {
+                if (!file.delete() && file.exists()) Log.w("KotlinCodecCache", "could not delete codec cache: $file")
+            } catch (error: SecurityException) {
+                Log.w("KotlinCodecCache", "could not delete codec cache: $file", error)
             }
         }
     }
