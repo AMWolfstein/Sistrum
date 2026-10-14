@@ -3,6 +3,7 @@ package com.amwolfstein.sistrum.player.decoders
 import com.amwolfstein.sistrum.player.decoders.aiff.KotlinAiffProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinWavPackProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinApeProvider
+import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinWmaProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinMusepackProvider
 
 /** The `codec` of a [DecoderTableEntry] that matches any codec of its format. */
@@ -175,7 +176,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
         DecoderTableEntry("wv", "wv", listOf("kotlin-wavpack"), emptyList(), "WavPack"),
         DecoderTableEntry("dsf", "dsf", emptyList(), emptyList(), "DSD"),
         DecoderTableEntry("dff", "dff", emptyList(), emptyList(), "DSD"),
-        DecoderTableEntry("wma", "wma", emptyList(), emptyList(), "WMA"),
+        DecoderTableEntry("wma", "wma", listOf("kotlin-wma"), emptyList(), "WMA"),
         DecoderTableEntry("mpc", "mpc", listOf("kotlin-musepack"), emptyList(), "Musepack"),
         DecoderTableEntry("tta", "tta", emptyList(), emptyList(), "TTA"),
     ),
@@ -187,7 +188,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
  * (T038) so the table lookup and the player's extractors cannot drift apart.
  */
 fun defaultDecoderProviders(probe: CodecProbe): List<DecoderProvider> =
-    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinApeProvider(), KotlinMusepackProvider(), KotlinAiffProvider())
+    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinApeProvider(), KotlinMusepackProvider(), KotlinWmaProvider(), KotlinAiffProvider())
 
 /** The table-backed registry over [defaultDecoderProviders]. */
 fun defaultDecoderRegistry(probe: CodecProbe): DecoderRegistry =

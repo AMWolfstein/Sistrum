@@ -80,7 +80,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
                 val codec = open(source).also { stream = it }
                 codec.refusal?.let { throw unsupported(it) }
                 val info = codec.info
-                if (info.sampleRate <= 0 || info.channels <= 0 || info.totalSamples < 0) {
+                if (info.sampleRate <= 0 || info.channels <= 0 || (info.samplesExact && info.totalSamples < 0)) {
                     throw ParserException.createForMalformedContainer("invalid codec stream info", null)
                 }
                 bytesPerSample = when (info.pcmEncoding) {
@@ -120,13 +120,16 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             val position = block?.position ?: checkNotNull(floats).position
             val capacity = block?.capacityFrames ?: (checkNotNull(floats).samples.size / channels)
             if (channels != info.channels || blockFrames < 0 || blockFrames > capacity ||
-                position < 0 || position > info.totalSamples) {
+                position < 0 || (info.samplesExact && position > info.totalSamples)) {
                 throw ParserException.createForMalformedContainer("invalid codec PCM block", null)
             }
-            val frames = minOf(blockFrames.toLong(), info.totalSamples - position).toInt()
+            val frames = if (info.samplesExact) minOf(blockFrames.toLong(), info.totalSamples - position).toInt() else blockFrames
             if (frames == 0) return Extractor.RESULT_CONTINUE
             val sampleCount = Math.multiplyExact(frames, info.channels)
             val size = Math.multiplyExact(sampleCount, bytesPerSample)
+            // Codec blocks can begin short and grow later (ASF superframes). Reserve the
+            // borrowed buffer's full capacity once, so packing does not allocate as they grow.
+            pcm.ensureCapacity(Math.multiplyExact(Math.multiplyExact(capacity, info.channels), bytesPerSample))
             pcm.reset(size)
             val bytes = pcm.data
             var index = 0
@@ -173,7 +176,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
     /** Byte position zero lets Media3 reopen its input; the cached codec performs the sample seek. */
     private class SampleSeekMap(private val info: CodecStream.Info) : SeekMap {
         override fun isSeekable() = true
-        override fun getDurationUs() = timeAt(info.totalSamples, info.sampleRate)
+        override fun getDurationUs() = if (info.totalSamples < 0) C.TIME_UNSET else timeAt(info.totalSamples, info.sampleRate)
         override fun getSeekPoints(timeUs: Long): SeekMap.SeekPoints =
             SeekMap.SeekPoints(SeekPoint(timeAt(sampleAt(timeUs, info), info.sampleRate), 0))
     }
@@ -216,6 +219,11 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
                 sample % rate * C.MICROS_PER_SECOND / rate)
 
         private fun sampleAt(timeUs: Long, info: CodecStream.Info): Long {
+            if (!info.samplesExact) {
+                val time = timeUs.coerceAtLeast(0)
+                return Math.addExact(Math.multiplyExact(time / C.MICROS_PER_SECOND, info.sampleRate.toLong()),
+                    time % C.MICROS_PER_SECOND * info.sampleRate / C.MICROS_PER_SECOND)
+            }
             val duration = timeAt(info.totalSamples, info.sampleRate)
             if (timeUs >= duration) return info.totalSamples
             val time = timeUs.coerceIn(0, duration)

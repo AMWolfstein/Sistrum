@@ -246,3 +246,30 @@ provider. No platform APE/Musepack route exists in the current table. Existing r
 only to reflect the providers explicitly required by FR-001; original T002 tests remain untouched.
 Revisit if: device validation in T013 reveals larger leading wrappers that need a broader magic probe; any
 architecture change remains blocked pending the owner. Multichannel mapping remains T010's task.
+
+## D-17: WMA ASF dispatch and advisory sample counts
+
+Case: the imported ASF streams select WMA 1/2, Pro, Lossless and Voice and explicitly mark their
+duration-derived sample counts inexact. The adapter previously clipped all PCM and seeks to a declared
+count. Lossless fixture headers are 4,989–4,993 bytes; ASF superframes can grow after their first output block.
+Options:
+- Reuse the existing ASF demuxer's stream-selection policy with each codec's config validator, then open
+  the corresponding imported stream; carry an optional inexact-count flag through the existing adapter.
+- Duplicate ASF stream selection in the app or change the imported codec stream APIs.
+Chosen: the first option. A dispatch demux validates/selects the tag at open time; the selected stream owns
+its decoding demux. This incurs extra temporary open-time storage/parsing, with no per-block dispatch or
+new container parser. Integer Lossless PCM and native float WMA 1/2, Pro and Voice retain exact oracle bytes.
+CodecStream.Info defaults to exact counts and retains its four-argument JVM constructor for unchanged T002.
+Inexact streams decode to EOF and seek by requested sample without clamping to advisory duration; unknown
+duration is Media3 TIME_UNSET. PCM packing reserves borrowed codec buffer capacity on first output to
+avoid later superframe growth allocations. The refusal probe is bounded to 8 KiB; sniff remains 4 KiB
+and requires the complete ASF GUID at offset zero. Larger headers still validate on full extraction.
+Platform remains first; the existing table offers no platform WMA route. Only the formerly unsupported
+WMA row gains this provider. Multichannel mapping and device validation remain T010/T013.
+The new format assertion uses the codec family's native representation, per FR-002 and the imported
+WmaProOracleTest: scripts/waxflow-oracle.sh recognizes only outer WAVE tag 3 as float and labels
+multichannel Pro's extensible tag 0xfffe as "int". Its PCM hash remains the exact raw float-bit reference.
+The initial new assertion incorrectly trusted that label; only this new assertion is corrected, with
+exact depth/encoding/hash checks retained and no fixture or pre-existing expected value changed.
+Revisit if: T013 finds open-time memory or replay-seek latency problematic, or a task explicitly adds a
+platform WMA route; any architecture change must stop for the owner.

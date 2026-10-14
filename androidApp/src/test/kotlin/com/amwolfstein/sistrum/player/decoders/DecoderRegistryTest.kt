@@ -76,7 +76,9 @@ class DecoderRegistryTest {
         // T004 adds WavPack to the previously unsupported formats (002 FR-001).
         assertEquals("kotlin-wavpack", registry.resolve(FormatKey("wv", "wv"))?.id)
         assertNull(registry.skipReason(FormatKey("wv", "wv")))
-        assertEquals("unsupported format (WMA)", registry.skipReason(FormatKey("wma", "wma")))
+        // T006 offers the ASF WMA family (002 FR-001).
+        assertEquals("kotlin-wma", registry.resolve(FormatKey("wma", "wma"))?.id)
+        assertNull(registry.skipReason(FormatKey("wma", "wma")))
     }
 
     @Test

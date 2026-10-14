@@ -7,7 +7,11 @@ import java.io.Closeable
 /** A codec's stream API, independent of Media3's extraction lifecycle. */
 internal interface CodecStream : Closeable {
     /** Sample counts and positions are per channel, including for interleaved output. */
-    data class Info(val sampleRate: Int, val channels: Int, val pcmEncoding: Int, val totalSamples: Long)
+    data class Info @JvmOverloads constructor(
+        val sampleRate: Int, val channels: Int, val pcmEncoding: Int, val totalSamples: Long,
+        /** ASF duration estimates must never truncate decoded PCM; -1 means unknown. */
+        val samplesExact: Boolean = true,
+    )
 
     val info: Info
 

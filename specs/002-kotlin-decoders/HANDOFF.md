@@ -4,26 +4,28 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T004 committed (T004: `1264c0b`); T005 implements and registers
-  APE and Musepack after Platform/WavPack, retaining the existing AIFF provider. Host validation covers
-  all 31 APE and 32 SV7/SV8 Musepack fixtures: exact PCM/float oracle hashes, format, sample count,
-  gapless trimming, duration, exact forward/backward/end seeks, reusable packing storage and named refusals.
-- **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0, `lintDevQa` 109
-  errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Blocked:** nothing. T005's commit is prepared in `.codex-commit/` for the runner; Git mutations
-  and push are NOT RUN here per AGENTS.md step 5.
-- **Next step:** runner commits/pushes T005 on `feature/media3-migration`, then T006 adds the WMA family.
-  WavPack DSD conversion belongs to T007, channel mapping/downmix to T010, full/device validation to T013.
+- **Phase:** M1 execution — T001–T005 committed (T005: `ce81207`); T006 implements and registers
+  the ASF WMA family after Platform/WavPack/APE/Musepack, retaining AIFF. All 52 decodable WMA 1/2,
+  Lossless, Pro and Voice fixtures match exact oracle PCM hashes, sample counts and seek tails;
+  all 15 committed refusals preserve codec names and the provider failure-log ID.
+- **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
+  `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
+- **Blocked:** nothing. T006's commit is prepared in `.codex-commit/` for the runner;
+  Git mutations and push are NOT RUN here per AGENTS.md step 5.
+- **Next step:** runner commits/pushes T006 on `feature/media3-migration`, then T007 adds DSD.
+  Channel mapping/downmix belongs to T010, full/device validation to T013.
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-16 records native float-buffer adaptation, preserved T002 contract, probe bounds
-  and the exact end-seek correction. Execution by Codex in autonomous mode (D-9).
+- **New decision:** D-17 records ASF dispatch, advisory/unknown duration handling, buffer capacity
+  reservation, the bounded refusal probe and the oracle's multichannel WAVE label limitation.
+  Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T006; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 73 tests, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,768 nodes, 32,103 edges), both artifacts included. All 52 playable WMA-family fixtures match exact oracle bytes and forward/backward/end seeks; all 15 refusals retain named typed causes and provider logging. Understated/unknown ASF durations preserve full PCM and seeks beyond estimates. D-17 records dispatch/duration/packing and the oracle label limitation. Attempt 1 FAIL: packing storage grew; fixed capacity reservation. Attempt 2 FAIL: new format assertion trusted outer WAVE tag; corrected per FR-002 and the imported raw-float oracle, retaining exact hashes/depth/encoding checks. Full suites, sharedLogic/module suites, lint, assemble, WMA speed and phone checks NOT RUN: T013/M6 scope. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T005; commit: prepared for runner (SHA pending) | GATE: PASS on attempt 2; 50 tests (11 unchanged T002, 10 T003, 6 WavPack, 6 APE/Musepack, 17 registry), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,711 nodes, 31,956 edges), both artifacts included. All 31 APE and 32 Musepack fixtures match exact oracle hashes and seek tails. D-16 records the float-buffer subtype and exact end seek. Attempt 1 FAIL: refusal probe size, EOF rounding and reflection compatibility; fixed in production without editing T002. Full suites, sharedLogic/module suites, lint, assemble and device checks NOT RUN: T013 owns the full/device gate. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T004; commit: prepared for runner (SHA pending) | GATE: PASS on attempt 2; 44 tests (11 unchanged T002, 10 T003, 6 provider, 17 registry), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,642 nodes, 31,788 edges), both artifacts included. Checks all 67 original WavPack inputs and 96 standalone libwavpack rows; 14 DSD rows explicitly refused pending T007. Host speed: 72 files, RTF median 0.005968458, worst 0.021165319 (47.247×). D-15 records scope/method. Attempt 1 FAIL: JVM constructor compatibility, duplicate refusal prefix, packed width; all fixed without editing T002. Full suites, sharedLogic/module tests, lint, assemble and device checks NOT RUN: T013 owns the full/device gate. Correction-paired decoding NOT RUN: single-source provider uses committed standalone hybrid oracle. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T003; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 21 tests (11 unchanged T002 + 10 new), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,588 nodes, 31,651 edges), both artifacts included. D-13/D-14 record cache ownership and suite setup. Attempt 1 FAIL (refusal cause + Media3 host stub); attempt 2 PASS; attempt 3 verifies suite discovery after configuration. Full suites, lint, assemble, corpus/provider speed and device checks NOT RUN: T004 owns the provider/speed signal and T013 owns the full/device gate. Commit/push NOT RUN: runner handles Git metadata. |
@@ -35,6 +37,48 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T006 verification
+
+- Memory checks before all three attempts: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
+  `MemAvailable` 3,848,760 / 3,898,716 / 3,867,096 kB (all ≥ 2 GB).
+- Quick gate (attempt 3, logs `/tmp/verify-task.5rmcu4`):
+  `bash .claude/skills/verify-task/scripts/verify.sh --files '<eight Kotlin files below>' --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.player.decoders.*'`.
+  GATE: PASS; 73 tests, zero failures/errors/skips; `:androidApp:compileDevQaKotlin` PASS.
+  Executed: 11 unchanged T002, 10 T003 source/lifecycle, 6 WavPack, 6 APE/Musepack,
+  6 WMA, 17 registry, 17 existing AIFF tests. Pinned corpus prerequisites passed.
+- The eight Kotlin files in the gate: `player/decoders/DecoderRegistry.kt`;
+  `player/decoders/kotlin/{CodecStream,KotlinDecodingExtractor,KotlinWmaProvider}.kt`;
+  `test/player/decoders/DecoderRegistryTest.kt`;
+  `test/player/decoders/kotlin/{KotlinWavPackProviderTest,KotlinApeMusepackProviderTest,KotlinWmaProviderTest}.kt`.
+  Production paths are under `androidApp/src/main/kotlin/com/amwolfstein/sistrum/`;
+  test paths under `androidApp/src/test/kotlin/com/amwolfstein/sistrum/` (the `test/` prefix above denotes that root).
+- WMA corpus: 30 WMA 1/2, 6 Lossless, 8 Pro, 8 Voice playable inputs; 15 refusals (7/3/1/4).
+  All input hashes and output oracle hashes checked unchanged; exact byte counts, rate, channels,
+  PCM depth/encoding, zero additional delay/padding, increasing timestamps and reused packing arrays.
+  Each playable fixture compares whole seek tails at halfway, sample 1, last sample, start and EOF.
+  One fixture per family additionally declares a 1ms or unknown duration: full PCM and seek tails
+  beyond the estimate remain identical. Refusals use the provider's actual bounded header probe and
+  normal parser path, preserving unsupported typed ASF causes, codec messages and provider ID in the log.
+- Attempt 1 (`/tmp/verify-task.ZaRdN3`): 72 tests, two new WMA failures from growing packing arrays.
+  Fixed production capacity reservation, retaining both assertions.
+  Attempt 2 (`/tmp/verify-task.wRjo75`): 73 tests, one new WMA encoding assertion failure:
+  the oracle script calls multichannel Pro's extensible WAVE outer tag "int"; imported WmaProOracleTest
+  hashes the same bytes as raw float bits. Corrected this new assertion per FR-002 (D-17), retaining
+  exact hashes and adding exact supported-depth checks; no fixture/reference changed.
+- Self-review: no tests deleted, disabled or weakened; original T002 untouched. Existing provider-list
+  and WMA unsupported expectations changed only for T006's mandated registration (FR-001).
+  CodecStream/adapter edits preserve its four-argument JVM constructor and exact-count default;
+  they are required for ASF's explicitly advisory sample count and variable superframe size.
+  PlaybackController, Room, native code, imported modules and shipped features untouched.
+  `git diff --check` PASS. No architecture or ADR changed.
+- Graph: quick gate ran `python3 .claude/hooks/graph_refresh.py auto` and reported changed
+  (10,768 nodes, 32,103 edges); both generated artifacts included, none hand-edited.
+- Other changed files: this HANDOFF, T006 checkbox in tasks.md and D-17 in DECISIONS.md,
+  required by autonomous logging/decision steps; `.codex-commit/` contains the runner's prepared commit.
+- NOT RUN: full app/module/sharedLogic suites, lint, assemble and phone checks (T013);
+  WMA speed/device memory/seek-latency measurements (T013/M6); stage/commit/push (runner per step 5).
+  Real listening, Bluetooth/headset and device crossfade remain owner manual checks, not PASS.
 
 ## T005 verification
 
