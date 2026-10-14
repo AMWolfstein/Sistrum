@@ -226,7 +226,8 @@ Codex models (owner, 2026-10-13; `--effort` sets the reasoning level):
 - Default: `gpt-6.1-sol`, `--effort medium`.
 - Hard tasks (crossfade, MediaSession, anything flagged high-risk in `tasks.md`): `gpt-6.1-sol`, `--effort high`
   (near-Astra coding results at about a fifth of the cost; owner, 2026-10-13).
-- Fallback, if a task fails twice on its model: `gpt-6-astra`, `--effort high` (most capable, most expensive).
+- No Astra fallback (owner, 2026-10-14): when a Codex task fails or ends BLOCKED, the runner stops and Claude
+  finishes the task itself (as with T009), then restarts the runner from the next task. Don't use `gpt-6-astra`.
 - OpenCode (old path, only if the owner asks): never `opencode/*-free` or `opencode-go/glm-5.3`.
 
 ## Testing split

@@ -22,7 +22,7 @@ with `/verify-task`.
 - `gpt-6.1-sol --effort high` if the task is crossfade, MediaSession, or its line carries
   `[HIGH-RISK]`.
 - Otherwise `gpt-6.1-sol --effort medium`.
-- `gpt-6-astra --effort high` only after the task's model has failed twice on this same task.
+- Never `gpt-6-astra` (owner, 2026-10-14): if the task fails on its model, Claude finishes it instead.
 - Old OpenCode path only if the owner asks; never `opencode/*-free` or `opencode-go/glm-5.3` (dispatch.sh refuses them).
 
 ## 3. Write the brief

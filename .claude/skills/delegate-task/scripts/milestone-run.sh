@@ -4,8 +4,8 @@
 # in between. Rules for the coder: AGENTS.md "Autonomous mode".
 #
 # Usage: milestone-run.sh --feature specs/<feature> --tasks 'T001 T002 ...' [--out DIR]
-# Per task: [HIGH-RISK] in its tasks.md line -> gpt-6.1-sol high, else medium; a BLOCKED/failed task is retried once
-# with gpt-6-astra high (CLAUDE.md "Models" fallback). Restartable: an uncommitted .codex-commit/ is committed first. Stops at the first task still not DONE, or when a task
+# Per task: [HIGH-RISK] in its tasks.md line -> gpt-6.1-sol high, else medium. No Astra fallback (owner, 2026-10-14):
+# a BLOCKED/failed task stops the run and Claude finishes it (as with T009). Restartable: an uncommitted .codex-commit/ is committed first. Stops at the first task still not DONE, or when a task
 # reports DONE without a new pushed commit. Exit 0 = all DONE; 1 = stopped (reason printed and in HANDOFF).
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
@@ -75,7 +75,7 @@ for t in $tasks; do
   case "$line" in "- [x]"*|"- [X]"*) echo "SKIP $t (already done)"; continue ;; esac
   effort=medium; case "$line" in *"[HIGH-RISK]"*) effort=high ;; esac
   done_ok=0
-  for attempt in "gpt-6.1-sol $effort" "gpt-6-astra high"; do
+  for attempt in "gpt-6.1-sol $effort"; do
     set -- $attempt; model=$1; eff=$2
     d="$out/$t/$model"; mkdir -p "$d"; brief "$t" > "$d/brief.md"
     before=$(git rev-parse HEAD)
@@ -90,6 +90,6 @@ for t in $tasks; do
     fi
     [ -d .codex-commit ] && { echo "STOP: $t BLOCKED but left .codex-commit/; inspect"; exit 1; }
   done
-  [ $done_ok = 1 ] || { echo "STOP: $t not done after fallback; see $out/$t and $feature/HANDOFF.md"; exit 1; }
+  [ $done_ok = 1 ] || { echo "STOP: $t not done; Claude takes over (no Astra fallback); see $out/$t and $feature/HANDOFF.md"; exit 1; }
 done
 echo "MILESTONE DONE: $tasks"

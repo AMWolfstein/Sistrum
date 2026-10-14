@@ -17,6 +17,10 @@ for arg in "$@"; do
   [ "$prev" = "--session" ] && session="$arg"
   prev="$arg"
 done
+# No Astra (owner, 2026-10-14): a failed Codex task goes to Claude instead.
+if [[ "$model" == gpt-6-astra* ]]; then
+  echo "dispatch: model '$model' is not allowed (owner: no Astra fallback; Claude finishes failed tasks)" >&2; exit 2
+fi
 if [[ "$model" == gpt-* ]] || [[ "$session" =~ ^[0-9a-f]{8}- ]]; then
   exec bash "$(dirname "$0")/codex-run.sh" "$@"
 fi
