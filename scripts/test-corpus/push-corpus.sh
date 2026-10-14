@@ -28,7 +28,7 @@ local_files=()
 while IFS= read -r -d '' file; do
   case "${file,,}" in
     *.tsv) continue ;;
-    *.mp3|*.flac|*.ogg|*.oga|*.opus|*.m4a|*.mp4|*.wav|*.aiff|*.aif|*.aifc|*.wv|*.wma|*.ape|*.dsf|*.dff)
+    *.mp3|*.flac|*.ogg|*.oga|*.opus|*.m4a|*.mp4|*.wav|*.aiff|*.aif|*.aifc|*.wv|*.wma|*.ape|*.mpc|*.dsf|*.dff)
       local_files+=("$(basename "$file")") ;;
   esac
 done < <(find "$dir" -maxdepth 1 -type f -print0)

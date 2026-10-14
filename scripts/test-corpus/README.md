@@ -113,3 +113,52 @@ MediaStore rescan. It never touches app data, installs or uninstalls anything, o
 **The folder must be blocklisted in the owner's daily apps** (`com.amwolfstein.sistrum.dev` and the previous Airmedy build): without it
 the corpus simply appears as music in the daily library. The `.qa` test build
 (`com.amwolfstein.sistrum.dev.qa`) is the build the corpus is meant to be scanned by.
+
+## Kotlin decoder device matrix (002 T012; run on the phone in T013)
+
+`KotlinFormatsPlaybackTest` requires the 21 pinned rows in
+`androidApp/src/androidTest/assets/kotlin-formats.tsv`. Missing files or source-hash changes
+fail the class; there are no assumption skips. The rows cover WavPack, APE, Musepack SV7/SV8,
+ordinary ALAC and all three fragmented ALAC goldens, WMA 1/2/Pro/Lossless/Voice, MS-ADPCM,
+WAV G.711, AIFF-C IMA4/G.711, DSF and DFF. Plain/float AIFF coverage is extended by T012a.
+
+Prepare **outside the repo**, merging into the generated 001 corpus directory so the existing
+push procedure retains those files. No audio or generated PCM is committed:
+
+```sh
+# Rebuild the pinned oracle cache if needed (see docs/waxflow/ORACLE.md and docs/dsd/ORACLE.md).
+python3 scripts/test-corpus/prepare-kotlin-formats.py --out /tmp/sistrum-corpus
+# T013 only: the phone gate owns ALL device access, including this push.
+bash scripts/test-corpus/push-corpus.sh /tmp/sistrum-corpus
+```
+
+The staging script validates every input hash before copying anything, preserves existing
+staged files, and never invokes adb. Musepack `.mpc` is included by `push-corpus.sh`.
+Do not push a directory containing only T012 files over the combined corpus: the existing
+push procedure removes remote files absent from its input directory.
+
+The manifest copies source hashes, frame counts and raw PCM hashes from the original
+WaxFlow fixtures. `capture_sha256` hashes the independent WaxFlow CLI's WAV data converted
+to the offline sink's float representation: integer PCM is left-aligned to signed 32-bit,
+divided by 2147483647, then rounded to IEEE float32; float PCM stays unchanged. Each raw
+PCM hash was verified against its original fixture before deriving the capture hash.
+This accounts for the sink's precision (including 32-bit ALAC) without changing oracle
+fixtures or deriving expectations from the Kotlin decoder. The fragmented ALAC test first feeds real Media3 demux packets to the Kotlin
+ALAC decoder and checks the original full-depth raw PCM hash (including all 32 bits),
+then uses OfflineDecoder's real player/renderer/capture path through EOS.
+
+DSD rows deliberately say `production-D18`: the old Flick hashes describe a different
+filter. Their device integration compares exact float PCM with the approved production
+converter per D-18; it does **not** claim independent Rust-oracle PCM parity. Independent
+signal/response validation remains in the imported codec tests.
+
+Seek timing runs from the seek command until AudioTrack reports audio position advancing,
+including resume, with a 300 ms limit. Unindexed fragmented ALAC is unseekable per D-20;
+ordinary ALAC supplies its seek case. Gapless checks replay a pinned track with a distinct
+queue identity, compare PCM on both sides of the join and allow at most two inserted/dropped
+frames. Crossfade checks both players playing during the fade, both PCM streams, transition
+identity/duration, provider attribution and zero AudioTrack underruns.
+
+T012 compiles these tests but never executes them or accesses the phone. T013 runs
+`com.amwolfstein.sistrum.player.KotlinFormatsPlaybackTest` through the `.qa` instrumented
+gate and saves its per-class logs. Manual listening stays an owner check.

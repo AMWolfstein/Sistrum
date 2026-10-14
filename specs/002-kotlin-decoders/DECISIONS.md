@@ -419,3 +419,35 @@ mono/stereo reductions, so a smaller 3–7 channel route uses stereo (within its
 instead of silently dropping speakers. No decoder order, limiter or 001 behavior changes.
 Revisit if: a task adds route-change reconfiguration, pre-33 route detection, or imported
 matrices gain intermediate multichannel downmix targets; device listening remains T013/owner work.
+
+## D-24: Device fixture staging and PCM comparison boundaries
+Case: T012 authors device checks without using the phone; the existing flat corpus procedure
+lacks Musepack pushes and the host oracle manifests are not all APK assets. The offline sink
+outputs float PCM, while the original WaxFlow hashes preserve packed source depths. D-18's
+Flick DSD filter is deliberately different from production, and D-20's three unindexed ALAC
+fragments are deliberately unseekable.
+Options:
+- Stage a pinned 21-row subset alongside the existing corpus, compare independently decoded
+  WaxFlow PCM at the float capture boundary, check fragmented ALAC at full depth as well,
+  and retain the approved D-18 production integration comparison for DSD.
+- Generate replacement corpus audio or change decoder/filter/container behavior to make
+  all old hashes and seek assumptions uniform.
+Chosen: the first option. The committed device TSV retains each source hash and original
+raw PCM hash. Its capture hashes were derived only from the pinned WaxFlow CLI output,
+whose raw PCM was first verified against the unchanged original fixture. No Kotlin decoder
+supplied those expectations. Integer-to-float comparison uses the existing sink's signed
+32-bit alignment and 2147483647 divisor; 32-bit ALAC also gets its original raw PCM hash
+through Media3 fragmented demux and the Kotlin decoder. DSF/DFF device PCM is explicitly
+production integration per D-18, not independent Flick PCM parity. Their original source
+hashes, rate/channel/frame counts remain pinned. Ordinary ALAC covers seek; fragmented
+ALAC checks its unseekable map. Gapless replays a pinned source under a distinct queue id
+and checks complete incoming PCM alignment and outgoing PCM, with at most two frames
+inserted/dropped. Crossfade uses WavPack and APE, both player clocks playing during overlap,
+PCM from both streams and AudioTrack underrun callbacks.
+The preparation script never uses adb, refuses output within the repo, validates all sources
+before writing and retains the existing corpus. `.mpc` joins the existing push extension list.
+All device access, including push, is deferred to T013 under AGENTS.md step 8; T012 only
+compiles its device tests. T012a extends the AIFF matrix without changing this task's scope.
+Revisit if: T013 exposes a float-boundary discrepancy, missing pinned fixtures, or a need
+for distinct encoded gapless album cuts; an independent production-DSD PCM oracle requires
+its own scoped task and never reuses the old Flick hash as the new filter's expected output.

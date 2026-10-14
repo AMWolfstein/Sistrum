@@ -4,11 +4,10 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T011 committed (T011 finished by Claude after Codex BLOCKED); runner next: T012, T012a.
+- **Phase:** M1 execution — T001–T011 committed (T011 finished by Claude after Codex BLOCKED); T012 prepared in `.codex-commit/` (runner pending); runner next: T012a.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Next step:** T012,
-  T012a (all AIFF through WaxFlow's decoder,
+- **Next step:** runner commits T012, then T012a (all AIFF through WaxFlow's decoder,
   owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
   spec-traceability-auditor, audio-correctness-reviewer, port-fidelity-checker on the imported decoders;
   confirmed findings → `T013-fix`; plus a one-time `codebase-archaeologist` drift audit across eras, findings to
@@ -17,13 +16,14 @@
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-23 records adapter speaker masks, placement and device-count downmix limits.
+- **New decision:** D-24 records pinned device fixtures, full-depth/float PCM comparison boundaries, D-18 DSD integration and T013-only device access.
   Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T012; commit: prepared (runner pending) | GATE: PASS on attempt 1; 105 host tests, zero failures/errors/skips; production compile PASS; final instrumented-source compile PASS (7 new device tests, execution NOT RUN). Graph changed (11,214 nodes, 33,175 edges). 21 staged source hashes verified; 19 WaxFlow raw PCM hashes independently verified before deriving float capture hashes; preservation/corruption/repo-output staging checks PASS. D-24 records full-depth fragmented ALAC and the approved D-18 DSD production integration boundary. Device/push/full suites/lint/assemble/listening NOT RUN: T013/owner scope under AGENTS.md step 8. No existing tests or production files changed. Logs: `/tmp/verify-task.fN5RNc`, `/tmp/t012-quick-gate.log`, `/tmp/t012-androidtest-compile-final.log`. Detailed impact/files/commands below. |
 | 2026-10-14 | T011 finished by Claude (owner rule 2026-10-14: no Astra fallback, Claude takes failed tasks) | Kept Codex's OfflineDecoder change (registry built from the injected providers, decode-failure log with provider + typed refusal, cancellation not logged) after diff review. Fixes: offline matrix picks integer AIFF (float AIFF joins in T012a, task line extended); `sync/ScanGateTest` had 3 stale expectations since T006–T009 (DSD/WMA/IMA4/ALAC now admitted) that the filtered quick gates never ran: updated with spec reason, skip/no-device intents kept via TTA and AC-3; `docs/REGRESSION.md` now sends decoder changes to `sync.*` + `analysis.*`. GATE: PASS, full `testDevQaUnitTest` 1354 tests 0 fail (1 corpus skip), sharedLogic PASS, `assembleDevQa` PASS, graph changed. migration-guard: PASS (non-blocking: one always-true assert in the corpus test, root-cause-only failure message). Lint/device NOT RUN: T013 scope. |
 | 2026-10-14 | T011; commit: none (BLOCKED, retry limit) | GATE: FAIL on attempt 3; 164 tests discovered: 162 pass, 1 failure, 1 existing assumption skip; compileDevQaKotlin PASS. New offline matrix reaches `waxflow-testdata/sine-f32.aiff`, refused by the current AiffExtractor with `float AIFF-C (fl32)`; float AIFF support is T012a, outside this task. Attempt 1: new-test AudioSink configuration constructor mismatch. Attempt 2: host Uri.EMPTY stub caused a null pointer in Media3's default extractor factory; added an empty-base test seam (production default unchanged). Attempt 3 logs: `/tmp/verify-task.zwi8L9`; earlier logs: `/tmp/verify-task.mAsA5G`, `/tmp/verify-task.1WSE1O`. Existing WaxFlowOracleLoudnessTest was NOT RUN because SISTRUM_CORPUS is unset (assumption skip, not PASS). Graph refreshed by the gate: changed (11,129 nodes, 32,980 edges). Full suites/sharedLogic, lint, assemble, ExoPlayer scheduling/device checks NOT RUN: T013 scope. Commit preparation/staging/commit/push NOT RUN: gate failed. Existing tests untouched. |
 | 2026-10-14 | T010; commit: prepared (runner pending) | GATE: PASS on attempt 2; 104 host tests, zero failures/errors/skips; compileDevQaKotlin PASS. Eight new ChannelMapperTest tests cover 3ch/5.1/reordered 6ch corpora, placement, analytic downmix gains, integer/float conversion, refusals, seeks/EOS/storage and wrapped-provider output limits. Existing tests unchanged. D-23 records API 33+ route counts, logged unknown/pre-33 limits, and stereo reductions for smaller intermediate layouts. Graph changed; both generated artifacts included. Files/impact/commands detailed below. Full suites, lint, assemble, phone, listening and benchmarks NOT RUN: T013/M6/owner scope. Commit/push NOT RUN: runner handles Git metadata. |
@@ -488,3 +488,95 @@
 - Remaining: in a fresh T011 session, review the matrix's AIFF selection against the currently supported envelope
   (test accepted integer AIFF and separately assert the current float refusal, without changing T012a's scope).
   Supply SISTRUM_CORPUS for the existing loudness oracle. Rerun the gate before ticking T011 or preparing a bundle.
+
+
+## T012 verification and impact review
+
+- Scope: authored `KotlinFormatsPlaybackTest` only; T012a's all-AIFF production changes and
+  added plain/float AIFF cases remain undone by design. No phone access occurred.
+- Impact inventory gathered before edits with `git grep` / `rg`: consumers are the T013
+  instrumented gate and the existing flat corpus push procedure. The new tests call
+  Media3Engine/Media3PlayerFactory (prepare, seek, gapless preload, crossfade, events and
+  player test seams), OfflineDecoder/PcmConsumer/CaptureAudioSink, and the existing
+  FragmentedMp4Extractor/KotlinAlacDecoder/Dsd APIs. No consumer API is changed.
+- Data/contracts: a new test-only fixture TSV retains original source and raw PCM hashes,
+  frame/rate/channel counts, and independent float capture hashes. Room/schema/version,
+  analysis documents, preferences, DecoderProvider order, PlaybackController and spec
+  001 behavior are untouched. Original host/device tests and oracle fixtures remain
+  unmodified; no imported module API/output change invokes downstream propagation.
+- Files required, with final diff scope review:
+  - `androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/player/KotlinFormatsPlaybackTest.kt`:
+    seven device tests covering playback, offline hashes, full-depth fragmented ALAC,
+    D-18 DSD integration, seek target/latency, two-frame gapless PCM alignment and
+    two-player crossfade/non-silent PCM/zero underruns. QA-only guard; missing corpus fails.
+  - `androidApp/src/androidTest/assets/kotlin-formats.tsv`: the 21 pinned rows the APK
+    needs; expectations come from independent WaxFlow output, with explicit D-18 DSD rows.
+  - `scripts/test-corpus/prepare-kotlin-formats.py`: required to stage those original
+    corpus/cache inputs under unique flat names without deleting the existing corpus.
+    It validates every source before writes, refuses repository output and never uses adb.
+  - `scripts/test-corpus/push-corpus.sh`: one extension-list addition (`.mpc`); otherwise
+    the existing required push procedure would silently omit the Musepack fixture.
+  - `scripts/test-corpus/README.md`: reproducible setup, comparison semantics and the
+    T013-only push/run procedure; no new phone workflow replaces the existing one.
+  - `specs/002-kotlin-decoders/DECISIONS.md`: D-24 logs the comparison/staging choices
+    within D-18/D-20, without an architecture or ADR change.
+  - `specs/002-kotlin-decoders/tasks.md`: T012 ticked because test authoring is complete.
+  - `specs/002-kotlin-decoders/HANDOFF.md`: status, task row and this verification record.
+  - `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json`: generated by
+    the required graph refresh, included because it reported `graph: changed`; no manual edit.
+- Smallest-diff review: production untouched; existing corpus push changes one pattern;
+  tests reuse existing engine/offline/decoder seams; no new dependency, helper framework,
+  instrumentation runner, build configuration or audio committed. Removed a redundant
+  assertion helper during review. Each additional file is required for the test artifact,
+  setup, task lifecycle or graph lifecycle as described above.
+
+Commands and results:
+
+- `git status --short`, `git branch --show-current`: clean initial worktree, current branch
+  `feature/media3-migration`; `.codex-commit/` absent at start. Read HANDOFF Current status
+  and the T012 line first; then scoped spec/plan/D-18/D-20 and existing test/API reads.
+- Memory gate: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'` (no matching daemon);
+  `/proc/meminfo` before the quick gate: MemAvailable 3,540,536 kB, above 2 GB.
+- Independent fixture derivation in `/tmp/t012-fixtures.py`: existing pinned WaxFlow CLI
+  `transcode --force --no-tags --format wav <source> <scratch.wav>` for all 19 non-DSD rows;
+  all raw PCM hashes matched the unchanged original oracle manifest before converting
+  to float capture hashes. Both DSD source hashes copied from the original DSD manifest;
+  production integration remains explicitly separate from the old Flick PCM hash.
+- `python3 scripts/test-corpus/prepare-kotlin-formats.py --out /tmp/sistrum-t012-corpus`:
+  PASS, 21 sources staged and hashes checked, no device accessed. Additional scratch checks:
+  existing staged file preserved, corrupted source rejected before output creation,
+  repository output rejected. Scratch sentinel removed; staged real audio remains in `/tmp`.
+- `bash -n scripts/test-corpus/push-corpus.sh` and
+  `python3 -m py_compile scripts/test-corpus/prepare-kotlin-formats.py`: PASS.
+- Quick gate (attempt 1):
+  `bash .claude/skills/verify-task/scripts/verify.sh --files '<the ten task paths above>'
+  --quick ':androidApp:testDevQaUnitTest'
+  --tests 'com.amwolfstein.sistrum.player.decoders.*'
+  --tests 'com.amwolfstein.sistrum.analysis.OfflineDecoderKotlinFormatsTest'`:
+  **GATE: PASS**, 105 host tests across 13 classes, zero failures/errors/skips;
+  `:androidApp:compileDevQaKotlin` PASS. Logs `/tmp/verify-task.fN5RNc`.
+- `./gradlew :androidApp:compileDevQaAndroidTestKotlin`: PASS at each authoring checkpoint;
+  final compile after all assertions: BUILD SUCCESSFUL in 26 s, 51 tasks (3 executed,
+  48 up-to-date). Seven new device tests compile; none has been executed. Final log:
+  `/tmp/t012-androidtest-compile-final.log`.
+- `python3 .claude/hooks/graph_refresh.py auto` (invoked by the gate): PASS,
+  `graph: changed (11214 nodes, 33175 edges)`; both generated artifacts included.
+- `git diff --check`: PASS. Self-review: existing tests/assertions/expected values unchanged;
+  meaningful new PCM/frame/provider/seek/transition/underrun assertions; no assumption skip,
+  swallowed exception, silent fallback, disabled feature, Room or public playback API change.
+
+NOT RUN and remaining work:
+
+- Device test execution and `push-corpus.sh`: NOT RUN. AGENTS.md Autonomous step 8 reserves
+  all device use for T013, the milestone phone gate; T012 explicitly authors tests not run
+  yet. Stage into the combined corpus directory and push with the README procedure in T013.
+  Include `com.amwolfstein.sistrum.player.KotlinFormatsPlaybackTest` in its instrumented
+  class list and record per-class instr/logcat log directories. No instrumented PASS claim.
+- Full app/sharedLogic/imported-module suites, lint, assemble and benchmarks: NOT RUN;
+  no production/module edge changed; full gate/phone is T013, benchmarks M6.
+- Listening/Bluetooth/headset checks: NOT RUN; owner manual checks, never automatic PASS.
+- Independent production-DSD PCM oracle parity: NOT RUN/unavailable for this filter; D-18
+  authorizes direct production integration comparison and retains independent analytic
+  validation. Do not substitute the old Flick hash or change production behavior.
+- Stage/commit/push: NOT RUN by Codex. `.codex-commit/files.txt` and `message.txt` are prepared
+  for the runner to commit on the current feature branch. No Git metadata mutation performed.
