@@ -231,7 +231,8 @@ Codex models (owner, 2026-10-13; `--effort` sets the reasoning level):
 ## Graph updates
 
 - The Graphify graph lives in the repo and must match the code at every commit.
-- Scope: source code of every source set under `androidApp/src/` and `sharedLogic/src/` (today
+- Scope: source code of every source set under `androidApp/src/`, `sharedLogic/src/` and (spec 002) `codecs/src/`,
+  `metadata/src/`, `analysis/src/`, `dsp/src/` (today
   main, test, androidTest, qa — no code — commonMain, commonTest; future dev/prod/debug/… sets are
   included automatically). Node `source_file`s are repo-relative, so `androidApp/src/test/…`,
   `androidApp/src/androidTest/…` and `sharedLogic/src/commonTest/…` mark test code. The repo-root

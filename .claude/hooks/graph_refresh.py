@@ -8,7 +8,8 @@
                              otherwise print "graph: not needed".
 
 Scope (keep in sync with the repo-root `.graphifyignore`, which tells graphify the same thing):
-source files of every source set under androidApp/src and sharedLogic/src (minus res, jniLibs,
+source files of every source set under androidApp/src, sharedLogic/src and the spec 002 modules
+codecs/metadata/analysis/dsp src (minus res, jniLibs,
 resources, assets, composeResources, third_party, build and generated directories). Docs, specs, scripts, tools,
 resources and build outputs never trigger a refresh.
 
@@ -29,7 +30,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCOPE = ("androidApp/src/", "sharedLogic/src/")  # every source set (main, test, androidTest, qa, dev, ...)
+SCOPE = ("androidApp/src/", "sharedLogic/src/",  # every source set (main, test, androidTest, qa, dev, ...)
+         "codecs/src/", "metadata/src/", "analysis/src/", "dsp/src/")  # spec 002 library modules
 EXCLUDED_PARTS = ("/res/", "/jniLibs/", "/build/", "/generated/", "/resources/", "/assets/", "/.cxx/",
                   "/composeResources/", "/third_party/")
 CODE_EXTENSIONS = (".kt", ".kts", ".java", ".c", ".cc", ".cpp", ".h", ".hpp")

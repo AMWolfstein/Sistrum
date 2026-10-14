@@ -1,6 +1,7 @@
 # Graphify scope (allowlist). Graph = source code of every source set:
 #   androidApp/src/<set>/ and sharedLogic/src/<set>/ (main, test, androidTest, qa, commonMain, commonTest,
-#   and any future set such as dev/prod/debug/release/testDev).
+#   and any future set such as dev/prod/debug/release/testDev), and since spec 002 the library modules
+#   codecs/src/<set>/, metadata/src/<set>/, analysis/src/<set>/, dsp/src/<set>/ (main and test).
 # Everything else (docs, specs, scripts, tools, build outputs, generated code, resources) is excluded.
 # gitignore semantics: a path can only be re-included if its parent directory is not excluded.
 # Keep in sync with SCOPE/EXCLUDED_PARTS in .claude/hooks/graph_refresh.py.
@@ -11,6 +12,18 @@
 !/sharedLogic/
 /sharedLogic/*
 !/sharedLogic/src/
+!/codecs/
+/codecs/*
+!/codecs/src/
+!/metadata/
+/metadata/*
+!/metadata/src/
+!/analysis/
+/analysis/*
+!/analysis/src/
+!/dsp/
+/dsp/*
+!/dsp/src/
 
 # Not source code: resources, prebuilt native libraries, generated/build outputs.
 /androidApp/src/*/res/
@@ -19,6 +32,10 @@
 /androidApp/src/*/assets/
 /androidApp/src/*/cpp/third_party/
 /sharedLogic/src/*/resources/
+/codecs/src/*/resources/
+/metadata/src/*/resources/
+/analysis/src/*/resources/
+/dsp/src/*/resources/
 composeResources/
 build/
 generated/
