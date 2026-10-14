@@ -116,3 +116,19 @@ Revisit if: a later commit's results differ beyond hashes (then look at the file
 Addendum (import 36): the committed manifest also lists 7 `owned/dsd-tag-dsd-*.mp3` files that no committed script
 generates and that no reference result, test or script mentions (left over in the port machine's cache when the list
 was recorded). They are allowed and named in the IMPORT-LOG row; a committed file that IS referenced still stops.
+
+## D-9: Who builds 002 (owner decision, recorded)
+
+Case: owner 2026-10-14, to save Claude's weekly quota: Claude writes spec/plan/tasks only; Codex implements, tests,
+self-reviews (migration-guard checklist), commits and pushes every task; one phone check per milestone; quick
+per-task gate; one fresh Codex session per task (`milestone-run.sh`). Speckit clarify skipped (open choices are
+D-entries); speckit analyze done as a manual coverage pass: every FR maps to a task (FR-001…009 → T001–T013,
+FR-010…015 → T022–T028, FR-016…018 → T029–T033, FR-019…021 → T014–T021, FR-022…024 → T034–T039, FR-025 → T040–T041,
+FR-026…029 → AGENTS.md rules, T019, T042 and the per-milestone 001 regression classes).
+Revisit if: a milestone check shows quality problems → return to per-task review.
+
+## D-10: Scan path for unindexed formats (provisional)
+
+Case: some formats never reach the MediaStore audio index (NOTES). Options: MediaStore.Files query; SAF folder grant;
+MANAGE_EXTERNAL_STORAGE. Chosen (provisional, research R8): MediaStore.Files unless T022's probe rules it out, then SAF.
+Never MANAGE_EXTERNAL_STORAGE. Revisit if: T022 results.
