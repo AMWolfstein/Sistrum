@@ -139,6 +139,12 @@ or when legacy code is deleted. Never commits.
   check in each milestone's last task), self-reviews with the migration-guard checklist, refreshes the graph, commits
   and pushes every task itself (`AGENTS.md` "Autonomous mode"), one fresh Codex session per task via
   `.claude/skills/delegate-task/scripts/milestone-run.sh`. Claude checks the commit log and HANDOFF at milestone ends.
+- **Milestone review (owner, 2026-10-14):** run each milestone's tasks except its last (full gate + phone check) task;
+  then run `silent-failure-hunter`, `pr-test-analyzer` and `kotlin-reviewer` in parallel on the milestone's commit range
+  (`comment-analyzer` too when cheap); for milestones with `[HIGH-RISK]` tasks or Room migrations use skill
+  `santa-method` on those diffs. Check each finding yourself; confirmed CRITICAL/HIGH ones become one fix task
+  (`<last id>-fix`, e.g. `T013-fix`) added before the last task in tasks.md; then run the fix task and the last task.
+  Record the review result in HANDOFF.
   Where this conflicts with the rules below (coder never commits, Claude re-runs every gate), autonomous mode wins.
 - Spec Kit (`specs/`, `.specify/`) is the planning source: spec, plan and tasks come from
   the `speckit-*` skills (specify, clarify, plan, tasks, analyze).
@@ -185,6 +191,12 @@ or when legacy code is deleted. Never commits.
   `.claude/skills/verify-task/scripts/verify.sh --files '<task files>'` (refuses when Kotlin files
   outside the task's list changed; then tests, build, optional device tests, graph refresh).
 - New machine: `docs/dev-setup.md`.
+- Ported from ECC (MIT, `docs/ECC-LICENSE.md`, adapted, all read-only): agents `silent-failure-hunter`,
+  `pr-test-analyzer`, `kotlin-reviewer`, `comment-analyzer` (milestone review), `code-simplifier`, `refactor-cleaner`
+  (cleanup phases, 003), `opensource-sanitizer` (before releases); skills `change-impact`, `module-regression`
+  (`docs/REGRESSION.md`), `loop-design-check` (runner/AGENTS.md changes), `santa-method` (high-risk review),
+  `inherit-legacy-style`, `kotlin-coroutines-flows`, `compose-multiplatform-patterns`, `accessibility`,
+  `brownfield-retrospective` (full review), `production-audit` (release), `security-scan` (AgentShield, scan-only).
 - `migration-guard` agent: read-only test-integrity + contract review; only for tasks that touch
   tests, `player/PlaybackController.kt`, or Room.
 - Hooks (`.claude/hooks/git_hooks.py`, PreToolUse on Bash): `guard` blocks `git add -A`/`.`/`-u`,

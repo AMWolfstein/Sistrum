@@ -30,6 +30,7 @@ You never delegate: do not start other agents, `codex`, `opencode` or `relay.mjs
 - Playback migration rules: `.specify/memory/constitution.md`
 - Strings: `androidApp/src/main/res/values/strings.xml` is the source; every new key also needs
   `values-ar/strings.xml` (`ArabicTranslationCompletenessTest`). Counts use `<plurals>`.
+- Module regression ledger (which downstream tests to run): `docs/REGRESSION.md`.
 - Numbers and RTL helpers: `ui/components/LatinDigits.kt`, `ui/components/LayoutDirectionSupport.kt`,
   `MirroredInRtlSymbols` in `ui/components/MaterialSymbols.kt`.
 
@@ -39,7 +40,11 @@ The brief names ONE task id and the milestone's task list (`specs/<feature>/task
 session: read `specs/<feature>/HANDOFF.md` ("Current status") and the task's line first; read only the spec/plan
 sections and files the task needs.
 
-1. **Implement** exactly that task. Tasks marked `[TESTS-FIRST]` write tests only; a later task makes them pass
+1. **Impact first** (skill idea `change-impact`): before editing, list in your notes the callers/consumers of what you
+   will change (`git grep`), data/contracts touched (Room, analysis documents, preferences, `DecoderProvider` order,
+   `PlaybackController`), and the tests that must stay unmodified. After implementing, compare the diff with that
+   list: every extra file needs a reason in the HANDOFF row.
+   **Implement** exactly that task. Tasks marked `[TESTS-FIRST]` write tests only; a later task makes them pass
    without modifying them. High-risk areas (crossfade, queue, state flows, normalization, Room, MediaSession) always
    get their tests first.
 2. **Quick gate** (every task): memory check first (`./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
@@ -49,6 +54,8 @@ sections and files the task needs.
    (`--expect-fail '<FQCN>,…'` for tests-first tasks; `--tests` to narrow). It must print `GATE: PASS`.
    Module test tasks: `:codecs:test`, `:metadata:test`, `:analysis:test`, `:dsp:test`, and for app code
    `:androidApp:testDevQaUnitTest` (narrowed with `--tests`) / `:sharedLogic:testAndroidHostTest`.
+   Module edges: if you change `:dsp`, `:codecs`, `:metadata`, `:analysis` or `:sharedLogic` beyond internals, also
+   run the downstream commands `docs/REGRESSION.md` lists for it.
    The milestone's last task runs the full gate instead: no `--quick`, plus `--lint`, plus the phone check (8).
 3. **Self-review (migration-guard checklist)** when the diff touches tests, `player/PlaybackController.kt` or Room
    (`sync/SyncDatabase.kt`, entities, DAOs, migrations). Any item below = fix it before committing:
@@ -62,6 +69,14 @@ sections and files the task needs.
    - No feature removed or disabled (statistics, Last.fm, lyrics, Mood Radio, artwork, metadata, queue, crossfade,
      normalization). Room: no entity/column/index/DAO SQL/version/migration change unless the task specifies it
      together with the migration and a migration test.
+   **Every task, also check (fix before committing):**
+   - Silent failures: no swallowed exception (incl. `CancellationException` via `catch (e: Exception)`/`runCatching`);
+     no error turned into null/empty/default without a log or typed refusal; every fallback (platform ↔ Kotlin
+     decoder, retry with platform, skipped files) logs provider + cause and cannot make a broken path look working.
+   - Test strength: each changed behaviour has a test that fails if it breaks; expected values come from external truth
+     (oracle hashes, reference output, spec values), not from the code under test; error paths and boundaries
+     (0, end of stream, odd channel counts, high rates, corrupt input) are covered; no case silently skipped on the host
+     without a task that covers it elsewhere.
 4. **Graph:** run `python3 .claude/hooks/graph_refresh.py auto`; if it prints `graph: changed`, stage
    `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json` in the same commit. Never edit graph files.
 5. **Commit (prepared, not run):** your sandbox keeps Git's metadata read-only, so never run `git add`, `commit`

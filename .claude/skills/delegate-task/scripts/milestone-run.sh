@@ -47,9 +47,15 @@ commit_prepared() { # $1 task id
   python3 .claude/hooks/graph_refresh.py auto | tail -1 | grep -q changed \
     && { grep -qx 'graphify-out/graph.json' "$f" || printf '%s\n' graphify-out/graph.json graphify-out/.graphify_analysis.json >> "$f"; }
   mapfile -t paths < <(grep -v '^\s*$' "$f" | sort -u)
+  # The loop must not rewrite its own rules (loop-design-check red line): rules files are orchestrator-only.
+  bad=$(printf '%s\n' "${paths[@]}" | grep -E '^(AGENTS\.md|CLAUDE\.md|\.claude/|\.specify/memory/)' || true)
+  [ -z "$bad" ] || { echo "STOP: $1 lists rules files (orchestrator-only):"; echo "$bad"; return 1; }
   git add -A -- "${paths[@]}" || { echo "STOP: $1 staging failed"; return 1; }
   left=$( { git diff --name-only -- '*.kt' '*.kts'; git ls-files --others --exclude-standard -- '*.kt' '*.kts'; } | sort -u)
   [ -z "$left" ] || { echo "STOP: $1 left Kotlin changes outside its file list:"; echo "$left"; git reset -q; return 1; }
+  # Existing tests changed by the task are logged for the milestone review (gaming-the-gate check).
+  edited=$(git diff --cached --name-only --diff-filter=MDR -- '*/src/test/*' '*/src/androidTest/*' '*/src/commonTest/*')
+  [ -z "$edited" ] || { echo "NOTE: $1 changed existing tests (review at milestone end):"; echo "$edited" | sed 's/^/  /'; }
   git commit -q -F "$m" || { echo "STOP: $1 commit failed"; git reset -q; return 1; }
   git push -q || { echo "STOP: $1 push failed (commit $(git rev-parse --short HEAD) is local)"; return 1; }
   rm -rf .codex-commit

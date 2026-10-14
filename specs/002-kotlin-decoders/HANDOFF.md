@@ -9,7 +9,8 @@
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
 - **Next step:** T010 (multichannel), then T011, T012, T012a (all AIFF through WaxFlow's decoder,
-  owner-approved), T013 (M1 full gate + phone check). Runner: `milestone-run.sh --tasks "T010 T011 T012 T012a T013"`.
+  owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer;
+  confirmed findings → `T013-fix`), then T013 (M1 full gate + phone check).
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
