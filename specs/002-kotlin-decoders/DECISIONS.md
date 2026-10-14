@@ -373,3 +373,14 @@ are still checked against the oracle by the packet-dump tests. Robolectric was t
 SDK download and runtime to every app unit-test run for one test (2026-10-14).
 The five ordinary MP4 sources run the full demux with both platform-availability settings. No new demux
 or seek implementation is added, preserving R2 and 001's container behavior.
+
+## D-21: Kotlin decoders for the analysis path (M4b)
+Case: 001 measured first analysis on the CPH2307 at Opus 136, AAC 128, MP3 114, FLAC 48 ms per audio second through
+the platform decoders; most of it is per-buffer hand-off to the media codec service, not decoding (a direct MediaCodec
+loop was no faster). WaxFlow's Go Opus decoder decodes a 128 kbps stereo file at 4.9 ms per audio second on the laptop
+(libopus via ffmpeg ~3 ms incl. startup).
+Options: keep platform decoders for analysis; port Opus only; port Opus, AAC, Vorbis, MP3 and FLAC decoders.
+Chosen (owner, 2026-10-14): port all five, decoder code only (WaxFlow's encoders, ~18k lines, are not ported), behind
+Media3's extractors, analysis only; a phone benchmark keeps Kotlin per format only where it beats the platform.
+Expected: about 3× faster for Opus/AAC/MP3 (the ~38 ms/s meter becomes the limit); FLAC may not win.
+Revisit if: a format loses the benchmark (platform kept for it), or playback ever needs one of these decoders.

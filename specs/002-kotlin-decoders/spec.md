@@ -221,6 +221,14 @@ real-time factor, two decoders at once, CPU, battery and memory.
 - **FR-018**: Mood Radio MUST be available again on the Media3 engine and build/refill its queue from the stored
   features (001 FR-016 contract).
 
+**Analysis decoders (M4b, owner 2026-10-14)**
+- **FR-030**: The background analysis MUST be able to decode Opus, AAC (LC and HE-AAC with SBR/PS), Vorbis, MP3 and
+  FLAC with Kotlin decoders ported from WaxFlow (decoder code only; WaxFlow's encoders are not ported), behind Media3's
+  own file readers (Ogg, MP4/M4A, ADTS, MP3, FLAC, Matroska). Playback keeps the platform decoders for these formats.
+- **FR-031**: For each of these formats the analysis MUST use the Kotlin decoder only if the phone benchmark shows it
+  faster than the platform decoder; otherwise the platform decoder stays and the result is logged. A Kotlin decode
+  error on a file falls back to the platform decoder for that file. Loudness results stay within 001's tolerances.
+
 **DSP (M2)**
 
 - **FR-019**: A Night mode setting (default off) MUST apply the `:dsp` voice compressor before the session limiter on
@@ -282,6 +290,8 @@ real-time factor, two decoders at once, CPU, battery and memory.
 - **SC-009**: On corpus tracks with ≥ 2 s trailing silence, the crossfade overlap contains ≤ 100 ms of silence; tracks
   without silence keep 001 timing within 10 ms.
 - **SC-010**: Cue tracks start within 1 frame of their index; 100 % of invalid cue sheets fall back without crashing.
+- **SC-012**: First-analysis time per audio second on the CPH2307 drops for every format kept on a Kotlin decoder
+  (baseline 001 T051d: Opus 136, AAC 128, MP3 114, FLAC 48 ms; Vorbis measured in the same run).
 - **SC-011**: Host test suites of all modules pass; lint shows no new error types; the owner's daily apps are never
   touched.
 
@@ -294,7 +304,8 @@ real-time factor, two decoders at once, CPU, battery and memory.
 - The owner supplies no real APE/DSD files; synthetic and reference corpora stand in (NOTES "Validation").
 - Mood Radio's mood rules and queue logic are the pre-fork ones; only the analysis source is new.
 - Night mode uses the imported `voice` compressor preset; no user-tunable parameters in 002.
-- A Kotlin Opus decoder for the analysis path (NOTES "Analysis path") is out of scope: no Opus port was imported.
+- Kotlin Opus/AAC/Vorbis/MP3/FLAC decoders serve the analysis path only (M4b, FR-030/031); playback of these
+  formats stays on the platform decoders.
 - Out of scope: removing FFmpeg/native code and the NDK (003), writing tags, Media3 MediaSession, new settings beyond
   Night mode and silence-aware crossfade.
 - Owner decisions without the owner present are taken with the recommended option and logged in `DECISIONS.md`.

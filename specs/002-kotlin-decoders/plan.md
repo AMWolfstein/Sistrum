@@ -86,6 +86,9 @@ androidApp/src/test/…  androidApp/src/androidTest/…   # host and .qa device 
   path for new containers; gain tags; schema version bump; phone check.
 - **M4 Mood Radio** (US3, FR-016…018): mood features in the analysis pass; percentiles; Mood Radio entry points
   visible again; phone check.
+- **M4b Analysis decoders** (FR-030/031, owner 2026-10-14): decoder-only ports of WaxFlow Opus, AAC, Vorbis, MP3,
+  FLAC into `:codecs`; analysis-only Pattern B renderers behind Media3's extractors; per-format phone benchmark
+  decides Kotlin vs platform.
 - **M5 CUE** (US5, FR-022…024): Room migration (tests first); cue scan; clipped playback + gapless; stats/scrobble;
   phone check.
 - **M6 Performance gate** (US6, FR-025): harness extensions, measurements, report.
