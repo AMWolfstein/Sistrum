@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.player.decoders
 
 import com.amwolfstein.sistrum.player.decoders.aiff.KotlinAiffProvider
+import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinWavPackProvider
 
 /** The `codec` of a [DecoderTableEntry] that matches any codec of its format. */
 const val AnyCodec: String = "*"
@@ -169,7 +170,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
         DecoderTableEntry("ac3", "ac3", listOf("platform"), listOf("audio/ac3"), "AC-3"),
         DecoderTableEntry("eac3", "eac3", listOf("platform"), listOf("audio/eac3"), "E-AC-3"),
         DecoderTableEntry("ape", "ape", emptyList(), emptyList(), "APE"),
-        DecoderTableEntry("wv", "wv", emptyList(), emptyList(), "WavPack"),
+        DecoderTableEntry("wv", "wv", listOf("kotlin-wavpack"), emptyList(), "WavPack"),
         DecoderTableEntry("dsf", "dsf", emptyList(), emptyList(), "DSD"),
         DecoderTableEntry("dff", "dff", emptyList(), emptyList(), "DSD"),
         DecoderTableEntry("wma", "wma", emptyList(), emptyList(), "WMA"),
@@ -184,7 +185,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
  * (T038) so the table lookup and the player's extractors cannot drift apart.
  */
 fun defaultDecoderProviders(probe: CodecProbe): List<DecoderProvider> =
-    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinAiffProvider())
+    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinAiffProvider())
 
 /** The table-backed registry over [defaultDecoderProviders]. */
 fun defaultDecoderRegistry(probe: CodecProbe): DecoderRegistry =

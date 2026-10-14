@@ -204,3 +204,25 @@ No assertions, expected values, timeouts or tests are removed or weakened. Use t
 filter for narrowed runs; selecting a member alone does not supply the suite setup.
 Revisit if: Media3 fixes plain-host test detection; then remove the suite-only discovery configuration while
 retaining all test assertions and the original T002 source.
+
+## D-15: WavPack standalone oracle and bounded framing probe
+
+Case: T004 adapts a single Media3 source. The codec supports optional correction sources, native PCM/float,
+DSD bytes, old RIFF refusals and self-extracting native streams. The committed libwavpack manifest supersedes
+the older WaxFlow subset for extended modes; its DSD output is raw bits rather than playable PCM.
+Options:
+- Use the standalone libwavpack rows for extended modes, retain original PCM/refusal rows, and defer DSD
+  conversion to its explicitly assigned T007; use the existing hybrid lossy fallback when no sidecar is supplied.
+- Add sibling-URI correction discovery and DSD conversion in T004, expanding its assigned scope.
+Chosen: the first option. All 67 original .wv/.wvc inputs and all 96 standalone libwavpack rows are checked
+(no correction-paired rows because the provider owns one source). Fourteen DSD inputs have an explicit typed
+conversion refusal until T007. Sidecar-only inputs fail with the codec's own named error. Native PCM/float,
+including multichannel, uses the committed exact byte hashes; channel mapping remains T010.
+WavPack's magic probe is bounded to 128 KiB so the corpus's self-extracting stub (first native block at 33,792)
+and old RIFF framing can reach the appropriate decoder/refusal. The adapter's default remains 4 KiB and its
+original two-argument JVM constructor is retained. Plain RIFF and MZ input without WavPack magic is rejected.
+The early host speed signal uses five full-provider warmups and the median of five measured decode loops
+per successful standalone PCM/float file; timing excludes open/sniff/hash and includes cache I/O, PCM packing
+and output consumption. It asserts faster than real time, without substituting for SC-005's phone threshold.
+Revisit if: a task assigns correction-sidecar discovery; T007 supplies DSD conversion; T010 maps channels;
+T013 and M6 own device playback and performance gates.

@@ -4,23 +4,25 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001 module wiring and T002 tests-first contracts are committed.
-  T003 implements the generic Pattern A adapter: exact raw PCM, duration/seek, typed refusals,
-  reusable output buffers, input-backed random access and resource release. All 11 unchanged T002
-  contracts and 10 new source/lifecycle tests pass. Execution by Codex in autonomous mode (D-9).
+- **Phase:** M1 execution — T001–T003 committed; T004 implements and registers the WavPack provider
+  after PlatformProvider, using the generic Pattern A adapter. Exact PCM/float oracle bytes, sample counts,
+  duration/format and named refusals pass on host. Execution by Codex in autonomous mode (D-9).
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0, `lintDevQa` 109
   errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Blocked:** nothing. T003's commit is prepared in `.codex-commit/` for the runner; Git mutations
+- **Blocked:** nothing. T004's commit is prepared in `.codex-commit/` for the runner; Git mutations
   and push are NOT RUN here per AGENTS.md step 5.
-- **Next step:** runner commits/pushes T003 on `feature/media3-migration`, then T004 implements the
-  WavPack provider and its corpus/oracle tests plus the early host speed signal. No provider is registered by T003.
-- **New decisions since the last report:** D-13 (bounded-memory temporary-file input cache),
-  D-14 (suite setup for the unchanged T002 tests with strict Media3 parser bounds checks).
+- **Next step:** runner commits/pushes T004 on `feature/media3-migration`, then T005 adds APE and Musepack.
+  WavPack DSD conversion belongs to T007, channel mapping/downmix to T010, full/device validation to T013.
+- **Early host speed signal:** 72 PCM/float files, five warmups/five measured loops per file;
+  RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
+  This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
+- **New decision:** D-15 records standalone hybrid fallback, oracle selection, DSD scope and bounded framing probe.
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T004; commit: prepared for runner (SHA pending) | GATE: PASS on attempt 2; 44 tests (11 unchanged T002, 10 T003, 6 provider, 17 registry), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,642 nodes, 31,788 edges), both artifacts included. Checks all 67 original WavPack inputs and 96 standalone libwavpack rows; 14 DSD rows explicitly refused pending T007. Host speed: 72 files, RTF median 0.005968458, worst 0.021165319 (47.247×). D-15 records scope/method. Attempt 1 FAIL: JVM constructor compatibility, duplicate refusal prefix, packed width; all fixed without editing T002. Full suites, sharedLogic/module tests, lint, assemble and device checks NOT RUN: T013 owns the full/device gate. Correction-paired decoding NOT RUN: single-source provider uses committed standalone hybrid oracle. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T003; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 21 tests (11 unchanged T002 + 10 new), 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,588 nodes, 31,651 edges), both artifacts included. D-13/D-14 record cache ownership and suite setup. Attempt 1 FAIL (refusal cause + Media3 host stub); attempt 2 PASS; attempt 3 verifies suite discovery after configuration. Full suites, lint, assemble, corpus/provider speed and device checks NOT RUN: T004 owns the provider/speed signal and T013 owns the full/device gate. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T002 [TESTS-FIRST]; commit: prepared for runner (SHA pending) | GATE: PASS on attempt 1; 11 expected assertion failures, 0 errors/skips; compileDevQaKotlin PASS; graph changed (10,525 nodes, 31,477 edges), both artifacts included. D-12 records the reflection bridge/API. PCM/seek/refusal/allocation assertions NOT RUN past the missing-adapter assertion: T003 supplies the implementation. Full suites, lint, assemble and device checks NOT RUN: T013 owns the full gate. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T001 resumed; commit: none (Git metadata still mounted read-only) | Reviewed existing T001 diff and prior verification record; explicit-path `git add` failed creating `index.lock` (read-only filesystem), confirmed by `findmnt`. Implementation unchanged; tests/build/graph refresh NOT RUN again because the prior checks passed and no implementation changed. Commit/push NOT RUN: staging blocked. T001 remains unchecked; unrelated `AGENTS.md` edit left untouched. |
@@ -30,6 +32,45 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T004 verification
+
+- Memory checks before both attempts: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
+  `MemAvailable` 3,625,660 kB and 3,664,708 kB, respectively (both ≥ 2 GB).
+- Quick gate (attempt 2, logs `/tmp/verify-task.rxLC2d`):
+  ```sh
+  bash .claude/skills/verify-task/scripts/verify.sh \
+    --files 'androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinWavPackProvider.kt androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinDecodingExtractor.kt androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/DecoderRegistry.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinWavPackProviderTest.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/decoders/DecoderRegistryTest.kt' \
+    --quick ':androidApp:testDevQaUnitTest' \
+    --tests '*KotlinWavPackProviderTest' --tests '*DecoderRegistryTest' --tests '*KotlinDecoderAdapterTestSuite'
+  ```
+  `GATE: PASS`: scope, 44 unit tests, `:androidApp:compileDevQaKotlin` and graph refresh passed.
+  Oracle prerequisites verified the external corpus, ALAC dumps, DSD and owned vectors against their manifests.
+  Attempt 1 logs `/tmp/verify-task.uqJbGf`: FAIL on constructor compatibility, duplicate refusal prefix and
+  valid-bit/storage-width distinction; fixes retain the original T002 constructor and all T002 source/assertions.
+- Provider tests traverse all 67 original .wv/.wvc inputs, reusing the pinned libwavpack oracle for formats
+  that superseded WaxFlow's old subset refusals; all 96 standalone libwavpack rows are checked separately.
+  Exact byte hashes, byte/frame counts, PCM encoding/rate/channels, duration, seekability and zero delay/padding
+  pass. Fourteen DSD rows have typed conversion refusals until T007; unsupported legacy versions have exact
+  named refusals; corrupt PCM and sidecar-only input retain codec errors. The existing sniff recorder and
+  decode-failure log preserve the WavPack provider id and refusal text in a host test.
+- Speed artifact: `androidApp/build/reports/wavpack-provider-speed.tsv` (generated, not committed).
+  AMD Ryzen 5 3500U / OpenJDK 21.0.12.1; 72 unique successful standalone PCM/float files; five full-provider
+  warmups and median of five measured decode loops per file. Input loading, sniff/open and hashing excluded;
+  cached-source I/O, codec decode, PCM packing and output consumption included. RTF = decode/audio seconds:
+  min 0.000485809, median 0.005968458, max 0.021165319. Slowest `generated/8ch-mask63f-b3-c.wv`, 47.247×.
+  Every measured file passed the host faster-than-real-time check. Phone performance NOT RUN (T013/M6).
+- Migration-guard self-review: no tests deleted, skipped, renamed, weakened or disabled; T002 untouched.
+  The existing registry assertion that WavPack was unsupported now asserts its exact provider and null skip
+  reason because T004/FR-001 explicitly adds support. No PlaybackController, Room, native code or daily app
+  touched, and no feature, ADR, architecture or unrelated 001 behavior changed.
+- Files outside the three named task files: `KotlinDecodingExtractor.kt` adds a configurable sniff length
+  for the corpus's self-extracting streams while preserving its 4 KiB default and two-argument JVM API;
+  `DecoderRegistryTest.kt` updates the obsolete unsupported-format assertion for the specified registration.
+  Task/handoff/decision documents and generated graph artifacts are required by autonomous mode.
+- NOT RUN: full app/sharedLogic/module suites, lint, assemble and device tests (T013 full/device gate);
+  real listening/Bluetooth/headset checks (owner manual list); correction-paired rows (single-source provider,
+  standalone hybrid fallback, D-15); Git staging/commit/push (runner, AGENTS.md step 5).
 
 ## T003 verification
 

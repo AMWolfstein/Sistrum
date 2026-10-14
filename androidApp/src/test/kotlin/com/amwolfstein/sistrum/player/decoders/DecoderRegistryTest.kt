@@ -69,7 +69,9 @@ class DecoderRegistryTest {
         assertEquals("unsupported format (DSD)", registry.skipReason(FormatKey("dsf", "dsf")))
         assertEquals("unsupported format (DSD)", registry.skipReason(FormatKey("dff", "dff")))
         assertEquals("unsupported format (APE)", registry.skipReason(FormatKey("ape", "ape")))
-        assertEquals("unsupported format (WavPack)", registry.skipReason(FormatKey("wv", "wv")))
+        // T004 adds WavPack to the previously unsupported formats (002 FR-001).
+        assertEquals("kotlin-wavpack", registry.resolve(FormatKey("wv", "wv"))?.id)
+        assertNull(registry.skipReason(FormatKey("wv", "wv")))
         assertEquals("unsupported format (WMA)", registry.skipReason(FormatKey("wma", "wma")))
     }
 

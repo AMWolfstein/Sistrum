@@ -31,9 +31,10 @@ import java.io.IOException
 import java.nio.ByteBuffer
 
 /** Pattern A: a stream decoder emits reusable little-endian AUDIO_RAW blocks to Media3. */
-internal class KotlinDecodingExtractor(
+internal class KotlinDecodingExtractor @JvmOverloads constructor(
     private val sniff: (ByteArray) -> Boolean,
     private val open: (RandomAccessSource) -> CodecStream,
+    private val sniffBytes: Int = SNIFF_BYTES,
 ) : Extractor {
     private var output: ExtractorOutput? = null
     private var track: TrackOutput? = null
@@ -46,7 +47,7 @@ internal class KotlinDecodingExtractor(
     private var ended = false
 
     override fun sniff(input: ExtractorInput): Boolean {
-        val header = ByteArray(SNIFF_BYTES)
+        val header = ByteArray(sniffBytes)
         var count = 0
         input.resetPeekPosition()
         try {
