@@ -9,9 +9,10 @@
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
 - **Next step:** T010 (multichannel), then T011, T012, T012a (all AIFF through WaxFlow's decoder,
-  owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer;
+  owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
+  spec-traceability-auditor, audio-correctness-reviewer, port-fidelity-checker on the imported decoders;
   confirmed findings → `T013-fix`; plus a one-time `codebase-archaeologist` drift audit across eras, findings to
-  `specs/review/drift/REGISTRY.md`), then T013 (M1 full gate + phone check), then T013a (quality tooling,
+  `specs/review/drift/REGISTRY.md`), then T013 (M1 full gate + phone check; phone-log-triage on its saved logcat), then T013a (quality tooling,
   report-only) after which Claude wires detekt/usage.txt/lint/Kover reports into `verify.sh`, then M2.
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).

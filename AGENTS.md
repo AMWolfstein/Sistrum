@@ -100,7 +100,8 @@ sections and files the task needs.
 8. **Device:** only the milestone's last task (phone check) uses the phone, only with the `.qa` build
    (`verify.sh --instrumented`; it refuses other IDs). Never install, instrument or force-stop
    `com.amwolfstein.sistrum.dev` or `me.misa198.airmedy.dev`. Real listening / Bluetooth / headset checks go to the
-   owner's manual list in HANDOFF, never PASS. A phone-check failure: find the culprit by halving the milestone's commits
+   owner's manual list in HANDOFF, never PASS. Write the gate's `logs:` directory (per-class `logcat-*.log` and
+   `instr-*.log`) into the HANDOFF milestone report so the logs can be triaged. A phone-check failure: find the culprit by halving the milestone's commits
    (read-only Git: `git archive <sha> | tar -x -C /tmp/<dir>` to build an older state), running only the failing
    test; fix it in a new commit.
 9. **Retries:** up to 3 attempts per task. Still failing → don't commit; write the problem to HANDOFF and end with

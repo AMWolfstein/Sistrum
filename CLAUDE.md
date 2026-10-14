@@ -140,9 +140,12 @@ or when legacy code is deleted. Never commits.
   and pushes every task itself (`AGENTS.md` "Autonomous mode"), one fresh Codex session per task via
   `.claude/skills/delegate-task/scripts/milestone-run.sh`. Claude checks the commit log and HANDOFF at milestone ends.
 - **Milestone review (owner, 2026-10-14):** run each milestone's tasks except its last (full gate + phone check) task;
-  then run `silent-failure-hunter`, `pr-test-analyzer` and `kotlin-reviewer` in parallel on the milestone's commit range
-  (`comment-analyzer` too when cheap); for milestones with `[HIGH-RISK]` tasks or Room migrations use skill
-  `santa-method` on those diffs. Check each finding yourself; confirmed CRITICAL/HIGH ones become one fix task
+  then run `silent-failure-hunter`, `pr-test-analyzer`, `kotlin-reviewer` and `spec-traceability-auditor` in parallel on
+  the milestone's commit range (`comment-analyzer` too when cheap), plus `audio-correctness-reviewer` when the range
+  touches decoders, the sink, DSP, crossfade, gapless or CUE (M1, M2, M4b, M5) and `port-fidelity-checker` when it adds
+  ported code (M1 imports, every M4b part, M5); for milestones with `[HIGH-RISK]` tasks or Room migrations use skill
+  `santa-method` on those diffs. After the last (phone-check) task, run `phone-log-triage` on the gate's `logs:`
+  directory recorded in HANDOFF; confirmed CRITICAL/HIGH there become a `<last id>-fix2` task. Check each finding yourself; confirmed CRITICAL/HIGH ones become one fix task
   (`<last id>-fix`, e.g. `T013-fix`) added before the last task in tasks.md; then run the fix task and the last task.
   Record the review result in HANDOFF.
   Where this conflicts with the rules below (coder never commits, Claude re-runs every gate), autonomous mode wins.
@@ -201,6 +204,10 @@ or when legacy code is deleted. Never commits.
   `codebase-archaeologist` (cross-era drift: units, fallbacks, async ordering, duplicates, dead code; after M1, full
   review, before 003) and `ui-finish-gate-reviewer` (UI phase: design contract + PASS/HOLD); the mobile release
   checklist lives in skill `production-audit`; minimal-change rules in AGENTS.md step 1.
+- Own read-only agents (2026-10-14): `port-fidelity-checker` (port vs WaxFlow Go / port/waxflow / Choir source),
+  `audio-correctness-reviewer` (PCM formats, channels, gapless, DSP math, render-thread allocation),
+  `spec-traceability-auditor` (FR/SC → test → commit, tasks.md ↔ log ↔ HANDOFF), `phone-log-triage` (per-class logcat
+  that `verify.sh --instrumented` saves next to `instr-*.log`).
 - From claude-code-templates (MIT, `docs/CLAUDE-CODE-TEMPLATES-LICENSE.md`): skill `mobile-design-android` (UI phase).
   Quality tooling (spec 002 T013a, report-only): detekt + Compose rules, R8 `usage.txt`, lint UnusedResources,
   Kover — commands in `docs/QUALITY.md`; Claude wires them into `verify.sh` after T013a.

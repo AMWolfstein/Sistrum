@@ -31,6 +31,11 @@ NEEDS CHANGES if any of these appear without a spec reason stated in the brief:
 - Room: no change to entities, columns, indices, DAOs' SQL, the database version or
   migrations unless the brief explicitly specifies it together with the Room migration and a
   migration test.
+- Library scan parsing: if the diff changes how tags, durations, artwork or MediaStore fields are parsed for files that
+  are already scanned (`sync/`, `:metadata`, `EmbeddedTagReader`), `CurrentMetadataSchemaVersion` must be bumped in the
+  same task (CLAUDE.md "Library scan"); a bump without a parsing change is also a finding. `SyncDatabase` uses
+  `exportSchema = false`, so check the entity/DAO diff and the migration test by hand: every new or changed column
+  has a `Migration`, the version number moves by one, and the migration test opens the previous version.
 
 ## Output
 ```

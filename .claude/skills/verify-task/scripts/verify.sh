@@ -219,8 +219,11 @@ if [ -n "$instrumented" ]; then
     fi
     for cls in "${classes[@]}"; do
       "$adb" shell input keyevent KEYCODE_WAKEUP
+      # Per-class logcat for agent phone-log-triage (read-only; clears only the log buffer).
+      "$adb" logcat -c 2>/dev/null
       out=$("$adb" shell am instrument -w -e class "$cls" "$runner" 2>&1)
       echo "$out" > "$logs/instr-${cls##*.}.log"
+      "$adb" logcat -d -v threadtime > "$logs/logcat-${cls##*.}.log" 2>/dev/null
       if grep -q '^OK (' <<< "$out"; then
         report "instrumented" PASS "$cls $(grep -o 'OK ([0-9]* tests*)' <<< "$out")"
       else
