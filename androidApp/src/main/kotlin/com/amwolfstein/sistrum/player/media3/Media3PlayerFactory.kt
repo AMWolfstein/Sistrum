@@ -15,6 +15,7 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.AudioProcessorChain
+import androidx.media3.common.util.ExperimentalApi
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -87,7 +88,7 @@ private val mixerProbeThread: HandlerThread by lazy {
  * [DefaultAudioSink], float output off). [setDsp] fans a [GlobalDspConfig] out to every live chain
  * and seeds chains created later.
  */
-@OptIn(UnstableApi::class)
+@OptIn(UnstableApi::class, ExperimentalApi::class)
 internal class Media3PlayerFactory(
     private val context: Context,
     private val providers: List<DecoderProvider> = defaultDecoderProviders(ProcessCodecProbe),

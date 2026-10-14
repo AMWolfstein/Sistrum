@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum.player.media3
 
+import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.MimeTypes

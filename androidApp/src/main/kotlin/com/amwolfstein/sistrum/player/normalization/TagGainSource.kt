@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Parsing ported from Rhythm (cromaguy/Rhythm) ReplayGainUtil.kt at ef16e7bd, Copyright 2024-2026 Anjishnu Nandi, GPL-3.0-or-later; changed per ADR-005 (see comments).
-@file:OptIn(androidx.media3.common.util.UnstableApi::class)
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 
 package com.amwolfstein.sistrum.player.normalization
 

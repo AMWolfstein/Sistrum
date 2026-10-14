@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.amwolfstein.sistrum.player.media3
 
 import android.content.Context

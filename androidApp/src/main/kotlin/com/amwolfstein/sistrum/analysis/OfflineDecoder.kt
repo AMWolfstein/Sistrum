@@ -7,12 +7,14 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.Process
 import android.os.SystemClock
+import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.ExperimentalApi
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -46,7 +48,7 @@ import com.amwolfstein.sistrum.player.media3.replacePlatformAudioRenderer
  * ExoPlayer's audio priority — and blocks the caller until the file is fully
  * decoded, fails, or [isCancelled] turns true (checked per buffer).
  */
-@OptIn(UnstableApi::class)
+@OptIn(UnstableApi::class, ExperimentalApi::class)
 internal class OfflineDecoder(
     private val context: Context,
     private val providers: List<DecoderProvider> = defaultDecoderProviders(ProcessCodecProbe),
