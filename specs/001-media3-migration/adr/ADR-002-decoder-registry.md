@@ -19,7 +19,9 @@ sets differ per device (the CPH2307 has no ALAC decoder).
 - 001 providers:
   - `platform`: available when a Media3 default extractor reads the container and `MediaCodecList` has a
     decoder for the codec's MIME (probed once per process).
-  - `kotlin-aiff`: port of Choir's `AiffExtractor` (GPL-3.0-or-later, pin `f2e96fd`), Pattern A (`AUDIO_RAW`).
+  - `kotlin-aiff` (amended 2026-10-14, owner-approved, spec 002 T012a: the provider keeps its id and table row but
+    decodes through `:codecs` `container/aiff/Aiff` (WaxFlow port) for all AIFF/AIFF-C; Choir's extractor is
+    removed; the text below describes 001 as shipped): port of Choir's `AiffExtractor` (GPL-3.0-or-later, pin `f2e96fd`), Pattern A (`AUDIO_RAW`).
     AIFF / AIFF-C `NONE`, `twos`, `sowt`, 8/16/24/32-bit integer PCM; refuses float and compressed AIFF-C by
     name. Attribution header + third-party notices entry.
 - `Media3Engine` builds its `ExtractorsFactory` (Media3 defaults + registry extractors) and

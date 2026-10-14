@@ -5,7 +5,7 @@
 #
 # Usage: milestone-run.sh --feature specs/<feature> --tasks 'T001 T002 ...' [--out DIR]
 # Per task: [HIGH-RISK] in its tasks.md line -> gpt-6.1-sol high, else medium; a BLOCKED/failed task is retried once
-# with gpt-6-astra high (CLAUDE.md "Models" fallback). Stops at the first task still not DONE, or when a task
+# with gpt-6-astra high (CLAUDE.md "Models" fallback). Restartable: an uncommitted .codex-commit/ is committed first. Stops at the first task still not DONE, or when a task
 # reports DONE without a new pushed commit. Exit 0 = all DONE; 1 = stopped (reason printed and in HANDOFF).
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
@@ -55,6 +55,14 @@ commit_prepared() { # $1 task id
   rm -rf .codex-commit
   echo "$1: committed and pushed $(git rev-parse --short HEAD)"
 }
+
+# Resume: a .codex-commit/ left by a stopped runner (coder finished, nobody committed) is committed first.
+if [ -d .codex-commit ]; then
+  t=$(grep -o -m1 -E 'T[0-9]{3}[a-z]?' .codex-commit/message.txt 2>/dev/null | head -1)
+  [ -n "$t" ] || { echo "STOP: .codex-commit/ without a task id in message.txt; inspect"; exit 1; }
+  echo "RESUME: committing $t prepared by an earlier run"
+  commit_prepared "$t" || exit 1
+fi
 
 for t in $tasks; do
   line=$(grep -m1 -E "^- \[[ xX]\] $t\b" "$feature/tasks.md") || { echo "STOP: $t not in tasks.md"; exit 1; }
