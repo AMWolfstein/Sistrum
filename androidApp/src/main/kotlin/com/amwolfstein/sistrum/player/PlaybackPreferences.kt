@@ -1,17 +1,46 @@
 package com.amwolfstein.sistrum.player
 
 import android.content.Context
+import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.amwolfstein.sistrum.sync.AndroidSyncRuntime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
-internal val Context.playbackPreferencesDataStore by preferencesDataStore(name = "playback_preferences")
+internal val Context.playbackPreferencesDataStore by preferencesDataStore(
+    name = "playback_preferences",
+    produceMigrations = { context ->
+        listOf(object : DataMigration<Preferences> {
+            override suspend fun shouldMigrate(currentData: Preferences): Boolean =
+                currentData[NormalizationModeKey] == null
+
+            override suspend fun migrate(currentData: Preferences): Preferences =
+                migrateNormalizationMode(
+                    currentData,
+                    AndroidSyncRuntime.libraryDatabaseExistedAtStart
+                        ?: context.getDatabasePath("library-sync.db").exists(),
+                )
+
+            override suspend fun cleanUp() = Unit
+        })
+    },
+)
+
+/** Persist the install's default once; an existing stored value is left intact. */
+internal fun migrateNormalizationMode(preferences: Preferences, libraryDatabaseExists: Boolean): Preferences {
+    if (preferences[NormalizationModeKey] != null) return preferences
+    return preferences.toMutablePreferences().apply {
+        this[NormalizationModeKey] = normalizationModeFrom(
+            null, isExistingInstall(preferences.asMap().isNotEmpty(), libraryDatabaseExists),
+        ).name
+    }
+}
 private val CrossfadeSecondsKey = intPreferencesKey("crossfade_seconds")
 private val LastEnabledCrossfadeSecondsKey = intPreferencesKey("last_enabled_crossfade_seconds")
 private val BlendArtworkDuringCrossfadeKey = booleanPreferencesKey("blend_artwork_during_crossfade")

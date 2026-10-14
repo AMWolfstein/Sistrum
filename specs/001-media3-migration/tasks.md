@@ -1030,7 +1030,7 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   existing install → Track, stored values kept. Files: `AT/player/normalization/AutoModeTest.kt`,
   `AT/player/media3/StreamGainControlAutoTest.kt`, `AT/player/PlaybackCoordinatorAutoModeTest.kt`,
   `AT/player/NormalizationPreferencesAutoTest.kt`. {hard} [HIGH-RISK]
-- [ ] T066 Implement T065: resolution in `StreamGainControl` at each stream start (Media3Engine passes the engine's
+- [x] T066 Implement T065: resolution in `StreamGainControl` at each stream start (Media3Engine passes the engine's
   `@Volatile` queue flag), coordinator computes the flag from the queue's album ids on every queue change (bounded
   cost for 20k-item queues), native engine treats Auto as Track, preference seeding for new vs existing installs,
   Settings "Mode" = Auto / Track / Album with English and Arabic labels only (`ArabicTranslationCompletenessTest`

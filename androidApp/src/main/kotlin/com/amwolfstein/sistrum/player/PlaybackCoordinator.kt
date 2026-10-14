@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum.player
 
+import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CompletableJob
@@ -18,6 +19,7 @@ import com.amwolfstein.sistrum.player.engine.EngineEvent
 import com.amwolfstein.sistrum.player.engine.ItemGain
 import com.amwolfstein.sistrum.player.engine.EngineKind
 import com.amwolfstein.sistrum.player.engine.PlayerEngine
+import com.amwolfstein.sistrum.player.normalization.queueIsSingleAlbum
 
 private const val DuckedFocusGain = 0.2f
 private const val PreviousRestartThresholdMs = 3_000L
@@ -95,6 +97,13 @@ internal class PlaybackCoordinator(
     // FR-087: media-session queue window cache so a window republish does not re-resolve the library.
     private var lastQueueWindow: List<Pair<Int, String>> = emptyList()
     private var queueWindowItems: Map<String, PlaybackItem> = emptyMap()
+
+    // FR-047j / FR-087: classify queue ids from library rows, without resolving playback items.
+    private var albumIdsByTrackId: Map<String, String> = emptyMap()
+    private var queueAlbumLookupFailureLogged = false
+    private var lastPublishedSingleAlbum: Boolean? = null
+    private var lastPublishedAlbumQueueIds: List<String> = emptyList()
+    private var lastPublishedAlbumEngine: PlayerEngine? = null
 
     // FR-087: on-demand ordered session saver (no permanent coroutine).
     private val saveLock = Any()
@@ -378,9 +387,9 @@ internal class PlaybackCoordinator(
         }
         when (action) {
             PlaybackService.ActionPlay -> handleTransition(runCatching { queue.play(PlaybackRequest(trackIds, startIndex)) }
-                .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
+                .getOrElse { QueueTransition.Stop }.also { publishQueueSingleAlbum(force = true) }, PlaybackEndReason.SKIPPED)
             PlaybackService.ActionShuffle -> handleTransition(runCatching { queue.playShuffled(PlaybackRequest(trackIds, startIndex)) }
-                .getOrElse { QueueTransition.Stop }, PlaybackEndReason.SKIPPED)
+                .getOrElse { QueueTransition.Stop }.also { publishQueueSingleAlbum(force = true) }, PlaybackEndReason.SKIPPED)
             PlaybackService.ActionPause -> {
                 resumeOnFocusGain = false
                 restoreFocusGain()
@@ -394,7 +403,7 @@ internal class PlaybackCoordinator(
                 resumeCurrent()
             }
             PlaybackService.ActionStop -> stopPlayback()
-            PlaybackService.ActionClearQueue -> handleTransition(queue.clear())
+            PlaybackService.ActionClearQueue -> handleTransition(queue.clear().also { publishQueueSingleAlbum(force = true) })
             PlaybackService.ActionNext -> handleSkipTransition(queue.next(), fadeOnSkip, preservePlaybackState = true)
             PlaybackService.ActionPrevious -> {
                 if (positionMs() > PreviousRestartThresholdMs) seekCurrent(0L)
@@ -407,10 +416,15 @@ internal class PlaybackCoordinator(
             PlaybackService.ActionAppend -> queue.append(trackIds)
             PlaybackService.ActionStartMoodRadio -> trackIds.firstOrNull()?.let { startMoodRadio(it) }
             PlaybackService.ActionSelect -> trackIds.firstOrNull()?.let { handleSkipTransition(queue.select(it), fadeOnSkip) }
-            PlaybackService.ActionRemove -> trackIds.firstOrNull()?.let { handleTransition(queue.removeFromQueue(it), PlaybackEndReason.SKIPPED) }
+            PlaybackService.ActionRemove -> trackIds.firstOrNull()?.let {
+                val transition = queue.removeFromQueue(it)
+                publishQueueSingleAlbum(force = true)
+                handleTransition(transition, PlaybackEndReason.SKIPPED)
+            }
             PlaybackService.ActionReorder -> queue.reorderQueue(trackIds)
         }
         if (action in PreloadResyncActions) {
+            publishQueueSingleAlbum(force = true)
             preloadNext()
         }
         publishQueue()
@@ -650,6 +664,7 @@ internal class PlaybackCoordinator(
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
+                publishQueueSingleAlbum(preparedEngine)
                 preparedEngine.prepare(item, gain, startPositionMs, startPaused)
                 engine = preparedEngine
                 if (startPaused) {
@@ -702,6 +717,7 @@ internal class PlaybackCoordinator(
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
+                publishQueueSingleAlbum(preparedEngine)
                 preparedEngine.prepare(item, gain, savedPositionMs, startPaused = true)
                 val positionMs = clampSeekPosition(savedPositionMs, preparedEngine.durationMs())
                 engine = preparedEngine
@@ -954,6 +970,7 @@ internal class PlaybackCoordinator(
 
     internal suspend fun publishQueue() {
         val snapshot = queue.snapshot()
+        publishQueueSingleAlbum(snapshot = snapshot)
         flows.queueState.value = snapshot
         val window = buildQueueWindow(snapshot)
         val windowIds = window.map { it.index to it.item.trackId }
@@ -965,6 +982,41 @@ internal class PlaybackCoordinator(
         // Capture before the asynchronous DataStore write. A later command can
         // close the decoder, but cannot change this immutable session snapshot.
         queueSessionSave(currentSession(snapshot))
+    }
+
+    private suspend fun publishQueueSingleAlbum(
+        target: PlayerEngine? = engine,
+        snapshot: PlaybackQueueSnapshot = queue.snapshot(),
+        force: Boolean = false,
+    ) {
+        val ids = snapshot.activeTrackIds
+        val albumIds = if (ids.any { it !in albumIdsByTrackId }) {
+            try {
+                library.tracks().associate { it.id to it.albumId }.toMutableMap().apply {
+                    // Remember absent library rows as unknown albums, avoiding repeated library reads.
+                    ids.forEach { putIfAbsent(it, "") }
+                }.also { albumIdsByTrackId = it }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: Exception) {
+                if (!queueAlbumLookupFailureLogged) {
+                    queueAlbumLookupFailureLogged = true
+                    Log.w("PlaybackCoordinator", "Unable to read queue album ids; using Track normalization", error)
+                }
+                // Use unknown albums for this publication without caching the failed lookup.
+                emptyMap()
+            }
+        } else albumIdsByTrackId
+        val singleAlbum = queueIsSingleAlbum(ids.map { albumIds[it].orEmpty() })
+        if (target == null) return
+        if (force || target !== lastPublishedAlbumEngine || ids != lastPublishedAlbumQueueIds ||
+            singleAlbum != lastPublishedSingleAlbum
+        ) {
+            target.setQueueSingleAlbum(singleAlbum)
+            lastPublishedSingleAlbum = singleAlbum
+            lastPublishedAlbumQueueIds = ids
+            lastPublishedAlbumEngine = target
+        }
     }
 
     /**

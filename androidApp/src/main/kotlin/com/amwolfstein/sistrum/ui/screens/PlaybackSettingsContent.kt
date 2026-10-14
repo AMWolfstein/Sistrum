@@ -221,6 +221,7 @@ internal fun VolumeNormalizationContent(
                 Selection(
                     labelRes = R.string.playback_normalization_mode,
                     options = listOf(
+                        SelectionOption(com.amwolfstein.sistrum.player.NormalizationMode.Auto, R.string.playback_normalization_mode_auto),
                         SelectionOption(com.amwolfstein.sistrum.player.NormalizationMode.Track, R.string.playback_normalization_mode_track),
                         SelectionOption(com.amwolfstein.sistrum.player.NormalizationMode.Album, R.string.playback_normalization_mode_album),
                     ),

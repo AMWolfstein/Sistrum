@@ -271,6 +271,7 @@
     <string name="playback_normalization_target">Target loudness</string>
     <string name="playback_normalization_target_value">%1$d LUFS</string>
     <string name="playback_normalization_mode">Mode</string>
+    <string name="playback_normalization_mode_auto">Auto</string>
     <string name="playback_normalization_mode_track">Track</string>
     <string name="playback_normalization_mode_album">Album</string>
     <string name="playback_normalization_target_minimum">-30 LUFS</string>

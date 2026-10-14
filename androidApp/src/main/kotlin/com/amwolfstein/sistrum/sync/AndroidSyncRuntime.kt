@@ -15,10 +15,15 @@ internal object AndroidSyncRuntime {
     private lateinit var appContext: Context
     private lateinit var database: SyncDatabase
 
+    /** Room may create the file before the playback DataStore's first read. */
+    @Volatile internal var libraryDatabaseExistedAtStart: Boolean? = null
+        private set
+
     @Synchronized
     fun initialize(context: Context) {
         if (::appContext.isInitialized) return
         appContext = context.applicationContext
+        libraryDatabaseExistedAtStart = appContext.getDatabasePath("library-sync.db").exists()
         database = SyncDatabase.create(appContext)
         store = AndroidLibrarySyncStore(database, appContext.filesDir)
     }

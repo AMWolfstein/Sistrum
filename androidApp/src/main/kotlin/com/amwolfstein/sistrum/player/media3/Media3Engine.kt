@@ -185,6 +185,7 @@ internal class Media3Engine(
     private var focusHandler: Handler? = null
     private var focusStepper: Runnable? = null
     private var normalizationSettings = NormalizationSettings()
+    @Volatile private var queueSingleAlbum = false
     private var gainResolver: GainResolver? = null
     // Registered and retargeted on the application playback looper; hook state has its own lock.
     private var streamGain: PlayerStreamGain? = null
@@ -196,7 +197,7 @@ internal class Media3Engine(
         @Volatile var item: PlaybackItem,
         var positionOriginMs: Long = 0L,
     ) : StreamGainHook, AnalyticsListener {
-        private val control = StreamGainControl(settings)
+        private val control = StreamGainControl(settings) { queueSingleAlbum }
         @Volatile
         var processor: GainProcessor? = null
             private set
@@ -726,7 +727,9 @@ internal class Media3Engine(
 
     override fun setGains(current: ItemGain, preloaded: ItemGain?) = Unit
 
-    override fun setQueueSingleAlbum(singleAlbum: Boolean) = Unit
+    override fun setQueueSingleAlbum(singleAlbum: Boolean) {
+        queueSingleAlbum = singleAlbum
+    }
 
     override fun setNormalization(settings: NormalizationSettings) {
         factory.call {
