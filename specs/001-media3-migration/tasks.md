@@ -1003,7 +1003,11 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
   unmodified; add a parser guard for MPEG-2 mono (Xing at offset 13; migration-guard note on T062i). {hard} [HIGH-RISK]
 
 - [ ] T063 {orchestrator} Full regression: `GATE`, `./gradlew :androidApp:lintDevDebug` (only known lint classes), every instrumented class on `.qa` one at a time (known failures listed in CLAUDE.md only), SC-001, SC-010 diff check; results in `specs/001-media3-migration/research/regression-001.md`
-- [ ] T064 {orchestrator} Docs: `THIRD-PARTY-NOTICES` completeness (Media3, Choir, Rhythm), CLAUDE.md "Playback" section (seam, switch, `.qa`), `quickstart.md`, `HANDOFF.md` (default stays Native until 002 is done; FR-003 flip is a pre-merge task)
+- [x] T064 {orchestrator} Docs: `THIRD-PARTY-NOTICES` completeness (Media3, Choir, Rhythm), CLAUDE.md "Playback" section (seam, switch, `.qa`), `quickstart.md`, `HANDOFF.md` (default stays Native until 002 is done; FR-003 flip is a pre-merge task)
+  **Done 2026-10-14:** notices already complete (Media3, Choir, WaxFlow, Rhythm, WorkManager; every ported file
+  attributed); CLAUDE.md Playback/Known state rewritten (Media3 default since T062c — the "default stays Native" note is
+  superseded by FR-002's 2026-10-13 amendment; normalization works on Media3; SC-013 deferral); quickstart IDs, default
+  and harness section.
 
 **Checkpoint M8** — final status report for 001.
 

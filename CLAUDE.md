@@ -55,10 +55,17 @@ device (constitution Principle 10).
 
 ## Playback
 
-- Currently on the native FFmpeg engine (`player/FfmpegDecoder.kt`, `androidApp/src/main/cpp`,
-  NDK/CMake; FFmpeg decodes every format, native player outputs float PCM to AAudio).
-- The Media3/ExoPlayer migration is active. `player/` and native code may change ONLY
-  through migration tasks defined in `specs/` and following
+- Two engines behind the `player/engine/PlayerEngine` seam, driven by `PlaybackCoordinator`:
+  - **Media3** (`player/media3/`, default since T062c): `Media3Engine` + `Media3PlayerFactory`, float sink with our
+    DSP chain and session limiter (`FloatChainAudioSink`), crossfade, normalization (`player/normalization/`), extra
+    decoders through `player/decoders/` (DecoderProvider registry), offline loudness analysis (`analysis/`).
+  - **Native** (`LegacyNativeEngine` over `player/FfmpegDecoder.kt`, `androidApp/src/main/cpp`, NDK/CMake, FFmpeg →
+    float PCM → AAudio): kept as the fallback until spec 003 removes it.
+- Switch: Settings → Developer → "Playback engine" (`EngineSelectionPreferences`); no saved choice = Media3. Applies at
+  the next playback start.
+- Device tests and measurements only on the `.qa` build (see Build and test); `regression/Regression001MeasurementTest`
+  holds the SC-003/006/013/014 harness (`specs/001-media3-migration/research/regression-001.md`).
+- `player/` and native code may change ONLY through migration tasks defined in `specs/` and following
   `.specify/memory/constitution.md`. Outside those tasks: compile fixes only.
 
 ## Library scan
@@ -80,11 +87,10 @@ device (constitution Principle 10).
 - Lint errors are MissingTranslation (non-English locales lag behind) and
   LocalContextGetResourceValueCall.
 - Cast / output-switcher button is hidden below Android 14 on purpose.
-- Lock screen can show "Unknown artist" for a track (PlaybackService metadata);
-  deferred to the Media3 phase.
-- Volume normalization and Mood Radio are currently broken: fixing them needs changes
-  in the FFmpeg/native layer, so they are deferred to the Media3 phase and fixed there
-  on the new engine. Don't patch them on the native engine.
+- Volume normalization works on the Media3 engine only (the setting says so on Native). Mood Radio is still off: its
+  analysis returns in spec 002 (M4). Don't patch either on the native engine.
+- Media3 crossfade-off CPU is ~1.7× native in the short proxy (SC-013 not met for 001; owner deferred it to the
+  cleanup/perf phase; parked attempt in `specs/001-media3-migration/research/park/`).
 
 ## Localization
 
