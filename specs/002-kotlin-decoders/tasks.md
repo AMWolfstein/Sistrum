@@ -19,7 +19,7 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Add `implementation(project(":codecs"))`, `":metadata"`, `":analysis"`, `":dsp"` to `androidApp/build.gradle.kts` (research R1); add host test `test/ModuleWiringTest.kt` that touches one public type of each module; confirm `:androidApp:assembleProdRelease` (unsigned) still builds with R8 and record the result in HANDOFF
+- [x] T001 Add `implementation(project(":codecs"))`, `":metadata"`, `":analysis"`, `":dsp"` to `androidApp/build.gradle.kts` (research R1); add host test `test/ModuleWiringTest.kt` that touches one public type of each module; confirm `:androidApp:assembleProdRelease` (unsigned) still builds with R8 and record the result in HANDOFF
 
 ## Phase 2: M1 — Decoders in playback (US1, P1)
 

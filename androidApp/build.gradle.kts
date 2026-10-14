@@ -84,6 +84,10 @@ kotlin {
 }
 dependencies {
     implementation(project(":sharedLogic"))
+    implementation(project(":codecs"))
+    implementation(project(":metadata"))
+    implementation(project(":analysis"))
+    implementation(project(":dsp"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.datastore.preferences)
@@ -163,6 +167,8 @@ android {
     }
     packaging {
         resources {
+            // Preserve the notices shipped by each imported JVM module.
+            merges += "META-INF/THIRD-PARTY-NOTICES"
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/INDEX.LIST"
         }

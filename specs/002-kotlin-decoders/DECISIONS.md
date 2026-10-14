@@ -132,3 +132,12 @@ Revisit if: a milestone check shows quality problems → return to per-task revi
 Case: some formats never reach the MediaStore audio index (NOTES). Options: MediaStore.Files query; SAF folder grant;
 MANAGE_EXTERNAL_STORAGE. Chosen (provisional, research R8): MediaStore.Files unless T022's probe rules it out, then SAF.
 Never MANAGE_EXTERNAL_STORAGE. Revisit if: T022 results.
+
+## D-11: Preserve module notices when packaging the app
+
+Case: T001's unsigned prodRelease build fails because all four imported module jars contain
+`META-INF/THIRD-PARTY-NOTICES`.
+Options: merge the four resources; select one resource; exclude them.
+Chosen: merge with Android Gradle's `packaging.resources.merges`, retaining all four notices in the APK.
+No reflection keep rules are added (research R1).
+Revisit if: a module changes its notice resource path or release packaging reports another collision.
