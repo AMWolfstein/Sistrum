@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.player.decoders.kotlin
 
 import com.amwolfstein.sistrum.codecs.audio.Buffer
+import com.amwolfstein.sistrum.codecs.audio.FloatBuffer
 import java.io.Closeable
 
 /** A codec's stream API, independent of Media3's extraction lifecycle. */
@@ -21,4 +22,10 @@ internal interface CodecStream : Closeable {
 
     /** The extractor owns the source; close only codec-owned resources here. */
     override fun close() = Unit
+}
+
+/** Native float buffers retain their codec-owned storage without an intermediate PCM copy. */
+internal interface FloatCodecStream : CodecStream {
+    override fun decodeBlock(): Buffer? = null
+    fun decodeFloatBlock(): FloatBuffer?
 }

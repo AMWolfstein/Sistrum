@@ -68,7 +68,11 @@ class DecoderRegistryTest {
         assertNull(registry.resolve(FormatKey("dsf", "dsf")))
         assertEquals("unsupported format (DSD)", registry.skipReason(FormatKey("dsf", "dsf")))
         assertEquals("unsupported format (DSD)", registry.skipReason(FormatKey("dff", "dff")))
-        assertEquals("unsupported format (APE)", registry.skipReason(FormatKey("ape", "ape")))
+        // T005 registers APE/Musepack as required by 002 FR-001.
+        assertEquals("kotlin-ape", registry.resolve(FormatKey("ape", "ape"))?.id)
+        assertNull(registry.skipReason(FormatKey("ape", "ape")))
+        assertEquals("kotlin-musepack", registry.resolve(FormatKey("mpc", "mpc"))?.id)
+        assertNull(registry.skipReason(FormatKey("mpc", "mpc")))
         // T004 adds WavPack to the previously unsupported formats (002 FR-001).
         assertEquals("kotlin-wavpack", registry.resolve(FormatKey("wv", "wv"))?.id)
         assertNull(registry.skipReason(FormatKey("wv", "wv")))

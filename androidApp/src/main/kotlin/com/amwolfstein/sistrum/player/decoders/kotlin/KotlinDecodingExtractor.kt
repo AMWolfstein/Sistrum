@@ -112,12 +112,18 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             }
             if (ended) return Extractor.RESULT_END_OF_INPUT
             val block = codec.decodeBlock()
-            if (block == null) { ended = true; return Extractor.RESULT_END_OF_INPUT }
-            if (block.channels != info.channels || block.frames < 0 || block.frames > block.capacityFrames ||
-                block.position < 0 || block.position > info.totalSamples) {
+            val floats = if (block == null && codec is FloatCodecStream && info.pcmEncoding == C.ENCODING_PCM_FLOAT)
+                codec.decodeFloatBlock() else null
+            if (block == null && floats == null) { ended = true; return Extractor.RESULT_END_OF_INPUT }
+            val channels = block?.channels ?: checkNotNull(floats).channels
+            val blockFrames = block?.frames ?: checkNotNull(floats).frames
+            val position = block?.position ?: checkNotNull(floats).position
+            val capacity = block?.capacityFrames ?: (checkNotNull(floats).samples.size / channels)
+            if (channels != info.channels || blockFrames < 0 || blockFrames > capacity ||
+                position < 0 || position > info.totalSamples) {
                 throw ParserException.createForMalformedContainer("invalid codec PCM block", null)
             }
-            val frames = minOf(block.frames.toLong(), info.totalSamples - block.position).toInt()
+            val frames = minOf(blockFrames.toLong(), info.totalSamples - position).toInt()
             if (frames == 0) return Extractor.RESULT_CONTINUE
             val sampleCount = Math.multiplyExact(frames, info.channels)
             val size = Math.multiplyExact(sampleCount, bytesPerSample)
@@ -126,7 +132,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             var index = 0
             var offset = 0
             while (index < sampleCount) {
-                val value = block.samples[index]
+                val value = block?.samples?.get(index) ?: checkNotNull(floats).samples[index].toRawBits()
                 if (bytesPerSample == 1) {
                     // Codec buffers are signed; Media3's 8-bit PCM is unsigned.
                     bytes[offset++] = (value + 128).toByte()
@@ -141,7 +147,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             }
             val track = checkNotNull(track)
             track.sampleData(pcm, size)
-            track.sampleMetadata(timeAt(block.position, info.sampleRate), C.BUFFER_FLAG_KEY_FRAME, size, 0, null)
+            track.sampleMetadata(timeAt(position, info.sampleRate), C.BUFFER_FLAG_KEY_FRAME, size, 0, null)
             return Extractor.RESULT_CONTINUE
         } catch (error: ParserException) {
             throw error
@@ -210,7 +216,9 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
                 sample % rate * C.MICROS_PER_SECOND / rate)
 
         private fun sampleAt(timeUs: Long, info: CodecStream.Info): Long {
-            val time = timeUs.coerceIn(0, timeAt(info.totalSamples, info.sampleRate))
+            val duration = timeAt(info.totalSamples, info.sampleRate)
+            if (timeUs >= duration) return info.totalSamples
+            val time = timeUs.coerceIn(0, duration)
             return minOf(info.totalSamples, time / C.MICROS_PER_SECOND * info.sampleRate +
                 time % C.MICROS_PER_SECOND * info.sampleRate / C.MICROS_PER_SECOND)
         }

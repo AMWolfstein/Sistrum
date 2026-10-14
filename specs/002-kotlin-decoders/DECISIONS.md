@@ -226,3 +226,23 @@ per successful standalone PCM/float file; timing excludes open/sniff/hash and in
 and output consumption. It asserts faster than real time, without substituting for SC-005's phone threshold.
 Revisit if: a task assigns correction-sidecar discovery; T007 supplies DSD conversion; T010 maps channels;
 T013 and M6 own device playback and performance gates.
+
+## D-16: Musepack native float buffers and exact end seeks
+
+Case: T005's Musepack stream returns reusable FloatBuffer storage, while the existing CodecStream contract
+returns integer Buffer storage (including WavPack float words). Buffer's metadata setters belong to :codecs;
+copying floats into it would require module API changes or another per-block representation. The adapter's
+microsecond duration also truncates fractional samples, so an end seek previously returned the last sample.
+Options:
+- Add an internal FloatCodecStream subtype and pack its borrowed samples directly in the Pattern A adapter;
+  retain CodecStream's original methods and treat a seek at/after the published duration as the exact end.
+- Change the imported module buffer API or allocate intermediate integer blocks.
+Chosen: the first option. The subtype leaves T002's original reflection contract unchanged, emits raw IEEE-754
+words into the adapter's reused PCM byte storage, and preserves the codec's delay/padding trimming and sample
+positions. APE uses the original integer path. Both providers retain the adapter's 4 KiB bounded magic probe
+and expose the same size for header refusal checks; the demuxers retain full-source validation and their typed
+unsupported errors. Registry order keeps Platform first, then WavPack, APE, Musepack, and the existing AIFF
+provider. No platform APE/Musepack route exists in the current table. Existing registration assertions change
+only to reflect the providers explicitly required by FR-001; original T002 tests remain untouched.
+Revisit if: device validation in T013 reveals larger leading wrappers that need a broader magic probe; any
+architecture change remains blocked pending the owner. Multichannel mapping remains T010's task.
