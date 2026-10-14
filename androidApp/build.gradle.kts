@@ -219,6 +219,16 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+        unitTests.all { test ->
+            // These classes run through KotlinDecoderAdapterTestSuite, which supplies Media3's
+            // strict parser-check setup without changing the tests-first T002 contracts.
+            // Exclude duplicate class-file discovery only; the suite still runs every test.
+            test.exclude(
+                "**/KotlinDecodingExtractorTest.class",
+                "**/ExtractorRandomAccessSourceTest.class",
+                "**/KotlinDecodingExtractorLifecycleTest.class",
+            )
+        }
     }
     sourceSets.getByName("androidTest").assets.srcDir("src/test/resources/waxflow")
 }

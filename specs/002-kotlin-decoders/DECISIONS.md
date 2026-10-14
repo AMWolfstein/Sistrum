@@ -168,3 +168,39 @@ The local adapter API fixed by these tests (not a change to Pattern A or any ADR
   assertions are outside the measured window; the fake and track output reuse their storage inside it.
 Revisit if: T003 cannot satisfy this API within the existing architecture; stop and report the conflict,
 without changing T002's tests or the ADRs.
+
+## D-13: Seekable source over Media3's forward-only input
+
+Case: Pattern A codecs issue synchronous positional reads (including backwards header/tail reads), but
+`ExtractorInput` cannot reopen its underlying data source inside such a read.
+Options:
+- Cache the consumed prefix on demand in an owned temporary file, reusing fixed scratch storage.
+- Retain the entire file in heap memory; this scales poorly for large lossless/DSD files.
+- Restart codec operations through `RESULT_SEEK`; the imported synchronous codec APIs cannot resume them.
+Chosen: the temporary file cache inside `ExtractorRandomAccessSource`, keeping the approved input-backed
+Pattern A architecture and the modules unchanged. All offsets are Long. Unknown lengths are resolved by
+caching to EOF. Media3 seek points reopen at byte zero; the existing cache remains available, and the codec
+receives the exact sample target on the next read. `release` closes the codec and deletes its cache.
+A direct `FileChannel` constructor supports caller-owned seekable files without caching or closing them.
+Memory is bounded; disk use can reach the source size when a codec scans its tail. Cache I/O failures
+propagate through the normal parser error path. This task does not register a provider or alter 001 playback.
+Revisit if: T004's host speed signal or T013's device seek/playback gate identifies cache I/O as a bottleneck;
+any alternative requiring an architecture/ADR change must stop with BLOCKED.
+
+## D-14: Preserve T002 with a scoped host-test suite
+
+Case: T002 must remain unchanged. Once its PCM assertions run, Media3 1.11.1's automatic legacy parser-check
+setup dereferences the plain Android host stub's null `Build.FINGERPRINT` and throws before copying bytes.
+Options:
+- Run the unchanged tests inside a JUnit suite with strict parser checks explicitly enabled, as the existing
+  `Mp3LameProvenanceTest` does; restore the default after the suite.
+- Edit T002's setup, contrary to the task's immutable tests-first requirement.
+- Add a production workaround for a test-only stub; this would affect global Media3 state in playback.
+Chosen: `KotlinDecoderAdapterTestSuite`, containing all 11 untouched T002 tests, six new positional-source
+contracts and four lifecycle/refusal tests. The app's unit-test configuration excludes these three class
+files from duplicate standalone discovery only; JUnit still runs every member via `SuiteClasses`.
+The package-wide quick gate confirms 21 executed tests, zero failures/errors/skips, with strict bounds checks.
+No assertions, expected values, timeouts or tests are removed or weakened. Use the suite name or package-wide
+filter for narrowed runs; selecting a member alone does not supply the suite setup.
+Revisit if: Media3 fixes plain-host test detection; then remove the suite-only discovery configuration while
+retaining all test assertions and the original T002 source.
