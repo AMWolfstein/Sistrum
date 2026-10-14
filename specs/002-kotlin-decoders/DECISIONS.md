@@ -384,3 +384,18 @@ Chosen (owner, 2026-10-14): port all five, decoder code only (WaxFlow's encoders
 Media3's extractors, analysis only; a phone benchmark keeps Kotlin per format only where it beats the platform.
 Expected: about 3× faster for Opus/AAC/MP3 (the ~38 ms/s meter becomes the limit); FLAC may not win.
 Revisit if: a format loses the benchmark (platform kept for it), or playback ever needs one of these decoders.
+
+## D-22: Ship English and Arabic only
+
+**Case:** The app offered 13 languages. Only English and Arabic were complete; the other 11 (de, es, fr, it, ja, ko,
+pt, ru, th, vi, zh) came from airmedy, missed 109 of 430 strings and had never been reviewed. A stale `values-en` copy
+overrode the English source on English phones (old lyrics text).
+
+**Options:** keep them partly English; hide them until complete; remove them.
+
+**Chosen:** remove (owner, 2026-10-14). Deleted the 11 `values-<lang>/strings.xml` and `values-en`; `locales_config.xml`
+lists en, ar. Outside spec 002's scope, owner-approved. Lint MissingTranslation errors gone (0 lint errors).
+
+**Revisit if:** someone provides a complete, reviewed translation; restore from git history (`git show 398f4a4:<path>`)
+as a starting point.
+

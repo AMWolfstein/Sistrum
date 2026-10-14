@@ -85,8 +85,7 @@ device (constitution Principle 10).
 - Instrumented suite has a set of test-side failures (missing menu host, stale text
   expectations, tests that set content twice, chart library crashing on empty data).
   Only fix newly failing tests.
-- Lint errors are MissingTranslation (non-English locales lag behind) and
-  LocalContextGetResourceValueCall.
+- `lintDevQa`: 0 errors since D-22 (2026-10-14; MissingTranslation came from the removed locales).
 - Cast / output-switcher button is hidden below Android 14 on purpose.
 - Volume normalization works on the Media3 engine only (the setting says so on Native). Mood Radio is still off: its
   analysis returns in spec 002 (M4). Don't patch either on the native engine.
@@ -95,8 +94,10 @@ device (constitution Principle 10).
 
 ## Localization
 
-- `values/strings.xml` is the source. `values-ar` must stay complete
-  (`ArabicTranslationCompletenessTest`); the other locales are allowed to lag.
+- Two languages (owner, 2026-10-14, D-22): English (`values/strings.xml`, the only English source; no `values-en`)
+  and Arabic (`values-ar`, must stay complete: `ArabicTranslationCompletenessTest`). The 11 unreviewed airmedy locales
+  were removed; `res/xml/locales_config.xml` lists en, ar. A language is added back only complete and reviewed.
+  Agent `translation-reviewer` checks Arabic meaning, placeholders and plurals when strings change.
 - Counts use `<plurals>`; Arabic needs zero/one/two/few/many/other.
 - Numbers use Western digits in every locale: `MainActivity` wraps its context with
   `-u-nu-latn`, and non-resource formatting goes through `formatDisplay()` (ui/components/LatinDigits.kt).
@@ -207,7 +208,7 @@ or when legacy code is deleted. Never commits.
 - Own read-only agents (2026-10-14): `port-fidelity-checker` (port vs WaxFlow Go / port/waxflow / Choir source),
   `audio-correctness-reviewer` (PCM formats, channels, gapless, DSP math, render-thread allocation),
   `spec-traceability-auditor` (FR/SC → test → commit, tasks.md ↔ log ↔ HANDOFF), `phone-log-triage` (per-class logcat
-  that `verify.sh --instrumented` saves next to `instr-*.log`).
+  that `verify.sh --instrumented` saves next to `instr-*.log`), `translation-reviewer` (Arabic vs English strings).
 - From claude-code-templates (MIT, `docs/CLAUDE-CODE-TEMPLATES-LICENSE.md`): skill `mobile-design-android` (UI phase).
   Quality tooling (spec 002 T013a, report-only): detekt + Compose rules, R8 `usage.txt`, lint UnusedResources,
   Kover — commands in `docs/QUALITY.md`; Claude wires them into `verify.sh` after T013a.
