@@ -451,3 +451,72 @@ compiles its device tests. T012a extends the AIFF matrix without changing this t
 Revisit if: T013 exposes a float-boundary discrepancy, missing pinned fixtures, or a need
 for distinct encoded gapless album cuts; an independent production-DSD PCM oracle requires
 its own scoped task and never reuses the old Flick hash as the new filter's expected output.
+
+## D-25: One WaxFlow AIFF path (owner decision, T012a)
+Case: the owner approved replacing 001's Choir AIFF path on 2026-10-14; ADR-002 already
+records this amendment. T008 split compressed AIFF-C from the legacy integer extractor.
+Options:
+- Use the imported Aiff decoder for every supported AIFF/AIFF-C through Pattern A.
+- Retain two extractors and continue refusing float AIFF-C on the legacy path.
+Chosen: the first option, as explicitly required by T012a. Keep `kotlin-aiff`, its table row,
+provider order and 4096-byte refusal probe. Remove the Choir implementation/notice and
+AIFF handling from the PCM-variants provider. Add AiffException (an IOException subtype)
+at the imported decoder boundary; preserve original messages while classifying unsupported
+compressions/depths separately from damaged headers. Existing codec oracle tests stay unchanged.
+Expected-value changes when migrating the 17 legacy extractor tests:
+- fl32/fl64: old `float AIFF-C (fl32/fl64)` refusal/ParserException becomes admitted,
+  with exact float PCM checked; ima4: old `compressed AIFF-C (ima4)` becomes admitted
+  and retains the existing independent compressed-PCM oracle tests.
+- MACE/unknown compression: old `compressed AIFF-C (MAC3/zzzz)` becomes the decoder's
+  `aiff: this build does not read MAC3 (compression type "MAC3") from an AIFF-C` /
+  `aiff: this build does not read compression type "zzzz" from an AIFF-C`;
+  MAC6 is also checked with its exact decoder message and typed unsupported cause.
+- 12-bit: old `unsupported AIFF sample size (12)` becomes supported, as the imported
+  decoder accepts 1..32 valid bits; 0x1230 yields signed value 0x0123, left-aligned back to 0x1230 for Media3 16-bit PCM.
+  An unsupported 40-bit source instead asserts `aiff: 40 bits per sample`.
+- Seek-map positions: old SSND-relative byte offsets (54 + frame * frameBytes) become
+  zero, Pattern A's reopen-and-sample-seek contract. Duration and frame alignment remain
+  checked; new mono-16/stereo-24 tests compare exact sought PCM and timestamps forward,
+  backward and at EOS, including a nonzero SSND offset.
+- The old helper decoded extended80(0) to 0.0; the new public path refuses a zero sample
+  rate as malformed (`aiff: sample rate 0.0`). The four valid rates remain exact.
+ScanGateTest's fl32 row changes from skipped to admitted, keeping MAC3 as the named-refusal
+and header-size case; its synthetic COMM now uses a valid 44100 Hz rate. T008's oracle
+matrix retains all 14 fixtures and every PCM/count/seek expectation, routing AIFF to its
+single provider. Offline analysis explicitly selects sine-f32.aiff. The device matrix adds
+plain s16 AIFF, sowt AIFF-C and fl32 AIFF-C: each source/raw PCM hash comes from the unchanged
+oracle manifest. Capture hashes derive from independent AIFF byte unpacking, verified against
+those raw hashes, and D-24's integer-to-float conversion; no Kotlin result supplies an expectation.
+Revisit if: device verification in T013 finds a mismatch; do not restore the split silently.
+
+## D-26: Quality tooling moves to spec 003
+
+**Case:** T013a (detekt + Compose rules, R8 `usage.txt`, lint UnusedResources, Kover; report-only) was planned right
+after M1. Spec 003 removes FFmpeg, the NDK code and the native engine, which will create most of the dead code these
+tools report, and a detekt baseline taken now would mostly cover code about to be deleted. Codex quota is limited.
+
+**Options:** run it after M1 as planned; move it to 003.
+
+**Chosen:** move it (owner, 2026-10-14). It becomes the first task of 003: a "before" report before anything is removed
+(R8 `usage.txt` also gives `refactor-cleaner` evidence), and an "after" run at 003's end. 002 order: M1 → signed
+devRelease APK for the owner → M2. Task text kept in HANDOFF "003 backlog".
+
+**Revisit if:** 003 is postponed for long; then run Kover alone for the M4b decoder ports.
+
+## D-27: WaxLabel corpus is not reproducible; T012a's :metadata regression
+
+**Case:** T012a changed `:codecs` (`container/aiff/Aiff.kt` gains `AiffException`, messages unchanged), so
+`docs/REGRESSION.md` asks for `:metadata:test`. That task first runs `verifyWaxLabelCorpus`, which fails on this machine:
+89 pinned `owned/` inputs made by ffmpeg (Ogg/Opus/WebM/Matroska) carry random stream serials/UIDs, so every
+regeneration gives new bytes; the original files from 2026-10-11/12 are gone (two caches checked; 8 merely missing
+files restored from the second cache by hash).
+
+**Options:** block T012a until the corpus is rebuilt; accept evidence that T012a can't affect `:metadata`.
+
+**Chosen:** the second for T012a. `:metadata` uses only `RandomAccessSource` from `:codecs` (architecture review,
+2026-10-14) and never `Aiff`; `./gradlew :metadata:test -x verifyWaxLabelCorpus`: 1391 tests, 1302 pass, the 89
+failures are all the precondition `changed fixture` on exactly the non-reproducible files. Fix the corpus in new task
+T021a before M3 (deterministic generation, re-pin with the WaxLabel CLI).
+
+**Revisit if:** T021a can't make generation deterministic; then pin the generated files in an external archive.
+

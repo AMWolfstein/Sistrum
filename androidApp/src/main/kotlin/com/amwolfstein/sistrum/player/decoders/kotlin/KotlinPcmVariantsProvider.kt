@@ -9,7 +9,6 @@ import com.amwolfstein.sistrum.codecs.codec.g711.G711
 import com.amwolfstein.sistrum.codecs.codec.g711.Law
 import com.amwolfstein.sistrum.codecs.container.ByteBufferSource
 import com.amwolfstein.sistrum.codecs.container.RandomAccessSource
-import com.amwolfstein.sistrum.codecs.container.aiff.Aiff
 import com.amwolfstein.sistrum.codecs.container.riff.AdpcmWav
 import com.amwolfstein.sistrum.player.decoders.DecoderProvider
 import com.amwolfstein.sistrum.player.decoders.FormatKey
@@ -18,39 +17,24 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-/** MS-ADPCM WAV and fixed-unit compressed AIFF-C; Media3 retains WAV IMA/G.711 priority. */
+/** MS-ADPCM/G.711 WAV; Media3 retains WAV IMA/G.711 priority. */
 internal class KotlinPcmVariantsProvider : DecoderProvider {
     override val id = "kotlin-pcm-variants"
-    override fun isAvailable(key: FormatKey) = key.format.lowercase() in setOf("wav", "aiff", "aifc")
+    override fun isAvailable(key: FormatKey) = key.format.equals("wav", ignoreCase = true)
     override val refusalHeaderBytes = 4096
     override fun refusal(header: ByteArray): String? =
         if (variant(header) != null) KotlinDecodingExtractor.refusal(header, ::open) else null
 
-    override fun extractors(): List<() -> Extractor> = listOf({ extractor(aiffOnly = false) })
-    fun aiffExtractors(): List<() -> Extractor> = listOf({ extractor(aiffOnly = true) })
-
-    private fun extractor(aiffOnly: Boolean): Extractor {
+    override fun extractors(): List<() -> Extractor> = listOf({
         val delegate = KotlinDecodingExtractor({ variant(it) != null }, ::open)
-        return object : Extractor by delegate {
-            override fun sniff(input: ExtractorInput): Boolean {
-                val compression = variant(input)
-                return if (aiffOnly) compression in setOf("ima4", "alaw", "ulaw") else compression != null
-            }
+        object : Extractor by delegate {
+            override fun sniff(input: ExtractorInput) = variant(input) != null
             override fun getUnderlyingImplementation(): Extractor = delegate.underlyingImplementation
         }
-    }
+    })
 
     private fun open(source: RandomAccessSource): CodecStream {
         return when (variant(source)) {
-            "ima4", "alaw", "ulaw" -> {
-                val aiff = supported { Aiff.open(source) }
-                val h = aiff.info
-                object : CodecStream {
-                    override val info = CodecStream.Info(h.sampleRate, h.channels, C.ENCODING_PCM_16BIT, h.totalSamples)
-                    override fun decodeBlock() = aiff.decodeBlock()
-                    override fun seekSample(sample: Long) = aiff.seekSample(sample)
-                }
-            }
             "wav-2" -> {
                 val wav = supported { AdpcmWav.open(source) }
                 val h = wav.info
@@ -83,7 +67,7 @@ internal class KotlinPcmVariantsProvider : DecoderProvider {
         while (offset + 8 <= source.length) {
             if (chunks++ >= 1024) throw IOException("wav: more than 1024 chunks")
             val chunk = read(source, offset, 8) ?: throw EOFException("wav: truncated chunk")
-            val bytes = u32(chunk, 4, false)
+            val bytes = u32(chunk, 4)
             val data = offset + 8
             if (bytes > source.length - data) throw IOException("wav: chunk extends past end of file")
             when (id(chunk, 0)) {
@@ -111,7 +95,6 @@ internal class KotlinPcmVariantsProvider : DecoderProvider {
     }
 
     companion object {
-        fun supportsAiff(header: ByteArray) = variant(header) in setOf("ima4", "alaw", "ulaw")
         fun wavCodec(input: ExtractorInput): String? = when (variant(input)) {
             "wav-2" -> "msadpcm"
             "wav-6" -> "alaw"
@@ -155,31 +138,25 @@ internal class KotlinPcmVariantsProvider : DecoderProvider {
         private fun variant(read: (Long, Int) -> ByteArray?): String? {
             val h = read(0, 12) ?: return null
             val wav = id(h, 0) in setOf("RIFF", "RF64", "BW64") && id(h, 8) == "WAVE"
-            val aifc = id(h, 0) == "FORM" && id(h, 8) == "AIFC"
-            if (!wav && !aifc) return null
+            if (!wav) return null
             var offset = 12L
             repeat(1024) {
                 val chunk = read(offset, 8) ?: return null
-                val n = u32(chunk, 4, aifc)
+                val n = u32(chunk, 4)
                 val data = offset + 8
-                if (wav && id(chunk, 0) == "fmt ") {
+                if (id(chunk, 0) == "fmt ") {
                     if (n < 2) return null
                     val fmt = read(data, 2) ?: return null
                     val tag = (fmt[0].toInt() and 255) or ((fmt[1].toInt() and 255) shl 8)
                     return if (tag in setOf(2, 6, 7)) "wav-$tag" else null
-                }
-                if (aifc && id(chunk, 0) == "COMM") {
-                    if (n < 22) return null
-                    val comm = read(data, 22) ?: return null
-                    return id(comm, 18).lowercase().takeIf { it in setOf("ima4", "alaw", "ulaw") }
                 }
                 offset = data + n + (n and 1)
             }
             return null
         }
         private fun id(bytes: ByteArray, at: Int) = String(bytes, at, 4, Charsets.ISO_8859_1)
-        private fun u32(bytes: ByteArray, at: Int, big: Boolean): Long =
-            ByteBuffer.wrap(bytes).order(if (big) ByteOrder.BIG_ENDIAN else ByteOrder.LITTLE_ENDIAN)
+        private fun u32(bytes: ByteArray, at: Int): Long =
+            ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
                 .getInt(at).toLong() and 0xffffffffL
     }
 }

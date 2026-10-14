@@ -73,7 +73,9 @@ class KotlinFormatsPlaybackTest {
 
     @Before fun qaOnlyAndCompleteCorpus() {
         check(context.packageName == "com.amwolfstein.sistrum.dev.qa") { "T012 requires the .qa target" }
-        assertEquals("fixture inventory", 21, fixtures.size)
+        assertEquals("fixture inventory", 24, fixtures.size)
+        assertEquals(setOf("aiff-pcm", "aifc-sowt", "aifc-float", "aifc-ima4", "aifc-alaw", "aifc-ulaw"),
+            fixtures.filter { it.value("provider") == "kotlin-aiff" }.map { it.id }.toSet())
         fixtures.forEach { fixture ->
             assertTrue("Missing ${fixture.file}; stage and push the T012 corpus", fixture.file.isFile)
             assertEquals(fixture.id, fixture.value("file_sha256"), hash(fixture.file.readBytes()))

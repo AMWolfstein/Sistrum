@@ -4,25 +4,26 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T011 committed (T011 finished by Claude after Codex BLOCKED); T012 prepared in `.codex-commit/` (runner pending); runner next: T012a.
+- **Phase:** M1 execution — T001–T012a committed (T011 and T012a finished by Claude after Codex BLOCKED). Next: M1 review, T013.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Next step:** runner commits T012, then T012a (all AIFF through WaxFlow's decoder,
-  owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
+- **Next step:** the M1 milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
   spec-traceability-auditor, audio-correctness-reviewer, port-fidelity-checker on the imported decoders;
   confirmed findings → `T013-fix`; plus a one-time `codebase-archaeologist` drift audit across eras, findings to
   `specs/review/drift/REGISTRY.md`), then T013 (M1 full gate + phone check; phone-log-triage on its saved logcat), then T013a (quality tooling,
-  report-only) after which Claude wires detekt/usage.txt/lint/Kover reports into `verify.sh`, then M2.
+  report-only) — MOVED to 003 (D-26); after T013: signed devRelease APK for the owner (never installed by Claude), then M2; T021a (WaxLabel corpus, D-27) before M3.
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-24 records pinned device fixtures, full-depth/float PCM comparison boundaries, D-18 DSD integration and T013-only device access.
+- **New decision:** D-25 records the owner-approved single WaxFlow AIFF path and every migrated expectation change; D-24 still defines device PCM comparison boundaries and T013-only device access.
   Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T012a finished by Claude (Codex BLOCKED on the external WaxLabel corpus) | Codex's single WaxFlow AIFF path kept after review (D-25). Claude fix: decoder-table rows aiff/ima4, aiff/alaw, aiff/ulaw still named `kotlin-pcm-variants`, which no longer serves AIFF → repointed to `kotlin-aiff`. GATE: PASS, full `testDevQaUnitTest` + sharedLogic, `assembleDevQa`; `:codecs:test` PASS; `compileDevQaAndroidTestKotlin` PASS; graph changed. `:metadata:test`: corpus not reproducible (D-27), run with `-x verifyWaxLabelCorpus`: 1302/1391 pass, 89 `changed fixture` precondition failures on the non-reproducible files only; fix = T021a before M3. migration-guard: PASS (all 17 legacy tests mapped into 22; changed expectations all in D-25). Device classes NOT RUN: T013. |
+| 2026-10-14 | T012a; commit: none (BLOCKED, required external corpus unavailable) | Single WaxFlow AIFF path implemented; D-25 records owner decision and migrated expectations. Broad quick gate PASS: 444 tests, 0 failures, 1 existing corpus assumption skip; final focused gate PASS: 35 tests, 0 failures/errors/skips, logs `/tmp/verify-task.PmYN1k`. Codecs PASS: 1,477/0; instrumented-test compile PASS; 24 fixture hashes/staging PASS; graph changed (11,197 nodes / 33,141 edges). Required `:metadata:test` FAILED before tests in verifyWaxLabelCorpus: pinned external inputs missing/mismatched in both available caches; metadata tests NOT RUN. Full suite/lint/assemble/device/manual checks NOT RUN: T013/owner scope. No commit preparation, task remains unchecked. Scope/extra-file reasons and commands below. |
 | 2026-10-14 | T012; commit: prepared (runner pending) | GATE: PASS on attempt 1; 105 host tests, zero failures/errors/skips; production compile PASS; final instrumented-source compile PASS (7 new device tests, execution NOT RUN). Graph changed (11,214 nodes, 33,175 edges). 21 staged source hashes verified; 19 WaxFlow raw PCM hashes independently verified before deriving float capture hashes; preservation/corruption/repo-output staging checks PASS. D-24 records full-depth fragmented ALAC and the approved D-18 DSD production integration boundary. Device/push/full suites/lint/assemble/listening NOT RUN: T013/owner scope under AGENTS.md step 8. No existing tests or production files changed. Logs: `/tmp/verify-task.fN5RNc`, `/tmp/t012-quick-gate.log`, `/tmp/t012-androidtest-compile-final.log`. Detailed impact/files/commands below. |
 | 2026-10-14 | T011 finished by Claude (owner rule 2026-10-14: no Astra fallback, Claude takes failed tasks) | Kept Codex's OfflineDecoder change (registry built from the injected providers, decode-failure log with provider + typed refusal, cancellation not logged) after diff review. Fixes: offline matrix picks integer AIFF (float AIFF joins in T012a, task line extended); `sync/ScanGateTest` had 3 stale expectations since T006–T009 (DSD/WMA/IMA4/ALAC now admitted) that the filtered quick gates never ran: updated with spec reason, skip/no-device intents kept via TTA and AC-3; `docs/REGRESSION.md` now sends decoder changes to `sync.*` + `analysis.*`. GATE: PASS, full `testDevQaUnitTest` 1354 tests 0 fail (1 corpus skip), sharedLogic PASS, `assembleDevQa` PASS, graph changed. migration-guard: PASS (non-blocking: one always-true assert in the corpus test, root-cause-only failure message). Lint/device NOT RUN: T013 scope. |
 | 2026-10-14 | T011; commit: none (BLOCKED, retry limit) | GATE: FAIL on attempt 3; 164 tests discovered: 162 pass, 1 failure, 1 existing assumption skip; compileDevQaKotlin PASS. New offline matrix reaches `waxflow-testdata/sine-f32.aiff`, refused by the current AiffExtractor with `float AIFF-C (fl32)`; float AIFF support is T012a, outside this task. Attempt 1: new-test AudioSink configuration constructor mismatch. Attempt 2: host Uri.EMPTY stub caused a null pointer in Media3's default extractor factory; added an empty-base test seam (production default unchanged). Attempt 3 logs: `/tmp/verify-task.zwi8L9`; earlier logs: `/tmp/verify-task.mAsA5G`, `/tmp/verify-task.1WSE1O`. Existing WaxFlowOracleLoudnessTest was NOT RUN because SISTRUM_CORPUS is unset (assumption skip, not PASS). Graph refreshed by the gate: changed (11,129 nodes, 32,980 edges). Full suites/sharedLogic, lint, assemble, ExoPlayer scheduling/device checks NOT RUN: T013 scope. Commit preparation/staging/commit/push NOT RUN: gate failed. Existing tests untouched. |
@@ -580,3 +581,88 @@ NOT RUN and remaining work:
   validation. Do not substitute the old Flick hash or change production behavior.
 - Stage/commit/push: NOT RUN by Codex. `.codex-commit/files.txt` and `message.txt` are prepared
   for the runner to commit on the current feature branch. No Git metadata mutation performed.
+
+### T012a implementation and impact review (2026-10-14; not committed)
+
+- Impact first: `git grep` traced KotlinAiffProvider through defaultDecoderProviders /
+  DecoderRegistry into ProviderExtractorsFactory, RegistryScanGate and OfflineDecoder.
+  AiffExtractor/aiffRefusal had only their provider and legacy tests as code consumers;
+  KotlinPcmVariantsProvider also supplied T008's compressed-AIFF split and oracle tests.
+  Aiff.open additionally serves Ima4 and the unchanged AiffOracleTest/AiffBenchmark.
+  Contracts preserved: kotlin-aiff id, decoder-table row/order, 4096-byte header request,
+  Room schema/version, analysis documents, preferences and PlaybackController API/StateFlows.
+  Existing adapter/source/lifecycle, registry, codec-oracle and unrelated tests remain unmodified.
+- Required production files: KotlinAiffProvider now adapts every imported Aiff compression;
+  AiffExtractor is deleted as explicitly authorized. KotlinPcmVariantsProvider loses its
+  AIFF branch/probe, leaving one AIFF decoder path. Extra files required for typed errors:
+  `codecs/.../container/aiff/Aiff.kt` adds AiffException while preserving exact IOException
+  messages and decoded output; KotlinDecodingExtractor classifies its unsupported flag.
+  Metadata imports only RandomAccessSource, but its downstream regression was still attempted.
+- Tests: AiffExtractorTest's 17 behaviours migrated to KotlinAiffProviderTest (22 tests),
+  preserving endian/bias/width/duration/refusal checks, recording changed expectations in D-25,
+  adding all 18 successful pinned AIFF oracle fixtures and exact mono/stereo seek tails/times,
+  empty/odd-channel/high-rate boundaries, non-byte-aligned PCM and typed errors. No oracle
+  hash changed. T008's 14 original oracle fixtures/counts/seek checks remain, routing AIFF
+  through KotlinAiffProvider; only its authorized refusal expectations change (D-25).
+  OfflineDecoderKotlinFormatsTest explicitly includes sine-f32.aiff; ScanGateTest admits fl32
+  and checks MAC3's exact refusal plus the 4096-byte request with a valid sample-rate header.
+- Device cases: KotlinFormatsPlaybackTest now requires six AIFF fixture ids within 24 total
+  rows; its existing playback/oracle/seek loops exercise the new plain PCM, sowt and float
+  cases. Extra `androidTest/assets/kotlin-formats.tsv` rows are required by that data-driven
+  class; `scripts/test-corpus/README.md` updates its inventory. Capture hashes were obtained
+  by independent source-byte unpacking verified against pinned raw oracle hashes (D-25),
+  never from Kotlin output. THIRD-PARTY-NOTICES removes only the obsolete Choir entry.
+- Diff/self-review: scope restricted to these implementation/test/fixture/notice files,
+  DECISIONS.md and this handoff, plus generated graph files. No architecture/ADR edits,
+  production feature removals, weakened assertions, skipped new cases, swallowed errors,
+  fallback-to-default error paths or daily-app/device actions. The mandated legacy extractor
+  and test-file deletion are the explicitly authorized migration, not lost test coverage.
+  No additional refactors or follow-up implementation was attempted.
+- Concurrent external changes: `.claude/agents/` files and `CLAUDE.md` changed after the clean
+  starting status; Codex did not edit these and excludes them from T012a's scope. Graph output
+  was generated by verify.sh, never hand-edited.
+- Commands/results before the final focused gate:
+  - `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`; MemAvailable 3,482,596 kB
+    before module tests, 3,493,056 kB before the broad gate (both >= 2 GB).
+  - `./gradlew :codecs:test :metadata:test`: FAILED at `:metadata:verifyWaxLabelCorpus`
+    before metadata test execution; log `/tmp/t012a-module-tests.log`.
+    Missing/changed input first reported: `owned/dsd-tag-dsd-bad-id3.mp3`.
+    Read-only verification found 97 missing/mismatched inputs in the default cache; the
+    alternate `sistrum-waxlabel-oracle-full` cache also fails, first at
+    `owned/matroska-ffmpeg-aac.mka` (113 mismatches). No fixture/manifest edits or skips.
+  - `./gradlew :codecs:test`: PASS, 1,477 tests, zero failures/errors/skips;
+    `/tmp/t012a-codecs-tests.log`. The original AiffOracleTest remains unchanged.
+  - Quick gate with `:androidApp:testDevQaUnitTest`, package filters
+    `com.amwolfstein.sistrum.player.decoders.*`, `com.amwolfstein.sistrum.analysis.*`,
+    `com.amwolfstein.sistrum.sync.*`: GATE: PASS; 444 tests discovered, zero failures/errors,
+    one pre-existing WaxFlowOracleLoudnessTest assumption skip (`SISTRUM_CORPUS` unset,
+    corpus test NOT RUN, not PASS). compileDevQaKotlin PASS; logs `/tmp/verify-task.8KgKVn`.
+    Graph refresh PASS: changed (11,197 nodes / 33,141 edges).
+  - `python3 scripts/test-corpus/prepare-kotlin-formats.py --out /tmp/sistrum-t012a-corpus`:
+    PASS, all 24 pinned source hashes checked and files staged outside the repo; no device access.
+  - `./gradlew :androidApp:compileDevQaAndroidTestKotlin`: PASS;
+    `/tmp/t012a-device-compile.log`.
+  - `git diff --check`: PASS.
+- Required metadata tests: NOT RUN because their integrity preflight failed; this prevents
+  commit preparation. Full app/sharedLogic suites, lint, assemble, device playback/timing,
+  listening/Bluetooth/headset checks: NOT RUN (T013/milestone/owner scope). Task checkbox,
+  commit preparation, staging, commit and push are deliberately not performed while blocked.
+
+- Final focused quick gate after test cleanup: `--quick ':androidApp:testDevQaUnitTest'`
+  with `--tests '*KotlinAiffProviderTest' --tests '*OfflineDecoderKotlinFormatsTest'`
+  `--tests '*ScanGateTest'`: GATE: PASS, 35 tests, zero failures/errors/skips;
+  compileDevQaKotlin PASS; graph changed (11,197 nodes / 33,141 edges).
+  Logs: `/tmp/verify-task.PmYN1k`. Memory preflight: 3,565,332 kB available.
+  This rerun covers the final resource-release cleanup in the migrated test; the broader
+  unchanged downstream packages retain the preceding 444-test evidence.
+- Final status: BLOCKED on external metadata corpus integrity. `.codex-commit/` absent;
+  `tasks.md` intentionally unchanged/unchecked. Restore exact pinned inputs and rerun
+  `./gradlew :metadata:test` before commit preparation; never regenerate expected hashes
+  to match a different cache. The current app quick gate passing does not resolve that
+  required downstream regression failure.
+
+## 003 backlog (from 002)
+
+- First task of 003 (owner 2026-10-14, D-26), original 002 text:
+  T013a Quality tooling (owner 2026-10-14; report-only, never blocking yet): add, with versions pinned in `gradle/libs.versions.toml` that support AGP 9.4.1 / Kotlin 2.4.20 (D-entry with versions and why): (1) **detekt** on `androidApp`, `sharedLogic`, `codecs`, `metadata`, `analysis`, `dsp` with the Compose rules plugin (`io.nlopez.compose.rules:detekt`) and a committed `config/detekt/detekt.yml` (default rules + complexity, potential-bugs, unused-private-* on; formatting/style rules off) and per-module baseline files so only new findings report; task `./gradlew detekt` must succeed; (2) **R8 usage report**: `prodRelease` writes `usage.txt` (add `-printusage` to `androidApp/proguard-rules.pro` if AGP doesn't already) — the list of code R8 removes; (3) **Android lint `UnusedResources`** (and `UnusedIds`) enabled as warning via `androidApp` `lint {}` (no new lint errors); (4) **Kover** coverage on the same modules with one aggregated XML+HTML report (`./gradlew koverXmlReport`), no thresholds. Document each command, output path and how to read it in `docs/QUALITY.md`; record the first counts (detekt baseline sizes, usage.txt line count, UnusedResources count, Kover line coverage per module) in HANDOFF. No production code changes; no rule fixes in this task (findings become later tasks). The orchestrator wires these into `verify.sh` afterwards (Codex never edits `.claude/`). Quick gate: `:androidApp:compileDevQaKotlin` + `./gradlew detekt` + one `assembleProdRelease` (unsigned) to prove R8 still builds
+  Plus: an "after" run of the same reports at 003's end; Claude wires the reports into `verify.sh` full gate.

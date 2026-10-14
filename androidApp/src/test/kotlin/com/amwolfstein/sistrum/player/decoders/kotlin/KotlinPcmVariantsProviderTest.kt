@@ -42,7 +42,8 @@ class KotlinPcmVariantsProviderTest {
                     name.endsWith(".aifc") && (name.contains("ima4") || name.contains("alaw") || name.contains("ulaw"))
             }
     }
-    private fun provider(row: Map<String, String>): DecoderProvider = KotlinPcmVariantsProvider()
+    private fun provider(row: Map<String, String>): DecoderProvider =
+        if (row.getValue("file").endsWith(".aifc")) KotlinAiffProvider() else KotlinPcmVariantsProvider()
     private fun source(row: Map<String, String>): ByteArray {
         val file = File(corpus, row.getValue("file"))
         assertTrue("Missing $file; rebuild: python3 scripts/oracle-corpus.py --rebuild", file.isFile)
@@ -101,7 +102,7 @@ class KotlinPcmVariantsProviderTest {
         }
         val data = source(rows.first { it.getValue("file").endsWith(".aifc") })
         val comm = data.toString(Charsets.ISO_8859_1).indexOf("COMM")
-        for ((compression, reason) in listOf("MAC3" to "compressed AIFF-C (MAC3)", "zzzz" to "compressed AIFF-C (zzzz)", "fl32" to "float AIFF-C (fl32)")) {
+        for ((compression, reason) in listOf("MAC3" to "aiff: this build does not read MAC3 (compression type \"MAC3\") from an AIFF-C", "zzzz" to "aiff: this build does not read compression type \"zzzz\" from an AIFF-C", "MAC6" to "aiff: this build does not read MAC6 (compression type \"MAC6\") from an AIFF-C")) {
             val changed = data.copyOf().also { compression.toByteArray().copyInto(it, comm + 26) }
             assertEquals(reason, legacy.refusal(changed))
             assertFalse(KotlinPcmVariantsProvider().extractors().single()().sniff(input(changed)))
@@ -115,13 +116,13 @@ class KotlinPcmVariantsProviderTest {
             "JUNK".toByteArray().copyInto(chunk)
             java.nio.ByteBuffer.wrap(chunk).order(if (data[0] == 'F'.code.toByte()) java.nio.ByteOrder.BIG_ENDIAN else java.nio.ByteOrder.LITTLE_ENDIAN).putInt(4, 8192)
             val changed = data.copyOfRange(0, 12) + chunk + data.copyOfRange(12, data.size)
-            val e = KotlinPcmVariantsProvider().extractors().single()()
+            val e = provider(row).extractors().single()()
             try {
                 val inp = input(changed)
                 assertTrue(e.sniff(inp))
                 assertEquals(0L, inp.position)
                 assertEquals(0L, inp.peekPosition)
-                assertEquals(row["pcm_sha256"], hash(decode(KotlinPcmVariantsProvider(), changed).sink.pcm.toByteArray()))
+                assertEquals(row["pcm_sha256"], hash(decode(provider(row), changed).sink.pcm.toByteArray()))
             } finally { e.release() }
         }
     }

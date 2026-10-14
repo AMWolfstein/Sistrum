@@ -14,13 +14,16 @@ import com.amwolfstein.sistrum.codecs.audio.FloatBuffer
 import com.amwolfstein.sistrum.codecs.container.*
 import com.amwolfstein.sistrum.codecs.container.adpcm.*
 
+/** Distinguishes unsupported AIFF features from malformed input at the decoder boundary. */
+class AiffException(message: String, val unsupported: Boolean = false) : IOException(message)
+
 /** AIFF and fixed-unit AIFF-C audio; float sources use decodeFloatBlock. */
 class Aiff private constructor(private val source:RandomAccessSource,private val strict:Boolean) {
  val warnings=ArrayList<String>();internal var adpcm:BlockStream?=null;private var g711:G711?=null;private var pcm:Pcm?=null
  data class StreamInfo(val sampleRate:Int,val channels:Int,val bitsPerSample:Int,val totalSamples:Long,val floating:Boolean,val sourceBits:Int,val samplesExact:Boolean=true)
  lateinit var info:StreamInfo;private set
  var compression="";private set
- private fun bad(s:String):Nothing=throw IOException("aiff: $s")
+ private fun bad(s:String,unsupported:Boolean=false):Nothing=throw AiffException("aiff: $s",unsupported)
  private fun warn(off:Long,s:String){if(strict)bad("$s (at offset $off)");if(warnings.size<64&&!warnings.contains(s))warnings.add(s)}
  private fun read(off:Long,n:Int):ByteBuffer {val b=ByteBuffer.allocate(n).order(ByteOrder.BIG_ENDIAN);var pos=off;while(b.hasRemaining()){val before=b.position();val got=source.read(pos,b);if(got<=0||b.position()-before!=got)bad("reading header: unexpected EOF");pos+=got};b.flip();return b}
  private fun id(b:ByteBuffer,p:Int)=String(byteArrayOf(b.get(p),b.get(p+1),b.get(p+2),b.get(p+3)),Charsets.ISO_8859_1)
@@ -30,16 +33,16 @@ class Aiff private constructor(private val source:RandomAccessSource,private val
  while(off+8<=size){if(chunks++>=1024)bad("more than 1024 chunks");val hdr=read(off,8);val key=id(hdr,0);val n=u32(hdr,4)
  when(key){"COMM"->{if(seen)warn(off,"duplicate COMM chunk ignored") else {val want=if(aifc)22 else 18;if(n<want)bad("COMM chunk of $n bytes, want at least $want");val use=minOf(n,512).toInt();if(n>512)warn(off,"COMM chunk of $n bytes truncated to 512");if(off+8+use>size)bad("COMM chunk extends past end of file");val p=read(off+8,use);val ch=p.getShort(0).toInt();units=u32(p,2);val bits=p.getShort(6).toInt();val exponent=((p.get(8).toInt() and 127) shl 8) or (p.get(9).toInt() and 255);val mantissa=p.getLong(10);val sign=if(p.get(8).toInt() and 128!=0)-1 else 1
  val rateF=if(exponent==0x7fff)Double.NaN else sign*Math.scalb(java.lang.Long.toUnsignedString(mantissa).toDouble(),exponent-16383-63)
- if(ch<1)bad("$ch channels");if(ch>8)bad("$ch channels (supported: 1..8)");if(rateF.isNaN()||rateF<=0||rateF>Int.MAX_VALUE)bad("sample rate $rateF");rate=kotlin.math.floor(rateF+0.5).toInt();if(rate.toDouble()!=rateF)warnings.add("non-integer sample rate $rateF rounded to $rate")
+ if(ch<1)bad("$ch channels");if(ch>8)bad("$ch channels (supported: 1..8)",true);if(rateF.isNaN()||rateF<=0||rateF>Int.MAX_VALUE)bad("sample rate $rateF");rate=kotlin.math.floor(rateF+0.5).toInt();if(rate.toDouble()!=rateF)warnings.add("non-integer sample rate $rateF rounded to $rate")
  val raw=if(aifc)id(p,18)else "NONE";compression=raw.lowercase(java.util.Locale.ROOT);channels=ch;seen=true
  when(compression){
  "ima4"->{cfg=Config(Layout.IMAQuickTime,ch,34*ch,64);cfg.validate();depth=16;wireBits=4;if(bits!=4&&bits!=16)warn(off,"ima4 declares $bits bits per sample, want 4 or 16")}
  "alaw","ulaw"->{depth=16;wireBits=8;if(bits!=8&&bits!=16)warn(off,"${if(compression=="alaw")"A-law" else "mu-law"} declares $bits bits per sample, want 8 or 16")}
- "none","twos","sowt"->{if(bits !in 1..32)bad("$bits bits per sample");depth=bits;wireBits=(bits+7)/8*8}
- "raw "->{if(bits!=8)bad("raw compression with $bits bits");depth=8;wireBits=8}
+ "none","twos","sowt"->{if(bits !in 1..32)bad("$bits bits per sample",true);depth=bits;wireBits=(bits+7)/8*8}
+ "raw "->{if(bits!=8)bad("raw compression with $bits bits",true);depth=8;wireBits=8}
  "in24"->{depth=24;wireBits=24};"in32"->{depth=32;wireBits=32}
  "fl32","fl64"->{floating=true;depth=32;wireBits=if(compression=="fl32")32 else 64}
- else->{val name=when(raw){"MAC3"->"MAC3";"MAC6"->"MAC6";else->""};if(name.isEmpty())bad("this build does not read compression type \"$raw\" from an AIFF-C")else bad("this build does not read $name (compression type \"$raw\") from an AIFF-C")}
+ else->{val name=when(raw){"MAC3"->"MAC3";"MAC6"->"MAC6";else->""};if(name.isEmpty())bad("this build does not read compression type \"$raw\" from an AIFF-C",true)else bad("this build does not read $name (compression type \"$raw\") from an AIFF-C",true)}
  }}}
  "SSND"->{if(dataBytes>=0)warn(off,"extra SSND chunk ignored") else {if(n<8)bad("SSND chunk of $n bytes, want at least 8");val p=read(off+8,8);val start=u32(p,0);dataOff=off+16+start;dataBytes=n-8-start;if(dataBytes<0)bad("SSND offset $start exceeds chunk");if(dataOff+dataBytes>size){warn(off,"SSND data of $dataBytes bytes exceeds file, clamped");dataBytes=maxOf(size-dataOff,0)}}}}
  val next=off+8+n+(n and 1);if(next<=off)bad("chunk size overflow");if(next>size&&key!="SSND"){warn(off,"\"$key\" chunk extends past end of file");break};off=next}

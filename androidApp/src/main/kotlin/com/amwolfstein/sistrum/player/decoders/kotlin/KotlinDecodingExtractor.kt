@@ -26,6 +26,7 @@ import com.amwolfstein.sistrum.codecs.codec.wmapro.ProException
 import com.amwolfstein.sistrum.codecs.codec.wmavoice.VoiceException
 import com.amwolfstein.sistrum.codecs.container.ByteBufferSource
 import com.amwolfstein.sistrum.codecs.container.RandomAccessSource
+import com.amwolfstein.sistrum.codecs.container.aiff.AiffException
 import com.amwolfstein.sistrum.codecs.container.asf.AsfException
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -220,6 +221,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             is AlacException -> error.reason == AlacException.Reason.UNSUPPORTED
             is AdpcmException -> error.unsupported
             is MusepackException -> error.unsupported
+            is AiffException -> error.unsupported
             is AsfException -> error.unsupported
             is WmaException -> error.unsupported
             is LosslessException -> error.unsupported

@@ -25,13 +25,13 @@ class ScanGateTest {
         (value and 0xFF).toByte(),
     )
 
-    /** A minimal FORM/COMM AIFF/AIFC header, enough for `aiffRefusal` to decide. */
+    /** A minimal FORM/COMM AIFF/AIFC header, enough for the AIFF decoder to decide. */
     private fun aiffHeader(form: String, bits: Int = 16, compression: String? = null): ByteArray {
         val comm = ByteArrayOutputStream()
         comm.write(u16(1))
         comm.write(u32(0))
         comm.write(u16(bits))
-        comm.write(ByteArray(10))
+        comm.write(byteArrayOf(0x40, 0x0e, 0xac.toByte(), 0x44, 0, 0, 0, 0, 0, 0))
         if (form == "AIFC") comm.write((compression ?: "NONE").toByteArray(Charsets.US_ASCII))
         val body = comm.toByteArray()
 
@@ -96,14 +96,18 @@ class ScanGateTest {
     fun `registry gate names the refusal and asks for the provider's header size`() {
         val gate = RegistryScanGate(defaultDecoderRegistry(CodecProbe { true }))
         var requested = 0
-        // Spec 002 T008: IMA4 AIFF-C is decoded by the Kotlin AIFF provider; float AIFF-C is still refused until T012a.
+        // T012a: float and compressed AIFF-C use the same decoder; MACE stays refused.
         assertEquals(
             Admission.Admitted("kotlin-aiff"),
             gate.admit("aiff", "aiff") { aiffHeader("AIFC", compression = "ima4") },
         )
         assertEquals(
-            Admission.Skipped("aiff", "aiff", "float AIFF-C (fl32)"),
-            gate.admit("aiff", "aiff") { n -> requested = n; aiffHeader("AIFC", compression = "fl32") },
+            Admission.Admitted("kotlin-aiff"),
+            gate.admit("aiff", "aiff") { aiffHeader("AIFC", compression = "fl32") },
+        )
+        assertEquals(
+            Admission.Skipped("aiff", "aiff", "aiff: this build does not read MAC3 (compression type \"MAC3\") from an AIFF-C"),
+            gate.admit("aiff", "aiff") { n -> requested = n; aiffHeader("AIFC", compression = "MAC3") },
         )
         assertEquals(4096, requested)
     }

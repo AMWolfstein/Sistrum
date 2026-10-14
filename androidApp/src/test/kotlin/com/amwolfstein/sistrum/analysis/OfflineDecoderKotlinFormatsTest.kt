@@ -42,10 +42,9 @@ class OfflineDecoderKotlinFormatsTest {
         val corpus = System.getProperty("waxflow.corpus") ?: System.getenv("WAXFLOW_CORPUS")
             ?: "${System.getenv("SISTRUM_ORACLE_DIR") ?: "${System.getProperty("user.home")}/.cache/sistrum-waxflow-oracle"}/corpus"
         for (extension in listOf("wv", "ape", "mpc", "wma", "aiff", "wav")) {
-            // Float AIFF joins this matrix in T012a (all AIFF through WaxFlow's decoder); until then: integer AIFF.
             val row = rows.first {
                 it.getValue("file").endsWith(".$extension") && it["status"] == "ok" &&
-                    (extension != "aiff" || it["sample_format"] == "int")
+                    (extension != "aiff" || it["file"] == "waxflow-testdata/sine-f32.aiff")
             }
             val bytes = File(corpus, row.getValue("file")).readBytes()
             assertEquals(row["file_sha256"], hash(bytes))

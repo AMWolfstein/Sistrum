@@ -116,11 +116,11 @@ the corpus simply appears as music in the daily library. The `.qa` test build
 
 ## Kotlin decoder device matrix (002 T012; run on the phone in T013)
 
-`KotlinFormatsPlaybackTest` requires the 21 pinned rows in
+`KotlinFormatsPlaybackTest` requires the 24 pinned rows in
 `androidApp/src/androidTest/assets/kotlin-formats.tsv`. Missing files or source-hash changes
 fail the class; there are no assumption skips. The rows cover WavPack, APE, Musepack SV7/SV8,
 ordinary ALAC and all three fragmented ALAC goldens, WMA 1/2/Pro/Lossless/Voice, MS-ADPCM,
-WAV G.711, AIFF-C IMA4/G.711, DSF and DFF. Plain/float AIFF coverage is extended by T012a.
+WAV G.711, AIFF-C IMA4/G.711, plain AIFF PCM, AIFF-C sowt/float, DSF and DFF (T012a extends AIFF coverage).
 
 Prepare **outside the repo**, merging into the generated 001 corpus directory so the existing
 push procedure retains those files. No audio or generated PCM is committed:

@@ -1,4 +1,4 @@
-@file:OptIn(androidx.media3.common.util.UnstableApi::class)
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 
 package com.amwolfstein.sistrum.player.decoders.aiff
 
@@ -23,6 +23,8 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
+import com.amwolfstein.sistrum.codecs.container.aiff.AiffException
 import org.junit.Test
 import java.io.ByteArrayOutputStream
 
@@ -38,8 +40,9 @@ private class RecordingTrackOutput : TrackOutput {
         lastFormat = format
     }
 
-    override fun sampleData(data: ParsableByteArray, length: Int, offset: Int) {
-        bytes.write(data.data, data.position + offset, length)
+    override fun sampleData(data: ParsableByteArray, length: Int, sampleDataPart: Int) {
+        bytes.write(data.data, data.position, length)
+        data.skipBytes(length)
     }
 
     override fun sampleData(
@@ -78,16 +81,16 @@ private class RecordingExtractorOutput : ExtractorOutput {
 private fun extract(bytes: ByteArray): RecordingExtractorOutput {
     val input = FakeExtractorInput.Builder().setData(bytes).build()
     val output = RecordingExtractorOutput()
-    val extractor = AiffExtractor()
+    val extractor = KotlinAiffProvider().extractors().single()()
     extractor.init(output)
     val holder = PositionHolder()
-    while (extractor.read(input, holder) != Extractor.RESULT_END_OF_INPUT) {
-        // Drain until the extractor stops.
-    }
-    return output
+    try {
+        while (extractor.read(input, holder) != Extractor.RESULT_END_OF_INPUT) { }
+        return output
+    } finally { extractor.release() }
 }
 
-class AiffExtractorTest {
+class KotlinAiffProviderTest {
 
     // --- Container building --------------------------------------------------
 
@@ -177,7 +180,7 @@ class AiffExtractorTest {
         compression: String? = if (form == "AIFC") "NONE" else null,
         ssndOffset: Int = 0,
     ): ByteArray {
-        val frames = samples.size / (channels * (bits / 8))
+        val frames = samples.size / (channels * ((bits + 7) / 8))
         val comm = chunk("COMM", commBody(channels, frames, bits, sampleRate, compression))
         val ssnd = chunk("SSND", ssndBody(samples, ssndOffset))
         val out = ByteArrayOutputStream()
@@ -258,11 +261,15 @@ class AiffExtractorTest {
     // --- 5: the 80-bit extended float ---------------------------------------
 
     @Test
-    fun `extendedFloat decodes the standard sample rates exactly`() {
-        listOf(44100.0, 48000.0, 96000.0, 192000.0).forEach { rate ->
-            assertEquals(rate, extended80(rate).extendedFloat(0), 0.0)
+    fun `standard sample rates are published exactly and zero is malformed`() {
+        listOf(44100, 48000, 96000, 192000).forEach { rate ->
+            assertEquals(rate, extract(aiff(sampleRate = rate.toDouble(), samples = byteArrayOf(0, 0))).tracks.single().lastFormat!!.sampleRate)
         }
-        assertEquals(0.0, extended80(0.0).extendedFloat(0), 0.0)
+        val error = assertThrows(ParserException::class.java) {
+            extract(aiff(sampleRate = 0.0, samples = byteArrayOf(0, 0)))
+        }
+        assertTrue(error.contentIsMalformed)
+        assertEquals("aiff: sample rate 0.0", error.cause!!.message)
     }
 
     // --- 6: seek map ---------------------------------------------------------
@@ -281,10 +288,10 @@ class AiffExtractorTest {
         val expectedDurationUs = samples.size.toLong() * C.MICROS_PER_SECOND / bytesPerSecond
         assertEquals(expectedDurationUs, seekMap.getDurationUs())
 
-        val dataStart = 54L
+        val dataStart = 0L
         val seekPoints = seekMap.getSeekPoints(expectedDurationUs / 2)
         val point = seekPoints.first
-        assertTrue("position should land inside SSND", point.position in dataStart until dataStart + samples.size)
+        assertTrue("adapter reopens the source at zero", point.position == dataStart)
         assertEquals("position should be frame-aligned", 0L, (point.position - dataStart) % 2)
         assertTrue("time should be in range", point.timeUs in 0..expectedDurationUs)
     }
@@ -292,74 +299,65 @@ class AiffExtractorTest {
     // --- 7: named refusals ---------------------------------------------------
 
     @Test
-    fun `aiffRefusal names float and compressed AIFF-C`() {
-        assertEquals(
-            "float AIFF-C (fl32)",
-            aiffRefusal(aiff(form = "AIFC", compression = "fl32", samples = byteArrayOf(1, 2))),
-        )
-        assertEquals(
-            "compressed AIFF-C (ima4)",
-            aiffRefusal(aiff(form = "AIFC", compression = "ima4", samples = byteArrayOf(1, 2))),
-        )
+    fun `float and compressed AIFF-C are admitted`() {
+        for (compression in listOf("fl32", "fl64", "ima4", "alaw", "ulaw")) {
+            val bits = if (compression == "fl64") 64 else if (compression == "fl32") 32 else 16
+            assertNull(KotlinAiffProvider().refusal(aiff(form = "AIFC", compression = compression, bits = bits, samples = ByteArray(if (compression == "ima4") 34 else bits / 8))))
+        }
     }
 
     @Test
     fun `aiffRefusal accepts playable files and returns null otherwise`() {
-        assertNull(aiffRefusal(aiff(form = "AIFC", compression = "NONE", samples = byteArrayOf(1, 2))))
-        assertNull(aiffRefusal(aiff(form = "AIFC", compression = "twos", samples = byteArrayOf(1, 2))))
-        assertNull(aiffRefusal(aiff(form = "AIFC", compression = "sowt", samples = byteArrayOf(1, 2))))
-        assertNull(aiffRefusal(aiff(form = "AIFF", samples = byteArrayOf(1, 2))))
+        assertNull(KotlinAiffProvider().refusal(aiff(form = "AIFC", compression = "NONE", samples = byteArrayOf(1, 2))))
+        assertNull(KotlinAiffProvider().refusal(aiff(form = "AIFC", compression = "twos", samples = byteArrayOf(1, 2))))
+        assertNull(KotlinAiffProvider().refusal(aiff(form = "AIFC", compression = "sowt", samples = byteArrayOf(1, 2))))
+        assertNull(KotlinAiffProvider().refusal(aiff(form = "AIFF", samples = byteArrayOf(1, 2))))
 
         val notAForm = ByteArray(24) { it.toByte() }
-        assertNull(aiffRefusal(notAForm))
+        assertNull(KotlinAiffProvider().refusal(notAForm))
     }
 
     @Test
-    fun `aiffRefusal refuses an unsupported sample size`() {
-        assertEquals(
-            "unsupported AIFF sample size (12)",
-            aiffRefusal(aiff(bits = 12, samples = byteArrayOf(1, 2))),
-        )
+    fun `12-bit PCM is decoded with its declared valid depth`() {
+        val track = extract(aiff(bits = 12, samples = byteArrayOf(0x12, 0x30))).tracks.single()
+        assertEquals(C.ENCODING_PCM_16BIT, track.lastFormat!!.pcmEncoding)
+        assertArrayEquals(byteArrayOf(0x30, 0x12), track.bytes.toByteArray())
     }
 
     @Test
-    fun `the extractor throws a named ParserException for ima4`() {
-        val bytes = aiff(form = "AIFC", compression = "ima4", samples = byteArrayOf(1, 2))
-        val input = FakeExtractorInput.Builder().setData(bytes).build()
-        val extractor = AiffExtractor()
-        extractor.init(RecordingExtractorOutput())
-
-        val exception = assertThrows(ParserException::class.java) {
-            extractor.read(input, PositionHolder())
-        }
+    fun `the extractor preserves the typed MAC3 refusal`() {
+        val bytes = aiff(form = "AIFC", compression = "MAC3", samples = byteArrayOf(1, 2))
+        val exception = assertThrows(ParserException::class.java) { extract(bytes) }
         assertNotNull(exception.message)
-        assertTrue(exception.message.contains("compressed AIFF-C (ima4)"))
+        assertFalse(exception.contentIsMalformed)
+        assertTrue(exception.cause is AiffException)
+        assertTrue(exception.message.contains("aiff: this build does not read MAC3 (compression type \"MAC3\") from an AIFF-C"))
     }
 
     @Test
     fun `aiffRefusal returns null for an overflowing declared chunk size`() {
         val first = rawChunk("ANNO", 2, byteArrayOf(1, 2))
         val second = rawChunk("JUNK", 0x7FFFFFFFL, byteArrayOf(1, 2, 3, 4))
-        assertNull(aiffRefusal(formHeader("AIFF", first, second)))
+        assertNull(KotlinAiffProvider().refusal(formHeader("AIFF", first, second)))
     }
 
     @Test
     fun `aiffRefusal returns null when the compression type is truncated`() {
-        val full = aiff(form = "AIFC", compression = "ima4", samples = byteArrayOf(1, 2))
+        val full = aiff(form = "AIFC", compression = "MAC3", samples = byteArrayOf(1, 2))
         // COMM body starts at 20; the compression type at 38. Keep 40 bytes,
         // i.e. two bytes into the four-byte type.
         val truncated = full.copyOf(40)
         assertEquals(40, truncated.size)
-        assertNull(aiffRefusal(truncated))
+        assertNull(KotlinAiffProvider().refusal(truncated))
     }
 
     @Test
     fun `aiffRefusal never throws on prefixes or random AIFC headers`() {
-        val full = aiff(form = "AIFC", compression = "ima4", samples = byteArrayOf(1, 2))
+        val full = aiff(form = "AIFC", compression = "MAC3", samples = byteArrayOf(1, 2))
         for (length in 0..full.size) {
-            aiffRefusal(full.copyOf(length))
+            KotlinAiffProvider().refusal(full.copyOf(length))
         }
-        assertEquals("compressed AIFF-C (ima4)", aiffRefusal(full))
+        assertEquals("aiff: this build does not read MAC3 (compression type \"MAC3\") from an AIFF-C", KotlinAiffProvider().refusal(full))
 
         val random = java.util.Random(20261006L)
         repeat(200) {
@@ -368,22 +366,22 @@ class AiffExtractorTest {
             random.nextBytes(bytes)
             "FORM".toByteArray(Charsets.US_ASCII).copyInto(bytes, 0)
             "AIFC".toByteArray(Charsets.US_ASCII).copyInto(bytes, 8)
-            aiffRefusal(bytes)
+            KotlinAiffProvider().refusal(bytes)
         }
     }
 
     @Test
-    fun `an fl64 file is named as float by the extractor and aiffRefusal`() {
-        val bytes = aiff(form = "AIFC", compression = "fl64", bits = 64, samples = ByteArray(8))
-        assertEquals("float AIFF-C (fl64)", aiffRefusal(bytes))
-
-        val input = FakeExtractorInput.Builder().setData(bytes).build()
-        val extractor = AiffExtractor()
-        extractor.init(RecordingExtractorOutput())
-        val exception = assertThrows(ParserException::class.java) {
-            extractor.read(input, PositionHolder())
+    fun `fl32 and fl64 decode to exact little-endian floats`() {
+        for ((compression, bits, samples) in listOf(
+            Triple("fl32", 32, byteArrayOf(0x3f, 0x00, 0x00, 0x00)),
+            Triple("fl64", 64, byteArrayOf(0x3f, 0xe0.toByte(), 0, 0, 0, 0, 0, 0)),
+        )) {
+            val bytes = aiff(form = "AIFC", compression = compression, bits = bits, samples = samples)
+            assertNull(KotlinAiffProvider().refusal(bytes))
+            val track = extract(bytes).tracks.single()
+            assertEquals(C.ENCODING_PCM_FLOAT, track.lastFormat!!.pcmEncoding)
+            assertArrayEquals(byteArrayOf(0, 0, 0, 0x3f), track.bytes.toByteArray())
         }
-        assertTrue(exception.message.contains("float AIFF-C (fl64)"))
     }
 
     @Test
@@ -397,8 +395,113 @@ class AiffExtractorTest {
         val durationUs = seekMap.getDurationUs()
         for (fraction in listOf(0.0, 0.25, 0.5, 0.75, 1.0)) {
             val point = seekMap.getSeekPoints((durationUs * fraction).toLong()).first
-            assertEquals("frame alignment", 0L, (point.position - 54) % 6)
-            assertTrue("inside SSND", point.position in 54L..(54L + samples.size))
+            assertEquals("frame alignment", 0L, point.position % 6)
+            assertEquals("adapter reopens at zero", 0L, point.position)
+        }
+    }
+
+    @Test
+    fun `raw in24 in32 and NONE follow their declared byte orders`() {
+        data class Case(val compression: String, val bits: Int, val samples: ByteArray, val expected: ByteArray)
+        for ((compression, bits, samples, expected) in listOf(
+            Case("raw ", 8, byteArrayOf(0, 127, 0x80.toByte(), 0xff.toByte()), byteArrayOf(0, 127, 0x80.toByte(), 0xff.toByte())),
+            Case("in24", 24, byteArrayOf(1, 2, 3), byteArrayOf(3, 2, 1)),
+            Case("in32", 32, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 3, 2, 1)),
+            Case("NONE", 16, byteArrayOf(1, 2), byteArrayOf(2, 1)),
+        )) {
+            val track = extract(aiff(form = "AIFC", compression = compression, bits = bits, samples = samples)).tracks.single()
+            assertArrayEquals(compression, expected, track.bytes.toByteArray())
+        }
+    }
+
+    @Test
+    fun `plain mono and stereo seeks reproduce exact frames forward backward and at EOS`() {
+        for ((channels, bits) in listOf(1 to 16, 2 to 24)) {
+            val frameBytes = channels * bits / 8
+            val samples = ByteArray(1000 * frameBytes) { (it % 127).toByte() }
+            val bytes = aiff(channels = channels, bits = bits, samples = samples, ssndOffset = 3)
+            val expected = samples.asList().chunked(bits / 8).flatMap { it.reversed() }.toByteArray()
+            val input = FakeExtractorInput.Builder().setData(bytes).build()
+            val extractor = KotlinAiffProvider().extractors().single()()
+            val holder = PositionHolder()
+            try {
+                extractor.init(RecordingExtractorOutput())
+                while (extractor.read(input, holder) != Extractor.RESULT_END_OF_INPUT) { }
+                for (frame in listOf(500L, 1L, 999L, 0L, 1000L)) {
+                    val output = RecordingExtractorOutput()
+                    extractor.init(output)
+                    extractor.seek(0, (frame * 1_000_000 + 44099) / 44100)
+                    while (extractor.read(input, holder) != Extractor.RESULT_END_OF_INPUT) { }
+                    val track = output.tracks.single()
+                    assertArrayEquals("$channels channels at $frame", expected.copyOfRange((frame * frameBytes).toInt(), expected.size), track.bytes.toByteArray())
+                    if (frame < 1000) assertEquals(frame * 1_000_000 / 44100, track.sampleTimesUs.first())
+                    else assertTrue(track.sampleTimesUs.isEmpty())
+                }
+            } finally { extractor.release() }
+        }
+    }
+
+    @Test
+    fun `unsupported depths and MACE retain exact typed decoder reasons`() {
+        for ((bytes, reason) in listOf(
+            aiff(bits = 40, samples = ByteArray(5)) to "aiff: 40 bits per sample",
+            aiff(form = "AIFC", compression = "MAC6", samples = byteArrayOf(0, 0)) to
+                "aiff: this build does not read MAC6 (compression type \"MAC6\") from an AIFF-C",
+        )) {
+            assertEquals(reason, KotlinAiffProvider().refusal(bytes))
+            val error = assertThrows(ParserException::class.java) { extract(bytes) }
+            assertFalse(error.contentIsMalformed)
+            assertTrue(error.cause is AiffException)
+            assertTrue((error.cause as AiffException).unsupported)
+            assertEquals(reason, error.cause!!.message)
+        }
+    }
+
+    @Test
+    fun `empty odd-channel and high-rate streams preserve exact boundaries`() {
+        for ((channels, rate, frames) in listOf(Triple(1, 44100, 0), Triple(3, 192000, 2))) {
+            val track = extract(aiff(channels = channels, sampleRate = rate.toDouble(), samples = ByteArray(frames * channels * 2))).tracks.single()
+            assertEquals(channels, track.lastFormat!!.channelCount)
+            assertEquals(rate, track.lastFormat!!.sampleRate)
+            assertArrayEquals(ByteArray(frames * channels * 2), track.bytes.toByteArray())
+        }
+        val error = assertThrows(ParserException::class.java) { extract("FORM".toByteArray()) }
+        assertTrue(error.contentIsMalformed)
+        assertTrue(error.cause is AiffException)
+        assertFalse((error.cause as AiffException).unsupported)
+    }
+
+    @Test
+    fun `all original AIFF oracle fixtures retain exact PCM format duration and counts`() {
+        val root = generateSequence(java.io.File(System.getProperty("user.dir"))) { it.parentFile }
+            .first { java.io.File(it, "androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv").isFile }
+        val lines = java.io.File(root, "androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv").readLines()
+            .filter { it.isNotBlank() && !it.startsWith('#') }
+        val columns = lines.first().split('\t')
+        val rows = lines.drop(1).map { columns.zip(it.split('\t')).toMap() }
+            .filter { it["status"] == "ok" && (it.getValue("file").endsWith(".aiff") || it.getValue("file").endsWith(".aifc")) }
+        assertEquals(18, rows.size)
+        val corpus = System.getProperty("waxflow.corpus") ?: System.getenv("WAXFLOW_CORPUS")
+            ?: "${System.getenv("SISTRUM_ORACLE_DIR") ?: "${System.getProperty("user.home")}/.cache/sistrum-waxflow-oracle"}/corpus"
+        fun hash(bytes: ByteArray) = java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+        for (row in rows) {
+            val bytes = java.io.File(corpus, row.getValue("file")).readBytes()
+            assertEquals(row.getValue("file_sha256"), hash(bytes))
+            val output = extract(bytes)
+            val track = output.tracks.single()
+            val format = track.lastFormat!!
+            assertEquals(row.getValue("pcm_sha256"), hash(track.bytes.toByteArray()))
+            assertEquals(row.getValue("frames").toLong() * row.getValue("channels").toInt() * row.getValue("bits").toInt() / 8, track.bytes.size().toLong())
+            assertEquals(MimeTypes.AUDIO_RAW, format.sampleMimeType)
+            assertEquals(if (row["sample_format"] == "float") C.ENCODING_PCM_FLOAT else when (row.getValue("bits").toInt()) {
+                8 -> C.ENCODING_PCM_8BIT
+                16 -> C.ENCODING_PCM_16BIT
+                24 -> C.ENCODING_PCM_24BIT
+                else -> C.ENCODING_PCM_32BIT
+            }, format.pcmEncoding)
+            assertEquals(row.getValue("rate").toInt(), format.sampleRate)
+            assertEquals(row.getValue("channels").toInt(), format.channelCount)
+            assertEquals(row.getValue("frames").toLong() * 1_000_000 / format.sampleRate, output.seekMap!!.durationUs)
         }
     }
 
