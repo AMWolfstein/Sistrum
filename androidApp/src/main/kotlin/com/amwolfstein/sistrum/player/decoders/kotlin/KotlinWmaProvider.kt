@@ -22,7 +22,7 @@ internal class KotlinWmaProvider : DecoderProvider {
     private fun open(source: RandomAccessSource): CodecStream {
         // Use the same ASF stream-selection policy as every imported stream. Config validation
         // occurs before packet parsing, preserving codec-specific unsupported causes/messages.
-        val tag = Demux(source, resolver = { tag, bytes ->
+        val demux = Demux(source, resolver = { tag, bytes ->
             try {
                 val config = ByteBuffer.wrap(bytes)
                 when (tag) {
@@ -50,22 +50,25 @@ internal class KotlinWmaProvider : DecoderProvider {
                 }
                 throw AsfException(unsupported, checkNotNull(e.message))
             }
-        }).tag
-        return when (tag) {
+        })
+        val channelMask = if (demux.tag == 0x162)
+            com.amwolfstein.sistrum.codecs.codec.wmapro.Config.parse(ByteBuffer.wrap(demux.codecConfig)).layout
+        else null
+        return when (demux.tag) {
             0x160, 0x161 -> Wma.open(source).let { stream ->
-                floatStream(stream.info.sampleRate, stream.info.channels, stream.info.totalSamples, stream::decodeBlock, stream::seekSample)
+                floatStream(stream.info.sampleRate, stream.info.channels, stream.info.totalSamples, stream::decodeBlock, stream::seekSample, channelMask)
             }
             0x162 -> WmaPro.open(source).let { stream ->
-                floatStream(stream.info.sampleRate, stream.info.channels, stream.info.totalSamples, stream::decodeBlock, stream::seekSample)
+                floatStream(stream.info.sampleRate, stream.info.channels, stream.info.totalSamples, stream::decodeBlock, stream::seekSample, channelMask)
             }
             0x0a -> WmaVoice.open(source).let { stream ->
-                floatStream(stream.info.sampleRate, stream.info.channels, stream.info.totalSamples, stream::decodeBlock, stream::seekSample)
+                floatStream(stream.info.sampleRate, stream.info.channels, stream.info.totalSamples, stream::decodeBlock, stream::seekSample, channelMask)
             }
             0x163 -> WmaLossless.open(source).let { stream ->
                 object : CodecStream {
                     override val info = CodecStream.Info(stream.info.sampleRate, stream.info.channels,
                         if (stream.info.bitsPerSample == 16) C.ENCODING_PCM_16BIT else C.ENCODING_PCM_24BIT,
-                        stream.info.totalSamples, samplesExact = false)
+                        stream.info.totalSamples, samplesExact = false, channelMask = stream.info.channelMask)
                     override fun decodeBlock() = stream.decodeBlock()
                     override fun seekSample(sample: Long) = stream.seekSample(sample)
                 }
@@ -75,9 +78,9 @@ internal class KotlinWmaProvider : DecoderProvider {
     }
 
     private fun floatStream(rate: Int, channels: Int, samples: Long,
-        decode: () -> com.amwolfstein.sistrum.codecs.audio.FloatBuffer?, seek: (Long) -> Unit,
+        decode: () -> com.amwolfstein.sistrum.codecs.audio.FloatBuffer?, seek: (Long) -> Unit, channelMask: Int?,
     ): CodecStream = object : FloatCodecStream {
-        override val info = CodecStream.Info(rate, channels, C.ENCODING_PCM_FLOAT, samples, samplesExact = false)
+        override val info = CodecStream.Info(rate, channels, C.ENCODING_PCM_FLOAT, samples, samplesExact = false, channelMask = channelMask)
         override fun decodeFloatBlock() = decode()
         override fun seekSample(sample: Long) = seek(sample)
     }

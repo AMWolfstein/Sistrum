@@ -301,7 +301,23 @@ internal class Media3PlayerFactory(
             .setMediaSourceFactory(
                 DefaultMediaSourceFactory(
                     context,
-                    ProviderExtractorsFactory(providers, recorder = providerRecorder),
+                    ProviderExtractorsFactory(providers, recorder = providerRecorder, maxOutputChannels = {
+                        if (android.os.Build.VERSION.SDK_INT >= 33) {
+                            val manager = context.getSystemService(android.media.AudioManager::class.java)
+                            val devices = manager.getAudioDevicesForAttributes(
+                                android.media.AudioAttributes.Builder()
+                                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                            val count = devices.mapNotNull { it.channelCounts.maxOrNull() }.minOrNull()
+                            if (count == null) {
+                                Log.w("KotlinChannelMapper", "media route reports no channel count; retaining source layout")
+                            }
+                            (count ?: 8).coerceIn(1, 8)
+                        } else {
+                            Log.w("KotlinChannelMapper", "route channel query requires API 33; retaining source layout")
+                            8
+                        }
+                    }),
                 )
             )
             // On by default in 1.11: the playback loop then sleeps ~250 ms between updates, so the position the

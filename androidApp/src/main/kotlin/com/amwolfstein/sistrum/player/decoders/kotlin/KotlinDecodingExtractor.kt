@@ -43,6 +43,9 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
     private var info: CodecStream.Info? = null
     private val pcm = ParsableByteArray(64 * 1024)
     private var bytesPerSample = 0
+    private var mapper: ChannelMapper? = null
+    /** Supplied by the playback factory; offline extraction keeps the source layout. */
+    internal var maxOutputChannels: () -> Int = { 8 }
     private var pendingSeekUs = C.TIME_UNSET
     private var ended = false
 
@@ -90,12 +93,14 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
                     C.ENCODING_PCM_32BIT, C.ENCODING_PCM_FLOAT -> 4
                     else -> throw ParserException.createForUnsupportedContainerFeature("unsupported codec PCM encoding")
                 }
+                val mapper = ChannelMapper(info, maxOutputChannels()).also { this.mapper = it }
+                if (mapper.downmix) bytesPerSample = 4
                 this.info = info
                 checkNotNull(track).format(Format.Builder()
                     .setSampleMimeType(MimeTypes.AUDIO_RAW)
                     .setSampleRate(info.sampleRate)
-                    .setChannelCount(info.channels)
-                    .setPcmEncoding(info.pcmEncoding)
+                    .setChannelCount(mapper.channels)
+                    .setPcmEncoding(if (mapper.downmix) C.ENCODING_PCM_FLOAT else info.pcmEncoding)
                     .setEncoderDelay(0)
                     .setEncoderPadding(0)
                     .build())
@@ -125,17 +130,24 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             }
             val frames = if (info.samplesExact) minOf(blockFrames.toLong(), info.totalSamples - position).toInt() else blockFrames
             if (frames == 0) return Extractor.RESULT_CONTINUE
-            val sampleCount = Math.multiplyExact(frames, info.channels)
+            val mapper = checkNotNull(mapper)
+            val sampleCount = Math.multiplyExact(frames, mapper.channels)
             val size = Math.multiplyExact(sampleCount, bytesPerSample)
             // Codec blocks can begin short and grow later (ASF superframes). Reserve the
             // borrowed buffer's full capacity once, so packing does not allocate as they grow.
-            pcm.ensureCapacity(Math.multiplyExact(Math.multiplyExact(capacity, info.channels), bytesPerSample))
+            pcm.ensureCapacity(Math.multiplyExact(Math.multiplyExact(capacity, mapper.channels), bytesPerSample))
             pcm.reset(size)
             val bytes = pcm.data
             var index = 0
             var offset = 0
             while (index < sampleCount) {
-                val value = block?.samples?.get(index) ?: checkNotNull(floats).samples[index].toRawBits()
+                val channel = index % mapper.channels
+                val frame = index / mapper.channels
+                val sourceChannel = mapper.placedIndex(channel)
+                val sourceIndex = frame * info.channels + sourceChannel
+                val value = if (mapper.downmix) mapper.mix(channel, frame, block?.samples, floats?.samples, info.pcmEncoding, info.channels)
+                    else if (sourceChannel < 0) 0
+                    else block?.samples?.get(sourceIndex) ?: checkNotNull(floats).samples[sourceIndex].toRawBits()
                 if (bytesPerSample == 1) {
                     // Codec buffers are signed; Media3's 8-bit PCM is unsigned.
                     bytes[offset++] = (value + 128).toByte()
@@ -200,6 +212,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
         private fun unsupported(error: Exception): ParserException = RefusalException(error)
 
         private fun isUnsupported(error: IOException): Boolean = when (error) {
+            is ChannelLayoutException -> true
             is DsdUnsupportedException -> true
             is PcmVariantUnsupportedException -> true
             is WavPackException -> error.code == ErrorCode.UNSUPPORTED

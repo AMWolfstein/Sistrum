@@ -35,7 +35,8 @@ internal class KotlinDsdProvider(private val targetRate: Int = 0) : DecoderProvi
             throw error
         }
         return playable(object : FloatCodecStream {
-            override val info = CodecStream.Info(dsd.info.sampleRate, dsd.info.channels, C.ENCODING_PCM_FLOAT, dsd.info.totalSamples)
+            override val info = CodecStream.Info(dsd.info.sampleRate, dsd.info.channels, C.ENCODING_PCM_FLOAT, dsd.info.totalSamples,
+                channelMask = dsd.info.channelMask ushr 2)
             override fun decodeFloatBlock(): FloatBuffer? = dsd.decodeBlock()
             override fun seekSample(sample: Long) = dsd.seekSample(sample)
         })
@@ -45,7 +46,8 @@ internal class KotlinDsdProvider(private val targetRate: Int = 0) : DecoderProvi
         internal fun wavPack(source: RandomAccessSource, targetRate: Int = 0): FloatCodecStream {
             val dsd = WavPackDsd.open(source, targetRate)
             return playable(object : FloatCodecStream {
-                override val info = CodecStream.Info(dsd.info.sampleRate, dsd.info.channels, C.ENCODING_PCM_FLOAT, dsd.info.totalSamples)
+                override val info = CodecStream.Info(dsd.info.sampleRate, dsd.info.channels, C.ENCODING_PCM_FLOAT, dsd.info.totalSamples,
+                    channelMask = dsd.info.channelMask.toInt())
                 override fun decodeFloatBlock(): FloatBuffer? = dsd.decodeBlock()
                 override fun seekSample(sample: Long) = dsd.seekSample(sample)
             })

@@ -11,6 +11,8 @@ internal interface CodecStream : Closeable {
         val sampleRate: Int, val channels: Int, val pcmEncoding: Int, val totalSamples: Long,
         /** ASF duration estimates must never truncate decoded PCM; -1 means unknown. */
         val samplesExact: Boolean = true,
+        /** WAVE speaker bits in ascending PCM order; null means count-only container. */
+        val channelMask: Int? = null,
     )
 
     val info: Info

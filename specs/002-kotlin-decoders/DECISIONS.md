@@ -399,3 +399,23 @@ lists en, ar. Outside spec 002's scope, owner-approved. Lint MissingTranslation 
 **Revisit if:** someone provides a complete, reviewed translation; restore from git history (`git show 398f4a4:<path>`)
 as a starting point.
 
+
+## D-23: Adapter speaker placement and bounded device downmix
+
+Case: T010 needs WAVE speaker masks at the generic extractor boundary and a playback-only
+output channel limit. DSD exposes Android bits while WavPack/WMA expose WAVE bits; DFF
+already restores declared speaker order inside the imported decoder.
+Options: leave Android to downmix; use imported placement/mix matrices in the adapter.
+Chosen: use `Media3Layout.forMask` for count-only Media3 placement and `Matrix.forLayouts`
+for smaller outputs. Preserve original PCM words for placement, zero-fill envelope gaps,
+and emit float for mixing without clipping before the existing session limiter. Convert
+DSD masks to WAVE bits; propagate WavPack and WMA Pro/lossless masks without changing codecs.
+Containers with count-only layouts retain Media3's count convention. Partial/unknown named
+masks are typed unsupported refusals rather than guessed speaker positions.
+The playback factory supplies the media route's reported maximum count on API 33+ at
+stream open; absent counts and API 31–32 retain the source envelope with an explicit log.
+Offline provider extraction retains its source envelope. The imported matrix supports
+mono/stereo reductions, so a smaller 3–7 channel route uses stereo (within its limit)
+instead of silently dropping speakers. No decoder order, limiter or 001 behavior changes.
+Revisit if: a task adds route-change reconfiguration, pre-33 route detection, or imported
+matrices gain intermediate multichannel downmix targets; device listening remains T013/owner work.

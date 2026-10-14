@@ -185,6 +185,7 @@ internal class ProviderExtractorsFactory(
     private val providers: List<DecoderProvider>,
     private val base: ExtractorsFactory = DefaultExtractorsFactory(),
     private val recorder: ProviderRecorder,
+    private val maxOutputChannels: () -> Int = { 8 },
 ) : ExtractorsFactory {
 
     // WavExtractor cannot decode MS-ADPCM, and G.711 needs an available platform
@@ -224,10 +225,15 @@ internal class ProviderExtractorsFactory(
         }
     }
 
+    private fun configured(extractor: Extractor): Extractor = extractor.also {
+        (it.underlyingImplementation as? com.amwolfstein.sistrum.player.decoders.kotlin.KotlinDecodingExtractor)
+            ?.maxOutputChannels = maxOutputChannels
+    }
+
     override fun createExtractors(): Array<Extractor> {
         val extractors = base.createExtractors().toMutableList()
         for (provider in providers) {
-            for (factory in provider.extractors()) extractors += factory()
+            for (factory in provider.extractors()) extractors += configured(factory())
         }
         return extractors.map { withLameProvenance(withPcmFallback(it)) }.toTypedArray()
     }
@@ -243,7 +249,7 @@ internal class ProviderExtractorsFactory(
         }
         for (provider in providers) {
             for (factory in provider.extractors()) {
-                extractors += tagSniff(withLameProvenance(factory())) { recorder.record(key, provider.id) }
+                extractors += tagSniff(withLameProvenance(configured(factory()))) { recorder.record(key, provider.id) }
             }
         }
         return extractors.toTypedArray()

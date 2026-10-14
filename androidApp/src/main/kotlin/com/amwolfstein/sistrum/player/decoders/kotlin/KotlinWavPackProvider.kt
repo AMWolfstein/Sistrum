@@ -35,7 +35,7 @@ internal class KotlinWavPackProvider : DecoderProvider {
             else -> throw WavPackException(ErrorCode.UNSUPPORTED, "unsupported PCM width ${info.bits}")
         }
         return object : CodecStream {
-            override val info = CodecStream.Info(info.sampleRate, info.channels, encoding, info.totalSamples)
+            override val info = CodecStream.Info(info.sampleRate, info.channels, encoding, info.totalSamples, channelMask = info.channelMask.toInt())
             override fun decodeBlock() = wv.decodeBlock()
             override fun seekSample(sample: Long) = wv.seekSample(sample)
         }

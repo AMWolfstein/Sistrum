@@ -4,11 +4,11 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T009 committed. Codex hit its usage limit during T009 (resets 21:22);
-  the owner asked Claude to finish T009 and Codex to resume from T010 after the reset.
+- **Phase:** M1 execution — T001–T009 committed; T010 implemented and verified, commit bundle prepared
+  for the runner on `feature/media3-migration`.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Next step:** T010 (multichannel), then T011, T012, T012a (all AIFF through WaxFlow's decoder,
+- **Next step:** runner commits/pushes T010, then T011, T012, T012a (all AIFF through WaxFlow's decoder,
   owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
   spec-traceability-auditor, audio-correctness-reviewer, port-fidelity-checker on the imported decoders;
   confirmed findings → `T013-fix`; plus a one-time `codebase-archaeologist` drift audit across eras, findings to
@@ -17,13 +17,14 @@
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-20 records the ALAC packet renderer, shared audio sink and error attribution.
+- **New decision:** D-23 records adapter speaker masks, placement and device-count downmix limits.
   Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T010; commit: prepared (runner pending) | GATE: PASS on attempt 2; 104 host tests, zero failures/errors/skips; compileDevQaKotlin PASS. Eight new ChannelMapperTest tests cover 3ch/5.1/reordered 6ch corpora, placement, analytic downmix gains, integer/float conversion, refusals, seeks/EOS/storage and wrapped-provider output limits. Existing tests unchanged. D-23 records API 33+ route counts, logged unknown/pre-33 limits, and stereo reductions for smaller intermediate layouts. Graph changed; both generated artifacts included. Files/impact/commands detailed below. Full suites, lint, assemble, phone, listening and benchmarks NOT RUN: T013/M6/owner scope. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | D-22 languages: English + Arabic only (owner; done by Claude with a Haiku subagent, not Codex, owner instruction) | Removed 11 unreviewed locales + stale `values-en`; `locales_config.xml` en, ar. `ArabicTranslationCompletenessTest` 2 tests PASS; `assembleDevQa` PASS; `lintDevQa` 0 errors (71 warnings). Added agent `translation-reviewer`. |
 | 2026-10-14 | T009 finished by Claude (owner instruction; Codex quota out) | GATE: PASS (quick); `:androidApp:testDevQaUnitTest --tests com.amwolfstein.sistrum.player.decoders.*` 92 tests, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (11,028 nodes, 32,723 edges). Root cause of the attempt-3 failure: Media3's FragmentedMp4Extractor uses android.util.Pair (null on the plain host stub), not the URI. Fix: host MP4 test runs the full demux for the five ordinary MP4 files and only extractor selection for the three fragmented goldens, whose Media3 demux moves to T012 on `.qa` (D-20). Codex's attempt-4 Robolectric change (build.gradle.kts + SDK jars) reverted: too heavy for one test. Existing-test edits reviewed (ALAC skip → fallback per US1 acceptance 3; provider lists gain kotlin-alac): spec-backed, nothing weakened. Full suites/lint/assemble/device NOT RUN: T013 scope. |
 | 2026-10-14 | T009; commit: none (three attempts exhausted; finished by Claude in 81688a3, row above) | GATE: FAIL on attempt 3; 79 tests, 1 failure, 0 errors/skips; production compile PASS; MP4 integration test fails in Media3 default extractor creation on the plain Android host stub. Attempts 1/2 failed production pool-array nullability/test DiscardingTrackOutput compilation respectively; both corrected. D-20 records implementation choices. No commit bundle; T009 unchecked. Full suites/lint/assemble/device/performance/listening NOT RUN: later milestone/owner scope. Staging/commit/push NOT RUN: failed gate, AGENTS.md steps 5/9. |
@@ -41,6 +42,68 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T010 verification and impact review
+
+- Initial state: `feature/media3-migration`, clean working tree, no `.codex-commit/`.
+  Read Current status and T010 first; scoped research/spec review to R4 and FR-006.
+- Impact before edits (`git grep`): every Kotlin stream provider constructs `CodecStream.Info`;
+  provider factories consume `KotlinDecodingExtractor`; playback uses `ProviderExtractorsFactory`.
+  DSD rate conversion copies Info, preserving the new mask. Existing adapter/provider/registry/factory
+  tests must remain unchanged and did. Room, analysis documents, preferences, provider ordering,
+  PlaybackController, audio limiter and imported module APIs/output remain unchanged.
+- Required files and reasons (reviewed for smallest diff):
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/ChannelMapper.kt`:
+    source-mask validation, imported placement/mix coefficients, PCM word placement and float mixing.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinDecodingExtractor.kt`:
+    mapped Format/PCM packing and typed unsupported attribution.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/CodecStream.kt`:
+    optional WAVE speaker mask at the adapter boundary; old overloads retained.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinDsdProvider.kt`:
+    DSF/DFF Android-to-WAVE mask conversion and WavPack DSD mask propagation.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinWavPackProvider.kt`:
+    propagate declared WavPack PCM/float mask.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/KotlinWmaProvider.kt`:
+    propagate selected WMA Pro/lossless masks; codec implementation untouched.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/ProviderExtractorsFactory.kt`:
+    pass playback output limit through provider wrappers in both factory entry points.
+  - `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3PlayerFactory.kt`:
+    query media route channel counts at stream open on API 33+, explicitly log absent/pre-33 reports.
+  - `androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/decoders/kotlin/ChannelMapperTest.kt`:
+    eight new regression tests; canonical DSF PCM checks DFF order at DSD64/128/256,
+    analytic mix-1 coefficients independently check every stereo corpus sample exactly.
+  - `specs/002-kotlin-decoders/tasks.md`, `HANDOFF.md`, `DECISIONS.md`: task completion,
+    evidence, per-file scope reasons and D-23. Generated `graphify-out/graph.json` and
+    `graphify-out/.graphify_analysis.json`: required graph refresh artifacts, not manually edited.
+- Before both gates: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
+  `rg MemAvailable /proc/meminfo`: 3,496,380 / 3,577,916 kB, both above 2 GB.
+- Gate command: `bash .claude/skills/verify-task/scripts/verify.sh --files '<production/test/docs paths above>'
+  --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.player.decoders.*'
+  --tests '*ProviderExtractorsFactoryTest'`.
+  Attempt 1 `/tmp/verify-task.DpGovp`: 103 tests, two failures in new tests only,
+  zero errors/skips, production compilation PASS. The placement fixture incorrectly used
+  a complete 4ch envelope; corrected to a 5ch layout missing centre. The analytic reference
+  rounded coefficients prematurely; now rounds once from double precision and requires
+  exact float equality (stronger assertion, no existing expected values changed).
+  Attempt 2 `/tmp/verify-task.gQmtXZ`: **GATE: PASS**, 104 tests, zero failures/errors/skips,
+  `:androidApp:compileDevQaKotlin` PASS; graph changed (11,096 nodes, 32,857 edges).
+- Final `python3 .claude/hooks/graph_refresh.py auto`: graph changed (11,096 nodes,
+  32,857 edges); both generated files included. `git diff --check`: PASS.
+- Unrelated changes appeared during the run in `CLAUDE.md`,
+  `.claude/skills/delegate-task/SKILL.md`, `.claude/skills/delegate-task/scripts/dispatch.sh`
+  and `.claude/skills/delegate-task/scripts/milestone-run.sh`; left untouched and excluded
+  from the task commit bundle.
+- Self-review PASS: no existing tests weakened/deleted/skipped; no features disabled;
+  unsupported layout errors preserve typed causes and existing provider attribution;
+  unavailable route reports are logged. Placement preserves original PCM words and gaps
+  are zero-filled; mixed peaks are left to the existing limiter. Tests cover integer
+  depths, raw/native floats, odd channel limits, 192 kHz seeks, EOS and storage reuse.
+- NOT RUN: full app/sharedLogic/module suites, lint, assemble and phone checks (T013);
+  benchmarks (M6); listening/Bluetooth/headset checks (owner manual list).
+  No module source/API changes, so module downstream gates are not triggered.
+  Git staging/commit/push NOT RUN (AGENTS.md step 5: runner consumes `.codex-commit/`).
+- Follow-ups outside T010: pre-33 route detection, hot-route reconfiguration and intermediate
+  multichannel downmix matrices, if separately assigned. D-23 documents these practical limits.
 
 ## T009 verification (superseded attempt history; finished in 81688a3)
 
