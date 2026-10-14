@@ -14,6 +14,6 @@ Downstream evidence last refreshed: 2026-10-14 with
 | `:metadata` | androidApp | `./gradlew :metadata:test` | API/tag-output change → `:androidApp:testDevQaUnitTest --tests 'com.amwolfstein.sistrum.sync.*'`. |
 | `:analysis` | androidApp | `./gradlew :analysis:test` | Feature/version change → `:androidApp:testDevQaUnitTest --tests 'com.amwolfstein.sistrum.analysis.*'`. |
 | `:sharedLogic` | androidApp | `./gradlew :sharedLogic:testAndroidHostTest` | Any change → full `:androidApp:testDevQaUnitTest`. |
-| androidApp | — | `./gradlew :androidApp:testDevQaUnitTest` (narrow with `--tests` per task) + `:androidApp:compileDevQaKotlin` | Milestone end: full suite, lint, `assembleDevQa`, `.qa` device classes. |
+| androidApp | — | `./gradlew :androidApp:testDevQaUnitTest` (narrow with `--tests` per task) + `:androidApp:compileDevQaKotlin` | `player.decoders` change (table, providers, registry) → also `--tests 'com.amwolfstein.sistrum.sync.*'` and `'…analysis.*'` (`RegistryScanGate` and `OfflineDecoder` use the registry; missed T006–T009, found in T011). Milestone end: full suite, lint, `assembleDevQa`, `.qa` device classes. |
 
 Every important defect fixed must name its regression test here or in the task's HANDOFF row.

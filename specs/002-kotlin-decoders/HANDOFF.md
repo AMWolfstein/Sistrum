@@ -4,11 +4,11 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T009 committed; T010 implemented and verified, commit bundle prepared
-  for the runner on `feature/media3-migration`.
+- **Phase:** M1 execution — T001–T011 committed (T011 finished by Claude after Codex BLOCKED); runner next: T012, T012a.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Next step:** runner commits/pushes T010, then T011, T012, T012a (all AIFF through WaxFlow's decoder,
+- **Next step:** T012,
+  T012a (all AIFF through WaxFlow's decoder,
   owner-approved); then the milestone review (CLAUDE.md: silent-failure-hunter, pr-test-analyzer, kotlin-reviewer,
   spec-traceability-auditor, audio-correctness-reviewer, port-fidelity-checker on the imported decoders;
   confirmed findings → `T013-fix`; plus a one-time `codebase-archaeologist` drift audit across eras, findings to
@@ -24,6 +24,8 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T011 finished by Claude (owner rule 2026-10-14: no Astra fallback, Claude takes failed tasks) | Kept Codex's OfflineDecoder change (registry built from the injected providers, decode-failure log with provider + typed refusal, cancellation not logged) after diff review. Fixes: offline matrix picks integer AIFF (float AIFF joins in T012a, task line extended); `sync/ScanGateTest` had 3 stale expectations since T006–T009 (DSD/WMA/IMA4/ALAC now admitted) that the filtered quick gates never ran: updated with spec reason, skip/no-device intents kept via TTA and AC-3; `docs/REGRESSION.md` now sends decoder changes to `sync.*` + `analysis.*`. GATE: PASS, full `testDevQaUnitTest` 1354 tests 0 fail (1 corpus skip), sharedLogic PASS, `assembleDevQa` PASS, graph changed. migration-guard: PASS (non-blocking: one always-true assert in the corpus test, root-cause-only failure message). Lint/device NOT RUN: T013 scope. |
+| 2026-10-14 | T011; commit: none (BLOCKED, retry limit) | GATE: FAIL on attempt 3; 164 tests discovered: 162 pass, 1 failure, 1 existing assumption skip; compileDevQaKotlin PASS. New offline matrix reaches `waxflow-testdata/sine-f32.aiff`, refused by the current AiffExtractor with `float AIFF-C (fl32)`; float AIFF support is T012a, outside this task. Attempt 1: new-test AudioSink configuration constructor mismatch. Attempt 2: host Uri.EMPTY stub caused a null pointer in Media3's default extractor factory; added an empty-base test seam (production default unchanged). Attempt 3 logs: `/tmp/verify-task.zwi8L9`; earlier logs: `/tmp/verify-task.mAsA5G`, `/tmp/verify-task.1WSE1O`. Existing WaxFlowOracleLoudnessTest was NOT RUN because SISTRUM_CORPUS is unset (assumption skip, not PASS). Graph refreshed by the gate: changed (11,129 nodes, 32,980 edges). Full suites/sharedLogic, lint, assemble, ExoPlayer scheduling/device checks NOT RUN: T013 scope. Commit preparation/staging/commit/push NOT RUN: gate failed. Existing tests untouched. |
 | 2026-10-14 | T010; commit: prepared (runner pending) | GATE: PASS on attempt 2; 104 host tests, zero failures/errors/skips; compileDevQaKotlin PASS. Eight new ChannelMapperTest tests cover 3ch/5.1/reordered 6ch corpora, placement, analytic downmix gains, integer/float conversion, refusals, seeks/EOS/storage and wrapped-provider output limits. Existing tests unchanged. D-23 records API 33+ route counts, logged unknown/pre-33 limits, and stereo reductions for smaller intermediate layouts. Graph changed; both generated artifacts included. Files/impact/commands detailed below. Full suites, lint, assemble, phone, listening and benchmarks NOT RUN: T013/M6/owner scope. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | D-22 languages: English + Arabic only (owner; done by Claude with a Haiku subagent, not Codex, owner instruction) | Removed 11 unreviewed locales + stale `values-en`; `locales_config.xml` en, ar. `ArabicTranslationCompletenessTest` 2 tests PASS; `assembleDevQa` PASS; `lintDevQa` 0 errors (71 warnings). Added agent `translation-reviewer`. |
 | 2026-10-14 | T009 finished by Claude (owner instruction; Codex quota out) | GATE: PASS (quick); `:androidApp:testDevQaUnitTest --tests com.amwolfstein.sistrum.player.decoders.*` 92 tests, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (11,028 nodes, 32,723 edges). Root cause of the attempt-3 failure: Media3's FragmentedMp4Extractor uses android.util.Pair (null on the plain host stub), not the URI. Fix: host MP4 test runs the full demux for the five ordinary MP4 files and only extractor selection for the three fragmented goldens, whose Media3 demux moves to T012 on `.qa` (D-20). Codex's attempt-4 Robolectric change (build.gradle.kts + SDK jars) reverted: too heavy for one test. Existing-test edits reviewed (ALAC skip → fallback per US1 acceptance 3; provider lists gain kotlin-alac): spec-backed, nothing weakened. Full suites/lint/assemble/device NOT RUN: T013 scope. |
@@ -455,3 +457,34 @@
   `Unable to create .../worktrees/Sistrum-UI/index.lock: Read-only file system`.
   `findmnt` confirms the worktree metadata mount is `ro`. Nothing staged; push NOT RUN (no commit).
   An unrelated concurrent edit to `AGENTS.md` was observed and left untouched.
+
+## T011 blocked implementation and impact review
+
+- Initial state: correct branch `feature/media3-migration`, no `.codex-commit/`; pre-existing edits in
+  `CLAUDE.md` and `.claude/skills/delegate-task/{SKILL.md,scripts/dispatch.sh,scripts/milestone-run.sh}`
+  were left untouched and must not be included in a future T011 bundle.
+- Impact before edits (source searches, then checked with `git grep`): LoudnessAnalysisWorker constructs
+  OfflineDecoder for analysis and foreground passes; device analysis/resume/normalization benchmarks also
+  construct it. AnalyzerTrackMeasurer maps the existing DecodeOutcome contract; DecodeFailureLog is shared
+  with playback and Settings. ALAC's provider has a sink-aware renderer overload, which offline was not using.
+  No Room/schema, analysis-document, preference, provider-order, PlaybackController, or imported-module changes.
+  Existing analysis/provider tests must remain unchanged and did.
+- Required files: `analysis/OfflineDecoder.kt` wires sink-aware renderers, builds the default registry from
+  the same provider instances, uses recorder/registry attribution and the deepest typed refusal, and records
+  Failed outcomes in the existing failure sink with only the file name. Cancellation remains Cancelled; release
+  cleanup errors now log provider/cause. Internal factory/renderer/outcome seams permit host verification.
+  `test/analysis/OfflineDecoderKotlinFormatsTest.kt` covers six pinned fixture families, capture frame counts,
+  DSD provider inclusion, injected registry consistency, ALAC sink wiring, failure fields and cancellation.
+  HANDOFF records the blocker; graph files were generated by verify.sh, never manually edited.
+- Minimal-diff/self-review: all production changes are in OfflineDecoder; no feature removed, no tests deleted,
+  renamed, disabled, or weakened. No expected oracle value changed. Defaults preserve platform ordering and the
+  current AIFF provider. Float AIFF implementation was not attempted because it belongs to T012a.
+- Memory checks before all three gates: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'` (none running);
+  MemAvailable respectively 3,564,812 / 3,632,732 / 3,702,704 kB (each above 2 GB).
+- Gate command (attempt 3):
+  `bash .claude/skills/verify-task/scripts/verify.sh --files 'androidApp/src/main/kotlin/com/amwolfstein/sistrum/analysis/OfflineDecoder.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/analysis/OfflineDecoderKotlinFormatsTest.kt' --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.analysis.*' --tests 'com.amwolfstein.sistrum.player.decoders.kotlin.KotlinDsdProviderTest' --tests 'com.amwolfstein.sistrum.player.decoders.kotlin.KotlinAlacProviderTest'`.
+  Attempt 1 ran only the analysis filter; attempts 2/3 also ran unchanged DSD/ALAC regression classes.
+  `git diff --check` passed. No downstream module command required: no module code/API/output changed.
+- Remaining: in a fresh T011 session, review the matrix's AIFF selection against the currently supported envelope
+  (test accepted integer AIFF and separately assert the current float refusal, without changing T012a's scope).
+  Supply SISTRUM_CORPUS for the existing loudness oracle. Rerun the gate before ticking T011 or preparing a bundle.

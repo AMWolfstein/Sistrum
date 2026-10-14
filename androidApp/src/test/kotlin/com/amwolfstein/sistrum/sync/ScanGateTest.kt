@@ -74,18 +74,21 @@ class ScanGateTest {
     fun `registry gate skips formats the registry cannot play`() {
         val gate = RegistryScanGate(defaultDecoderRegistry(CodecProbe { true }))
         assertEquals(
-            Admission.Skipped("dsf", "dsf", "unsupported format (DSD)"),
-            gate.admit("dsf", "dsf") { ByteArray(it) },
+            Admission.Skipped("tta", "tta", "unsupported format (TTA)"),
+            gate.admit("tta", "tta") { ByteArray(it) },
         )
-        assertEquals(
-            Admission.Skipped("wma", "wma", "unsupported format (WMA)"),
-            gate.admit("wma", "wma") { ByteArray(it) },
-        )
+        // Spec 002 T006/T007: DSD and WMA now have Kotlin providers, so the scan admits them.
+        assertEquals(Admission.Admitted("kotlin-dsd"), gate.admit("dsf", "dsf") { ByteArray(it) })
+        assertEquals(Admission.Admitted("kotlin-wma"), gate.admit("wma", "wma") { ByteArray(it) })
 
+        // Spec 002 T009: without a platform ALAC decoder the Kotlin ALAC fallback plays it.
         val withoutAlac = RegistryScanGate(defaultDecoderRegistry(CodecProbe { it != "audio/alac" }))
+        assertEquals(Admission.Admitted("kotlin-alac"), withoutAlac.admit("m4a", "alac") { ByteArray(it) })
+
+        val withoutAc3 = RegistryScanGate(defaultDecoderRegistry(CodecProbe { it != "audio/ac3" }))
         assertEquals(
-            Admission.Skipped("m4a", "alac", "no decoder on this device (ALAC)"),
-            withoutAlac.admit("m4a", "alac") { ByteArray(it) },
+            Admission.Skipped("ac3", "ac3", "no decoder on this device (AC-3)"),
+            withoutAc3.admit("ac3", "ac3") { ByteArray(it) },
         )
     }
 
@@ -93,15 +96,16 @@ class ScanGateTest {
     fun `registry gate names the refusal and asks for the provider's header size`() {
         val gate = RegistryScanGate(defaultDecoderRegistry(CodecProbe { true }))
         var requested = 0
+        // Spec 002 T008: IMA4 AIFF-C is decoded by the Kotlin AIFF provider; float AIFF-C is still refused until T012a.
         assertEquals(
-            Admission.Skipped("aiff", "aiff", "compressed AIFF-C (ima4)"),
-            gate.admit("aiff", "aiff") { n -> requested = n; aiffHeader("AIFC", compression = "ima4") },
+            Admission.Admitted("kotlin-aiff"),
+            gate.admit("aiff", "aiff") { aiffHeader("AIFC", compression = "ima4") },
         )
-        assertEquals(4096, requested)
         assertEquals(
             Admission.Skipped("aiff", "aiff", "float AIFF-C (fl32)"),
-            gate.admit("aiff", "aiff") { aiffHeader("AIFC", compression = "fl32") },
+            gate.admit("aiff", "aiff") { n -> requested = n; aiffHeader("AIFC", compression = "fl32") },
         )
+        assertEquals(4096, requested)
     }
 
     @Test
