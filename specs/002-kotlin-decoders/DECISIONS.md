@@ -297,3 +297,31 @@ keeping malformed input distinct and preserving the parser message through the n
 Registry order remains Platform/WavPack/APE/Musepack/WMA, then DSD and the retained AIFF provider.
 Revisit if: T013 device output or M6 performance checks expose a supported-rate or seek issue.
 Channel placement/downmix remains T010; no imported codec API, filter, ADR or 001 behaviour changes.
+
+## D-19: PCM variants routing and the existing WAV IMA implementation
+Case: T008 offers the imported MS-ADPCM, QuickTime IMA4 and G.711 decoders without
+letting Media3 claim a WAV tag it cannot play. The imported ADPCM layouts are MS
+and QuickTime IMA4; WAV IMA remains implemented by Media3. Media3's WAV G.711
+extractor emits encoded audio/g711-alaw or audio/g711-mlaw and requires a device codec.
+Options:
+- Keep Media3 PCM/WAV IMA and available G.711 codecs first; use the Kotlin provider
+  for MS-ADPCM, unavailable WAV G.711 codecs and AIFF-C ima4/alaw/ulaw.
+- Duplicate the WAV IMA implementation or move every WAV ahead of the platform.
+Chosen: the first option. Decoder-table rows name the compressed variants; a WAV-only
+sniff wrapper declines MS-ADPCM and declines G.711 only when the platform provider's
+codec probe says unavailable. It preserves the underlying extractor and leaves platform
+PCM/float/WAV IMA selection intact. Chunk probes skip leading metadata, reset peek
+position and bound chunk counts; they do not decode packets during sniff.
+KotlinPcmVariantsProvider delegates decoding/seeking to AdpcmWav, Aiff and G711,
+emits reusable native 16-bit PCM with exact sample counts, and keeps unsupported
+container limits distinct from malformed packets while preserving parser messages.
+KotlinAiffProvider offers the compressed extractor before its unchanged PCM extractor,
+so resolving the existing aiff/aiff key also plays the newly supported compressions.
+Only ima4/alaw/ulaw refusals are lifted here. Other legacy refusals (including float,
+MACE and unknown AIFF-C compression) remain unchanged, as do the legacy extractor
+and its tests. No codec-module API or 001 uncompressed AIFF behaviour changes.
+The three existing provider-list assertions gain the T008 provider required by FR-001;
+no oracle, assertion strength, tests-first test or playback API changes.
+Revisit if: T013 device checks expose a G.711 capability mismatch, or a later task
+explicitly expands AIFF-C support beyond T008's named compressions. Channel mapping
+belongs to T010; offline provider integration belongs to T011.

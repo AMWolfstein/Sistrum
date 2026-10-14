@@ -17,7 +17,10 @@ import androidx.media3.extractor.SeekMap
 import androidx.media3.extractor.SniffFailure
 import androidx.media3.extractor.TrackOutput
 import androidx.media3.extractor.mp3.Mp3Extractor
+import androidx.media3.extractor.wav.WavExtractor
+import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinPcmVariantsProvider
 import com.amwolfstein.sistrum.player.decoders.DecoderProvider
+import com.amwolfstein.sistrum.player.decoders.FormatKey
 import java.io.EOFException
 import java.io.IOException
 
@@ -183,12 +186,27 @@ internal class ProviderExtractorsFactory(
     private val recorder: ProviderRecorder,
 ) : ExtractorsFactory {
 
+    // WavExtractor cannot decode MS-ADPCM, and G.711 needs an available platform
+    // codec. Route those unsupported paths to Kotlin; PCM/IMA stay platform-first.
+    private fun withPcmFallback(extractor: Extractor): Extractor =
+        if (extractor.underlyingImplementation is WavExtractor && providers.any { it.id == "kotlin-pcm-variants" }) {
+            object : Extractor by extractor {
+                override fun sniff(input: ExtractorInput): Boolean {
+                    val codec = KotlinPcmVariantsProvider.wavCodec(input)
+                    val platform = providers.firstOrNull { it.id == "platform" }
+                    if (codec == "msadpcm" || codec != null && platform?.isAvailable(FormatKey("wav", codec)) != true) return false
+                    return extractor.sniff(input)
+                }
+                override fun getUnderlyingImplementation(): Extractor = extractor.underlyingImplementation
+            }
+        } else extractor
+
     override fun createExtractors(): Array<Extractor> {
         val extractors = base.createExtractors().toMutableList()
         for (provider in providers) {
             for (factory in provider.extractors()) extractors += factory()
         }
-        return extractors.map(::withLameProvenance).toTypedArray()
+        return extractors.map { withLameProvenance(withPcmFallback(it)) }.toTypedArray()
     }
 
     override fun createExtractors(
@@ -198,7 +216,7 @@ internal class ProviderExtractorsFactory(
         val key = uri.toString()
         val extractors = mutableListOf<Extractor>()
         for (extractor in base.createExtractors(uri, responseHeaders)) {
-            extractors += tagSniff(withLameProvenance(extractor)) { recorder.record(key, "platform") }
+            extractors += tagSniff(withLameProvenance(withPcmFallback(extractor))) { recorder.record(key, "platform") }
         }
         for (provider in providers) {
             for (factory in provider.extractors()) {

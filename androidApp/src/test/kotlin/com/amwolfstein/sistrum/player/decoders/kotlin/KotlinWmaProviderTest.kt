@@ -156,7 +156,7 @@ class KotlinWmaProviderTest {
 
     @Test fun registryOffersWmaFamilyAfterPlatformAndPreservesOtherProviders() {
         val providers = defaultDecoderProviders(CodecProbe { false })
-        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-aiff"), providers.map { it.id })
+        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-pcm-variants", "kotlin-aiff"), providers.map { it.id })
         val p = KotlinWmaProvider()
         assertTrue(p.isAvailable(FormatKey("WMA", "wma")))
         assertFalse(p.isAvailable(FormatKey("flac", "flac")))

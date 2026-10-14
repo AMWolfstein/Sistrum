@@ -139,7 +139,7 @@ class KotlinWavPackProviderTest {
 
     @Test fun registryAddsWavPackAfterPlatformAndPreservesExistingProviders() {
         val providers = defaultDecoderProviders(CodecProbe { false })
-        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-aiff"), providers.map { it.id })
+        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-pcm-variants", "kotlin-aiff"), providers.map { it.id })
         assertEquals(provider.id, defaultDecoderRegistry(CodecProbe { false }).resolve(FormatKey("wv", "wv"))?.id)
         assertTrue(provider.isAvailable(FormatKey("WV", "wv")))
         assertFalse(provider.isAvailable(FormatKey("flac", "flac")))

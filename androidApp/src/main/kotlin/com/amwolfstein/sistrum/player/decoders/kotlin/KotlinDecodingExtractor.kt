@@ -201,6 +201,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
 
         private fun isUnsupported(error: IOException): Boolean = when (error) {
             is DsdUnsupportedException -> true
+            is PcmVariantUnsupportedException -> true
             is WavPackException -> error.code == ErrorCode.UNSUPPORTED
             is ApeException -> error.reason == ApeException.Reason.UNSUPPORTED
             is AlacException -> error.reason == AlacException.Reason.UNSUPPORTED
