@@ -169,6 +169,37 @@ But the short runs already show Media3 with crossfade off at about **2× native 
 SC-013's "no higher than native" would fail. The owner's Checkpoint M5 note applies: optimize (e.g. skip the float
 conversion for 16-bit input with a neutral chain). → follow-up task.
 
+## CPU steady state vs track change (T062g part 1, 2026-10-14, release-like `.qa`, on battery)
+
+`cpuPerEngineAndCrossfadeMode` seeks to the last 10 s of each track and preloads the next, so Media3 rebuilds codec,
+loader and AudioTrack 6 times a minute. `cpuSteadyAndTransition` plays gapless_flac_1 → 2 (35 s each, 16-bit 48 kHz)
+with no seeks and separates steady CPU (windows ≥ 5 s from the advance) from the cost of one gapless advance. Unit:
+% of one core, whole process (the test's own polling/sampling thread, ~3.5–4 %, is included in both engines).
+
+| Run | native steady | Media3 (crossfade off) steady | transition cost native / Media3 |
+|---|---|---|---|
+| 1 | 10.9 % | 18.6 % | −16 / 23 ms |
+| 2 | 11.2 % | 18.3 % | 6 / 51 ms |
+| 3 | 10.9 % | 18.8 % | 52 / −4 ms |
+| after `cmd package compile -m speed` | 11.4 % | 18.5 % | — |
+
+Median: native 10.9 %, Media3 18.6 % (1.7×). Track changes are noise (tens of ms of CPU each), so the gap is steady
+playback. Per thread (window A, ~25 s): Media3 `ExoPlayer:Playback` ~7.8 %, `MediaCodec_loop` ~2.2 %,
+`sistrum-player` ~1.7 %, latency probe `sistrum-mixer-probe` ~1 % (snapshot run); native `AudioTrack` ~2.7 %.
+
+simpleperf (profileable release-like build, 20 s, playback thread, inclusive): `doSomeWork` 90 %;
+`FloatChainAudioSink.handleBuffer` 32 % (of which `DefaultAudioSink.handleBuffer` 23 %, `AudioTrack` write 17 %, our DSP
+`processInput` 7.5 %); position tracking (`updatePlaybackPositions` / `AudioTrackPositionTracker`) 27 %; loading checks
+14 %. So the cost is Media3's 10 ms control loop, not our DSP chain (< 1 % of a core). 45 % of the thread's samples are in
+ART's interpreter and the app's AOT `base.odex` never appears (even after `compile -m speed`): under instrumentation the
+app's compiled code is not used, so these absolute numbers overstate a real install for Media3 (native's C path is
+unaffected).
+
+Dynamic scheduling (disabled in T020 for position freshness), temporary local toggle, 2 runs: Media3 steady **14.7 %**
+(14.65 / 14.74) vs native 10.7 / 11.0 %. But `Media3EngineCoreTest.unpausedPrepareEmitsOutputStartedOnceThenAdvancesMonotonically`
+fails with it on (2/2: "position drifted from wall time (t=201ms, p=50ms)"), so it needs a position-freshness fix
+before it can ship → T062g part 2.
+
 ## Summary
 
 | Criterion | Result |

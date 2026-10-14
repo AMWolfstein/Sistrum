@@ -1018,6 +1018,142 @@ class Regression001MeasurementTest {
         }
     }
 
+    @Test(timeout = 300_000)
+    fun cpuSteadyAndTransition() {
+        guard()
+        val files = fixtures("gapless_flac_1.flac", "gapless_flac_2.flac")
+        val ticksPerSecond = Os.sysconf(OsConstants._SC_CLK_TCK)
+        for (mode in listOf("native", "media3_off")) {
+            withEngine(mode == "native") { engine, _ ->
+                engine.setFocusGain(0f)
+                engine.setCrossfade(0L, true)
+                runBlocking { engine.prepare(item(files[0]), ItemGain.Unity, 0L, startPaused = true) }
+                runBlocking { engine.preloadNext(item(files[1]), ItemGain.Unity) }
+                val samples = mutableListOf<CpuSample>()
+                var advances = 0
+                var errors = 0
+                var advanceAtMs: Long? = null
+                val start = SystemClock.elapsedRealtime()
+                fun sample() {
+                    val elapsedMs = SystemClock.elapsedRealtime() - start
+                    val ticks = processTicks()
+                    // A's end is only known after the advance. Retain snapshots so its
+                    // thread endpoints can be selected retrospectively without any seeks.
+                    samples += CpuSample(elapsedMs, ticks, cpuThreadSnapshot())
+                }
+                sample()
+                engine.play()
+                var nextSampleMs = 1_000L
+                while (true) {
+                    for (event in engine.pollEvents()) {
+                        when (event) {
+                            is EngineEvent.GaplessAdvanced -> {
+                                advances++
+                                if (advanceAtMs == null) {
+                                    advanceAtMs = SystemClock.elapsedRealtime() - start
+                                }
+                            }
+                            is EngineEvent.Error -> errors++
+                            else -> Unit
+                        }
+                    }
+                    val elapsedMs = SystemClock.elapsedRealtime() - start
+                    if (elapsedMs >= nextSampleMs) {
+                        sample()
+                        nextSampleMs = (elapsedMs / 1_000L + 1L) * 1_000L
+                    }
+                    if (elapsedMs >= 65_000L) break
+                    SystemClock.sleep(minOf(20L, nextSampleMs - elapsedMs, 65_000L - elapsedMs))
+                }
+                val wallMs = SystemClock.elapsedRealtime() - start
+                val advance = advanceAtMs
+                // With no advance, all playback after warm-up is still window A.
+                val a = cpuSteadyWindow(samples, 5_000L, advance?.minus(5_000L) ?: 63_000L)
+                val b = advance?.let { cpuSteadyWindow(samples, it + 5_000L, 63_000L) }
+                fun percent(window: Pair<CpuSample, CpuSample>?): Double {
+                    if (window == null) return Double.NaN
+                    return (window.second.ticks - window.first.ticks) * 1000.0 / ticksPerSecond *
+                        100.0 / (window.second.elapsedMs - window.first.elapsedMs)
+                }
+                val windows = listOfNotNull(a, b)
+                val steadyMs = windows.sumOf { it.second.elapsedMs - it.first.elapsedMs }
+                val steadyTicks = windows.sumOf { it.second.ticks - it.first.ticks }
+                val steadyPct = if (steadyMs > 0L) {
+                    steadyTicks * 1000.0 / ticksPerSecond * 100.0 / steadyMs
+                } else Double.NaN
+                // Interpolate at the event-relative boundaries: using only interior
+                // samples would shorten this window while subtracting a full 10 s.
+                val transitionCpuMs = if (advance != null) {
+                    (cpuTicksAt(samples, advance + 5_000L) - cpuTicksAt(samples, advance - 5_000L)) *
+                        1000.0 / ticksPerSecond - steadyPct / 100.0 * 10_000.0
+                } else Double.NaN
+                row("cpuSteady mode=$mode steadyPct=${number(steadyPct)} steadyAPct=${number(percent(a))} " +
+                    "steadyBPct=${number(percent(b))} transitionCpuMs=${number(transitionCpuMs)} " +
+                    "advances=$advances errors=$errors advanceAtMs=${number(advance?.toDouble() ?: Double.NaN)} " +
+                    "wallMs=$wallMs")
+                a?.let { cpuThreadRows(mode, "A", it, ticksPerSecond) }
+                b?.let { cpuThreadRows(mode, "B", it, ticksPerSecond) }
+            }
+        }
+    }
+
+    private data class CpuThread(val name: String, val ticks: Long, val startTicks: Long)
+    private data class CpuSample(val elapsedMs: Long, val ticks: Long, val threads: Map<String, CpuThread>)
+
+    private fun cpuThreadSnapshot(): Map<String, CpuThread> {
+        val threads = mutableMapOf<String, CpuThread>()
+        for (task in File("/proc/self/task").listFiles().orEmpty()) {
+            try {
+                val stat = File(task, "stat").readText()
+                val close = stat.lastIndexOf(')')
+                val name = stat.substring(stat.indexOf('(') + 1, close)
+                val fields = stat.substring(close + 1).trim().split(Regex("\\s+"))
+                threads[task.name] = CpuThread(name, fields[11].toLong() + fields[12].toLong(),
+                    fields[19].toLong())
+            } catch (_: java.io.IOException) {
+                // A thread may exit between listing its TID and reading its stat.
+            }
+        }
+        return threads
+    }
+
+    private fun cpuSteadyWindow(
+        samples: List<CpuSample>, fromMs: Long, toMs: Long,
+    ): Pair<CpuSample, CpuSample>? {
+        val inside = samples.filter { it.elapsedMs in fromMs..toMs }
+        if (inside.size < 2 || inside.last().elapsedMs <= inside.first().elapsedMs) return null
+        return inside.first() to inside.last()
+    }
+
+    private fun cpuTicksAt(samples: List<CpuSample>, elapsedMs: Long): Double {
+        val before = samples.lastOrNull { it.elapsedMs <= elapsedMs } ?: return Double.NaN
+        val after = samples.firstOrNull { it.elapsedMs >= elapsedMs } ?: return Double.NaN
+        if (before.elapsedMs == after.elapsedMs) return before.ticks.toDouble()
+        return before.ticks + (after.ticks - before.ticks) *
+            (elapsedMs - before.elapsedMs).toDouble() / (after.elapsedMs - before.elapsedMs)
+    }
+
+    private fun cpuThreadRows(
+        mode: String, window: String, endpoints: Pair<CpuSample, CpuSample>, ticksPerSecond: Long,
+    ) {
+        val (before, after) = endpoints
+        var liveTicks = 0L
+        for ((tid, endThread) in after.threads) {
+            val startThread = before.threads[tid] ?: continue
+            // A reused TID is a new thread, even if it has the same comm.
+            if (startThread.startTicks != endThread.startTicks) continue
+            val delta = endThread.ticks - startThread.ticks
+            liveTicks += delta
+            if (delta > 0L) {
+                row("cpuThread mode=$mode window=$window name=${endThread.name} " +
+                    "cpuMs=${number(delta * 1000.0 / ticksPerSecond)}")
+            }
+        }
+        val otherTicks = after.ticks - before.ticks - liveTicks
+        row("cpuThread mode=$mode window=$window name=<exited or new> " +
+            "cpuMs=${number(otherTicks * 1000.0 / ticksPerSecond)}")
+    }
+
     @Test(timeout = 480_000)
     fun sc006StartBreakdown() {
         guard()
