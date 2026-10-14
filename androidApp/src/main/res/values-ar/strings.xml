@@ -537,12 +537,12 @@
     <string name="loudness_analysis_now_title">جارٍ تحليل الجهارة</string>
     <string name="loudness_analysis_cancel">إلغاء</string>
     <plurals name="loudness_analysis_now_progress">
-        <item quantity="zero">%1$d من %2$d مسار · يستهلك البطارية</item>
-        <item quantity="one">%1$d من %2$d مسار · يستهلك البطارية</item>
-        <item quantity="two">%1$d من %2$d مسارين · يستهلك البطارية</item>
-        <item quantity="few">%1$d من %2$d مسارات · يستهلك البطارية</item>
-        <item quantity="many">%1$d من %2$d مسارًا · يستهلك البطارية</item>
-        <item quantity="other">%1$d من %2$d مسار · يستهلك البطارية</item>
+        <item quantity="zero">%1$d من %2$d مقطع · يستهلك البطارية</item>
+        <item quantity="one">%1$d من %2$d مقطع · يستهلك البطارية</item>
+        <item quantity="two">%1$d من %2$d مقطعين · يستهلك البطارية</item>
+        <item quantity="few">%1$d من %2$d مقاطع · يستهلك البطارية</item>
+        <item quantity="many">%1$d من %2$d مقطعًا · يستهلك البطارية</item>
+        <item quantity="other">%1$d من %2$d مقطع · يستهلك البطارية</item>
     </plurals>
 
     <string name="playback_normalization_requires_media3">يتطلب محرك التشغيل الجديد</string>
@@ -556,11 +556,11 @@
     <string name="playback_loudness_analysis_stop">إيقاف</string>
     <string name="playback_loudness_analysis_battery">يستهلك البطارية</string>
     <plurals name="playback_loudness_analysis_progress">
-        <item quantity="zero">تحليل الجهارة: %1$d من %2$d مسار</item>
-        <item quantity="one">تحليل الجهارة: %1$d من %2$d مسار</item>
-        <item quantity="two">تحليل الجهارة: %1$d من %2$d مسارين</item>
-        <item quantity="few">تحليل الجهارة: %1$d من %2$d مسارات</item>
-        <item quantity="many">تحليل الجهارة: %1$d من %2$d مسارًا</item>
-        <item quantity="other">تحليل الجهارة: %1$d من %2$d مسار</item>
+        <item quantity="zero">تحليل الجهارة: %1$d من %2$d مقطع</item>
+        <item quantity="one">تحليل الجهارة: %1$d من %2$d مقطع</item>
+        <item quantity="two">تحليل الجهارة: %1$d من %2$d مقطعين</item>
+        <item quantity="few">تحليل الجهارة: %1$d من %2$d مقاطع</item>
+        <item quantity="many">تحليل الجهارة: %1$d من %2$d مقطعًا</item>
+        <item quantity="other">تحليل الجهارة: %1$d من %2$d مقطع</item>
     </plurals>
 </resources>
