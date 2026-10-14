@@ -141,3 +141,30 @@ Options: merge the four resources; select one resource; exclude them.
 Chosen: merge with Android Gradle's `packaging.resources.merges`, retaining all four notices in the APK.
 No reflection keep rules are added (research R1).
 Revisit if: a module changes its notice resource path or release packaging reports another collision.
+
+## D-12: Compilable tests-first bridge for the Pattern A adapter
+
+Case: T002 must compile and fail on assertions before T003 creates `CodecStream` and
+`KotlinDecodingExtractor`; T003 must make those tests pass without editing them.
+Options:
+- Reflect only at construction, using a proxy fake stream and the existing Media3 interfaces for execution.
+  This keeps production files untouched and allows real output, seeking and allocation assertions.
+- Add production placeholders in T002. This violates the tests-only task boundary.
+Chosen: the reflection bridge. A missing class becomes an assertion failure; other exceptions propagate.
+The local adapter API fixed by these tests (not a change to Pattern A or any ADR) is:
+- `CodecStream` is an interface: `val info: Info`, `fun decodeBlock(): codecs.audio.Buffer?`,
+  `fun seekSample(sample: Long)` and `val refusal: Exception?` (null for accepted streams).
+  `Info(sampleRate: Int, channels: Int, pcmEncoding: Int, totalSamples: Long)` is nested in `CodecStream`.
+  `Buffer` is borrowed/reused; float PCM uses raw IEEE-754 words, as in `Wv.decodeBlock()`.
+- `KotlinDecodingExtractor(sniff: (ByteArray) -> Boolean, open: (RandomAccessSource) -> CodecStream)`
+  implements Media3 `Extractor`. Sniffing must not open or decode the stream.
+- Its companion's `refusal(header: ByteArray, open: (RandomAccessSource) -> CodecStream): String?`
+  exposes typed unsupported refusal text to `DecoderProvider.refusal`; accepted or unrelated headers return null.
+  Extraction wraps a refused stream in `ParserException`, retaining its typed exception as the cause.
+- Seeking uses the requested time's integer sample target; the seek point's time is that sample's floored
+  microsecond timestamp. Decode positions and total sample counts use `Long`.
+- The host allocation test measures exactly zero bytes over 512 reads after 20,000 warm-up reads, using
+  HotSpot's thread allocated-byte counter with a positive control. Proxy setup, reflection construction and
+  assertions are outside the measured window; the fake and track output reuse their storage inside it.
+Revisit if: T003 cannot satisfy this API within the existing architecture; stop and report the conflict,
+without changing T002's tests or the ADRs.
