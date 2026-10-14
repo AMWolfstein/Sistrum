@@ -4,28 +4,24 @@
 
 ## Current status
 
-- **Phase:** M1 execution — T001–T007 committed (T007: `245e349`); T008 adds MS-ADPCM
-  WAV, fallback WAV G.711 and AIFF-C ima4/alaw/ulaw via the PCM-variants provider.
-  All 14 original fixtures pass exact oracle PCM and forward/backward/end seek checks.
-  Media3 retains PCM/WAV IMA and available G.711 codec priority; legacy AIFF refusals outside
-  T008's named compressions remain unchanged. Final quick gate: 67 tests, zero failures/errors/skips.
+- **Phase:** M1 execution — T001–T009 committed. Codex hit its usage limit during T009 (resets 21:22);
+  the owner asked Claude to finish T009 and Codex to resume from T010 after the reset.
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
-- **Blocked:** nothing. T008's commit is prepared in `.codex-commit/` for the runner;
-  Git staging/commit/push are NOT RUN here per AGENTS.md step 5.
-- **Next step:** runner commits/pushes T008 on `feature/media3-migration`, then T009 supplies
-  the ALAC renderer fallback. Channel mapping/downmix belongs to T010, offline integration to T011,
-  and full/device validation to T013.
+- **Next step:** T010 (multichannel), then T011, T012, T012a (all AIFF through WaxFlow's decoder,
+  owner-approved), T013 (M1 full gate + phone check). Runner: `milestone-run.sh --tasks "T010 T011 T012 T012a T013"`.
 - **Early host speed signal (T004):** 72 PCM/float files, five warmups/five measured loops per file;
   RTF min/median/max 0.000485809 / 0.005968458 / 0.021165319 (slowest 47.247× real time).
   This is the provider extraction path on a laptop, not SC-005's CPH2307 performance result.
-- **New decision:** D-19 records PCM-variant routing, Media3's WAV IMA ownership and the
-  G.711 codec capability check. Execution by Codex in autonomous mode (D-9).
+- **New decision:** D-20 records the ALAC packet renderer, shared audio sink and error attribution.
+  Execution by Codex in autonomous mode (D-9).
 
 ## Task log (newest first)
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-14 | T009 finished by Claude (owner instruction; Codex quota out) | GATE: PASS (quick); `:androidApp:testDevQaUnitTest --tests com.amwolfstein.sistrum.player.decoders.*` 92 tests, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (11,028 nodes, 32,723 edges). Root cause of the attempt-3 failure: Media3's FragmentedMp4Extractor uses android.util.Pair (null on the plain host stub), not the URI. Fix: host MP4 test runs the full demux for the five ordinary MP4 files and only extractor selection for the three fragmented goldens, whose Media3 demux moves to T012 on `.qa` (D-20). Codex's attempt-4 Robolectric change (build.gradle.kts + SDK jars) reverted: too heavy for one test. Existing-test edits reviewed (ALAC skip → fallback per US1 acceptance 3; provider lists gain kotlin-alac): spec-backed, nothing weakened. Full suites/lint/assemble/device NOT RUN: T013 scope. |
+| 2026-10-14 | T009; commit: none (three attempts exhausted) | GATE: FAIL on attempt 3; 79 tests, 1 failure, 0 errors/skips; production compile PASS; MP4 integration test fails in Media3 default extractor creation on the plain Android host stub. Attempts 1/2 failed production pool-array nullability/test DiscardingTrackOutput compilation respectively; both corrected. D-20 records implementation choices. No commit bundle; T009 unchecked. Full suites/lint/assemble/device/performance/listening NOT RUN: later milestone/owner scope. Staging/commit/push NOT RUN: failed gate, AGENTS.md steps 5/9. |
 | 2026-10-14 | T008; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 67 tests, zero failures/errors/skips; compileDevQaKotlin PASS. Broader attempt 2 PASS: 87 tests including previous provider corpus regressions. All 14 PCM-variant fixtures match oracle hashes and exact seek tails; WAV PCM/float/IMA and available G.711 retain platform priority. Named unsupported and malformed failures preserve causes/provider logging. D-19 records routing and scope. Attempt 1 FAIL: new fixture count was 12 instead of 14 and wrapper did not expose underlying implementation; corrected inventory and forwarding. Attempt 3 validates the AIFF-only extractor restriction and all 21 adapter contracts through the suite. Graph refreshed; both artifacts included. Full app/sharedLogic/module suites, lint, assemble, phone and speed checks NOT RUN: T013/M6 scope. Staging/commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T007; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 79 app tests, 0 failures/errors/skips; :codecs:test UP-TO-DATE (1,477 cached passing tests); compileDevQaKotlin PASS; graph changed (10,834 nodes, 32,284 edges), both artifacts included. Production DSF/DFF and WavPack DSD PCM/seek tails match exactly; 352.8/705.6 kHz targets match :dsp HQ conversion and exact seeks. DST refusal and corrupt WavPack retain typed failures/provider logging. D-18 records production/reference distinctions and rate conversion. Attempt 1 FAIL: new test assumptions incorrectly treated production 6ch DFF as refused and corrupt WavPack as playable; corrected coverage per imported production behaviour and fixture status. Attempt 2 FAIL: missing provider header-probe size; fixed to 4 KiB. Full app/sharedLogic/other module suites, lint, assemble, DSD speed and phone checks NOT RUN: T013/M6 scope. Commit/push NOT RUN: runner handles Git metadata. |
 | 2026-10-14 | T006; commit: prepared for runner (SHA pending) | GATE: PASS on final attempt 3; 73 tests, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed (10,768 nodes, 32,103 edges), both artifacts included. All 52 playable WMA-family fixtures match exact oracle bytes and forward/backward/end seeks; all 15 refusals retain named typed causes and provider logging. Understated/unknown ASF durations preserve full PCM and seeks beyond estimates. D-17 records dispatch/duration/packing and the oracle label limitation. Attempt 1 FAIL: packing storage grew; fixed capacity reservation. Attempt 2 FAIL: new format assertion trusted outer WAVE tag; corrected per FR-002 and the imported raw-float oracle, retaining exact hashes/depth/encoding checks. Full suites, sharedLogic/module suites, lint, assemble, WMA speed and phone checks NOT RUN: T013/M6 scope. Commit/push NOT RUN: runner handles Git metadata. |
@@ -40,6 +36,58 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T009 verification (BLOCKED; uncommitted)
+
+- Branch verified as `feature/media3-migration`; initial working tree clean and no pending
+  `.codex-commit/` directory. No Git metadata commands were run.
+- Memory check before each attempt: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
+  `MemAvailable` 3,804,540 / 3,795,516 / 3,766,156 kB, all above 2 GB.
+- Required quick gate, all three attempts:
+  `bash .claude/skills/verify-task/scripts/verify.sh --files '<T009 paths listed below plus task/graph documents>' --quick ':androidApp:testDevQaUnitTest' --tests '*Kotlin*ProviderTest' --tests '*KotlinDecoderAdapterTestSuite' --tests '*DecoderRegistryTest' --tests '*ProviderExtractorsFactoryTest'`.
+  Attempt logs: `/tmp/verify-task.nDFoY9`, `/tmp/verify-task.mzU14t`, `/tmp/verify-task.c0ZOvE`.
+  Attempt 1: pool arrays violated Media3's nonnull Kotlin signature; fixed the empty-array casts
+  (SimpleDecoder fills them during construction). Attempt 2: test used the old DummyTrackOutput
+  name; changed to Media3 1.11.1's DiscardingTrackOutput. Production compile PASS on attempt 2.
+  Packet-dump golden inputs with unknown total count now use the indexed durations for the exact
+  expected sample-count assertion, following the imported AlacPackets contract.
+- Final attempt 3: `GATE: FAIL`; 79 tests, 1 failure, 0 errors/skips; production
+  `:androidApp:compileDevQaKotlin` PASS. All four other new ALAC tests PASS: eight pinned
+  packet dumps match exact native 16/24/32-bit oracle PCM, repeated output storage is reused,
+  packet timestamps/EOS and forward/backward flush replay match, platform priority is retained,
+  malformed packets and mono/stereo-only configuration refusals preserve typed causes/messages.
+  The unchanged adapter suite and prior provider/registry/extractor-factory regressions PASS.
+- Attempt 3's MP4 test fails at default extractor creation, before sniff/demux assertions.
+  Exact cause: `NullPointerException: Cannot invoke "android.net.Uri.getLastPathSegment()"
+  because "uri" is null` in `FileTypes.inferFileTypeFromUri`, called from Media3's
+  DefaultExtractorsFactory and ProviderExtractorsFactory. XML: 5 ALAC tests, 1 failure.
+  The default no-URI factory calls its URI overload with `Uri.EMPTY`; the plain host uses Android
+  stubs. A subsequent session should inject an ExtractorsFactory returning a real Mp4Extractor,
+  retaining the full original-source hash, canonical cookie, packet/timestamp, native PCM hash,
+  seekability, platform priority and provider-attribution assertions. Do not skip the test.
+- Production changes (under `androidApp/src/main/kotlin/com/amwolfstein/sistrum/`):
+  `player/decoders/kotlin/KotlinAlacProvider.kt` (new packet SimpleDecoder/renderer/provider),
+  `player/decoders/DecoderRegistry.kt` (platform-first ALAC registration),
+  `player/decoders/DecoderProvider.kt` and `player/media3/Media3PlayerFactory.kt`
+  (additive player-owned sink/event hook), `player/media3/ProviderExtractorsFactory.kt`
+  (ALAC renderer attribution after Media3 MP4 demux). These supporting paths are necessary
+  to make the named provider usable and keep normalization/DSP/error reporting intact.
+- Tests (under `androidApp/src/test/kotlin/com/amwolfstein/sistrum/`):
+  `player/decoders/kotlin/KotlinAlacProviderTest.kt` (new), `player/decoders/DecoderRegistryTest.kt`,
+  `player/decoders/kotlin/KotlinApeMusepackProviderTest.kt`, `KotlinWavPackProviderTest.kt`,
+  `KotlinWmaProviderTest.kt`. The three exact provider-list assertions gain kotlin-alac;
+  the registry's old ALAC skip test now asserts the fallback required by T009/US1 acceptance 3.
+  No tests deleted, ignored, skipped or weakened; no oracle or T002 tests-first changes.
+- Documents: HANDOFF.md and DECISIONS.md (D-20). tasks.md remains unchanged/T009 unchecked.
+  Gate-generated artifacts: graphify-out/graph.json and graphify-out/.graphify_analysis.json.
+- Migration review: PlaybackController, Room, native code, daily apps, ADRs and architecture
+  untouched; existing features retained. No other milestone task implemented.
+- Graph refresh ran successfully in all gates (final: 11,026 nodes / 32,721 edges),
+  followed by the explicit autonomous graph refresh after this handoff update.
+  `git diff --check` PASS. Both generated graph artifacts remain in the uncommitted diff.
+- NOT RUN: full app/sharedLogic/module suites, lint, assemble and phone checks (T013), phone
+  speed/seek-latency/CPU (T013/M6), real listening/Bluetooth/headset (owner manual checks),
+  Git staging/commit/push and commit preparation (gate failed; three-attempt limit).
 
 ## T008 verification
 

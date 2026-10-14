@@ -19,6 +19,7 @@ import androidx.media3.extractor.TrackOutput
 import androidx.media3.extractor.mp3.Mp3Extractor
 import androidx.media3.extractor.wav.WavExtractor
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinPcmVariantsProvider
+import androidx.media3.common.MimeTypes
 import com.amwolfstein.sistrum.player.decoders.DecoderProvider
 import com.amwolfstein.sistrum.player.decoders.FormatKey
 import java.io.EOFException
@@ -201,6 +202,28 @@ internal class ProviderExtractorsFactory(
             }
         } else extractor
 
+    // MP4 extraction still belongs to Media3, but ALAC decode failures must name
+    // the software renderer when the platform lacks the codec.
+    internal fun withAlacAttribution(extractor: Extractor, uri: String): Extractor {
+        if (providers.none { it.id == "kotlin-alac" && it.isAvailable(FormatKey("m4a", "alac")) }) return extractor
+        return object : Extractor by extractor {
+            override fun init(output: ExtractorOutput) {
+                extractor.init(object : ExtractorOutput {
+                    override fun track(id: Int, type: Int): TrackOutput =
+                        object : ForwardingTrackOutput(output.track(id, type)) {
+                            override fun format(format: Format) {
+                                if (format.sampleMimeType == MimeTypes.AUDIO_ALAC) recorder.record(uri, "kotlin-alac")
+                                super.format(format)
+                            }
+                        }
+                    override fun endTracks() = output.endTracks()
+                    override fun seekMap(seekMap: SeekMap) = output.seekMap(seekMap)
+                })
+            }
+            override fun getUnderlyingImplementation(): Extractor = extractor.underlyingImplementation
+        }
+    }
+
     override fun createExtractors(): Array<Extractor> {
         val extractors = base.createExtractors().toMutableList()
         for (provider in providers) {
@@ -216,7 +239,7 @@ internal class ProviderExtractorsFactory(
         val key = uri.toString()
         val extractors = mutableListOf<Extractor>()
         for (extractor in base.createExtractors(uri, responseHeaders)) {
-            extractors += tagSniff(withLameProvenance(withPcmFallback(extractor))) { recorder.record(key, "platform") }
+            extractors += tagSniff(withAlacAttribution(withLameProvenance(withPcmFallback(extractor)), key)) { recorder.record(key, "platform") }
         }
         for (provider in providers) {
             for (factory in provider.extractors()) {

@@ -56,10 +56,11 @@ class DecoderRegistryTest {
     }
 
     @Test
-    fun `m4a alac without a platform decoder is skipped`() {
+    fun `m4a alac without a platform decoder uses Kotlin fallback`() {
         val registry = defaultDecoderRegistry(probeOf("audio/mp4a-latm"))
-        assertNull(registry.resolve(FormatKey("m4a", "alac")))
-        assertEquals("no decoder on this device (ALAC)", registry.skipReason(FormatKey("m4a", "alac")))
+        // 002 T009 / US1 acceptance 3 adds ALAC only when the platform lacks it.
+        assertEquals("kotlin-alac", registry.resolve(FormatKey("m4a", "alac"))?.id)
+        assertNull(registry.skipReason(FormatKey("m4a", "alac")))
     }
 
     @Test

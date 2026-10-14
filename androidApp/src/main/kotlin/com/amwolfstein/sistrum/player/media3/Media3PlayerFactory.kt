@@ -218,7 +218,6 @@ internal class Media3PlayerFactory(
         if (!dspChainEnabled && gainUnavailableLogged.compareAndSet(false, true)) {
             Log.i("Media3Engine", "DSP chain disabled; per-track normalization gain is not applied")
         }
-        val providerRenderers = providers.flatMap { it.audioRenderers(context) }
         val renderersFactory = object : DefaultRenderersFactory(context) {
             override fun buildAudioSink(
                 context: Context,
@@ -291,7 +290,7 @@ internal class Media3PlayerFactory(
                     eventListener,
                     out,
                 )
-                out.addAll(providerRenderers)
+                out.addAll(providers.flatMap { it.audioRenderers(context, audioSink, eventHandler, eventListener) })
             }
         }
         val builder = ExoPlayer.Builder(context)

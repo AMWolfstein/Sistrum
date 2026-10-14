@@ -117,7 +117,7 @@ class KotlinApeMusepackProviderTest {
 
     @Test fun registryAddsBothProvidersWithPlatformFirstAndRetainsWavpackAndAiff() {
         val providers = defaultDecoderProviders(CodecProbe { false })
-        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-pcm-variants", "kotlin-aiff"), providers.map { it.id })
+        assertEquals(listOf("platform", "kotlin-wavpack", "kotlin-ape", "kotlin-musepack", "kotlin-wma", "kotlin-dsd", "kotlin-pcm-variants", "kotlin-alac", "kotlin-aiff"), providers.map { it.id })
         for ((extension, p) in listOf("ape" to KotlinApeProvider(), "mpc" to KotlinMusepackProvider())) {
             assertEquals(p.id, defaultDecoderRegistry(CodecProbe { false }).resolve(FormatKey(extension, extension))?.id)
             assertTrue(p.isAvailable(FormatKey(extension.uppercase(), extension)))

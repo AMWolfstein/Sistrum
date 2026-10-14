@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.player.decoders
 
 import com.amwolfstein.sistrum.player.decoders.aiff.KotlinAiffProvider
+import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinAlacProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinWavPackProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinApeProvider
 import com.amwolfstein.sistrum.player.decoders.kotlin.KotlinPcmVariantsProvider
@@ -112,8 +113,8 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
         DecoderTableEntry("aac", "aac", listOf("platform"), listOf("audio/mp4a-latm"), "AAC"),
         DecoderTableEntry("m4a", "aac", listOf("platform"), listOf("audio/mp4a-latm"), "AAC"),
         DecoderTableEntry("mp4", "aac", listOf("platform"), listOf("audio/mp4a-latm"), "AAC"),
-        DecoderTableEntry("m4a", "alac", listOf("platform"), listOf("audio/alac"), "ALAC"),
-        DecoderTableEntry("mp4", "alac", listOf("platform"), listOf("audio/alac"), "ALAC"),
+        DecoderTableEntry("m4a", "alac", listOf("platform", "kotlin-alac"), listOf("audio/alac"), "ALAC"),
+        DecoderTableEntry("mp4", "alac", listOf("platform", "kotlin-alac"), listOf("audio/alac"), "ALAC"),
         DecoderTableEntry("m4a", "flac", listOf("platform"), listOf("audio/flac"), "FLAC"),
         DecoderTableEntry("mp4", "flac", listOf("platform"), listOf("audio/flac"), "FLAC"),
         DecoderTableEntry("m4a", "opus", listOf("platform"), listOf("audio/opus"), "Opus"),
@@ -197,7 +198,7 @@ val DefaultDecoderTable: DecoderTable = DecoderTable(
  * (T038) so the table lookup and the player's extractors cannot drift apart.
  */
 fun defaultDecoderProviders(probe: CodecProbe): List<DecoderProvider> =
-    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinApeProvider(), KotlinMusepackProvider(), KotlinWmaProvider(), KotlinDsdProvider(), KotlinPcmVariantsProvider(), KotlinAiffProvider())
+    listOf(PlatformProvider(DefaultDecoderTable, probe), KotlinWavPackProvider(), KotlinApeProvider(), KotlinMusepackProvider(), KotlinWmaProvider(), KotlinDsdProvider(), KotlinPcmVariantsProvider(), KotlinAlacProvider(probe), KotlinAiffProvider())
 
 /** The table-backed registry over [defaultDecoderProviders]. */
 fun defaultDecoderRegistry(probe: CodecProbe): DecoderRegistry =

@@ -3,6 +3,9 @@
 package com.amwolfstein.sistrum.player.decoders
 
 import android.content.Context
+import android.os.Handler
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.extractor.Extractor
 
@@ -25,6 +28,14 @@ interface DecoderProvider {
     fun extractors(): List<() -> Extractor>
 
     fun audioRenderers(context: Context): List<Renderer> = emptyList()
+
+    /** Player-owned sink preserves normalization/DSP for software audio renderers. */
+    fun audioRenderers(
+        context: Context,
+        audioSink: AudioSink,
+        eventHandler: Handler,
+        eventListener: AudioRendererEventListener,
+    ): List<Renderer> = audioRenderers(context)
 
     /**
      * How many leading file bytes [refusal] needs to decide; 0 means the provider

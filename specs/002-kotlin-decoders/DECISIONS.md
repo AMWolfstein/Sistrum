@@ -325,3 +325,51 @@ no oracle, assertion strength, tests-first test or playback API changes.
 Revisit if: T013 device checks expose a G.711 capability mismatch, or a later task
 explicitly expands AIFF-C support beyond T008's named compressions. Channel mapping
 belongs to T010; offline provider integration belongs to T011.
+
+## D-20: ALAC packet renderer and the player-owned audio sink
+Case: T009 adds ALAC-in-MP4 fallback using the imported access-unit decoder, while
+Media3 already supplies canonical 24-byte ALAC cookies, packets, timing and trimming.
+The original provider renderer hook accepted only Context and could not share the
+player's normalization/DSP sink or stream gain callbacks.
+Options:
+- Keep Media3 demux and audio/alac; gate the Kotlin SimpleDecoder renderer with
+  CodecProbe and pass the player-owned sink/event handler/listener through an additive hook.
+- Rewrite demuxed MIME values or build a separate sink with duplicate DSP configuration.
+Chosen: the first option. Both exact ALAC registry rows keep platform first and add
+kotlin-alac second. Renderer creation and capability checks decline ALAC whenever
+CodecProbe finds a platform decoder. Other MIME types remain unsupported by this renderer.
+The existing context-only provider hook remains available; its new overload delegates
+by default, preserving other providers. Media3PlayerFactory calls the new hook with
+its existing float/int sink so normalization, DSP and stream gain boundaries are retained.
+No MIME rewrite is necessary: unavailable platform ALAC support already lets Media3
+select the software renderer. This retains R2's packet-decoder renderer pattern.
+KotlinAlacDecoder uses fixed input/output pools and maximum-frame PCM packing capacity,
+preserving 16/24/32-bit PCM (20-bit values are left-aligned in packed 24-bit output).
+ALAC packets are independent, so flush drops queued buffers without codec history reset.
+Media3 continues to own MP4 timestamps, seek/discard and gapless metadata. Configuration
+refusals are reported at decoder initialization with the typed cause and specific message;
+packet failures preserve the same information. Encrypted ALAC remains unsupported.
+A format-observing extractor wrapper attributes audio/alac to kotlin-alac only when the
+fallback is available; MP4 sniffing and underlying implementation remain Media3's.
+The registry test's old ALAC skip expectation changes explicitly for T009/US1 acceptance
+3, and three provider-list assertions gain the new provider. Goldens and tests-first
+contracts remain unchanged. Multichannel ALAC remains the imported decoder's named
+mono/stereo-only refusal; this task does not expand codec support.
+Revisit if: T013 device validation exposes codec-probe/sink incompatibility or MP4 trim
+issues. Channel mapping/rate conversion belongs to T010; offline integration to T011.
+
+Host verification uses the existing extractor-factory seam with real Media3 MP4 and
+fragmented-MP4 extractors. The three pinned `testdata/golden/` files contain `moof`
+fragments without `sidx`/`mfra`; the other five sources are ordinary MP4. R2 leaves
+container behavior with Media3, so the test asserts the exact extractor class and
+seekability for each form (unindexed fragments unseekable; ordinary MP4 seekable).
+This corrects the initial uncommitted test's assumption that all eight sources were
+seekable ordinary MP4; no packet, timestamp, cookie, PCM hash or source hash changes.
+Media3's FragmentedMp4Extractor builds its trex defaults with android.util.Pair, which the
+plain host stub returns as null, so on the host the three fragmented files are checked for
+extractor selection only; their Media3 demux runs on `.qa` in T012. Their packets and PCM
+are still checked against the oracle by the packet-dump tests. Robolectric was tried
+(attempt 4, cut off by Codex quota) and rejected by the orchestrator: it adds a framework
+SDK download and runtime to every app unit-test run for one test (2026-10-14).
+The five ordinary MP4 sources run the full demux with both platform-availability settings. No new demux
+or seek implementation is added, preserving R2 and 001's container behavior.
