@@ -15,11 +15,18 @@ private val NormalizationPreventClipKey = booleanPreferencesKey("normalization_p
 
 private val NormalizationUntaggedPreampKey = floatPreferencesKey("normalization_untagged_preamp_db")
 
+/** FR-047j seam: preserves today's stored-mode mapping for both install types. */
+internal fun normalizationModeFrom(stored: String?, existingInstall: Boolean): NormalizationMode =
+    if (stored == NormalizationMode.Album.name) NormalizationMode.Album else NormalizationMode.Track
+
+/** FR-047j seam: install detection is implemented in the following task. */
+internal fun isExistingInstall(hasAnyPlaybackPreference: Boolean, libraryDatabaseExists: Boolean): Boolean = false
+
 internal class NormalizationPreferences(private val context: Context) {
     val settings: Flow<NormalizationSettings> = context.playbackPreferencesDataStore.data.map { value ->
         NormalizationSettings(
             enabled = value[NormalizationEnabledKey] ?: false,
-            mode = if (value[NormalizationModeKey] == NormalizationMode.Album.name) NormalizationMode.Album else NormalizationMode.Track,
+            mode = normalizationModeFrom(value[NormalizationModeKey], false),
             targetLufs = (value[NormalizationTargetKey] ?: -14f).coerceIn(-30f, -5f),
             preventClip = value[NormalizationPreventClipKey] ?: true,
             untaggedPreampDb = (value[NormalizationUntaggedPreampKey] ?: 0f).coerceIn(-15f, 15f),
@@ -30,7 +37,7 @@ internal class NormalizationPreferences(private val context: Context) {
         context.playbackPreferencesDataStore.edit { values ->
             val current = NormalizationSettings(
                 values[NormalizationEnabledKey] ?: false,
-                if (values[NormalizationModeKey] == NormalizationMode.Album.name) NormalizationMode.Album else NormalizationMode.Track,
+                normalizationModeFrom(values[NormalizationModeKey], false),
                 (values[NormalizationTargetKey] ?: -14f).coerceIn(-30f, -5f), values[NormalizationPreventClipKey] ?: true,
                 (values[NormalizationUntaggedPreampKey] ?: 0f).coerceIn(-15f, 15f),
             )

@@ -1016,6 +1016,26 @@ New package root: `AN/` = `androidApp/src/main/kotlin/me/misa198/airmedy/analysi
 
 ---
 
+## Milestone M9 — Normalization Auto mode (owner plan Part 1, 2026-10-14; FR-047j)
+
+- [x] T065 [TESTS-FIRST] Auto mode tests (normalization area = high risk). Host tests, expected-fail against seams:
+  `NormalizationMode.Auto` (sharedLogic enum, order Auto, Track, Album), `resolveNormalizationMode(mode,
+  queueSingleAlbum)` and `queueIsSingleAlbum(albumIds)` (seams returning the old behaviour), `PlayerEngine
+  .setQueueSingleAlbum` (no-op in both engines), `StreamGainControl(settings, queueSingleAlbum: () -> Boolean)`.
+  Cases: one album in order → album gain; one album shuffled → album gain; mixed queue incl. two adjacent same-album
+  tracks → track gain; adding another album's track to a single-album queue → playing track unchanged, next stream
+  start track gain; removing it → album gain again from the next start; missing album loudness → track gain; Track
+  and Album regression; crossfade: outgoing and incoming keep their own start-time gains; coordinator publishes
+  `setQueueSingleAlbum` on every queue change; persistence: absent value on a new install → Auto, absent on an
+  existing install → Track, stored values kept. Files: `AT/player/normalization/AutoModeTest.kt`,
+  `AT/player/media3/StreamGainControlAutoTest.kt`, `AT/player/PlaybackCoordinatorAutoModeTest.kt`,
+  `AT/player/NormalizationPreferencesAutoTest.kt`. {hard} [HIGH-RISK]
+- [ ] T066 Implement T065: resolution in `StreamGainControl` at each stream start (Media3Engine passes the engine's
+  `@Volatile` queue flag), coordinator computes the flag from the queue's album ids on every queue change (bounded
+  cost for 20k-item queues), native engine treats Auto as Track, preference seeding for new vs existing installs,
+  Settings "Mode" = Auto / Track / Album with English and Arabic labels only (`ArabicTranslationCompletenessTest`
+  green). Make T065 pass unmodified; device: `NormalizationLevelDeviceTest` still passes. {hard} [HIGH-RISK]
+
 ## Dependencies
 
 - M1 → everything. T001 blocks all device work and T002–T006. T002 (S1) blocks M7; T003/T004 (S2/S3) block M5

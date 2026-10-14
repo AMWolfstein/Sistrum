@@ -199,6 +199,7 @@ internal class FakeLibrary : LibraryPort {
     var analysisEnabled = true
     var moodTracks: List<MoodRadioTrack> = emptyList()
     var analyses: Map<String, TrackAnalysis> = emptyMap()
+    var libraryTracks: List<LibraryTrack> = emptyList()
 
     var activeAnalysesCalls = 0
     var disableNormalizationCalls = 0
@@ -208,7 +209,7 @@ internal class FakeLibrary : LibraryPort {
         return analyses
     }
 
-    override suspend fun tracks(): List<LibraryTrack> = emptyList()
+    override suspend fun tracks(): List<LibraryTrack> = libraryTracks
 
     override suspend fun disableNormalization() {
         disableNormalizationCalls++
@@ -222,6 +223,7 @@ internal class FakeLibrary : LibraryPort {
 /** Resolves any id to a deterministic [PlaybackItem]; ids in [missing] resolve to null. */
 internal class FakeResolver : PlaybackItemResolver {
     val missing = mutableSetOf<String>()
+    val albumIds = mutableMapOf<String, String>()
 
     /** Number of times [resolve] was invoked; FR-087 asserts no whole-library resolution. */
     var resolveCalls = 0
@@ -243,6 +245,7 @@ internal class FakeResolver : PlaybackItemResolver {
             artist = "Artist",
             audioPath = "/music/$trackId.flac",
             artworkPath = "/art/$trackId.jpg",
+            albumId = albumIds[trackId] ?: "",
         )
     }
 }

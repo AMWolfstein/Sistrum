@@ -125,6 +125,15 @@ known limitations and edge cases.
   defer. SC-013 is recorded as NOT MET for 001 and moves to the later cleanup/perf phase (dynamic scheduling + crossfade
   timing rework + measurement on a real install); the owner's 1 h screen-off check stays deferred.
 
+### Session 2026-10-14 (owner plan, Part 1: normalization "Auto" mode)
+
+- Owner decision (spec change, `specs/002-kotlin-decoders/OWNER-PLAN-2026-10-14.md`): add a third normalization mode,
+  "Auto", the default for new installs; existing installs keep their stored mode → FR-047j, T065/T066.
+- Orchestrator clarifications (owner unavailable by plan; recommended options): a one-item queue counts as "one album";
+  an item with a blank album id never matches (so such a queue is mixed); a settings change during playback (e.g.
+  switching to Auto) applies at once as today (FR-046a) — only queue changes wait for the next track start; the native
+  engine treats Auto as Track (normalization is Media3-only, FR-045).
+
 ### Session 2026-10-13 (owner, T051d speed stop)
 
 - Q: The first analysis of the owner's library measured above the 5 h estimate (Opus decode 143 ms per audio second
@@ -638,6 +647,14 @@ FR-040…FR-041 and FR-047 govern tracks that are not analyzed yet (tag gains); 
   folder fallback is not an album.
 - **FR-047g**: Stored analysis data MUST stay small and bounded per track regardless of track length (histogram,
   not raw blocks), so large libraries stay practical (Principle 10).
+- **FR-047j** (owner, 2026-10-14): Normalization MUST offer a third mode, **Auto**, next to Track and Album (Settings:
+  Auto / Track / Album). Auto is decided per queue item when that item's stream starts, never mid-track: **album** gain
+  when every item in the current queue has the same non-blank album id (regardless of shuffle or order), otherwise
+  **track** gain. A queue change is re-evaluated only at the next track start; the playing track keeps its gain. Each
+  gain keeps the existing precedence (measured → tags → unity + untagged pre-amp); an album without album loudness uses
+  track gain for that item. In a crossfade each player keeps the gain decided at its own start. Track and Album keep
+  their behaviour exactly. Persistence: the existing preference; an absent value means Auto only on a new install,
+  while an existing install keeps its effective mode (Track when nothing was stored).
 - **FR-047i** (owner, 2026-10-08): The normalization settings MUST offer "Analyze now", clearly labelled as using
   the battery: a foreground run without the charging constraint (foreground service type `mediaProcessing` on
   Android 15+, `dataSync` on Android 14), with a progress notification and a Cancel action. Any stop, including the
@@ -789,7 +806,7 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
 - **Loudness analysis**: per track: integrated loudness, true peak, sample peak, status, file fingerprint,
   analyzer version, and a loudness histogram for album gating.
 - **Album loudness**: per album: gated integrated loudness, true peak, member count and members fingerprint.
-- **Normalization settings**: enabled, target LUFS (→ global pre-amp), track/album mode, clip prevention,
+- **Normalization settings**: enabled, target LUFS (→ global pre-amp), auto/track/album mode (FR-047j), clip prevention,
   untagged pre-amp.
 - **Equalizer settings**: 10 band gains, preamp, stereo width (unchanged).
 - **Test corpus file**: format, codec, bit depth/rate, tag form(s), expected gain.
@@ -878,7 +895,6 @@ current engine itself, its native code and `FfmpegDecoder` are not modified (FR-
 - The on-device loudness analyzer is part of this feature (2026-10-08). The Mood part (Mood Radio features) is
   a separate later feature (`research/analyzer-future.md`); until then Mood Radio stays unavailable to
   listeners, but its machinery is kept working and tested with supplied data.
-- Future note (after the migration, not in scope): a possible automatic Track/Album mode would be based
-  on the queue's source (album page = album gain; playlist, mixed queue or shuffle = track gain), never on
-  adjacent tracks (`research/future-settings.md`).
+- The automatic mode is now in scope as FR-047j (owner, 2026-10-14), based on the queue's album ids rather than its
+  source page; it still never looks only at adjacent tracks.
 - Removing the native player, the FFmpeg build and the NDK is feature 003, not this feature.

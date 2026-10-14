@@ -2,7 +2,7 @@ package com.amwolfstein.sistrum.player
 
 import kotlin.math.min
 
-enum class NormalizationMode { Track, Album }
+enum class NormalizationMode { Auto, Track, Album }
 
 data class NormalizationSettings(
     val enabled: Boolean = false,

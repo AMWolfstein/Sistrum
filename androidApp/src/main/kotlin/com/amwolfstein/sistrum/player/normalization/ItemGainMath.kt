@@ -28,7 +28,7 @@ internal fun itemGainDb(info: GainInfo, settings: NormalizationSettings, untagge
     if (settings.preventClip) {
         val peak = when (settings.mode) {
             NormalizationMode.Album -> usablePeak(info.albumPeak) ?: usablePeak(info.trackPeak)
-            NormalizationMode.Track -> usablePeak(info.trackPeak)
+            NormalizationMode.Auto, NormalizationMode.Track -> usablePeak(info.trackPeak)
         }
         if (peak != null) {
             gain = minOf(gain, -20f * log10(peak))

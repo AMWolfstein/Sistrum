@@ -7,6 +7,7 @@ import com.amwolfstein.sistrum.player.normalization.itemGainDb
 /** Gain source is frozen for the entering stream; settings may retarget it at any time. */
 internal class StreamGainControl(
     private var settings: NormalizationSettings = NormalizationSettings(),
+    private val queueSingleAlbum: () -> Boolean = { false },
 ) {
     private var currentInfo: GainInfo? = null
     @Synchronized

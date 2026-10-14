@@ -726,6 +726,8 @@ internal class Media3Engine(
 
     override fun setGains(current: ItemGain, preloaded: ItemGain?) = Unit
 
+    override fun setQueueSingleAlbum(singleAlbum: Boolean) = Unit
+
     override fun setNormalization(settings: NormalizationSettings) {
         factory.call {
             normalizationSettings = settings

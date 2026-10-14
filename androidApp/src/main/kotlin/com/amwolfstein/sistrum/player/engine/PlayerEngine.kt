@@ -123,4 +123,7 @@ internal interface PlayerEngine : Closeable {
      * The native engine may treat this as a no-op.
      */
     fun setNormalization(settings: NormalizationSettings)
+
+    /** FR-047j: read at each stream start; native no-op */
+    fun setQueueSingleAlbum(singleAlbum: Boolean)
 }

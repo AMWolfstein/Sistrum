@@ -40,3 +40,13 @@ treated as absent; result clamped to −30…+20 dB.
 
 "Prevent clipping" off: no peak cap here, and the engine sets the session limiter stage to neutral parameters
 (FR-053; the effect itself stays enabled).
+
+## Auto mode (FR-047j, 2026-10-14)
+
+`itemGainDb` receives settings whose mode is already resolved to Track or Album. Resolution happens once per stream
+start: `resolveNormalizationMode(mode, queueSingleAlbum)` = Album if mode is Album, or mode is Auto and
+`queueSingleAlbum`; else Track. `queueSingleAlbum` = the queue is non-empty and every item has the same non-blank album
+id. The stream keeps its resolved mode until it ends. A settings change that switches the mode to Auto re-resolves at that
+moment; any other settings change (target, pre-amp, clip prevention, or Auto staying Auto) keeps the stream's resolved
+mode, so a crossfading pair keeps its two start-time decisions.
+

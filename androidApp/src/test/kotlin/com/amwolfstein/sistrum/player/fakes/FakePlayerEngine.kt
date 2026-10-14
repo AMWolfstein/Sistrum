@@ -79,6 +79,7 @@ internal class FakePlayerEngine(
     val crossfadeToCalls = mutableListOf<Pair<PlaybackItem, Long>>()
     val focusGains = mutableListOf<Float>()
     val normalizationCalls = mutableListOf<NormalizationSettings>()
+    val queueSingleAlbumCalls = mutableListOf<Boolean>()
     val gainCalls = mutableListOf<Pair<ItemGain, ItemGain?>>()
     val preloadCalls = mutableListOf<Pair<PlaybackItem, ItemGain>>()
     var closed: Boolean = false
@@ -218,6 +219,11 @@ internal class FakePlayerEngine(
     override fun setNormalization(settings: NormalizationSettings) {
         calls += "setNormalization"
         normalizationCalls += settings
+    }
+
+    override fun setQueueSingleAlbum(singleAlbum: Boolean) {
+        calls += "setQueueSingleAlbum"
+        queueSingleAlbumCalls += singleAlbum
     }
 
     override fun close() {

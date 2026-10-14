@@ -92,3 +92,10 @@ Consequences:
 - SC-004 is measured after analysis; tags remain covered by their own tests for not-yet-analyzed tracks.
 - The analyzer feature after 001 shrinks to Mood features (12 raw features, Mood Radio revival); it reuses this
   job, decode path and document writer.
+
+## Amendment 2026-10-14 (owner): Auto mode (FR-047j)
+
+A third mode, Auto, resolves per stream start to Album when every queue item shares one non-blank album id, else to
+Track; the resolved mode then feeds the unchanged rules above (album gain if present else track gain; album peak for
+clip prevention only when the resolved mode is Album). Default for new installs; existing installs keep their mode.
+

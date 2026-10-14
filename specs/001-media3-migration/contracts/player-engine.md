@@ -43,6 +43,7 @@ interface PlayerEngine : Closeable {
     fun setDsp(settings: EqualizerSettings)        // 10 bands, preamp, width
     fun setGains(current: ItemGain, preloaded: ItemGain?)   // native only: service-side analysis gain
     fun setNormalization(settings: NormalizationSettings)  // Media3: retargets both players, ramped (FR-046a)
+    fun setQueueSingleAlbum(singleAlbum: Boolean)        // FR-047j: read at each stream start; native no-op
 }
 
 sealed interface EngineEvent {

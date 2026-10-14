@@ -205,6 +205,8 @@ internal class LegacyNativeEngine(
 
     override fun setNormalization(settings: NormalizationSettings) = Unit
 
+    override fun setQueueSingleAlbum(singleAlbum: Boolean) = Unit
+
     override fun close() {
         port?.close()
         port = null
