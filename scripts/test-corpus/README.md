@@ -110,6 +110,6 @@ is clamped to the +20 dB sane-range bound; a bare number without a unit is accep
 inside that folder that are no longer in the corpus, writes no `.nomedia`, and triggers a
 MediaStore rescan. It never touches app data, installs or uninstalls anything, or stops an app.
 
-**The folder must be blocklisted in the owner's daily app** (`me.misa198.airmedy.dev`): without it
+**The folder must be blocklisted in the owner's daily apps** (`com.amwolfstein.sistrum.dev` and the previous Airmedy build): without it
 the corpus simply appears as music in the daily library. The `.qa` test build
-(`me.misa198.airmedy.dev.qa`) is the build the corpus is meant to be scanned by.
+(`com.amwolfstein.sistrum.dev.qa`) is the build the corpus is meant to be scanned by.
