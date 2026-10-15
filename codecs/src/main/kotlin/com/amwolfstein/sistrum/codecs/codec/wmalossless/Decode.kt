@@ -14,6 +14,8 @@ private object NotStarted:IOException("wmalossless: no seekable tile yet")
 
 /** Incremental form of Go's packet/frame callbacks: consume ready frames before another packet. */
 class Decoder(val cfg:Config) {
+ internal var decodedFrames=0L;private set
+
     init {cfg.validate()}
     private val frameLen=cfg.samplesPerFrame;private val frameLenBits=cfg.frameLenBits
     private val ch=Array(cfg.channels){Channel()};private val coded=BooleanArray(cfg.channels)
@@ -59,8 +61,20 @@ class Decoder(val cfg:Config) {
         }
         return null
     }
+    /** Header-only probe: predictors can restart only at a frame's seekable first tile. */
+    internal fun canStartPacket(pkt:ByteArray,length:Int):Boolean {
+        hdr.reset(pkt,length*8);hdr.skip(6);val continuation=hdr.bits(cfg.frameSizeBits)
+        hdr.check();val payload=length*8-hdr.pos
+        if(continuation>=payload)return false
+        r.reset(pkt,length*8);r.pos=hdr.pos+continuation
+        if(cfg.decodeFlags and 64!=0)r.skip(cfg.frameSizeBits)
+        tiling()
+        if(cfg.decodeFlags and 128!=0)r.skip(8)
+        if(r.bit()==1){if(r.bit()==1)r.skip(frameLenBits+1);if(r.bit()==1)r.skip(frameLenBits+1)}
+        val seekable=r.bit()==1;r.check();return seekable
+    }
     fun reset(){carry.reset();spare.reset();carryOpen=false;seq= -1;started=false;error=null;ready=false;r.reset(r.buf,0)}
-    private fun frame():Boolean {
+    private fun frame():Boolean {decodedFrames+=frameLen;
         val prefixed=cfg.decodeFlags and 64!=0;val start=r.pos;var frameBits=0
         if(prefixed){frameBits=r.bits(cfg.frameSizeBits);if(frameBits<2||start+frameBits>r.n)malformed("frame length prefix of $frameBits bits")}
         tiling()

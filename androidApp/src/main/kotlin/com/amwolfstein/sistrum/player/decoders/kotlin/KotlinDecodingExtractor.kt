@@ -108,7 +108,12 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
                 checkNotNull(output).seekMap(SampleSeekMap(info))
                 return Extractor.RESULT_CONTINUE
             }
-            checkNotNull(source).bind(input)
+            val source = checkNotNull(source)
+            if (input.position < source.resumePosition) {
+                seekPosition.position = source.resumePosition
+                return Extractor.RESULT_SEEK
+            }
+            source.bind(input)
             val codec = checkNotNull(stream)
             codec.refusal?.let { throw unsupported(it) }
             val info = checkNotNull(info)

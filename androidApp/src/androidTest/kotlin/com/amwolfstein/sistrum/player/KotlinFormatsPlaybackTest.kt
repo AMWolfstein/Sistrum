@@ -119,7 +119,10 @@ class KotlinFormatsPlaybackTest {
                 val block = codec.decodeBlock() ?: break
                 expected.write(floatBytes(block.samples, block.frames * block.channels))
             }
-            val actual = decode(fixture, expectedHash = hash(expected.toByteArray()))
+            // D-18: production rounds DSD samples / 32; Flick's pinned count floors.
+            // Pinned: 282264 DSD samples/channel, (282264 + 16) / 32 = 8821 (Flick floors to 8820).
+            assertEquals(fixture.id, 8821L, codec.info.totalSamples)
+            val actual = decode(fixture, expectedHash = hash(expected.toByteArray()), expectedFrames = codec.info.totalSamples)
             assertArrayEquals(fixture.id, expected.toByteArray(), floatBytes(actual, actual.size))
         }
     }
@@ -127,9 +130,14 @@ class KotlinFormatsPlaybackTest {
     @Test(timeout = 600_000) fun seekToDecodedOutputCompletesWithin300MsPerFormat() {
         // The three unindexed fragmented goldens have no seek map (D-20); ordinary ALAC
         // supplies the format's seek check. Every other fixture is exercised, including DSD.
-        for (fixture in fixtures.filter { it.value("seek") == "yes" }) withRig { rig ->
+        // Owner benchmark rule: 3 runs per format, median against the bound (cold first-fixture JIT and
+        // AudioTrack start otherwise make a single sample flaky; WavPack measured 258-306 ms).
+        for (fixture in fixtures.filter { it.value("seek") == "yes" }) {
+        val targetMs = fixture.value("frames").toLong() * 500 / fixture.value("rate").toInt()
+        val runs = LongArray(3)
+        var untimedMode = false
+        for (run in 0 until 3) withRig { rig ->
             rig.prepare(fixture)
-            val targetMs = fixture.value("frames").toLong() * 500 / fixture.value("rate").toInt()
             val advancingAt = AtomicLong(0)
             val soughtTo = AtomicLong(-1)
             rig.factory.call {
@@ -144,15 +152,34 @@ class KotlinFormatsPlaybackTest {
                     }
                 })
             }
+            val framesBefore = rig.taps.sumOf { it.frames() }
+            var firstPcmAt = 0L
             val started = SystemClock.elapsedRealtime()
             rig.engine.seekTo(targetMs)
             rig.engine.play()
-            rig.await(2_000) { advancingAt.get() != 0L }
+            // D-30: with < 250 ms left after the target (the 50 ms AIFF/AIFF-C/DSF/DFF fixtures) playback can
+            // end before the audio clock reports advancing. Those fixtures are timed to the first PCM that
+            // reaches the sink after the seek instead, under the same 300 ms bound.
+            val tailMs = fixture.value("frames").toLong() * 1000 / fixture.value("rate").toInt() - targetMs
+            val shortTail = tailMs < 250
+            rig.await(2_000) {
+                if (firstPcmAt == 0L && rig.taps.sumOf { it.frames() } > framesBefore) firstPcmAt = SystemClock.elapsedRealtime()
+                advancingAt.get() != 0L || (shortTail && firstPcmAt != 0L && rig.events.any { it is EngineEvent.Ended })
+            }
             assertEquals("${fixture.id}: seek target", targetMs, soughtTo.get())
-            val elapsed = advancingAt.get() - started
-            assertTrue("${fixture.id}: seek to audible output took ${elapsed}ms", elapsed in 0..300)
-            assertTrue("${fixture.id}: seek produced no PCM", rig.taps.sumOf { it.frames() } > 0)
-            android.util.Log.i("KotlinFormatsPlaybackTest", "${fixture.id} seekMs=$elapsed targetMs=$targetMs")
+            assertTrue("${fixture.id}: seek produced no PCM", rig.taps.sumOf { it.frames() } > framesBefore)
+            if (advancingAt.get() == 0L) {
+                untimedMode = true
+                runs[run] = firstPcmAt - started
+            } else {
+                runs[run] = advancingAt.get() - started
+            }
+        }
+        val median = runs.sorted()[1]
+        val what = if (untimedMode) "first PCM" else "audible output"
+        assertTrue("${fixture.id}: seek to $what median ${median}ms of ${runs.toList()}", median in 0..300L)
+        android.util.Log.i("KotlinFormatsPlaybackTest",
+            "${fixture.id} seekMs=$median runs=${runs.toList()} mode=${if (untimedMode) "pcm" else "audible"} targetMs=$targetMs")
         }
     }
 
@@ -169,7 +196,7 @@ class KotlinFormatsPlaybackTest {
                     val block = codec.decodeBlock() ?: break
                     expected.write(floatBytes(block.samples, block.frames * block.channels))
                 }
-                decode(fixture, expectedHash = hash(expected.toByteArray()))
+                decode(fixture, expectedHash = hash(expected.toByteArray()), expectedFrames = codec.info.totalSamples)
             } else decode(fixture)
             val channels = fixture.value("channels").toInt()
             val frames = reference.size / channels
@@ -216,6 +243,12 @@ class KotlinFormatsPlaybackTest {
         rig.factory.call {
             rig.engine.playersForTest().single { it !== outgoingPlayer }.addAnalyticsListener(monitor)
         }
+        // PlaybackCoordinator starts the fade once B is ready and the audible decision clock reaches it.
+        rig.await {
+            rig.engine.hasPreloaded() &&
+                rig.engine.positionMs() + rig.engine.fadeLeadMs() >= rig.engine.durationMs() - 1_000L
+        }
+        assertTrue("prepared incoming track must begin its fade", rig.engine.beginCrossfade(1_000L))
         rig.await { rig.events.any { it is EngineEvent.TransitionStarted } }
         assertEquals("crossfade creates two independent PCM streams", 2, rig.taps.size)
         rig.await {
@@ -307,7 +340,11 @@ class KotlinFormatsPlaybackTest {
         throw AssertionError("Kotlin ALAC decoder buffer timeout")
     }
 
-    private fun decode(fixture: Fixture, expectedHash: String = fixture.value("capture_sha256")): FloatArray {
+    private fun decode(
+        fixture: Fixture,
+        expectedHash: String = fixture.value("capture_sha256"),
+        expectedFrames: Long = fixture.value("frames").toLong(),
+    ): FloatArray {
         val pcm = ByteArrayOutputStream()
         val outcome = OfflineDecoder(context, providers).decode(fixture.file.absolutePath,
             FormatKey(fixture.value("format"), fixture.value("codec")), PcmConsumer { samples, frames, rate, channels ->
@@ -316,7 +353,7 @@ class KotlinFormatsPlaybackTest {
                 pcm.write(floatBytes(samples, frames * channels))
             })
         assertEquals(fixture.id, DecodeOutcome.Completed(fixture.value("rate").toInt(),
-            fixture.value("channels").toInt(), fixture.value("frames").toLong(), fixture.value("provider")), outcome)
+            fixture.value("channels").toInt(), expectedFrames, fixture.value("provider")), outcome)
         val bytes = pcm.toByteArray()
         assertEquals("${fixture.id}: oracle float capture", expectedHash, hash(bytes))
         return FloatArray(bytes.size / 4).also { ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().get(it) }
@@ -353,7 +390,9 @@ class KotlinFormatsPlaybackTest {
         fun value(key: String) = fields.getValue(key)
         val file: File get() {
             val extension = File(value("source")).extension.let { if (it == "m4b") "m4a" else it }
-            return File("/sdcard/Music/SistrumTestCorpus", "t012-$id.$extension")
+            // Unindexed formats are unreadable in public Music with READ_MEDIA_AUDIO alone.
+            val directory = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "KotlinFormats")
+            return File(directory, "t012-$id.$extension")
         }
         val uri get() = Uri.fromFile(file).toString()
     }

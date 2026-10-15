@@ -12,6 +12,10 @@ fun interface FloatSink { fun emit(buffer:FloatBuffer) }
 private class Band(val start:Int,val end:Int)
 private class BlockSize(val len:Int,val coefsEnd:Int,val highStart:Int,val bands:IntArray,val high:Array<Band>){val plan=ImdctPlan(len)}
 class Decoder(val cfg:Config) {
+ internal var decodedFrames=0L;private set
+ private var packetNoisePhase=0
+ private var scanOnly=false
+
  val frameLen=cfg.frameLen
  private val frameLenBits=cfg.frameLenBits;private val coefBk=2*cfg.coefBookPair()
  private val sizes:Array<BlockSize>;private val selBits:Int
@@ -43,26 +47,27 @@ class Decoder(val cfg:Config) {
  val bands=ArrayList<Int>();var prev=0;for(edge in criticalFreqs){var end=if(cfg.v2)((len*2*edge+2*cfg.rate)/(4*cfg.rate)) shl 2 else floor((len*2*edge).toDouble()/cfg.rate+0.5).toInt();end=minOf(end,len);if(end>prev){bands.add(end-prev);prev=end};if(end>=len)break};return bands.toIntArray()}
  private fun nextNoise():Float{val v=noise[noiseAt];noiseAt=(noiseAt+1) and 8191;return v}
  fun decode(pkt:ByteArray,length:Int,sink:FloatSink){error?.let{throw it};try{if(length==0)malformed("empty packet");if(noResume)unsupported("this stream mixes block lengths without a bit reservoir, so a decode cannot resume mid-file: the three block lengths are decoder state that nothing in the bitstream restates")
- r=primary;r.reset(pkt,length);if(!cfg.reservoir)decodeFrame(sink) else decodeSuperframe(pkt,length,sink)
+ packetNoisePhase=noiseAt;r=primary;r.reset(pkt,length);if(!cfg.reservoir)decodeFrame(sink) else decodeSuperframe(pkt,length,sink)
  }catch(e:IOException){error=e;throw e}}
  private fun decodeSuperframe(pkt:ByteArray,length:Int,sink:FloatSink){val offBits=cfg.offsetBits();r.skip(4);val frames=r.bits(4);val bitOff=r.bits(offBits+3);r.check();val headerBits=8+offBits+3;var n=if(carried)frames else frames-1
  if(n<0){if(resumed){carry.reset();carried=false;return};malformed("superframe states $frames frames with no frame carried in")};resumed=false
  if(headerBits+bitOff>r.n)malformed("superframe bit offset $bitOff runs past the packet");val at=headerBits+bitOff
  if(n==0){val from=if(carried)headerBits else at;if(!carried){carry.reset();resetLens=true};if(r.n-from<=8)malformed("all-continuation superframe carries no payload");carry.appendFrom(pkt,from,r.n-from);carried=true;return}
  if(carried){carry.appendFrom(pkt,headerBits,bitOff);val saved=r;r=secondary;r.reset(carry.buf,(carry.bits+7)/8,carry.bits);try{decodeFrame(sink)}finally{r=saved;carried=false};n--}
- r.pos=at;resetLens=true;repeat(n){decodeFrame(sink)};carry.reset();carried=false;val left=r.n-r.pos;if(left>0){carry.appendFrom(pkt,r.pos,left);carried=true}}
- private fun decodeFrame(sink:FloatSink){blockPos=0;while(blockPos<frameLen)decodeBlock();emitFrame(sink)}
- private fun emitFrame(sink:FloatSink){val off=minOf(skip,frameLen);skip-=off;if(off<frameLen){out.frames=frameLen-off;for(ch in 0 until cfg.channels){var i=off;while(i<frameLen){out.samples[(i-off)*cfg.channels+ch]=acc[ch][i];i++}}}
+ packetNoisePhase=noiseAt;r.pos=at;resetLens=true;repeat(n){decodeFrame(sink)};carry.reset();carried=false;val left=r.n-r.pos;if(left>0){carry.appendFrom(pkt,r.pos,left);carried=true}}
+ private fun decodeFrame(sink:FloatSink){blockPos=0;while(blockPos<frameLen)decodeBlock();if(!scanOnly)emitFrame(sink)}
+ private fun emitFrame(sink:FloatSink){decodedFrames+=frameLen;val off=minOf(skip,frameLen);skip-=off;if(off<frameLen){out.frames=frameLen-off;for(ch in 0 until cfg.channels){var i=off;while(i<frameLen){out.samples[(i-off)*cfg.channels+ch]=acc[ch][i];i++}}}
  for(ch in 0 until cfg.channels){System.arraycopy(acc[ch],frameLen,acc[ch],0,frameLen);Arrays.fill(acc[ch],frameLen,2*frameLen,0f)};if(off<frameLen)sink.emit(out)}
  private fun selector():Int{val v=r.bits(selBits);if(v>=sizes.size)malformed("block-length selector $v, stream has ${sizes.size} block sizes");return frameLenBits-v}
  private fun blockLens(){if(selBits==0){prevBits=frameLenBits;curBits=frameLenBits;nextBits=frameLenBits;return};val prev=if(resetLens)selector() else curBits;val cur=if(resetLens)selector() else nextBits;val next=selector();prevBits=prev;curBits=cur;nextBits=next;resetLens=false}
  private fun decodeBlock(){blockLens();val len=1 shl curBits;if(blockPos+len>frameLen)malformed("a $len-sample block at $blockPos overruns the $frameLen-sample frame");val sz=sizes[frameLenBits-curBits];val ms=cfg.channels==2&&r.bit()!=0;var any=false
- for(ch in 0 until cfg.channels){coded[ch]=r.bit()!=0;any=any||coded[ch]};r.check();if(!any){transform(ms,len);return}
+ for(ch in 0 until cfg.channels){coded[ch]=r.bit()!=0;any=any||coded[ch]};r.check();if(!any){if(scanOnly)blockPos+=len else transform(ms,len);return}
  var gain=1;while(true){val v=r.bits(7);r.check();gain+=v;if(v!=127)break;if(gain>512)malformed("block gain ladder passes 512")};if(gain>512)malformed("block gain $gain passes 512")
  val esc=when{gain<15->13;gain<32->12;gain<40->11;gain<45->10;else->9}
  if(useNoise)readNoiseCoding(sz);val transmit=if(len<frameLen)r.bit()!=0 else true
  for(ch in 0 until cfg.channels){if(!coded[ch])continue;if(transmit){decodeExponents(ch,sz,len);expLen[ch]=len}else if(expLen[ch]==0)malformed("channel $ch reuses exponents that were never transmitted")}
  for(ch in 0 until cfg.channels){if(coded[ch])decodeCoefs(ch,sz,len,esc,ms);if(!cfg.v2&&cfg.channels==2)r.align()};r.check()
+ if(scanOnly){if(useNoise)for(ch in 0 until cfg.channels)if(coded[ch])noiseAt=(noiseAt+len) and 8191;blockPos+=len;return}
  for(ch in 0 until cfg.channels)if(coded[ch])reconstruct(ch,sz,len,gain)
  if(ms&&coded[1]){if(!coded[0]){Arrays.fill(spec[0],0,len,0f);coded[0]=true};val a=spec[0];val b=spec[1];for(i in 0 until len){val left=a[i];a[i]=left+b[i];b[i]=left-b[i]}}
  transform(ms,len)}
@@ -93,5 +98,10 @@ class Decoder(val cfg:Config) {
  private fun transform(ms:Boolean,len:Int){val plan=sizes[frameLenBits-curBits].plan;val prev=sizes[frameLenBits-prevBits].plan;val next=sizes[frameLenBits-nextBits].plan;val at=frameLen/2+blockPos-len/2
  for(ch in 0 until cfg.channels){when{coded[ch]->plan.imdct(spec[ch],block,scratch);ms&&ch==1->{};else->Arrays.fill(block,0,2*len,0f)};overlapAdd(acc[ch],at,block,len,1 shl prevBits,1 shl nextBits,plan,prev,next)};blockPos+=len}
  fun drain(sink:FloatSink){error?.let{throw it};if(drained)return;drained=true;try{emitFrame(sink)}catch(e:IOException){error=e;throw e}}
- fun reset(fromStart:Boolean=false){for(ch in acc.indices){Arrays.fill(acc[ch],0f);expLen[ch]=0;maxExp[ch]=0f};carry.reset();carried=false;resetLens=true;resumed=!fromStart;noResume=!fromStart&&selBits>0&&!cfg.reservoir;noiseAt=0;blockPos=0;skip=frameLen;drained=false;error=null;primary.reset(primary.buf,0);secondary.reset(secondary.buf,0);r=primary}
+ /** Parse entropy and carried frames for noise history; never reconstruct or synthesize PCM. */
+ internal fun scanNoise(pkt:ByteArray,length:Int):Int {
+  scanOnly=true
+  try{decode(pkt,length,FloatSink { error("noise scan synthesized PCM") });return packetNoisePhase}finally{scanOnly=false}
+ }
+ fun reset(fromStart:Boolean=false,noisePhase:Int=0){for(ch in acc.indices){Arrays.fill(acc[ch],0f);expLen[ch]=0;maxExp[ch]=0f};carry.reset();carried=false;resetLens=true;resumed=!fromStart;noResume=!fromStart&&selBits>0&&!cfg.reservoir;noiseAt=noisePhase;blockPos=0;skip=frameLen;drained=false;error=null;primary.reset(primary.buf,0);secondary.reset(secondary.buf,0);r=primary}
 }

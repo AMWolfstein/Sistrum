@@ -58,6 +58,27 @@ class ExtractorRandomAccessSourceTest {
         }
     }
 
+    @Test fun rebindingAtResumePositionReadsOnlyNewBytes() {
+        ExtractorRandomAccessSource(input()).use { source ->
+            assertEquals(0L, source.resumePosition)
+            assertEquals(4, source.read(100, ByteBuffer.allocate(4)))
+            assertEquals(104L, source.resumePosition)
+            val delegate = input().apply { setPosition(104) }
+            var bytesRead = 0
+            val resumed = object : ExtractorInput by delegate {
+                override fun read(buffer: ByteArray, offset: Int, length: Int): Int =
+                    delegate.read(buffer, offset, length).also { if (it > 0) bytesRead += it }
+                override fun skipFully(length: Int): Unit = error("resume must not skip cached bytes")
+            }
+            source.bind(resumed)
+            val destination = ByteBuffer.allocate(10)
+            assertEquals(10, source.read(104, destination))
+            assertArrayEquals(data.copyOfRange(104, 114), destination.array())
+            assertEquals(10, bytesRead)
+            assertEquals(114L, source.resumePosition)
+        }
+    }
+
     @Test fun fileChannelReadsKeepCallerOwnershipAndSupportPositionsBeyondTwoGiB() {
         val file = File.createTempFile("sistrum-source-test-", ".bin")
         try {

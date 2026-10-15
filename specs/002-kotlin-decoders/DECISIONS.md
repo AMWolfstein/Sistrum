@@ -130,7 +130,7 @@ Revisit if: a milestone check shows quality problems → return to per-task revi
 ## D-10: Scan path for unindexed formats (provisional)
 
 Case: some formats never reach the MediaStore audio index (NOTES). Options: MediaStore.Files query; SAF folder grant;
-MANAGE_EXTERNAL_STORAGE. Chosen (provisional, research R8): MediaStore.Files unless T022's probe rules it out, then SAF.
+MANAGE_EXTERNAL_STORAGE. Chosen (provisional, research R8): MediaStore.Files unless T022's probe rules it out, then SAF. **Superseded by D-31.**
 Never MANAGE_EXTERNAL_STORAGE. Revisit if: T022 results.
 
 ## D-11: Preserve module notices when packaging the app
@@ -297,6 +297,13 @@ keeping malformed input distinct and preserving the parser message through the n
 Registry order remains Platform/WavPack/APE/Musepack/WMA, then DSD and the retained AIFF provider.
 Revisit if: T013 device output or M6 performance checks expose a supported-rate or seek issue.
 Channel placement/downmix remains T010; no imported codec API, filter, ADR or 001 behaviour changes.
+
+T013-fix2 addendum (D-18/D-24): production-D18 device comparisons take the expected
+frame count from `Dsd.open(...).info.totalSamples`, just as their expected PCM comes
+from that approved converter. The DSF/DFF inputs contain 282264 DSD samples per
+channel: production rounds `(282264 + 16) / 32` to 8821 PCM frames, whereas Flick
+floors to the original TSV's 8820. Independent Flick manifests and `Dsd.kt` remain
+unchanged; this corrects only the production integration expectation.
 
 ## D-19: PCM variants routing and the existing WAV IMA implementation
 Case: T008 offers the imported MS-ADPCM, QuickTime IMA4 and G.711 decoders without
@@ -555,3 +562,110 @@ extractor contracts are untouched.
 
 **Revisit if:** a provider replacement changes valid PCM measurements; assess whether
 ANALYZER_VERSION must then change rather than silently reusing old values.
+
+## D-29: Keep device decoder fixtures in the QA private directory
+
+**Case:** T013's CPH2307 run cannot read `t012-wavpack.wv` from public Music with
+READ_MEDIA_AUDIO granted: MediaStore identifies it as application/octet-stream,
+media_type 0. Shell app-ops cannot grant broader access on this phone. The combined
+corpus also makes the unchanged 001 normalization test expect -14 LUFS from the
+quiet APE oracle fixture, which needs +24.1 dB; the shipped gain limit is +20 dB.
+
+**Options:** stage the pinned decoder fixtures privately for the QA test while
+retaining the original 001 public corpus; broaden app storage access or change
+normalization behavior/test expectations for the combined corpus.
+
+**Chosen:** the first. After installing the debuggable `.qa` APK, use `adb shell
+run-as com.amwolfstein.sistrum.dev.qa` to write all 24 unchanged, hash-verified
+fixtures to `files/KotlinFormats`. KotlinFormatsPlaybackTest reads that directory;
+the README documents separate staging. The public corpus retains the generated
+001 files and existing legacy tone, with the added T012 files removed. This replaces
+only D-24's shared public-folder staging detail. PCM hashes, frame counts, join and
+seek bounds, all assertions, D-18's DSD comparison boundary, and shipped storage,
+normalization and decoder behavior remain unchanged. All 24 private files were
+independently read as the QA UID and matched their pinned source hashes.
+
+**Revisit if:** a later task needs to test public-folder discovery or SAF access;
+use that task's explicit access mechanism rather than treating private fixture
+playback as evidence about media indexing.
+
+## D-30: WMA packet-level seeking (owner, 2026-10-15)
+
+**Case:** WMA seeking decodes from the start of the file (WaxFlow behaviour), so seek time grows with file length; it
+missed SC-006 (≤ 300 ms) already on 2.3 s fixtures (305–400 ms on the CPH2307). T013-fix2 tried packet-level seeking.
+Attempt 1 showed bit-exact audio after a cold packet restart is impossible for WMA Voice (LPC, gain-prediction and
+postfilter state). With the quality bar revised (exact position; Standard/Pro exact, Lossless exact or ≥ 90 dB SNR,
+Voice ±1 dB RMS), three more attempts left real defects: WMA Lossless crashed (NullPointerException) on some seeks and
+lost 8192 frames after a long-stream seek, and fragmented-packet Standard WMA landed 1024 samples off. WMA Pro passed.
+Unfinished patch: `~/.local/state/sistrum-delegate/milestones/T013-fix2/wma-packet-seek-wip.patch` (not shipped).
+
+**Options:** defer; Claude finishes all four flavours now; ship fast seek for Pro/Voice (+ Standard) only.
+
+**Chosen:** first defer (owner, 2026-10-15 morning), then reversed the same day by the owner ("Everything now", Codex
+quota available): finish packet-level seeking for all four flavours in T013-fix2 item (5), starting from the saved patch,
+with the quality bar above (exact position and length; Standard/Pro PCM exact after preroll; Lossless exact or
+≥ 90 dB SNR; Voice finite, non-silent, ±1 dB RMS over 0.5 s; linear decode bit-identical). The three existing Voice
+oracle tests that demand bit-exact PCM after a seek change to Voice's bar, with this entry as the reason. Once it passes,
+the device seek test's `kotlin-wma` waiver is removed. Until then the waiver and the 3-run median stand.
+
+T013-fix2 implementation: Standard/Pro use two complete media objects of preroll,
+with fragment starts restored before stepping backwards. Lossless uses no extra
+overlap preroll: header-only probes select the nearest preceding frame with an
+independent first tile, avoiding predictor-dependent startup frame loss. Voice
+uses 18 media objects of preroll, preserving unchanged exact short-file app seeks;
+long Voice seeks retain the 18 + 1 packet synthesis budget and approved RMS bar.
+
+The earlier noise-coded Standard blocker is fixed without changing its quality
+bar or linear PCM. Uncoded channels consume no deterministic noise, so absolute
+sample position alone cannot restore the historical table phase. An uncached
+restart parses compressed history, including carried frames, without coefficient
+reconstruction, IMDCT or overlap synthesis; it records the phase at the first
+independent frame. Checkpoints use original ASF object byte offsets (the first
+fragment's offset), so repeated timestamps cannot alias them. They are populated
+only during seek preparation, avoiding per-block playback allocation (FR-008).
+`Decoder.reset` gains an optional phase argument for this seek wrapper; existing
+default reset behavior is unchanged. No new pipeline or provider order is added.
+
+This cold entropy pass is O(prefix) compressed parsing, not a claim of bounded
+byte I/O or phone seek latency; actual PCM synthesis remains bounded by D-30's
+chosen preroll + 1 rule. The final quick correctness gate passes, including all
+original codec cases and the unchanged entire-tail noise-coded seek hash; the
+WMA device waiver is removed and all covered seeks again assert ≤300 ms. T013
+owns the phone rerun; M6 must also measure cold noise-coded seeks on long files.
+No phone SC-006 PASS is claimed by T013-fix2. Historical failures and exact gate
+logs are retained in HANDOFF.md.
+
+**Revisit if:** the owner reports slow WMA seeking on real files, or at M6 (T041a).
+
+## D-31: Chosen music folders are required; the excluded-folders list is removed (owner, 2026-10-15)
+
+**Case:** Android doesn't treat some supported formats as audio. On the CPH2307, WavPack is filed as
+`application/octet-stream` (media_type 0), and the app gets "access denied" when it opens it by path (D-29, probe
+2026-10-15). A MediaStore.Files query (D-10's provisional choice) can't work, because the app can't open what it
+finds. The scan filter already uses the system folder picker (`ACTION_OPEN_DOCUMENT_TREE`) for both lists, but it keeps
+only the path and drops the access grant.
+
+**Options:** keep both modes and add a separate "folder for other formats" grant (R8 fallback); make the chosen-folders
+list (whitelist) required and drop the excluded-folders list (blacklist); MANAGE_EXTERNAL_STORAGE (ruled out).
+
+**Chosen:** the second (owner's call). The scan reads only folders the user picked. Each pick keeps its persistable
+read grant (`takePersistableUriPermission`). Indexed files in those folders still come from MediaStore. Other supported
+files come from walking the granted trees, are de-duplicated by path, and are played, tagged and analysed through
+their content URI. The excluded-folders mode, its preference and its UI are removed. No upgrade path for older installs: the app is not public yet and the owner is the only user (owner, 2026-10-15); the owner picks their folders once after updating. With no folder chosen the scan simply does not run (the library is not emptied), and the library and settings show a "Choose music folders" prompt, which is also the first-run step for new users. This changes 001's shipped scan behaviour with owner approval; D-10 is superseded.
+
+**Revisit if:** walking large granted trees is too slow for SC-003's 1,000-file scan target, or a supported Android
+version refuses persistable tree grants for the Music folder.
+
+## D-32: M4b (Kotlin decoders for analysis) moves to spec 004 (owner, 2026-10-15)
+
+**Case:** M4b (T033a–T033g: Kotlin Opus, AAC, MP3, FLAC and Vorbis decoders for the background analysis only, FR-030/031,
+SC-012) is the largest remaining 002 block and is not needed for 002's goals (new formats play, scan, Mood Radio, CUE,
+performance gate). The owner wants 002 finished sooner and starts a new spec 004 with the UI overhaul.
+
+**Options:** keep M4b in 002; move it to 004; drop it.
+
+**Chosen:** move to 004 (owner). Task text kept unchanged in `specs/004-ui-extensions/NOTES.md`. In 002 the analysis keeps
+the platform decoders (MediaCodec) for these formats; FR-030/031 and SC-012 leave 002's acceptance. 003 (native removal)
+does not depend on M4b: those formats already have platform decoders.
+
+**Revisit if:** M4 (Mood Radio) shows first-analysis time on the phone is too slow without the Kotlin decoders.

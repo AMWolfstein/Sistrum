@@ -304,7 +304,7 @@ internal class Media3PlayerFactory(
                     ProviderExtractorsFactory(providers, recorder = providerRecorder, maxOutputChannels = {
                         val sdk = android.os.Build.VERSION.SDK_INT
                         try {
-                            val counts = if (sdk >= 33) {
+                            val counts = if (android.os.Build.VERSION.SDK_INT >= 33) {
                                 val manager = context.getSystemService(android.media.AudioManager::class.java)
                                 manager.getAudioDevicesForAttributes(
                                     android.media.AudioAttributes.Builder()

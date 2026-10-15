@@ -172,10 +172,20 @@ class OfflineDecoderKotlinFormatsTest {
             assertTrue("interruption reached cache I/O", interruptedReads > 0)
             digest.reset(); size = 0
             extractor.seek(0, 0)
-            val reopened = input(bytes)
-            while (extractor.read(reopened, holder) != Extractor.RESULT_END_OF_INPUT) {
-                assertEquals(0L, holder.position)
+            // T013-fix2 item (4): after a seek the extractor resumes Media3's input at the cache end
+            // (one RESULT_SEEK past the cached prefix) instead of re-reading from byte 0.
+            var reopened = input(bytes)
+            var resumes = 0
+            while (true) {
+                val result = extractor.read(reopened, holder)
+                if (result == Extractor.RESULT_END_OF_INPUT) break
+                if (result == Extractor.RESULT_SEEK) {
+                    resumes++
+                    assertTrue("resume past the cached prefix", holder.position > 0L)
+                    reopened = input(bytes).also { it.setPosition(holder.position.toInt()) }
+                }
             }
+            assertEquals("exactly one resume seek", 1, resumes)
             assertEquals(2400 * 2 * 4, size)
             assertEquals("9d10a64422894b335514a8fc20e83869a4e5d8502a4b8558d415d1d8d097276a", digest.digest().hex())
         } finally { Thread.interrupted(); extractor.release() }

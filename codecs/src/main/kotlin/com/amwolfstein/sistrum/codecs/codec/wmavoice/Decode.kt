@@ -9,6 +9,8 @@ import kotlin.math.PI
 
 /** Incremental form of the source packet callback. Consume nextFrame before accepting another packet. */
 class Decoder(internal val cfg:Config) {
+ internal var decodedFrames=0L;private set
+
     init { cfg.validate() }
     internal val g=cfg.geom();internal val lsps=cfg.lsps;internal val tf=Transforms()
     private val r=BitReader();private val cr=BitReader()
@@ -72,7 +74,7 @@ class Decoder(internal val cfg:Config) {
         for(f in 0..2){if(!residualLSP){independentFrameLSFs(r,lsf[f]);r.check();stabilise(lsf[f],lsps)};frame(r,f)}
         if(r.bit()!=0){val k=r.bits(4);r.skip(10*(k+1))};r.check()
         for(x in plane)if(!(absF(x)<=1048576f)){roll();clearHistory();malformed("the synthesis diverged past a magnitude of 1048576")}
-        out.frames=samples;roll()
+        decodedFrames+=480;out.frames=samples;roll()
     }
     private fun frame(r:BitReader,idx:Int){
         frameIdx=idx;val desc=frameTypes[readFrameType(r)]

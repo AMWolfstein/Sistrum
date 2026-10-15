@@ -20,7 +20,7 @@ internal fun msToSamples(ms:Long,rate:Int):Long=if(ms<=0||rate<=0)0 else ms/1000
 
 data class AsfFormat(val rate:Int,val channels:Int,val bits:Int,val floating:Boolean)
 /** One borrowed reassembled media object. */
-class MediaObject internal constructor(){val data=ByteArray(1 shl 22);var size=0;var pts=0L;var duration=0L;var gap=false}
+class MediaObject internal constructor(){val data=ByteArray(1 shl 22);var size=0;var pts=0L;var duration=0L;var gap=false;internal var sourceOffset=0L}
 private class Stream(val number:Int,val type:String,val encrypted:Boolean,val config:ByteArray?)
 private class Payload {var stream=0;var number=0L;var offset=0L;var size=0L;var ms=0L;var at=0;var length=0}
 private class Cursor {
@@ -42,11 +42,12 @@ class Demux(val source:RandomAccessSource,private val strict:Boolean=false,priva
  val samplesExact=false
  private val streams=ArrayList<Stream>();private var selected=0;private var encrypted=false
  private var prerollMS=0L;private var playHNS=0L;private var declaredPackets=0L
+ private var indexInterval=0L;private var indexPackets=LongArray(0)
  private var packetLen=0;private var dataOff=0L;private var packets=0L;private var cursor=0L
  private lateinit var packet:ByteBuffer
  private val payloads=Array(4096){Payload()};private var payCount=0;private var payIdx=0
  private val reader=Cursor();private val info=PacketInfo()
- private val assembly=ByteArray(1 shl 22);private var asmNumber=0L;private var asmSize=0L;private var asmMS=0L;private var asmHave=0;private var asmOpen=false
+ private val assembly=ByteArray(1 shl 22);private var asmOffset=0L;private var asmNumber=0L;private var asmSize=0L;private var asmMS=0L;private var asmHave=0;private var asmOpen=false
  private var gap=false;private var cur=MediaObject();private var nxt=MediaObject();private var haveCur=false;private var haveNext=false;private var filled=false;private var emitted=false
  private var lastDur=0L;private var lastPTS=0L;private var error:IOException?=null
  init {parse();packet=ByteBuffer.allocate(packetLen)}
@@ -87,7 +88,54 @@ class Demux(val source:RandomAccessSource,private val strict:Boolean=false,priva
  private fun declaredSamples(rate:Int):Long{if(playHNS<=0)return -1;val dur=playHNS-prerollMS*10000;if(dur<0)return -1;val sec=dur/10000000;val rem=dur%10000000;if(sec>(Long.MAX_VALUE-rate)/rate)return -1;return sec*rate+(rem*rate+5000000)/10000000}
  private fun parseData(off:Long){if(source.length-off<50)bad("no Data Object after the header");val b=read(off,50);val id=guidAt(b,0);if(id!=guidData)bad("no Data Object after the header (found ${guidLabel(id)})");dataOff=off+50;var end=source.length;val size=u64(b,16)
  if(size>=50&&size<=source.length-off)end=off+size else if(size!=0L)warn(off+16,"Data Object declares ${unsigned(size)} bytes with ${source.length-off} in the file")
- val avail=end-dataOff;if(avail>0)packets=avail/packetLen;var want=u64(b,40);if(want==0L)want=declaredPackets;if(want!=0L&&want!=packets)warn(off+40,"Data Object declares ${unsigned(want)} packets and holds $packets")}
+ val avail=end-dataOff;if(avail>0)packets=avail/packetLen;var want=u64(b,40);if(want==0L)want=declaredPackets;if(want!=0L&&want!=packets)warn(off+40,"Data Object declares ${unsigned(want)} packets and holds $packets");parseIndex(end)}
+ private fun parseIndex(start:Long){var off=start
+  while(source.length-off>=24){val h=read(off,24);val size=u64(h,16);if(size<24||size>source.length-off){warn(off,"invalid trailing ASF object size");return}
+   if(guidAt(h,0)==guidSimpleIndex){if(size<56||size>16 shl 20){warn(off,"invalid Simple Index size");return};val b=read(off,size.toInt());val interval=u64(b,40);val count=u32(b,52)
+    if(interval<=0||count>(size-56)/6){warn(off,"invalid Simple Index interval or entry count");return}
+    val entries=LongArray(count.toInt()){u32(b,56+it*6)}
+    if(entries.any{it>=packets}||(1 until entries.size).any{entries[it-1]>entries[it]}){warn(off,"invalid Simple Index packet numbers");return}
+    indexInterval=interval;indexPackets=entries;return
+   };off+=size
+  }
+ }
+ internal var restartOffset= -1L;private set
+ /** Select a fixed-size ASF packet without synthesizing preceding audio. */
+ internal fun seek(sample:Long,prerollPackets:Int,canStart:((MediaObject)->Boolean)?=null):Long {
+  restartOffset= -1L
+  if(sample==0L||packets==0L){rewind();return 0}
+  var lo=0L;var hi=packets
+  if(indexPackets.isNotEmpty()){
+   val entry=(sample.toDouble()/format.rate*10000000/indexInterval).toLong().coerceIn(0,indexPackets.lastIndex.toLong()).toInt()
+   lo=indexPackets[entry];if(entry<indexPackets.lastIndex)hi=minOf(packets,indexPackets[entry+1]+1)
+   // Index entries are hints: payload timestamps decide the actual landing packet.
+   if(packetSample(lo)>sample||(hi<packets&&packetSample(hi-1)<=sample)){lo=0;hi=packets}
+  }
+  while(lo<hi){val mid=lo+(hi-lo)/2;if(packetSample(mid)<=sample)lo=mid+1 else hi=mid}
+  var start=objectStartPacket(maxOf(0,lo-1))
+  repeat(prerollPackets){if(start>0)start=objectStartPacket(start-1)}
+  while(true){
+   rewindTo(start)
+   val first=next()?:return sample
+   if(start==0L||canStart==null||canStart(first)){emitted=false;restartOffset=first.sourceOffset;return if(start==0L)0 else first.pts}
+   start=objectStartPacket(start-1)
+  }
+ }
+ // A packet may begin with a continuation of a media object started several packets earlier.
+ private fun objectStartPacket(index:Long):Long {
+  var start=index
+  while(start>0){loadPacket(start);val first=(0 until payCount).firstOrNull{payloads[it].stream==selected}
+   if(first==null||payloads[first].offset==0L)break
+   start--
+  }
+  return start
+ }
+ private fun packetSample(index:Long):Long {
+  loadPacket(index)
+  for(i in 0 until payCount){val p=payloads[i];if(p.stream==selected)return msToSamples(p.ms-prerollMS,format.rate)}
+  // Send times give a search bound for packets without the selected audio stream.
+  return msToSamples(info.sendMS-prerollMS,format.rate)
+ }
  fun next():MediaObject?{error?.let{throw it};try{if(emitted){val old=cur;cur=nxt;nxt=old;haveCur=haveNext;haveNext=false;emitted=false;if(!haveCur)return null;haveNext=fetch(nxt)}else if(!filled){filled=true;haveCur=fetch(cur);if(!haveCur)return null;haveNext=fetch(nxt)}
  if(!haveCur)return null;val duration=if(haveNext)maxOf(1,nxt.pts-cur.pts)else if(lastDur>0)lastDur else if(totalSamples>cur.pts)minOf(totalSamples-cur.pts,1L shl 20)else 1
  cur.duration=duration;lastDur=duration;emitted=true;return cur
@@ -95,13 +143,13 @@ class Demux(val source:RandomAccessSource,private val strict:Boolean=false,priva
  private fun fetch(dst:MediaObject):Boolean{while(true){if(payIdx<payCount){val p=payloads[payIdx++];if(!absorb(p,dst))continue;if(dst.pts<lastPTS){warn(packetOff(cursor-1),"presentation times run backwards");dst.pts=lastPTS};lastPTS=dst.pts;dst.gap=gap;gap=false;return true}
  if(cursor>=packets){dropOpen(packetOff(cursor-1));return false};val index=cursor++;loadPacket(index)}}
  private fun packetOff(index:Long)=if(index<0)dataOff else dataOff+index*packetLen
- private fun copy(dst:MediaObject,b:ByteArray,at:Int,n:Int,ms:Long){System.arraycopy(b,at,dst.data,0,n);dst.size=n;dst.pts=msToSamples(ms-prerollMS,format.rate)}
+ private fun copy(dst:MediaObject,b:ByteArray,at:Int,n:Int,ms:Long,sourceOffset:Long){dst.sourceOffset=sourceOffset;System.arraycopy(b,at,dst.data,0,n);dst.size=n;dst.pts=msToSamples(ms-prerollMS,format.rate)}
  private fun absorb(p:Payload,dst:MediaObject):Boolean{if(p.stream!=selected)return false;val off=packetOff(cursor-1)
  if(p.size==0L||p.size>1 shl 22){dropAssembly();gap=true;warn(off,"media object of ${p.size} bytes");return false}
- if(p.offset==0L&&p.size==p.length.toLong()){dropOpen(off);copy(dst,packet.array(),p.at,p.length,p.ms);return true}
- if(p.offset==0L){dropOpen(off);if(p.length>assembly.size){gap=true;warn(off,"media object ${p.number} overruns its declared ${p.size} bytes");return false};System.arraycopy(packet.array(),p.at,assembly,0,p.length);asmNumber=p.number;asmSize=p.size;asmMS=p.ms;asmHave=p.length;asmOpen=true}
+ if(p.offset==0L&&p.size==p.length.toLong()){dropOpen(off);copy(dst,packet.array(),p.at,p.length,p.ms,off+p.at);return true}
+ if(p.offset==0L){dropOpen(off);if(p.length>assembly.size){gap=true;warn(off,"media object ${p.number} overruns its declared ${p.size} bytes");return false};System.arraycopy(packet.array(),p.at,assembly,0,p.length);asmOffset=off+p.at;asmNumber=p.number;asmSize=p.size;asmMS=p.ms;asmHave=p.length;asmOpen=true}
  else{if(!asmOpen||p.number!=asmNumber||p.size!=asmSize||p.offset!=asmHave.toLong()){dropAssembly();gap=true;warn(off,"media object ${p.number} fragment at offset ${p.offset} does not continue the one in hand");return false};if(p.length>assembly.size-asmHave){dropAssembly();gap=true;warn(off,"media object ${p.number} overruns its declared ${p.size} bytes");return false};System.arraycopy(packet.array(),p.at,assembly,asmHave,p.length);asmHave+=p.length}
- if(asmHave>asmSize){dropAssembly();gap=true;warn(off,"media object ${p.number} overruns its declared ${p.size} bytes");return false};if(asmHave<asmSize)return false;copy(dst,assembly,0,asmHave,asmMS);dropAssembly();return true}
+ if(asmHave>asmSize){dropAssembly();gap=true;warn(off,"media object ${p.number} overruns its declared ${p.size} bytes");return false};if(asmHave<asmSize)return false;copy(dst,assembly,0,asmHave,asmMS,asmOffset);dropAssembly();return true}
  private fun dropOpen(off:Long){if(!asmOpen)return;val missing=asmSize-asmHave;dropAssembly();gap=true;warn(off,"media object $asmNumber is missing $missing bytes and was dropped")}
  private fun dropAssembly(){asmOpen=false;asmHave=0}
  private fun prologue(b:ByteArray,total:Int):Boolean{if(b.size<2)return false;var p=0;val first=b[0].toInt() and 255;if(first and 128!=0){if(first and 16!=0||((first ushr 5) and 3)!=0)return false;p=1+(first and 15)}
@@ -115,7 +163,8 @@ class Demux(val source:RandomAccessSource,private val strict:Boolean=false,priva
  when{repLen==1->{val delta=b[rep].toInt() and 255;var at=data;val end=data+length;var j=0;while(at<end){if(payCount>=4096){warn(off,"compressed payload holds more than 4096 sub-objects");return};val n=b[at++].toInt() and 255;if(n==0||n>end-at){warn(off,"compressed payload sub-object of $n bytes with ${end-at} left");return};val p=payloads[payCount++];p.stream=sn;p.number=0;p.offset=0;p.size=n.toLong();p.ms=offset+j.toLong()*delta;p.at=at;p.length=n;at+=n;j++}}
  repLen>=8->{val p=payloads[payCount++];p.stream=sn;p.number=number;p.offset=offset;p.size=u32(b,rep);p.ms=u32(b,rep+4);p.at=data;p.length=length}
  else->warn(off,"payload carries $repLen bytes of replicated data")}}
- fun rewind(){cursor=0;payCount=0;payIdx=0;dropAssembly();haveCur=false;haveNext=false;filled=false;emitted=false;gap=false;lastPTS=0;error=null}
+ fun rewind(){rewindTo(0)}
+ private fun rewindTo(index:Long){cursor=index;lastDur=0;payCount=0;payIdx=0;dropAssembly();haveCur=false;haveNext=false;filled=false;emitted=false;gap=false;lastPTS=0;error=null}
 }
 private fun typeName(g:String)=when(g){guidAudioMedia->"audio";guidVideoMedia->"video";guidCommandMedia->"command";guidBinaryMedia->"binary";else->"stream type "+guidLabel(g)}
 private fun codecName(tag:Int)=when(tag){0x160->"Windows Media Audio 1";0x161->"Windows Media Audio 2";0x162->"Windows Media Audio Pro";0x163->"Windows Media Audio Lossless";0x164->"Windows Media Audio Pro over S/PDIF";0xa->"Windows Media Audio Voice";0xb->"Windows Media Audio Voice 10";else->""}

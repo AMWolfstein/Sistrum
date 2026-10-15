@@ -9,6 +9,7 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.ParserException
 import androidx.media3.common.util.ParsableByteArray
 import androidx.media3.extractor.Extractor
+import androidx.media3.extractor.ExtractorInput
 import androidx.media3.extractor.ExtractorOutput
 import androidx.media3.extractor.PositionHolder
 import androidx.media3.extractor.SeekMap
@@ -23,9 +24,12 @@ import com.amwolfstein.sistrum.player.decoders.FormatKey
 import com.sun.management.ThreadMXBean
 import org.junit.Assert.*
 import org.junit.Test
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.lang.management.ManagementFactory
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
+import java.security.MessageDigest
 
 /**
  * T002, tests first: reflection keeps this file compilable before T003 exists.
@@ -103,6 +107,77 @@ class KotlinDecodingExtractorTest {
         session.extractor.read(session.input, session.holder)
         assertEquals(0L, fake.lastSeek)
         assertArrayEquals(pcm(fake, 0, BLOCK_FRAMES), session.output.track.bytes())
+    }
+
+    @Test
+    fun seekReopensAtCacheEndWithoutReadingOrSkippingAndPreservesOraclePcm() {
+        val root = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+            .first { File(it, "androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv").isFile }
+        val lines = File(root, "androidApp/src/test/resources/waxflow/oracle-corpus-fixtures.tsv").readLines()
+        assertTrue(lines.any { it.endsWith("\tb7857aff88820ad37936026421d1641e64611dbe") })
+        val rows = lines.filter { it.isNotEmpty() && !it.startsWith('#') }.map { it.split('\t') }
+        val row = rows.drop(1).map { rows.first().zip(it).toMap() }
+            .single { it.getValue("file") == "waxflow-testdata/sine-s16.wv" }
+        val oracleDir = System.getenv("SISTRUM_ORACLE_DIR")
+            ?: "${System.getProperty("user.home")}/.cache/sistrum-waxflow-oracle"
+        val corpus = System.getProperty("waxflow.corpus") ?: System.getenv("WAXFLOW_CORPUS") ?: "$oracleDir/corpus"
+        val data = File(corpus, row.getValue("file")).readBytes()
+        fun hash(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes)
+            .joinToString("") { "%02x".format(it) }
+        assertEquals(row.getValue("file_sha256"), hash(data))
+        val pcm = ByteArrayOutputStream()
+        val recording = RecordingOutput(false)
+        var decodedTimeUs = C.TIME_UNSET
+        val sink = object : TrackOutput by recording.track {
+            override fun sampleData(data: ParsableByteArray, length: Int, sampleDataPart: Int) {
+                pcm.write(data.data, data.position, length)
+                data.skipBytes(length)
+            }
+            override fun sampleMetadata(timeUs: Long, flags: Int, size: Int, offset: Int,
+                cryptoData: TrackOutput.CryptoData?) { decodedTimeUs = timeUs }
+        }
+        val output = object : ExtractorOutput by recording {
+            override fun track(id: Int, type: Int): TrackOutput = sink
+        }
+        val extractor = KotlinWavPackProvider().extractors().single()()
+        val holder = PositionHolder()
+        val original = input(data)
+        try {
+            extractor.init(output)
+            var reads = 0
+            while (true) {
+                val result = extractor.read(original, holder)
+                if (result == Extractor.RESULT_END_OF_INPUT) break
+                assertEquals(Extractor.RESULT_CONTINUE, result)
+                assertTrue("fixture must reach EOF", ++reads < 100)
+            }
+            assertEquals(data.size.toLong(), original.position)
+            val oraclePcm = pcm.toByteArray()
+            assertEquals(row.getValue("pcm_sha256"), hash(oraclePcm))
+            val target = 1000L
+            val rate = row.getValue("rate").toInt()
+            val timeUs = (target * 1_000_000 + rate - 1) / rate
+            extractor.seek(0, timeUs)
+            pcm.reset()
+            val reopened = object : ExtractorInput by input(data) {
+                override fun read(buffer: ByteArray, offset: Int, length: Int): Int = error("seek must reopen before reading")
+                override fun skipFully(length: Int): Unit = error("seek must not skip cached bytes")
+            }
+            assertEquals(Extractor.RESULT_SEEK, extractor.read(reopened, holder))
+            assertEquals(data.size.toLong(), holder.position)
+            val atEnd = input(data).apply { setPosition(data.size) }
+            val resumed = object : ExtractorInput by atEnd {
+                override fun read(buffer: ByteArray, offset: Int, length: Int): Int = error("cached decode must not read input")
+                override fun skipFully(length: Int): Unit = error("cached decode must not skip input")
+            }
+            assertEquals(Extractor.RESULT_CONTINUE, extractor.read(resumed, holder))
+            val actual = pcm.toByteArray()
+            assertTrue(actual.isNotEmpty())
+            val frameBytes = row.getValue("channels").toInt() * row.getValue("bits").toInt() / 8
+            val offset = target.toInt() * frameBytes
+            assertArrayEquals(oraclePcm.copyOfRange(offset, offset + actual.size), actual)
+            assertEquals(target * 1_000_000 / rate, decodedTimeUs)
+        } finally { extractor.release() }
     }
 
     @Test

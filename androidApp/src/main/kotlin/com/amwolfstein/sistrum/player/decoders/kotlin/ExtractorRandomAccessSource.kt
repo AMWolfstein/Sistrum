@@ -60,6 +60,9 @@ internal class ExtractorRandomAccessSource private constructor(
             return cachedLength
         }
 
+    /** Byte offset at which Media3 can resume without replaying the cached prefix. */
+    val resumePosition: Long get() = cachedLength
+
     fun bind(input: ExtractorInput) {
         checkOpen()
         check(cacheFile != null) { "a file-channel source has no Media3 input" }
@@ -88,7 +91,7 @@ internal class ExtractorRandomAccessSource private constructor(
         if (ended || end <= cachedLength) return
         val current = checkNotNull(input)
         if (current.position > cachedLength) throw IOException("uncached bytes precede Media3 input position")
-        // Media3's seek map reopens at zero; advance across bytes already held in the cache.
+        // Fallback for inputs rebound before the cache end without an extractor reopen.
         while (current.position < cachedLength) {
             current.skipFully(minOf(cachedLength - current.position, Int.MAX_VALUE.toLong()).toInt())
         }

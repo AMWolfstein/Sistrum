@@ -18,6 +18,8 @@ internal class Channel(frameLen:Int,maxBands:Int) {
 internal class Group(channels:Int,maxBands:Int){val chans=IntArray(channels);var count=0;var on=false;val matrix=FloatArray(channels*channels);var allBands=false;val bands=BooleanArray(maxBands)}
 
 class Decoder(val cfg:Config) {
+ internal var decodedFrames=0L;private set
+
     init{cfg.validate()}
     internal val lay=Layout(cfg);internal val frameLen=cfg.samplesPerFrame;internal val frameLenBits=cfg.frameLenBits
     internal val maxSubframes=cfg.maxSubframes;internal val minSubframeLen=cfg.minSubframeLen;internal val frameSizeBits=cfg.frameSizeBits
@@ -91,7 +93,7 @@ class Decoder(val cfg:Config) {
         when{n==0->r.skip(1);r.pos>at+n-1->malformed("the frame reads ${r.pos-(at+n-1)} bits past its declared length of $n");else->r.seek(at+n-1)}
         val more=r.bit()!=0;r.check();emitFrame(start,end,sink);return more
     }
-    private fun emitFrame(start:Int,end:Int,sink:FloatSink){try {
+    private fun emitFrame(start:Int,end:Int,sink:FloatSink){decodedFrames+=frameLen;try {
         if(dropNext){dropNext=false;return}
         val lo=maxOf(start,0);val hi=minOf(frameLen-end,frameLen);if(lo>=hi)return
         out.frames=hi-lo;for(c in ch.indices)for(i in lo until hi)out.samples[(i-lo)*cfg.channels+c]=ch[c].buf[i]

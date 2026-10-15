@@ -28,7 +28,7 @@ class WmaLossless private constructor(source:RandomAccessSource,strict:Boolean) 
             b.position=position;b.discontinuity=discontinuity;position+=b.frames;discontinuity=false;return b
         }
     }
-    fun seekSample(sample:Long){if(sample<0)throw IOException("wmalossless: negative seek target");demux.rewind();decoder.reset();position=0;discard=sample;drained=false;discontinuity=true}
+    fun seekSample(sample:Long){if(sample<0)throw IOException("wmalossless: negative seek target");val pts=demux.seek(sample,0){decoder.canStartPacket(it.data,it.size)};decoder.reset();position=(pts+cfg.samplesPerFrame/2)/cfg.samplesPerFrame*cfg.samplesPerFrame;discard=maxOf(0,sample-position);drained=false;discontinuity=true}
     companion object {
         fun open(source:RandomAccessSource,strict:Boolean=false)=WmaLossless(source,strict)
         fun open(source:ByteBuffer,strict:Boolean=false)=open(ByteBufferSource(source),strict)

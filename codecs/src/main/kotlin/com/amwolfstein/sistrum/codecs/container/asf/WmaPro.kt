@@ -33,8 +33,8 @@ class WmaPro private constructor(source:RandomAccessSource,strict:Boolean) {
   if(discard>0){val n=minOf(discard,output.frames.toLong()).toInt();position+=n;discard-=n;output.frames-=n;if(output.frames==0)continue;System.arraycopy(output.samples,n*cfg.channels,output.samples,0,output.frames*cfg.channels)}
   output.position=position;output.discontinuity=discontinuity;position+=output.frames;discontinuity=false;return output
  }}
- /** Replay keeps the history-dependent overlap identical to linear decoding. */
- fun seekSample(sample:Long){if(sample<0)throw IOException("wmapro: negative seek target");demux.rewind();decoder.reset();position=0;discard=sample;drained=false;discontinuity=true}
+ /** Restart at an ASF packet and warm the codec before the exact target. */
+ fun seekSample(sample:Long){if(sample<0)throw IOException("wmapro: negative seek target");val pts=demux.seek(sample,2);decoder.reset();position=(pts+cfg.samplesPerFrame/2)/cfg.samplesPerFrame*cfg.samplesPerFrame;discard=maxOf(0,sample-position);drained=false;discontinuity=true}
  companion object {
   fun open(source:RandomAccessSource,strict:Boolean=false)=WmaPro(source,strict)
   fun open(source:ByteBuffer,strict:Boolean=false)=open(ByteBufferSource(source),strict)

@@ -28,7 +28,7 @@ class WmaVoice private constructor(source:RandomAccessSource,strict:Boolean) {
             b.position=position;b.discontinuity=discontinuity;position+=b.frames;discontinuity=false;return b
         }
     }
-    fun seekSample(sample:Long){if(sample<0)throw IOException("wmavoice: negative seek target");demux.rewind();decoder.reset();position=0;discard=sample;drained=false;discontinuity=true}
+    fun seekSample(sample:Long){if(sample<0)throw IOException("wmavoice: negative seek target");val pts=demux.seek(sample,18);decoder.reset();position=(pts+480/2)/480*480;decoder.setPosition(position);discard=maxOf(0,sample-position);drained=false;discontinuity=true}
     companion object {
         fun open(source:RandomAccessSource,strict:Boolean=false)=WmaVoice(source,strict)
         fun open(source:ByteBuffer,strict:Boolean=false)=open(ByteBufferSource(source),strict)

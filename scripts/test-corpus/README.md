@@ -122,20 +122,28 @@ fail the class; there are no assumption skips. The rows cover WavPack, APE, Muse
 ordinary ALAC and all three fragmented ALAC goldens, WMA 1/2/Pro/Lossless/Voice, MS-ADPCM,
 WAV G.711, AIFF-C IMA4/G.711, plain AIFF PCM, AIFF-C sowt/float, DSF and DFF (T012a extends AIFF coverage).
 
-Prepare **outside the repo**, merging into the generated 001 corpus directory so the existing
-push procedure retains those files. No audio or generated PCM is committed:
+Prepare **outside the repo**, keeping the pinned decoder fixtures separate from the generated
+001 corpus. The 001 normalization regression needs its original corpus: the quiet APE oracle
+fixture needs more than the shipped +20 dB gain limit to reach its target. No audio or generated
+PCM is committed:
 
 ```sh
 # Rebuild the pinned oracle cache if needed (see docs/waxflow/ORACLE.md and docs/dsd/ORACLE.md).
-python3 scripts/test-corpus/prepare-kotlin-formats.py --out /tmp/sistrum-corpus
+python3 scripts/test-corpus/prepare-kotlin-formats.py --out /tmp/sistrum-kotlin-formats
 # T013 only: the phone gate owns ALL device access, including this push.
 bash scripts/test-corpus/push-corpus.sh /tmp/sistrum-corpus
+# After the .qa APK is installed, stage the pinned fixtures in its private files directory.
+# Android denies READ_MEDIA_AUDIO access to unindexed public files such as .wv.
+adb shell run-as com.amwolfstein.sistrum.dev.qa mkdir -p files/KotlinFormats
+for fixture in /tmp/sistrum-kotlin-formats/t012-*; do
+  adb shell -T run-as com.amwolfstein.sistrum.dev.qa tee "files/KotlinFormats/$(basename "$fixture")" < "$fixture" > /dev/null
+done
 ```
 
 The staging script validates every input hash before copying anything, preserves existing
-staged files, and never invokes adb. Musepack `.mpc` is included by `push-corpus.sh`.
-Do not push a directory containing only T012 files over the combined corpus: the existing
-push procedure removes remote files absent from its input directory.
+staged files, and never invokes adb. Keep the public Music folder for the generated 001 corpus;
+the push procedure removes remote files absent from its input directory. The pinned T012 files
+are read from the `.qa` private directory, including formats Android does not index as audio.
 
 The manifest copies source hashes, frame counts and raw PCM hashes from the original
 WaxFlow fixtures. `capture_sha256` hashes the independent WaxFlow CLI's WAV data converted
