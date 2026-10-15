@@ -351,7 +351,7 @@ internal fun FullScreenTransportButton(
     }
 }
 
-private fun formatPlaybackTime(timeMs: Long): String {
+internal fun formatPlaybackTime(timeMs: Long): String {
     val seconds = (timeMs.coerceAtLeast(0L) / 1000).toInt()
     return formatDisplay("%d:%02d", seconds / 60, seconds % 60)
 }

@@ -2,11 +2,14 @@ package com.amwolfstein.sistrum.player.media3
 
 import android.content.Context
 import android.media.AudioRouting
+import android.media.AudioManager
 import android.media.AudioTrack
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
+import android.os.Build
 import android.os.SystemClock
+import com.amwolfstein.sistrum.diagnostics.Diagnostics
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
@@ -135,8 +138,49 @@ internal class Media3PlayerFactory(
     private val liveLimiterSessions: MutableSet<LimiterSession> =
         java.util.Collections.newSetFromMap(ConcurrentHashMap<LimiterSession, Boolean>())
 
+    private val mixerBlocks: MixerBlockStore by lazy { MixerBlockStore.forContext(context) }
+
     private val mixerProbe: MixerBlockProbe by lazy {
-        MixerBlockProbe { publishMixerBlock(it) }
+        MixerBlockProbe { ms, track ->
+            mixerBlocks.put(routeKey(track), ms)
+            Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "mixer block measured ${formatMs(ms)} ms on ${routeKey(track) ?: "unknown route"}")
+            publishMixerBlock(ms)
+        }
+    }
+
+    /**
+     * The stored frame duration of the output media will play on (API 33+), so the limiter is created before playback
+     * starts; creating it once audio runs would block the playback thread at the start of the song.
+     */
+    private fun storedBlockForMediaRoute(): Float? {
+        if (Build.VERSION.SDK_INT < 33) return null
+        val audio = context.getSystemService(AudioManager::class.java) ?: return null
+        val attributes = android.media.AudioAttributes.Builder()
+            .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
+        val target = runCatching { audio.getAudioDevicesForAttributes(attributes).firstOrNull() }.getOrNull() ?: return null
+        val device = audio.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+            .firstOrNull { it.type == target.type && it.address == target.address } ?: return null
+        return routeKey(device)?.let(mixerBlocks::get)
+    }
+
+    /**
+     * A track started or was re-routed: use the stored frame duration for its route at once, or, when the route was
+     * never measured, take the limiter out of the path until the probe measures it (FR-052; no buzz from a guess).
+     */
+    private fun onTrackRoute(track: AudioTrack, rerouted: Boolean) {
+        val route = routeKey(track)
+        val stored = route?.let(mixerBlocks::get)
+        if (rerouted) Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "output route ${route ?: "unknown"}")
+        if (stored != null) {
+            publishMixerBlock(stored)
+        } else {
+            Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "limiter waits for a measurement on ${route ?: "unknown route"}")
+            handler.post {
+                for (session in liveLimiterSessions) if (!session.isClosed) session.awaitMeasurement()
+            }
+        }
     }
 
     /** Number of players created by [newPlayer] and not yet released. */
@@ -246,7 +290,7 @@ internal class Media3PlayerFactory(
                     .setEnableFloatOutput(true)
                     .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
                     .setAudioOutputProvider(
-                        MeasuringAudioOutputProvider(AudioTrackAudioOutputProvider.Builder(context).build(), mixerProbe)
+                        MeasuringAudioOutputProvider(AudioTrackAudioOutputProvider.Builder(context).build(), mixerProbe, ::onTrackRoute)
                     )
                     .build()
                 val floatAudioSink = FloatChainAudioSink(inner, chain.getAudioProcessors().toList(), streamGainHook?.let { hook ->
@@ -362,7 +406,7 @@ internal class Media3PlayerFactory(
             _limiterState.value = state
             LimiterStatus.publish(state)
         }
-        mixerBlockMs.value?.let { session.setFrameDurationMs(it) }
+        (mixerBlockMs.value ?: storedBlockForMediaRoute())?.let { session.setFrameDurationMs(it) }
         liveLimiterSessions += session
         session
     }
@@ -452,7 +496,7 @@ private object EmptyAudioProcessorChain : AudioProcessorChain {
  * playback looper) and estimates the mixer block size via [MixerBlockEstimator]. A non-null
  * measurement is reported through [onMeasurement] (invoked on the probe thread).
  */
-private class MixerBlockProbe(private val onMeasurement: (Float) -> Unit) {
+private class MixerBlockProbe(private val onMeasurement: (Float, AudioTrack) -> Unit) {
 
     /** Handler on the shared process-wide probe looper. */
     val handler: Handler = Handler(mixerProbeThread.looper)
@@ -483,7 +527,7 @@ private class MixerBlockProbe(private val onMeasurement: (Float) -> Unit) {
         }
         if (released.get()) return
         val blockMs = MixerBlockEstimator.estimateBlockMs(samples, track.sampleRate)
-        if (blockMs != null) onMeasurement(blockMs)
+        if (blockMs != null) onMeasurement(blockMs, track)
     }
 
     private companion object {
@@ -502,6 +546,7 @@ private class MixerBlockProbe(private val onMeasurement: (Float) -> Unit) {
 private class MeasuringAudioOutputProvider(
     private val delegate: AudioOutputProvider,
     private val probe: MixerBlockProbe,
+    private val onRoute: (AudioTrack, Boolean) -> Unit,
 ) : ForwardingAudioOutputProvider(delegate) {
 
     override fun getAudioOutput(config: AudioOutputProvider.OutputConfig): AudioOutput {
@@ -513,7 +558,10 @@ private class MeasuringAudioOutputProvider(
     private fun attach(track: AudioTrack, output: AudioOutput) {
         val started = AtomicBoolean(false)
         val released = AtomicBoolean(false)
+        val underruns = java.util.concurrent.atomic.AtomicInteger(0)
+        val lastUnderrunLogMs = java.util.concurrent.atomic.AtomicLong(0L)
         val routingListener = AudioRouting.OnRoutingChangedListener {
+            if (started.get()) onRoute(track, true)
             probe.scheduleRerouteProbe(track, released)
         }
         try {
@@ -523,14 +571,26 @@ private class MeasuringAudioOutputProvider(
         }
         output.addListener(object : AudioOutput.Listener {
             override fun onPositionAdvancing(playoutStartSystemTimeMs: Long) {
-                if (started.compareAndSet(false, true)) probe.startProbe(track, released)
+                if (started.compareAndSet(false, true)) {
+                    onRoute(track, false)
+                    probe.startProbe(track, released)
+                }
             }
 
             override fun onOffloadDataRequest() = Unit
 
             override fun onOffloadPresentationEnded() = Unit
 
-            override fun onUnderrun() = Unit
+            override fun onUnderrun() {
+                val now = SystemClock.elapsedRealtime()
+                val count = underruns.incrementAndGet()
+                // At most one entry per 5 s, carrying how many underruns happened since the last one.
+                if (now - lastUnderrunLogMs.get() >= 5_000L) {
+                    lastUnderrunLogMs.set(now)
+                    underruns.set(0)
+                    Diagnostics.record(Diagnostics.LEVEL_WARN, "audio", "AudioTrack underrun x$count on ${routeKey(track) ?: "unknown route"}")
+                }
+            }
 
             override fun onReleased() {
                 released.set(true)

@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.player.DecodeFailureEntry
+import com.amwolfstein.sistrum.diagnostics.Diagnostics
 import com.amwolfstein.sistrum.player.DecodeFailureLog
 import com.amwolfstein.sistrum.ui.components.SistrumPillButton
 import com.amwolfstein.sistrum.ui.components.SistrumPillButtonVariant
@@ -33,20 +33,20 @@ import com.amwolfstein.sistrum.ui.components.HeroCard
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
 
-private const val DecodeFailureSaveFileName = "sistrum-decode-failures.txt"
+private const val DecodeFailureSaveFileName = "sistrum-diagnostics.txt"
 
-/** FR-064a: shows the bounded decode-failure log with share, save-as-file and clear actions. */
+/** Diagnostics log (FR-064a decode failures + app events): count, share, save as file and clear. */
 @Composable
 internal fun DecodeFailureLogContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val colors = LocalSistrumColors.current
     val log = remember(context) { DecodeFailureLog.forContext(context) }
     val scope = rememberCoroutineScope()
-    var entries by remember { mutableStateOf<List<DecodeFailureEntry>>(emptyList()) }
+    var count by remember { mutableStateOf(0) }
     var pendingSaveText by remember { mutableStateOf("") }
 
     LaunchedEffect(log) {
-        entries = withContext(Dispatchers.IO) { log.entries() }
+        count = withContext(Dispatchers.IO) { log.entries().size + Diagnostics.log()?.entries().orEmpty().size }
     }
 
     val saveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
@@ -61,7 +61,7 @@ internal fun DecodeFailureLogContent(modifier: Modifier = Modifier) {
         }
     }
 
-    val hasEntries = entries.isNotEmpty()
+    val hasEntries = count > 0
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         HeroCard(
@@ -72,7 +72,7 @@ internal fun DecodeFailureLogContent(modifier: Modifier = Modifier) {
         Card(contentPadding = PaddingValues(20.dp)) {
             Text(
                 text = if (hasEntries) {
-                    pluralStringResource(R.plurals.decode_log_count, entries.size, entries.size)
+                    pluralStringResource(R.plurals.decode_log_count, count, count)
                 } else {
                     stringResource(R.string.decode_log_empty)
                 },
@@ -84,7 +84,7 @@ internal fun DecodeFailureLogContent(modifier: Modifier = Modifier) {
             label = stringResource(R.string.decode_log_share),
             onClick = {
                 scope.launch {
-                    val text = withContext(Dispatchers.IO) { log.exportText() }
+                    val text = withContext(Dispatchers.IO) { Diagnostics.exportText(context) }
                     val send = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, text)
@@ -92,27 +92,28 @@ internal fun DecodeFailureLogContent(modifier: Modifier = Modifier) {
                     context.startActivity(Intent.createChooser(send, null))
                 }
             },
-            enabled = hasEntries,
+            enabled = true,
             variant = SistrumPillButtonVariant.Primary,
         )
         SistrumPillButton(
             label = stringResource(R.string.decode_log_save),
             onClick = {
                 scope.launch {
-                    pendingSaveText = withContext(Dispatchers.IO) { log.exportText() }
+                    pendingSaveText = withContext(Dispatchers.IO) { Diagnostics.exportText(context) }
                     saveLauncher.launch(DecodeFailureSaveFileName)
                 }
             },
-            enabled = hasEntries,
+            enabled = true,
             variant = SistrumPillButtonVariant.Secondary,
         )
         SistrumPillButton(
             label = stringResource(R.string.decode_log_clear),
             onClick = {
                 scope.launch {
-                    entries = withContext(Dispatchers.IO) {
+                    count = withContext(Dispatchers.IO) {
                         log.clear()
-                        log.entries()
+                        Diagnostics.log()?.clear()
+                        0
                     }
                 }
             },

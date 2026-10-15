@@ -1,5 +1,7 @@
 package com.amwolfstein.sistrum
 
+import android.media.AudioDeviceCallback
+import android.media.AudioDeviceInfo
 import android.os.Bundle
 import android.os.Build
 import android.Manifest
@@ -29,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import com.amwolfstein.sistrum.diagnostics.Diagnostics
+import com.amwolfstein.sistrum.player.media3.SilentMixerProbe
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import android.os.Handler
@@ -137,9 +141,28 @@ class MainActivity : ComponentActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    /** New outputs (headphones, Bluetooth) get their mixer block measured silently before anything plays on them. */
+    private val outputDeviceCallback = object : AudioDeviceCallback() {
+        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) {
+            if (addedDevices.any { it.isSink }) SilentMixerProbe.measureIfUnknown(this@MainActivity, delayMs = 700L)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        SilentMixerProbe.measureIfUnknown(this, delayMs = 300L)
+        getSystemService(AudioManager::class.java)?.registerAudioDeviceCallback(outputDeviceCallback, null)
+    }
+
+    override fun onStop() {
+        getSystemService(AudioManager::class.java)?.unregisterAudioDeviceCallback(outputDeviceCallback)
+        super.onStop()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        Diagnostics.init(applicationContext)
         AndroidSyncRuntime.initialize(applicationContext)
         lastFm = AndroidLastFmRuntime.initialize(applicationContext, AndroidSyncRuntime.syncStore())
         handleLastFmIntent(intent)

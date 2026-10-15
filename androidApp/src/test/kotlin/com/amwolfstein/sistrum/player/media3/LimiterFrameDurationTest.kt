@@ -164,6 +164,73 @@ class LimiterFrameDurationTest {
         assertNoDisable(factory)
     }
 
+    @Test
+    fun guessedDurationCreatesNoEffectUntilMeasured() {
+        // Owner report 2026-10-15: the first 1-2 s of the first song buzzed while DP ran with the 4 ms guess.
+        val factory = FakeFactory()
+        val controller = LimiterController(42, 4f, factory, FakeScheduler(), frameDurationMeasured = false) {}
+
+        controller.start(clipPrevention = true)
+        assertEquals("no effect on a guessed frame duration", 0, factory.createdEffects.size)
+
+        factory.effects += FakeEffect(initialHasControl = true)
+        controller.setFrameDurationMs(40f)
+
+        assertEquals(1, factory.createdEffects.size)
+        assertEquals(40f, factory.createdConfigs[0].frameDurationMs, 0f)
+        assertEquals(LimiterState(true, true), controller.state)
+        assertNoDisable(factory)
+    }
+
+    @Test
+    fun measuredBeforeStartCreatesWithMeasuredDuration() {
+        val factory = FakeFactory()
+        val controller = LimiterController(42, 4f, factory, FakeScheduler(), frameDurationMeasured = false) {}
+
+        controller.setFrameDurationMs(40f)
+        assertEquals(0, factory.createdEffects.size)
+        factory.effects += FakeEffect(initialHasControl = true)
+        controller.start(clipPrevention = true)
+
+        assertEquals(1, factory.createdEffects.size)
+        assertEquals(40f, factory.createdConfigs[0].frameDurationMs, 0f)
+        assertNoDisable(factory)
+    }
+
+    @Test
+    fun unknownRouteRemovesEffectUntilItsMeasurement() {
+        val factory = FakeFactory()
+        val controller = LimiterController(42, 40f, factory, FakeScheduler()) {}
+        factory.effects += FakeEffect(initialHasControl = true)
+        controller.start(clipPrevention = true)
+        val first = factory.createdEffects[0]
+
+        controller.awaitMeasurement()
+        assertTrue("old route's effect released", first.released)
+        assertEquals(1, factory.createdEffects.size)
+
+        factory.effects += FakeEffect(initialHasControl = true)
+        controller.setFrameDurationMs(20f)
+        assertEquals(2, factory.createdEffects.size)
+        assertEquals(20f, factory.createdConfigs[1].frameDurationMs, 0f)
+        assertNoDisable(factory)
+    }
+
+    @Test
+    fun unknownRouteWithSameDurationStillRecreates() {
+        // A new route measuring the same block as the old one must bring the effect back.
+        val factory = FakeFactory()
+        val controller = LimiterController(42, 40f, factory, FakeScheduler()) {}
+        factory.effects += FakeEffect(initialHasControl = true)
+        controller.start(clipPrevention = true)
+        controller.awaitMeasurement()
+
+        factory.effects += FakeEffect(initialHasControl = true)
+        controller.setFrameDurationMs(40f)
+        assertEquals(2, factory.createdEffects.size)
+        assertNoDisable(factory)
+    }
+
     private fun assertNoDisable(factory: FakeFactory) {
         for (effect in factory.createdEffects) {
             assertTrue("effect must never receive setEnabled(false)", effect.setEnabledCalls.none { !it })

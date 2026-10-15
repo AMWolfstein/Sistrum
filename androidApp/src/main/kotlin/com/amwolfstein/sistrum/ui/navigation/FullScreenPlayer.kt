@@ -53,6 +53,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlin.math.roundToInt
@@ -166,11 +167,7 @@ internal fun FullScreenPlayer(
     val isArtworkCrossfading = activeArtworkCrossfade != null &&
         outgoingArtwork != null && incomingArtwork != null
     val contextTrack = queueTracks.firstOrNull { it.id == item.trackId }
-    val metadataDurationMs = (contextTrack?.metadataObject()?.get("duration") as? JsonPrimitive)
-        ?.contentOrNull
-        ?.toLongOrNull()
-        ?.takeIf { it > 0L }
-        ?.times(1_000L)
+    val metadataDurationMs = metadataDurationMs(contextTrack?.metadataObject())
     val currentPositionMs = playbackState.positionMsOrZero()
     val durationMs = playbackState.durationMsOrZero()
     val displayedDurationMs = durationMs.takeIf { it > 0L } ?: metadataDurationMs
@@ -511,3 +508,7 @@ private fun PlaybackState.durationMsOrZero(): Long = when (this) {
     is PlaybackState.Paused -> durationMs
     else -> 0L
 }
+
+/** The library's duration ("duration" is LocalTrack.durationMillis, already in ms), shown until the player knows it. */
+internal fun metadataDurationMs(metadata: JsonObject?): Long? =
+    (metadata?.get("duration") as? JsonPrimitive)?.contentOrNull?.toLongOrNull()?.takeIf { it > 0L }

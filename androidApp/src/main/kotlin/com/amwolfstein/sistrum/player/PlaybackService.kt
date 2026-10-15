@@ -25,6 +25,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import com.amwolfstein.sistrum.diagnostics.Diagnostics
 import java.util.UUID
 import android.util.LruCache
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -119,6 +120,7 @@ class PlaybackService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Diagnostics.init(applicationContext)
         myGeneration = ++instanceGeneration
         val teardownToAwait = previousTeardown
         AndroidPlaybackRuntime.initialize(applicationContext, AndroidSyncRuntime.syncStore())

@@ -137,9 +137,17 @@ internal class LimiterController(
     private var frameDurationMs: Float,
     private val factory: LimiterEffectFactory,
     private val scheduler: LimiterScheduler,
+    /**
+     * False when [frameDurationMs] is only Android's guess (PROPERTY_OUTPUT_FRAMES_PER_BUFFER, 4 ms on the CPH2307 whose
+     * mixer runs 40 ms blocks). A DynamicsProcessing limiter set to the wrong frame duration buzzes, so the effect is
+     * not created until a measured or stored value arrives through [setFrameDurationMs]; audio passes untouched until then.
+     */
+    frameDurationMeasured: Boolean = true,
     private val onState: (LimiterState) -> Unit,
 ) {
     private val lock = Any()
+    private var measured = frameDurationMeasured
+    private var started = false
 
     private var effect: LimiterEffect? = null
     private var clipPrevention = true
@@ -168,7 +176,20 @@ internal class LimiterController(
     fun start(clipPrevention: Boolean) = synchronized(lock) {
         if (released) return@synchronized
         this.clipPrevention = clipPrevention
+        started = true
+        if (!measured) return@synchronized
         createAndEnableLocked(probeOnFailure = false)
+    }
+
+    /**
+     * The output moved to a route whose frame duration is unknown: remove the effect (audio passes untouched) until
+     * the next [setFrameDurationMs], instead of running it with the previous route's value.
+     */
+    fun awaitMeasurement() = synchronized(lock) {
+        if (released || !measured) return@synchronized
+        measured = false
+        cancelProbeLocked()
+        releaseEffectLocked()
     }
 
     /**
@@ -181,6 +202,12 @@ internal class LimiterController(
     fun setFrameDurationMs(ms: Float) = synchronized(lock) {
         if (released) return@synchronized
         if (!ms.isFinite() || ms <= 0f) return@synchronized
+        if (!measured) {
+            measured = true
+            frameDurationMs = ms
+            if (started && effect == null && probeCancel == null) createAndEnableLocked(probeOnFailure = true)
+            return@synchronized
+        }
         if (abs(ms - frameDurationMs) < 0.5f) return@synchronized
         frameDurationMs = ms
         if (effect == null) return@synchronized
@@ -454,6 +481,11 @@ internal class LimiterSession(
         controller?.setFrameDurationMs(ms)
     }
 
+    /** The output route changed to one with no known frame duration; see [LimiterController.awaitMeasurement]. */
+    fun awaitMeasurement() {
+        controller?.awaitMeasurement()
+    }
+
     fun close() {
         closed = true
         if (!opened) return
@@ -493,7 +525,7 @@ internal class LimiterSession(
                 cancel
             }
             val frameDurationMs = DynamicsProcessingLimiterEffectFactory.outputFrameDurationMs(context)
-            val controller = LimiterController(sessionId, frameDurationMs, effectFactory, scheduler, onState)
+            val controller = LimiterController(sessionId, frameDurationMs, effectFactory, scheduler, frameDurationMeasured = false, onState = onState)
             return LimiterSession(context, sessionId, controller)
         }
     }
