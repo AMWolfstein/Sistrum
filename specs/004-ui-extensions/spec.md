@@ -132,7 +132,9 @@ Western; transport controls, seek bar and volume slider stay left-to-right in RT
   unavailable, surfaces are opaque and no blur is composed. No new backdrop library is added.
 - **FR-003**: Home, Library overview and lists, Album, Artist, Playlist and Search MUST use the tokens and
   keep every existing action and state (D-4).
-- **FR-004**: Home MUST show only local data (recent, quick picks, recently added, existing statistics sections); no remote feed.
+- **FR-004**: Home MUST show only local data, laid out in the Apple Music Home style (D-22): large title that collapses into
+  a small top bar on scroll; a wide hero carousel "Recently added" (moved here from Library); then horizontal shelves of
+  square cards for the existing sections (Keep listening, Most played, You seem to have forgotten). No remote feed.
 - **FR-005**: Floating navigation and the mini-player MUST keep collapse, circle state, paired relocation, state restoration and
   back order; geometry comes from one source and respects insets and keyboard.
 - **FR-006**: Player style MUST be a stored enum `DEFAULT | LARGE | IMMERSIVE` (stable strings in DataStore); missing or unknown

@@ -42,7 +42,7 @@ No Library Settings page and no Settings restyle (owner, D-20). T067 (MANUAL, me
 | Exhale `166e2cc7...` | GPLv3 | player styles V7/V8, glass, library/detail layouts, lyrics look, `canvas/` module + `CanvasArtworkPlayer` | per-file header (path, SHA, "modified"), THIRD-PARTY-NOTICES line, corresponding source stays in the repo; no icons/provider art copied |
 | Rhythm `6f26f963...` | GPLv3 | `WikipediaProvider`, `DeezerApiService`, `DeezerArtistImageCache` | same; no credentials; weak error handling not copied (typed failures, CancellationException propagates) |
 | BitChord `fe95bb60...` | GPLv3 | Hide Volume Bar idea | implement independently; header only if code is adapted |
-| SpotiFLAC-Mobile `5a895265...` | MIT | Home structure only | notice if adapted; no streaming/download code |
+| SpotiFLAC-Mobile `5a895265...` | MIT | Home look only: its Apple Music home-provider layout (D-22) | notice if adapted; no streaming/download/feed code |
 Not used: SpotiFLAC-Extension packages, MusicBeat, Rhythm lyrics/YTM/Apple canvas (owner scope). Rights notes in
 `docs/ui-overhaul/06-licenses.md` and D-9.
 

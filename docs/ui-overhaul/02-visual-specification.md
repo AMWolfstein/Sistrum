@@ -16,7 +16,7 @@ Use one Haze source per surface group; avoid nested full-screen blur, live blurr
 
 | Surface | Layout and behavior | Retained Sistrum features |
 |---|---|---|
-| Home | Large local heading; recent listening/local collections; horizontally paged quick picks and recently added cards, inspired by M01 | Local data only; existing track actions, statistics-driven sections; no remote Home feed or downloading implied |
+| Home | Apple Music Home style (D-22, owner GIF): large title collapsing to a small bar; "Recently added" hero carousel of wide cards (moved from Library); shelves of square cards for Keep listening / Most played / Forgotten | Local data only; existing track actions, statistics-driven sections; no remote Home feed or downloading implied |
 | Library | Destination tiles and collection shelves (E01), with tracks/albums/artists/playlists views | Search, genres, composers, sorts, filters, favorites, empty and choose-folders states |
 | Album | Artwork hero, title/artist/year/count/duration, play/shuffle, lazy tracks (E02) | Disc/order, favorite/queue/context actions, manual/local artwork fallback |
 | Artist | Identity-aware portrait/header, play/shuffle, local albums and tracks, optional separately attributed About | Manual artist override first; ambiguous match does not silently assign a portrait |

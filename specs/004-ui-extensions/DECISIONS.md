@@ -128,3 +128,13 @@ Haze (no lens refraction, not the same effect); add the library for the toggle o
 license (expected Apache-2.0) and stops if it is not permissive. Fallback without lens on API < 33, Reduce Transparency or reduced
 motion. Revisit if: the library costs frame time on long settings lists (SC-011) or breaks on an OEM device.
 
+
+## D-22: Home in the Apple Music style; Recently added moves to Home (owner, 2026-10-15)
+Case: owner sent a screenshot of SpotiFLAC-Mobile (Settings → Extensions → Home feed provider = Apple Music) and a GIF of the
+resulting Home. The wish is the LOOK, not Apple's data: the earlier plan (and Claude's mockup) followed the Spotify-like
+layout (small recent tiles, paged quick picks). Options: keep the Spotify-like layout; Apple Music style with local data;
+fetch Apple's feed (rejected by the owner after clarification: no feed, no network). Chosen: Apple Music style with local
+data only: large title collapsing to a small top bar, a "Recently added" hero carousel of wide cards (moved from Library,
+T010 drops it there), then shelves of square cards for the existing sections; no Quick picks pages. FR-004 still forbids a
+remote feed. Revisit if: the owner wants more shelves (e.g. playlists, genres) or the hero image from square covers looks
+poor on device (owner reviews at the M2 phone check).
