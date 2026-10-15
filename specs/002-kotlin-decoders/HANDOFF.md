@@ -4,11 +4,16 @@
 
 ## Current status
 
-- **Phase:** M1 DONE (T013 passed 2026-10-15, finished by Claude after Codex BLOCKED on seek latency; D-33). **M2 on hold by
-  the owner (2026-10-15: "Don't push M2 to codex")**: do not start the runner for T014 onward until the owner says how.
-- **Next step:** wait for the owner's instruction on M2. 004: Phase 0 done; owner choices recorded in
+- **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 tests-first prepared under the owner's explicit
+  autonomous T014 brief, superseding the earlier M2 hold for this task only. No other task started.
+- **Next step:** runner commits the T014 bundle; T015 implements the Night-mode contract without changing T014 tests.
+  The earlier owner hold still governs starting the remaining M2 tasks absent authorization. 004: Phase 0 done; owner choices recorded in
   `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images from Rhythm; Exhale motion artwork off by default in
   Integrations, no warning; no extension runtime decided yet).
+- **T014 result:** quick GATE: PASS, `/tmp/verify-task.KcByP9`: 113 host cases across 15 classes, 108 pass,
+  5 expected assertion failures (missing Night-mode sink constructor hook), 0 errors/skips; compileDevQaKotlin PASS.
+  D-34 records the shared-setting reader, 50 ms linear blend bounds and host/device measurement boundary.
+  No production code or existing tests changed. Commit prepared for the runner; full/device/manual gates NOT RUN.
 - **T013 result:** full gate `/tmp/verify-task.W50YyC`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lintDevQa 0
   errors (71 warnings), KotlinFormatsPlaybackTest 7/7, Media3EngineGaplessTest 7/7, Media3EngineCoreTest 12/12,
   NormalizationLevelDeviceTest 2/2; Media3CrossfadeTest 15/16 (`endOfTrackFadeDecidedOnProcessedTimelineEndsWithTrackA`
@@ -29,6 +34,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T014 tests-first; commit: prepared, awaiting runner | Quick GATE: PASS, first attempt, `/tmp/verify-task.KcByP9`; 113 cases: 108 pass (105 existing, 3 new controls), 5 expected missing-hook assertion failures, 0 errors/skips; production Kotlin compilation PASS. Only new test code; existing tests and production APIs/behaviour untouched. D-34 defines measurement/seam choices. Extra files required: tasks.md for completion, HANDOFF.md for status/evidence, DECISIONS.md for open test-contract choices, both generated graph files because gate graph refresh reported changed (11,455 nodes / 33,819 edges). Impact and commands below. NOT RUN: full suites/sharedLogic/lint/assemble/device (milestone gate), Android mixer/limiter capture and real engine/preference wiring (T015/T020/T021), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated concurrent specs/005-bugfixes/tasks.md edit left untouched and excluded from bundle. |
 | 2026-10-15 | T013 finished by Claude (Codex BLOCKED: Voice seek 305–312 ms) | PASS, see Current status. Causes (D-33): Voice 18-object preroll → 3 (app Voice seek test moved to the D-30 RMS bar, as D-30 required); extractor announces blocks as ≤ 1024-frame samples so a seek inside buffered audio no longer drops a whole 4096-frame block (50 ms AIFF fixtures produced no post-seek PCM). Tried and dropped: 250 ms Media3 start buffer (no change). migration-guard PASS (2 notes applied: D-30 text updated, Voice helper requires a non-silent reference when the full 0.5 s window exists). |
 | 2026-10-15 | T013 M1 full gate + phone check; commit: none | BLOCKED after three current-build attempts. Full GATE: FAIL `/tmp/verify-task.1R6yM5`: decoder 6/7 (WavPack seek 301 ms); app 1381 cases, 0 failures/errors, 1 unchanged corpus skip; sharedLogic 39 PASS; assemble/lint PASS (0 lint errors); 001 device 37/37 PASS. Isolated seek reruns FAIL on Voice 312/305 ms; WavPack 284/269 ms. Read-only older-snapshot comparisons and full per-class logs retained below. Codecs 1487, analysis 1127, DSP 18 cached PASS; metadata verifier FAIL on known pinned input, cases NOT RUN. Graph not needed. No source/test/decision changes, no task tick or commit bundle; owner manual checks NOT RUN. |
 | 2026-10-15 | T013-fix2; commit: prepared, awaiting runner | READY. Final quick GATE: PASS `/tmp/verify-task.lHROXH`: codecs 1487/0 fail/error/skip; affected app 378/0 fail/error/1 unchanged corpus skip; sharedLogic 39 cached passes; production/device Kotlin compile PASS; graph changed 11325/33436. Broad quick GATE: PASS `/tmp/verify-task.MEwYTN`, full app 1381/0 fail/error/1 unchanged skip. Exact cold noise-coded Standard PCM fixed without prefix synthesis or playback checkpoint allocation; inherited T013/item (4)/four-flavour seek edits retained; WMA waiver removed. D-18/D-24/D-29/D-30 recorded. Required metadata command FAIL before tests on the known T021a pinned input; metadata cases NOT RUN. Device/lint/assemble/listening NOT RUN (T013/owner); no phone latency claim. Complete path/reason/command record below and in `.codex-commit/`; separate owner files excluded. |
@@ -64,6 +70,49 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T014 verification and impact review — 2026-10-15
+
+- **Impact before editing:** `git grep` located the sink's production consumer in Media3PlayerFactory and its
+  existing FloatChainAudioSink*, DspSliderDrag and trim/passthrough host consumers. Only add
+  `androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/media3/FloatChainNightModeTest.kt`;
+  all existing tests must stay unmodified. Contracts exercised: sink-chain.md, FR-019 and SC-008.
+  No Room/schema/version, analysis document, preference storage, DecoderProvider order, PlaybackController API,
+  queue, normalization, EQ, limiter configuration, or native implementation change.
+- **Test contract:** 8 new methods: default-OFF 001 bit identity; explicit-OFF identity; >=30% RMS dB range reduction;
+  imported voice output after stream gain / before a modeled downstream limiter; 50 ms ON/OFF blends; A/B plus
+  replacement sinks sharing a setting reader; negative controls for wrong ramp durations; voice/fixed-gain range
+  controls. Identity includes flat/colored 001 DSP at 44.1/48/96 kHz and mono/stereo/3 channels. Ramp tests cross
+  17/257/1024-frame buffers and an empty buffer, check both directions and exact final bypass bits. D-34 records
+  all chosen constants and the constructor seam; T015 must pass these tests unchanged.
+- **Memory gate:** `./gradlew --stop` (no daemons running), `pkill -f '[K]otlinCompileDaemon'`, then
+  `/proc/meminfo`: MemAvailable 2,191,248 kB, above the 2 GB minimum before starting Gradle.
+- **Quick gate (attempt 1):** command below; GATE: PASS, logs `/tmp/verify-task.KcByP9`. JUnit XML: 15 classes,
+  113 cases, 108 pass (105 pre-existing plus 3 T014 controls), 5 expected AssertionErrors for the absent constructor,
+  0 errors/skips. The 5 functional tests are red by design, not a Night-mode implementation PASS.
+  `:androidApp:compileDevQaKotlin` PASS. Gate ran `python3 .claude/hooks/graph_refresh.py auto`: graph changed,
+  11,455 nodes / 33,819 edges; include both generated artifacts. `git diff --check` PASS.
+- **Self-review / minimal diff:** test additions only; no deleted/renamed/weakened tests, skip assumptions,
+  swallowed failures, production fallbacks or public API changes. Missing seam asserts rather than bypassing;
+  reflection unwraps and propagates real constructor failures. Independent 001 pipeline and imported voice kernel
+  supply expected output; metric controls distinguish compression from fixed gain and reject wrong toggle timing.
+  Each extra file is justified in the task-log row. No unrelated refactor or follow-up implementation.
+- **NOT RUN:** full app/sharedLogic/module suites, lint, assemble and phone checks (milestone gate scope);
+  real Android mixed-session PCM/limiter ceiling (the host fake proves only the downstream boundary model),
+  engine/factory propagation and preference persistence (T015), listening/Bluetooth/headset (owner).
+  No device commands run. Stage/commit/push deferred to runner; `.codex-commit/` lists only this task's six paths.
+  Concurrent `specs/005-bugfixes/tasks.md` edits are not this task and remain outside the bundle.
+
+```bash
+bash .claude/skills/verify-task/scripts/verify.sh \
+  --files 'androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/media3/FloatChainNightModeTest.kt' \
+  --quick ':androidApp:testDevQaUnitTest' \
+  --tests 'com.amwolfstein.sistrum.player.media3.FloatChain*' \
+  --tests 'com.amwolfstein.sistrum.player.media3.LimiterConfigTest' \
+  --tests 'com.amwolfstein.sistrum.player.media3.DspSliderDragTest' \
+  --tests 'com.amwolfstein.sistrum.player.dsp.*' \
+  --expect-fail 'com.amwolfstein.sistrum.player.media3.FloatChainNightModeTest#explicitOffIsBitIdenticalTo001,com.amwolfstein.sistrum.player.media3.FloatChainNightModeTest#voiceReducesLoudnessRangeByAtLeastThirtyPercent,com.amwolfstein.sistrum.player.media3.FloatChainNightModeTest#voiceFollowsStreamGainAndPrecedesTheSessionLimiter,com.amwolfstein.sistrum.player.media3.FloatChainNightModeTest#onAndOffCrossfadeForFiftyMillisecondsAcrossBufferBoundaries,com.amwolfstein.sistrum.player.media3.FloatChainNightModeTest#bothPlayersAndAReplacementReadOneSettingWithoutReconfigure'
+```
 
 ## T013 M1 full gate and phone report — 2026-10-15 (BLOCKED)
 

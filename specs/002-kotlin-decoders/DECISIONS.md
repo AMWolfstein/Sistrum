@@ -690,3 +690,35 @@ afterwards: Voice 254 ms, WavPack 252 ms, all 21 seekable fixtures ≤ 300 ms, t
 
 **Revisit if:** M6 measures seeks on long files above 300 ms (WavPack and APE sit around 250 ms on 2–15 s fixtures), or
 the owner hears a gap after seeking.
+
+## D-34: Night-mode host-test seam and measurement bounds (T014)
+
+**Case:** T014 must compile and fail on assertions before T015 adds Night mode. The contract specifies a shared
+setting and a 50 ms bypass/compressed crossfade, but leaves its host-test seam, curve and step bound open.
+The existing limiter runs in Android DynamicsProcessing on the shared session, outside FloatChainAudioSink.
+
+**Options:** inject a reader of the shared Boolean into each sink (recommended); add per-sink setters and test-only
+registration machinery. For the toggle, use a linear blend of the correlated dry/wet signals, or an equal-power blend
+which boosts identical signals halfway through. For the limiter, model its downstream boundary on the host and retain
+device verification, or incorrectly treat the sink's pre-mix output as the final session output.
+
+**Chosen:** a fourth, defaulted `nightMode: () -> Boolean` constructor argument after `onStreamStart` in
+FloatChainAudioSink; T015 wires both players and replacement players to the one setting through Media3Engine/factory.
+T014 looks up that constructor reflectively and asserts its presence; it never substitutes a bypass when missing.
+This is an adapter seam, with the existing per-player compressor / mixer / shared-session limiter order unchanged.
+The toggle is a linear dry/wet blend lasting `sampleRate * 50 / 1000` frames. Maximum per-channel step on the
+stationary, below-knee 0.04 fixture is `abs(wet - dry) / rampFrames + 2e-7`; endpoint checks allow two frames plus
+float roundoff and require exact bypass after OFF. Check 44.1/48/96 kHz, mono/stereo/3-channel, and irregular chunks.
+Negative controls reject instant, 25 ms and 100 ms toggles.
+
+SC-008's host signal has three 3-second constant plateaus, 0.06 / 0.8 / 0.06 (opposite polarity in stereo's right
+channel); range is max-minus-min RMS dBFS over the last second of each plateau. Require at least 30% reduction;
+a direct imported voice-kernel control passes and fixed attenuation fails this metric. The separate normalized
+overload fixture compares pre-limiter samples with the imported voice kernel, pins 001's -1 dBFS threshold, and
+exercises a fake downstream hard ceiling. This models placement and ceiling only: actual Android mixer/limiter PCM,
+preference persistence and engine-to-factory wiring are NOT verified by these sink-level host tests. T015 owns wiring;
+T020/T021 retain actual session/device verification. No production change or SC-008 device PASS is claimed by T014.
+
+**Revisit if:** device verification exposes setting propagation, mixer or DynamicsProcessing issues; do not weaken
+T014 in T015. The explicit T014 brief authorizes this task despite the earlier M2 runner hold in HANDOFF; it does not
+authorize starting other tasks in this session.
