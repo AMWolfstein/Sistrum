@@ -711,7 +711,19 @@ internal class Media3Engine(
 
     override fun automaticFadeDurationMs(current: PlaybackItem, positionMs: Long, durationMs: Long,
         repeatOne: Boolean, crossfadeSeconds: Int): Long? = factory.call {
-        transition.automaticFadeDurationMs(current, positionMs, durationMs, repeatOne)
+        // The retained maximum lead can put the decision a whole buffer ahead of processing.
+        // A measured tail needs the current clock so its fade ends at the audible boundary.
+        val decisionPositionMs = if (transitionSettings.crossfadeSkipSilence && !repeatOne &&
+            (current.silence?.tailMs ?: 0L) > 0L) {
+            val slot = currentSlot
+            val processedMs = slot?.let { processedPositionMs(it, it.gain.processor?.processingPosition) }
+            if (processedMs == null) {
+                Log.w("Media3Engine", "Silence fade deferred provider=Media3 track=${current.trackId}: missing processing clock")
+                return@call null
+            }
+            processedMs
+        } else positionMs
+        transition.automaticFadeDurationMs(current, decisionPositionMs, durationMs, repeatOne)
     }
 
     override fun beginCrossfade(durationMs: Long): Boolean {

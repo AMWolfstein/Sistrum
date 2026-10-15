@@ -4,16 +4,24 @@
 
 ## Current status
 
-- **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 `a18bbcb`, T015 `b1bf978`, T016 `654c30b`,
-  T017 `2eccc49`, T018 `fcee1d2`, T019 `936e772`, T020 `d2b9669` committed.
-  T021-fix M2 review fixes prepared for the runner on `feature/media3-migration`; M2 acceptance remains pending.
-- **Next step:** runner commits T021-fix; T021 runs the M2 full gate and `.qa` phone check, subject to its own brief.
-  Run `com.amwolfstein.sistrum.player.NightModeDeviceTest` and
-  `com.amwolfstein.sistrum.player.SilenceCrossfadeDeviceTest` plus T021's prescribed 001 classes.
-  Also run `com.amwolfstein.sistrum.analysis.LoudnessStoreTest` for the updated M2 database-consumer
-  fixtures and refresh coverage. T021-fix performs no installation, instrumentation or device access.
-  004: Phase 0 done; owner choices recorded in `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images
-  from Rhythm; Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **Phase:** M2 T021 full gate + `.qa` phone check PASS (2026-10-15); commit prepared for runner
+  on `feature/media3-migration`. T021-fix is committed as `2a8b786`.
+- **Next step:** runner commits T021; T021a remains the metadata corpus prerequisite before M3.
+  No other task implemented in this session. Owner Night mode/crossfade listening checks are listed
+  in the T021 milestone report below and remain NOT RUN.
+- **004 context (unchanged):** Phase 0 done; owner choices recorded in
+  `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images from Rhythm;
+  Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **T021 result:** final full GATE: PASS `/tmp/verify-task.fezU3l`: app 1454 cases (1453 pass,
+  one unchanged corpus assumption skip), sharedLogic 39 PASS; assembleDevQa PASS; lint 0 errors,
+  72 warnings, 14 hints; all 59 device cases PASS on CPH2307 `.qa`. D-42 fixes a measured-tail
+  processing-clock mismatch exposed by the first device gate, with deterministic archived-code red
+  and current-device green coverage; original tests/001 assertions unchanged. SC-008 pre-session
+  range reduction 48.16%, OFF bytes identical; SC-009 measured ends 7999.93/6999.93ms, silent
+  overlap 0ms and incoming offsets -46.16/-76.51ms. Graph refreshed (11657 nodes / 34590 edges).
+  DSP 18, analysis 1127 and codecs 1487 PASS; metadata precondition FAIL (known D-27/T021a),
+  metadata cases NOT RUN. Hardware output ceiling, engine-to-factory Night preference PCM capture,
+  real listening/Bluetooth/headset NOT RUN; no acoustic or manual PASS claimed.
 - **T021-fix result:** quick GATE: PASS, `/tmp/verify-task.ALh50l`; 402/402 host tests across 44 classes,
   zero failures/errors/skips; unchanged T014 8/8 and T017 21/21 PASS. Production Kotlin compilation PASS.
   Five distinct HIGH findings confirmed and addressed (none rejected); D-41 records the incoming seek
@@ -87,6 +95,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T021 M2 full gate + phone; commit: prepared, awaiting runner | Final full GATE: PASS `/tmp/verify-task.fezU3l`, app 1454/0 fail/error/1 unchanged corpus skip, sharedLogic 39 PASS, assemble PASS, lint 0 errors (72 warnings/14 hints), CPH2307 `.qa` device 59/59 across 6 classes PASS. D-42 measured-tail clock fix after first-gate failure; deterministic archived T018 red/current green; no original tests/assertions changed. DSP 18, analysis 1127, codecs 1487 PASS; metadata precondition FAIL (known T021a), cases NOT RUN. Graph changed, both artifacts included. Full evidence, per-class log paths, scope/review and manual list below. NOT RUN: post-session hardware ceiling, actual engine preference PCM capture, listening/Bluetooth/headset (measurement boundary/owner), stage/commit/push (runner). No other task implemented. |
 | 2026-10-15 | T021-fix M2 review fixes; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.ALh50l`, 402/402 host cases / 44 classes, 0 failures/errors/skips; production and final device-test Kotlin compile PASS (initial private-looper compile failure corrected; details below). All five distinct HIGH issues confirmed and fixed test-first; no rejected CRITICAL/HIGH findings. New allocation/boundary host tests and real EOF/shared-clock/Room device cases; all original T014/T017 and 001 assertions retained. D-41; exact files, commands, compile retries and MEDIUM/LOW follow-ups below. Graph generated pair required by auto-refresh. NOT RUN: device execution/SC-008/SC-009/Room runtime, full suites/sharedLogic/lint/assemble (T021), post-session limiter and actual Night preference capture (no seam), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 004/005 work preserved and excluded. |
 | 2026-10-15 | T020 device PCM tests; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.hVguV8`; 32/32 unchanged host cases (3 classes), 0 failures/errors/skips; production Kotlin compile PASS. NightModeDeviceTest.kt required for SC-008 accepted float-sink byte identity and plateau range; SilenceCrossfadeDeviceTest.kt required for SC-009 real dual-player captures, exact generated edges, no-silence legacy timing and disabled-option negative control. Extra docs tasks.md/HANDOFF.md/DECISIONS.md required for completion, evidence and D-40 measurement choices; generated graph pair required because refresh reported changed (11,617 nodes / 34,472 edges). Final device-test Kotlin compile PASS after one daemon-loss retry, `/tmp/t020-device-compile-retry.log`. NOT RUN: 5 new instrumented methods, full suites/sharedLogic/lint/assemble/phone (T021); hardware post-session limiter capture and engine-to-factory Night setting capture (no existing post-Night factory seam); listening/Bluetooth/headset (owner); stage/commit/push (runner). Unrelated specs/005-bugfixes/tasks.md and concurrent untracked specs/004-ui-extensions/spec.md preserved/excluded. No other task implemented. |
 | 2026-10-15 | T019 playback toggles; commit: prepared, awaiting runner | Quick GATE: PASS, attempt 1, `/tmp/verify-task.I2tr2T`; 138/138 cases, 33 classes, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed, pair included. D-39: existing selected-engine availability and saved values while disabled. Six implementation/resource files plus required task/status/decision records and graph pair; file reasons/commands below. NOT RUN: full suites/sharedLogic, lint, assemble, UI interaction/device/PCM (milestone), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved/excluded. No follow-up refactors. |
@@ -130,6 +139,112 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T021 — M2 full gate and phone check (2026-10-15)
+
+Verification baseline: `28fbf5b` on `feature/media3-migration`; T021-fix is committed as
+`2a8b786`. No `.codex-commit/` existed at entry and the working tree was clean.
+Impact recorded before edits in `/tmp/t021-impact.txt`; callers checked with `git grep`
+(`/tmp/t021-callers.txt`): PlaybackCoordinator -> Media3Engine -> TransitionController.
+No analysis document, preference, decoder-order, Room/schema/DAO, PlaybackController,
+public API, native-engine or ADR changes. All T014/T017 and 001 assertions remain unchanged.
+
+Failure investigation and correction (D-42):
+
+- First full gate `/tmp/verify-task.KDQgOb`: host suites/build/lint PASS; device 57/58 PASS.
+  `twoAndThreeSecondTailsOverlapAudibleAudioAndSkipIncomingLead` failed at 7898.9316ms versus
+  the 8000ms audible end (10ms bound). Log records processedMs=5900, requested/effective=1999.
+  The maximum lead retained over 500ms advanced the decision before processing reached 6000ms.
+- Isolated unchanged-method full gate `/tmp/verify-task.f6jTeL`: PASS. This repeat alone did
+  not establish a fix for the scheduling-dependent failure.
+- Read-only Git comparison: `git archive fcee1d2 | tar -x -C /tmp/t021-bisect-fcee1d2`.
+  T018 is the first silence-timing implementation; the only later engine change in the M2
+  range is T021-fix's incoming-remainder refusal, which leaves the failing decision intact.
+  Built that archive with the current device class overlaid; only the failing method ran.
+  Three original-method runs PASS, so the intermittent original assertion cannot give a
+  reliable binary pass/fail boundary. Snapshot build first failed on absent ignored FFmpeg
+  inputs; linking existing binaries/headers into the temporary archive allowed the build.
+  Logs: `/tmp/t021-bisect-fcee1d2-build.log`, `-build-retry.log`, `-instr.log`, `-logcat.log`,
+  `-instr-2.log`, `-logcat-2.log`, `-instr-3.log`, `-logcat-3.log` (same prefix).
+- Added deterministic real-engine regression: paused preroll is before 6000ms, but an advanced
+  supplied clock requests a measured-tail fade. On archived T018 this FAILS exactly with
+  `expected null, but was:<2000>`; disabled/no-tail/repeat-one controls pass before that assertion.
+  Logs `/tmp/t021-clock-red-build.log`, `/tmp/t021-clock-red-instr.log`,
+  `/tmp/t021-clock-red-logcat.log`. This establishes the mismatch in T018 independently of
+  timing luck. No old branch checked out, no Git metadata changed.
+- Corrected only positive measured-tail decisions to use the current processed position on
+  the playback looper. An unavailable processing clock logs provider/track/cause and defers.
+  The existing controller and startFade clamp still choose/limit duration. Original-policy
+  branches retain their input position. Existing failing PCM test was run before this edit;
+  the added deterministic test was also proven red on archived original code.
+
+Commands and milestone evidence:
+
+- Before first/final gates: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'` (no matching
+  daemon is acceptable); `/proc/meminfo` MemAvailable 4,127,552 / 4,211,020 kB, both >=2GB.
+- Full gate command: `bash .claude/skills/verify-task/scripts/verify.sh --files '<task paths>'
+  --lint --instrumented '<six classes>'`; no `--quick` or host-test filter. Task paths are
+  the five authored files below. Classes: NightModeDeviceTest, SilenceCrossfadeDeviceTest,
+  player.media3.Media3CrossfadeTest, player.media3.Media3EngineCoreTest,
+  player.media3.Media3LimiterTest and analysis.LoudnessStoreTest, all under
+  `com.amwolfstein.sistrum`. Final gate result: **GATE: PASS**
+  `/tmp/verify-task.fezU3l` on attempt 3 (first full gate FAIL; isolated repeat PASS; final full gate PASS).
+  Fresh app execution: 1454 cases / 177 classes, 0 failures/errors, one unchanged
+  `WaxFlowOracleLoudnessTest.matchesWaxFlowOracleFixtures` assumption skip (`SISTRUM_CORPUS` unset).
+  sharedLogic: 39 cached passes / 9 classes. assembleDevQa PASS. lintDevQa BUILD SUCCESSFUL,
+  XML has 0 errors, 72 warnings and 14 hints (gate reports INFO, so XML/build checked separately).
+  Current `.qa` phone: NightModeDeviceTest 2/2, SilenceCrossfadeDeviceTest 6/6,
+  Media3CrossfadeTest 16/16, Media3EngineCoreTest 12/12, Media3LimiterTest 2/2,
+  LoudnessStoreTest 21/21; total 59/59, no skips. Per-class evidence in
+  `/tmp/verify-task.fezU3l/instr-<Class>.log` and `logcat-<Class>.log` for each of those six names;
+  all logs remain in that directory for triage. Fatal-exception/ANR/process-crash scan found none;
+  expected 9s/10s incoming-lead fallback logs include provider/track/cause.
+  SC-008 pre-session OFF 22.498775dB / ON 11.662587dB (48.163456% reduction); neutral/colored
+  OFF bytes match explicit 001 pipeline. SC-009 outgoing ends 7999.9318/6999.9318ms,
+  incoming first audible 12.4318ms, silent overlap 0ms, shared-clock offsets -46.1636/-76.5136ms.
+  No-silence/current-vs-001 fitted normalized starts equal; disabled policy retains 2000ms silent
+  overlap and 2002.5ms incoming lead. Delayed-B negative control and incoming EOF guards PASS.
+- `./gradlew :dsp:test :analysis:test :codecs:test :metadata:test --continue`:
+  combined exit 1 solely on `:metadata:verifyWaxLabelCorpus` (known D-27/T021a input
+  `owned/matroska-ffmpeg-aac.mka`). Metadata cases NOT RUN; no bypass/re-pin/generator change.
+  DSP 18/18, analysis 1127/1127 (both UP-TO-DATE), codecs 1487/1487 (executed), no failures,
+  errors or skips. Log `/tmp/t021-module-suites.log`.
+- Archived builds: `ANDROID_HOME=/home/amwolfstein/Android/Sdk ./gradlew -p
+  /tmp/t021-bisect-fcee1d2 :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest`,
+  then `:androidApp:assembleDevQaAndroidTest` for deterministic red. APK IDs checked with
+  aapt2 before every archived install; only `.dev.qa` / `.dev.qa.test` installed/instrumented.
+  Isolated diagnostics used `adb shell am instrument -w -e class '<class>#<method>'` with
+  `com.amwolfstein.sistrum.dev.qa.test/androidx.test.runner.AndroidJUnitRunner` and saved logcat.
+  The final gate reinstalls current QA APKs. Owner daily apps never installed, instrumented or stopped.
+
+Required files/reasons (final diff checked against impact; no incidental refactors):
+
+- `player/media3/Media3Engine.kt`: fix the device-discovered measured-tail clock mismatch.
+- `androidTest/.../player/SilenceCrossfadeDeviceTest.kt`: deterministic regression plus legacy
+  controls; all original methods/assertions retained.
+- `specs/002-kotlin-decoders/tasks.md`: T021 completion only after the final gate passes.
+- `specs/002-kotlin-decoders/HANDOFF.md`: current status, task row, evidence and owner manual list.
+- `specs/002-kotlin-decoders/DECISIONS.md`: D-42 choice; no architecture/ADR change.
+- `graphify-out/graph.json`, `graphify-out/.graphify_analysis.json`: required auto-refresh via
+  gate's `python3 .claude/hooks/graph_refresh.py auto` reports `graph: changed` (11657 nodes,
+  34590 edges); both generated artifacts included, never manually edited.
+
+Self-review: no removed/renamed/weakened test or changed expected value; no skip, swallowed
+exception, hidden fallback or unlogged new refusal. Numeric truth is the generated source's
+known 8000/7000ms audible end, existing 10ms/100ms bounds and paused processing clock.
+No feature/API/StateFlow, Room, default, decoder priority or 001 policy was removed or changed.
+No unrelated source/test file touched. Stage/commit/push NOT RUN: runner owns those actions.
+
+### M2 owner manual checks — NOT RUN (never automatic PASS)
+
+- Night mode OFF/ON at quiet volume on dynamic music; toggle mid-track and during crossfade;
+  confirm quieter loud passages, no click/pump, stable perceived level and acceptable voice/music quality.
+- Crossfade feel with >=2s outgoing tails and incoming leads; toggle silence skipping OFF/ON;
+  confirm music overlaps naturally, no silence hole or clipped ending, including no-silence tracks.
+- Repeat-one, manual skips, short incoming tracks, Bluetooth and wired-headset routes in real use.
+- Hardware post-session limiter ceiling and actual engine-to-factory Night preference PCM capture
+  remain unmeasured by these pre-session tests (D-40/D-41); limiter configuration tests alone do
+  not establish the acoustic/output ceiling. No listening/route/hardware PASS claimed.
 
 ## T021-fix — M2 review findings (2026-10-15)
 

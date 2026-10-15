@@ -44,6 +44,41 @@ import org.junit.runner.RunWith
 class SilenceCrossfadeDeviceTest {
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
+    @Test(timeout = 30_000)
+    fun retainedLeadCannotStartMeasuredTailBeforeCurrentProcessedClock() {
+        check(context.packageName.endsWith(".qa"))
+        val factory = Media3PlayerFactory(context)
+        val engine = Media3Engine(factory)
+        val file = File(context.cacheDir, "t021-clock-${System.nanoTime()}.wav")
+        try {
+            writeTone(file, 0L, 8_000L)
+            val item = PlaybackItem("clock", "clock", "test", file.absolutePath,
+                silence = SilenceProfile(0L, 2_000L))
+            engine.setCrossfade(2_000L, true)
+            engine.setFocusGain(0f)
+            runBlocking { engine.prepare(item, ItemGain.Unity, 0L, startPaused = true) }
+            await { (engine.gainProcessingPositionForTest(false)?.frames ?: 0L) > 0L }
+            val clock = requireNotNull(engine.gainProcessingPositionForTest(false))
+            assertTrue("paused preroll must precede the 6s fade boundary",
+                clock.frames * 1_000L / clock.sampleRate < 6_000L)
+            engine.setCrossfadeSkipSilence(false)
+            assertEquals("disabled policy keeps the supplied 001 clock", 2_000L,
+                engine.automaticFadeDurationMs(item, 8_000L, TOTAL_MS, false, 2))
+            engine.setCrossfadeSkipSilence(true)
+            assertEquals("repeat-one keeps the supplied 001 clock", 2_000L,
+                engine.automaticFadeDurationMs(item, 8_000L, TOTAL_MS, true, 2))
+            assertEquals("no-tail policy keeps the supplied 001 clock", 2_000L,
+                engine.automaticFadeDurationMs(item.copy(silence = SilenceProfile(0L, 0L)),
+                    8_000L, TOTAL_MS, false, 2))
+            assertNull("retained lead must not start a measured-tail fade before processing reaches it",
+                engine.automaticFadeDurationMs(item, 6_000L, TOTAL_MS, false, 2))
+        } finally {
+            engine.close()
+            assertEquals(0, factory.livePlayers)
+            assertTrue(!file.exists() || file.delete())
+        }
+    }
+
     @Test(timeout = 120_000)
     fun twoAndThreeSecondTailsOverlapAudibleAudioAndSkipIncomingLead() {
         for (tailMs in listOf(2_000L, 3_000L)) {

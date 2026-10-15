@@ -931,3 +931,27 @@ and unavailable/missing-audio reads. Production document defaults, Room SQL/sche
 Very short incoming tracks whose original zero-position timeline itself ends inside an existing 001 fade
 are outside this new-seek fix. Post-session limiter capture, engine preference propagation and listening
 remain unmeasured here; the review's MEDIUM/LOW follow-ups remain in HANDOFF.
+
+## D-42: Use the current processed clock for measured-tail decisions (T021)
+
+**Case:** the first M2 full device gate measured an outgoing fade ending at 7898.93ms instead of
+8000ms. The decision used the retained maximum processing lead, while startFade observed 5900ms
+and retained the requested 1999ms duration. The isolated repeat passed. Three archived T018 runs
+also passed; the intermittent scheduling condition prevents a deterministic commit-level bisection.
+A deterministic added device regression then failed on archived T018: a paused real processing clock
+received an advanced decision position and returned 2000ms instead of deferring. Code history locates
+the interaction in T018's new silence-end target, unchanged by T021-fix.
+
+**Options:** use the current processed position for positive measured tails (recommended); lengthen
+the fade after an early decision; alter the 001 retained-lead policy globally.
+
+**Chosen:** Media3Engine samples the current processed position on its playback looper when silence
+skipping is enabled, repeat-one is off and the outgoing tail is positive. It defers with provider/track
+and cause logged if that clock is unavailable. The existing controller decides the duration, and the
+existing startFade clamp handles further processing advances. Disabled policy, zero/missing tails,
+repeat-one and manual fades keep their existing paths. No architecture/ADR, settings, Room or 001
+policy change. The unchanged device assertion supplied the failing test before this correction;
+no tolerance, assertion, oracle or existing test is changed.
+
+**Revisit if:** device evidence shows additional processing-clock drift; retain the 10ms source-end
+and 100ms shared-clock assertions rather than relaxing their bounds.
