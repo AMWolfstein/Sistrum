@@ -17,6 +17,7 @@ internal class MeterResume(
     val sampleRate: Int,
     val channels: Int,
     val meterState: ByteArray,
+    val silence: SilenceResume? = null,
 )
 
 /** Result of measuring one track. */
@@ -26,6 +27,7 @@ internal data class TrackMeasurement(
     val truePeakDbtp: Double?,
     val samplePeakDbfs: Double?,
     val histogram: LoudnessHistogram?,
+    val silence: SilenceProfile? = null,
 )
 
 /**
@@ -75,6 +77,7 @@ internal class TrackAnalyzer(
         val free = ArrayBlockingQueue<Chunk>(poolBuffers)
         val filled = ArrayBlockingQueue<Chunk>(poolBuffers)
         val meterRef = AtomicReference<LoudnessMeter?>()
+        val silenceRef = AtomicReference<SilenceAccumulator?>()
         val meterErrorRef = AtomicReference<Throwable?>()
         val decodeOutcomeRef = AtomicReference<DecodeOutcome?>()
         val done = AtomicBoolean(false)
@@ -83,7 +86,12 @@ internal class TrackAnalyzer(
         val mismatch = AtomicBoolean(false)
         val firstChunkSeen = AtomicBoolean(false)
 
-        if (resume != null) meterRef.set(resume.meter)
+        if (resume != null) {
+            meterRef.set(resume.meter)
+            silenceRef.set(SilenceAccumulator(
+                resume.sampleRate, resume.channels, bufferFrames, resume.framesMetered, resume.silence,
+            ))
+        }
 
         val startUs = if (resume != null) resume.framesMetered * 1_000_000L / resume.sampleRate else 0L
 
@@ -126,6 +134,11 @@ internal class TrackAnalyzer(
                     if (error == null) {
                         try {
                             val meter = meterRef.get() ?: LoudnessMeter(chunk.rate, chunk.channels).also { meterRef.set(it) }
+                            val silence = silenceRef.get() ?: SilenceAccumulator(
+                                chunk.rate, chunk.channels, bufferFrames,
+                                resume?.framesMetered ?: 0L, resume?.silence,
+                            ).also { silenceRef.set(it) }
+                            silence.process(chunk.data, chunk.frames)
                             meter.process(chunk.data, 0, chunk.frames)
                             framesMetered += chunk.frames
                         } catch (t: Throwable) {
@@ -139,7 +152,7 @@ internal class TrackAnalyzer(
                     if (error == null) {
                         val meter = meterRef.get()
                         if (meter != null && clockMs() - lastCheckpointMs >= checkpointIntervalMs) {
-                            emitCheckpoint(onCheckpoint, mismatch, meter, framesMetered)
+                            emitCheckpoint(onCheckpoint, mismatch, meter, framesMetered, silenceRef.get()?.checkpoint())
                             lastCheckpointMs = clockMs()
                         }
                     }
@@ -151,7 +164,7 @@ internal class TrackAnalyzer(
                 val meter = meterRef.get()
                 if (meter != null) {
                     if (decodeOutcomeRef.get() is DecodeOutcome.Cancelled) {
-                        emitCheckpoint(onCheckpoint, mismatch, meter, framesMetered)
+                        emitCheckpoint(onCheckpoint, mismatch, meter, framesMetered, silenceRef.get()?.checkpoint())
                     } else {
                         meter.flush()
                     }
@@ -188,6 +201,9 @@ internal class TrackAnalyzer(
                 truePeakDbtp = meter?.truePeakDbtp(),
                 samplePeakDbfs = meter?.samplePeakDbfs(),
                 histogram = meter?.histogram(),
+                silence = if (finalOutcome is DecodeOutcome.Completed && (resume == null || resume.silence != null)) {
+                    silenceRef.get()?.profile() ?: SilenceProfile(0, 0)
+                } else null,
             ),
             hadFormatMismatch = mismatch.get(),
         )
@@ -210,7 +226,7 @@ internal class TrackAnalyzer(
             if (meter.sampleRate != resume.sampleRate || meter.channels != resume.channels) {
                 null
             } else {
-                PreparedResume(meter, resume.framesMetered, resume.sampleRate, resume.channels)
+                PreparedResume(meter, resume.framesMetered, resume.sampleRate, resume.channels, resume.silence)
             }
         } catch (t: Throwable) {
             null
@@ -234,10 +250,11 @@ internal class TrackAnalyzer(
             mismatch: AtomicBoolean,
             meter: LoudnessMeter,
             framesMetered: Long,
+            silence: SilenceResume?,
         ) {
             if (mismatch.get()) return
             try {
-                onCheckpoint(MeterResume(framesMetered, meter.sampleRate, meter.channels, meter.checkpoint()))
+                onCheckpoint(MeterResume(framesMetered, meter.sampleRate, meter.channels, meter.checkpoint(), silence))
             } catch (t: Throwable) {
                 // an exception from the callback must not stop the measurement
             }
@@ -250,6 +267,7 @@ internal class TrackAnalyzer(
         val framesMetered: Long,
         val sampleRate: Int,
         val channels: Int,
+        val silence: SilenceResume?,
     )
 
     /** One [measure] pass's result, plus whether a resume format mismatch forced a restart from zero. */

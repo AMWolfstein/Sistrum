@@ -33,11 +33,13 @@ sealed interface TrackLoudnessResult {
         val truePeakDbtp: Double,
         val samplePeakDbfs: Double,
         val histogram: LoudnessHistogram,
+        val silence: SilenceProfile? = null,
     ) : TrackLoudnessResult
 
     data class Silent(
         override val trackId: String,
         override val fingerprint: String,
+        val silence: SilenceProfile? = SilenceProfile(0, 0),
     ) : TrackLoudnessResult
 
     data class Failed(

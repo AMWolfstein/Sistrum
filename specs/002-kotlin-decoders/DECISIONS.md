@@ -744,3 +744,27 @@ and finishing the OFF blend drops it. Flush/reconfiguration resets the kernel an
 
 **Revisit if:** T020/T021's Android integration checks find propagation or session issues; host sink tests do not
 claim actual mixer/limiter capture or a device PASS. UI remains T019, device-test implementation T020.
+
+## D-36: Silence edges, checkpoints and one-shot refresh (T016)
+
+**Case:** T016 adds edge profiles to the existing loudness decode pass. The imported Detector requires explicit
+threshold/duration parameters and stores all spans; tracks can have arbitrarily many interior silent runs.
+
+**Options:** keep every span for the entire track; or detect frame-resolution chunk edges and join only edge runs.
+
+**Chosen:** use the unchanged `:dsp` Detector at −60 dBFS, strict peak threshold across all channels, with a one-frame
+minimum inside each bounded PCM chunk. Join those runs across chunks, then qualify leading/trailing runs against
+exactly one second (sample-rate frames) at EOF. This preserves R6's −60 dBFS / 1.0 s semantics, including runs that
+cross chunk/checkpoint boundaries, with bounded storage. Durations truncate to whole milliseconds. Fully silent
+tracks report their full duration at both edges; empty/shorter-than-one-second tracks report zero at both edges.
+The Detector has no ported default parameters to override R6.
+
+Checkpoint codec v2 includes the edge frame counts alongside loudness state; old/incomplete checkpoints restart at
+zero so no partial profile is published. Loudness's analyzer version and numeric algorithm remain unchanged.
+Existing planner rows supply successful documents missing the current silence version; no Room schema/SQL change.
+A failed refresh of usable loudness preserves it and records `silenceAttemptVersion`, so that version is attempted
+once without advertising an unmeasured `silenceVersion`. A later silence version can retry. Failed decode results
+never acquire new profile fields. Normal decoder-set retry rules remain in force.
+
+**Revisit if:** the detector algorithm/minimum/threshold changes (bump the silence version and checkpoint format),
+or the worker needs internal silent spans rather than just edges. Playback consumers and UI belong to later tasks.
