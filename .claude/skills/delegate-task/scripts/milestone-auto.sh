@@ -9,15 +9,17 @@
 # Any stop (BLOCKED task, failed commit, memory) ends the run; the reason is printed and in HANDOFF. Nobody takes over:
 # the owner decides. Usage:
 #   milestone-auto.sh --feature specs/<f> --milestone M2 --tasks 'T014 ... T021' --reviewers 'silent-failure-hunter ...'
+#   On a restart after the body tasks were committed, pass --from <first milestone commit> so the review range stays whole.
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
-feature="" milestone="" tasks="" reviewers="" out="${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/milestones"
+feature="" milestone="" tasks="" reviewers="" from="" out="${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/milestones"
 while [ $# -gt 0 ]; do
   case "$1" in
     --feature) feature="$2"; shift 2 ;;
     --milestone) milestone="$2"; shift 2 ;;
     --tasks) tasks="$2"; shift 2 ;;
     --reviewers) reviewers="$2"; shift 2 ;;
+    --from) from="$2"; shift 2 ;;
     *) echo "milestone-auto: unknown argument $1" >&2; exit 2 ;;
   esac
 done
@@ -88,7 +90,7 @@ if [ ${#body[@]} -gt 0 ]; then
   memory_ok || exit 1
   bash "$scripts/milestone-run.sh" --feature "$feature" --tasks "${body[*]}" || exit 1
 fi
-first=$(git log --format=%H --reverse "$start..HEAD" | head -1)
+first=${from:-$(git log --format=%H --reverse "$start..HEAD" | head -1)}
 range="${first:-HEAD}^..HEAD"
 
 # 2. review (skipped on restart when the reports exist)
