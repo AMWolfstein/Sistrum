@@ -13,6 +13,21 @@ import dev.chrisbanes.haze.blur.HazeColorEffect
 import dev.chrisbanes.haze.blur.hazeBlur
 import com.amwolfstein.sistrum.ui.theme.SistrumColors
 
+/** Shared decision for glass surfaces; reduceTransparency comes from ThemePreferences. */
+enum class GlassPolicy {
+    Blur,
+    Opaque,
+    ;
+
+    companion object {
+        fun resolve(
+            reduceTransparency: Boolean,
+            hazeAvailable: Boolean,
+            performanceFallback: Boolean,
+        ): GlassPolicy = if (reduceTransparency || !hazeAvailable || performanceFallback) Opaque else Blur
+    }
+}
+
 /** Downsampling makes small glass surfaces look pixelated after upscaling, so sample at full resolution. */
 internal val LiquidGlassPerformanceMode: HazePerformanceMode = HazePerformanceMode.Quality
 
