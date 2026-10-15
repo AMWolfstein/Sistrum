@@ -1049,13 +1049,18 @@ internal class Media3Engine(
         val now = SystemClock.elapsedRealtime()
         fadeNotBeforeMs = now + effective + outgoingLeadMsForTest
         fadeDrainDeadlineMs = 0L
+        // Validate before either curve is armed: a skipped lead must not let B publish EOF
+        // while A is still fading. Keep the original timeline when the remainder is too short.
+        val incomingPositionMs = incomingFadePositionMs(positionMs, incoming.p.duration, effective)
+        if (positionMs > 0L && incomingPositionMs == 0L) {
+            Log.w("Media3Engine", "Silence seek fallback provider=Media3 track=${incoming.item.trackId} " +
+                "leadMs=$positionMs durationMs=${incoming.p.duration} fadeMs=$effective: " +
+                "incoming remainder cannot cover fade; restarting at zero")
+        }
         outgoing.gain.processor?.startFade(FadeDirection.Out, effective)
         incoming.gain.fadeInAfterFlush(effective)
         // Replacing the single-item timeline forces a sink flush, even at paused position zero
         // where seekTo(0) may be optimized away. Arm the curve on that flush, after silent preroll.
-        val incomingPositionMs = if (incoming.p.duration != C.TIME_UNSET) {
-            positionMs.coerceIn(0L, incoming.p.duration.coerceAtLeast(0L))
-        } else positionMs.coerceAtLeast(0L)
         incoming.gain.positionOriginMs = incomingPositionMs
         incoming.p.setMediaItem(mediaItem(incoming.item), incomingPositionMs)
         incoming.p.prepare()
@@ -1340,3 +1345,7 @@ internal class Media3Engine(
         const val SESSION_VERIFY_POLL_MS = 50L
     }
 }
+
+/** Only a known incoming remainder covering the whole fade permits a silence seek. */
+internal fun incomingFadePositionMs(leadMs: Long, durationMs: Long, fadeMs: Long): Long =
+    if (leadMs > 0L && durationMs != C.TIME_UNSET && durationMs - leadMs >= fadeMs) leadMs else 0L

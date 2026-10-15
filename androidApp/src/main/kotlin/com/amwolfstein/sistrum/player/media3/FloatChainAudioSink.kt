@@ -252,9 +252,10 @@ private class NightModeProcessor(private val enabled: () -> Boolean) : BaseAudio
 
         val channels = inputAudioFormat.channelCount
         if (work.size != channels || work[0].size < frames) work = Array(channels) { FloatArray(frames) }
-        val dry = inputBuffer.order(ByteOrder.nativeOrder()).asFloatBuffer()
+        inputBuffer.order(ByteOrder.nativeOrder())
+        val dryStart = inputBuffer.position()
         for (frame in 0 until frames) {
-            for (channel in 0 until channels) work[channel][frame] = dry.get(frame * channels + channel)
+            for (channel in 0 until channels) work[channel][frame] = inputBuffer.getFloat(dryStart + (frame * channels + channel) * 4)
         }
         val voice = compressor ?: Compressor(inputAudioFormat.sampleRate, channels, Preset.VOICE)
             .also { compressor = it }
@@ -266,7 +267,7 @@ private class NightModeProcessor(private val enabled: () -> Boolean) : BaseAudio
                     else rampStart + (target - rampStart) * (1f - remaining.toFloat() / rampFrames)
             }
             for (channel in 0 until channels) {
-                val sample = dry.get(frame * channels + channel)
+                val sample = inputBuffer.getFloat(dryStart + (frame * channels + channel) * 4)
                 output.putFloat(when (mix) {
                     0f -> sample
                     1f -> work[channel][frame]

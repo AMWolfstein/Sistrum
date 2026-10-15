@@ -83,8 +83,8 @@ class NightModeDeviceTest {
     private fun render(input: FloatArray, enabled: Boolean, colored: Boolean = false): ByteArray {
         check(context.packageName.endsWith(".qa")) { "T020 requires the .qa target" }
         val factory = Media3PlayerFactory(context)
-        return factory.call {
-            val received = ByteArrayOutputStream()
+        val received = ByteArrayOutputStream()
+        val sink = factory.call {
             val inner = DefaultAudioSink.Builder(context).setEnableFloatOutput(true).build()
             val capture = object : ForwardingAudioSink(inner) {
                 override fun handleBuffer(buffer: ByteBuffer, presentationTimeUs: Long, encodedAccessUnitCount: Int): Boolean {
@@ -98,26 +98,32 @@ class NightModeDeviceTest {
                     return accepted
                 }
             }
-            val sink = FloatChainAudioSink(capture, chain(colored), nightMode = { enabled })
-            try {
+            FloatChainAudioSink(capture, chain(colored), nightMode = { enabled })
+        }
+        try {
+            factory.call {
                 sink.configure(AudioSink.AudioSinkConfig.Builder(Format.Builder()
                     .setSampleMimeType(MimeTypes.AUDIO_RAW).setSampleRate(RATE).setChannelCount(2)
                     .setPcmEncoding(C.ENCODING_PCM_FLOAT).build()).build())
                 sink.setVolume(0f)
                 sink.play()
-                val deadline = SystemClock.elapsedRealtime() + 30_000L
-                for (offset in input.indices step 514) {
-                    val data = buffer(input.copyOfRange(offset, minOf(input.size, offset + 514)))
-                    while (!sink.handleBuffer(data, offset.toLong() / 2 * 1_000_000L / RATE, 1)) {
-                        assertTrue("AudioTrack backpressure timed out", SystemClock.elapsedRealtime() < deadline)
-                        SystemClock.sleep(2L)
-                    }
-                    assertFalse("input left unconsumed", data.hasRemaining())
+            }
+            // Keep AudioTrack backpressure waits on the test thread. Each looper call is short,
+            // so the nine-second SC-008 signal cannot exceed factory.call's five-second bound.
+            val deadline = SystemClock.elapsedRealtime() + 30_000L
+            for (offset in input.indices step 514) {
+                val data = buffer(input.copyOfRange(offset, minOf(input.size, offset + 514)))
+                while (!factory.call { sink.handleBuffer(data, offset.toLong() / 2 * 1_000_000L / RATE, 1) }) {
+                    assertTrue("AudioTrack backpressure timed out", SystemClock.elapsedRealtime() < deadline)
+                    SystemClock.sleep(2L)
                 }
+                assertFalse("input left unconsumed", data.hasRemaining())
+            }
+            return factory.call {
                 sink.playToEndOfStream()
                 received.toByteArray().also { assertEquals("no lost or added float samples", input.size * 4, it.size) }
-            } finally { sink.reset(); sink.release() }
-        }
+            }
+        } finally { factory.call { sink.reset(); sink.release() } }
     }
 
     private fun chain(colored: Boolean): List<AudioProcessor> = listOf(

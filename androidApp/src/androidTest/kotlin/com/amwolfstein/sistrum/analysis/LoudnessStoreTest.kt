@@ -6,6 +6,8 @@ import java.io.File
 import kotlin.math.pow
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import com.amwolfstein.sistrum.analysis.loudness.LoudnessHistogram
@@ -160,8 +162,53 @@ class LoudnessStoreTest {
     @Test fun aMeasuredTrackIsNoLongerPending() = runBlocking {
         write(listOf(taggedTrack("A")))
         assertTrue("A is pending before analysis", loudness.pendingTracks().any { it.trackId == "A" })
-        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
+        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9, hist(-14.2 to 100), SilenceProfile(0L, 0L)))
         assertTrue("a measured track is not pending", loudness.pendingTracks().none { it.trackId == "A" })
+    }
+
+    // FR-020 / D-36: legacy loudness needs one edge refresh; current measured edges do not.
+    @Test fun missingOldAndCurrentSilenceVersionsUseRealRoomPendingAndPlaybackReads() = runBlocking {
+        write(listOf(taggedTrack("A")))
+        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
+        val legacy = Json.parseToJsonElement(rawDocument("analysis", "A")!!).jsonObject
+        for (version in listOf(null, "silence-0", "silence-1")) {
+            val fields = legacy.toMutableMap()
+            if (version != null) {
+                fields["silenceVersion"] = JsonPrimitive(version)
+                fields["silenceLeadMs"] = JsonPrimitive(2_000L)
+                fields["silenceTailMs"] = JsonPrimitive(3_000L)
+            }
+            database.syncDao().upsertActiveDocument("analysis", "A", JsonObject(fields).toString())
+            assertEquals("pending version=$version", if (version == "silence-1") emptyList<String>() else listOf("A"),
+                loudness.pendingTracks().map { it.trackId })
+            assertEquals("playback version=$version", if (version == "silence-1") SilenceProfile(2_000L, 3_000L) else null,
+                loudness.silenceProfile("A"))
+        }
+        database.syncDao().upsertActiveDocument("analysis", "A", legacy.toString())
+        assertEquals("legacy measurement needs refresh", listOf("A"), loudness.pendingTracks().map { it.trackId })
+        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9,
+            hist(-14.2 to 100), SilenceProfile(1_000L, 4_000L)))
+        assertTrue("successful refresh clears pending", loudness.pendingTracks().isEmpty())
+        assertEquals(SilenceProfile(1_000L, 4_000L), loudness.silenceProfile("A"))
+        write(listOf(taggedTrack("A")))
+        assertTrue("current profile survives active-plan replacement", loudness.pendingTracks().isEmpty())
+        assertEquals(SilenceProfile(1_000L, 4_000L), loudness.silenceProfile("A"))
+        write(listOf(taggedTrack("A")), hashes = mapOf("A" to "changed"))
+        assertNull("changed audio cannot use the old profile", loudness.silenceProfile("A"))
+        assertEquals(listOf("A"), loudness.pendingTracks().map { it.trackId })
+        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9,
+            hist(-14.2 to 100), SilenceProfile(1_000L, 4_000L)))
+        assertNull("late stale refresh cannot restore the old profile", loudness.silenceProfile("A"))
+    }
+
+    @Test fun unavailableOrMissingAudioDoesNotScheduleSilenceRefresh() = runBlocking {
+        write(listOf(taggedTrack("A").copy(decoderUnavailable = "unsupported"), taggedTrack("B")))
+        for (id in listOf("A", "B")) {
+            loudness.writeResult(TrackLoudnessResult.Measured(id, "hash-$id", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
+        }
+        database.openHelper.writableDatabase.execSQL("DELETE FROM sync_assets WHERE assetId = 'audio:B'")
+        assertTrue("neither unavailable nor missing audio is refreshable", loudness.pendingTracks().isEmpty())
+        assertNull("no active fingerprint", loudness.silenceProfile("B"))
     }
 
     @Test fun aFailedTrackIsNotPendingForItsVersionButAnotherVersionListsItAgain() = runBlocking {
@@ -188,6 +235,9 @@ class LoudnessStoreTest {
         assertEquals("boom", after["last_failure"]!!.jsonObject["reason"]!!.jsonPrimitive.content)
         assertNotNull(after["last_failed_at"])
         assertEquals(histogram, rawDocument("loudness_histogram", "A"))
+        assertEquals("silence-1", after["silenceAttemptVersion"]!!.jsonPrimitive.content)
+        assertTrue("failed refresh never advertises a measured profile", "silenceVersion" !in after)
+        assertNull(loudness.silenceProfile("A"))
         assertEquals(-14.2f, store.activeAnalyses().getValue("A").loudnessLufs, 0f)
         assertEquals(-0.5f, store.activeAnalyses().getValue("A").truePeak, 0f)
         assertTrue(loudness.pendingTracks().isEmpty())
@@ -196,8 +246,8 @@ class LoudnessStoreTest {
     @Test fun decoderSetChangeRetriesFailedDocumentsOnly() = runBlocking {
         write(listOf(taggedTrack("A"), taggedTrack("B"), taggedTrack("C")))
         loudness.writeResult(TrackLoudnessResult.Failed("A", "hash-A", "kotlin-wma", "boom"))
-        loudness.writeResult(TrackLoudnessResult.Measured("B", "hash-B", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
-        loudness.writeResult(TrackLoudnessResult.Silent("C", "hash-C"))
+        loudness.writeResult(TrackLoudnessResult.Measured("B", "hash-B", -14.2, -0.5, -0.9, hist(-14.2 to 100), SilenceProfile(0L, 0L)))
+        loudness.writeResult(TrackLoudnessResult.Silent("C", "hash-C", SilenceProfile(210_000L, 210_000L)))
         for (id in listOf("A", "B", "C")) {
             val json = Json.parseToJsonElement(rawDocument("analysis", id)!!).jsonObject
             assertEquals(DECODER_SET_VERSION, json["decoder_set_version"]!!.jsonPrimitive.content)
@@ -215,8 +265,8 @@ class LoudnessStoreTest {
 
     @Test fun rescanKeepsUnchangedRowsAndDropsChangedOnes() = runBlocking {
         write(listOf(taggedTrack("A"), taggedTrack("B")))
-        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9, hist(-14.2 to 100)))
-        loudness.writeResult(TrackLoudnessResult.Measured("B", "hash-B", -16.0, -0.4, -0.8, hist(-16.0 to 100)))
+        loudness.writeResult(TrackLoudnessResult.Measured("A", "hash-A", -14.2, -0.5, -0.9, hist(-14.2 to 100), SilenceProfile(0L, 0L)))
+        loudness.writeResult(TrackLoudnessResult.Measured("B", "hash-B", -16.0, -0.4, -0.8, hist(-16.0 to 100), SilenceProfile(0L, 0L)))
 
         write(listOf(taggedTrack("A"), taggedTrack("B")))
         assertEquals("unchanged rows survive", setOf("A", "B"), store.activeAnalyses().keys)

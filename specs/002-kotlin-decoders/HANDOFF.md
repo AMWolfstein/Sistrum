@@ -5,14 +5,22 @@
 ## Current status
 
 - **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 `a18bbcb`, T015 `b1bf978`, T016 `654c30b`,
-  T017 `2eccc49`, T018 `fcee1d2`, T019 `936e772` committed. T020 device tests written;
-  commit prepared for the runner on `feature/media3-migration`.
-- **Next step:** runner commits T020; T021 runs the M2 full gate and `.qa` phone check, subject to its own brief.
+  T017 `2eccc49`, T018 `fcee1d2`, T019 `936e772`, T020 `d2b9669` committed.
+  T021-fix M2 review fixes prepared for the runner on `feature/media3-migration`; M2 acceptance remains pending.
+- **Next step:** runner commits T021-fix; T021 runs the M2 full gate and `.qa` phone check, subject to its own brief.
   Run `com.amwolfstein.sistrum.player.NightModeDeviceTest` and
   `com.amwolfstein.sistrum.player.SilenceCrossfadeDeviceTest` plus T021's prescribed 001 classes.
-  T020 performs no installation, instrumentation or device access.
+  Also run `com.amwolfstein.sistrum.analysis.LoudnessStoreTest` for the updated M2 database-consumer
+  fixtures and refresh coverage. T021-fix performs no installation, instrumentation or device access.
   004: Phase 0 done; owner choices recorded in `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images
   from Rhythm; Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **T021-fix result:** quick GATE: PASS, `/tmp/verify-task.ALh50l`; 402/402 host tests across 44 classes,
+  zero failures/errors/skips; unchanged T014 8/8 and T017 21/21 PASS. Production Kotlin compilation PASS.
+  Five distinct HIGH findings confirmed and addressed (none rejected); D-41 records the incoming seek
+  refusal, common audible clock, short render calls and explicit current Room fixtures. Allocation red
+  measured 28,672 bytes/512 blocks; final warmed allocation test requires zero and passes. Device Kotlin
+  compilation PASS (`/tmp/t021-fix-device-compile-final.log`); all device execution is NOT RUN (T021).
+  MEDIUM/LOW follow-ups remain below; no runtime SC-008/SC-009, hardware limiter or listening PASS claimed.
 - **T020 result:** quick GATE: PASS, `/tmp/verify-task.hVguV8`; 32/32 host tests across 3 classes,
   0 failures/errors/skips; production compile PASS. Two new device classes contain 5 methods, written but
   NOT RUN (T021). D-40 records deterministic PCM fixtures, 001 byte/timing oracles, the silence negative
@@ -79,6 +87,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T021-fix M2 review fixes; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.ALh50l`, 402/402 host cases / 44 classes, 0 failures/errors/skips; production and final device-test Kotlin compile PASS (initial private-looper compile failure corrected; details below). All five distinct HIGH issues confirmed and fixed test-first; no rejected CRITICAL/HIGH findings. New allocation/boundary host tests and real EOF/shared-clock/Room device cases; all original T014/T017 and 001 assertions retained. D-41; exact files, commands, compile retries and MEDIUM/LOW follow-ups below. Graph generated pair required by auto-refresh. NOT RUN: device execution/SC-008/SC-009/Room runtime, full suites/sharedLogic/lint/assemble (T021), post-session limiter and actual Night preference capture (no seam), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 004/005 work preserved and excluded. |
 | 2026-10-15 | T020 device PCM tests; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.hVguV8`; 32/32 unchanged host cases (3 classes), 0 failures/errors/skips; production Kotlin compile PASS. NightModeDeviceTest.kt required for SC-008 accepted float-sink byte identity and plateau range; SilenceCrossfadeDeviceTest.kt required for SC-009 real dual-player captures, exact generated edges, no-silence legacy timing and disabled-option negative control. Extra docs tasks.md/HANDOFF.md/DECISIONS.md required for completion, evidence and D-40 measurement choices; generated graph pair required because refresh reported changed (11,617 nodes / 34,472 edges). Final device-test Kotlin compile PASS after one daemon-loss retry, `/tmp/t020-device-compile-retry.log`. NOT RUN: 5 new instrumented methods, full suites/sharedLogic/lint/assemble/phone (T021); hardware post-session limiter capture and engine-to-factory Night setting capture (no existing post-Night factory seam); listening/Bluetooth/headset (owner); stage/commit/push (runner). Unrelated specs/005-bugfixes/tasks.md and concurrent untracked specs/004-ui-extensions/spec.md preserved/excluded. No other task implemented. |
 | 2026-10-15 | T019 playback toggles; commit: prepared, awaiting runner | Quick GATE: PASS, attempt 1, `/tmp/verify-task.I2tr2T`; 138/138 cases, 33 classes, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed, pair included. D-39: existing selected-engine availability and saved values while disabled. Six implementation/resource files plus required task/status/decision records and graph pair; file reasons/commands below. NOT RUN: full suites/sharedLogic, lint, assemble, UI interaction/device/PCM (milestone), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved/excluded. No follow-up refactors. |
 | 2026-10-15 | T018 silence-aware playback; commit: prepared, awaiting runner | Final quick GATE: PASS (third/final verification run), `/tmp/verify-task.IFo8D7`; 281/281 cases, 23 classes, no errors/skips, unchanged T017 21/21; 11 new cases PASS. Earlier broad snapshot: 1,036 pass, one existing oracle skip. Production compile PASS; graph changed, generated pair included. D-38: version/fingerprint validation, engine policy dispatch and same-item repeat rule. Files/reasons and all commands below; no extra source files/refactors. NOT RUN: full suites/sharedLogic, lint, assemble, device/PCM/SC-009 (milestone), manual listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved and excluded; no follow-up refactors. |
@@ -121,6 +130,101 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T021-fix — M2 review findings (2026-10-15)
+
+Read every report in `review/M2/`: audio-correctness-reviewer, kotlin-reviewer,
+playback-lifecycle-reviewer, pr-test-analyzer, silent-failure-hunter,
+spec-traceability-auditor and translation-reviewer. Checked all HIGH findings against their callers.
+No CRITICAL findings. All five distinct HIGH findings confirmed; duplicate timeout reports share a fix.
+Rejected CRITICAL/HIGH findings: none. MEDIUM/LOW follow-ups are listed below, not independently expanded.
+
+Impact recorded before editing in `/tmp/t021-fix-impact.txt` using `git grep`:
+factory -> FloatChainAudioSink; TransitionController -> Media3Engine.startFade -> coordinator's
+TransitionStarted/Ended handling; LoudnessStore pending/profile readers -> worker/service/coordinator.
+No production Room SQL/schema/version, analysis document/default, preferences, DecoderProvider order,
+PlaybackController, native, ADR, or spec 001 API change. T014/T017 and all 001 player tests remain untouched.
+
+Files required (final diff checked against the impact list; no incidental refactors):
+
+- `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3Engine.kt`: refuse incoming
+  silence seeks when known post-seek duration cannot cover the effective fade; log provider/track/cause
+  and restore zero-position timeline before arming either curve (audio HIGH). Pure boundary helper stays
+  beside its only production caller; no queue/EOF/public-engine contract change.
+- `androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/FloatChainAudioSink.kt`: replace the
+  per-block FloatBuffer view with absolute reads at the original byte offset (Kotlin HIGH / audio MEDIUM duplicate).
+- `androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/media3/NightModeAllocationTest.kt`: test
+  written/run before the allocation fix, counter positive control, 3 channels/nonzero input offset,
+  zero bytes across 512 warmed blocks and literal VOICE makeup output. Original code failed at 28,672 bytes.
+- `androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/media3/IncomingFadePositionTest.kt`: tests
+  written before the seek fix; sufficient/exact/one-ms-short remainder, EOF/past-EOF lead, unknown/empty
+  duration and zero seek. Real engine execution remains the device regression's responsibility.
+- `androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/player/NightModeDeviceTest.kt`: keep the
+  nine-second fixture and every PCM/deadline assertion; drive short looper operations and retry backpressure
+  on the instrumentation thread (Kotlin HIGH / test-analyzer H1). No timeout extension.
+- `androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/player/SilenceCrossfadeDeviceTest.kt`:
+  shared elapsedRealtime/audible-player clocks retain B's measured offset when testing overlap (H3);
+  real 3000ms pause of B is a rejecting negative control. Added real-engine 9s/10s lead regressions,
+  complete outgoing curve and Ended-after-fade assertions, written before production fix (audio HIGH).
+  Waits for real ready players; delayed callbacks removed at teardown. Existing gain/timing/PCM bounds retained.
+- `androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/analysis/LoudnessStoreTest.kt`: fix only
+  pending/rescan fixtures to contain explicitly measured current edges per FR-020/D-36 (H2); unchanged
+  no-reanalysis/loudness expectations. Add Room missing/old/current version, successful refresh, failed
+  one-shot refresh retaining loudness/histogram, active-plan replacement, changed/stale fingerprints,
+  unavailable and missing audio cases. Legacy exact-key fixture deliberately remains legacy.
+- `specs/002-kotlin-decoders/{tasks,HANDOFF,DECISIONS}.md`: required task completion/status/evidence
+  and D-41 choices. T021-fix task line was already added in the working tree; included and checked.
+- `graphify-out/graph.json` and `graphify-out/.graphify_analysis.json`: generated only by required
+  auto-refresh; include because the gate reported `graph: changed`.
+
+Commands/results:
+
+- Memory preflight: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`; `/proc/meminfo`
+  MemAvailable 2,114,012 kB initially and 2,304,800 kB before quick gate (both >= 2 GiB).
+- `./gradlew :androidApp:testDevQaUnitTest --tests 'com.amwolfstein.sistrum.player.media3.NightModeAllocationTest'`:
+  expected red assertion on original code (1 test / 1 allocation assertion failure),
+  `/tmp/t021-fix-allocation-red.log`. Not a gate failure or an accepted final failure.
+- Focused allocation + IncomingFadePositionTest run: PASS, 3 tests,
+  `/tmp/t021-fix-host-green.log`.
+- `bash .claude/skills/verify-task/scripts/verify.sh --files '<the seven Kotlin paths above>'
+  --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.player.media3.*'
+  --tests 'com.amwolfstein.sistrum.player.PlaybackCoordinator*'
+  --tests 'com.amwolfstein.sistrum.analysis.SilenceProfileTest'
+  --tests 'com.amwolfstein.sistrum.analysis.PlaybackSilenceProfileTest'`:
+  GATE: PASS, `/tmp/verify-task.ALh50l` / `/tmp/t021-fix-quick-gate.log`.
+  JUnit XML: 402 cases / 44 classes, 0 failures/errors/skips; unchanged T014 8/8 and T017 21/21.
+  Production compile PASS. No module propagation edge: app-only source changes.
+- `./gradlew :androidApp:compileDevQaAndroidTestKotlin`: initial compile FAIL on the new test's
+  direct access to the factory's private looper (`/tmp/t021-fix-device-compile.log`); corrected by
+  constructing the handler inside `factory.call`. Retry PASS (`/tmp/t021-fix-device-compile-retry.log`).
+  Final compile after adding the explicit ready-player prerequisite: PASS (27s),
+  `/tmp/t021-fix-device-compile-final.log`; no device execution.
+- Gate ran `python3 .claude/hooks/graph_refresh.py auto`: changed (11,638 nodes / 34,536 edges).
+  Final explicit `python3 .claude/hooks/graph_refresh.py auto`: changed (11,638 nodes / 34,538 edges),
+  `/tmp/t021-fix-graph-final.log`; generated pair included. `git diff --check`: PASS.
+
+Self-review: no tests deleted/renamed/skipped/weakened, no expected value changed, no timeout extended.
+Room fixture changes are explicit inputs for FR-020/D-36, with old legacy states still covered. No swallowed
+exceptions/cancellation, unlogged new fallback, disabled feature or public contract change. Every changed
+behaviour has a named regression above; device runtime remains honestly unverified.
+
+Follow-ups (MEDIUM/LOW only, no extra implementation in this fix):
+
+- Test analyzer MEDIUM M1: actual saved/live Night mode flow through real A/B/replacement engine players,
+  post-Night capture and collector cancellation (`FloatChainNightModeTest.kt:125`, report line references).
+- Test analyzer MEDIUM M2: nonintegral 44.1kHz/high-rate checkpoint seeks and exact resumed frame sequence
+  (`SilenceProfileTest.kt:47`).
+- Spec auditor LOW: older committed task-log rows still use historical prepared-bundle wording
+  (`HANDOFF.md:82` in report). Current status rewritten as required by autonomous step 6; bulk historical
+  row cleanup deferred. T020 is `d2b9669`.
+- Audio MEDIUM FloatBuffer allocation is the same issue escalated to HIGH by the Kotlin report and is
+  fixed here; no separate allocation optimisation or device underrun claim.
+
+NOT RUN: all device methods (including new EOF/shared-clock negative control and Room cases), SC-008/SC-009
+runtime, full suites/sharedLogic, lint, assemble, and device log capture: T021 owns full gate/phone access.
+Post-session limiter PCM/engine-to-factory Night preference capture: no capture seam in this task.
+Listening/Bluetooth/headset: owner manual list; never PASS. Stage/commit/push: runner consumes the package.
+Existing unrelated `specs/005-bugfixes/tasks.md` and untracked `specs/004-ui-extensions/` work preserved/excluded.
 
 ## T020 verification and impact review — 2026-10-15
 

@@ -1,6 +1,8 @@
 package com.amwolfstein.sistrum.player
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import androidx.annotation.OptIn
 import androidx.media3.common.C
@@ -8,6 +10,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.audio.TeeAudioProcessor
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.amwolfstein.sistrum.analysis.SilenceProfile
@@ -32,7 +35,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /** T020 / SC-009. Generated corpus has exactly known silence edges, not edges inferred from
- * the policy under test. Like 001 Media3CrossfadeTest, fit 5ms PCM gain windows on each sink.
+ * the policy under test. Fit 5ms PCM gain windows and anchor them to the players' audible
+ * clocks on elapsedRealtime, as in 001 Media3CrossfadeTest.
  * Captures are before track volume/session effects, so focus mute cannot hide a PCM failure.
  */
 @OptIn(UnstableApi::class)
@@ -49,7 +53,7 @@ class SilenceCrossfadeDeviceTest {
                 measured.outgoingEndMs, 10.0)
             assertTrue("incoming leading silence was rendered into the fade: ${measured.incomingFirstAudibleMs}ms",
                 measured.incomingFirstAudibleMs <= 100.0)
-            assertTrue("SC-009 overlap silence=${measured.silentOverlapMs}ms", measured.silentOverlapMs <= 100)
+            assertCommonClockOverlap(measured)
             report("tail=$tailMs lead=2000 $measured")
         }
     }
@@ -80,17 +84,90 @@ class SilenceCrossfadeDeviceTest {
         report("skip=false $measured")
     }
 
+    @Test(timeout = 60_000)
+    fun delayedIncomingPlaybackFailsTheCommonClockOverlapOracle() {
+        val delayed = measure(2_000L, 2_000L, profiles = true, skip = true, delayIncomingMs = 3_000L)
+        assertTrue("actual delayed B was not detected: $delayed", delayed.incomingOffsetMs > 100.0)
+        assertThrows(AssertionError::class.java) { assertCommonClockOverlap(delayed) }
+    }
+
+    @Test(timeout = 90_000)
+    fun shortAndEntirelySilentIncomingTracksCannotEndDuringTheOutgoingFade() {
+        check(context.packageName.endsWith(".qa"))
+        for (leadMs in listOf(9_000L, TOTAL_MS)) {
+            val taps = mutableListOf<Tap>()
+            val factory = Media3PlayerFactory(context, afterGainProcessors = {
+                arrayOf<AudioProcessor>(TeeAudioProcessor(Tap().also { taps += it }))
+            })
+            val engine = Media3Engine(factory)
+            val aFile = File(context.cacheDir, "t021-fix-a-${System.nanoTime()}.wav")
+            val bFile = File(context.cacheDir, "t021-fix-b-${System.nanoTime()}.wav")
+            val events = mutableListOf<EngineEvent>()
+            try {
+                writeTone(aFile, 0L, TOTAL_MS)
+                writeTone(bFile, leadMs, TOTAL_MS)
+                val a = PlaybackItem("a", "outgoing", "test", aFile.absolutePath, silence = SilenceProfile(0L, 0L))
+                val b = PlaybackItem("b", "incoming", "test", bFile.absolutePath, silence = SilenceProfile(leadMs, if (leadMs == TOTAL_MS) TOTAL_MS else 0L))
+                engine.setCrossfade(4_000L, true)
+                engine.setFocusGain(0f)
+                runBlocking { engine.prepare(a, ItemGain.Unity, ORIGIN_MS, false) }
+                runBlocking { engine.preloadNext(b, ItemGain.Unity) }
+                await {
+                    events += engine.pollEvents()
+                    assertTrue("engine errors: $events", events.none { it is EngineEvent.Error })
+                    factory.livePlayers == 2 && factory.call {
+                        engine.playersForTest().all { it.playbackState == Player.STATE_READY }
+                    }
+                }
+                await {
+                    val duration = engine.automaticFadeDurationMs(a, engine.positionMs() + engine.fadeLeadMs(), TOTAL_MS, false, 4)
+                    duration != null && engine.hasPreloaded() && engine.beginCrossfade(duration)
+                }
+                val incomingStart = engine.positionMs()
+                await {
+                    events += engine.pollEvents()
+                    assertTrue("engine errors: $events", events.none { it is EngineEvent.Error })
+                    assertTrue("incoming EOF truncated outgoing fade, lead=$leadMs", events.none { it is EngineEvent.Ended })
+                    !engine.isCrossfading()
+                }
+                assertTrue("unsafe lead must restart from zero", incomingStart < 1_000L)
+                val fade = events.filterIsInstance<EngineEvent.TransitionStarted>().single()
+                val outStart = fitStart(taps[0].rows(), fade.fadeMs, incoming = false)
+                assertEquals("outgoing curve reaches the last source frame before EOF promotion",
+                    TOTAL_MS.toDouble(), ORIGIN_MS + outStart + fade.fadeMs, 10.0)
+                assertEquals("must finish both curves before outgoing release", 1, factory.livePlayers)
+                await {
+                    events += engine.pollEvents()
+                    assertTrue("engine errors: $events", events.none { it is EngineEvent.Error })
+                    events.any { it is EngineEvent.Ended }
+                }
+                assertEquals("one real incoming EOF after fade completion", 1, events.count { it is EngineEvent.Ended })
+            } finally {
+                engine.close()
+                assertEquals(0, factory.livePlayers)
+                assertTrue(!aFile.exists() || aFile.delete())
+                assertTrue(!bFile.exists() || bFile.delete())
+            }
+        }
+    }
+
+    private fun assertCommonClockOverlap(measured: Measurement) {
+        assertTrue("incoming audible clock offset=${measured.incomingOffsetMs}ms", abs(measured.incomingOffsetMs) <= 100.0)
+        assertTrue("SC-009 overlap silence=${measured.silentOverlapMs}ms", measured.silentOverlapMs <= 100)
+    }
+
     private data class Measurement(
         val outgoingStartMs: Double?,
         val fadeMs: Long,
         val incomingFirstAudibleMs: Double,
         val silentOverlapMs: Int,
+        val incomingOffsetMs: Double,
     ) {
         val outgoingEndMs get() = requireNotNull(outgoingStartMs) + fadeMs
         val normalizedStartMs get() = outgoingEndMs - FADE_MS
     }
 
-    private fun measure(tailMs: Long, leadMs: Long, profiles: Boolean, skip: Boolean): Measurement {
+    private fun measure(tailMs: Long, leadMs: Long, profiles: Boolean, skip: Boolean, delayIncomingMs: Long = 0L): Measurement {
         check(context.packageName.endsWith(".qa")) { "T020 requires the .qa target" }
         val taps = mutableListOf<Tap>()
         val factory = Media3PlayerFactory(context, afterGainProcessors = {
@@ -100,6 +177,18 @@ class SilenceCrossfadeDeviceTest {
         val outgoingFile = File(context.cacheDir, "t020-out-${System.nanoTime()}.wav")
         val incomingFile = File(context.cacheDir, "t020-in-${System.nanoTime()}.wav")
         val events = mutableListOf<EngineEvent>()
+        var outgoing: ExoPlayer? = null
+        var incoming: ExoPlayer? = null
+        val aClocks = mutableListOf<Clock>()
+        val bClocks = mutableListOf<Clock>()
+        val delayHandler = factory.call { Handler(Looper.myLooper()!!) }
+        var delayedResume: Runnable? = null
+        fun sampleClocks() = factory.call {
+            val live = engine.playersForTest()
+            val now = SystemClock.elapsedRealtime()
+            outgoing?.takeIf { it in live }?.let { aClocks += Clock(now, it.currentPosition) }
+            incoming?.takeIf { it in live }?.let { bClocks += Clock(now, it.currentPosition) }
+        }
         try {
             writeTone(outgoingFile, 0L, TOTAL_MS - tailMs)
             writeTone(incomingFile, leadMs, TOTAL_MS)
@@ -112,6 +201,7 @@ class SilenceCrossfadeDeviceTest {
             engine.setFocusGain(0f)
             runBlocking { engine.prepare(a, ItemGain.Unity, ORIGIN_MS, false) }
             runBlocking { engine.preloadNext(b, ItemGain.Unity) }
+            outgoing = engine.playersForTest().first()
             await {
                 events += engine.pollEvents()
                 assertTrue("engine errors: $events", events.none { it is EngineEvent.Error })
@@ -130,15 +220,37 @@ class SilenceCrossfadeDeviceTest {
                         crossfadeDurationMs(2, decision, TOTAL_MS) else null
                 } else engine.automaticFadeDurationMs(a, decision, TOTAL_MS, false, 2)
                 if (duration != null) {
+                    if (delayIncomingMs > 0L) factory.call {
+                        val p = engine.playersForTest().last()
+                        p.addListener(object : Player.Listener {
+                            private var delayed = false
+                            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                                if (!isPlaying || delayed || !engine.isCrossfading()) return
+                                delayed = true
+                                p.pause()
+                                delayedResume = Runnable { p.play() }.also {
+                                    delayHandler.postDelayed(it, delayIncomingMs)
+                                }
+                            }
+                        })
+                    }
                     assertTrue("ready fade refused", engine.beginCrossfade(duration))
+                    incoming = engine.playersForTest().first()
                     began = true
                 }
                 began
             }
             await {
+                sampleClocks()
                 events += engine.pollEvents()
                 assertTrue("engine errors: $events", events.none { it is EngineEvent.Error })
                 !engine.isCrossfading() && factory.livePlayers == 1
+            }
+            // Keep sampling until the incoming audible clock advances after its final seek.
+            val incomingOrigin = if (skip) leadMs else 0L
+            await {
+                sampleClocks()
+                bClocks.count { it.positionMs > incomingOrigin + 100L } >= 20
             }
             // Capture enough B after completion to include an unskipped 2s lead in the OFF control.
             await { taps[1].rows().any { it.rms > 0.01 } }
@@ -164,25 +276,38 @@ class SilenceCrossfadeDeviceTest {
                     val row = inc.minBy { abs(it.ms - ms) }
                     row.peak < SILENCE_AMPLITUDE
                 } * WINDOW_MS
-                return Measurement(null, transition.fadeMs, first, silence)
+                return Measurement(null, transition.fadeMs, first, silence, 0.0)
             }
             val outStart = fitStart(out, transition.fadeMs, incoming = false)
             val inStart = fitStart(inc, transition.fadeMs, incoming = true)
             val firstAudible = inc.first { it.rms > 0.001 }.ms - inStart
-            // Independent fitted curves align each source's PCM into common fade-relative time.
-            // Count windows where BOTH sources are below the profile's -60dBFS threshold.
+            // Project the fitted sample positions onto elapsedRealtime via the players' audible
+            // clocks (001 timing instrumentation). Never independently shift B onto A's fade.
+            val aStartTime = audibleTime(aClocks, ORIGIN_MS + outStart)
+            val bStartTime = audibleTime(bClocks, incomingOrigin + inStart)
+            val offset = bStartTime - aStartTime
             val silence = (0 until transition.fadeMs.toInt() step WINDOW_MS).count { ms ->
                 val aRow = out.minBy { abs(it.ms - (outStart + ms + WINDOW_MS / 2.0)) }
-                val bRow = inc.minBy { abs(it.ms - (inStart + ms + WINDOW_MS / 2.0)) }
-                aRow.peak < SILENCE_AMPLITUDE && bRow.peak < SILENCE_AMPLITUDE
+                val bMs = inStart + ms + WINDOW_MS / 2.0 - offset
+                val bPeak = if (bMs < 0.0) 0.0 else inc.minBy { abs(it.ms - bMs) }.peak
+                aRow.peak < SILENCE_AMPLITUDE && bPeak < SILENCE_AMPLITUDE
             } * WINDOW_MS
-            return Measurement(ORIGIN_MS + outStart, transition.fadeMs, firstAudible, silence)
+            return Measurement(ORIGIN_MS + outStart, transition.fadeMs, firstAudible, silence, offset)
         } finally {
+            factory.call { delayedResume?.let { delayHandler.removeCallbacks(it) } }
             engine.close()
             assertEquals("player leak", 0, factory.livePlayers)
             assertTrue("delete outgoing fixture", !outgoingFile.exists() || outgoingFile.delete())
             assertTrue("delete incoming fixture", !incomingFile.exists() || incomingFile.delete())
         }
+    }
+
+    private data class Clock(val timeMs: Long, val positionMs: Long)
+
+    private fun audibleTime(clocks: List<Clock>, sourceMs: Double): Double {
+        val anchors = clocks.filter { it.positionMs > sourceMs + 100.0 }.take(20)
+        assertTrue("missing audible clock anchors for $sourceMs", anchors.isNotEmpty())
+        return anchors.map { it.timeMs - (it.positionMs - sourceMs) }.average()
     }
 
     private fun fitStart(rows: List<Row>, durationMs: Long, incoming: Boolean): Double {

@@ -888,3 +888,46 @@ post-effect limiter capture and owner listening remain explicitly unmeasured by 
 
 **Revisit if:** T021 finds device-specific timing, AudioTrack backpressure or seek/preroll differences;
 any future post-session capture needs a separately authorized task rather than a fake limiter model here.
+
+## D-41: M2 review safety fallback and shared-clock test oracles (T021-fix)
+
+**Case:** M2 review found that a nonzero incoming silence seek can put EOF inside the outgoing fade;
+SC-009's independent PCM fits also hid incoming playback delays. SC-008's nine-second render exceeded
+its enclosing five-second looper call. Existing Room pending fixtures represented legacy measurements.
+
+**Options:** refuse a silence seek that cannot leave the whole captured fade on B's known timeline
+(recommended, restoring B's original zero-position timeline); shorten/reposition the outgoing fade;
+or change EOF/queue semantics. For SC-009 use 001's audible-player-clock instrumentation on a shared
+elapsedRealtime clock, or add a new production AudioTrack capture seam.
+
+**Chosen:** before arming either curve, permit a positive lead only when the known incoming duration
+minus that lead covers the effective fade. Otherwise restart B at zero and log provider, track,
+lead, duration and cause. This is a refusal of the new silence seek, preserving the original fade
+and 001 timeline fallback; it does not change manual skips, missing-profile playback, queue/EOF
+semantics or the native engine. Unknown incoming duration also refuses the new seek. Tests pin the
+exact sufficient/insufficient boundary and the 9s/10s lead cases on a 10s source; the real-engine
+device regression polls Ended through the fade and then through incoming EOF, and fits A's complete
+outgoing curve. No device execution is claimed by this fix task.
+
+Keep PCM curve fitting as the gain-shape oracle. Project the fitted starts onto the players' audible
+positions sampled on the playback looper with elapsedRealtime timestamps (001's timing instrumentation).
+Require their offset within 100ms and count silence with that measured offset retained. A negative
+control pauses real B on its first playing callback for 3000ms; the common-clock assertion must reject
+it. Clock anchors must advance at least 100ms past the fitted source start so paused seek positions
+cannot masquerade as audible playback. Delayed test callbacks are removed before engine teardown.
+
+Drive SC-008's sink in short looper calls; wait/retry AudioTrack backpressure on the instrumentation
+thread. Preserve the nine-second fixture, 30s render deadline, 90s test bound and all PCM assertions.
+Read Night-mode dry samples with absolute ByteBuffer offsets; the host allocation counter pins zero
+steady-state allocations over 512 warmed blocks, nonzero buffer position and three channels, with a
+positive counter control. Its original-code red run measured 28,672 bytes, not an underrun claim.
+
+FR-020/D-36 make a fully measured pending/rescan fixture include explicit measured edges (including
+measured zero). Update only those fixtures, keeping every no-reanalysis assertion and loudness value.
+Keep legacy fixtures for missing-profile coverage and add real Room version/refresh/fingerprint/active-plan
+and unavailable/missing-audio reads. Production document defaults, Room SQL/schema/version remain unchanged.
+
+**Revisit if:** T021's device gate exposes output-clock, preroll, fallback or database-consumer issues.
+Very short incoming tracks whose original zero-position timeline itself ends inside an existing 001 fade
+are outside this new-seek fix. Post-session limiter capture, engine preference propagation and listening
+remain unmeasured here; the review's MEDIUM/LOW follow-ups remain in HANDOFF.
