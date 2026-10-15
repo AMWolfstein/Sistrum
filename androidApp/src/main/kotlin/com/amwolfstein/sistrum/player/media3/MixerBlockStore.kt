@@ -22,6 +22,10 @@ internal fun routeKey(track: AudioTrack): String? = runCatching { routeKey(track
 
 internal fun formatMs(ms: Float): String = String.format(Locale.ROOT, "%.1f", ms)
 
+/** A new measurement counts as a change when nothing was stored or it moved by at least half a millisecond. */
+internal fun mixerBlockChanged(previous: Float?, measured: Float): Boolean =
+    previous == null || kotlin.math.abs(previous - measured) >= 0.5f
+
 /**
  * Measured mixer block (DynamicsProcessing frame duration, FR-052) per output route, kept across launches so the
  * limiter starts with the right value instead of Android's guess.
@@ -30,9 +34,12 @@ internal class MixerBlockStore(private val prefs: SharedPreferences) {
 
     fun get(route: String): Float? = prefs.getFloat(route, Float.NaN).takeIf { it.isFinite() && it > 0f }
 
-    fun put(route: String?, ms: Float) {
-        if (route == null || !ms.isFinite() || ms <= 0f) return
+    /** Stores [ms] for [route]; true when it differs from what was stored (so callers log only real changes). */
+    fun put(route: String?, ms: Float): Boolean {
+        if (route == null || !ms.isFinite() || ms <= 0f) return false
+        if (!mixerBlockChanged(get(route), ms)) return false
         prefs.edit().putFloat(route, ms).apply()
+        return true
     }
 
     companion object {
@@ -110,8 +117,7 @@ internal object SilentMixerProbe {
             }
             val route = routeKey(track) ?: return
             val blockMs = MixerBlockEstimator.estimateBlockMs(samples, RATE) ?: return
-            store.put(route, blockMs)
-            Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "mixer block measured silently ${formatMs(blockMs)} ms on $route")
+            if (store.put(route, blockMs)) Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "mixer block measured silently ${formatMs(blockMs)} ms on $route")
         } catch (t: Throwable) {
             Diagnostics.record(Diagnostics.LEVEL_WARN, "audio", "silent mixer probe failed: ${t.javaClass.simpleName}: ${t.message}")
         } finally {

@@ -142,8 +142,10 @@ internal class Media3PlayerFactory(
 
     private val mixerProbe: MixerBlockProbe by lazy {
         MixerBlockProbe { ms, track ->
-            mixerBlocks.put(routeKey(track), ms)
-            Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "mixer block measured ${formatMs(ms)} ms on ${routeKey(track) ?: "unknown route"}")
+            val route = routeKey(track)
+            if (mixerBlocks.put(route, ms)) {
+                Diagnostics.record(Diagnostics.LEVEL_INFO, "audio", "mixer block measured ${formatMs(ms)} ms on ${route ?: "unknown route"}")
+            }
             publishMixerBlock(ms)
         }
     }

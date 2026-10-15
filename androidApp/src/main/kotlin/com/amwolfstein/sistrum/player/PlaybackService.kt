@@ -136,11 +136,6 @@ class PlaybackService : Service() {
         playbackPreferences = PlaybackPreferences(applicationContext)
         equalizerPreferences = EqualizerPreferences(applicationContext)
         normalizationPreferences = NormalizationPreferences(applicationContext)
-        moodRadioJob = scope.launch {
-            AndroidSyncRuntime.syncStore().libraryAnalysisEnabled.collectLatest { enabled ->
-                if (!enabled) coordinator.withCommandLock { coordinator.stopMoodRadio() }
-            }
-        }
         audioManager = getSystemService(AudioManager::class.java)
         registerNoisyAudioReceiver()
         focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -212,6 +207,12 @@ class PlaybackService : Service() {
             decodeFailures = DecodeFailureLog.forContext(applicationContext),
             silenceProfile = { id -> LoudnessStore(AndroidSyncRuntime.database()).silenceProfile(id) },
         )
+        // Started after the coordinator exists: the flow emits at once.
+        moodRadioJob = scope.launch {
+            AndroidSyncRuntime.syncStore().libraryAnalysisEnabled.collectLatest { enabled ->
+                if (!enabled) coordinator.withCommandLock { coordinator.stopMoodRadio() }
+            }
+        }
         coordinator.onIdle = { if (serviceShouldStopWhenSettled(state.value)) mainHandler.post { settle() } }
 
         preferencesJob = scope.launch {

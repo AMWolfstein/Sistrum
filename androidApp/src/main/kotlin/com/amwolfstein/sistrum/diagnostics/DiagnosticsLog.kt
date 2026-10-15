@@ -145,7 +145,39 @@ internal object Diagnostics {
         append(DecodeFailureLog.forContext(context).exportText().lineSequence().drop(1).joinToString("\n"))
         appendLine()
         appendLine("== Recent warnings and errors (logcat, this app only)")
-        append(recentLogcat())
+        append(withoutKnownHarmless(recentLogcat()))
+    }
+
+    /**
+     * Platform lines seen on every healthy run (owner's phones, 2026-10-15) that say nothing about Sistrum: dropped from
+     * the export so real problems stand out; the count stays visible. Anything not listed here is kept.
+     */
+    private val knownHarmless = listOf(
+        "Image decoding logging dropped",
+        "libdolphin.so",
+        "Unknown native audio format for JAVA API",
+        "WindowOnBackDispatcher",
+        "Missing inline cache",
+        "VideoCapabilities: Unsupported mime",
+        "SpeakerLayoutUtil",
+        "LoudnessCodecController",
+        "Media Quality Service not found",
+        "Failed to query component interface",
+        "AIBinder_linkToDeath",
+        "retrograde timestamp",
+    )
+
+    internal fun withoutKnownHarmless(logcat: String): String {
+        var hidden = 0
+        val kept = logcat.lineSequence().filter { line ->
+            val harmless = knownHarmless.any { it in line }
+            if (harmless) hidden++
+            !harmless
+        }.joinToString("\n").trimEnd('\n')
+        return buildString {
+            if (kept.isNotEmpty()) appendLine(kept)
+            appendLine("($hidden known-harmless lines hidden)")
+        }
     }
 
     /** An app may read its own process's log lines without any permission. */
