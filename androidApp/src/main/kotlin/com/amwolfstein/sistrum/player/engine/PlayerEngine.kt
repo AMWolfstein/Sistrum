@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 import com.amwolfstein.sistrum.player.EqualizerSettings
 import com.amwolfstein.sistrum.player.NormalizationSettings
 import com.amwolfstein.sistrum.player.PlaybackItem
+import com.amwolfstein.sistrum.player.shouldStartCrossfade
+import com.amwolfstein.sistrum.player.crossfadeDurationMs
 
 /** Which playback backend an [PlayerEngine] instance drives. */
 internal enum class EngineKind { Native, Media3 }
@@ -83,6 +85,16 @@ internal interface PlayerEngine : Closeable {
      * nothing is preloaded or a fade is already running.
      */
     fun beginCrossfade(durationMs: Long): Boolean
+
+    /** Automatic timing policy; native retains the original source-duration rule. */
+    fun automaticFadeDurationMs(current: PlaybackItem, positionMs: Long, durationMs: Long,
+        repeatOne: Boolean, crossfadeSeconds: Int): Long? =
+        if (shouldStartCrossfade(crossfadeSeconds, positionMs, durationMs, true)) {
+            crossfadeDurationMs(crossfadeSeconds, positionMs, durationMs)
+        } else null
+
+    /** Media3-only silence timing option, applied to future transitions. */
+    fun setCrossfadeSkipSilence(enabled: Boolean) = Unit
 
     /** Whether a crossfade is currently running. */
     fun isCrossfading(): Boolean

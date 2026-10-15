@@ -807,3 +807,32 @@ No architecture/ADR, production code, existing tests, or native timing change is
 **Revisit if:** integration exposes a source/processed-clock mismatch or an incoming seek boundary needing additional
 coverage; retain these tests and add coverage in T018. The explicit T017 brief authorizes only T017 despite the earlier
 M2 hold, and does not authorize implementation of T018 here.
+
+## D-38: Playback profile boundary and engine timing dispatch (T018)
+
+**Case:** D-37's controller policy must drive real playback without moving the native backend's timing or
+starting analysis in the playback path. Profile reads and the persisted option also need production wiring.
+
+**Options:** add timing/option hooks to the existing engine seam with the native legacy default (recommended);
+cast the coordinator's engine to Media3Engine; duplicate silence arithmetic in the coordinator.
+
+**Chosen:** the coordinator asks the engine for an automatic fade duration using its processed decision position
+and retains its existing preload/readiness checks. Media3 dispatches to its actual TransitionController; the seam's
+default calls the existing 001 policy and the silence-option setter is a native no-op. Existing engine and
+PlaybackController APIs remain intact. The persisted `crossfade_skip_silence` option defaults ON, reaches new and
+existing engines, and does not modify a running fade's captured command. Changing it before a prepared fade begins
+uses the new policy. Manual skips/reuse and same-item repeats continue from zero.
+The coordinator identifies same-item repeats by incoming/current IDs, matching the engine, including repeat-all
+with a one-item queue; PlaybackCoordinatorSilenceTest pins that boundary.
+
+The coordinator reads already stored edges when resolving playback sources. LoudnessStore uses existing active
+analysis/fingerprint queries in one read transaction; no Room change, new analysis work or decode. Only current-version,
+same-fingerprint `ok`/`silent` documents supply profiles. Absent/old measurements remain absent; malformed current
+edge lengths throw to the coordinator, which logs the cause and uses legacy timing. Cancellation propagates.
+Media3 applies StartFade's lead position to both the final incoming timeline restart and processing-clock origin;
+the seek is bounded by the incoming player's known duration. Its final outgoing clamp uses the audible end so
+processing between the coordinator tick and execution cannot extend a silence-aware fade into the measured tail.
+The half-duration cap continues to use the original source duration, as in D-37.
+
+**Revisit if:** the milestone's device/PCM gate finds seek/preroll or output-clock differences; host policy and
+coordinator tests are not evidence of captured overlap or SC-009. UI controls/translations remain T019.

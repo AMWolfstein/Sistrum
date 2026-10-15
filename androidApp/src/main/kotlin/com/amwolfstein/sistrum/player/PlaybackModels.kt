@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.player
 
 import android.media.AudioManager
+import com.amwolfstein.sistrum.analysis.SilenceProfile
 
 internal const val PlaybackLogTag = "SistrumPlayback"
 
@@ -119,6 +120,7 @@ data class PlaybackItem(
     val album: String = "",
     val albumArtist: String = "",
     val trackNumber: Int = 0,
+    val silence: SilenceProfile? = null,
 )
 
 /** One resolved entry of the media-session queue window; [index] is its absolute active-order index. */

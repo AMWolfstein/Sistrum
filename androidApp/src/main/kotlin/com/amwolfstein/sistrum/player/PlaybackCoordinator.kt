@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.player
 
 import android.util.Log
+import com.amwolfstein.sistrum.analysis.SilenceProfile
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CompletableJob
@@ -58,6 +59,7 @@ internal class PlaybackCoordinator(
     val listeningTracker: ListeningTracker,
     private val nextArtworkCrossfadeId: () -> Long,
     private val decodeFailures: DecodeFailureSink = DecodeFailureSink { },
+    private val silenceProfile: suspend (String) -> SilenceProfile? = { null },
 ) {
     private val restored = CompletableDeferred<Unit>()
     private var moodRadioSeedId: String? = null
@@ -83,8 +85,10 @@ internal class PlaybackCoordinator(
         val blendArtwork: Boolean,
         val repeatOneCrossfade: Boolean,
         val crossfadeOnSkip: Boolean,
+        val crossfadeSkipSilence: Boolean,
     )
     private var appliedPlaybackSettings: AppliedPlaybackSettings? = null
+    private var crossfadeSkipSilence = true
     private var repeatOneCrossfade = true
     internal var crossfadeOnSkip = false
         private set
@@ -526,18 +530,22 @@ internal class PlaybackCoordinator(
         blendArtwork: Boolean,
         repeatOneCrossfade: Boolean = true,
         crossfadeOnSkip: Boolean = false,
+        crossfadeSkipSilence: Boolean = true,
     ) {
         // FR-092: a repeated write re-emits identical values; do not touch flows, artwork
         // crossfade or the engine unless something that affects playback actually changed.
-        val requested = AppliedPlaybackSettings(seconds, blendArtwork, repeatOneCrossfade, crossfadeOnSkip)
+        val requested = AppliedPlaybackSettings(seconds, blendArtwork, repeatOneCrossfade, crossfadeOnSkip, crossfadeSkipSilence)
         if (appliedPlaybackSettings == requested) return
         val secondsChanged = flows.crossfadeSeconds.value != seconds
         val repeatOneChanged = this.repeatOneCrossfade != repeatOneCrossfade
         val skipChanged = this.crossfadeOnSkip != crossfadeOnSkip
+        val silenceChanged = this.crossfadeSkipSilence != crossfadeSkipSilence
         val blendChanged = flows.blendArtworkDuringCrossfade.value != blendArtwork
         appliedPlaybackSettings = requested
         this.repeatOneCrossfade = repeatOneCrossfade
         this.crossfadeOnSkip = crossfadeOnSkip
+        this.crossfadeSkipSilence = crossfadeSkipSilence
+        if (silenceChanged) engine?.setCrossfadeSkipSilence(crossfadeSkipSilence)
         // Engines capture the running fade's settings; this applies to later fades (FR-032).
         if (secondsChanged || repeatOneChanged || skipChanged) {
             engine?.setCrossfade(seconds * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
@@ -626,7 +634,7 @@ internal class PlaybackCoordinator(
         if (fadeOnSkip && transition is QueueTransition.Play && current != null && currentEngine != null &&
             transition.trackId != current.item.trackId
         ) {
-            val target = resolver.resolve(transition.trackId)
+            val target = resolveItem(transition.trackId)
             val fadeMs = (flows.crossfadeSeconds.value * 1_000L).coerceIn(500L, 2_000L)
             if (target != null && currentEngine.crossfadeTo(target, fadeMs)) {
                 finishListeningCrossfade()
@@ -644,7 +652,7 @@ internal class PlaybackCoordinator(
         snapActiveCrossfade()
         val trackId = queue.snapshot().currentTrackId ?: return stopPlayback()
         log.d("Preparing current queue track id=$trackId")
-        val item = resolver.resolve(trackId) ?: return fail(trackId, "Audio asset is not available")
+        val item = resolveItem(trackId) ?: return fail(trackId, "Audio asset is not available")
         flows.state.value = PlaybackState.Preparing(item)
         nowPlaying.publishNowPlaying(item, TransportState.Buffering, 0L, 0L, activeQueueItemId(queue.snapshot()))
         if (!startPaused && !requestFocusForStart()) return fail(trackId, "Audio focus was not granted")
@@ -663,6 +671,7 @@ internal class PlaybackCoordinator(
                 preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
+                preparedEngine.setCrossfadeSkipSilence(crossfadeSkipSilence)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 publishQueueSingleAlbum(preparedEngine)
                 preparedEngine.prepare(item, gain, startPositionMs, startPaused)
@@ -699,7 +708,7 @@ internal class PlaybackCoordinator(
     /** Restores the selected item paused, so reopening the app never starts audio by itself. */
     private suspend fun restoreCurrent(savedPositionMs: Long) {
         val trackId = queue.snapshot().currentTrackId ?: return clearRestoredSession()
-        val item = resolver.resolve(trackId)
+        val item = resolveItem(trackId)
             ?: return clearRestoredSession()
         // Publish the retained item before FFmpeg opens it, so Compose can mount the mini player.
         flows.state.value = PlaybackState.Paused(item, savedPositionMs.coerceAtLeast(0L), durationMs = 0L)
@@ -716,6 +725,7 @@ internal class PlaybackCoordinator(
                 preparedEngine.setNormalization(normalizationSettings)
                 preparedEngine.setDsp(equalizerSettings)
                 preparedEngine.setCrossfade(flows.crossfadeSeconds.value * 1_000L, repeatOneCrossfade, crossfadeOnSkip)
+                preparedEngine.setCrossfadeSkipSilence(crossfadeSkipSilence)
                 preparedEngine.setFocusGain(if (isDucked) DuckedFocusGain else 1f)
                 publishQueueSingleAlbum(preparedEngine)
                 preparedEngine.prepare(item, gain, savedPositionMs, startPaused = true)
@@ -1182,7 +1192,7 @@ internal class PlaybackCoordinator(
         if (!canPreloadNext(currentEngine.isCrossfading())) return
         if (nextId == preloadedItem?.trackId && currentEngine.hasPreloaded()) return
         currentEngine.clearPreloaded()
-        preloadedItem = nextId?.let { id -> resolver.resolve(id) }
+        preloadedItem = nextId?.let { id -> resolveItem(id) }
         preloadedItem?.let { item ->
             runCatching {
                 val gain = if (currentEngine.kind == EngineKind.Media3) ItemGain.Unity
@@ -1254,6 +1264,19 @@ internal class PlaybackCoordinator(
         handleTransition(queue.next(), PlaybackEndReason.SKIPPED, preservePlaybackState = pausedWithoutPendingResume)
         publishQueue()
         return true
+    }
+
+    private suspend fun resolveItem(trackId: String): PlaybackItem? {
+        val item = resolver.resolve(trackId) ?: return null
+        val profile = try {
+            silenceProfile(trackId)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (error: Exception) {
+            log.w("Unable to read silence profile for $trackId; using original timing", error)
+            null
+        }
+        return if (profile != null) item.copy(silence = profile) else item
     }
 
     private suspend fun resolveForLog(trackId: String): PlaybackItem? = try {
@@ -1356,18 +1379,11 @@ internal class PlaybackCoordinator(
         val incoming = preloadedItem ?: return false
         if (currentEngine.isCrossfading()) return false
         val decisionMs = currentEngine.positionMs() + currentEngine.fadeLeadMs()
-        if (!shouldStartCrossfade(
-                crossfadeSeconds = flows.crossfadeSeconds.value,
-                positionMs = decisionMs,
-                durationMs = current.durationMs,
-                hasPreloadedNext = preloadedItem != null && currentEngine.hasPreloaded(),
-            )
-        ) return false
-        val effectiveDurationMs = crossfadeDurationMs(
-            crossfadeSeconds = flows.crossfadeSeconds.value,
-            positionMs = decisionMs,
-            durationMs = current.durationMs,
-        )
+        if (!currentEngine.hasPreloaded()) return false
+        val effectiveDurationMs = currentEngine.automaticFadeDurationMs(
+            current.item, decisionMs, current.durationMs,
+            incoming.trackId == current.item.trackId, flows.crossfadeSeconds.value,
+        ) ?: return false
         if (!currentEngine.beginCrossfade(effectiveDurationMs)) return false
         val id = nextArtworkCrossfadeId()
         flows.artworkCrossfade.value = ArtworkCrossfadeTransition(

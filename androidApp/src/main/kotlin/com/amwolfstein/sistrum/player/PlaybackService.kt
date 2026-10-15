@@ -210,6 +210,7 @@ class PlaybackService : Service() {
             listeningTracker = listeningTracker,
             nextArtworkCrossfadeId = { ++nextArtworkCrossfadeId },
             decodeFailures = DecodeFailureLog.forContext(applicationContext),
+            silenceProfile = { id -> LoudnessStore(AndroidSyncRuntime.database()).silenceProfile(id) },
         )
         coordinator.onIdle = { if (serviceShouldStopWhenSettled(state.value)) mainHandler.post { settle() } }
 
@@ -218,7 +219,7 @@ class PlaybackService : Service() {
                 coordinator.withCommandLock {
                     coordinator.onPlaybackSettings(
                         settings.seconds, settings.blendArtworkDuringCrossfade,
-                        settings.repeatOneCrossfade, settings.crossfadeOnSkip,
+                        settings.repeatOneCrossfade, settings.crossfadeOnSkip, settings.crossfadeSkipSilence,
                     )
                 }
             }

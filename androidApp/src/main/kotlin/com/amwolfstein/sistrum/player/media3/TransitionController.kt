@@ -12,6 +12,7 @@ internal data class TransitionSettings(
     val preBufferMs: Long = 5_000L,
     val repeatOneCrossfade: Boolean = true,
     val crossfadeOnManualSkip: Boolean = false,
+    val crossfadeSkipSilence: Boolean = true,
 )
 
 internal sealed interface TransitionCommand {
@@ -20,7 +21,7 @@ internal sealed interface TransitionCommand {
     /** Release player B before any fade started with it. */
     data object ReleaseIncoming : TransitionCommand
     /** Start B, swap roles (B becomes current), start both curves; the executor owns publication. */
-    data class StartFade(val durationMs: Long) : TransitionCommand
+    data class StartFade(val durationMs: Long, val positionMs: Long = 0L) : TransitionCommand
     /** Fallback when B is not ready at fade start: append [item] to A's playlist (gapless, no silence). */
     data class AppendGapless(val item: PlaybackItem) : TransitionCommand
     /** Stop the outgoing player at once; incoming curve forced to 1 and flushed at its position. */
@@ -38,6 +39,7 @@ internal class TransitionController(settings: TransitionSettings) {
     private var incoming: PlaybackItem? = null
     private var incomingReady = false
     private var skipDurationMs: Long? = null
+    private var incomingPositionMs = 0L
     // The incoming item that failed to prepare; not retried while it stays the next item.
     private var suppressedTrackId: String? = null
 
@@ -58,6 +60,7 @@ internal class TransitionController(settings: TransitionSettings) {
         }
         val reuse = phase == TransitionPhase.Preparing && incoming == target
         val commands = if (phase == TransitionPhase.Preparing && !reuse) releaseIncoming() else emptyList()
+        incomingPositionMs = 0L
         skipDurationMs = settings.crossfadeMs.coerceIn(500L, 2_000L)
         suppressedTrackId = null
         incoming = target
@@ -91,14 +94,28 @@ internal class TransitionController(settings: TransitionSettings) {
             reset()
             return emptyList()
         }
-        if (remainingMs > settings.crossfadeMs + settings.preBufferMs) {
+        val tailMs = if (settings.crossfadeSkipSilence && !repeatOne) current.silence?.tailMs ?: 0L else 0L
+        if (remainingMs - tailMs > settings.crossfadeMs + settings.preBufferMs) {
             currentPhase = TransitionPhase.Scheduled
             return emptyList()
         }
         incoming = next
+        incomingPositionMs = if (!repeatOne && current.trackId != next.trackId) {
+            next.silence?.leadMs ?: 0L
+        } else 0L
         incomingReady = false
         currentPhase = TransitionPhase.Preparing
         return listOf(TransitionCommand.PrepareIncoming(next))
+    }
+
+    /** Position is on the processed source clock, including the engine's fade lead. */
+    fun automaticFadeDurationMs(current: PlaybackItem, positionMs: Long, durationMs: Long, repeatOne: Boolean): Long? {
+        if (settings.crossfadeMs <= 0L || durationMs < 2_000L ||
+            (repeatOne && !settings.repeatOneCrossfade)) return null
+        val tailMs = if (settings.crossfadeSkipSilence && !repeatOne) current.silence?.tailMs ?: 0L else 0L
+        val remainingMs = durationMs - tailMs - positionMs
+        val capMs = minOf(settings.crossfadeMs, durationMs / 2)
+        return if (remainingMs in 401L..capMs) remainingMs else null
     }
 
     fun onIncomingReady(): List<TransitionCommand> {
@@ -118,7 +135,7 @@ internal class TransitionController(settings: TransitionSettings) {
         }
         currentPhase = TransitionPhase.Transitioning
         fadeDurationMs = durationMs
-        return listOf(TransitionCommand.StartFade(durationMs))
+        return listOf(TransitionCommand.StartFade(durationMs, if (settings.crossfadeSkipSilence) incomingPositionMs else 0L))
     }
 
     fun onFadeComplete(): List<TransitionCommand> {
@@ -180,5 +197,6 @@ internal class TransitionController(settings: TransitionSettings) {
         incomingReady = false
         fadeDurationMs = null
         skipDurationMs = null
+        incomingPositionMs = 0L
     }
 }

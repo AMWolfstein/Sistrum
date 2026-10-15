@@ -27,6 +27,13 @@ internal class LoudnessStore(private val database: SyncDatabase) {
 
     private val dao = database.syncDao()
 
+    /** Read already measured edges only; playback never starts analysis or waits for it. */
+    suspend fun silenceProfile(trackId: String): SilenceProfile? = database.withTransaction {
+        val fingerprint = dao.activeAudioSha(trackId) ?: return@withTransaction null
+        val raw = dao.activeDocumentJson("analysis", trackId) ?: return@withTransaction null
+        playbackSilenceProfile(LibrarySyncProtocol.json.parseToJsonElement(raw).jsonObject, fingerprint)
+    }
+
     suspend fun pendingTracks(analyzerVersion: String = ANALYZER_VERSION): List<PendingTrack> =
         database.withTransaction {
             val pending = dao.pendingTrackRows(analyzerVersion, DECODER_SET_VERSION)
@@ -296,3 +303,14 @@ internal fun needsSilenceAnalysis(document: JsonObject?, fingerprint: String): B
         document.string("status") in setOf("ok", "silent") &&
         document.string("silenceVersion") != SilenceProfile.VERSION &&
         document.string("silenceAttemptVersion") != SilenceProfile.VERSION
+
+/** Missing/old measurements are normal; corrupt current measurements are refused to the caller for logging. */
+internal fun playbackSilenceProfile(document: JsonObject, fingerprint: String): SilenceProfile? {
+    if (document.string("silenceVersion") != SilenceProfile.VERSION ||
+        document.string("source_fingerprint") != fingerprint ||
+        document.string("status") !in setOf("ok", "silent")) return null
+    val lead = document.string("silenceLeadMs")?.toLongOrNull()
+    val tail = document.string("silenceTailMs")?.toLongOrNull()
+    require(lead != null && tail != null && lead >= 0L && tail >= 0L) { "Invalid silence edge durations" }
+    return SilenceProfile(lead, tail)
+}

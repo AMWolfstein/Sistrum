@@ -689,7 +689,7 @@ internal class Media3Engine(
     override fun setCrossfade(durationMs: Long, repeatOneCrossfade: Boolean, crossfadeOnSkip: Boolean) {
         factory.call {
             transitionSettings = TransitionSettings(durationMs.coerceAtLeast(0L), repeatOneCrossfade = repeatOneCrossfade,
-                crossfadeOnManualSkip = crossfadeOnSkip)
+                crossfadeOnManualSkip = crossfadeOnSkip, crossfadeSkipSilence = transitionSettings.crossfadeSkipSilence)
             execute(transition.updateSettings(transitionSettings), fallbackAfterRelease = true)
             if (transitionSettings.crossfadeMs == 0L && transition.phase != TransitionPhase.Transitioning) {
                 pendingNext?.let { appendGapless(it) }
@@ -700,6 +700,18 @@ internal class Media3Engine(
             }
             scheduleTransitionTick()
         }
+    }
+
+    override fun setCrossfadeSkipSilence(enabled: Boolean) {
+        factory.call {
+            transitionSettings = transitionSettings.copy(crossfadeSkipSilence = enabled)
+            execute(transition.updateSettings(transitionSettings))
+        }
+    }
+
+    override fun automaticFadeDurationMs(current: PlaybackItem, positionMs: Long, durationMs: Long,
+        repeatOne: Boolean, crossfadeSeconds: Int): Long? = factory.call {
+        transition.automaticFadeDurationMs(current, positionMs, durationMs, repeatOne)
     }
 
     override fun beginCrossfade(durationMs: Long): Boolean {
@@ -858,7 +870,7 @@ internal class Media3Engine(
                     incomingWarmupAttempted = false
                     incomingSlot?.let { startIncomingWarmup(it) }
                 } else {
-                    startFade(durationMs)
+                    startFade(durationMs, command.positionMs)
                     if (skipRequestDurationMs != null) skipFadeStarted = true
                 }
             }
@@ -1013,7 +1025,7 @@ internal class Media3Engine(
         return slot.gain.positionOriginMs + clock.frames * 1000L / clock.sampleRate
     }
 
-    private fun startFade(durationMs: Long) {
+    private fun startFade(durationMs: Long, positionMs: Long = 0L) {
         resetFadeLeadWindow()
         stopIncomingWarmup()
         val outgoing = checkNotNull(currentSlot)
@@ -1024,7 +1036,10 @@ internal class Media3Engine(
         val processedMs = processedPositionMs(outgoing, clock) ?: outgoing.p.currentPosition
         val outgoingDurationMs = outgoing.p.duration
         val effective = if (skipRequestDurationMs == null && outgoingDurationMs != C.TIME_UNSET) {
-            min(durationMs, outgoingDurationMs - processedMs).coerceAtLeast(1L)
+            val tailMs = if (transitionSettings.crossfadeSkipSilence && outgoing.item.trackId != incoming.item.trackId) {
+                outgoing.item.silence?.tailMs ?: 0L
+            } else 0L
+            min(durationMs, outgoingDurationMs - tailMs - processedMs).coerceAtLeast(1L)
         } else durationMs
         Log.i("Media3Engine", "fade requestedMs=$durationMs effectiveMs=$effective " +
             "processedMs=$processedMs outgoingDurationMs=$outgoingDurationMs")
@@ -1038,7 +1053,9 @@ internal class Media3Engine(
         incoming.gain.fadeInAfterFlush(effective)
         // Replacing the single-item timeline forces a sink flush, even at paused position zero
         // where seekTo(0) may be optimized away. Arm the curve on that flush, after silent preroll.
-        val incomingPositionMs = 0L
+        val incomingPositionMs = if (incoming.p.duration != C.TIME_UNSET) {
+            positionMs.coerceIn(0L, incoming.p.duration.coerceAtLeast(0L))
+        } else positionMs.coerceAtLeast(0L)
         incoming.gain.positionOriginMs = incomingPositionMs
         incoming.p.setMediaItem(mediaItem(incoming.item), incomingPositionMs)
         incoming.p.prepare()

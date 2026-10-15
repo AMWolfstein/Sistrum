@@ -4,19 +4,27 @@
 
 ## Current status
 
-- **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 committed as `a18bbcb`; T015 committed as
-  `b1bf978`; T016 committed as `654c30b`. T017 tests written under the owner's explicit autonomous T017 brief;
-  commit prepared for the runner.
-- **Next step:** runner commits the T017 bundle on `feature/media3-migration`; T018 is next in task order,
-  subject to its own authorization/brief. The earlier owner hold still governs other M2 tasks absent authorization.
+- **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 `a18bbcb`, T015 `b1bf978`, T016 `654c30b`,
+  T017 `2eccc49` committed. T018 implemented under the owner's explicit autonomous T018 brief; commit prepared
+  for the runner on `feature/media3-migration`.
+- **Next step:** runner commits the T018 bundle; T019 is next in task order, subject to its own authorization/brief.
+  Other M2 work remains outside this session's authorization.
   004: Phase 0 done; owner choices recorded in `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images
   from Rhythm; Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **T018 result:** final quick GATE: PASS, `/tmp/verify-task.IFo8D7`: 281/281 host cases across 23 classes,
+  no failures/errors/skips; all 21 unchanged T017 methods and 11 added integration/profile/preferences cases PASS.
+  Earlier broader player + analysis snapshot: 1,037 cases, 1,036 pass, one existing loudness-oracle assumption skip
+  (`SISTRUM_CORPUS` unset). Production Kotlin compilation PASS; graph refreshed. D-38 records profile validation,
+  engine policy dispatch and same-item repeat handling. Profile reads use existing analysis queries; the default-ON
+  persisted policy reaches new/existing engines; incoming restart and processing origin both use the measured lead.
+  No native timing, normalization reader, Room/DAO/schema, decoder order, PlaybackController or existing test edits.
+  Full suites, lint, assemble, device/PCM/SC-009 and owner listening checks NOT RUN: milestone/owner scope.
 - **T017 result:** first-attempt quick GATE: PASS, `/tmp/verify-task.5iMAgk`: 163 host cases across 8 classes,
   143 pass, 20 expected assertion failures, 0 errors/skips. New TransitionControllerSilenceTest: 21 methods,
   1 legacy control PASS and 20 expected failures on missing T018 hooks (18 missing PlaybackItem profile,
   1 missing setting getter, 1 missing timing method). D-37 specifies additive hooks, numeric boundaries and unchanged
   manual/repeat-one/gapless policy. No production or existing tests changed. Production Kotlin compilation PASS;
-  graph refreshed. Assertions past the missing hooks are NOT RUN until T018 implements them unchanged.
+  graph refreshed. At T017, assertions past missing hooks were NOT RUN; T018 now passes them unchanged.
   Full suites, lint, assemble, device and owner listening checks NOT RUN: later milestone/owner scope.
 - **T016 result:** final quick GATE: PASS, `/tmp/verify-task.aulDB7`: 171 host cases across 15 analysis classes,
   170 pass, 0 failures/errors, 1 unchanged loudness-oracle assumption skip (`SISTRUM_CORPUS` unset). All 10 new
@@ -55,6 +63,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T018 silence-aware playback; commit: prepared, awaiting runner | Final quick GATE: PASS (third/final verification run), `/tmp/verify-task.IFo8D7`; 281/281 cases, 23 classes, no errors/skips, unchanged T017 21/21; 11 new cases PASS. Earlier broad snapshot: 1,036 pass, one existing oracle skip. Production compile PASS; graph changed, generated pair included. D-38: version/fingerprint validation, engine policy dispatch and same-item repeat rule. Files/reasons and all commands below; no extra source files/refactors. NOT RUN: full suites/sharedLogic, lint, assemble, device/PCM/SC-009 (milestone), manual listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved and excluded; no follow-up refactors. |
 | 2026-10-15 | T017 [TESTS-FIRST] silence transition contracts; commit: prepared, awaiting runner | Quick GATE: PASS on attempt 1, `/tmp/verify-task.5iMAgk`; 163 cases / 8 classes, 143 pass, 20 expected assertion failures, 0 errors/skips. New class: 1 legacy control pass, 20 expected failures; unchanged controller/coordinator crossfade regressions pass. Production compile PASS. D-37 records hooks and 001 boundaries; no production/existing test edits. Graph changed; both artifacts included. Files: new TransitionControllerSilenceTest for T017, tasks.md checkbox, HANDOFF status/evidence, DECISIONS D-37 for open test-contract choices, generated graph pair per gate. NOT RUN: assertions past missing hooks (T018), full suites/sharedLogic, lint, assemble, device and manual listening (milestone/owner scope), stage/commit/push (runner). Unrelated spec 005 edit excluded; no follow-up refactors. |
 | 2026-10-15 | T016 silence profiles; commit: prepared, awaiting runner | Final quick GATE: PASS, `/tmp/verify-task.aulDB7`; 171 cases / 15 classes, 170 pass, 0 failures/errors, 1 unchanged oracle skip (`SISTRUM_CORPUS` unset); new SilenceProfileTest 10/10; compileDevQaKotlin PASS. Earlier gate also PASS (`/tmp/verify-task.lWaTyR`); second run verifies added EOF checkpoint coverage/fix. D-36 records edge/run qualification, checkpoint v2 and one-shot version refresh. Required files: TrackAnalyzer.kt measures shared PCM and checkpoints; AnalysisMeasurer.kt codecs/forwards results; new SilenceProfile.kt holds bounded DSP edge accumulation. Extra production files LoudnessModels.kt carries the profile to persistence; LoudnessStore.kt writes contract keys and discovers version-stale profiles via existing planner rows. New SilenceProfileTest.kt covers numeric boundaries, multichannel/high-rate/chunk/cancel/EOF/failure paths and document/version behaviour. tasks.md/HANDOFF.md/DECISIONS.md record completion/evidence/decisions; both generated graph files required because refresh reported changed (11,510 nodes / 34,004 edges). No existing test edited. NOT RUN: full suites/sharedLogic/standalone module suites/lint/assemble/device (milestone gate), external loudness oracle (corpus unset), listening/Bluetooth/headset (owner), stage/commit/push (runner). No playback/UI/Room SQL/schema/version or ADR change. Unrelated specs/005-bugfixes/tasks.md edit preserved and excluded. |
 | 2026-10-15 | T015 Night-mode implementation; commit: prepared, awaiting runner | Quick GATE: PASS, attempt 1, `/tmp/verify-task.WY4RoK`; 265 tests / 34 classes, 0 failures/errors/skips, all 8 T014 methods PASS unchanged; production Kotlin compile PASS. D-35 records persisted/shared setting observation and lifecycle. Required files: FloatChainAudioSink.kt voice stage, PlaybackPreferences.kt persistent setting and testable DataStore constructor, Media3Engine.kt shared reader/collection lifetime; extra production files Media3PlayerFactory.kt forwards the reader to every sink and PlaybackService.kt supplies the real preference flow at the composition root. New NightModePreferencesTest.kt verifies real persistence/reopen and existing settings; FloatChainNightModeLifecycleTest.kt covers flush/reconfigure/reset, empty chain, backpressure and rapid reversal. Extra docs tasks.md/HANDOFF.md/DECISIONS.md record completion, evidence and choice; both generated graph files required because refresh reported changed (11,484 nodes / 33,901 edges). Impact/commands/self-review below. NOT RUN: full suites/sharedLogic/standalone module suites/lint/assemble/device (T021), actual Android engine/factory/session mixer/limiter measurement (T020/T021), listening/Bluetooth/headset (owner), stage/commit/push (runner). No UI/silence/other task implemented. Unrelated specs/005-bugfixes/tasks.md edit preserved and excluded. |
@@ -94,6 +103,77 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T018 verification and impact review — 2026-10-15
+
+Impact recorded before editing with `git grep` (`/tmp/t018-impact.txt`, `/tmp/t018-impact-notes.txt`):
+Media3Engine consumes TransitionController; PlaybackCoordinator decides fades on position + fadeLeadMs and resolves
+playback/preload items. PlaybackPreferences flows through PlaybackService to current/replacement engines.
+PlaybackItem also feeds state, publications and normalization. Analysis profiles are read through existing
+activeDocumentJson/activeAudioSha queries; document writers, Room/DAO/schema/version, DecoderProvider order,
+PlaybackController, native backend and sharedLogic contracts stay unchanged. No downstream module gate is required
+by REGRESSION.md because this task changes app code only.
+
+Files required by T018, checked against the impact list after implementation:
+- `player/PlaybackModels.kt`: append nullable measured silence to the playback item.
+- `player/media3/TransitionController.kt`: preparation/automatic audible-end timing and StartFade lead position;
+  retain the original duration cap, 401 ms floor, manual/repeat/gapless policies.
+- `player/media3/Media3Engine.kt`: consume policy/settings on its looper, apply incoming lead to restart and processing
+  origin, and clamp the final outgoing fade to the audible remainder.
+- `player/engine/PlayerEngine.kt`: additive timing/option dispatch; original native timing/default no-op option.
+- `player/PlaybackCoordinator.kt`: resolve stored profiles only for playback sources, pass the option on prepare/update,
+  delegate processed-position timing and match the engine's same-item repeat rule. Normalization and queue-window
+  readers were kept unchanged in final review to avoid unnecessary profile reads.
+- `player/PlaybackPreferences.kt`, `player/PlaybackService.kt`: default-ON persisted option and production wiring.
+- `analysis/LoudnessStore.kt`: current-version/same-fingerprint reader and explicit invalid-edge refusal; caller logs
+  read/refusal errors and preserves cancellation. No decoding, analysis scheduling or waiting for analysis completion.
+- New tests: `analysis/PlaybackSilenceProfileTest.kt` (3: versions, status, fingerprint, zero, malformed/negative/overflow
+  fields), `player/SilencePlaybackPreferencesTest.kt` (1: default ON, saved OFF, reopen, independent settings),
+  `player/PlaybackCoordinatorSilenceTest.kt` (7: both source slots, processed lead, new/existing engine setting,
+  one-item repeat-all, missing/failed reads, cancellation, native legacy timing).
+- `tasks.md`, `HANDOFF.md`: autonomous completion/evidence; `DECISIONS.md`: D-38's open implementation choices;
+  `graphify-out/graph.json`, `graphify-out/.graphify_analysis.json`: mandatory generated graph artifacts.
+Source/test paths above are relative to `androidApp/src/main/kotlin/com/amwolfstein/sistrum/` and
+`androidApp/src/test/kotlin/com/amwolfstein/sistrum/`, respectively. No extra implementation files or refactors.
+
+Commands/results:
+- Pending `.codex-commit/` absent at entry; `git status --short`, `git branch --show-current`, `git log -3 --oneline`:
+  branch `feature/media3-migration`, T017 committed as `2eccc49`; unrelated spec 005 task edit preserved/excluded.
+- Before each quick gate: `./gradlew --stop` (no daemons), `pkill -f '[K]otlinCompileDaemon'` (none, exit 1),
+  `/proc/meminfo` MemAvailable 2,335,448 / 2,433,960 / 2,475,688 kB, each >= 2 GiB.
+- Gate base command: `bash .claude/skills/verify-task/scripts/verify.sh --files "$(cat /tmp/t018-files.txt)"
+  --quick ':androidApp:testDevQaUnitTest'`; file list contains exactly the eight production and three new test files.
+  All three gate runs PASS; no failed gate or expected-failure exemptions.
+- Run 1: `--tests 'com.amwolfstein.sistrum.player.*'
+  --tests 'com.amwolfstein.sistrum.analysis.PlaybackSilenceProfileTest'`: 865 cases / 89 classes, all pass;
+  `/tmp/verify-task.MAT1w0`. This precedes final scope reduction and added boundary assertions.
+- Run 2: `--tests 'com.amwolfstein.sistrum.player.*' --tests 'com.amwolfstein.sistrum.analysis.*'`:
+  1,037 cases / 104 classes, 1,036 pass, 0 failures/errors, one unchanged WaxFlowOracleLoudnessTest assumption skip
+  (`SISTRUM_CORPUS` unset); `/tmp/verify-task.wpgR4B`. Unit snapshot precedes the final same-item repeat guard/test.
+- Final run 3: `--tests 'com.amwolfstein.sistrum.player.PlaybackCoordinator*Test'
+  --tests 'com.amwolfstein.sistrum.player.media3.TransitionController*Test'
+  --tests 'com.amwolfstein.sistrum.player.PlaybackPreferencesTest'
+  --tests 'com.amwolfstein.sistrum.player.SilencePlaybackPreferencesTest'
+  --tests 'com.amwolfstein.sistrum.player.NightModePreferencesTest'
+  --tests 'com.amwolfstein.sistrum.player.PlaybackModelsTest'
+  --tests 'com.amwolfstein.sistrum.analysis.PlaybackSilenceProfileTest'`: GATE: PASS,
+  `/tmp/verify-task.IFo8D7`; 281/281 cases / 23 classes, 0 failures/errors/skips, all 21 unchanged T017 methods
+  and all 11 new methods pass. The new repeat-all single-item regression pins the incoming/current-ID rule.
+- Every gate's `:androidApp:compileDevQaKotlin` PASS and `python3 .claude/hooks/graph_refresh.py auto` PASS;
+  final graph: changed (11,577 nodes, 34,271 edges); both generated files included. Fresh JUnit XML inspected
+  directly; `git diff --check`: PASS.
+
+Self-review: existing host/device tests, including T017, remain unmodified; no assertions weakened or skipped.
+New expected values are explicit spec/001 numbers. D-37 tests cover tail/lead/zero/missing/OFF, short/all-silent/end,
+late processed ticks, 401/400 ms, manual reuse/clamps, repeat-one, crossfade-off and unready-B command order.
+New tests add persistence/read validation, cancellation/logged fallback and real coordinator dispatch. Every source
+file is required for this wiring. No new swallowed exception, decode fallback, feature removal, Room change,
+PlaybackController API/flow change, or normalization-reader change. Running fade commands retain their captured
+position/duration; current settings govern a prepared fade before it starts.
+
+NOT RUN: full app/sharedLogic/module suites, lint, assemble, actual Room/service/ExoPlayer device execution,
+captured PCM overlap/SC-009 (T020/T021 milestone gate), real listening/Bluetooth/headset (owner manual list).
+No device/PCM PASS is claimed; daily apps untouched. Stage/commit/push NOT RUN: runner consumes `.codex-commit/`.
 
 ## T017 verification and impact review — 2026-10-15
 

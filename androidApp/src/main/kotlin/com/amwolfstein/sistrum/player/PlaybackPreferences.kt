@@ -46,6 +46,7 @@ private val CrossfadeSecondsKey = intPreferencesKey("crossfade_seconds")
 private val LastEnabledCrossfadeSecondsKey = intPreferencesKey("last_enabled_crossfade_seconds")
 private val BlendArtworkDuringCrossfadeKey = booleanPreferencesKey("blend_artwork_during_crossfade")
 private val CrossfadeRepeatOneKey = booleanPreferencesKey("crossfade_repeat_one")
+private val CrossfadeSkipSilenceKey = booleanPreferencesKey("crossfade_skip_silence")
 private val CrossfadeOnSkipKey = booleanPreferencesKey("crossfade_on_skip")
 private val ShowFullscreenQualityBadgeKey = booleanPreferencesKey("show_fullscreen_quality_badge")
 private val NightModeKey = booleanPreferencesKey("night_mode")
@@ -56,6 +57,7 @@ internal data class CrossfadeSettings(
     val blendArtworkDuringCrossfade: Boolean,
     val repeatOneCrossfade: Boolean = true,
     val crossfadeOnSkip: Boolean = false,
+    val crossfadeSkipSilence: Boolean = true,
 )
 
 /** Persistent playback options, deliberately separate from the resumable queue session. */
@@ -91,6 +93,10 @@ internal class PlaybackPreferences(private val store: DataStore<Preferences>) {
         store.edit { it.applyRepeatOneCrossfade(enabled) }
     }
 
+    suspend fun setCrossfadeSkipSilence(enabled: Boolean) {
+        store.edit { it[CrossfadeSkipSilenceKey] = enabled }
+    }
+
     suspend fun setCrossfadeOnSkip(enabled: Boolean) {
         store.edit { it.applyCrossfadeOnSkip(enabled) }
     }
@@ -115,6 +121,7 @@ internal fun crossfadeSettingsOf(preferences: Preferences): CrossfadeSettings = 
     blendArtworkDuringCrossfade = preferences[BlendArtworkDuringCrossfadeKey] ?: true,
     repeatOneCrossfade = preferences[CrossfadeRepeatOneKey] ?: true,
     crossfadeOnSkip = preferences[CrossfadeOnSkipKey] ?: false,
+    crossfadeSkipSilence = preferences[CrossfadeSkipSilenceKey] ?: true,
 )
 
 internal fun MutablePreferences.applyCrossfadeSeconds(seconds: Int) {
