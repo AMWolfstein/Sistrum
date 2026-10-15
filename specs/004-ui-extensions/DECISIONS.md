@@ -138,3 +138,10 @@ data only: large title collapsing to a small top bar, a "Recently added" hero ca
 T010 drops it there), then shelves of square cards for the existing sections; no Quick picks pages. FR-004 still forbids a
 remote feed. Revisit if: the owner wants more shelves (e.g. playlists, genres) or the hero image from square covers looks
 poor on device (owner reviews at the M2 phone check).
+
+## D-23: Foundation motion durations
+Case: T005 requires motion durations but U-002 specifies no numeric duration scale.
+Options: per-screen values; shared short/medium/long durations of 150/300/500 ms.
+Chosen: shared 150/300/500 ms defaults in `SistrumTokens.motion`, all zero when the system animator scale is zero (D-6).
+Existing animation durations and DEFAULT player geometry stay unchanged; later screen tasks consume these tokens.
+Revisit if: the screen tasks or measured accessibility/performance checks require a different shared scale.

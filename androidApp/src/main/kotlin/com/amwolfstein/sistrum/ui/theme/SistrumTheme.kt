@@ -125,7 +125,13 @@ fun SistrumTheme(
     val layoutDirection = LocalLayoutDirection.current
     val baseTypography = MaterialTheme.typography
     val typography = remember(baseTypography, layoutDirection) { baseTypography.withNaturalTextDirection(layoutDirection) }
-    CompositionLocalProvider(LocalSistrumColors provides colors) {
+    val reducedMotion = rememberReducedMotion()
+    val tokens = remember(colors, reducedMotion) { sistrumTokens(colors, reducedMotion) }
+    CompositionLocalProvider(
+        LocalSistrumColors provides colors,
+        LocalSistrumTokens provides tokens,
+        LocalReducedMotion provides reducedMotion,
+    ) {
         MaterialTheme(colorScheme = colorScheme, typography = typography, content = content)
     }
 }

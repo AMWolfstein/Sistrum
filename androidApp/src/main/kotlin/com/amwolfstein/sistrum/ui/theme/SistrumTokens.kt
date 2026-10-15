@@ -44,15 +44,25 @@ data class SistrumTokenColors(
     val focusRing: Color,
 )
 
+/** Foundation durations in milliseconds; reduced motion resolves every duration to zero. */
+@Immutable
+data class SistrumMotion(
+    val shortDurationMillis: Int = 150,
+    val mediumDurationMillis: Int = 300,
+    val longDurationMillis: Int = 500,
+)
+
 @Immutable
 data class SistrumTokens(
     val colors: SistrumTokenColors,
     val spacing: SistrumSpacing = SistrumSpacing(),
     val shapes: SistrumShapes = SistrumShapes(),
+    val motion: SistrumMotion = SistrumMotion(),
 )
 
 /** Reuses the theme palette without changing any existing color or theme consumer. */
-fun sistrumTokens(colors: SistrumColors): SistrumTokens = SistrumTokens(
+fun sistrumTokens(colors: SistrumColors, reducedMotion: Boolean = false): SistrumTokens = SistrumTokens(
+    motion = if (reducedMotion) SistrumMotion(0, 0, 0) else SistrumMotion(),
     colors = SistrumTokenColors(
         page = colors.background,
         glassTint = colors.glass,
@@ -67,5 +77,5 @@ fun sistrumTokens(colors: SistrumColors): SistrumTokens = SistrumTokens(
     ),
 )
 
-// Theme provision is added by T005; this matches LocalSistrumColors' light default.
+// Matches LocalSistrumColors' light default outside SistrumTheme.
 val LocalSistrumTokens = staticCompositionLocalOf { sistrumTokens(LightColors) }
