@@ -836,3 +836,22 @@ The half-duration cap continues to use the original source duration, as in D-37.
 
 **Revisit if:** the milestone's device/PCM gate finds seek/preroll or output-clock differences; host policy and
 coordinator tests are not evidence of captured overlap or SC-009. UI controls/translations remain T019.
+
+
+## D-39: Settings availability follows the selected engine (T019)
+
+**Case:** T015/T018 already persist Night mode (default OFF) and silence skipping (default ON).
+T019 exposes them without changing playback policy; both are Media3-only and silence skipping needs crossfade.
+
+**Options:** use normalization's existing selected-engine availability flag and the existing switch row
+(recommended); hide the new options on native; introduce a separate settings controller.
+
+**Chosen:** collect Night mode in MainActivity with the existing lifecycle-aware preferences pattern; pass both
+values and persisted callbacks through SettingsDestinationModel and AppDestinationContent. Show Night mode in
+playback settings, disabled on native with normalization's existing engine requirement note. Show Skip silence
+in crossfade in song-transition settings, enabled only with crossfade ON and Media3 selected; the existing native
+requirement note covers this row too. Keep saved checks visible while disabled and never overwrite preferences
+when changing engine or disabling crossfade. English and Arabic labels/descriptions are added together.
+No player logic, preference defaults, architecture, ADR or spec 001 behavior changes.
+
+**Revisit if:** another engine implements these features; update availability together with its implementation.

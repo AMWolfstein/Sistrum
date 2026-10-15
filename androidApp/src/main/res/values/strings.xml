@@ -242,6 +242,10 @@
     <string name="playback_crossfade_minimum">1s</string>
     <string name="playback_crossfade_maximum">12s</string>
     <string name="playback_crossfade_repeat_one">Crossfade on repeat-one</string>
+    <string name="playback_night_mode">Night mode</string>
+    <string name="playback_night_mode_description">Reduce the difference between quiet and loud passages.</string>
+    <string name="playback_crossfade_skip_silence">Skip silence in crossfade</string>
+    <string name="playback_crossfade_skip_silence_description">Use measured silence to overlap the audible parts of tracks.</string>
     <string name="playback_crossfade_on_skip">Crossfade on skip</string>
     <string name="playback_crossfade_on_skip_description">Fade between tracks when you skip (0.5–2 s).</string>
     <string name="playback_blend_artwork_during_crossfade">Blend artwork and background</string>

@@ -221,6 +221,7 @@ class MainActivity : ComponentActivity() {
             val crossfadeSettings by playbackPreferences.settings.collectAsStateWithLifecycle(
                 initialValue = com.amwolfstein.sistrum.player.CrossfadeSettings(0, 4, true),
             )
+            val nightMode by playbackPreferences.nightMode.collectAsStateWithLifecycle(initialValue = false)
             val showFullscreenQualityBadge by playbackPreferences.showFullscreenQualityBadge.collectAsStateWithLifecycle(initialValue = true)
             val normalizationSettings by normalizationPreferences.settings.collectAsStateWithLifecycle(
                 initialValue = com.amwolfstein.sistrum.player.NormalizationSettings(),
@@ -429,6 +430,10 @@ class MainActivity : ComponentActivity() {
                     onBlendArtworkDuringCrossfadeChanged = playbackController::setBlendArtworkDuringCrossfade,
                     repeatOneCrossfade = crossfadeSettings.repeatOneCrossfade,
                     onRepeatOneCrossfadeChanged = { enabled -> preferenceScope.launch { playbackPreferences.setRepeatOneCrossfade(enabled) } },
+                    nightMode = nightMode,
+                    onNightModeChanged = { enabled -> preferenceScope.launch { playbackPreferences.setNightMode(enabled) } },
+                    crossfadeSkipSilence = crossfadeSettings.crossfadeSkipSilence,
+                    onCrossfadeSkipSilenceChanged = { enabled -> preferenceScope.launch { playbackPreferences.setCrossfadeSkipSilence(enabled) } },
                     crossfadeOnSkip = crossfadeSettings.crossfadeOnSkip,
                     onCrossfadeOnSkipChanged = { enabled -> preferenceScope.launch { playbackPreferences.setCrossfadeOnSkip(enabled) } },
                     showFullscreenQualityBadge = showFullscreenQualityBadge,

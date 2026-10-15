@@ -277,6 +277,10 @@
     <string name="playback_crossfade_minimum">1 ث</string>
     <string name="playback_crossfade_maximum">12 ث</string>
     <string name="playback_crossfade_repeat_one">التلاشي المتداخل عند تكرار مقطع واحد</string>
+    <string name="playback_night_mode">الوضع الليلي</string>
+    <string name="playback_night_mode_description">تقليل الفرق بين المقاطع الهادئة والمرتفعة الصوت.</string>
+    <string name="playback_crossfade_skip_silence">تخطي الصمت أثناء التلاشي المتداخل</string>
+    <string name="playback_crossfade_skip_silence_description">استخدام قياسات الصمت لتداخل الأجزاء المسموعة من المقاطع.</string>
     <string name="playback_crossfade_on_skip">التلاشي المتداخل عند التخطي</string>
     <string name="playback_crossfade_on_skip_description">تلاشي متداخل بين المقاطع عند التخطي (0.5–2 ثانية).</string>
     <string name="playback_blend_artwork_during_crossfade">مزج صورة الغلاف والخلفية</string>

@@ -431,6 +431,9 @@ internal fun AppDestinationContent(
                                 modifier = settingsPageModifier,
                             )
                             AppStackPage.SettingsPlayback -> PlaybackSettingsContent(
+                                nightMode = settings.nightMode,
+                                onNightModeChanged = settings.onNightModeChanged,
+                                normalizationAvailable = normalizationAvailable,
                                 showFullscreenQualityBadge = showFullscreenQualityBadge,
                                 onShowFullscreenQualityBadgeChanged = onShowFullscreenQualityBadgeChanged,
                                 onSongTransitionSelected = {
@@ -452,6 +455,8 @@ internal fun AppDestinationContent(
                                 onBlendArtworkDuringCrossfadeChanged = onBlendArtworkDuringCrossfadeChanged,
                                 repeatOneCrossfade = settings.repeatOneCrossfade,
                                 onRepeatOneCrossfadeChanged = settings.onRepeatOneCrossfadeChanged,
+                                crossfadeSkipSilence = settings.crossfadeSkipSilence,
+                                onCrossfadeSkipSilenceChanged = settings.onCrossfadeSkipSilenceChanged,
                                 crossfadeOnSkip = settings.crossfadeOnSkip,
                                 onCrossfadeOnSkipChanged = settings.onCrossfadeOnSkipChanged,
                                 normalizationAvailable = normalizationAvailable,

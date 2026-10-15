@@ -5,12 +5,20 @@
 ## Current status
 
 - **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 `a18bbcb`, T015 `b1bf978`, T016 `654c30b`,
-  T017 `2eccc49` committed. T018 implemented under the owner's explicit autonomous T018 brief; commit prepared
-  for the runner on `feature/media3-migration`.
-- **Next step:** runner commits the T018 bundle; T019 is next in task order, subject to its own authorization/brief.
+  T017 `2eccc49`, T018 `fcee1d2` committed. T019 implemented; commit prepared for the runner on
+  `feature/media3-migration`.
+- **Next step:** runner commits the T019 bundle; T020 is next, subject to its own authorization/brief.
   Other M2 work remains outside this session's authorization.
   004: Phase 0 done; owner choices recorded in `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images
   from Rhythm; Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **T019 result:** first-attempt quick GATE: PASS, `/tmp/verify-task.I2tr2T`; 138/138 host cases across 33
+  classes, no failures/errors/skips; Arabic completeness 2/2 and unchanged T017 21/21 PASS. Production Kotlin
+  compilation PASS; graph changed and generated pair included. Playback settings now expose persisted Night mode;
+  song-transition settings expose persisted Skip silence in crossfade. Native engine disables both with the existing
+  Media3 requirement note; crossfade OFF disables silence skipping without changing its stored value. D-39 records
+  UI availability. English/Arabic descriptions included. No playback, preference keys/defaults, Room or existing test
+  changes. Full suites/sharedLogic, lint, assemble, UI interaction/device/PCM and owner listening checks NOT RUN:
+  milestone/owner scope; host tests do not exercise Compose gestures.
 - **T018 result:** final quick GATE: PASS, `/tmp/verify-task.IFo8D7`: 281/281 host cases across 23 classes,
   no failures/errors/skips; all 21 unchanged T017 methods and 11 added integration/profile/preferences cases PASS.
   Earlier broader player + analysis snapshot: 1,037 cases, 1,036 pass, one existing loudness-oracle assumption skip
@@ -63,6 +71,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T019 playback toggles; commit: prepared, awaiting runner | Quick GATE: PASS, attempt 1, `/tmp/verify-task.I2tr2T`; 138/138 cases, 33 classes, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed, pair included. D-39: existing selected-engine availability and saved values while disabled. Six implementation/resource files plus required task/status/decision records and graph pair; file reasons/commands below. NOT RUN: full suites/sharedLogic, lint, assemble, UI interaction/device/PCM (milestone), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved/excluded. No follow-up refactors. |
 | 2026-10-15 | T018 silence-aware playback; commit: prepared, awaiting runner | Final quick GATE: PASS (third/final verification run), `/tmp/verify-task.IFo8D7`; 281/281 cases, 23 classes, no errors/skips, unchanged T017 21/21; 11 new cases PASS. Earlier broad snapshot: 1,036 pass, one existing oracle skip. Production compile PASS; graph changed, generated pair included. D-38: version/fingerprint validation, engine policy dispatch and same-item repeat rule. Files/reasons and all commands below; no extra source files/refactors. NOT RUN: full suites/sharedLogic, lint, assemble, device/PCM/SC-009 (milestone), manual listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved and excluded; no follow-up refactors. |
 | 2026-10-15 | T017 [TESTS-FIRST] silence transition contracts; commit: prepared, awaiting runner | Quick GATE: PASS on attempt 1, `/tmp/verify-task.5iMAgk`; 163 cases / 8 classes, 143 pass, 20 expected assertion failures, 0 errors/skips. New class: 1 legacy control pass, 20 expected failures; unchanged controller/coordinator crossfade regressions pass. Production compile PASS. D-37 records hooks and 001 boundaries; no production/existing test edits. Graph changed; both artifacts included. Files: new TransitionControllerSilenceTest for T017, tasks.md checkbox, HANDOFF status/evidence, DECISIONS D-37 for open test-contract choices, generated graph pair per gate. NOT RUN: assertions past missing hooks (T018), full suites/sharedLogic, lint, assemble, device and manual listening (milestone/owner scope), stage/commit/push (runner). Unrelated spec 005 edit excluded; no follow-up refactors. |
 | 2026-10-15 | T016 silence profiles; commit: prepared, awaiting runner | Final quick GATE: PASS, `/tmp/verify-task.aulDB7`; 171 cases / 15 classes, 170 pass, 0 failures/errors, 1 unchanged oracle skip (`SISTRUM_CORPUS` unset); new SilenceProfileTest 10/10; compileDevQaKotlin PASS. Earlier gate also PASS (`/tmp/verify-task.lWaTyR`); second run verifies added EOF checkpoint coverage/fix. D-36 records edge/run qualification, checkpoint v2 and one-shot version refresh. Required files: TrackAnalyzer.kt measures shared PCM and checkpoints; AnalysisMeasurer.kt codecs/forwards results; new SilenceProfile.kt holds bounded DSP edge accumulation. Extra production files LoudnessModels.kt carries the profile to persistence; LoudnessStore.kt writes contract keys and discovers version-stale profiles via existing planner rows. New SilenceProfileTest.kt covers numeric boundaries, multichannel/high-rate/chunk/cancel/EOF/failure paths and document/version behaviour. tasks.md/HANDOFF.md/DECISIONS.md record completion/evidence/decisions; both generated graph files required because refresh reported changed (11,510 nodes / 34,004 edges). No existing test edited. NOT RUN: full suites/sharedLogic/standalone module suites/lint/assemble/device (milestone gate), external loudness oracle (corpus unset), listening/Bluetooth/headset (owner), stage/commit/push (runner). No playback/UI/Room SQL/schema/version or ADR change. Unrelated specs/005-bugfixes/tasks.md edit preserved and excluded. |
@@ -103,6 +112,53 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T019 verification and impact review — 2026-10-15
+
+Impact identified before editing via `git grep`: MainActivity constructs SettingsDestinationModel;
+AppDestinationContent consumes that model and is the only caller of PlaybackSettingsContent and
+SongTransitionContent. PlaybackPreferences already supplies nightMode/setNightMode and
+settings.crossfadeSkipSilence/setCrossfadeSkipSilence; PlaybackService consumes those persisted settings.
+Only UI readers/callbacks are added; no preference key/default, Room/schema/DAO, analysis document,
+DecoderProvider order, PlaybackController, native backend or sharedLogic contract changes.
+All existing tests remain unmodified, especially T014 Night-mode tests, T017 TransitionControllerSilenceTest,
+ArabicTranslationCompletenessTest and preference persistence tests. No downstream module command is required
+by REGRESSION.md for an app-only UI change.
+
+Files reviewed against that impact list; each is required:
+- `androidApp/src/main/kotlin/com/amwolfstein/sistrum/MainActivity.kt`: lifecycle-aware Night-mode collection and
+  binding both persisted values/setters to the existing settings model.
+- `androidApp/src/main/kotlin/com/amwolfstein/sistrum/AppDestinationModels.kt`: pass the two settings and callbacks.
+- `androidApp/src/main/kotlin/com/amwolfstein/sistrum/ui/navigation/AppDestinationContent.kt`: pass model fields
+  and existing normalization availability into their settings pages.
+- `androidApp/src/main/kotlin/com/amwolfstein/sistrum/ui/screens/PlaybackSettingsContent.kt`: two switch rows using
+  the existing row component; Night mode in playback settings, silence skipping in crossfade settings.
+- `androidApp/src/main/res/values/strings.xml`, `values-ar/strings.xml`: four matching labels/descriptions.
+- `specs/002-kotlin-decoders/tasks.md`, `HANDOFF.md`, `DECISIONS.md`: task completion, evidence and D-39 UI choice.
+- `graphify-out/graph.json`, `graphify-out/.graphify_analysis.json`: mandatory generated graph refresh output.
+No extra implementation files, helper extraction, error handling, playback changes or refactors. Existing switch
+row behavior supplies disabled clicks/switches; engine/crossfade changes do not write either preference.
+
+Commands/results:
+- Entry check: `.codex-commit/` absent; `git status --short`, `git branch --show-current`, `git log -3 --oneline`:
+  expected branch, T018 committed as `fcee1d2`, unrelated spec 005 task edit preserved/excluded.
+- Memory check: `./gradlew --stop` PASS (no daemons); `pkill -f '[K]otlinCompileDaemon'` exit 1 (none);
+  MemAvailable 2,436,320 kB, above 2 GiB.
+- `bash .claude/skills/verify-task/scripts/verify.sh --files '<six implementation/resource paths above>'
+  --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ArabicTranslationCompletenessTest'
+  --tests 'com.amwolfstein.sistrum.ui.*' --tests 'com.amwolfstein.sistrum.player.NightModePreferencesTest'
+  --tests 'com.amwolfstein.sistrum.player.SilencePlaybackPreferencesTest'
+  --tests 'com.amwolfstein.sistrum.player.media3.TransitionControllerSilenceTest'`: first attempt GATE: PASS,
+  `/tmp/verify-task.I2tr2T`; scope PASS, unit PASS, `:androidApp:compileDevQaKotlin` PASS.
+  JUnit XML: 138 tests / 33 classes, 0 failures/errors/skips; Arabic 2/2, persisted Night mode 1/1,
+  persisted silence setting 1/1, unchanged T017 21/21. UI helper tests pass; no Compose interaction claim.
+- Gate ran `python3 .claude/hooks/graph_refresh.py auto`: graph changed (11,577 nodes, 34,272 edges), PASS;
+  both generated files included without hand edits.
+- `git diff --check`: PASS; final diff reviewed for scope/minimality, no swallowed errors or test changes.
+
+NOT RUN: full app/sharedLogic/module suites, lint, assemble, Compose interaction/device/PCM/SC-008/SC-009
+(milestone gate; T019 uses no phone); listening/Bluetooth/headset (owner manual checks); stage/commit/push
+(runner owns these; `.codex-commit/` provides the exact file list/message). No features disabled or removed.
 
 ## T018 verification and impact review — 2026-10-15
 

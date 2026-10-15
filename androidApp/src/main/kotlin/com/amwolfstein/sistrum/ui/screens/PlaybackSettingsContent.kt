@@ -61,6 +61,9 @@ import com.amwolfstein.sistrum.player.normalizeEqGain
 
 @Composable
 internal fun PlaybackSettingsContent(
+    nightMode: Boolean,
+    onNightModeChanged: (Boolean) -> Unit,
+    normalizationAvailable: Boolean,
     showFullscreenQualityBadge: Boolean,
     onShowFullscreenQualityBadgeChanged: (Boolean) -> Unit,
     onSongTransitionSelected: () -> Unit,
@@ -97,6 +100,16 @@ internal fun PlaybackSettingsContent(
             containerStyle = ActionListContainerStyle.Card,
             dividerStyle = ActionListDividerStyle.FullWidth,
         )
+        com.amwolfstein.sistrum.ui.components.Card {
+            CrossfadeOptionRow(
+                labelRes = R.string.playback_night_mode,
+                subtitleRes = if (normalizationAvailable) R.string.playback_night_mode_description
+                    else R.string.playback_normalization_requires_media3,
+                checked = nightMode,
+                enabled = normalizationAvailable,
+                onCheckedChange = onNightModeChanged,
+            )
+        }
     }
 }
 
@@ -325,6 +338,8 @@ internal fun SongTransitionContent(
     onBlendArtworkDuringCrossfadeChanged: (Boolean) -> Unit,
     repeatOneCrossfade: Boolean,
     onRepeatOneCrossfadeChanged: (Boolean) -> Unit,
+    crossfadeSkipSilence: Boolean,
+    onCrossfadeSkipSilenceChanged: (Boolean) -> Unit,
     crossfadeOnSkip: Boolean,
     onCrossfadeOnSkipChanged: (Boolean) -> Unit,
     normalizationAvailable: Boolean,
@@ -398,6 +413,14 @@ internal fun SongTransitionContent(
                 checked = crossfadeOnSkip,
                 enabled = enabled && normalizationAvailable,
                 onCheckedChange = onCrossfadeOnSkipChanged,
+            )
+            ActionListDivider(style = ActionListDividerStyle.FullWidth)
+            CrossfadeOptionRow(
+                labelRes = R.string.playback_crossfade_skip_silence,
+                subtitleRes = R.string.playback_crossfade_skip_silence_description,
+                checked = crossfadeSkipSilence,
+                enabled = enabled && normalizationAvailable,
+                onCheckedChange = onCrossfadeSkipSilenceChanged,
             )
             if (!normalizationAvailable) {
                 Text(
