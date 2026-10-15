@@ -5,12 +5,20 @@
 ## Current status
 
 - **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 `a18bbcb`, T015 `b1bf978`, T016 `654c30b`,
-  T017 `2eccc49`, T018 `fcee1d2` committed. T019 implemented; commit prepared for the runner on
-  `feature/media3-migration`.
-- **Next step:** runner commits the T019 bundle; T020 is next, subject to its own authorization/brief.
-  Other M2 work remains outside this session's authorization.
+  T017 `2eccc49`, T018 `fcee1d2`, T019 `936e772` committed. T020 device tests written;
+  commit prepared for the runner on `feature/media3-migration`.
+- **Next step:** runner commits T020; T021 runs the M2 full gate and `.qa` phone check, subject to its own brief.
+  Run `com.amwolfstein.sistrum.player.NightModeDeviceTest` and
+  `com.amwolfstein.sistrum.player.SilenceCrossfadeDeviceTest` plus T021's prescribed 001 classes.
+  T020 performs no installation, instrumentation or device access.
   004: Phase 0 done; owner choices recorded in `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images
   from Rhythm; Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **T020 result:** quick GATE: PASS, `/tmp/verify-task.hVguV8`; 32/32 host tests across 3 classes,
+  0 failures/errors/skips; production compile PASS. Two new device classes contain 5 methods, written but
+  NOT RUN (T021). D-40 records deterministic PCM fixtures, 001 byte/timing oracles, the silence negative
+  control and the pre-session capture boundary. No production/existing test/Room changes; no hardware
+  limiter ceiling or engine-to-factory Night-mode propagation PASS claimed. Final device-test Kotlin compile PASS (`/tmp/t020-device-compile-retry.log`);
+  one daemon-loss retry is recorded in the T020 section below.
 - **T019 result:** first-attempt quick GATE: PASS, `/tmp/verify-task.I2tr2T`; 138/138 host cases across 33
   classes, no failures/errors/skips; Arabic completeness 2/2 and unchanged T017 21/21 PASS. Production Kotlin
   compilation PASS; graph changed and generated pair included. Playback settings now expose persisted Night mode;
@@ -71,6 +79,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T020 device PCM tests; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.hVguV8`; 32/32 unchanged host cases (3 classes), 0 failures/errors/skips; production Kotlin compile PASS. NightModeDeviceTest.kt required for SC-008 accepted float-sink byte identity and plateau range; SilenceCrossfadeDeviceTest.kt required for SC-009 real dual-player captures, exact generated edges, no-silence legacy timing and disabled-option negative control. Extra docs tasks.md/HANDOFF.md/DECISIONS.md required for completion, evidence and D-40 measurement choices; generated graph pair required because refresh reported changed (11,617 nodes / 34,472 edges). Final device-test Kotlin compile PASS after one daemon-loss retry, `/tmp/t020-device-compile-retry.log`. NOT RUN: 5 new instrumented methods, full suites/sharedLogic/lint/assemble/phone (T021); hardware post-session limiter capture and engine-to-factory Night setting capture (no existing post-Night factory seam); listening/Bluetooth/headset (owner); stage/commit/push (runner). Unrelated specs/005-bugfixes/tasks.md and concurrent untracked specs/004-ui-extensions/spec.md preserved/excluded. No other task implemented. |
 | 2026-10-15 | T019 playback toggles; commit: prepared, awaiting runner | Quick GATE: PASS, attempt 1, `/tmp/verify-task.I2tr2T`; 138/138 cases, 33 classes, 0 failures/errors/skips; compileDevQaKotlin PASS; graph changed, pair included. D-39: existing selected-engine availability and saved values while disabled. Six implementation/resource files plus required task/status/decision records and graph pair; file reasons/commands below. NOT RUN: full suites/sharedLogic, lint, assemble, UI interaction/device/PCM (milestone), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved/excluded. No follow-up refactors. |
 | 2026-10-15 | T018 silence-aware playback; commit: prepared, awaiting runner | Final quick GATE: PASS (third/final verification run), `/tmp/verify-task.IFo8D7`; 281/281 cases, 23 classes, no errors/skips, unchanged T017 21/21; 11 new cases PASS. Earlier broad snapshot: 1,036 pass, one existing oracle skip. Production compile PASS; graph changed, generated pair included. D-38: version/fingerprint validation, engine policy dispatch and same-item repeat rule. Files/reasons and all commands below; no extra source files/refactors. NOT RUN: full suites/sharedLogic, lint, assemble, device/PCM/SC-009 (milestone), manual listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 005 edit preserved and excluded; no follow-up refactors. |
 | 2026-10-15 | T017 [TESTS-FIRST] silence transition contracts; commit: prepared, awaiting runner | Quick GATE: PASS on attempt 1, `/tmp/verify-task.5iMAgk`; 163 cases / 8 classes, 143 pass, 20 expected assertion failures, 0 errors/skips. New class: 1 legacy control pass, 20 expected failures; unchanged controller/coordinator crossfade regressions pass. Production compile PASS. D-37 records hooks and 001 boundaries; no production/existing test edits. Graph changed; both artifacts included. Files: new TransitionControllerSilenceTest for T017, tasks.md checkbox, HANDOFF status/evidence, DECISIONS D-37 for open test-contract choices, generated graph pair per gate. NOT RUN: assertions past missing hooks (T018), full suites/sharedLogic, lint, assemble, device and manual listening (milestone/owner scope), stage/commit/push (runner). Unrelated spec 005 edit excluded; no follow-up refactors. |
@@ -112,6 +121,57 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T020 verification and impact review — 2026-10-15
+
+**Scope/impact identified before implementation:** two new instrumented test classes only. `git grep` of
+`afterGainProcessors`/`audioProcessors` identified Media3CrossfadeTest and KotlinFormatsPlaybackTest as existing
+capture consumers. Read FloatChainAudioSink, Media3PlayerFactory, Media3Engine, TransitionController,
+PlaybackItem/SilenceProfile and T014 host oracles to establish capture order, PCM source origins, automatic
+fade dispatch and constructor contracts. Instrumentation runner/T021 consumes the new classes; no production
+caller changes. Data contracts exercised, not modified: in-memory silence profiles (-60dBFS, 1s minimum),
+Night-mode boolean reader, existing engine policy and float sink. Room/schema/DAOs/analysis documents,
+persisted preference keys/defaults, DecoderProvider order and PlaybackController untouched.
+All existing tests must stay unchanged, especially T014 FloatChainNightModeTest, T017
+TransitionControllerSilenceTest, 001 Media3CrossfadeTest/Media3EngineCoreTest/Media3LimiterTest.
+
+**Implementation/oracles (D-40):** Night mode captures consumed bytes at a real muted Android AudioSink
+following the production FloatChainAudioSink. Neutral/colored OFF compares against the explicit 001 pipeline;
+ON uses 3s quiet/loud/quiet stereo plateaus and settled RMS windows (at least 30% dB range reduction).
+The SC-009 generated WAV corpus has sample-exact outgoing 2s/3s tails and incoming 2s lead. Tests drive real
+engine preparation/preload and coordinator-equivalent automatic decisions, fit 5ms equal-power curves from
+both gain taps, require source-end timing within 10ms and <=100ms silent overlap. No-silence/no-profile/zero-edge
+controls compare with 001 decision functions, using a common effective-duration normalization (D-40).
+The disabled-option negative control requires the outgoing silent tail/source end, unskipped B lead and >=1800ms
+silent overlap. Tee generations preserve EOS/reset captures and exclude incoming warm-up. Fixture files are
+private cache files deleted after engine cleanup. Both classes refuse targets outside `.qa`; no skips/assumptions.
+
+**Commands/results:**
+- Initial and pre-gate memory checks: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`;
+  `rg MemAvailable /proc/meminfo`: 2,419,888 and 2,268,736 kB respectively (>=2 GiB).
+- `./gradlew :androidApp:compileDevQaAndroidTestKotlin`: initial PASS, `/tmp/t020-device-compile.log`.
+  Final recompilation after capture review lost its Gradle daemon while graph extraction was active,
+  `/tmp/t020-device-compile-final.log`. No source compilation diagnostic was reported in that failed attempt.
+  Stopped daemons again; MemAvailable 2,263,720 kB. Final isolated retry `./gradlew :androidApp:compileDevQaAndroidTestKotlin`: **PASS**, 26s,
+  `/tmp/t020-device-compile-retry.log` (final sources; no phone used).
+- `bash .claude/skills/verify-task/scripts/verify.sh --files 'androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/player/NightModeDeviceTest.kt androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/player/SilenceCrossfadeDeviceTest.kt' --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.player.media3.FloatChainNightModeTest' --tests 'com.amwolfstein.sistrum.player.media3.FloatChainNightModeLifecycleTest' --tests 'com.amwolfstein.sistrum.player.media3.TransitionControllerSilenceTest'`:
+  **GATE: PASS**, attempt 1, `/tmp/verify-task.hVguV8`; scope PASS; 32 tests / 3 classes, no failures/errors/skips;
+  production compile PASS; graph PASS. Existing T014/T017 unchanged.
+- `python3 .claude/hooks/graph_refresh.py auto`: `graph: changed (11617 nodes, 34472 edges)`,
+  `/tmp/t020-graph.log`; both generated files included. No graph files edited by hand.
+- `git diff --check`: PASS. No module public API/output change; standalone/downstream module suites exempt.
+
+**Diff/self-review:** every task file required as explained in the log row; no existing test/assertion edits,
+no skipped tests, no swallowed exception/fallback, no production/Room/PlaybackController changes or disabled
+features. No architecture/ADR/spec-001 change. No helper production seam or additional shared fixture file.
+Unrelated concurrent 004/005 docs excluded from the bundle. Runtime boundaries/backpressure are asserted,
+not reported as executed on the host. Device-test runtime errors must fail rather than silently skip.
+
+**NOT RUN:** all new instrumented methods (T020 explicitly writes without running); full suites/sharedLogic,
+lint, assemble and all phone checks (T021); Android post-effect limiter ceiling capture (no existing capture seam),
+real engine-to-factory Night-mode setting PCM propagation (factory tees precede Night mode); owner listening,
+Bluetooth/headset checks; staging/commit/push (runner). Pre-session captures cannot establish hardware limiter
+ceiling or listening quality. No device/runtime/SC-008/SC-009 PASS is claimed by the host gate.
 
 ## T019 verification and impact review — 2026-10-15
 

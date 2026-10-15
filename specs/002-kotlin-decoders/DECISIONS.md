@@ -855,3 +855,36 @@ when changing engine or disabling crossfade. English and Arabic labels/descripti
 No player logic, preference defaults, architecture, ADR or spec 001 behavior changes.
 
 **Revisit if:** another engine implements these features; update availability together with its implementation.
+
+
+## D-40: Device PCM oracles for Night mode and silence timing (T020)
+
+**Case:** T020 writes the SC-008/SC-009 device tests without running a phone. The factory's existing
+tees precede Night mode; Android's session limiter has no post-effect PCM capture seam.
+
+**Options:** capture Night mode at the float sink's real AudioSink delegate and retain 001's dual-player
+PCM tee timing method (recommended); change production capture APIs; require microphone/playback-capture consent.
+
+**Chosen:** NightModeDeviceTest drives FloatChainAudioSink into a real muted DefaultAudioSink, recording only
+consumed bytes across AudioTrack backpressure. OFF is compared with an explicit 001 conversion/DSP pipeline,
+with neutral and colored settings. ON/OFF range uses T014's externally specified 3s quiet/loud/quiet plateaus
+and final-second RMS dB windows; constant gain cannot satisfy the 30% reduction.
+SilenceCrossfadeDeviceTest generates deterministic stereo 1kHz WAV corpus fixtures (10s, 2s/3s outgoing
+tails, 2s incoming lead). Known sample boundaries supply profiles, independent of the policy under test.
+It exercises real engine preparation/preload, automatic decision and dual-player fade, fitting 5ms PCM windows
+as in 001. Both sources must be silent below -60dBFS for a window to count toward the 100ms overlap bound.
+No-silence controls compare captured timing to the source end and a separate run driven by the 001 decision
+functions. Fit starts are normalized to a common 2s duration using each measured transition event's effective
+duration: this removes polling overshoot already allowed by 001's remaining-processed-time clamp, not source-clock
+or alignment errors. Each source-end error and the normalized start difference retain the 10ms bound.
+The option-OFF negative control requires the captured outgoing tail and incoming lead, and at least 1800ms
+of silent overlap; an all-silence fade cannot be fitted, so its outgoing start is explicitly unmeasured.
+No device test uses assumptions/skips or needs owner library files. Tests refuse non-.qa targets.
+
+These are pre-session PCM measurements. They do not claim the hardware mixer/limiter ceiling, real
+engine-to-factory Night-mode preference propagation, or listening quality. Existing host setting/ramp/lifecycle
+contracts and Media3LimiterTest remain unchanged. T021 must run both new classes and the prescribed 001 classes;
+post-effect limiter capture and owner listening remain explicitly unmeasured by these tests.
+
+**Revisit if:** T021 finds device-specific timing, AudioTrack backpressure or seek/preroll differences;
+any future post-session capture needs a separately authorized task rather than a fake limiter model here.
