@@ -955,3 +955,29 @@ no tolerance, assertion, oracle or existing test is changed.
 
 **Revisit if:** device evidence shows additional processing-clock drift; retain the 10ms source-end
 and 100ms shared-clock assertions rather than relaxing their bounds.
+
+## D-43: Correlate HAL warnings before attributing client starvation (T021-fix2)
+
+**Case:** phone-log-triage finding 1 groups 57 vendor HAL `out_write: underrun` warnings
+as HIGH, but names no implementation culprit. Replaying only the QA PID's logged AudioTrack
+start/pause/stop/flush events finds 37 warnings with no QA track recorded active and 20
+near lifecycle boundaries. The cited Night warning is 132ms after track start and 50ms
+after HAL output startup; the remaining active cases are 14–76ms after incoming start
+or 2–7ms after its deliberate pause. Some outgoing tracks are still active during these
+incoming starts. That correlation does not prove the shared hardware output stayed continuous.
+
+**Options:** correlate track/output timing and retain the unresolved hardware concern
+(recommended by the report); change buffers, scheduling or fade timing without an identified
+client starvation path.
+
+**Chosen:** reject finding 1 as a verified app implementation defect; retain the actual
+vendor warnings and their timing evidence. Rerun T021's full gate and all six phone classes,
+then correlate the new warnings as well. Leave production and every existing test unchanged:
+the supplied evidence does not justify a source fix. Functional/PCM test PASS is not a clean
+HAL-output, audible-continuity or SC-005 performance PASS. Record MEDIUM/LOW diagnostics
+as follow-ups, with listening/Bluetooth/headset and hardware capture still NOT RUN.
+
+**Revisit if:** warnings appear away from lifecycle boundaries, QA client starvation or
+write failures are measured, or output capture/listening establishes a dropout. In particular,
+startup of B while A is active remains a hardware-output investigation boundary, not proof
+that the warnings are harmless. No architecture, ADR, spec 001 policy or acceptance bound changes.

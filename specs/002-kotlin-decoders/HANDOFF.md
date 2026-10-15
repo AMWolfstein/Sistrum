@@ -4,11 +4,19 @@
 
 ## Current status
 
-- **Phase:** M2 T021 full gate + `.qa` phone check PASS (2026-10-15); commit prepared for runner
-  on `feature/media3-migration`. T021-fix is committed as `2a8b786`.
-- **Next step:** runner commits T021; T021a remains the metadata corpus prerequisite before M3.
-  No other task implemented in this session. Owner Night mode/crossfade listening checks are listed
-  in the T021 milestone report below and remain NOT RUN.
+- **Phase:** M2 T021-fix2 phone-log investigation complete (2026-10-15); full GATE: PASS
+  `/tmp/verify-task.qeRXRH`, commit prepared for runner on `feature/media3-migration`.
+  T021 is committed as `b9200a8`; its phone-log report is `8050452`.
+- **Next step:** runner commits T021-fix2; T021a remains the metadata corpus prerequisite before M3.
+  No other task implemented in this session. Owner Night mode/crossfade listening checks below
+  remain NOT RUN; passing tests do not establish clean HAL output.
+- **T021-fix2 result:** all 59 `.qa` device cases PASS; host app/sharedLogic tasks UP-TO-DATE
+  (cached XML: 1454 cases/one unchanged corpus skip and 39 passes); assemble PASS; lint 0 errors,
+  72 warnings/14 hints. D-43 rejects the single HIGH as an unconfirmed implementation defect:
+  original HAL warnings 57 (37 with no QA track recorded active, 20 near start/pause); rerun 59
+  (37/22). Warnings remain recorded, including starts of B while A is active; hardware continuity
+  is unproven. No source/test changes. DSP/analysis/codecs cached PASS; metadata precondition
+  still FAIL (D-27/T021a), metadata cases NOT RUN. Evidence and follow-ups below.
 - **004 context (unchanged):** Phase 0 done; owner choices recorded in
   `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images from Rhythm;
   Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
@@ -95,6 +103,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T021-fix2 phone-log investigation; commit: prepared, awaiting runner | Full GATE: PASS `/tmp/verify-task.qeRXRH`, all 59/59 `.qa` device cases PASS; app/sharedLogic UP-TO-DATE (cached XML 1454/0 failures/errors/1 unchanged skip and 39 passes), assemble PASS, lint 0 errors (72 warnings/14 hints). rejected: phone-log HIGH 1 as a verified implementation defect — original `logcat-NightModeDeviceTest.log:1683` is 132ms after track start (`:1439`) and 50ms after HAL startup (`:1672`); all 57 original and 59 rerun warnings correlate with recorded start/pause/drain boundaries, with no identified client starvation culprit. Concurrent A/B startup still leaves hardware continuity unproven; no clean-output/SC-005 claim. D-43; MEDIUM/LOW follow-ups and full evidence below. Only tasks.md/HANDOFF.md/DECISIONS.md required for task completion, evidence and the rejection decision; source/tests/graph unchanged. DSP 18, analysis 1127, codecs 1487 cached PASS; metadata precondition FAIL, cases NOT RUN (existing T021a). NOT RUN: hardware capture/listening/Bluetooth/headset (measurement boundary/owner), stage/commit/push (runner). |
 | 2026-10-15 | T021 M2 full gate + phone; commit: prepared, awaiting runner | Final full GATE: PASS `/tmp/verify-task.fezU3l`, app 1454/0 fail/error/1 unchanged corpus skip, sharedLogic 39 PASS, assemble PASS, lint 0 errors (72 warnings/14 hints), CPH2307 `.qa` device 59/59 across 6 classes PASS. D-42 measured-tail clock fix after first-gate failure; deterministic archived T018 red/current green; no original tests/assertions changed. DSP 18, analysis 1127, codecs 1487 PASS; metadata precondition FAIL (known T021a), cases NOT RUN. Graph changed, both artifacts included. Full evidence, per-class log paths, scope/review and manual list below. NOT RUN: post-session hardware ceiling, actual engine preference PCM capture, listening/Bluetooth/headset (measurement boundary/owner), stage/commit/push (runner). No other task implemented. |
 | 2026-10-15 | T021-fix M2 review fixes; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.ALh50l`, 402/402 host cases / 44 classes, 0 failures/errors/skips; production and final device-test Kotlin compile PASS (initial private-looper compile failure corrected; details below). All five distinct HIGH issues confirmed and fixed test-first; no rejected CRITICAL/HIGH findings. New allocation/boundary host tests and real EOF/shared-clock/Room device cases; all original T014/T017 and 001 assertions retained. D-41; exact files, commands, compile retries and MEDIUM/LOW follow-ups below. Graph generated pair required by auto-refresh. NOT RUN: device execution/SC-008/SC-009/Room runtime, full suites/sharedLogic/lint/assemble (T021), post-session limiter and actual Night preference capture (no seam), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated spec 004/005 work preserved and excluded. |
 | 2026-10-15 | T020 device PCM tests; commit: prepared, awaiting runner | Quick GATE: PASS `/tmp/verify-task.hVguV8`; 32/32 unchanged host cases (3 classes), 0 failures/errors/skips; production Kotlin compile PASS. NightModeDeviceTest.kt required for SC-008 accepted float-sink byte identity and plateau range; SilenceCrossfadeDeviceTest.kt required for SC-009 real dual-player captures, exact generated edges, no-silence legacy timing and disabled-option negative control. Extra docs tasks.md/HANDOFF.md/DECISIONS.md required for completion, evidence and D-40 measurement choices; generated graph pair required because refresh reported changed (11,617 nodes / 34,472 edges). Final device-test Kotlin compile PASS after one daemon-loss retry, `/tmp/t020-device-compile-retry.log`. NOT RUN: 5 new instrumented methods, full suites/sharedLogic/lint/assemble/phone (T021); hardware post-session limiter capture and engine-to-factory Night setting capture (no existing post-Night factory seam); listening/Bluetooth/headset (owner); stage/commit/push (runner). Unrelated specs/005-bugfixes/tasks.md and concurrent untracked specs/004-ui-extensions/spec.md preserved/excluded. No other task implemented. |
@@ -139,6 +148,98 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T021-fix2 — M2 phone-log investigation (2026-10-15)
+
+Baseline `8050452` on `feature/media3-migration` (app code `b9200a8`). No `.codex-commit/`
+existed at entry. The runner's uncommitted T021-fix2 task line was preserved and included.
+Read phone-log-triage and the seven earlier M2 reports; their previously fixed HIGH findings
+remain covered by the unchanged tests. No new confirmed implementation defect or source fix.
+
+Impact recorded before repository edits in `/tmp/t021-fix2-impact.txt` (also copied to the
+gate directory). `git grep` checked factory -> FloatChainAudioSink/DefaultAudioSink,
+Media3Engine A/B creation/shared Night reader and AudioOutput.Listener.onUnderrun. The
+Night-mode test uses its own DefaultAudioSink and short looper calls (`NightModeDeviceTest.kt:86–142`);
+the production underrun callback (`Media3PlayerFactory.kt:586`) concerns client output,
+whereas the report's warning comes from vendor `audio_hw_primary`. Absence of a client
+callback in logcat cannot prove absence of a downstream HAL problem.
+
+**rejected: HIGH 1 as a verified app implementation defect** — original
+`/tmp/verify-task.fezU3l/logcat-NightModeDeviceTest.log:1683` occurs at 21:36:37.234,
+132ms after QA track 5479 starts (`:1439`, 21:36:37.102) and 50ms after HAL startup
+(`:1672`, 21:36:37.184). No further HAL warning occurs before its stop at `:1796`,
+21:36:45.617. The rerun repeats this at `logcat-NightModeDeviceTest.log:1683`, 130ms
+after track start (`:1432`) and 50ms after HAL startup (`:1671`). The PCM assertions
+are not the basis for this classification; the recorded track/output timing is.
+
+Replayed every QA AudioTrack start/pause/stop/flush event, restricted to QA PIDs mapped
+from ActivityManager, and correlated every HAL warning rather than assigning it to the
+currently named test. Counts below distinguish no track **recorded** active from at least
+one recorded active; HAL drain may continue after client stop.
+
+| Class | Original warnings: no active / active | Rerun warnings: no active / active |
+|---|---:|---:|
+| NightModeDeviceTest | 0 / 1 | 0 / 1 |
+| SilenceCrossfadeDeviceTest | 16 / 10 | 16 / 10 |
+| Media3CrossfadeTest | 17 / 9 | 17 / 11 |
+| Media3EngineCoreTest | 3 / 0 | 3 / 0 |
+| Media3LimiterTest | 1 / 0 | 1 / 0 |
+| LoudnessStoreTest | 0 / 0 | 0 / 0 |
+| Total | 37 / 20 (57) | 37 / 22 (59) |
+
+Original active cases other than Night coincide with incoming starts by 14–76ms or a
+deliberate pause by 2–7ms; rerun counterparts are 14–84ms after start or 1–5ms after pause.
+Some outgoing tracks remain active during those incoming starts. These observations support
+lifecycle correlation, not a proof that every warning is harmless or hardware output is clean.
+No observed warning away from these boundaries identifies a client starvation path. D-43
+records why no buffer/scheduler/fade change is justified; hardware-output investigation remains open.
+
+Commands and verification (first full-gate attempt PASS):
+
+- Memory: `./gradlew --stop` PASS (no running daemon); `pkill -f '[K]otlinCompileDaemon'`
+  exit 1 (no matching daemon); MemAvailable **4,248,740 kB**, above 2GB.
+- `bash .claude/skills/verify-task/scripts/verify.sh --files
+  'specs/002-kotlin-decoders/tasks.md specs/002-kotlin-decoders/HANDOFF.md specs/002-kotlin-decoders/DECISIONS.md'
+  --lint --instrumented '<the same six FQCNs listed in T021 below>'`: **GATE: PASS**.
+  Full app/sharedLogic test tasks UP-TO-DATE; cached XML app 1454/0 failures/errors/1 unchanged
+  WaxFlowOracleLoudnessTest corpus assumption skip, sharedLogic 39/0. QA assemble PASS;
+  lint BUILD SUCCESSFUL and XML 0 errors, 72 warnings/14 hints. All six device classes ran:
+  2 + 6 + 16 + 12 + 2 + 21 = **59/59**, 0 failed/ignored; no assumption-failure signature found.
+- **logs:** `/tmp/verify-task.qeRXRH` contains every `instr-<Class>.log` and
+  `logcat-<Class>.log`, `runner.log`, `unit.log`, `build.log`, `lint.log` and
+  `androidtest-build.log`. `correlate-hal.py`, `original-HAL-correlation.tsv`,
+  `rerun-HAL-correlation.tsv` and `impact.txt` preserve the correlation procedure,
+  QA PIDs, physical line references and millisecond deltas. The script escapes malformed
+  vendor UTF-8 bytes for inspection; original logs are untouched. Original logs remain at
+  `/tmp/verify-task.fezU3l`. QA-only gate allowlist used; no daily-app operations.
+- Rerun SC-008: range reduction **48.163456%**, OFF bytes identical. SC-009: outgoing
+  ends **7999.9318/6999.9318ms**, silence **0ms**, common-clock offsets **−93.5136/−77.3636ms**.
+  The six deliberate source errors and two unsafe-lead fallbacks match their original
+  negative tests. No QA crash/ANR/native-crash signature found; six kills explicitly say
+  `due to finished inst`. HAL warnings remain present as counted above.
+- `./gradlew :dsp:test :analysis:test :codecs:test :metadata:test --continue`: exit 1
+  solely at `:metadata:verifyWaxLabelCorpus`, missing/changed `owned/matroska-ffmpeg-aac.mka`
+  (existing D-27/T021a). DSP **18**, analysis **1127**, codecs **1487** cached PASS,
+  tasks UP-TO-DATE; metadata test cases **NOT RUN**, stale metadata XML not counted.
+  Log `/tmp/t021-fix2-module-suites.log`, copied to gate directory as `module-suites.log`.
+- `python3 .claude/hooks/graph_refresh.py auto`: **graph: not needed (no source change in scope)**,
+  both within the gate and explicitly afterwards; no graph artifact changes. `git diff --check` PASS.
+
+MEDIUM/LOW follow-ups from phone-log-triage (not fixed): #2 vendor slow-write diagnostics
+need hardware scheduling/output measurement; #3–6 keep deliberate missing/corrupt inputs
+and unsafe-lead fallbacks attributed to their tests; #7 retain retrograde-clock corrections
+when investigating output timing; #8 distinguish codec negotiation from fatal decoder errors;
+#9 separate vendor startup diagnostics; #10 distinguish background daily-package artifact
+inspection from actual app operations. Earlier M2 MEDIUM/LOW follow-ups below remain open.
+
+Final scope/self-review: only tasks.md (task completion), HANDOFF.md (status/evidence/rejection)
+and DECISIONS.md (D-43) changed. No production/test/native/Room/document/preference/decoder-order,
+PlaybackController/API/StateFlow, ADR or spec 001 behavior changes. No test/assertion/timeout
+changed, no new skip, hidden fallback or swallowed exception. No changed behavior requiring
+a new regression test; no speculative fix or unrelated task. Stage/commit/push NOT RUN: runner.
+Post-session hardware capture/limiter ceiling, engine preference PCM capture, SC-005 performance,
+listening/Bluetooth/headset remain NOT RUN (measurement boundary, later milestone or owner).
+The T021 owner manual list below remains applicable; no acoustic/clean-output PASS claimed.
 
 ## T021 — M2 full gate and phone check (2026-10-15)
 

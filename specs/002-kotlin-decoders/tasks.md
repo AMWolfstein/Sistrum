@@ -55,6 +55,7 @@ plays on `.qa`; offline decode = oracle hashes; joins ≤ 2 frames.
 - [x] T019 [US4] Settings UI: "Night mode" toggle (playback settings) and "Skip silence in crossfade" toggle (crossfade settings), strings in `values/strings.xml` and `values-ar/strings.xml` (`ArabicTranslationCompletenessTest` passes); Night mode shown as Media3-only like normalization
 - [x] T020 [US4] Write device tests (not run yet) `androidTest/player/NightModeDeviceTest.kt` and `androidTest/player/SilenceCrossfadeDeviceTest.kt` (capture sink measurements as in 001's crossfade tests: SC-008, SC-009)
 - [x] T021-fix [HIGH-RISK] M2 review fixes: read every report in `specs/002-kotlin-decoders/review/M2/` (AGENTS.md step 10); fix confirmed CRITICAL/HIGH findings test-first, reject the rest with file:line reasons; quick gate.
+- [x] T021-fix2 [HIGH-RISK] M2 phone-log fixes: read `specs/002-kotlin-decoders/review/M2/phone-log-triage.md` (AGENTS.md step 10); fix confirmed CRITICAL/HIGH; rerun the full gate + phone check of T021.
 - [x] T021 [US4] M2 full gate + phone check: full suites, `--lint`, `assembleDevQa`; on `.qa` run T020 classes plus `Media3CrossfadeTest`, `Media3EngineCoreTest`, `Media3LimiterTest`; bisect on failure; HANDOFF milestone report; add owner listening checks (Night mode, crossfade feel) to the manual list
 
 ## Phase 4: M3 — Scan path and tags (US2, P1)
