@@ -768,3 +768,42 @@ never acquire new profile fields. Normal decoder-set retry rules remain in force
 
 **Revisit if:** the detector algorithm/minimum/threshold changes (bump the silence version and checkpoint format),
 or the worker needs internal silent spans rather than just edges. Playback consumers and UI belong to later tasks.
+
+## D-37: Silence timing host contracts and 001 boundaries (T017)
+
+**Case:** T017 is tests-first, and T018 must pass its tests unchanged. SilenceProfile exists after T016, but
+PlaybackItem, TransitionSettings and controller commands do not yet carry the silence timing policy. The coordinator
+currently decides automatic fades using the processed position; Media3Engine prepares B and restarts it on StartFade.
+
+**Options:** specify additive controller/item hooks with reflection (recommended, as in T014); add production stubs
+in the tests-first task; test a separate fake scheduler that does not exercise production policy.
+
+**Chosen:** tests assert these additive hooks, without implementing them in T017:
+
+- Append `silence: SilenceProfile? = null` to PlaybackItem (eleventh constructor argument). T018 reads current-version
+  analysis documents before playback; absent/obsolete measurements remain absent profiles.
+- Append `crossfadeSkipSilence: Boolean = true` to TransitionSettings (fifth constructor argument).
+- Add `TransitionController.automaticFadeDurationMs(current: PlaybackItem, positionMs: Long, durationMs: Long,
+  repeatOne: Boolean): Long?`. Position is already `engine.positionMs() + engine.fadeLeadMs()`; null declines a fade.
+  The coordinator/engine must consume this policy in T018, preserving native-engine policy and readiness checks.
+- Append `positionMs: Long = 0L` to StartFade. Automatic fades between different items start B at its measured lead;
+  preparation remains a PrepareIncoming(item) command. T018 must use the position in the final incoming restart,
+  including its processing-clock origin. Manual skips (including reuse of automatic B) and repeat-one start at zero.
+
+For automatic transitions between different tracks, advance both preparation and fade windows by the outgoing tail
+only. The incoming tail and outgoing lead do not shift the trigger. Preserve 001's fade cap
+`min(configuredFade, originalDuration / 2)`, original duration >= 2000 ms guard, and inclusive audible-remainder
+lower bound 401 ms. Subtract the outgoing tail once from the source end for the trigger and remaining-time clamp;
+do not halve the trimmed duration. Thus 8 s duration / 3 s tail / 6 s configured fade starts at 1 s with a 4 s fade;
+5 s duration / 4 s tail starts at zero with a 1 s fade. An entirely silent outgoing item has no fade window.
+Manual skips, repeat-one (enabled or disabled), crossfade-off gapless playback and unready-B fallback retain 001
+policy as T017 requires. Missing or zero profiles and an explicit OFF setting retain exact 001 boundaries.
+
+Reflection asserts missing hooks and unwraps target exceptions; it never substitutes legacy behavior for missing
+implementation. Numeric expectations are explicit spec/001 values. Host tests prove policy and command order only;
+analysis-document loading, setting persistence, engine execution and PCM overlap are T018/T020/T021 verification.
+No architecture/ADR, production code, existing tests, or native timing change is made by T017.
+
+**Revisit if:** integration exposes a source/processed-clock mismatch or an incoming seek boundary needing additional
+coverage; retain these tests and add coverage in T018. The explicit T017 brief authorizes only T017 despite the earlier
+M2 hold, and does not authorize implementation of T018 here.
