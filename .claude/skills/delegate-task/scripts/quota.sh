@@ -1,6 +1,6 @@
 # Codex quota handling for the milestone runners (sourced; owner 2026-10-15: "auto resume like Claude Code").
-#   - before each Codex step: 5-hour window >= 85% -> sleep until it resets; weekly window used up -> sleep until it
-#     resets. No stop at a weekly percentage (owner 2026-10-15).
+#   - before each Codex step: a window that is used up (5-hour or weekly at 100%) -> sleep until it resets. No early
+#     wait at 85% and no stop at a weekly percentage: the quota is drained fully (owner 2026-10-15).
 #   - a step that dies on "usage limit" mid-run waits for the reset and resumes the SAME Codex session (keeps its
 #     context and any half-done edits), at most 6 times.
 # Usage numbers come from the newest Codex session log that has them (~/.codex/sessions/**/rollout-*.jsonl).
@@ -50,7 +50,7 @@ quota_wait() { # $1 = "hit" after a usage-limit error: wait even if the numbers 
   if [ -n "${p5:-}" ]; then
     p5=${p5%.*}; pw=${pw%.*}
     if [ "$rw" -gt "$now" ] && [ "$pw" -ge 100 ]; then sleep_until "$rw" "weekly limit used up"; waited=1
-    elif [ "$r5" -gt "$now" ] && { [ "$p5" -ge 85 ] || [ "${1:-}" = hit ]; }; then
+    elif [ "$r5" -gt "$now" ] && { [ "$p5" -ge 100 ] || [ "${1:-}" = hit ]; }; then
       sleep_until "$r5" "5-hour window at ${p5}%"; waited=1
     fi
   fi
