@@ -27,6 +27,16 @@ on the `.qa` build; listening checks are the owner's.
 - [x] B3 Wrong duration before playback starts ("3545:41" for a 3:32 song). `FullScreenPlayer` multiplied the library
   duration (`LocalTrack.durationMillis`, already ms) by 1000, a leftover from airmedy's desktop sync (seconds).
   Test: `ui/navigation/FullScreenPlayerDurationTest`.
+- [ ] B4 Found by the owner's diagnostics log (moto g75, 2026-10-15): `PlaybackService.onCreate` starts the
+  `libraryAnalysisEnabled` collector before `coordinator` is assigned; with analysis off it throws "lateinit property
+  coordinator has not been initialized" and the collector dies (Mood Radio would not stop when analysis is turned off).
+  Pre-existing (airmedy). Fix: start the collector after the coordinator is created. Patch saved at
+  `~/.local/state/sistrum-delegate/005-B4-playbackservice-order.patch`; applied after M2 so Codex's gates see a clean tree.
+  Also (owner, 2026-10-15): the export's logcat section drops known-harmless platform lines (HWUI "Image decoding
+  logging dropped", libdolphin.so, AudioSystem-JNI unknown native audio format, WindowOnBackDispatcher, "Missing inline
+  cache", VideoCapabilities unsupported image mime, SpeakerLayoutUtil, LoudnessCodecController, MediaCodec "Media
+  Quality Service not found", "Failed to query component interface", AIBinder_linkToDeath, AudioTrack retrograde
+  timestamp) and ends with "(N known-harmless lines hidden)"; anything else stays. Host test on a sample export.
 
 ## Decisions
 
