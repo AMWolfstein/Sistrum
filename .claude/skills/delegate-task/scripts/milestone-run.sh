@@ -3,18 +3,20 @@
 # every task of a milestone, one FRESH Codex session per task (no context carried over), with no orchestrator turn
 # in between. Rules for the coder: AGENTS.md "Autonomous mode".
 #
-# Usage: milestone-run.sh --feature specs/<feature> --tasks 'T001 T002 ...' [--out DIR]
-# Per task: [HIGH-RISK] in its tasks.md line -> gpt-6.1-sol high, else medium. No Astra fallback (owner, 2026-10-14):
+# Usage: milestone-run.sh --feature specs/<feature> --tasks 'T001 T002 ...' [--out DIR] [--effort low|medium]
+# Per task: [HIGH-RISK] in its tasks.md line -> gpt-6.1-sol high, else medium (or --effort, which never lowers a
+# [HIGH-RISK] task; owner 2026-10-15: gate/phone-check tasks run at low). No Astra fallback (owner, 2026-10-14):
 # a BLOCKED/failed task stops the run and Claude finishes it (as with T009). Restartable: an uncommitted .codex-commit/ is committed first. Stops at the first task still not DONE, or when a task
 # reports DONE without a new pushed commit. Exit 0 = all DONE; 1 = stopped (reason printed and in HANDOFF).
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
-feature="" tasks="" out="${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/milestones"
+feature="" tasks="" force_effort="" out="${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/milestones"
 while [ $# -gt 0 ]; do
   case "$1" in
     --feature) feature="$2"; shift 2 ;;
     --tasks) tasks="$2"; shift 2 ;;
     --out) out="$2"; shift 2 ;;
+    --effort) force_effort="$2"; shift 2 ;;
     *) echo "milestone-run: unknown argument $1" >&2; exit 2 ;;
   esac
 done
@@ -22,6 +24,8 @@ done
 branch=$(git branch --show-current)
 [ "$branch" != main ] || { echo "milestone-run: refusing to run on main" >&2; exit 2; }
 dispatch=.claude/skills/delegate-task/scripts/dispatch.sh
+# Codex quota: waits for resets and resumes a step stopped by the usage limit (owner 2026-10-15).
+source .claude/skills/delegate-task/scripts/quota.sh
 
 brief() { # $1 task id
   cat <<EOF
@@ -73,14 +77,14 @@ fi
 for t in $tasks; do
   line=$(grep -m1 -E "^- \[[ xX]\] $t( |\$)" "$feature/tasks.md") || { echo "STOP: $t not in tasks.md"; exit 1; }
   case "$line" in "- [x]"*|"- [X]"*) echo "SKIP $t (already done)"; continue ;; esac
-  effort=medium; case "$line" in *"[HIGH-RISK]"*) effort=high ;; esac
+  effort=${force_effort:-medium}; case "$line" in *"[HIGH-RISK]"*) effort=high ;; esac
   done_ok=0
   for attempt in "gpt-6.1-sol $effort"; do
     set -- $attempt; model=$1; eff=$2
     d="$out/$t/$model"; mkdir -p "$d"; brief "$t" > "$d/brief.md"
     before=$(git rev-parse HEAD)
     echo "=== $t $model/$eff $(date +%H:%M)"
-    bash "$dispatch" --brief "$d/brief.md" --model "$model" --effort "$eff" --out-dir "$d/run" > "$d/dispatch.log" 2>&1
+    codex_step "$d" "$d/brief.md" "$model" "$eff"
     res=$(grep -o 'RESULT: [A-Z]*.*' "$d/run/final.txt" 2>/dev/null | tail -1)
     echo "$t: ${res:-no RESULT line}"
     [ "$(git rev-parse HEAD)" = "$before" ] || { echo "STOP: $t moved HEAD itself; inspect $d"; exit 1; }

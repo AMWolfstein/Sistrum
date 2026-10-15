@@ -4,12 +4,19 @@
 
 ## Current status
 
-- **Phase:** M2 T021-fix2 phone-log investigation complete (2026-10-15); full GATE: PASS
-  `/tmp/verify-task.qeRXRH`, commit prepared for runner on `feature/media3-migration`.
-  T021 is committed as `b9200a8`; its phone-log report is `8050452`.
-- **Next step:** runner commits T021-fix2; T021a remains the metadata corpus prerequisite before M3.
-  No other task implemented in this session. Owner Night mode/crossfade listening checks below
-  remain NOT RUN; passing tests do not establish clean HAL output.
+- **Phase:** **M2 DONE** (2026-10-15) on `feature/media3-migration`: T014–T020, T021-fix `2a8b786`, T021 `b9200a8`,
+  phone-log triage `8050452`, T021-fix2 `20803d4` (HIGH HAL-warning finding rejected with timing evidence, D-43; no
+  code change). Haiku final check (`review/M2/FINAL-CHECK.md`, rerun by Claude after a runner bug ate the prompt):
+  ATTENTION 4, all checked by Claude: commits from 005/004/runner in the range are expected; "Full GATE: PASS" excludes
+  `:metadata:test` (known T021a precondition, disclosed); empty first FINAL-CHECK replaced; `LoudnessStoreTest`
+  fixtures now pass `SilenceProfile(0, 0)` = a fresh measurement with no silence (correct since FR-020 makes a
+  profile-less measurement legacy; no assertion removed; legacy path has its own new test) → accepted.
+  Open MEDIUMs: real-engine Night preference wiring test, 44.1 kHz checkpoint seek test, 66 ms AudioFlinger write;
+  missing-processing-clock path in D-42 defers the fade and logs on every poll (minor).
+- **Next step:** owner said stop after M2 (2026-10-15): do NOT start 004 UI until the owner says so. Then the order is
+  004 UI M1–M5 → T021a → 002 M3–M6. Runner now has low effort for gate/phone-check + triage, `--out`, and Codex quota
+  auto-wait/resume (`scripts/quota.sh`, no weekly stop). Owner Night mode/crossfade listening checks below remain
+  NOT RUN; passing tests do not establish clean HAL output.
 - **T021-fix2 result:** all 59 `.qa` device cases PASS; host app/sharedLogic tasks UP-TO-DATE
   (cached XML: 1454 cases/one unchanged corpus skip and 39 passes); assemble PASS; lint 0 errors,
   72 warnings/14 hints. D-43 rejects the single HIGH as an unconfirmed implementation defect:

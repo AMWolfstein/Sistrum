@@ -3,13 +3,15 @@
 #   1. tasks except the last (phone check)       -> milestone-run.sh (fresh Codex session per task)
 #   2. milestone review                          -> one fresh Codex REVIEW session per reviewer checklist
 #   3. confirmed CRITICAL/HIGH                   -> task <last>-fix (fresh Codex session, AGENTS.md step 10)
-#   4. last task (full gate + phone check)       -> milestone-run.sh
-#   5. phone-log triage                          -> fresh Codex REVIEW session; CRITICAL/HIGH -> <last>-fix2
+#   4. last task (full gate + phone check)       -> milestone-run.sh, effort low (owner 2026-10-15: runs commands, little judgement)
+#   5. phone-log triage                          -> fresh Codex REVIEW session at low effort; CRITICAL/HIGH -> <last>-fix2
 #   6. final cross-check                         -> Claude Haiku, read-only, reports only (owner, 2026-10-15)
 # Any stop (BLOCKED task, failed commit, memory) ends the run; the reason is printed and in HANDOFF. Nobody takes over:
 # the owner decides. Usage:
 #   milestone-auto.sh --feature specs/<f> --milestone M2 --tasks 'T014 ... T021' --reviewers 'silent-failure-hunter ...'
 #   On a restart after the body tasks were committed, pass --from <first milestone commit> so the review range stays whole.
+#   --out DIR: separate state dir when task ids clash with another feature's (004 vs 002).
+# Code reviews stay at medium effort (they are the safety net); fix tasks keep their tasks.md effort.
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 feature="" milestone="" tasks="" reviewers="" from="" out="${XDG_STATE_HOME:-$HOME/.local/state}/sistrum-delegate/milestones"
@@ -20,12 +22,14 @@ while [ $# -gt 0 ]; do
     --tasks) tasks="$2"; shift 2 ;;
     --reviewers) reviewers="$2"; shift 2 ;;
     --from) from="$2"; shift 2 ;;
+    --out) out="$2"; shift 2 ;;
     *) echo "milestone-auto: unknown argument $1" >&2; exit 2 ;;
   esac
 done
 [ -f "$feature/tasks.md" ] && [ -n "$milestone" ] && [ -n "$tasks" ] && [ -n "$reviewers" ] \
   || { echo "milestone-auto: need --feature --milestone --tasks --reviewers" >&2; exit 2; }
 scripts=.claude/skills/delegate-task/scripts
+source "$scripts/quota.sh"   # Codex quota: wait for resets, resume steps stopped by the usage limit
 read -r -a ids <<< "$tasks"
 last="${ids[-1]}"
 body=("${ids[@]:0:${#ids[@]}-1}")
@@ -43,8 +47,8 @@ memory_ok() {
   echo "STOP: memory below 2 GB after 3 waits"; return 1
 }
 
-review() { # $1 reviewer, $2 range, $3 report path, $4 extra context
-  local agent=".claude/agents/$1.md" d="$out/$milestone-review/$1"
+review() { # $1 reviewer, $2 range, $3 report path, $4 extra context, $5 effort (default medium)
+  local agent=".claude/agents/$1.md" d="$out/$milestone-review/$1" effort="${5:-medium}"
   [ -f "$agent" ] || { echo "STOP: no reviewer $1"; return 1; }
   mkdir -p "$d"
   {
@@ -57,8 +61,8 @@ review() { # $1 reviewer, $2 range, $3 report path, $4 extra context
     echo "CHECKLIST ($1):"
     awk 'BEGIN{n=0} /^---$/{n++; next} n>=2' "$agent"
   } > "$d/brief.md"
-  echo "=== review $1 $(date +%H:%M)"
-  bash "$scripts/dispatch.sh" --brief "$d/brief.md" --model gpt-6.1-sol --effort medium --out-dir "$d/run" > "$d/dispatch.log" 2>&1
+  echo "=== review $1 $effort $(date +%H:%M)"
+  codex_step "$d" "$d/brief.md" gpt-6.1-sol "$effort"
   res=$(grep -o 'RESULT: [A-Z]*.*' "$d/run/final.txt" 2>/dev/null | tail -1)
   echo "review $1: ${res:-no RESULT line}"
   [ -s "$3" ] || { echo "STOP: review $1 wrote no report"; return 1; }
@@ -88,7 +92,7 @@ start=$(git rev-parse HEAD)
 # 1. body tasks
 if [ ${#body[@]} -gt 0 ]; then
   memory_ok || exit 1
-  bash "$scripts/milestone-run.sh" --feature "$feature" --tasks "${body[*]}" || exit 1
+  bash "$scripts/milestone-run.sh" --feature "$feature" --out "$out" --tasks "${body[*]}" || exit 1
 fi
 first=${from:-$(git log --format=%H --reverse "$start..HEAD" | head -1)}
 range="${first:-HEAD}^..HEAD"
@@ -108,24 +112,24 @@ commit_docs "docs($(basename "$feature")): $milestone review reports" || exit 1
 if [ $findings = 1 ]; then
   add_fix_task "$last-fix" "[HIGH-RISK] $milestone review fixes: read every report in \`$reports/\` (AGENTS.md step 10); fix confirmed CRITICAL/HIGH findings test-first, reject the rest with file:line reasons; quick gate."
   memory_ok || exit 1
-  bash "$scripts/milestone-run.sh" --feature "$feature" --tasks "$last-fix" || exit 1
+  bash "$scripts/milestone-run.sh" --feature "$feature" --out "$out" --tasks "$last-fix" || exit 1
 fi
 
 # 4. last task: full gate + phone check
 memory_ok || exit 1
-bash "$scripts/milestone-run.sh" --feature "$feature" --tasks "$last" || exit 1
+bash "$scripts/milestone-run.sh" --feature "$feature" --out "$out" --effort low --tasks "$last" || exit 1
 
 # 5. phone-log triage on the gate logs named in HANDOFF
 logs=$(grep -o '/tmp/verify-task\.[A-Za-z0-9]*' "$feature/HANDOFF.md" | head -1)
 triage="$reports/phone-log-triage.md"
 if [ -n "$logs" ] && [ -d "$logs" ] && [ ! -s "$triage" ]; then
-  review phone-log-triage "$range" "$triage" "gate logs directory: $logs (logcat-*.log, instr-*.log)"; rc=$?
+  review phone-log-triage "$range" "$triage" "gate logs directory: $logs (logcat-*.log, instr-*.log)" low; rc=$?
   [ $rc = 1 ] && exit 1
   commit_docs "docs($(basename "$feature")): $milestone phone-log triage" || exit 1
   if [ $rc = 10 ]; then
     add_fix_task "$last-fix2" "[HIGH-RISK] $milestone phone-log fixes: read \`$triage\` (AGENTS.md step 10); fix confirmed CRITICAL/HIGH; rerun the full gate + phone check of $last."
     memory_ok || exit 1
-    bash "$scripts/milestone-run.sh" --feature "$feature" --tasks "$last-fix2" || exit 1
+    bash "$scripts/milestone-run.sh" --feature "$feature" --out "$out" --tasks "$last-fix2" || exit 1
   fi
 elif [ ! -s "$triage" ]; then
   echo "NOTE: no gate logs directory found in HANDOFF; phone-log triage NOT RUN"
@@ -136,14 +140,15 @@ final="$reports/FINAL-CHECK.md"
 if command -v claude >/dev/null; then
   echo "=== final check (Haiku) $(date +%H:%M)"
   commits=$(git log --format='%h %s' "$range")
-  claude -p --model haiku --allowedTools "Read,Grep,Glob" \
-    "Read-only final check of milestone $milestone in $feature. Commits in the milestone:
+  # Prompt through stdin: --allowedTools takes several values and would swallow a prompt argument.
+  printf '%s\n' "Read-only final check of milestone $milestone in $feature. Commits in the milestone:
 $commits
 Read every report in $reports/, the \
 $feature/HANDOFF.md milestone report and the task log. List: (1) any review finding marked CRITICAL/HIGH that has no \
 fix commit and no 'rejected:' line with a reason; (2) any task ticked in tasks.md without its commit, or a commit without \
 its task; (3) any PASS claimed without a recorded run; (4) any test that was weakened (the runner's NOTE lines name \
-changed tests). End with one line: FINAL: OK or FINAL: ATTENTION <n>. Do not edit files." > "$final" 2>&1 \
+changed tests). End with one line: FINAL: OK or FINAL: ATTENTION <n>. Do not edit files." \
+    | claude -p --model haiku --allowedTools "Read,Grep,Glob" > "$final" 2>&1 \
     || echo "NOTE: final check failed to run; see $final"
   commit_docs "docs($(basename "$feature")): $milestone final check" || exit 1
   tail -1 "$final"
