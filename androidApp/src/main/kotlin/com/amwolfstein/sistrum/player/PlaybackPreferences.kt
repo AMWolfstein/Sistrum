@@ -2,6 +2,7 @@ package com.amwolfstein.sistrum.player
 
 import android.content.Context
 import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.edit
@@ -47,6 +48,7 @@ private val BlendArtworkDuringCrossfadeKey = booleanPreferencesKey("blend_artwor
 private val CrossfadeRepeatOneKey = booleanPreferencesKey("crossfade_repeat_one")
 private val CrossfadeOnSkipKey = booleanPreferencesKey("crossfade_on_skip")
 private val ShowFullscreenQualityBadgeKey = booleanPreferencesKey("show_fullscreen_quality_badge")
+private val NightModeKey = booleanPreferencesKey("night_mode")
 
 internal data class CrossfadeSettings(
     val seconds: Int,
@@ -57,37 +59,44 @@ internal data class CrossfadeSettings(
 )
 
 /** Persistent playback options, deliberately separate from the resumable queue session. */
-internal class PlaybackPreferences(private val context: Context) {
-    val settings: Flow<CrossfadeSettings> = context.playbackPreferencesDataStore.data
+internal class PlaybackPreferences(private val store: DataStore<Preferences>) {
+    constructor(context: Context) : this(context.playbackPreferencesDataStore)
+
+    val settings: Flow<CrossfadeSettings> = store.data
         .map(::crossfadeSettingsOf).distinctUntilChanged()
 
     val crossfadeSeconds: Flow<Int> = settings.map { it.seconds }
-    val showFullscreenQualityBadge: Flow<Boolean> = context.playbackPreferencesDataStore.data.map {
+    val showFullscreenQualityBadge: Flow<Boolean> = store.data.map {
         it[ShowFullscreenQualityBadgeKey] ?: true
+    }
+    val nightMode: Flow<Boolean> = store.data.map { it[NightModeKey] ?: false }.distinctUntilChanged()
+
+    suspend fun setNightMode(enabled: Boolean) {
+        store.edit { it[NightModeKey] = enabled }
     }
 
     suspend fun setCrossfadeSeconds(seconds: Int) {
-        context.playbackPreferencesDataStore.edit { preferences ->
+        store.edit { preferences ->
             preferences.applyCrossfadeSeconds(seconds)
         }
     }
 
     suspend fun setBlendArtworkDuringCrossfade(enabled: Boolean) {
-        context.playbackPreferencesDataStore.edit { preferences ->
+        store.edit { preferences ->
             preferences[BlendArtworkDuringCrossfadeKey] = enabled
         }
     }
 
     suspend fun setRepeatOneCrossfade(enabled: Boolean) {
-        context.playbackPreferencesDataStore.edit { it.applyRepeatOneCrossfade(enabled) }
+        store.edit { it.applyRepeatOneCrossfade(enabled) }
     }
 
     suspend fun setCrossfadeOnSkip(enabled: Boolean) {
-        context.playbackPreferencesDataStore.edit { it.applyCrossfadeOnSkip(enabled) }
+        store.edit { it.applyCrossfadeOnSkip(enabled) }
     }
 
     suspend fun setShowFullscreenQualityBadge(enabled: Boolean) {
-        context.playbackPreferencesDataStore.edit { it[ShowFullscreenQualityBadgeKey] = enabled }
+        store.edit { it[ShowFullscreenQualityBadgeKey] = enabled }
     }
 }
 

@@ -722,3 +722,25 @@ T020/T021 retain actual session/device verification. No production change or SC-
 **Revisit if:** device verification exposes setting propagation, mixer or DynamicsProcessing issues; do not weaken
 T014 in T015. The explicit T014 brief authorizes this task despite the earlier M2 runner hold in HANDOFF; it does not
 authorize starting other tasks in this session.
+
+
+## D-35: Night-mode preference observation lifetime (T015)
+
+**Case:** the production sink needs the shared setting selected by the playback DataStore, including saved ON at
+startup, live toggles on A/B, and players created after a handover. D-34 defines the reader seam but leaves its
+production subscription lifetime open.
+
+**Options:** observe the existing preference flow in the Media3 engine (recommended); extend PlayerEngine and the
+coordinator/native implementations with a Media3-only setter and service fan-out.
+
+**Chosen:** add `night_mode`, default false, to the existing playback DataStore. PlaybackService supplies that flow
+only to Media3Engine. Before its first prepare, the engine reads the persisted value, then observes updates in an
+engine-owned coroutine scope cancelled by close. Both current and incoming factory calls receive the same reader of
+one volatile Boolean; replacement players therefore inherit its current value. No PlayerEngine/PlaybackController
+API, native implementation, crossfade timing, or limiter configuration changes. A DataStore constructor on
+PlaybackPreferences permits a real host persistence/reopen test while its Context constructor keeps all existing
+callers. OFF copies PCM bytes without voice processing; enabling constructs the imported VOICE kernel on demand,
+and finishing the OFF blend drops it. Flush/reconfiguration resets the kernel and dry/wet blend.
+
+**Revisit if:** T020/T021's Android integration checks find propagation or session issues; host sink tests do not
+claim actual mixer/limiter capture or a device PASS. UI remains T019, device-test implementation T020.

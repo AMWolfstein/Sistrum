@@ -6,6 +6,7 @@ import androidx.media3.common.Format
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.audio.AudioProcessingPipeline
 import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.audio.AudioSink
@@ -17,6 +18,8 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.max
 import com.amwolfstein.sistrum.player.dsp.PcmToFloatProcessor
+import com.amwolfstein.sistrum.dsp.gain.Compressor
+import com.amwolfstein.sistrum.dsp.gain.Preset
 
 /**
  * Wraps a delegate [AudioSink] so that every linear-PCM buffer is first converted to float and run
@@ -30,13 +33,15 @@ internal class FloatChainAudioSink(
     private val delegate: AudioSink,
     chainProcessors: List<AudioProcessor>,
     private val onStreamStart: ((AudioSink.AudioSinkConfig) -> Unit)? = null,
+    nightMode: () -> Boolean = { false },
 ) : ForwardingAudioSink(delegate) {
 
     private val trimming = TrimmingAudioProcessor()
 
     private val pipeline = AudioProcessingPipeline(
         ImmutableList.copyOf(
-            listOf<AudioProcessor>(trimming, PcmToFloatProcessor(), ToFloatPcmAudioProcessor()) + chainProcessors,
+            listOf<AudioProcessor>(trimming, PcmToFloatProcessor(), ToFloatPcmAudioProcessor()) +
+                chainProcessors + NightModeProcessor(nightMode),
         ),
     )
 
@@ -207,4 +212,84 @@ internal class FloatChainAudioSink(
 
     private fun isLinearPcm(format: Format): Boolean =
         format.sampleMimeType == MimeTypes.AUDIO_RAW && Util.isEncodingLinearPcm(format.pcmEncoding)
+}
+
+/** Per-player voice stage, before the Android mixer and shared-session limiter. */
+@OptIn(UnstableApi::class)
+private class NightModeProcessor(private val enabled: () -> Boolean) : BaseAudioProcessor() {
+    private var compressor: Compressor? = null
+    private var work = emptyArray<FloatArray>()
+    private var mix = 0f
+    private var rampStart = 0f
+    private var target = 0f
+    private var rampFrames = 0
+    private var remaining = 0
+
+    override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
+        if (inputAudioFormat.encoding != C.ENCODING_PCM_FLOAT ||
+            inputAudioFormat.channelCount < 1 || inputAudioFormat.sampleRate <= 0
+        ) {
+            throw AudioProcessor.UnhandledAudioFormatException(inputAudioFormat)
+        }
+        return inputAudioFormat
+    }
+
+    override fun queueInput(inputBuffer: ByteBuffer) {
+        val frames = inputBuffer.remaining() / inputAudioFormat.bytesPerFrame
+        if (frames == 0) return
+        val nextTarget = if (enabled()) 1f else 0f
+        if (nextTarget != target) {
+            rampStart = mix
+            target = nextTarget
+            remaining = rampFrames
+        }
+        val output = replaceOutputBuffer(inputBuffer.remaining()).order(ByteOrder.nativeOrder())
+        if (target == 0f && mix == 0f) {
+            // Preserve every bit (including signed zero), with no voice node running while OFF.
+            output.put(inputBuffer).flip()
+            return
+        }
+
+        val channels = inputAudioFormat.channelCount
+        if (work.size != channels || work[0].size < frames) work = Array(channels) { FloatArray(frames) }
+        val dry = inputBuffer.order(ByteOrder.nativeOrder()).asFloatBuffer()
+        for (frame in 0 until frames) {
+            for (channel in 0 until channels) work[channel][frame] = dry.get(frame * channels + channel)
+        }
+        val voice = compressor ?: Compressor(inputAudioFormat.sampleRate, channels, Preset.VOICE)
+            .also { compressor = it }
+        voice.process(work, work, frames = frames)
+        for (frame in 0 until frames) {
+            if (remaining > 0) {
+                remaining--
+                mix = if (remaining == 0) target
+                    else rampStart + (target - rampStart) * (1f - remaining.toFloat() / rampFrames)
+            }
+            for (channel in 0 until channels) {
+                val sample = dry.get(frame * channels + channel)
+                output.putFloat(when (mix) {
+                    0f -> sample
+                    1f -> work[channel][frame]
+                    else -> sample + (work[channel][frame] - sample) * mix
+                })
+            }
+        }
+        if (mix == 0f && target == 0f) compressor = null
+        inputBuffer.position(inputBuffer.limit())
+        output.flip()
+    }
+
+    override fun onFlush(streamMetadata: AudioProcessor.StreamMetadata) {
+        compressor = null
+        mix = 0f
+        rampStart = 0f
+        target = 0f
+        remaining = 0
+        rampFrames = inputAudioFormat.sampleRate * 50 / 1000
+    }
+
+    override fun onReset() {
+        compressor = null
+        work = emptyArray()
+    }
 }

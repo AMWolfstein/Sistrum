@@ -239,7 +239,7 @@ internal class Media3PlayerFactory(
      * audio focus or becoming-noisy handling. Must run on the looper (call through
      * [call]).
      */
-    fun newPlayer(streamGainHook: StreamGainHook? = null): ExoPlayer {
+    fun newPlayer(streamGainHook: StreamGainHook? = null, nightMode: () -> Boolean = { false }): ExoPlayer {
         check(Looper.myLooper() == looper) { "newPlayer must run on the playback looper" }
         val attributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
@@ -295,7 +295,7 @@ internal class Media3PlayerFactory(
                     .build()
                 val floatAudioSink = FloatChainAudioSink(inner, chain.getAudioProcessors().toList(), streamGainHook?.let { hook ->
                     { config -> hook.onStreamStart(config) }
-                })
+                }, nightMode = nightMode)
                 return object : ForwardingAudioSink(floatAudioSink) {
                     override fun flush() {
                         super.flush()

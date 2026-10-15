@@ -29,8 +29,15 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import com.amwolfstein.sistrum.player.EqualizerSettings
 import com.amwolfstein.sistrum.player.NormalizationSettings
 import com.amwolfstein.sistrum.player.equalizerDspConfig
@@ -65,11 +72,17 @@ internal class Media3Engine(
     private val gainResolverProvider: suspend () -> GainResolver = {
         GainResolver(MeasuredGainSource(AlbumLoudnessLookup { null }), TagGainSource())
     },
+    private val nightMode: Flow<Boolean> = flowOf(false),
 ) : PlayerEngine {
 
     override val kind: EngineKind = EngineKind.Media3
 
     override val events: Flow<EngineEvent> = emptyFlow()
+
+    private val nightModeScope = CoroutineScope(Job() + Dispatchers.Default)
+    private var nightModeJob: Job? = null
+    @Volatile private var nightModeEnabled = false
+    private val readNightMode = { nightModeEnabled }
 
     /** Each listener owns its source; the outgoing listener must never advance the queue. */
     private inner class Slot(val p: ExoPlayer, var item: PlaybackItem, val gain: PlayerStreamGain) {
@@ -315,6 +328,13 @@ internal class Media3Engine(
         startPaused: Boolean,
     ) {
         check(!closed) { "engine is closed" }
+        if (nightModeJob == null) {
+            // Read the persisted value before creating A; both A/B renderers read this one state.
+            nightModeEnabled = nightMode.first()
+            nightModeJob = nightModeScope.launch {
+                nightMode.collect { nightModeEnabled = it }
+            }
+        }
         val resolver = gainResolver ?: gainResolverProvider().also { gainResolver = it }
         ensureLimiter()
         releaseCurrentPlayer()
@@ -323,7 +343,7 @@ internal class Media3Engine(
                 resetFadeLeadWindow()
                 val gainState = PlayerStreamGain(resolver, normalizationSettings, item, startPositionMs)
                 streamGain = gainState
-                val p = factory.newPlayer(gainState)
+                val p = factory.newPlayer(gainState, nightMode = readNightMode)
                 p.addAnalyticsListener(gainState)
                 player = p
                 currentItem = item
@@ -759,6 +779,7 @@ internal class Media3Engine(
     override fun close() {
         if (closed) return
         closed = true
+        nightModeScope.cancel()
         releaseCurrentPlayer()
         factory.call { pendingEvents.clear() }
         limiter?.close()
@@ -871,7 +892,7 @@ internal class Media3Engine(
     private fun prepareIncoming(item: PlaybackItem) {
         try {
             val gain = PlayerStreamGain(checkNotNull(gainResolver), normalizationSettings, item)
-            val p = factory.newPlayer(gain)
+            val p = factory.newPlayer(gain, nightMode = readNightMode)
             // Paused preroll is silent; the actual incoming curve is armed on the start flush.
             gain.holdIncoming()
             val slot = Slot(p, item, gain)

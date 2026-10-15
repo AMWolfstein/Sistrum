@@ -4,16 +4,23 @@
 
 ## Current status
 
-- **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 tests-first prepared under the owner's explicit
-  autonomous T014 brief, superseding the earlier M2 hold for this task only. No other task started.
-- **Next step:** runner commits the T014 bundle; T015 implements the Night-mode contract without changing T014 tests.
-  The earlier owner hold still governs starting the remaining M2 tasks absent authorization. 004: Phase 0 done; owner choices recorded in
-  `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images from Rhythm; Exhale motion artwork off by default in
-  Integrations, no warning; no extension runtime decided yet).
+- **Phase:** M1 DONE (T013 passed 2026-10-15; D-33). T014 committed by runner as `a18bbcb`;
+  T015 implemented and commit prepared under the owner's explicit autonomous T015 brief, superseding the earlier
+  M2 hold for this task only. No later task started.
+- **Next step:** runner commits the T015 bundle on `feature/media3-migration`; T016 remains next in task order,
+  subject to its own authorization/brief. The earlier owner hold still governs other M2 tasks absent authorization.
+  004: Phase 0 done; owner choices recorded in `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images
+  from Rhythm; Exhale motion artwork off by default in Integrations, no warning; no extension runtime decided yet).
+- **T015 result:** quick GATE: PASS, first attempt, `/tmp/verify-task.WY4RoK`: 265 host cases across 34 classes,
+  0 failures/errors/skips; all 8 unchanged T014 methods now pass. Production Kotlin compilation PASS. Night mode
+  uses the imported VOICE kernel, 50 ms linear dry/wet blend, exact OFF bypass, and one persisted setting shared
+  through engine/factory to A/B and replacement sinks (D-35). New host tests cover real DataStore reopen plus sink
+  flush/reconfigure/reset, backpressure and toggle reversal. Full/device/manual gates NOT RUN; no actual Android
+  mixer/limiter or engine integration PASS claimed. T019 UI and T020/T021 device work remain pending.
 - **T014 result:** quick GATE: PASS, `/tmp/verify-task.KcByP9`: 113 host cases across 15 classes, 108 pass,
   5 expected assertion failures (missing Night-mode sink constructor hook), 0 errors/skips; compileDevQaKotlin PASS.
   D-34 records the shared-setting reader, 50 ms linear blend bounds and host/device measurement boundary.
-  No production code or existing tests changed. Commit prepared for the runner; full/device/manual gates NOT RUN.
+  No production code or existing tests changed in T014. Its prepared bundle was committed as `a18bbcb`.
 - **T013 result:** full gate `/tmp/verify-task.W50YyC`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lintDevQa 0
   errors (71 warnings), KotlinFormatsPlaybackTest 7/7, Media3EngineGaplessTest 7/7, Media3EngineCoreTest 12/12,
   NormalizationLevelDeviceTest 2/2; Media3CrossfadeTest 15/16 (`endOfTrackFadeDecidedOnProcessedTimelineEndsWithTrackA`
@@ -34,6 +41,7 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T015 Night-mode implementation; commit: prepared, awaiting runner | Quick GATE: PASS, attempt 1, `/tmp/verify-task.WY4RoK`; 265 tests / 34 classes, 0 failures/errors/skips, all 8 T014 methods PASS unchanged; production Kotlin compile PASS. D-35 records persisted/shared setting observation and lifecycle. Required files: FloatChainAudioSink.kt voice stage, PlaybackPreferences.kt persistent setting and testable DataStore constructor, Media3Engine.kt shared reader/collection lifetime; extra production files Media3PlayerFactory.kt forwards the reader to every sink and PlaybackService.kt supplies the real preference flow at the composition root. New NightModePreferencesTest.kt verifies real persistence/reopen and existing settings; FloatChainNightModeLifecycleTest.kt covers flush/reconfigure/reset, empty chain, backpressure and rapid reversal. Extra docs tasks.md/HANDOFF.md/DECISIONS.md record completion, evidence and choice; both generated graph files required because refresh reported changed (11,484 nodes / 33,901 edges). Impact/commands/self-review below. NOT RUN: full suites/sharedLogic/standalone module suites/lint/assemble/device (T021), actual Android engine/factory/session mixer/limiter measurement (T020/T021), listening/Bluetooth/headset (owner), stage/commit/push (runner). No UI/silence/other task implemented. Unrelated specs/005-bugfixes/tasks.md edit preserved and excluded. |
 | 2026-10-15 | T014 tests-first; commit: prepared, awaiting runner | Quick GATE: PASS, first attempt, `/tmp/verify-task.KcByP9`; 113 cases: 108 pass (105 existing, 3 new controls), 5 expected missing-hook assertion failures, 0 errors/skips; production Kotlin compilation PASS. Only new test code; existing tests and production APIs/behaviour untouched. D-34 defines measurement/seam choices. Extra files required: tasks.md for completion, HANDOFF.md for status/evidence, DECISIONS.md for open test-contract choices, both generated graph files because gate graph refresh reported changed (11,455 nodes / 33,819 edges). Impact and commands below. NOT RUN: full suites/sharedLogic/lint/assemble/device (milestone gate), Android mixer/limiter capture and real engine/preference wiring (T015/T020/T021), listening/Bluetooth/headset (owner), stage/commit/push (runner). Unrelated concurrent specs/005-bugfixes/tasks.md edit left untouched and excluded from bundle. |
 | 2026-10-15 | T013 finished by Claude (Codex BLOCKED: Voice seek 305–312 ms) | PASS, see Current status. Causes (D-33): Voice 18-object preroll → 3 (app Voice seek test moved to the D-30 RMS bar, as D-30 required); extractor announces blocks as ≤ 1024-frame samples so a seek inside buffered audio no longer drops a whole 4096-frame block (50 ms AIFF fixtures produced no post-seek PCM). Tried and dropped: 250 ms Media3 start buffer (no change). migration-guard PASS (2 notes applied: D-30 text updated, Voice helper requires a non-silent reference when the full 0.5 s window exists). |
 | 2026-10-15 | T013 M1 full gate + phone check; commit: none | BLOCKED after three current-build attempts. Full GATE: FAIL `/tmp/verify-task.1R6yM5`: decoder 6/7 (WavPack seek 301 ms); app 1381 cases, 0 failures/errors, 1 unchanged corpus skip; sharedLogic 39 PASS; assemble/lint PASS (0 lint errors); 001 device 37/37 PASS. Isolated seek reruns FAIL on Voice 312/305 ms; WavPack 284/269 ms. Read-only older-snapshot comparisons and full per-class logs retained below. Codecs 1487, analysis 1127, DSP 18 cached PASS; metadata verifier FAIL on known pinned input, cases NOT RUN. Graph not needed. No source/test/decision changes, no task tick or commit bundle; owner manual checks NOT RUN. |
@@ -70,6 +78,61 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T015 verification and impact review — 2026-10-15
+
+- **Impact before editing:** `git grep` found FloatChainAudioSink's sole production constructor in
+  Media3PlayerFactory; the factory's two engine newPlayer call sites create current/incoming players, including
+  replacements. PlaybackService constructs Media3Engine and owns PlaybackPreferences. Existing preference consumers
+  MainActivity/PlaybackController retain their Context constructor and APIs; CrossfadeSettings is unchanged.
+  The pre-edit impact notes were recorded in `/tmp/t015-impact.txt`; the final diff matches those seven code/test files.
+- **Contracts:** FR-019, SC-008, sink-chain.md and data-model.md's default-false setting. The appended float adapter
+  runs the unchanged imported `:dsp` VOICE kernel after the existing per-player chain, before Android's mixer and
+  shared-session limiter. OFF uses byte copies, including signed zero; 50 ms linear dry/wet blending is per frame,
+  across buffers, with exact final bypass. Compressor history resets on flush/reconfigure and after the OFF blend.
+  Both player construction paths forward one reader; preference collection starts before first player creation and
+  is cancelled on engine close. Persistence uses the existing DataStore file with the new `night_mode` key (D-35).
+- **Unmodified contracts/tests:** no Room/schema/version, analysis document, provider ordering, PlaybackController
+  API/stateflow, native player, normalization/EQ controls, queue, crossfade duration/timing or limiter configuration
+  edits. Every pre-existing test, including T014 FloatChainNightModeTest.kt, is byte-for-byte unchanged.
+  `:dsp` is consumed unchanged, so the module ledger requires no DSP/downstream propagation suites.
+- **Tests written before implementation:** NightModePreferencesTest opens a real file-backed preference store,
+  verifies default OFF and ON storage, closes/reopens it, then verifies saved ON/OFF and independent crossfade
+  values. FloatChainNightModeLifecycleTest covers clearing gain history on flush, sample-rate/channel changes,
+  reset to exact OFF bits, pending-output backpressure without double processing, 12.5 ms reversal, empty buffers,
+  and bounded drain completion. Oracle values are the specified +6 dB below-knee makeup and raw dry bits;
+  T014 retains independent 001-pipeline/imported-kernel comparisons and wrong-duration/range negative controls.
+- **Memory check:** `./gradlew --stop` (no daemons running), `pkill -f '[K]otlinCompileDaemon'`, then
+  `/proc/meminfo` MemAvailable 2,219,700 kB initially; repeated immediately before the gate: 2,225,984 kB,
+  both above 2 GB. No wait/retry required.
+- **Quick gate, attempt 1:** command below, GATE: PASS, logs `/tmp/verify-task.WY4RoK`. JUnit XML totals:
+  265 cases / 34 classes, 0 failures/errors/skips. Includes all 8 T014 methods, 3 new sink lifecycle methods and
+  1 new DataStore persistence method. Both the filtered unit task and `:androidApp:compileDevQaKotlin` PASS.
+  The gate ran `python3 .claude/hooks/graph_refresh.py auto`: graph changed (11,484 nodes / 33,901 edges);
+  both generated graph artifacts are included, no graph hand edits. `git diff --check` PASS.
+- **Self-review / minimal diff:** each production path is necessary for real persisted setting propagation; the
+  service/factory changes are only composition/forwarding. The private float adapter stays in the specified sink
+  file. DataStore injection is required for the persistence test and preserves all Context callers. No test deleted,
+  renamed, ignored, weakened or changed to match output; no swallowed exceptions, fallback-to-default errors or
+  changed PlaybackController/Room APIs. Per-frame blending preserves linked multi-channel voice processing and
+  does not reprocess delegate-pending PCM. Every extra file is justified in the task-log row; no follow-up refactors.
+- **NOT RUN:** full app/sharedLogic/standalone module suites, lint, assemble, device compilation/instrumentation
+  and actual Android engine-to-factory/session mixed PCM/limiter measurement (T020/T021 milestone work).
+  Host tests prove sink reader behavior and real preference persistence; production wiring was inspected at both
+  newPlayer calls, the sink forwarding call and the service composition root, without claiming an Android runtime
+  integration result. UI is T019. Listening/Bluetooth/headset remain owner manual checks. No device commands run;
+  daily apps untouched. No stage/commit/push; `.codex-commit/` prepares exactly this task's 12 paths for the runner.
+  Existing concurrent `specs/005-bugfixes/tasks.md` edits are preserved and excluded from the bundle.
+
+```bash
+bash .claude/skills/verify-task/scripts/verify.sh \
+  --files 'androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/PlaybackPreferences.kt androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/PlaybackService.kt androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/FloatChainAudioSink.kt androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3Engine.kt androidApp/src/main/kotlin/com/amwolfstein/sistrum/player/media3/Media3PlayerFactory.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/NightModePreferencesTest.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/player/media3/FloatChainNightModeLifecycleTest.kt' \
+  --quick ':androidApp:testDevQaUnitTest' \
+  --tests 'com.amwolfstein.sistrum.player.media3.*' \
+  --tests 'com.amwolfstein.sistrum.player.dsp.*' \
+  --tests 'com.amwolfstein.sistrum.player.PlaybackPreferencesTest' \
+  --tests 'com.amwolfstein.sistrum.player.NightModePreferencesTest'
+```
 
 ## T014 verification and impact review — 2026-10-15
 

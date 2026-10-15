@@ -194,7 +194,7 @@ class PlaybackService : Service() {
                                 AlbumLoudnessLookup { null }
                             }
                             GainResolver(MeasuredGainSource(albums), TagGainSource())
-                        })
+                        }, nightMode = playbackPreferences.nightMode)
                     },
                 ),
             )::create,
