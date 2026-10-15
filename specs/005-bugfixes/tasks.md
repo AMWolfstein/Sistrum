@@ -39,7 +39,15 @@ on the `.qa` build; listening checks are the owner's.
   the perf backlog). Mixer-block measurements are stored and logged only when new for the route or changed by
   >= 0.5 ms (each song used to log the same 40 ms twice); the silent probe already skips known routes.
   Tests: `diagnostics/DiagnosticsLogTest` +2 (owner's export lines), `player/media3/MixerBlockChangeTest` 3.
-  Gate `/tmp/verify-task.dvlxNj`: scope, unit (all), compile PASS; full gate + phone check run with 002 T021.
+  Gate `/tmp/verify-task.dvlxNj`: scope, unit (all), compile PASS; full gate + phone check run with 002 T021.- [x] B5 "Sending message to a Handler on a dead thread" flooding the diagnostics log while library analysis runs (owner's
+  log, 2026-10-15, 4 per analysed track). Cause: `analysis/OfflineDecoder` quit its two per-track threads right after
+  `ExoPlayer.release()`; the released player still delivers renderer-disabled and codec callbacks to them. Fix: the threads
+  quit 1 s later (`RELEASE_GRACE_MS`); the decode result is returned at once. Test (tests first, `.qa` CPH2307):
+  `androidTest/analysis/OfflineDecoderReleaseDeviceTest` failed before the fix (12 dead-thread lines for 3 decodes),
+  passes after (twice), and checks no decode thread outlives the grace period; `AnalysisResumeDeviceTest` 4/4.
+  Gate `/tmp/verify-task.OTa8Mq`: unit (all), compile PASS. Playback players use one long-lived looper and are not
+  affected; any remaining dead-thread lines come from Media3's own codec threads (perf backlog).
+
 ## Decisions
 
 - **D-1 (owner):** the decode-failure page becomes a general diagnostics log. This widens spec 001 FR-064a's "only these

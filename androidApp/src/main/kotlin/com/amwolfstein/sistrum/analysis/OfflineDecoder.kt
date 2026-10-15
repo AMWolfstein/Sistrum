@@ -213,8 +213,12 @@ internal open class OfflineDecoder(
             } catch (t: Throwable) {
                 Log.w("OfflineDecoder", "${recorder.providerFor(uriString) ?: selectedProviderId}: release failed", t)
             }
-            playbackThread.quitSafely()
-            appThread.quitSafely()
+            // The released player still delivers its last events (renderer disabled, codec callbacks) to these
+            // threads; quitting at once dropped them with "sending message to a Handler on a dead thread".
+            handler.postDelayed({
+                playbackThread.quitSafely()
+                appThread.quitSafely()
+            }, RELEASE_GRACE_MS)
             latch.countDown()
         }
 
@@ -338,5 +342,6 @@ internal open class OfflineDecoder(
     private companion object {
         const val STALL_TIMEOUT_MS = 30_000L
         const val STALL_CHECK_INTERVAL_MS = 1_000L
+        const val RELEASE_GRACE_MS = 1_000L
     }
 }
