@@ -4,8 +4,18 @@
 
 ## Current status
 
-- **Phase:** M1 T013-fix2 complete; commit prepared in `.codex-commit/`, awaiting runner. Final quick GATE: PASS (`/tmp/verify-task.lHROXH`); broad quick gate also PASS (`/tmp/verify-task.MEwYTN`). Codecs 1487 passing cases; full app 1381 cases (1380 pass, 1 unchanged corpus skip); final affected app selection 378 cases (377 pass, same skip); sharedLogic 39 cached passes. Production/device Kotlin compilation PASS; graph refreshed.
-- **Next step:** runner stages/commits/pushes this T013-fix2 bundle on `feature/media3-migration`, then T013 reruns the `.qa` phone gate with the WMA waiver removed. Exact noise-coded Standard seek PCM is fixed via entropy-only phase restoration; all packet-seek quality/position/length/synthesis checks pass. Cold uncached noise seeks still parse compressed prefix history; phone/M6 timing remains required. Required `:metadata:test` failed before cases on the known pinned `owned/matroska-ffmpeg-aac.mka` mismatch (T021a); metadata cases NOT RUN. No phone/lint/assemble/listening claim. Owner D-31/D-32/planning edits remain untouched.
+- **Phase:** M1 DONE (T013 passed 2026-10-15, finished by Claude after Codex BLOCKED on seek latency; D-33). **M2 on hold by
+  the owner (2026-10-15: "Don't push M2 to codex")**: do not start the runner for T014 onward until the owner says how.
+- **Next step:** wait for the owner's instruction on M2. 004: Phase 0 done; owner choices recorded in
+  `specs/004-ui-extensions/NOTES.md` (Wikipedia + Deezer artist images from Rhythm; Exhale motion artwork off by default in
+  Integrations, no warning; no extension runtime decided yet).
+- **T013 result:** full gate `/tmp/verify-task.W50YyC`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lintDevQa 0
+  errors (71 warnings), KotlinFormatsPlaybackTest 7/7, Media3EngineGaplessTest 7/7, Media3EngineCoreTest 12/12,
+  NormalizationLevelDeviceTest 2/2; Media3CrossfadeTest 15/16 (`endOfTrackFadeDecidedOnProcessedTimelineEndsWithTrackA`
+  104 ms vs its 100 ms bound; FLAC/WAV through Media3's own decoders, not touched by M1), rerun alone 16/16 PASS. Seek
+  medians: wavpack 293, wma-voice 247, every seekable fixture ≤ 300 ms, short AIFF fixtures audible (58 ms). SC-001/SC-002 as
+  in the earlier T013 report below. `:metadata:test` corpus blocker unchanged (T021a). Owner listening checks NOT RUN.
+- **T013-fix2:** committed by runner as `20d9369`; previous prepared-bundle status is historical. Current QA APKs restored after the comparison; daily apps untouched. SC-001's 24-fixture playback/PCM checks and SC-002's ten same-format joins PASS within their documented DSD/ALAC boundaries; no SC-006 PASS. Full evidence, commands, log paths and remaining manual checks are in the T013 report below.
 - **Earlier T013 phone check (CPH2307, `.qa`, before T013-fix2):** full gate `/tmp/verify-task.DViDgs` — unit (app + sharedLogic) PASS, lintDevQa PASS (0 errors), assembleDevQa PASS, Media3EngineGaplessTest 7/7, Media3CrossfadeTest 16/16, Media3EngineCoreTest 12/12, NormalizationLevelDeviceTest 2/2; KotlinFormatsPlaybackTest 7/7 after the short-tail seek fix (`/tmp/verify-task.G3yR9D`). `:codecs:test` PASS; `:metadata:test` 1302/1391 (89 known WaxLabel corpus cases, T021a). Seek ms: wavpack 258, ape 234, musepack 207/84, alac 128, wma 82/240/218/69/320 (bound waived, D-30), PCM variants 55–99, dsf 68, dff 72; three 50 ms AIFF fixtures untimed (25 ms tail). SC-001/SC-002: every covered format plays on Media3 and matches pinned PCM; lossless joins within 2 frames (WavPack, APE, ALAC, Musepack SV7, WMA Lossless, AIFF variants, DSF, DFF).
 - **Phase A closed:** 46/46 imported; end gate: `testDevQaUnitTest` 1279/0 fail, sharedLogic 39/0,
   `lintDevQa` 109 errors, all MissingTranslation (known category); scratch worktree `port-ro` removed.
@@ -19,6 +29,8 @@
 
 | When | Item | Result |
 |---|---|---|
+| 2026-10-15 | T013 finished by Claude (Codex BLOCKED: Voice seek 305–312 ms) | PASS, see Current status. Causes (D-33): Voice 18-object preroll → 3 (app Voice seek test moved to the D-30 RMS bar, as D-30 required); extractor announces blocks as ≤ 1024-frame samples so a seek inside buffered audio no longer drops a whole 4096-frame block (50 ms AIFF fixtures produced no post-seek PCM). Tried and dropped: 250 ms Media3 start buffer (no change). migration-guard PASS (2 notes applied: D-30 text updated, Voice helper requires a non-silent reference when the full 0.5 s window exists). |
+| 2026-10-15 | T013 M1 full gate + phone check; commit: none | BLOCKED after three current-build attempts. Full GATE: FAIL `/tmp/verify-task.1R6yM5`: decoder 6/7 (WavPack seek 301 ms); app 1381 cases, 0 failures/errors, 1 unchanged corpus skip; sharedLogic 39 PASS; assemble/lint PASS (0 lint errors); 001 device 37/37 PASS. Isolated seek reruns FAIL on Voice 312/305 ms; WavPack 284/269 ms. Read-only older-snapshot comparisons and full per-class logs retained below. Codecs 1487, analysis 1127, DSP 18 cached PASS; metadata verifier FAIL on known pinned input, cases NOT RUN. Graph not needed. No source/test/decision changes, no task tick or commit bundle; owner manual checks NOT RUN. |
 | 2026-10-15 | T013-fix2; commit: prepared, awaiting runner | READY. Final quick GATE: PASS `/tmp/verify-task.lHROXH`: codecs 1487/0 fail/error/skip; affected app 378/0 fail/error/1 unchanged corpus skip; sharedLogic 39 cached passes; production/device Kotlin compile PASS; graph changed 11325/33436. Broad quick GATE: PASS `/tmp/verify-task.MEwYTN`, full app 1381/0 fail/error/1 unchanged skip. Exact cold noise-coded Standard PCM fixed without prefix synthesis or playback checkpoint allocation; inherited T013/item (4)/four-flavour seek edits retained; WMA waiver removed. D-18/D-24/D-29/D-30 recorded. Required metadata command FAIL before tests on the known T021a pinned input; metadata cases NOT RUN. Device/lint/assemble/listening NOT RUN (T013/owner); no phone latency claim. Complete path/reason/command record below and in `.codex-commit/`; separate owner files excluded. |
 | 2026-10-15 | T013-fix2 item (5), resumed after memory-guard interruption; commit: none | BLOCKED after three completed attempts. Final quick GATE: FAIL, `/tmp/verify-task.9TJbzp`: codecs 1486 cases, 1485 pass, 1 failure, no errors/skips (new long noise-coded Standard exact-tail hash); all original codec tests pass. App 1381 cases: 1380 pass, 0 failures/errors, 1 unchanged corpus skip; sharedLogic 39 cached passes. Production/device Kotlin compilation PASS; graph changed (11322 nodes / 33426 edges). Fragmented Standard and Lossless defects fixed; Voice 18-object preroll preserves unchanged app exact seeks and passes D-30 cold-seek RMS/work checks. Metadata downstream fails before tests on missing/changed pinned `owned/matroska-ffmpeg-aac.mka` (known T021a precondition). No waiver removal, task tick or commit bundle because the correctness gate fails. Device/lint/assemble/listening NOT RUN (T013/owner scope). D-30 records unshipped trial choices; no architecture/ADR/001 contract changes. |
 | 2026-10-15 | T013 reviews (Claude) | migration-guard on KotlinFormatsPlaybackTest: DSD frames, crossfade driver, WMA waiver, private fixtures accepted; my first short-tail change (untimed) rejected → reworked: short-tail fixtures timed to first post-seek PCM under the same 300 ms, post-seek PCM only, pinned DSD 8821, recorded in D-30. phone-log-triage (haiku) on `/tmp/verify-task.DViDgs` + `.G3yR9D`: no crash/ANR/underrun/codec error. HIGH checked by Claude, not ours: Media3 `FlacMetadataReader` throws IllegalArgumentException on the malformed-FLAC fixture, surfaced as a Source error (malformedFilePrepareThrowsWithoutLeakingPlayers passes). Deferred to cleanup/perf: ~174 "Handler on a dead thread" warnings from `onAudioDisabled` after player release in NormalizationLevelDeviceTest (release ordering); that 001 class runs 14.5 min, over the 10-min device time-box. |
@@ -52,6 +64,146 @@
 | 2026-10-14 | Import 1/46 `01759c8` → `c4e7401`; README rebrand leftover fixed | PASS |
 | 2026-10-14 | Corpora rebuilt (WaxFlow/DSD/WavPack verified; WaxLabel, analysis, dsp oracles built) | D-1, D-2 |
 | 2026-10-14 | Graphify scope for the 002 modules | `693a54d`, graph unchanged (no module code yet) |
+
+## T013 M1 full gate and phone report — 2026-10-15 (BLOCKED)
+
+Scope/impact before editing: `/tmp/t013-impact.txt`; `git grep` traced the device matrix
+procedure in `scripts/test-corpus/README.md` and the task/handoff consumers. T013
+requires verification and a milestone report; only this HANDOFF is changed because
+completion is blocked. `tasks.md` remains unchecked. No production/test/fixture,
+Room/schema/version, analysis document, preference, DecoderProvider priority,
+PlaybackController API/StateFlow, architecture, ADR or spec 001 behavior changed.
+Existing owner edits (`.claude/**`, `CLAUDE.md`, spec/plan, UI docs, specs 003/004)
+remain untouched. No delegation, Git metadata mutation or brief file.
+
+### Commands and results
+
+- Initial branch `feature/media3-migration`, HEAD `20d9369`; `.codex-commit/` absent.
+  `./gradlew --stop` (no daemons), `pkill -f '[K]otlinCompileDaemon'` (no match),
+  `/proc/meminfo` MemAvailable 2,794,056 kB, above 2 GB. Gradle commands used
+  `GRADLE_OPTS='-Dorg.gradle.jvmargs=-Xmx1024m -Dorg.gradle.workers.max=1
+  -Dorg.gradle.project.kotlin.compiler.execution.strategy=in-process'`; repo build
+  configuration unchanged. Later memory preflights: 2,731,428 / 2,366,172 kB.
+- Device `4ae58ea6`, CPH2307, Android 15. Existing QA-private `files/KotlinFormats`
+  contains all 24 fixtures; each test's unchanged setup validates every source hash.
+  Existing public 001 corpus retained. No corpus regeneration/push needed. Only
+  allowlisted `com.amwolfstein.sistrum.dev.qa` / `.qa.test` APKs installed/instrumented;
+  neither daily app was installed, instrumented or force-stopped.
+- Full command:
+  `bash .claude/skills/verify-task/scripts/verify.sh --files
+  'specs/002-kotlin-decoders/tasks.md specs/002-kotlin-decoders/HANDOFF.md'
+  --lint --instrumented
+  'com.amwolfstein.sistrum.player.KotlinFormatsPlaybackTest,com.amwolfstein.sistrum.player.media3.Media3EngineGaplessTest,com.amwolfstein.sistrum.player.media3.Media3CrossfadeTest,com.amwolfstein.sistrum.player.media3.Media3EngineCoreTest,com.amwolfstein.sistrum.analysis.NormalizationLevelDeviceTest'`.
+  **GATE: FAIL**, console `/tmp/t013-full-gate.log`, **logs:
+  `/tmp/verify-task.1R6yM5`**. App 1381 cases: 1380 pass, no failures/errors,
+  1 unchanged `WaxFlowOracleLoudnessTest` assumption skip (`SISTRUM_CORPUS` unset).
+  sharedLogic 39/39 PASS; `assembleDevQa` PASS; instrumentation APK build PASS.
+  `lintDevQa` BUILD SUCCESSFUL; XML has 0 errors, 71 warnings, 13 hints (script's
+  generic INFO summary is not the lint verdict).
+- `./gradlew :codecs:test :metadata:test :analysis:test :dsp:test --continue`:
+  **FAIL**, `/tmp/t013-all-modules.log`. Codecs 1487, analysis 1127 and DSP 18
+  tests UP-TO-DATE with cached zero-failure/error/skip XML. Metadata's
+  `verifyWaxLabelCorpus` fails on missing/changed `owned/matroska-ffmpeg-aac.mka`;
+  metadata cases **NOT RUN**. Old metadata XML (1391/89 failures) is stale, not
+  this run's evidence. `git log` / `git diff ded051c^ HEAD -- metadata docs/waxlabel
+  scripts/waxlabel-oracle.py` show no M1 changes to the affected source, manifests
+  or verifier. Existing D-27/T021a blocker; no bypass, skip, re-pin or other-task work.
+- `python3 .claude/hooks/graph_refresh.py auto`: PASS, `graph: not needed
+  (no source change in scope)` (also ran through full gate). No graph files changed.
+  `git diff --check`: PASS. All source/tests remain unchanged.
+
+### Phone results and success criteria
+
+| Device class | Result | Evidence in `/tmp/verify-task.1R6yM5/` |
+|---|---|---|
+| KotlinFormatsPlaybackTest | 6/7 PASS; seek FAIL | `instr-KotlinFormatsPlaybackTest.log`, `logcat-KotlinFormatsPlaybackTest.log` |
+| Media3EngineGaplessTest | 7/7 PASS | `instr-Media3EngineGaplessTest.log`, `logcat-Media3EngineGaplessTest.log` |
+| Media3CrossfadeTest | 16/16 PASS | `instr-Media3CrossfadeTest.log`, `logcat-Media3CrossfadeTest.log` |
+| Media3EngineCoreTest | 12/12 PASS | `instr-Media3EngineCoreTest.log`, `logcat-Media3EngineCoreTest.log` |
+| NormalizationLevelDeviceTest | 2/2 PASS; 86 measured records, no failed measurements | `instr-NormalizationLevelDeviceTest.log`, `logcat-NormalizationLevelDeviceTest.log` |
+
+SC-001: all **24 pinned device fixtures** play on Media3 with provider attribution;
+22 non-DSD fixtures match the independent float-capture PCM hashes. The three
+fragmented ALAC goldens also match full-depth raw PCM through real Media3 demux.
+DSF/DFF match the approved production converter exactly at 8821 frames, per
+D-18/D-24; this is integration coverage, not independent Flick-filter parity.
+This reports the committed fixture matrix, not exhaustive playback of every host
+oracle input.
+
+SC-002: all ten same-format joins PASS with at most two frames difference:
+WavPack, APE, ordinary ALAC, Musepack SV7, WMA Lossless, AIFF PCM, AIFF-C sowt,
+AIFF-C float, DSF, DFF. CUE-track joins NOT RUN (M5 scope).
+Kotlin two-player crossfade/zero-underrun test PASS. SC-005 performance/CPU NOT RUN
+(M6); no inference of a benchmark PASS from the integration test.
+
+SC-006 seek: FAIL. First run stops at WavPack, median **301 ms** from
+`[301, 264, 308]`; later formats' seek timing NOT RUN in that first invocation.
+Two isolated current-build reruns pass WavPack, but both stop at WMA Voice:
+
+| Current-build attempt | WavPack median | WMA Voice median | Voice runs |
+|---|---|---|---|
+| 1, full gate | 301 ms FAIL | NOT RUN | — |
+| 2, isolated seek | 284 ms PASS | 312 ms FAIL | 413, 305, 312 ms |
+| 3, isolated seek | 269 ms PASS | 305 ms FAIL | 417, 305, 277 ms |
+
+Attempt 3's other completed medians (ms): APE 237, Musepack SV7/SV8 242/77,
+ALAC 145, WMA1/2/Pro/Lossless 89/215/236/70. Formats after Voice NOT RUN in
+these two current-build seek reruns. The 300 ms bound and three-run-median
+assertion are unchanged; no WMA waiver restored. Three current-build attempts
+failed, so AGENTS.md step 9 requires stopping without a commit bundle.
+
+### Read-only M1 comparison / failure investigation
+
+The seek test first exists at `b4e4a28`. Halved the remaining test-capable M1 tail
+at `2c2c1a5`, then checked later `7203f18` against current `20d9369`. Used
+`git archive <sha> | tar -x -C /tmp/t013-bisect-<sha>`; never switched/reset/rebased.
+Scratch builds symlink unchanged local FFmpeg libraries/headers; repository native
+files are untouched. No local.properties was created or edited (an attempted copy
+found that no local.properties exists; builds use the configured SDK environment).
+
+Both historical original APK builds PASS. Old tests require the inaccessible
+public T012 fixture directory, so diagnostic test APKs use a byte-identical copy
+of the current KotlinFormatsPlaybackTest against each archived production state.
+Harness SHA-256 in all three trees:
+`a62c8c7a4597be683b70cf04f3b8640f9a83ec422098a76aa78242c825a4c03e`.
+No assertions, expected values, inventory or timing bounds changed. Rebuilt only
+`:androidApp:assembleDevQaAndroidTest`; both builds PASS. Ran **only**
+`KotlinFormatsPlaybackTest#seekToDecodedOutputCompletesWithin300MsPerFormat`
+using `.qa.test/androidx.test.runner.AndroidJUnitRunner` after checking both
+APK IDs with aapt2. Current-build isolated reruns use the same method and APK-ID
+checks (`/tmp/t013-run-isolated.sh`).
+
+- `2c2c1a5`: WavPack **263 ms** `[253,302,263]`, Voice **292 ms**
+  `[388,292,286]`; later short-tail fixture times out with `[OutputStarted, Ended]`.
+- `7203f18`: WavPack **277 ms** `[250,277,285]`, Voice **293 ms**
+  `[392,293,229]`; same later short-tail timeout.
+- Current `20d9369`: timing results above. Observed Voice boundary narrows to
+  the latest T013-fix2 commit, but this small timing difference and WavPack's
+  non-reproduction do not establish a deterministic culprit. Short-tail behavior
+  in older states is also different. No speculative decoder/preroll/quality change
+  or claim of a completed causal bisection. Further profiling/fix remains undone.
+
+Build logs: `/tmp/t013-bisect-{2c2c1a5,7203f18}-build.log` and
+`/tmp/t013-bisect-{2c2c1a5,7203f18}-harness-build.log`.
+Instrumentation/logcat/install evidence:
+`/tmp/t013-bisect-{2c2c1a5,7203f18}-{instr,logcat,install}.log` and
+`/tmp/t013-current-seek-attempt{2,3}-{instr,logcat,install}.log`.
+Current QA app/test APKs restored before attempts 2/3; no older QA build remains
+installed. No daily-app access.
+
+Read-only log triage: no FATAL EXCEPTION, ANR or closed-channel exception in any
+of the five full-gate logs. Crossfade/core Source errors correspond to intentional
+missing/corrupt-input tests, including the already-recorded malformed-FLAC loader
+IllegalArgumentException. Dead-handler warnings remain: 238 in decoder class,
+942 in normalization (known deferred release ordering). No underrun failure.
+No automated agent was started for triage; manual inspection only.
+
+Final review: this HANDOFF is required to preserve the failed milestone evidence;
+all test expectations and protected contracts stay unchanged. T013 remains
+unchecked; `.codex-commit/` absent. Stage/commit/push NOT RUN (failed gate,
+AGENTS.md steps 5/9). Owner listening/Bluetooth/headset checks NOT RUN, never
+PASS. Retain the existing M1 manual list below. No new decision/ADR or follow-up
+task authored; existing T021a owns the metadata input repair.
 
 ## T013-fix2 scope and impact review
 

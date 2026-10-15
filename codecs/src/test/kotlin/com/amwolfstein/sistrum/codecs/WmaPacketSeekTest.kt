@@ -120,8 +120,8 @@ class WmaPacketSeekTest {
         // Counts synthesis inside the decoder, including startup/discarded frames.
         val cost = cold.work() - before
         val maxPacketFrames = packetWork(demux.codecConfig, objects.map { it.second }, tag)
-        // D-30: Voice retains 18 media objects of history for the unchanged short-file app oracle.
-        val packetLimit = if (tag == 0xa) 19 else if (tag == 0x163) 4 else 3
+        // D-30: Voice restarts 3 media objects early (its seek bar is RMS, not bit-exact).
+        val packetLimit = if (tag == 0xa) 4 else if (tag == 0x163) 4 else 3
         assertTrue("seek synthesized $cost frames; limit=${packetLimit * maxPacketFrames}", cost <= packetLimit * maxPacketFrames)
         var remaining = first.frames.toLong()
         fun collect(b: Chunk) {

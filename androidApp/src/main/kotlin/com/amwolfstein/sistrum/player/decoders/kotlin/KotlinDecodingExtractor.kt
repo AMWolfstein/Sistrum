@@ -168,7 +168,17 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
             }
             val track = checkNotNull(track)
             track.sampleData(pcm, size)
-            track.sampleMetadata(timeAt(position, info.sampleRate), C.BUFFER_FLAG_KEY_FRAME, size, 0, null)
+            // Media3 seeks inside already-buffered audio to the sample at or before the target and drops that whole
+            // sample, so one 4096-frame block would lose up to 93 ms (or a short file's whole tail). Samples of at
+            // most SAMPLE_FRAMES frames bound that loss; the bytes were written once above.
+            val frameBytes = mapper.channels * bytesPerSample
+            var start = 0
+            while (start < frames) {
+                val count = minOf(SAMPLE_FRAMES, frames - start)
+                val after = (frames - start - count) * frameBytes
+                track.sampleMetadata(timeAt(position + start, info.sampleRate), C.BUFFER_FLAG_KEY_FRAME, count * frameBytes, after, null)
+                start += count
+            }
             return Extractor.RESULT_CONTINUE
         } catch (error: ParserException) {
             throw error
@@ -201,6 +211,7 @@ internal class KotlinDecodingExtractor @JvmOverloads constructor(
 
     companion object {
         private const val SNIFF_BYTES = 4096
+        private const val SAMPLE_FRAMES = 1024
 
         /** Header-only probes ignore malformed/truncated/unrelated input, but retain typed refusals. */
         fun refusal(header: ByteArray, open: (RandomAccessSource) -> CodecStream): String? = try {

@@ -134,7 +134,7 @@ class KotlinDecodingExtractorTest {
                 data.skipBytes(length)
             }
             override fun sampleMetadata(timeUs: Long, flags: Int, size: Int, offset: Int,
-                cryptoData: TrackOutput.CryptoData?) { decodedTimeUs = timeUs }
+                cryptoData: TrackOutput.CryptoData?) { if (decodedTimeUs == C.TIME_UNSET) decodedTimeUs = timeUs }
         }
         val output = object : ExtractorOutput by recording {
             override fun track(id: Int, type: Int): TrackOutput = sink
@@ -159,6 +159,8 @@ class KotlinDecodingExtractorTest {
             val timeUs = (target * 1_000_000 + rate - 1) / rate
             extractor.seek(0, timeUs)
             pcm.reset()
+            // A block is emitted as several samples of at most 1024 frames; the first one starts at the target.
+            decodedTimeUs = C.TIME_UNSET
             val reopened = object : ExtractorInput by input(data) {
                 override fun read(buffer: ByteArray, offset: Int, length: Int): Int = error("seek must reopen before reading")
                 override fun skipFully(length: Int): Unit = error("seek must not skip cached bytes")
@@ -178,6 +180,21 @@ class KotlinDecodingExtractorTest {
             assertArrayEquals(oraclePcm.copyOfRange(offset, offset + actual.size), actual)
             assertEquals(target * 1_000_000 / rate, decodedTimeUs)
         } finally { extractor.release() }
+    }
+
+    @Test
+    fun splitsLargeBlocksIntoSamplesOfAtMost1024Frames() {
+        // Media3 drops the whole buffered sample a seek lands in; one 2500-frame block becomes 1024 + 1024 + 452.
+        val fake = FakeStream(totalSamples = 2500, channels = 1, blockFrames = 2500)
+        val session = session(fake)
+        drain(session)
+        val track = session.output.track
+        assertEquals(1, fake.blocks)
+        assertEquals(3, track.metadataCount)
+        assertArrayEquals(intArrayOf(1024 * 2, 1024 * 2, 452 * 2), track.sizes.copyOf(3))
+        assertArrayEquals(intArrayOf((2500 - 1024) * 2, (2500 - 2048) * 2, 0), track.offsets.copyOf(3))
+        assertArrayEquals(longArrayOf(0, 1024L * 1_000_000 / fake.rate, 2048L * 1_000_000 / fake.rate), track.times.copyOf(3))
+        assertArrayEquals(pcm(fake, 0, 2500), track.bytes())
     }
 
     @Test
@@ -373,8 +390,8 @@ class KotlinDecodingExtractorTest {
 
     private class FakeStream(val rate: Int = 48000, val channels: Int = 2,
         val encoding: Int = C.ENCODING_PCM_16BIT, val bits: Int = 16,
-        val totalSamples: Long = 131, val refused: WavPackException? = null) {
-        val buffer = Buffer(channels, bits, BLOCK_FRAMES)
+        val totalSamples: Long = 131, val refused: WavPackException? = null, val blockFrames: Int = BLOCK_FRAMES) {
+        val buffer = Buffer(channels, bits, blockFrames)
         private val framesField = Buffer::class.java.getDeclaredField("frames").also { it.isAccessible = true }
         private val positionField = Buffer::class.java.getDeclaredField("position").also { it.isAccessible = true }
         private var position = 0L
@@ -392,7 +409,7 @@ class KotlinDecodingExtractorTest {
         fun decodeBlock(): Buffer? {
             check(refused == null) { "refused streams must not decode" }
             if (position >= totalSamples) return null
-            val frames = minOf(BLOCK_FRAMES.toLong(), totalSamples - position).toInt()
+            val frames = minOf(blockFrames.toLong(), totalSamples - position).toInt()
             java.util.Arrays.fill(buffer.samples, 0x5a5a5a5a)
             var i = 0
             while (i < frames * channels) {

@@ -612,8 +612,8 @@ T013-fix2 implementation: Standard/Pro use two complete media objects of preroll
 with fragment starts restored before stepping backwards. Lossless uses no extra
 overlap preroll: header-only probes select the nearest preceding frame with an
 independent first tile, avoiding predictor-dependent startup frame loss. Voice
-uses 18 media objects of preroll, preserving unchanged exact short-file app seeks;
-long Voice seeks retain the 18 + 1 packet synthesis budget and approved RMS bar.
+used 18 media objects of preroll to keep an older bit-exact app seek test passing; D-33 (T013) lowered it to 3
+(synthesis budget 3 + 1 packets, phone seek 254 ms instead of 305–312 ms) and moved that app test to the Voice RMS bar.
 
 The earlier noise-coded Standard blocker is fixed without changing its quality
 bar or linear PCM. Uncoded channels consume no deterministic noise, so absolute
@@ -669,3 +669,24 @@ the platform decoders (MediaCodec) for these formats; FR-030/031 and SC-012 leav
 does not depend on M4b: those formats already have platform decoders.
 
 **Revisit if:** M4 (Mood Radio) shows first-analysis time on the phone is too slow without the Kotlin decoders.
+
+## D-33: Seek latency fixes found in T013 (Claude, 2026-10-15)
+
+**Case:** T013's phone check failed SC-006 (seek ≤ 300 ms): WMA Voice 305–312 ms, WavPack 258–301 ms, and seeking to
+25 ms in the 50 ms AIFF / AIFF-C fixtures produced no audio at all. Two causes, both measured on the CPH2307:
+1. WMA Voice restarted 18 media objects before the target (kept only so an older app test that expected bit-exact Voice
+   PCM after a seek would still pass), which on the 4 s fixture is nearly a decode from the start.
+2. The Kotlin extractor gave Media3 each decoded block (often 4096 frames, 93 ms at 44.1 kHz) as one sample. When a seek
+   lands inside audio that is already buffered, Media3 starts from the sample at or before the target and drops that
+   whole sample, so up to 93 ms after the target was skipped, and a target inside the last block skipped to the end.
+   A smaller Media3 start buffer (250 ms instead of 1 s) was tried first and changed nothing; not kept.
+
+**Options:** waive the bound for these formats; lower Voice preroll and split samples; faster decoders (M6 work).
+
+**Chosen:** Voice preroll 3 media objects (seek bar per D-30: exact position and length, ±1 dB RMS; the app test now
+checks that bar for Voice, as D-30 already required); the extractor writes each block once but announces it as samples
+of at most 1024 frames, so a seek inside buffered audio loses at most 1024 frames (~23 ms at 44.1 kHz). Phone seek medians
+afterwards: Voice 254 ms, WavPack 252 ms, all 21 seekable fixtures ≤ 300 ms, the three short AIFF fixtures audible.
+
+**Revisit if:** M6 measures seeks on long files above 300 ms (WavPack and APE sit around 250 ms on 2–15 s fixtures), or
+the owner hears a gap after seeking.

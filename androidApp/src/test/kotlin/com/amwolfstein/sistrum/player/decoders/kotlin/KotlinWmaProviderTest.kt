@@ -105,12 +105,38 @@ class KotlinWmaProviderTest {
                     extractor.init(out)
                     extractor.seek(0, us)
                     while (extractor.read(inp, holder) != Extractor.RESULT_END_OF_INPUT) { }
-                    assertArrayEquals("${row["file"]} at $target", linear.copyOfRange((target * frameBytes).toInt(), linear.size), out.sink.pcm.toByteArray())
+                    val expectedTail = linear.copyOfRange((target * frameBytes).toInt(), linear.size)
+                    val actualTail = out.sink.pcm.toByteArray()
+                    if (row.getValue("file").startsWith("waxflow-wmavoice-tests/") && target in 1 until total) {
+                        // D-30: a cold Voice packet restart cannot rebuild LPC/gain/postfilter history bit-exactly;
+                        // Voice keeps exact position and length, finite non-silent PCM, ±1 dB RMS over 0.5 s.
+                        assertVoiceSeekBar("${row["file"]} at $target", expectedTail, actualTail, rate * row.getValue("channels").toInt() / 2)
+                    } else {
+                        assertArrayEquals("${row["file"]} at $target", expectedTail, actualTail)
+                    }
                     if (target < total) assertEquals(target * 1_000_000 / rate, out.sink.times.first())
                     else assertTrue(out.sink.times.isEmpty())
                 }
             } finally { extractor.release() }
         }
+    }
+
+    private fun assertVoiceSeekBar(label: String, expected: ByteArray, actual: ByteArray, windowSamples: Int) {
+        assertEquals("$label: length", expected.size, actual.size)
+        fun floats(bytes: ByteArray) = java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN).asFloatBuffer()
+            .let { buffer -> FloatArray(buffer.remaining()).also { buffer.get(it) } }
+        val reference = floats(expected)
+        val seeked = floats(actual)
+        assertTrue("$label: finite", seeked.all { it.isFinite() })
+        val n = minOf(windowSamples, reference.size)
+        val referencePower = (0 until n).sumOf { reference[it].toDouble() * reference[it] }
+        // Only a tail shorter than the 0.5 s window (the target just before EOF) may be silent in the reference.
+        if (n < windowSamples && referencePower == 0.0) return
+        assertTrue("$label: reference must be non-silent", referencePower > 0)
+        val seekedPower = (0 until n).sumOf { seeked[it].toDouble() * seeked[it] }
+        assertTrue("$label: non-silent", seekedPower > 0)
+        val db = 10 * kotlin.math.log10(seekedPower / referencePower)
+        assertTrue("$label: RMS difference $db dB", kotlin.math.abs(db) <= 1)
     }
 
     @Test fun understatedAndUnknownAsfDurationNeverTruncatePcmOrClampSeeks() {
