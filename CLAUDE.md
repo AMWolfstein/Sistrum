@@ -24,7 +24,9 @@ device (constitution Principle 10).
   (release). devDebug, prodDebug and prodQa are disabled.
 - `./gradlew :androidApp:assembleDevQa`
 - `./gradlew :androidApp:assembleDevRelease` (unsigned unless MOBILE_KEYSTORE_* env vars are set;
-  sign locally with zipalign + apksigner and `~/.android/debug.keystore`; don't edit signingConfigs)
+  sign locally with zipalign + apksigner and the saved key `~/.config/sistrum/signing/sistrum-dev.keystore`, never a
+  different one: cert SHA-256 `d6b64f6f…f324b2f6`, details in that folder's README.txt; owner 2026-10-15. A different key
+  makes Android refuse the update over the owner's installed app. Don't edit signingConfigs)
 - `./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest`
 - `./gradlew :androidApp:lintDevQa`
 - **Never run instrumentation, install test APKs, or force-stop anything against the owner's daily
@@ -143,8 +145,8 @@ or when legacy code is deleted. Never commits.
 - **Milestone review (owner, 2026-10-14):** run each milestone's tasks except its last (full gate + phone check) task;
   then run `silent-failure-hunter`, `pr-test-analyzer`, `kotlin-reviewer` and `spec-traceability-auditor` in parallel on
   the milestone's commit range (`comment-analyzer` too when cheap), plus `audio-correctness-reviewer` when the range
-  touches decoders, the sink, DSP, crossfade, gapless or CUE (M1, M2, M4b, M5) and `port-fidelity-checker` when it adds
-  ported code (M1 imports, every M4b part, M5); for milestones with `[HIGH-RISK]` tasks or Room migrations use skill
+  touches decoders, the sink, DSP, crossfade, gapless or CUE (M1, M2, M5; M4b now in 004) and `port-fidelity-checker` when it adds
+  ported code (M1 imports, M5, every M4b part in 004); for milestones with `[HIGH-RISK]` tasks or Room migrations use skill
   `santa-method` on those diffs. After the last (phone-check) task, run `phone-log-triage` on the gate's `logs:`
   directory recorded in HANDOFF; confirmed CRITICAL/HIGH there become a `<last id>-fix2` task. Check each finding yourself; confirmed CRITICAL/HIGH ones become one fix task
   (`<last id>-fix`, e.g. `T013-fix`) added before the last task in tasks.md; then run the fix task and the last task.

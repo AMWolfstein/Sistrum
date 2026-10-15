@@ -221,7 +221,7 @@ real-time factor, two decoders at once, CPU, battery and memory.
 - **FR-018**: Mood Radio MUST be available again on the Media3 engine and build/refill its queue from the stored
   features (001 FR-016 contract).
 
-**Analysis decoders (M4b, owner 2026-10-14)**
+**Analysis decoders (M4b, owner 2026-10-14) — MOVED to spec 004 (owner 2026-10-15, D-32); FR-030/031 and SC-012 are not part of 002 acceptance.**
 - **FR-030**: The background analysis MUST be able to decode Opus, AAC (LC and HE-AAC with SBR/PS), Vorbis, MP3 and
   FLAC with Kotlin decoders ported from WaxFlow (decoder code only; WaxFlow's encoders are not ported), behind Media3's
   own file readers (Ogg, MP4/M4A, ADTS, MP3, FLAC, Matroska). Playback keeps the platform decoders for these formats.

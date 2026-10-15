@@ -220,6 +220,7 @@ if [ -n "$instrumented" ]; then
     for cls in "${classes[@]}"; do
       "$adb" shell input keyevent KEYCODE_WAKEUP
       # Per-class logcat for agent phone-log-triage (read-only; clears only the log buffer).
+      "$adb" logcat -G 16M >/dev/null 2>&1  # default ring buffer rolls over during long classes
       "$adb" logcat -c 2>/dev/null
       out=$("$adb" shell am instrument -w -e class "$cls" "$runner" 2>&1)
       echo "$out" > "$logs/instr-${cls##*.}.log"
