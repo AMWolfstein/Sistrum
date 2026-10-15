@@ -180,7 +180,7 @@ internal fun PlaylistDetailsContent(
                         audioPath = track.audioPath,
                         modifier = Modifier.fillMaxWidth().then(
                             if (isDragging) Modifier.liquidGlassBackground(
-                                hazeState, colors, hazeBlurRadius = 30.dp, glassTint = colors.glassElevated,
+                                hazeState, hazeBlurRadius = 30.dp, glassTint = colors.glassElevated,
                             ).border(1.dp, colors.borderGlass) else Modifier,
                         ),
                         trailingContent = {

@@ -53,7 +53,7 @@ fun SistrumIconButton(
                             .then(if (showGlassBorder) Modifier.border(1.dp, colors.borderGlass, CircleShape) else Modifier)
                             .then(
                                 if (glassColor != null) Modifier.background(glassColor)
-                                else Modifier.liquidGlassBackground(hazeState, colors)
+                                else Modifier.liquidGlassBackground(hazeState)
                             )
                     } else {
                         Modifier

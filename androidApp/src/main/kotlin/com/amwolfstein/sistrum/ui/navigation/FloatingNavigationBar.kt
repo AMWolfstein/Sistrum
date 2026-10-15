@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import com.amwolfstein.sistrum.AppDestination
-import com.amwolfstein.sistrum.ui.components.liquidGlassBackground
+import com.amwolfstein.sistrum.ui.components.GlassSurface
 import com.amwolfstein.sistrum.ui.components.MaterialSymbol
 import com.amwolfstein.sistrum.ui.components.towardsEnd
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
@@ -94,7 +94,8 @@ internal fun FloatingNavigationBar(
             .clip(outerPillShape)
             .border(1.dp, colors.borderGlass, outerPillShape)
     ) {
-        Box(
+        GlassSurface(
+            hazeState = hazeState,
             modifier = if (stableGlassWidth == null) {
                 Modifier.fillMaxSize()
             } else {
@@ -102,8 +103,7 @@ internal fun FloatingNavigationBar(
                     .align(Alignment.CenterStart)
                     .requiredWidth(stableGlassWidth)
                     .requiredHeight(FloatingNavigationHeight)
-            }
-                .liquidGlassBackground(hazeState, colors),
+            },
         )
         Box(modifier = Modifier.fillMaxSize().padding(PillGap)) {
             if (fullNavigationContentAlpha < 1f) {

@@ -143,6 +143,7 @@ internal fun App(
     val playbackQueue = playback.queue
     SistrumTheme(themeMode = uiState.themeMode) {
         CompositionLocalProvider(
+            com.amwolfstein.sistrum.ui.components.LocalReduceTransparency provides uiState.reduceTransparency,
             com.amwolfstein.sistrum.ui.components.LocalMoodRadioMenuActions provides com.amwolfstein.sistrum.ui.components.MoodRadioMenuActions(
                 playback.moodRadioEligibleTrackIds, playback.onStartMoodRadio,
             ),

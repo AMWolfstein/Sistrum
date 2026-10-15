@@ -78,7 +78,7 @@ import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.player.PlaybackItem
 import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
 import com.amwolfstein.sistrum.player.PlaybackState
-import com.amwolfstein.sistrum.ui.components.liquidGlassBackground
+import com.amwolfstein.sistrum.ui.components.GlassSurface
 import com.amwolfstein.sistrum.ui.components.rememberArtworkThumbnail
 import com.amwolfstein.sistrum.ui.components.towardsEnd
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
@@ -294,7 +294,8 @@ internal fun MiniPlayer(
                 .clip(shape)
                 .border(1.dp, colors.borderGlass, shape),
         ) {
-            Box(
+            GlassSurface(
+            hazeState = hazeState,
             modifier = if (stableGlassWidth == null) {
                 Modifier.fillMaxSize()
             } else {
@@ -302,8 +303,7 @@ internal fun MiniPlayer(
                     .align(Alignment.CenterStart)
                     .requiredWidth(stableGlassWidth)
                     .fillMaxHeight()
-            }
-                .liquidGlassBackground(hazeState, colors),
+            },
         )
         Row(
             modifier = Modifier

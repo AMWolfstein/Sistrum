@@ -1,6 +1,5 @@
 package com.amwolfstein.sistrum.ui.components
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +21,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
 
 /** Full-width glass playback actions for a library collection. */
@@ -69,8 +69,7 @@ private fun LibraryPlaybackAction(
         modifier = modifier
             .defaultMinSize(minHeight = 48.dp)
             .clip(shape)
-            .border(1.dp, colors.borderGlass, shape)
-            .liquidGlassBackground(hazeState, colors)
+            .liquidGlassBackground(hazeState, borderShape = shape)
             .semantics { contentDescription = label }
             .clickable(
                 role = Role.Button,
@@ -83,7 +82,7 @@ private fun LibraryPlaybackAction(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             MaterialSymbol(symbol, null, size = 20.dp, tint = colors.primary, filled = true)
-            Text(label, style = MaterialTheme.typography.labelLarge, color = colors.primary)
+            Text(label, style = MaterialTheme.typography.labelLarge, color = LocalSistrumTokens.current.colors.text)
         }
     }
 }

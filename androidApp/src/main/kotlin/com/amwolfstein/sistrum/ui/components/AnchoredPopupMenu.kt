@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
 import kotlin.math.roundToInt
 
 private data class AnchoredPopupMenuRequest(
@@ -113,7 +111,6 @@ private fun AnchoredPopupMenuOverlay(
     request: AnchoredPopupMenuRequest?,
     defaultHazeState: HazeState?,
 ) {
-    val colors = LocalSistrumColors.current
     var retainedRequest by remember { mutableStateOf<AnchoredPopupMenuRequest?>(null) }
     var hazeEnabled by remember { mutableStateOf(false) }
     val progress = remember { Animatable(0f) }
@@ -164,7 +161,9 @@ private fun AnchoredPopupMenuOverlay(
         val preferredY = if (renderAbove) aboveY else belowY
         val maxY = (hostHeightPx - menuHeightPx - edgeInsetPx).coerceAtLeast(edgeInsetPx)
         val constrainedY = preferredY.coerceIn(edgeInsetPx, maxY)
-        Box(
+        GlassSurface(
+            hazeState = if (hazeEnabled) activeRequest.hazeState ?: defaultHazeState else null,
+            borderShape = activeRequest.shape,
             modifier = Modifier
                 .align(AbsoluteAlignment.TopLeft)
                 .absoluteOffset {
@@ -178,12 +177,7 @@ private fun AnchoredPopupMenuOverlay(
                     scaleY = 0.94f + (0.06f * progress.value)
                     transformOrigin = TransformOrigin(if (isRtl) 0f else 1f, if (renderAbove) 1f else 0f)
                 }
-                .clip(activeRequest.shape)
-                .liquidGlassBackground(
-                    hazeState = if (hazeEnabled) activeRequest.hazeState ?: defaultHazeState else null,
-                    colors = colors,
-                )
-                .border(1.dp, colors.borderGlass, activeRequest.shape),
+                .clip(activeRequest.shape),
         ) {
             activeRequest.menu()
         }

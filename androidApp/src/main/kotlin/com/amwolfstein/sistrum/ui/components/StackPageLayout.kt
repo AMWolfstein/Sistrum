@@ -74,11 +74,12 @@ private val HeaderControlGap = 12.dp
 internal const val StackPageTitleTag = "stack-page-title"
 
 /** The exact glass surface shared by a scrolling page header and its sticky controls. */
+@Composable
 internal fun Modifier.headerGlassSurface(
     hazeState: HazeState?,
     colors: com.amwolfstein.sistrum.ui.theme.SistrumColors,
 ): Modifier = clip(RectangleShape)
-    .liquidGlassBackground(hazeState, colors)
+    .liquidGlassBackground(hazeState)
     .drawBehind {
         val strokeWidth = 1.dp.toPx()
         val y = size.height - strokeWidth / 2
@@ -331,7 +332,7 @@ fun SistrumGlassIconButton(
             .size(HeaderHeight)
             .clip(CircleShape)
             .then(
-                if (surfaceColor == null) Modifier.liquidGlassBackground(hazeState, colors, 30.dp, glassTint)
+                if (surfaceColor == null) Modifier.liquidGlassBackground(hazeState, 30.dp, glassTint)
                 else Modifier.background(surfaceColor),
             )
             .border(1.dp, borderColor ?: colors.borderGlass, CircleShape)
