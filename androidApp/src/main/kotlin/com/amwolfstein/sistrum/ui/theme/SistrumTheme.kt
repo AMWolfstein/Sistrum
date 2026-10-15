@@ -41,7 +41,7 @@ data class SistrumColors(
     val qualityDsdSurface: Color = Color(0xFFD946EF),
 )
 
-private val LightColors = SistrumColors(
+internal val LightColors = SistrumColors(
     background = Color(0xFFF4F4F5),
     playerBackdrop = Color(0xFF18181B),
     card = Color.White,
@@ -66,7 +66,7 @@ private val LightColors = SistrumColors(
     qualityDsdSurface = Color(0xFFD946EF),
 )
 
-private val DarkColors = SistrumColors(
+internal val DarkColors = SistrumColors(
     background = Color(0xFF18181B),
     playerBackdrop = Color(0xFF0A0A0A),
     card = Color(0xFF27272A),
