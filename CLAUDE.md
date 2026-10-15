@@ -142,6 +142,11 @@ or when legacy code is deleted. Never commits.
   check in each milestone's last task), self-reviews with the migration-guard checklist, refreshes the graph, commits
   and pushes every task itself (`AGENTS.md` "Autonomous mode"), one fresh Codex session per task via
   `.claude/skills/delegate-task/scripts/milestone-run.sh`. Claude checks the commit log and HANDOFF at milestone ends.
+- **Whole milestone by Codex (owner, 2026-10-15; 002 M2 onward):** `.claude/skills/delegate-task/scripts/milestone-auto.sh`
+  runs the tasks, the milestone review (one fresh Codex `MODE: REVIEW` session per reviewer checklist from
+  `.claude/agents/`, reports in `specs/<feature>/review/<M>/`), the `<last>-fix` task, the phone-check task, phone-log
+  triage + `<last>-fix2`, and a read-only Claude Haiku final check (`FINAL-CHECK.md`). Claude is not involved; a stop
+  waits for the owner. The Claude-run review below applies only when the owner asks for it.
 - **Milestone review (owner, 2026-10-14):** run each milestone's tasks except its last (full gate + phone check) task;
   then run `silent-failure-hunter`, `pr-test-analyzer`, `kotlin-reviewer` and `spec-traceability-auditor` in parallel on
   the milestone's commit range (`comment-analyzer` too when cheap), plus `audio-correctness-reviewer` when the range

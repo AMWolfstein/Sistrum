@@ -107,7 +107,22 @@ sections and files the task needs.
 9. **Retries:** up to 3 attempts per task. Still failing → don't commit; write the problem to HANDOFF and end with
    BLOCKED.
 
+10. **Fix tasks** (`<last id>-fix`, `<last id>-fix2`, added by the runner): read every report in the folder the task
+   line names; check each CRITICAL/HIGH finding against the code yourself; fix the confirmed ones (test first, then
+   code); for each rejected one write one line "rejected: <reason with file:line>" in the HANDOFF row. MEDIUM/LOW: list
+   in HANDOFF as follow-ups, don't fix. Then the normal gate (quick; `-fix2` reruns the full gate + phone check).
+
 End your final message with exactly one line: `RESULT: READY` (gate passed, `.codex-commit/` written) or
 `RESULT: BLOCKED <reason>`. Before you start, if `.codex-commit/` exists from an earlier task, the runner failed to
 commit it: stop with BLOCKED.
 Never invent results; anything not run is NOT RUN with the reason.
+
+## Review mode (`MODE: REVIEW`)
+
+A fresh session that did not write the code reviews a milestone's commit range with ONE reviewer checklist (pasted in
+the brief). Read-only on code and tests: no edits, no Gradle, no device. Use `git log`/`git diff <range>`, `git grep`
+and file reads. Write the report to the path the brief names, nothing else:
+- `VERDICT: PASS` or `VERDICT: NEEDS CHANGES`, then findings, each `[CRITICAL|HIGH|MEDIUM|LOW] file:line — what is wrong
+  — concrete failure scenario — suggested fix`. Only findings you verified in the code; say so when something could not
+  be checked.
+End with one line: `RESULT: PASS` (no CRITICAL/HIGH) or `RESULT: FINDINGS <count of CRITICAL+HIGH>`.

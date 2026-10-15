@@ -90,6 +90,6 @@ for t in $tasks; do
     fi
     [ -d .codex-commit ] && { echo "STOP: $t BLOCKED but left .codex-commit/; inspect"; exit 1; }
   done
-  [ $done_ok = 1 ] || { echo "STOP: $t not done; Claude takes over (no Astra fallback); see $out/$t and $feature/HANDOFF.md"; exit 1; }
+  [ $done_ok = 1 ] || { echo "STOP: $t not done (no Astra fallback; Claude or the owner takes over); see $out/$t and $feature/HANDOFF.md"; exit 1; }
 done
 echo "MILESTONE DONE: $tasks"
