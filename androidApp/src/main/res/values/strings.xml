@@ -502,4 +502,5 @@
         <item quantity="one">%1$d min</item>
         <item quantity="other">%1$d min</item>
     </plurals>
+    <string name="album_details_disc">Disc %1$d</string>
 </resources>

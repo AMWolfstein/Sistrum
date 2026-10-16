@@ -1,14 +1,8 @@
 package com.amwolfstein.sistrum.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,9 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,20 +18,20 @@ import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import com.amwolfstein.sistrum.R
 import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
-import com.amwolfstein.sistrum.ui.components.AlbumTrackRow
 import com.amwolfstein.sistrum.ui.components.AlbumContextMenu
-import com.amwolfstein.sistrum.ui.components.ArtworkHeroBackdrop
-import com.amwolfstein.sistrum.ui.components.DetailHero
 import com.amwolfstein.sistrum.ui.components.HeroCard
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.ui.components.TrackContextArtist
 import com.amwolfstein.sistrum.ui.components.TrackContextMenu
 import com.amwolfstein.sistrum.ui.components.TrackContextMenuActions
 import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
-import com.amwolfstein.sistrum.ui.components.trackInfoArtworkSize
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
-
-private const val AlbumTrackDividerTag = "album-detail-track-divider"
+import androidx.compose.ui.text.style.TextAlign
+import com.amwolfstein.sistrum.ui.components.MornyeDetailScaffold
+import com.amwolfstein.sistrum.ui.components.MornyeActionRow
+import com.amwolfstein.sistrum.ui.components.MornyeSongRow
+import com.amwolfstein.sistrum.ui.components.MornyeDetailFooter
+import com.amwolfstein.sistrum.ui.components.trackInfoValues
+import com.amwolfstein.sistrum.ui.components.trackAudioQuality
 
 @Composable
 internal fun AlbumDetailsContent(
@@ -48,6 +40,7 @@ internal fun AlbumDetailsContent(
     contentPadding: PaddingValues = PaddingValues(),
     hazeState: HazeState? = null,
     onHeroColorChanged: (Color) -> Unit = {},
+    onBack: () -> Unit = {},
     onPlay: () -> Unit = {},
     onShuffle: () -> Unit = {},
     onTrackClick: (String) -> Unit = {},
@@ -63,125 +56,105 @@ internal fun AlbumDetailsContent(
 ) {
     val album = uiState.album
     if (album == null) {
-        HeroCard(symbol = MaterialSymbols.Album, title = stringResource(R.string.album_details_empty_title), description = stringResource(R.string.album_details_empty_description), modifier = modifier.fillMaxSize().padding(contentPadding))
-        return
-    }
-    val tokens = LocalSistrumTokens.current
-    val colors = tokens.colors
-    var contextTrack by remember { mutableStateOf<String?>(null) }
-    var albumMenuExpanded by remember(album.id) { mutableStateOf(false) }
-    val resources = LocalResources.current
-    val trackCount = pluralStringResource(R.plurals.album_details_track_count, uiState.tracks.size, uiState.tracks.size)
-    val totalDurationSeconds = remember(uiState.tracks) { albumTotalDurationSeconds(uiState.tracks) }
-    val duration = formatAlbumTotalDuration(
-        totalDurationSeconds,
-        day = { resources.getString(R.string.playlist_duration_day, it) },
-        hour = { resources.getString(R.string.playlist_duration_hour, it) },
-        minute = { resources.getString(R.string.playlist_duration_minute, it) },
-        second = { resources.getString(R.string.playlist_duration_second, it) },
-    )
-    val metadata = if (album.year > 0) {
-        stringResource(R.string.album_details_metadata_with_year, album.year, trackCount, duration)
-    } else {
-        stringResource(R.string.album_details_metadata, trackCount, duration)
-    }
-    val listPadding = PaddingValues(
-        top = 0.dp,
-        bottom = contentPadding.calculateBottomPadding(),
-        start = 0.dp,
-        end = 0.dp,
-    )
-    LazyColumn(modifier.fillMaxSize().background(colors.page), contentPadding = listPadding) {
-        item("hero") {
-            ArtworkHeroBackdrop(album.artworkPath, Modifier.fillMaxWidth(), onHeroColorChanged, audioPath = album.audioPath) {
-                DetailHero(
-                    album.title,
-                    album.artist.ifBlank { stringResource(R.string.album_unknown_artist) },
-                    metadata,
-                    stringResource(R.string.player_play),
-                    stringResource(R.string.player_shuffle),
-                    stringResource(R.string.album_row_more_options),
-                    Modifier.fillMaxWidth().padding(
-                        start = tokens.spacing.extraLarge,
-                        top = contentPadding.calculateTopPadding(),
-                        end = tokens.spacing.extraLarge,
-                        bottom = tokens.spacing.extraLarge,
-                    ),
-                    album.artworkPath,
-                    audioPath = album.audioPath,
-                    artworkSize = trackInfoArtworkSize,
-                    onPlayClick = onPlay,
-                    onShuffleClick = onShuffle,
-                    onMoreClick = { albumMenuExpanded = true },
-                    moreAction = { moreButton ->
-                        AlbumContextMenu(
-                            tracks = uiState.tracks,
-                            expanded = albumMenuExpanded,
-                            onDismiss = { albumMenuExpanded = false },
-                            hazeState = hazeState,
-                            playbackQueue = playbackQueue,
-                            onPlay = onPlay,
-                            onShuffle = onShuffle,
-                            onPlayNext = onAlbumPlayNext,
-                            onAddToQueue = onAlbumAddToQueue,
-                            onAddToFavorites = onAlbumAddToFavorites,
-                            onBottomSheetRequested = onTrackContextBottomSheet,
-                            anchor = moreButton,
-                        )
-                    },
-                )
+        MornyeDetailScaffold(
+            title = stringResource(R.string.album_details_empty_title),
+            onBack = onBack,
+            modifier = modifier.padding(bottom = contentPadding.calculateBottomPadding()),
+        ) {
+            item("unavailable") {
+                HeroCard(symbol = MaterialSymbols.Album, title = stringResource(R.string.album_details_empty_title),
+                    description = stringResource(R.string.album_details_empty_description), modifier = Modifier.fillMaxWidth())
             }
         }
-        itemsIndexed(uiState.tracks, key = { _, track -> track.id }) { index, track ->
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = tokens.spacing.extraLarge)
-                    .height(1.dp)
-                    .background(colors.divider)
-                    .testTag(AlbumTrackDividerTag),
+        return
+    }
+    var contextTrack by remember(album.id) { mutableStateOf<String?>(null) }
+    var albumMenuExpanded by remember(album.id) { mutableStateOf(false) }
+    val totalDurationSeconds = remember(uiState.tracks) { albumTotalDurationSeconds(uiState.tracks) }
+    val genres = remember(uiState.tracks) {
+        uiState.tracks.mapNotNull { track ->
+            trackInfoValues(track).firstOrNull { it.labelRes == R.string.track_info_genre }?.value
+        }.distinct().joinToString(" / ")
+    }
+    val quality = uiState.tracks.firstOrNull()?.let { qualityLabel(trackAudioQuality(it)) }
+    val metadata = listOfNotNull(genres.takeIf(String::isNotBlank), album.year.takeIf { it > 0 }?.toString(), quality).joinToString(" · ")
+    val multiDisc = uiState.tracks.map { it.discNumber.takeIf { n -> n > 0 } ?: 1 }.distinct().size > 1
+    MornyeDetailScaffold(
+        title = album.title,
+        onBack = onBack,
+        artworkPath = album.artworkPath,
+        audioPath = album.audioPath,
+        onHeroColorChanged = onHeroColorChanged,
+        modifier = modifier.padding(bottom = contentPadding.calculateBottomPadding()),
+        header = {
+            Text(album.artist.ifBlank { stringResource(R.string.album_unknown_artist) },
+                Modifier.fillMaxWidth().testTag("album-mornye-artist"), color = Color.White, textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium)
+            Text(metadata, Modifier.fillMaxWidth().testTag("album-mornye-metadata"), color = Color.White,
+                textAlign = TextAlign.Center, style = MaterialTheme.typography.bodySmall)
+            MornyeActionRow(
+                onShuffle = onShuffle,
+                onPlay = onPlay,
+                onMore = { albumMenuExpanded = true },
+                moreLabel = stringResource(R.string.album_row_more_options),
+                menu = { moreButton ->
+                    AlbumContextMenu(
+                        tracks = uiState.tracks,
+                        expanded = albumMenuExpanded,
+                        onDismiss = { albumMenuExpanded = false },
+                        hazeState = hazeState,
+                        playbackQueue = playbackQueue,
+                        onPlay = onPlay,
+                        onShuffle = onShuffle,
+                        onPlayNext = onAlbumPlayNext,
+                        onAddToQueue = onAlbumAddToQueue,
+                        onAddToFavorites = onAlbumAddToFavorites,
+                        onBottomSheetRequested = onTrackContextBottomSheet,
+                        anchor = moreButton,
+                    )
+                },
             )
-            TrackContextMenu(
-                track = track,
-                expanded = contextTrack == track.id,
-                onDismiss = { if (contextTrack == track.id) contextTrack = null },
-                actions = TrackContextMenuActions(goToAlbum = false),
-                playbackQueue = playbackQueue,
-                onPlayNext = { onTrackPlayNext(it.id) },
-                onAddToQueue = { onTrackAddToQueue(it.id) },
-                onFavoriteChange = { item, favorite -> onTrackFavoriteToggle(item.id, favorite) },
-                onGoToArtist = onTrackArtistClick,
-                onBottomSheetRequested = onTrackContextBottomSheet,
-            ) {
-                AlbumTrackRow(
-                    track.trackNumber.takeIf { it > 0 } ?: index + 1,
-                    track.title,
-                    track.artists,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { onTrackClick(track.id) },
-                    onMoreClick = { contextTrack = track.id },
-                    onLongClick = { contextTrack = track.id },
-                )
+        },
+    ) {
+        uiState.tracks.forEachIndexed { index, track ->
+            val disc = track.discNumber.takeIf { it > 0 } ?: 1
+            if (multiDisc && (index == 0 || disc != (uiState.tracks[index - 1].discNumber.takeIf { it > 0 } ?: 1))) {
+                item("disc-$index") {
+                    Text(stringResource(R.string.album_details_disc, disc), color = Color.White,
+                        style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
+                }
             }
-            if (index == uiState.tracks.lastIndex) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = tokens.spacing.extraLarge)
-                        .height(1.dp)
-                        .background(colors.divider)
-                        .testTag(AlbumTrackDividerTag),
-                )
+            item(track.id) {
+                TrackContextMenu(
+                    track = track,
+                    expanded = contextTrack == track.id,
+                    onDismiss = { if (contextTrack == track.id) contextTrack = null },
+                    actions = TrackContextMenuActions(goToAlbum = false),
+                    playbackQueue = playbackQueue,
+                    onPlayNext = { onTrackPlayNext(it.id) },
+                    onAddToQueue = { onTrackAddToQueue(it.id) },
+                    onFavoriteChange = { item, favorite -> onTrackFavoriteToggle(item.id, favorite) },
+                    onGoToArtist = onTrackArtistClick,
+                    onBottomSheetRequested = onTrackContextBottomSheet,
+                ) {
+                    MornyeSongRow(
+                        track = track,
+                        number = track.trackNumber.takeIf { it > 0 } ?: index + 1,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { onTrackClick(track.id) },
+                        onMore = { contextTrack = track.id },
+                        onLongClick = { contextTrack = track.id },
+                    )
+                }
             }
+        }
+        item("footer") {
+            MornyeDetailFooter(uiState.tracks.size, (totalDurationSeconds / 60).toInt())
         }
         album.copyright.takeIf(String::isNotBlank)?.let { copyright ->
             item("copyright") {
-                Text(
-                    text = copyright,
-                    color = colors.mutedText,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = tokens.spacing.extraLarge, top = tokens.spacing.large, end = tokens.spacing.extraLarge, bottom = tokens.spacing.medium),
-                )
+                Text(copyright, color = Color.White, style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(16.dp))
             }
         }
     }

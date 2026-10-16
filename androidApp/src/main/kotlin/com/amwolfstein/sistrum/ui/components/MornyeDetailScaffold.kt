@@ -60,6 +60,7 @@ fun MornyeDetailScaffold(
     artworkPath: String? = null,
     audioPath: String? = null,
     listState: LazyListState = rememberLazyListState(),
+    onHeroColorChanged: (Color) -> Unit = {},
     artworkContent: (@Composable BoxScope.() -> Unit)? = null,
     header: @Composable ColumnScope.() -> Unit = {},
     content: LazyListScope.() -> Unit,
@@ -67,7 +68,9 @@ fun MornyeDetailScaffold(
     val bitmap = rememberArtworkThumbnail(artworkPath, audioPath, targetPx = 720)
     var page by remember(artworkPath, audioPath) { mutableStateOf(MornyeFallbackTint) }
     LaunchedEffect(bitmap) {
-        page = mornyePageTint(bitmap?.let { withContext(Dispatchers.Default) { artworkDominantColor(it) } })
+        val dominant = bitmap?.let { withContext(Dispatchers.Default) { artworkDominantColor(it) } }
+        page = mornyePageTint(dominant)
+        onHeroColorChanged(dominant ?: MornyeFallbackTint)
     }
     val tokens = LocalSistrumTokens.current
     val tintedTokens = tokens.copy(colors = tokens.colors.copy(
@@ -89,7 +92,7 @@ fun MornyeDetailScaffold(
                         Box(Modifier.fillMaxWidth().heightIn(min = 340.dp)) {
                             Box(Modifier.matchParentSize().hazeSource(haze)) {
                                 if (artworkContent != null) artworkContent()
-                                else if (bitmap != null) Image(bitmap, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop)
+                                else if (bitmap != null) Image(bitmap, null, Modifier.matchParentSize().testTag("mornye-artwork-image"), contentScale = ContentScale.Crop)
                                 else Box(Modifier.matchParentSize().background(page).testTag("mornye-artwork-fallback"))
                                 Box(Modifier.matchParentSize().background(Brush.verticalGradient(
                                     0f to Color.Transparent, 0.45f to page.copy(alpha = 0.20f), 1f to page)))
@@ -136,13 +139,14 @@ fun MornyeActionRow(
     modifier: Modifier = Modifier,
     playShape: MornyePlayShape = MornyePlayShape.Pill,
     onMore: () -> Unit = {},
+    moreLabel: String = stringResource(R.string.player_more),
 ) {
     val pill = playShape == MornyePlayShape.Pill
     val playLabel = stringResource(R.string.player_play)
     Row(modifier.fillMaxWidth().padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically) {
         MornyeRoundAction(MaterialSymbols.Shuffle, stringResource(R.string.player_shuffle), onShuffle)
-        Box(Modifier.heightIn(min = 56.dp).then(if (pill) Modifier.widthIn(min = 144.dp) else Modifier.size(64.dp))
+        Box(Modifier.weight(1f, fill = false).heightIn(min = 56.dp).then(if (pill) Modifier.widthIn(min = 144.dp) else Modifier.size(64.dp))
             .clip(CircleShape).then(if (pill) Modifier.liquidGlassBackground(LocalMornyeHaze.current, borderShape = CircleShape) else Modifier)
             .background(if (pill) Color.White.copy(alpha = 0.86f) else Color.White)
             .semantics { contentDescription = playLabel }.clickable(role = Role.Button, onClick = onPlay)
@@ -152,7 +156,7 @@ fun MornyeActionRow(
                 if (pill) Text(playLabel, color = Color.Black, style = MaterialTheme.typography.labelLarge)
             }
         }
-        menu { MornyeRoundAction("more_horiz", stringResource(R.string.player_more), onMore) }
+        menu { MornyeRoundAction("more_horiz", moreLabel, onMore) }
     }
 }
 

@@ -666,6 +666,7 @@ internal fun AppDestinationContent(
                             )
                             AppStackPage.AlbumDetails -> AlbumDetailsContent(
                                 uiState = selectedAlbumDetails,
+                                onBack = { onIntent(AppIntent.NavigateBack) },
                                 contentPadding = contentPadding,
                                 modifier = Modifier.fillMaxSize(),
                                 hazeState = hazeState,

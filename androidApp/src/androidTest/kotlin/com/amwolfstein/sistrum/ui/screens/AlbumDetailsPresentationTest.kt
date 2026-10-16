@@ -13,6 +13,8 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.dp
@@ -60,7 +62,7 @@ class AlbumDetailsPresentationTest(private val case: UiMatrix.Case) {
             }
         }
         rule.onNodeWithText(title).assertExists()
-        rule.onNode(hasTestTag("detail-hero-artwork-image")).assertDoesNotExist()
+        rule.onNode(hasTestTag("mornye-artwork-image")).assertDoesNotExist()
         val play = hasContentDescription(label(R.string.player_play))
         val shuffle = hasContentDescription(label(R.string.player_shuffle))
         rule.onNode(play).performScrollTo().assertIsDisplayed()
@@ -88,9 +90,10 @@ class AlbumDetailsPresentationTest(private val case: UiMatrix.Case) {
                     audioPath = File(context.cacheDir, "unavailable-audio.flac").absolutePath,
                 )))
             }
-            rule.waitUntil(5_000) { rule.onAllNodes(hasTestTag("detail-hero-artwork-image")).fetchSemanticsNodes().size == 1 }
-            val image = rule.onNode(hasTestTag("detail-hero-artwork-image")).assertIsDisplayed().captureToImage()
-            val pixel = image.toPixelMap()[image.width / 2, image.height / 2]
+            rule.waitUntil(5_000) { rule.onAllNodes(hasTestTag("mornye-artwork-image")).fetchSemanticsNodes().size == 1 }
+            val image = rule.onNode(hasTestTag("mornye-artwork-image")).assertIsDisplayed().captureToImage()
+            // The cover now fills the header and fades to the page tint; its top stays unmodified.
+            val pixel = image.toPixelMap()[image.width / 2, 1]
             assertTrue(pixel.red > 0.95f && pixel.green < 0.05f && pixel.blue < 0.05f)
         } finally {
             file.delete()
@@ -112,6 +115,7 @@ class AlbumDetailsPresentationTest(private val case: UiMatrix.Case) {
             AlbumDetailsContent(state, onTrackClick = { selected = it })
         }
         assertEquals(listOf("d1a", "d1b", "d2"), state.tracks.map { it.id })
+        rule.onNode(hasTestTag("mornye-list")).performScrollToNode(hasText("Disc two first"))
         rule.onNodeWithText("Disc two first").performScrollTo().assertIsDisplayed().performClick()
         assertEquals("d2", selected)
     }

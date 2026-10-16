@@ -211,3 +211,14 @@ Case: D-25 requires a dark dominant-artwork tint with white text in both themes,
 Options: multiply dominant RGB by a fixed darkening factor with a neutral fallback (recommended); theme-dependent tinting with separate contrast adjustments.
 Chosen: reuse DetailHero's dominant-colour helper, multiply RGB by 0.32, and use opaque #242428 for missing/transparent artwork. White text exceeds the required 4.5:1 even for a white cover. Scope page/opaque/glass/text tokens to the scaffold; retain the existing badge accents and GlassPolicy/LiquidGlass implementation. Identity text grows vertically over a minimum-height artwork region, and action symbols retain their physical size so large fonts do not clip them. Pill Play is white translucent glass; Circle Play is white, with identical tinted opaque fallback geometry for glass surfaces.
 Revisit if: the T020f owner visual review requests a different tint strength or header proportions; contrast and accessibility tests must remain satisfied.
+
+
+## D-29: Album metadata from existing local track tags (T020c)
+Case: LibraryAlbum has no genre or quality column; the Mornye identity needs both without a schema or ViewModel change.
+Options: derive presentation from existing ordered tracks (recommended); extend the album data contract.
+Chosen: reuse track-info genre extraction (raw names with named-genre fallback), deduplicate nonblank genre text in track order,
+and show the first ordered track's existing localized quality label. Omit absent genre/year fields and quality for an empty
+album; retain Unknown for a track with unknown quality. Use existing disc/track order and numbers, sequential numbering
+when track tags are missing, and Disc 1 for an untagged disc when grouping a multi-disc album. Footer uses the existing
+millisecond-aware total duration, truncated to whole minutes, through the shared English/Arabic plurals.
+Revisit if: the owner requests a distinct mixed-quality album label or a different policy for missing disc tags.
