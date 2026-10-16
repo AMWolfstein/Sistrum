@@ -724,11 +724,9 @@ internal class AndroidLibrarySyncStore(
         artworkAssets,
         dao.observeArtistArtwork(),
     ) { rows, artworkAssets, stagedArtwork ->
-        val customArtworkArtistIds = stagedArtwork.mapTo(mutableSetOf(), ArtistArtworkStagingEntity::artistId)
         libraryArtistsFrom(rows, artworkAssets.associate { asset ->
             asset.assetId.removePrefix("artwork:") to asset.relativePath
-        } + stagedArtwork.associate { staging -> staging.artistId to staging.relativePath })
-            .map { artist -> if (artist.id in customArtworkArtistIds) artist.copy(hasCustomArtwork = true) else artist }
+        }, stagedArtwork.associate { staging -> staging.artistId to staging.relativePath })
     }.shareIn(snapshotScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
     val albums: Flow<List<LibraryAlbum>> = combine(
         activeTrackRows,
@@ -1241,15 +1239,27 @@ private fun LibraryPlaylist.withPlaylistArtworkKey(key: String?): String {
 internal fun libraryArtistsFrom(
     tracks: List<LibraryTrackRow>,
     artworkPaths: Map<String, String>,
+    stagedArtworkPaths: Map<String, String> = emptyMap(),
 ): List<LibraryArtist> {
+    data class Cover(val year: Int, val added: String, val trackId: String, val path: String)
+    val coverOrder = compareBy<Cover>({ it.year }, { it.added }, { it.trackId })
+    val albumArtwork = libraryAlbumsFrom(tracks, artworkPaths).associate { it.id to it.artworkPath }
+    val newestCovers = mutableMapOf<String, Cover>()
     val artists = linkedMapOf<String, LibraryArtist>()
     tracks.forEach { track ->
         val root = runCatching { LibrarySyncProtocol.json.parseToJsonElement(track.rawJson) as? JsonObject }.getOrNull()
             ?: return@forEach
+        val albumId = (root["album"] as? JsonObject)?.string("id")
+        val cover = (albumArtwork[albumId] ?: track.artworkPath)?.let { path ->
+            Cover(root.int("year"), track.createdAt, track.id, path)
+        }
         ((root["artists"] as? JsonArray).orEmpty()).forEach { value ->
             val artist = value as? JsonObject ?: return@forEach
             val id = artist.string("id")?.takeIf(String::isNotBlank) ?: return@forEach
             val name = artist.string("name")?.trim().orEmpty().takeIf(String::isNotEmpty) ?: return@forEach
+            if (cover != null && (newestCovers[id]?.let { coverOrder.compare(cover, it) > 0 } != false)) {
+                newestCovers[id] = cover
+            }
             val artworkKey = artist.string("artwork_key")?.takeIf(String::isNotBlank)
                 ?: listOf("artwork_key_manual", "artwork_key_local", "artwork_key_online")
                     .firstNotNullOfOrNull { key -> artist.string(key)?.takeIf(String::isNotBlank) }
@@ -1271,14 +1281,12 @@ internal fun libraryArtistsFrom(
             } ?: candidate
         }
     }
-    // Manually staged artist artwork (set locally by the user) wins as a fallback
-    // when no per-track artwork key resolved; it is keyed by the artist id.
     return artists.map { (_, artist) ->
-        if (artist.artworkPath == null) {
-            artworkPaths[artist.id]?.let { path -> artist.copy(artworkPath = path) } ?: artist
-        } else {
-            artist
-        }
+        val manualPath = stagedArtworkPaths[artist.id]
+        artist.copy(
+            artworkPath = manualPath ?: artist.artworkPath ?: artworkPaths[artist.id] ?: newestCovers[artist.id]?.path,
+            hasCustomArtwork = manualPath != null,
+        )
     }
 }
 
