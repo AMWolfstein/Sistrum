@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.amwolfstein.sistrum.R
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import com.amwolfstein.sistrum.ui.components.AlbumRow
 import com.amwolfstein.sistrum.ui.components.AlbumContextMenu
 import com.amwolfstein.sistrum.ui.components.DiscGridItem
@@ -45,6 +47,7 @@ internal fun LibraryAlbumsContent(
     onPlayAll: (Boolean) -> Unit = {},
     onFilterQueryChange: (String) -> Unit = {},
 ) {
+    val tokens = LocalSistrumTokens.current
     var contextAlbumId by remember { mutableStateOf<String?>(null) }
     val unknownArtist = stringResource(R.string.album_unknown_artist)
     val gridItems = remember(uiState.albums, unknownArtist) {
@@ -74,7 +77,7 @@ internal fun LibraryAlbumsContent(
         contentType = "album_row",
         listState = listState,
         contentPadding = listPadding,
-        modifier = modifier,
+        modifier = modifier.background(tokens.colors.page),
         dividerTestTag = "album-row-divider",
         filterKey = "albums",
         filterActive = uiState.filterQuery.isNotBlank(),
@@ -102,8 +105,8 @@ internal fun LibraryAlbumsContent(
         alphabeticalIndexItemsPerLazyItem = if (uiState.layoutMode == AlbumLayoutMode.Grid) 2 else 1,
         emptyContent = {
             Column(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = tokens.spacing.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(tokens.spacing.large),
             ) {
                 HeroCard(
                     title = stringResource(if (uiState.filterQuery.isBlank()) R.string.albums_empty_title else R.string.albums_no_match_title),
@@ -116,7 +119,9 @@ internal fun LibraryAlbumsContent(
             {
                 discGridItems(
                     items = gridItems,
-                    horizontalContentPadding = 24.dp,
+                    horizontalContentPadding = tokens.spacing.extraLarge,
+                    horizontalGap = tokens.spacing.large,
+                    verticalItemPadding = tokens.spacing.small,
                     onClick = { albumId -> uiState.albums.find { it.id == albumId }?.let { album -> onAlbumClick?.invoke(album) } },
                     onLongClick = { albumId -> contextAlbumId = albumId },
                     itemWrapper = { item, itemModifier, content ->

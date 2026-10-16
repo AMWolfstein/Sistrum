@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import java.io.File
@@ -42,7 +40,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.amwolfstein.sistrum.R
 import com.amwolfstein.sistrum.sync.decodeArtworkBitmaps
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 private val artworkCache = LruCache<String, ImageBitmap>(250)
 
@@ -94,13 +92,18 @@ fun TrackRow(
     modifier: Modifier = Modifier,
     artworkPath: String? = null,
     audioPath: String? = null,
-    contentPadding: PaddingValues = PaddingValues(start = 24.dp, top = 6.dp, end = 8.dp, bottom = 6.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        start = LocalSistrumTokens.current.spacing.extraLarge,
+        top = LocalSistrumTokens.current.spacing.small,
+        end = LocalSistrumTokens.current.spacing.extraLarge,
+        bottom = LocalSistrumTokens.current.spacing.small,
+    ),
     onClick: (() -> Unit)? = null,
     onMoreClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     trailingContent: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     val bitmap = rememberArtworkThumbnail(artworkPath, audioPath)
     val clickModifier = remember(onClick, onLongClick) {
         if (onClick != null || onLongClick != null) {
@@ -127,9 +130,9 @@ fun TrackRow(
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(colors.glassElevated)
-                .border(1.dp, colors.borderGlass, RoundedCornerShape(8.dp)),
+                .clip(tokens.shapes.small)
+                .background(tokens.colors.opaqueFill)
+                .border(1.dp, tokens.colors.divider, tokens.shapes.small),
             contentAlignment = Alignment.Center,
         ) {
             if (bitmap != null) {
@@ -144,7 +147,7 @@ fun TrackRow(
                     symbol = MaterialSymbols.MusicNote,
                     contentDescription = null,
                     size = 22.dp,
-                    tint = colors.textMuted,
+                    tint = tokens.colors.mutedText,
                 )
             }
         }
@@ -153,20 +156,20 @@ fun TrackRow(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 12.dp, end = 8.dp),
+                .padding(start = tokens.spacing.medium, end = tokens.spacing.small),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = colors.textMain,
-                maxLines = 1,
+                style = MaterialTheme.typography.titleMedium,
+                color = tokens.colors.text,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = artist,
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.textMuted,
+                color = tokens.colors.mutedText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(top = 2.dp),
@@ -182,7 +185,7 @@ fun TrackRow(
                     symbol = MaterialSymbols.MoreVert,
                     contentDescription = stringResource(R.string.track_row_more_options),
                     size = 20.dp,
-                    tint = colors.textMuted,
+                    tint = tokens.colors.mutedText,
                 )
             }
         }

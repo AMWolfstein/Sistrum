@@ -1,5 +1,25 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.StateRestorationTester
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
@@ -325,5 +345,96 @@ class LibraryTracksContentTest {
 
         composeTestRule.onNodeWithText("Play next").assertExists()
         composeTestRule.onAllNodesWithText("Add to queue").assertCountEquals(0)
+    }
+
+    @Test
+    fun reorderedTracksKeepTheirIdsAndDispatchQueueAndFavoriteActions() {
+        val alpha = LibraryTrack("alpha", "Alpha", "Artist")
+        val zulu = LibraryTrack("zulu", "Zulu", "Artist")
+        var tracks by mutableStateOf(listOf(alpha, zulu))
+        val actions = mutableListOf<Pair<String, String>>()
+        composeTestRule.setContent {
+            SistrumTheme(ThemeMode.Dark) {
+                AnchoredPopupMenuHost(hazeState = null) {
+                    LibraryTracksContent(
+                        uiState = LibraryTracksUiState(tracks = tracks),
+                        onSortOptionSelected = {}, onToggleSortOrder = {},
+                        onTrackClick = { actions += "select" to it.id },
+                        onTrackPlayNext = { actions += "next" to it.id },
+                        onTrackAddToQueue = { actions += "queue" to it.id },
+                        onTrackFavoriteToggle = { track, favorite -> actions += "favorite:$favorite" to track.id },
+                    )
+                }
+            }
+        }
+        composeTestRule.runOnIdle { tracks = listOf(zulu, alpha) }
+        val zuluBounds = composeTestRule.onNodeWithText("Zulu").fetchSemanticsNode().boundsInRoot
+        val alphaBounds = composeTestRule.onNodeWithText("Alpha").fetchSemanticsNode().boundsInRoot
+        assertTrue(zuluBounds.top < alphaBounds.top)
+        composeTestRule.onNodeWithText("Zulu").performClick()
+        for (action in listOf("Play next", "Add to queue", "Add to favorites")) {
+            composeTestRule.onNodeWithText("Zulu").performTouchInput { longClick() }
+            composeTestRule.onNodeWithText(action).performClick()
+        }
+        assertEquals(listOf("select" to "zulu", "next" to "zulu", "queue" to "zulu", "favorite:true" to "zulu"), actions)
+    }
+
+    @Test
+    fun tenThousandTracksKeepCompositionBoundedAndRestoreScrolledPosition() {
+        val tracks = List(10_000) { LibraryTrack("track-$it", "Large song $it", "Artist") }
+        lateinit var listState: LazyListState
+        val restoration = StateRestorationTester(composeTestRule)
+        restoration.setContent {
+            SistrumTheme(ThemeMode.Dark) {
+                LibraryTracksContent(
+                    uiState = LibraryTracksUiState(tracks = tracks, sortOption = TrackSortOption.DateAdded),
+                    onSortOptionSelected = {}, onToggleSortOrder = {},
+                    listState = rememberLazyListState().also { listState = it },
+                    modifier = Modifier.height(320.dp).testTag("large-tracks"),
+                )
+            }
+        }
+        fun assertBounded() {
+            val count = composeTestRule.onAllNodes(hasText("Large song ", substring = true)).fetchSemanticsNodes().size
+            assertTrue("Composed track rows: $count", count in 1..40)
+        }
+        assertBounded()
+        // Filter and playback controls are the first two lazy items.
+        composeTestRule.onNodeWithTag("large-tracks").performScrollToIndex(5_002)
+        composeTestRule.onNodeWithText("Large song 5000").assertIsDisplayed()
+        composeTestRule.runOnIdle { assertEquals("track-5000", listState.layoutInfo.visibleItemsInfo.first().key) }
+        composeTestRule.onNodeWithText("Large song 0").assertDoesNotExist()
+        assertBounded()
+        val before = composeTestRule.onNodeWithText("Large song 5000").fetchSemanticsNode().boundsInRoot
+        restoration.emulateSavedInstanceStateRestore()
+        composeTestRule.onNodeWithText("Large song 5000").assertIsDisplayed()
+        assertEquals(before, composeTestRule.onNodeWithText("Large song 5000").fetchSemanticsNode().boundsInRoot)
+        assertBounded()
+    }
+
+    @Test
+    fun longArabicTitleUsesTwoLinesAndKeepsTheTrackActionVisibleAtLargeFont() {
+        val title = "عنوان طويل للأغنية والألبوم مع تفاصيل كثيرة ".repeat(4)
+        val track = LibraryTrack("track", title, "Artist")
+        composeTestRule.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(
+                LocalDensity provides Density(density.density, fontScale = 2f),
+                LocalLayoutDirection provides LayoutDirection.Rtl,
+            ) {
+                SistrumTheme(ThemeMode.Dark) {
+                    LibraryTracksContent(
+                        LibraryTracksUiState(tracks = listOf(track)),
+                        onSortOptionSelected = {}, onToggleSortOrder = {},
+                        modifier = Modifier.width(360.dp).height(320.dp),
+                    )
+                }
+            }
+        }
+        val layouts = mutableListOf<TextLayoutResult>()
+        composeTestRule.onNodeWithText(title, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        assertEquals(2, layouts.single().lineCount)
+        composeTestRule.onNode(hasContentDescription("Track options")).assertIsDisplayed()
     }
 }

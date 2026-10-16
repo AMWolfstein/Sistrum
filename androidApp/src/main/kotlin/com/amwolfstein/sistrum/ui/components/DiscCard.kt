@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,7 +27,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 fun DiscCard(
@@ -38,11 +37,11 @@ fun DiscCard(
     artworkPath: String? = null,
     audioPath: String? = null,
     fallbackSymbol: String = MaterialSymbols.MusicNote,
-    artworkShape: Shape = RoundedCornerShape(10.dp),
+    artworkShape: Shape = LocalSistrumTokens.current.shapes.small,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     val bitmap = rememberArtworkThumbnail(artworkPath, audioPath, targetPx = 250)
     val clickModifier = remember(onClick, onLongClick) {
         if (onClick != null || onLongClick != null) {
@@ -60,7 +59,7 @@ fun DiscCard(
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(tokens.shapes.small)
             .then(clickModifier),
     ) {
         Box(
@@ -68,8 +67,8 @@ fun DiscCard(
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(artworkShape)
-                .background(colors.glassElevated)
-                .border(1.dp, colors.borderGlass, artworkShape),
+                .background(tokens.colors.opaqueFill)
+                .border(1.dp, tokens.colors.divider, artworkShape),
             contentAlignment = Alignment.Center,
         ) {
             if (bitmap != null) {
@@ -84,7 +83,7 @@ fun DiscCard(
                     symbol = fallbackSymbol,
                     contentDescription = null,
                     size = 36.dp,
-                    tint = colors.textMuted,
+                    tint = tokens.colors.mutedText,
                 )
             }
         }
@@ -92,7 +91,7 @@ fun DiscCard(
         Text(
             text = title,
             style = discCardTextStyle().copy(fontWeight = FontWeight.SemiBold),
-            color = colors.textMain,
+            color = tokens.colors.text,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(top = DiscCardTitleGap, start = 2.dp, end = 2.dp),
@@ -101,7 +100,7 @@ fun DiscCard(
         Text(
             text = subtitle,
             style = discCardTextStyle(),
-            color = colors.textMuted,
+            color = tokens.colors.mutedText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(top = DiscCardSubtitleGap, start = 2.dp, end = 2.dp, bottom = DiscCardBottomAllowance),

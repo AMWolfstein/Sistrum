@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,11 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 fun AlbumRow(
@@ -38,7 +36,7 @@ fun AlbumRow(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     val bitmap = rememberArtworkThumbnail(artworkPath, audioPath)
     val clickModifier = remember(onClick, onLongClick) {
         if (onClick != null || onLongClick != null) Modifier.combinedClickable(
@@ -51,15 +49,15 @@ fun AlbumRow(
         modifier = modifier
             .fillMaxWidth()
             .then(clickModifier)
-            .padding(top = 6.dp, end = 8.dp, bottom = 6.dp, start = 24.dp),
+            .padding(vertical = tokens.spacing.small, horizontal = tokens.spacing.extraLarge),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(colors.glassElevated)
-                .border(1.dp, colors.borderGlass, RoundedCornerShape(8.dp)),
+                .clip(tokens.shapes.small)
+                .background(tokens.colors.opaqueFill)
+                .border(1.dp, tokens.colors.divider, tokens.shapes.small),
             contentAlignment = Alignment.Center,
         ) {
             if (bitmap != null) {
@@ -74,7 +72,7 @@ fun AlbumRow(
                     symbol = MaterialSymbols.Album,
                     contentDescription = null,
                     size = 22.dp,
-                    tint = colors.textMuted,
+                    tint = tokens.colors.mutedText,
                 )
             }
         }
@@ -82,20 +80,20 @@ fun AlbumRow(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 12.dp, end = 8.dp),
+                .padding(start = tokens.spacing.medium, end = tokens.spacing.small),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = colors.textMain,
-                maxLines = 1,
+                style = MaterialTheme.typography.titleMedium,
+                color = tokens.colors.text,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = artist,
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.textMuted,
+                color = tokens.colors.mutedText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(top = 2.dp),
@@ -110,7 +108,7 @@ fun AlbumRow(
                 symbol = MaterialSymbols.ChevronRight,
                 contentDescription = stringResource(R.string.album_row_open),
                 size = 20.dp,
-                tint = colors.textMuted,
+                tint = tokens.colors.mutedText,
             )
         }
     }

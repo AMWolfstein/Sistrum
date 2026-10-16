@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.ui.screens
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.R
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import com.amwolfstein.sistrum.sync.LibraryTrack
 import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
 import com.amwolfstein.sistrum.ui.components.HeroCard
@@ -49,6 +51,7 @@ internal fun LibraryTracksContent(
     onFilterQueryChange: (String) -> Unit = {},
     onTrackContextBottomSheet: (TrackContextBottomSheetRequest) -> Unit = {},
 ) {
+    val tokens = LocalSistrumTokens.current
     var contextTrack by remember { mutableStateOf<LibraryTrack?>(null) }
     val listPadding = remember(contentPadding) {
         PaddingValues(
@@ -65,7 +68,7 @@ internal fun LibraryTracksContent(
         contentType = "track_row",
         listState = listState,
         contentPadding = listPadding,
-        modifier = modifier,
+        modifier = modifier.background(tokens.colors.page),
         dividerTestTag = "track-row-divider",
         filterKey = "tracks",
         filterActive = uiState.filterQuery.isNotBlank(),
@@ -94,8 +97,8 @@ internal fun LibraryTracksContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = tokens.spacing.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(tokens.spacing.large),
             ) {
                 HeroCard(
                     title = stringResource(if (uiState.filterQuery.isBlank()) R.string.tracks_empty_title else R.string.tracks_no_match_title),
