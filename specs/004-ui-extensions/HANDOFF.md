@@ -5,6 +5,9 @@ task; SC-012 "no `player/` change" is measured from here).
 
 ## Current status
 
+- **Active task:** T008-fix2 is BLOCKED on the unchanged legacy device-test failures described below. No source/test
+  changes or commit packet prepared; the task remains unchecked. The T008 completion record below is historical.
+  Two fresh-session retries independently reconfirmed the shipped-layout/test conflict; see retry notes below.
 - **Phase:** **004 UI M1 DONE** (2026-10-16). T008 finished by Claude after Codex ended BLOCKED (owner rule). Final full
   gate `logs: /tmp/verify-task.Jdpta3`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lint 0 errors / 72 warnings,
   graph PASS; `.qa` device: UiContractCharacterization 5/5, RtlLayout 5/5, GlassFallback 96/96, Card 1/1, UiMatrix 72/72;
@@ -16,7 +19,8 @@ task; SC-012 "no `player/` change" is measured from here).
   the paragraph is laid out at the incoming max width (936 px) while the box is the measured size (83 px for "Play";
   device debug log 2026-10-16); now overflow = lines cut / ellipsis / a line's own width > box (RTL-safe). UiMatrixTest's
   48 negative clipping/overflow cases still fail as required. Graph-refresh "read-only index" = Codex sandbox only.
-- **Next step:** chain runner (`chain.sh`, runner-plan.txt) runs M1 phone-log triage + Haiku check, then M2 → M5.
+- **Next step:** resolve T008-fix2's conflict between the required passing gate, unchanged existing tests (D-4), and
+  the brief's prohibition on changing spec 001's shipped behavior before continuing the chain. M2 was not started.
 - **Scope now:** UI only (M1–M5). Decoders part of 004 (former 002 Phase 5b / M4b) comes later, after 002 M3–M6 and 003.
 - **Host baseline (SC-010, T001):** app 1,464 tests (1,463 passed, 1 existing skip), shared 39 passed; total
   1,503 discovered / 1,502 passed / 0 failures / 0 errors. Before T001, stored results contained 1,454 app + 39 shared
@@ -35,6 +39,125 @@ task; SC-012 "no `player/` change" is measured from here).
   | `com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest` | PASS: 5/5 | T008 actual `.qa` execution |
 
 - **Owner checks pending (not blocking):** LARGE style look (D-12), Home look (D-22) at the M2 phone check.
+
+## T008-fix2 M1 phone-log triage — 2026-10-16 (BLOCKED)
+
+Read all six reports in `review/M1/`: phone-log-triage, kotlin-reviewer, comment-analyzer,
+spec-traceability-auditor, pr-test-analyzer and silent-failure-hunter. Only phone-log-triage reports HIGH findings
+(30); none reports CRITICAL. Checked every reported method and failure site against the current test source,
+the saved T008 logs `/tmp/verify-task.Jdpta3`, and the archived T003 logs `/tmp/t008-bisect-t003-device`.
+All three legacy test files are byte-for-byte identical to `git show 8ddcf5f5:<path>`; the failure-method sets match
+at both revisions (16/8/6). `git diff 7607b187 8ddcf5f5` confirms T003 changed no production or legacy test code.
+Historical instrumentation was not rerun in this task; these comparisons use the retained logs, not new baseline results.
+
+These are confirmed test failures, not rejected findings or passing exemptions. No new M1 regression was established.
+One concrete blocker is `AppNavigationTest.kt:695–700`: it requires an artwork/metadata gap of at most 24 dp, but
+`ui/navigation/FullScreenPlayer.kt:335` offsets metadata by `expandedArtworkSize + 36.dp`. The same 36 dp expression
+exists at the pre-004 start SHA `9f0acac`, and the full player and metadata files have no diff from that SHA.
+Changing the shipped layout violates the task's MUST NOT; changing the assertion violates the test rules; changing
+ADRs (including D-4's existing-test preservation rule) is also prohibited. Stop BLOCKED rather than relabeling the
+failures, weakening assertions or changing shipped behavior. No partial source/test fixes were made.
+
+**Impact before editing:** `git grep`/source and history reads traced the reported failures through App navigation,
+NavigationChrome/MiniPlayer, FullScreenPlayer and their existing test fixtures. Only this HANDOFF requires an edit,
+to record the blocked task, evidence and follow-ups for the runner. Preserve the runner-added unchecked T008-fix2
+line in tasks.md. All host/device tests, Room, analysis documents, preference storage, DecoderProvider order and
+PlaybackController contracts remain untouched. No architecture or decision change.
+
+**Follow-ups only (MEDIUM/LOW, not fixed):** phone triage's three frame-skip warnings (30/41/31 frames), vendor
+reflection/GC warnings and ABI/platform harness warnings; pr-test-analyzer's bright/dark real-Haze-source contrast
+coverage and App preference-to-attached-blur coverage; silent-failure-hunter's scroll-axis/movement validation;
+comment-analyzer's shared-transparency-provider and matrix-acceptance comments; traceability auditor's misplaced
+T004 row and historical status wording. Some reports predate T008; no claim that their advice is still reproducible.
+Owner listening/Bluetooth/headset checks remain manual and NOT RUN.
+
+**Verification (one full-gate attempt, exit 1 / `GATE: FAIL`):** memory precheck `./gradlew --stop` found no daemons;
+`pkill -f '[K]otlinCompileDaemon'` found none; MemAvailable was 3,750,196 kB (above 2 GB).
+
+```bash
+bash .claude/skills/verify-task/scripts/verify.sh \
+  --files 'specs/004-ui-extensions/tasks.md specs/004-ui-extensions/HANDOFF.md' \
+  --lint \
+  --instrumented 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest,com.amwolfstein.sistrum.AppNavigationTest,com.amwolfstein.sistrum.ui.navigation.MiniPlayerTest,com.amwolfstein.sistrum.ui.navigation.FullScreenPlayerTest,com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest,com.amwolfstein.sistrum.ui.components.GlassFallbackTest,com.amwolfstein.sistrum.ui.components.CardTest,com.amwolfstein.sistrum.ui.testing.UiMatrixTest'
+```
+
+| Check | Actual result |
+|---|---|
+| Full app/shared host gate | PASS; both Gradle test tasks UP-TO-DATE. Cached XML: app 1,485 discovered / 1,484 passed / 1 existing skip; shared 39/39; zero failures/errors. No fresh host test execution claimed. |
+| `:androidApp:assembleDevQa` | PASS |
+| `:androidApp:lintDevQa` | PASS; lint XML has 0 errors, 72 warnings, 14 hints; script prints INFO |
+| `:androidApp:assembleDevQaAndroidTest` | PASS; build completed before QA installation |
+| Device UiContractCharacterizationTest | PASS: 5/5 |
+| AppNavigationTest | FAIL: 39 run / 16 failures; exact T003/T008 failure-method set |
+| MiniPlayerTest | FAIL: 14 run / 8 failures; exact T003/T008 failure-method set |
+| FullScreenPlayerTest | FAIL: 20 run / 6 failures; exact T003/T008 failure-method set |
+| RtlLayoutTest | PASS: 5/5 |
+| GlassFallbackTest | PASS: 96/96 |
+| CardTest | PASS: 1/1 |
+| UiMatrixTest | PASS: 72/72, including the existing negative clipping/overflow controls |
+| Device total | 252 run / 222 passed / 30 failed; no new failing methods |
+| Graph | PASS: `graph: not needed (no source change in scope)`; gate and separate `python3 .claude/hooks/graph_refresh.py auto` agree; no graph files changed |
+| Whitespace / scope | `git diff --check` PASS; only HANDOFF edited by this task; runner's original tasks.md addition preserved |
+
+**logs: `/tmp/verify-task.03BDdT`**, including all eight `instr-<Class>.log` and `logcat-<Class>.log` pairs,
+`unit.log`, `build.log`, `lint.log`, `androidtest-build.log` and `graphify.log`.
+Installation paused at Play Protect's optional "Send app for a security check?" dialog for **Sistrum QA**;
+declined the optional Google upload using "Don't send", then the gate completed normally. The diagnostic hierarchy
+is saved as `install-prompt.xml` in the logs directory (device copy under QA's own external-files directory).
+Only allowlisted QA APKs were installed/instrumented; neither daily music app was launched, installed over or stopped.
+
+SC-001 evidence: cached host characterization 10/10 and fresh device characterization 5/5, unchanged.
+SC-002 evidence: cached token tests 14/14 and fresh glass fallback 96/96; retain the review's real-blur-backdrop
+contrast and App preference integration coverage gaps as MEDIUM follow-ups, not a claim of full acceptance.
+ArabicTranslationCompletenessTest cached XML: 2/2. The existing
+`WaxFlowOracleLoudnessTest.matchesWaxFlowOracleFixtures` skip remains NOT RUN, never PASS.
+
+**Self-review / remaining work:** no tests/assertions/expected values changed, disabled or deleted; no feature,
+API, Room, playback, preference, decoder or exception-handling change. Every changed file is required for reporting
+this task; no code fix or architecture decision was smuggled into documentation. All 30 HIGH failures remain
+confirmed and unresolved; none was rejected or exempted to manufacture a pass. Fresh historical instrumentation,
+further identical gate attempts and fixes requiring a shipped-layout/assertion/ADR change are NOT RUN: the saved
+baseline matches exactly, and the brief explicitly requires stopping rather than making those changes.
+No commit packet prepared; T008-fix2 stays unchecked. Runner/owner must resolve this scope conflict.
+
+### Fresh-session retry — 2026-10-16 (BLOCKED)
+
+Started with `git status --short`: only the prior HANDOFF edits and runner-added unchecked task line were present;
+`.codex-commit/` was absent and the branch was `feature/media3-migration`. Kept both existing documentation edits.
+Read all six M1 reports again. Independent `git show`/`git diff` checks confirm FullScreenPlayer.kt and
+FullScreenPlayerMetadata.kt are unchanged from pre-004 `9f0acac`, including the 36 dp metadata offset at line 335;
+AppNavigationTest.kt:695–700 still requires a gap <=24 dp. D-23 explicitly preserves DEFAULT player geometry,
+and D-4 preserves existing tests. This contradiction cannot be repaired through a harness-only fix without changing
+the measured contract. The brief requires stopping rather than changing shipped behavior, assertions or ADRs.
+Python comparisons reconfirmed all three legacy test files are byte-identical to T003 `8ddcf5f5`, and the failed-method
+sets in retained T003, T008 and prior-fix2 logs match exactly (16/8/6). These are historical results, not fresh runs.
+
+Impact before editing: `git grep` traced App's FullScreenPlayer call and the artwork/metadata semantics consumers;
+only HANDOFF needs a retry record. No source, test, data contract or decision changes. Full gate, Gradle, graph refresh
+and phone check NOT RUN again: no implementation changed, the prior full gate failed on this same verified conflict,
+and the brief's explicit stop rule applies. No device/daily-app action or commit packet. All HIGH findings remain
+unresolved; MEDIUM/LOW follow-ups above are unchanged. `git diff --check` PASS; final status still contains only
+HANDOFF and the runner's tasks.md addition; `.codex-commit/` remains absent.
+
+### Second fresh-session retry — 2026-10-16 (BLOCKED)
+
+Kept the existing HANDOFF edits and runner-added unchecked T008-fix2 line; these were the only changes reported
+by initial `git status --short`. Branch: `feature/media3-migration`; `.codex-commit/` absent. Read all six M1 reports
+and checked the 30 HIGH findings' named methods and failure sites against current test source. Python/`git show`
+comparisons confirm all three legacy test files are still byte-identical to T003 `8ddcf5f5`. Retained T008 and
+prior-fix2 instrumentation logs both contain the metadata-gap failure at AppNavigationTest.kt:698; no new execution
+is claimed. `git diff 9f0acac -- <FullScreenPlayer.kt> <FullScreenPlayerMetadata.kt>` is empty, and `git show`
+confirms the same 36 dp offset at FullScreenPlayer.kt:335 before M1. The existing test's limit is 24 dp at
+AppNavigationTest.kt:695–700. FR-006 preserves DEFAULT unchanged; D-4 and D-23 preserve existing tests and geometry.
+Changing semantics bounds solely to satisfy the assertion would change its measured contract, not repair that gap.
+The brief's explicit stop rule still applies; no finding is rejected or exempted.
+
+Impact before editing: `git grep` traced the App.kt:578 caller and artwork/metadata semantics declarations and
+consumers. Only HANDOFF needs this retry record; no source/tests, Room, analysis documents, preferences,
+DecoderProvider order, PlaybackController, architecture or ADR changes. Existing tests must remain unmodified.
+MEDIUM/LOW follow-ups remain as listed above. Full gate, memory precheck, Gradle, graph refresh and phone check:
+NOT RUN on this retry because the verified contract conflict requires stopping before implementation. No daily-app
+or other device action; no commit packet. `git diff --check` PASS. T008-fix2 remains unchecked and unresolved.
 
 ## T008 M1 verification — 2026-10-16 (BLOCKED)
 
@@ -122,6 +245,9 @@ Orchestrator follow-up required; no new DECISIONS entry or architecture/ADR chan
 
 | Date | Task | Result |
 |---|---|---|
+| 2026-10-16 | T008-fix2 second retry | BLOCKED; no commit/packet. Only HANDOFF edited to record the retry; prior edits and unchecked task line retained. Read six reports, checked all 30 HIGH failure sites, verified unchanged pre-M1 player source and T003 test sources, and confirmed the retained metadata-gap failures. Required <=24 dp conflicts with shipped 36 dp and FR-006/D-4/D-23 preservation rules; no findings rejected or decisions changed. Full gate/phone/graph NOT RUN under the brief's stop rule; whitespace PASS. MEDIUM/LOW follow-ups unchanged. |
+| 2026-10-16 | T008-fix2 retry | BLOCKED; no commit/packet; task remains unchecked. Re-read all six reports; independently verified the unchanged pre-004 36 dp layout versus existing <=24 dp assertion, D-4/D-23 preservation rules, identical T003 test sources and identical retained failure-method sets (16/8/6). Only HANDOFF edited; prior documentation edits kept. Full gate/phone/graph NOT RUN again because no implementation changed and the brief requires stopping on shipped-behavior/ADR conflicts. Commands and evidence in retry notes above; no findings rejected, no contract/decision changes, MEDIUM/LOW follow-ups retained. |
+| 2026-10-16 | T008-fix2 | BLOCKED; no commit/packet; task unchecked. Read all six M1 reports and checked all 30 HIGH failure sites against source and archived T003/T008 logs; all are confirmed failures, with no new M1 failure established, none rejected/exempted. Full gate attempt 1 FAIL, logs `/tmp/verify-task.03BDdT`: cached host suites PASS (app 1,485 with 1 existing skip; shared 39), build/lint PASS (0 errors), fresh QA device 252 run / 222 passed / 30 baseline failures (16/8/6), graph PASS/not needed. Blocker: AppNavigationTest.kt:695–700 requires <=24 dp metadata gap, while FullScreenPlayer.kt:335 uses the pre-004 shipped 36 dp; brief forbids changing shipped behavior, assertions or ADRs (D-4 preserves existing tests). Only HANDOFF changed by task; runner-added tasks.md line preserved. MEDIUM/LOW follow-ups, impact, commands, per-class results, NOT RUN reasons and self-review in T008-fix2 report above. No source/test/contract/decision changes or daily-app actions. |
 | 2026-10-16 | T008 | BLOCKED; no commit/bundle. Full gate FAIL after three attempts (attempt 2 interrupted by usage limit). One-line UiMatrix target-context output fix; host/build/lint and SC-001/SC-002 checks pass; 30 legacy failures and 24 matrix-rendering failures reproduce at archived T003; graph restore hits read-only index. See T008 milestone report above for files, commands, logs, NOT RUN items and follow-ups. |
 | 2026-10-15 | T007 | Commit: prepared in `.codex-commit/`, runner assigns SHA. Added layout-neutral `GlassSurface` backed by the existing shared modifier: token tint/opaque fill, optional token scrim/border, and `GlassPolicy.resolve` with Reduce Transparency, Haze availability and performance fallback; Opaque attaches only background/border, no Haze blur. App provides the live existing preference through `LocalReduceTransparency`; `LocalGlassPerformanceFallback` allows the performance input without new settings/storage. Existing wrapper callers updated; menu/navigation/mini-player background Boxes replaced with the equivalent surface Box; dimensions, clipping, radii, padding and callbacks retained. Library playback labels use normal token text instead of the large-text accent to meet normal-text contrast. Added GlassFallbackTest via all 24 UiMatrix cases: 4 tests/case (96 compiled, 0 executed) inspect real attached Haze modifier elements with positive controls, toggle Reduce Transparency/performance fallback, sample opaque pixels, verify normal/muted text contrast, cover missing Haze and real library-label layout colors against rendered backgrounds, and save reduced screenshots. Impact before editing: git grep found AnchoredPopupMenu, LibraryPlaybackActions, SistrumIconButton, StackPageLayout, FloatingNavigationBar, MiniPlayer and the dragged row in PlaylistDetailsContent; App supplies the preference/Haze state. No Room, analysis documents, preference storage, DecoderProvider order or PlaybackController contracts touched; existing tests/assertions remain unmodified. Required files: LiquidGlass.kt shared surface/policy integration; App.kt preference provision; the seven caller files above to adopt the token wrapper/surface (LibraryPlaybackActions also fixes text contrast); new GlassFallbackTest.kt acceptance; tasks.md/HANDOFF.md completion; both graph files generated by autonomous step 4, never manually edited. Self-review: each file required, no layout/API/feature removal outside the wrapper signature, no weakened/disabled tests, no swallowed failures; full-player explicit solid/background overrides and player code untouched; whitespace clean. Memory precheck before gate: `./gradlew --stop` (no daemons), `pkill -f '[K]otlinCompileDaemon'` (none), MemAvailable 4,163,548 kB. Preliminary `./gradlew :androidApp:compileDevQaAndroidTestKotlin` PASS. Gate attempt 1 PASS: `bash .claude/skills/verify-task/scripts/verify.sh --files '<ten task Kotlin paths in .codex-commit/files.txt>' --quick ':androidApp:compileDevQaAndroidTestKotlin :androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ui.components.LiquidGlassTest' --tests 'com.amwolfstein.sistrum.ui.theme.SistrumTokensTest' --tests 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`; 5 + 14 + 10 = 29 host tests passed, 0 failures/errors/skips; final device-test and app Kotlin compilation PASS. Gate ran `python3 .claude/hooks/graph_refresh.py auto`: PASS/changed (11,802 nodes, 35,038 edges). Logs `/tmp/verify-task.FszXQX`; preliminary compile `/tmp/t007-device-compile.log`. NOT RUN: all device assertions (phone reserved for T008), full host/shared suites, lint and APK assembly (T008 milestone gate); no phone/daily app touched. Decisions: none; no unrelated follow-ups. |
 | 2026-10-15 | T006 | Commit: prepared in `.codex-commit/`, runner assigns SHA. Added `GlassPolicy.resolve(reduceTransparency, hazeAvailable, performanceFallback)` returning Blur only when transparency is allowed, Haze is available and performance fallback is off; otherwise Opaque. Four new LiquidGlassTest cases assert all eight input combinations from FR-002; original full-resolution assertion unchanged. Existing modifier and all call-site APIs/behaviour untouched; surface integration belongs to T007. Impact before editing: git grep identified AnchoredPopupMenu, LibraryPlaybackActions, SistrumIconButton, StackPageLayout, FloatingNavigationBar and MiniPlayer wrapper consumers; App currently translates ThemePreferences-derived reduceTransparency into null Haze state. Policy takes that preference value as a Boolean; preference storage, Room, analysis documents, DecoderProvider order and PlaybackController contracts untouched. All pre-existing tests/assertions stay unmodified. Required files: LiquidGlass.kt policy, LiquidGlassTest.kt new cases, tasks.md/HANDOFF.md completion, and both graph files generated by autonomous step 4 (never manually edited). No new dependency or architecture decision. Memory precheck: `./gradlew --stop` (no daemons), Kotlin daemon stop, MemAvailable 4,161,588 kB. Gate attempt 1 PASS: `bash .claude/skills/verify-task/scripts/verify.sh --files 'androidApp/src/main/kotlin/com/amwolfstein/sistrum/ui/components/LiquidGlass.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/ui/components/LiquidGlassTest.kt' --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ui.components.LiquidGlassTest' --tests 'com.amwolfstein.sistrum.ui.theme.SistrumTokensTest' --tests 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`; 5 + 14 + 10 = 29 passed, 0 failures/errors/skips; Kotlin compile PASS. Gate ran `python3 .claude/hooks/graph_refresh.py auto`: PASS/changed (11,784 nodes, 34,970 edges). Logs `/tmp/verify-task.zNLXyp`. Self-review: minimal additive diff, no existing assertion changed, no disabled tests, swallowed exceptions or feature removal; whitespace clean. NOT RUN: full host/shared suites, lint, APK assembly and device tests (T008 milestone gate); no phone/daily app touched. Decisions: none; no unrelated follow-ups. |
