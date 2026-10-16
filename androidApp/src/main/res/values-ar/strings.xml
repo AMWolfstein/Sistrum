@@ -568,4 +568,21 @@
         <item quantity="other">تحليل الجهارة: %1$d من %2$d مقطع</item>
     </plurals>
     <string name="home_recent_full_list">عرض جميع المقاطع المضافة حديثًا</string>
+    <string name="mornye_footer">%1$s · %2$s</string>
+    <plurals name="mornye_songs">
+        <item quantity="zero">%1$d أغنية</item>
+        <item quantity="one">%1$d أغنية</item>
+        <item quantity="two">%1$d أغنيتان</item>
+        <item quantity="few">%1$d أغانٍ</item>
+        <item quantity="many">%1$d أغنية</item>
+        <item quantity="other">%1$d أغنية</item>
+    </plurals>
+    <plurals name="mornye_minutes">
+        <item quantity="zero">%1$d دقيقة</item>
+        <item quantity="one">%1$d دقيقة</item>
+        <item quantity="two">%1$d دقيقتان</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="many">%1$d دقيقة</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
 </resources>

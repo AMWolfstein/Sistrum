@@ -493,4 +493,13 @@
         <item quantity="other">Loudness analysis: %1$d of %2$d tracks</item>
     </plurals>
     <string name="home_recent_full_list">Show all recently added tracks</string>
+    <string name="mornye_footer">%1$s · %2$s</string>
+    <plurals name="mornye_songs">
+        <item quantity="one">%1$d song</item>
+        <item quantity="other">%1$d songs</item>
+    </plurals>
+    <plurals name="mornye_minutes">
+        <item quantity="one">%1$d min</item>
+        <item quantity="other">%1$d min</item>
+    </plurals>
 </resources>

@@ -205,3 +205,9 @@ a new navigation destination and additional routing.
 Chosen: the local virtualized list dialog, with the existing recent queue passed unchanged for every track selection.
 Cards are 280 × 300 dp; track count/year remain as a compact third overlay line to preserve the existing T009 case unchanged.
 Revisit if: the owner requests a dedicated recent-list destination or removal of the metadata line.
+
+## D-28: Mornye page tint and large-font identity layout (T020b)
+Case: D-25 requires a dark dominant-artwork tint with white text in both themes, including missing artwork and font scale 2.0.
+Options: multiply dominant RGB by a fixed darkening factor with a neutral fallback (recommended); theme-dependent tinting with separate contrast adjustments.
+Chosen: reuse DetailHero's dominant-colour helper, multiply RGB by 0.32, and use opaque #242428 for missing/transparent artwork. White text exceeds the required 4.5:1 even for a white cover. Scope page/opaque/glass/text tokens to the scaffold; retain the existing badge accents and GlassPolicy/LiquidGlass implementation. Identity text grows vertically over a minimum-height artwork region, and action symbols retain their physical size so large fonts do not clip them. Pill Play is white translucent glass; Circle Play is white, with identical tinted opaque fallback geometry for glass surfaces.
+Revisit if: the T020f owner visual review requests a different tint strength or header proportions; contrast and accessibility tests must remain satisfied.
