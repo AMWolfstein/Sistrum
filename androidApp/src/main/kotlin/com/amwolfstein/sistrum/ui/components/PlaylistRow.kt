@@ -3,7 +3,6 @@ package com.amwolfstein.sistrum.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,7 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 internal fun PlaylistRow(
@@ -41,18 +39,18 @@ internal fun PlaylistRow(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     Row(
-        modifier = modifier.fillMaxWidth().combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick).padding(start = 24.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+        modifier = modifier.fillMaxWidth().combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick).padding(start = tokens.spacing.extraLarge, top = tokens.spacing.small, end = tokens.spacing.small, bottom = tokens.spacing.small),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         PlaylistArtwork(playlistId, artworkPaths)
-        Column(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
+        Column(modifier = Modifier.weight(1f).padding(horizontal = tokens.spacing.medium)) {
             Text(
                 text = name,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = colors.textMain,
-                maxLines = 1,
+                color = tokens.colors.text,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
         }
@@ -61,7 +59,7 @@ internal fun PlaylistRow(
                 symbol = MaterialSymbols.ChevronRight,
                 contentDescription = stringResource(R.string.playlist_row_open),
                 size = 20.dp,
-                tint = colors.textMuted,
+                tint = tokens.colors.mutedText,
             )
         }
     }
@@ -69,13 +67,13 @@ internal fun PlaylistRow(
 
 @Composable
 internal fun PlaylistArtwork(playlistId: String, artworkPaths: List<String>, modifier: Modifier = Modifier, size: Dp = 110.dp) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     Box(
         modifier = modifier
             .size(size)
-            .clip(RoundedCornerShape(10.dp))
-            .background(colors.glassElevated)
-            .border(1.dp, colors.borderGlass, RoundedCornerShape(10.dp))
+            .clip(tokens.shapes.small)
+            .background(tokens.colors.opaqueFill)
+            .border(1.dp, tokens.colors.divider, tokens.shapes.small)
             .then(if (artworkPaths.size >= 4) Modifier.testTag("playlist-artwork-mosaic") else Modifier),
         contentAlignment = Alignment.Center,
     ) {
@@ -92,7 +90,7 @@ internal fun PlaylistArtwork(playlistId: String, artworkPaths: List<String>, mod
                 symbol = if (playlistId == "favorites") MaterialSymbols.Favorite else MaterialSymbols.QueueMusic,
                 contentDescription = null,
                 size = 30.dp,
-                tint = colors.textMuted,
+                tint = tokens.colors.mutedText,
                 filled = playlistId == "favorites",
             )
         }

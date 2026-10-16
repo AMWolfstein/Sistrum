@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import com.amwolfstein.sistrum.R
 import com.amwolfstein.sistrum.ui.components.HeroCard
 import com.amwolfstein.sistrum.ui.components.LibraryVirtualList
@@ -35,6 +36,7 @@ internal fun LibraryPlaylistsContent(
     onPlaylistUpdate: (String, String, android.net.Uri?, Boolean) -> Unit = { _, _, _, _ -> },
     onPlaylistDelete: (String) -> Unit = {},
 ) {
+    val tokens = LocalSistrumTokens.current
     val listPadding = remember(contentPadding) { PaddingValues(top = contentPadding.calculateTopPadding(), bottom = contentPadding.calculateBottomPadding()) }
     var contextPlaylistId by remember { mutableStateOf<String?>(null) }
     var editingPlaylist by remember { mutableStateOf<PlaylistListItem?>(null) }
@@ -46,10 +48,10 @@ internal fun LibraryPlaylistsContent(
         contentType = "playlist_row",
         listState = listState,
         contentPadding = listPadding,
-        modifier = modifier,
+        modifier = modifier.background(tokens.colors.page),
         dividerTestTag = "playlist-row-divider",
         emptyContent = {
-            Column(Modifier.fillMaxSize().padding(contentPadding), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(Modifier.fillMaxSize().padding(contentPadding), verticalArrangement = Arrangement.spacedBy(tokens.spacing.large)) {
                 HeroCard(
                     symbol = MaterialSymbols.QueueMusic,
                     title = stringResource(R.string.playlists_empty_title),

@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,10 +15,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +45,7 @@ import com.amwolfstein.sistrum.ui.components.SistrumTextFieldSize
 import com.amwolfstein.sistrum.ui.components.MaterialSymbol
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 internal fun CreatePlaylistBottomSheet(onDismiss: () -> Unit, onCreate: (String, Uri?) -> Unit) {
@@ -87,7 +88,7 @@ private fun PlaylistEditorBottomSheet(
     canClearArtwork: Boolean = false,
     showNameInput: Boolean = true,
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     val context = LocalContext.current
     var name by remember(initialName) { mutableStateOf(initialName) }
     var artworkUri by remember { mutableStateOf<Uri?>(null) }
@@ -101,7 +102,7 @@ private fun PlaylistEditorBottomSheet(
     val existingArtwork = rememberArtworkThumbnail(artworkPath, targetPx = 336)
     val valid = !showNameInput || name.trim().isNotEmpty()
     SistrumBottomSheet(
-        title = { Text(title, style = MaterialTheme.typography.titleMedium, color = colors.textMain) },
+        title = { Text(title, style = MaterialTheme.typography.titleMedium, color = tokens.colors.text) },
         onDismiss = onDismiss,
         leadingAction = { dismiss ->
             CreatePlaylistSheetIconButton(MaterialSymbols.Close, stringResource(R.string.cancel), dismiss)
@@ -115,16 +116,16 @@ private fun PlaylistEditorBottomSheet(
             )
         },
     ) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = tokens.spacing.extraLarge, vertical = tokens.spacing.medium), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
-                modifier = Modifier.size(168.dp).clip(RoundedCornerShape(18.dp)).background(colors.glassElevated)
-                    .border(1.dp, colors.borderGlass, RoundedCornerShape(18.dp)).testTag("playlist-artwork-picker")
+                modifier = Modifier.size(168.dp).clip(tokens.shapes.medium).background(tokens.colors.opaqueFill)
+                    .border(1.dp, tokens.colors.divider, tokens.shapes.medium).testTag("playlist-artwork-picker")
                     .clickable(onClick = { imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }),
                 contentAlignment = Alignment.Center,
             ) {
                 if (artwork != null) Image(artwork, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop)
                 else if (!clearArtwork && existingArtwork != null) Image(existingArtwork, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(tokens.spacing.small)) {
                     CreatePlaylistSheetIconButton(
                         MaterialSymbols.Image,
                         stringResource(R.string.playlist_choose_artwork),
@@ -144,7 +145,7 @@ private fun PlaylistEditorBottomSheet(
                 SistrumTextField(
                     value = name,
                     onValueChange = { name = it },
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp).testTag("playlist-name-input"),
+                    modifier = Modifier.fillMaxWidth().padding(top = tokens.spacing.extraLarge).testTag("playlist-name-input"),
                     placeholder = stringResource(R.string.playlist_name),
                     size = SistrumTextFieldSize.Medium,
                     onDone = { if (valid) onSave(name.trim(), artworkUri, clearArtwork) },
@@ -163,11 +164,12 @@ private fun CreatePlaylistSheetIconButton(
     enabled: Boolean = true,
     primary: Boolean = false,
 ) {
+    val tokens = LocalSistrumTokens.current
     val colors = LocalSistrumColors.current
     Box(
-        modifier = modifier.size(48.dp).clip(RoundedCornerShape(24.dp))
-            .background(if (primary) if (enabled) colors.primary else colors.buttonSecondary else colors.glassElevated)
-            .border(1.dp, if (primary && enabled) colors.primary else colors.borderGlass, RoundedCornerShape(24.dp))
+        modifier = modifier.size(48.dp).clip(tokens.shapes.large)
+            .background(if (primary) if (enabled) colors.primary else colors.buttonSecondary else tokens.colors.opaqueFill)
+            .border(1.dp, if (primary && enabled) colors.primary else tokens.colors.divider, tokens.shapes.large)
             .semantics { contentDescription = label }
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -176,7 +178,7 @@ private fun CreatePlaylistSheetIconButton(
             symbol,
             null,
             size = 22.dp,
-            tint = if (primary && enabled) colors.onPrimary else if (enabled) colors.textMain else colors.textMuted,
+            tint = if (primary && enabled) colors.onPrimary else if (enabled) tokens.colors.text else tokens.colors.disabled,
         )
     }
 }
