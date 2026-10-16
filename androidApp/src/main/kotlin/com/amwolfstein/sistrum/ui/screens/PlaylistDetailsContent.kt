@@ -1,15 +1,12 @@
 package com.amwolfstein.sistrum.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -23,8 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -32,8 +27,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.ui.components.ArtworkHeroBackdrop
-import com.amwolfstein.sistrum.ui.components.DetailHero
 import com.amwolfstein.sistrum.ui.components.HeroCard
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.ui.components.MaterialSymbol
@@ -46,15 +39,19 @@ import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
 import com.amwolfstein.sistrum.ui.components.PlaylistContextMenu
 import com.amwolfstein.sistrum.ui.components.SistrumDialog
 import com.amwolfstein.sistrum.ui.components.SistrumPillButtonVariant
-import com.amwolfstein.sistrum.ui.components.trackInfoArtworkSize
 import com.amwolfstein.sistrum.ui.components.liquidGlassBackground
 import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
 import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.rememberReorderableLazyListState
-
-private const val PlaylistTrackDividerTag = "playlist-detail-track-divider"
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextAlign
+import com.amwolfstein.sistrum.ui.components.MornyeDetailScaffold
+import com.amwolfstein.sistrum.ui.components.MornyeActionRow
+import com.amwolfstein.sistrum.ui.components.MornyeSongRow
+import com.amwolfstein.sistrum.ui.components.MornyeDetailFooter
 
 @Composable
 internal fun PlaylistDetailsContent(
@@ -63,6 +60,7 @@ internal fun PlaylistDetailsContent(
     contentPadding: PaddingValues = PaddingValues(),
     hazeState: HazeState? = null,
     onHeroColorChanged: (Color) -> Unit = {},
+    onBack: () -> Unit = {},
     onPlay: () -> Unit = {},
     onShuffle: () -> Unit = {},
     onTrackClick: (String) -> Unit = {},
@@ -80,15 +78,22 @@ internal fun PlaylistDetailsContent(
     onPlaylistDelete: (String) -> Unit = {},
 ) {
     val tokens = LocalSistrumTokens.current
-    val colors = tokens.colors
     val playlist = uiState.playlist
     if (playlist == null) {
-        HeroCard(
-            symbol = MaterialSymbols.QueueMusic,
+        MornyeDetailScaffold(
             title = stringResource(R.string.playlist_details_empty_title),
-            description = stringResource(R.string.playlist_details_empty_description),
-            modifier = modifier.fillMaxSize().background(colors.page).padding(contentPadding).padding(tokens.spacing.extraLarge),
-        )
+            onBack = onBack,
+            modifier = modifier.padding(bottom = contentPadding.calculateBottomPadding()),
+        ) {
+            item("unavailable") {
+                HeroCard(
+                    symbol = MaterialSymbols.QueueMusic,
+                    title = stringResource(R.string.playlist_details_empty_title),
+                    description = stringResource(R.string.playlist_details_empty_description),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
         return
     }
     var contextTrack by remember(playlist.id) { mutableStateOf<String?>(null) }
@@ -109,74 +114,58 @@ internal fun PlaylistDetailsContent(
             haptics.performHapticFeedback(HapticFeedbackType.Confirm)
         }
     }
-    val resources = LocalResources.current
-    val count = pluralStringResource(R.plurals.playlist_details_track_count, uiState.tracks.size, uiState.tracks.size)
+    val count = pluralStringResource(R.plurals.mornye_songs, uiState.tracks.size, uiState.tracks.size)
     val totalDurationSeconds = remember(uiState.tracks) { playlistTotalDurationSeconds(uiState.tracks) }
-    val duration = formatPlaylistTotalDuration(
-        totalDurationSeconds,
-        day = { resources.getString(R.string.playlist_duration_day, it) },
-        hour = { resources.getString(R.string.playlist_duration_hour, it) },
-        minute = { resources.getString(R.string.playlist_duration_minute, it) },
-        second = { resources.getString(R.string.playlist_duration_second, it) },
-    )
+    val coverPaths = remember(uiState.customArtworkPath, uiState.artworkPaths) {
+        playlistDetailCoverPaths(uiState.customArtworkPath, uiState.artworkPaths)
+    }
     val name = if (playlist.id == FavoritesPlaylistId) stringResource(R.string.library_favorites) else playlist.name
     val trackIds = remember(uiState.tracks) { uiState.tracks.map { it.id } }
     val tracksById = remember(uiState.tracks) { uiState.tracks.associateBy { it.id } }
     androidx.compose.runtime.LaunchedEffect(uiState.tracks, isReordering) {
         if (!isReordering) orderedTrackIds = uiState.tracks.map { it.id }
     }
-    LazyColumn(
-        modifier.fillMaxSize().background(colors.page),
-        state = listState,
-        contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
-    ) {
-        item("hero") {
-            ArtworkHeroBackdrop(uiState.artworkPaths.firstOrNull(), Modifier.fillMaxWidth(), onHeroColorChanged) {
-                DetailHero(
-                    title = name,
-                    metadata = stringResource(R.string.playlist_details_metadata, count, duration),
-                    playLabel = stringResource(R.string.player_play),
-                    shuffleLabel = stringResource(R.string.player_shuffle),
-                    moreLabel = stringResource(if (isReordering) R.string.playlist_reorder_done else R.string.album_row_more_options),
-                    moreSymbol = if (isReordering) MaterialSymbols.Check else MaterialSymbols.MoreVert,
-                    modifier = Modifier.fillMaxWidth().padding(
-                        start = tokens.spacing.extraLarge,
-                        top = contentPadding.calculateTopPadding(),
-                        end = tokens.spacing.extraLarge,
-                        bottom = tokens.spacing.extraLarge,
-                    ),
-                    artworkSize = trackInfoArtworkSize,
-                    fallbackSymbol = if (playlist.id == FavoritesPlaylistId) MaterialSymbols.Favorite else MaterialSymbols.QueueMusic,
-                    artworkContent = {
-                        BoxWithConstraints(Modifier.fillMaxSize()) {
-                            PlaylistArtwork(playlist.id, uiState.artworkPaths, size = maxWidth)
-                        }
-                    },
-                    onPlayClick = onPlay,
-                    onShuffleClick = onShuffle,
-                    onMoreClick = { if (isReordering) isReordering = false else playlistMenuExpanded = true },
-                    moreAction = { action ->
-                        if (isReordering) action()
-                        else PlaylistContextMenu(
-                            playlistId = playlist.id,
-                            trackIds = trackIds,
-                            expanded = playlistMenuExpanded,
-                            onDismiss = { playlistMenuExpanded = false },
-                            hazeState = hazeState,
-                            onPlayNext = onPlaylistPlayNext,
-                            onAddToQueue = onPlaylistAddToQueue,
-                            onReorder = { isReordering = true },
-                            onEdit = { showPlaylistEditor = true },
-                            onDelete = { showDeleteConfirmation = true },
-                            anchor = action,
-                        )
-                    },
-                )
+    MornyeDetailScaffold(
+        title = name,
+        onBack = onBack,
+        artworkPath = coverPaths.firstOrNull(),
+        onHeroColorChanged = onHeroColorChanged,
+        listState = listState,
+        modifier = modifier.padding(bottom = contentPadding.calculateBottomPadding()),
+        artworkContent = {
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                PlaylistArtwork(playlist.id, coverPaths, size = maxWidth)
             }
-        }
+        },
+        header = {
+            Text(count, Modifier.fillMaxWidth(), color = Color.White,
+                textAlign = TextAlign.Center, style = MaterialTheme.typography.bodySmall)
+            MornyeActionRow(
+                onPlay = onPlay,
+                onShuffle = onShuffle,
+                moreLabel = stringResource(if (isReordering) R.string.playlist_reorder_done else R.string.album_row_more_options),
+                onMore = { if (isReordering) isReordering = false else playlistMenuExpanded = true },
+                menu = { action ->
+                    if (isReordering) action()
+                    else PlaylistContextMenu(
+                        playlistId = playlist.id,
+                        trackIds = trackIds,
+                        expanded = playlistMenuExpanded,
+                        onDismiss = { playlistMenuExpanded = false },
+                        hazeState = hazeState,
+                        onPlayNext = onPlaylistPlayNext,
+                        onAddToQueue = onPlaylistAddToQueue,
+                        onReorder = { isReordering = true },
+                        onEdit = { showPlaylistEditor = true },
+                        onDelete = { showDeleteConfirmation = true },
+                        anchor = action,
+                    )
+                },
+            )
+        },
+    ) {
         items(orderedTrackIds, key = { it }) { trackId ->
             val track = tracksById[trackId] ?: return@items
-            Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge).height(1.dp).background(colors.divider).testTag(PlaylistTrackDividerTag))
             if (isReordering) {
                 ReorderableItem(reorderableState, key = trackId) { isDragging ->
                     TrackRow(
@@ -186,7 +175,7 @@ internal fun PlaylistDetailsContent(
                         audioPath = track.audioPath,
                         modifier = Modifier.fillMaxWidth().then(
                             if (isDragging) Modifier.clip(tokens.shapes.medium).liquidGlassBackground(
-                                hazeState, glassTint = colors.glassTint, borderShape = tokens.shapes.medium,
+                                hazeState, glassTint = LocalSistrumTokens.current.colors.glassTint, borderShape = tokens.shapes.medium,
                             ) else Modifier,
                         ),
                         trailingContent = {
@@ -227,16 +216,17 @@ internal fun PlaylistDetailsContent(
                     onRemoveFromPlaylist = { onTrackRemoveFromPlaylist(it.id) },
                     onBottomSheetRequested = onTrackContextBottomSheet,
                 ) {
-                    TrackRow(
-                        title = track.title, artist = track.artists, artworkPath = track.artworkPath, audioPath = track.audioPath,
-                        modifier = Modifier.fillMaxWidth(), onClick = { onTrackClick(track.id) },
-                        onMoreClick = { contextTrack = track.id }, onLongClick = { contextTrack = track.id },
+                    MornyeSongRow(
+                        track = track,
+                        onClick = { onTrackClick(track.id) },
+                        onMore = { contextTrack = track.id },
+                        onLongClick = { contextTrack = track.id },
                     )
                 }
             }
-            if (trackId == orderedTrackIds.lastOrNull()) {
-                Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge).height(1.dp).background(colors.divider).testTag(PlaylistTrackDividerTag))
-            }
+        }
+        item("footer") {
+            MornyeDetailFooter(uiState.tracks.size, (totalDurationSeconds / 60).toInt())
         }
     }
     if (showPlaylistEditor) {
@@ -281,3 +271,9 @@ internal fun movePlaylistTrack(trackIds: List<String>, fromIndex: Int, toIndex: 
 
 // The playlist hero occupies LazyColumn index 0; track rows begin immediately after it.
 internal fun playlistTrackIndex(lazyListIndex: Int): Int = lazyListIndex - 1
+
+/** Custom artwork wins; repeat up to four distinct song covers to fill the 2×2 header. */
+internal fun playlistDetailCoverPaths(customArtworkPath: String?, artworkPaths: List<String>): List<String> =
+    if (customArtworkPath != null) listOf(customArtworkPath)
+    else if (artworkPaths.isEmpty()) emptyList()
+    else List(4) { artworkPaths[it % artworkPaths.size] }

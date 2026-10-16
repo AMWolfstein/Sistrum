@@ -1,16 +1,23 @@
 package com.amwolfstein.sistrum.ui.screens
 
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performClick
 import com.amwolfstein.sistrum.ui.components.AnchoredPopupMenuHost
-import com.amwolfstein.sistrum.ui.components.trackInfoArtworkSize
 import com.amwolfstein.sistrum.settings.ThemeMode
 import com.amwolfstein.sistrum.sync.LibraryPlaylist
 import com.amwolfstein.sistrum.sync.LibraryTrack
@@ -27,16 +34,18 @@ class PlaylistDetailsContentTest {
     fun heroArtworkMatchesAlbumDetailsSize() {
         composeTestRule.setContent {
             SistrumTheme(themeMode = ThemeMode.Dark) {
-                PlaylistDetailsContent(
-                    PlaylistDetailsUiState(
-                        playlist = LibraryPlaylist("mix", "Night drive", emptyList(), "{}"),
-                        artworkPaths = listOf("one", "two", "three", "four"),
-                    ),
-                )
+                Box(Modifier.width(280.dp)) {
+                    PlaylistDetailsContent(
+                        PlaylistDetailsUiState(
+                            playlist = LibraryPlaylist("mix", "Night drive", emptyList(), "{}"),
+                            artworkPaths = listOf("one", "two", "three", "four"),
+                        ),
+                    )
+                }
             }
         }
 
-        composeTestRule.onNodeWithTag("playlist-artwork-mosaic").assertHeightIsEqualTo(trackInfoArtworkSize)
+        composeTestRule.onNodeWithTag("playlist-artwork-mosaic").assertWidthIsEqualTo(280.dp)
     }
 
     @Test
@@ -56,8 +65,9 @@ class PlaylistDetailsContentTest {
         }
 
         composeTestRule.onNodeWithText("Night drive").assertExists()
-        composeTestRule.onNodeWithText("2 tracks · 3 min").assertExists()
-        composeTestRule.onAllNodesWithTag("playlist-detail-track-divider").assertCountEquals(3)
+        composeTestRule.onNodeWithText("2 songs").assertExists()
+        composeTestRule.onNodeWithTag("mornye-list").performScrollToNode(hasText("2 songs · 3 min"))
+        composeTestRule.onNodeWithText("2 songs · 3 min").assertExists()
     }
 
     @Test
@@ -79,6 +89,7 @@ class PlaylistDetailsContentTest {
             }
         }
 
+        composeTestRule.onNodeWithText("One").performScrollTo()
         composeTestRule.onNode(hasContentDescription("Track options")).performClick()
         composeTestRule.onNodeWithText("Remove from playlist").performClick()
         assertEquals(track.id, removedTrackId)
@@ -100,7 +111,7 @@ class PlaylistDetailsContentTest {
             }
         }
 
-        composeTestRule.onNode(hasContentDescription("More options")).performClick()
+        composeTestRule.onNode(hasContentDescription("More options")).performScrollTo().performClick()
         composeTestRule.onNodeWithText("Play next").assertExists()
         composeTestRule.onNodeWithText("Add to queue").assertExists()
         composeTestRule.onNodeWithText("Edit playlist").assertExists()
@@ -118,11 +129,13 @@ class PlaylistDetailsContentTest {
             }
         }
 
-        composeTestRule.onNode(hasContentDescription("More options")).performClick()
+        composeTestRule.onNode(hasContentDescription("More options")).performScrollTo().performClick()
         composeTestRule.onNodeWithText("Reorder playlist").performClick()
+        composeTestRule.onNodeWithText("One").performScrollTo()
         composeTestRule.onAllNodes(hasContentDescription("Drag to reorder track")).assertCountEquals(2)
-        composeTestRule.onNode(hasContentDescription("Done reordering")).performClick()
-        composeTestRule.onNode(hasContentDescription("Track options")).assertExists()
+        composeTestRule.onNode(hasContentDescription("Done reordering")).performScrollTo().performClick()
+        composeTestRule.onNodeWithText("One").performScrollTo()
+        composeTestRule.onAllNodes(hasContentDescription("Track options")).assertCountEquals(2)
     }
 
     @Test
@@ -137,8 +150,54 @@ class PlaylistDetailsContentTest {
             }
         }
 
-        composeTestRule.onNode(hasContentDescription("More options")).performClick()
+        composeTestRule.onNode(hasContentDescription("More options")).performScrollTo().performClick()
         composeTestRule.onNodeWithText("Edit playlist").assertExists()
         composeTestRule.onAllNodesWithText("Delete playlist").assertCountEquals(0)
+    }
+
+    @Test
+    fun emptyPlaylistKeepsActionsBackAndZeroFooter() {
+        var plays = 0
+        var shuffles = 0
+        var backs = 0
+        composeTestRule.setContent {
+            SistrumTheme(themeMode = ThemeMode.Light) {
+                PlaylistDetailsContent(
+                    PlaylistDetailsUiState(playlist = LibraryPlaylist("empty", "Empty mix", emptyList(), "{}")),
+                    onPlay = { plays++ }, onShuffle = { shuffles++ }, onBack = { backs++ },
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag("mornye-header-title").assertTextEquals("Empty mix")
+        composeTestRule.onNode(hasContentDescription("Play")).performScrollTo().performClick()
+        composeTestRule.onNode(hasContentDescription("Shuffle")).performClick()
+        composeTestRule.onNode(hasContentDescription("Go back")).performClick()
+        composeTestRule.onNodeWithText("0 songs · 0 min").performScrollTo().assertExists()
+        composeTestRule.onAllNodes(hasContentDescription("Track options")).assertCountEquals(0)
+        assertEquals(1, plays)
+        assertEquals(1, shuffles)
+        assertEquals(1, backs)
+    }
+
+    @Test
+    fun favoritesCustomCoverReplacesGridAndSongTapKeepsTrackId() {
+        val track = LibraryTrack("favorite", "Favorite song", "Artist")
+        var selected: String? = null
+        composeTestRule.setContent {
+            SistrumTheme(themeMode = ThemeMode.Dark) {
+                PlaylistDetailsContent(
+                    PlaylistDetailsUiState(
+                        playlist = LibraryPlaylist(FavoritesPlaylistId, "", listOf(track.id), "{}"),
+                        tracks = listOf(track), customArtworkPath = "custom",
+                        artworkPaths = listOf("one", "two", "three", "four"),
+                    ), onTrackClick = { selected = it },
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag("mornye-header-title").assertTextEquals("Favorites")
+        composeTestRule.onAllNodesWithTag("playlist-artwork-mosaic").assertCountEquals(0)
+        composeTestRule.onNodeWithText(track.title).performScrollTo().performClick()
+        assertEquals(track.id, selected)
+        composeTestRule.onNodeWithText("1 song · 0 min").performScrollTo().assertExists()
     }
 }

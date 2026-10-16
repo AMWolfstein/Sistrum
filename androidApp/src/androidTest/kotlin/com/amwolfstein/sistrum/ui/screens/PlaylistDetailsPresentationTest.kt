@@ -17,6 +17,8 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -31,7 +33,6 @@ import com.amwolfstein.sistrum.ui.components.AnchoredPopupMenuHost
 import com.amwolfstein.sistrum.ui.components.LocalReduceTransparency
 import com.amwolfstein.sistrum.ui.testing.UiMatrix
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,7 +74,7 @@ class PlaylistDetailsPresentationTest(private val case: UiMatrix.Case) {
         rule.onNodeWithText(title).assertExists()
         val cover = rule.onAllNodesWithTag("playlist-artwork-mosaic").fetchSemanticsNodes().single().boundsInRoot
         assertEquals(cover.width, cover.height, 0.5f)
-        with(rule.density) { assertTrue(cover.width <= 232.dp.toPx() + 0.5f) }
+        with(rule.density) { assertEquals(280.dp.toPx(), cover.width, 0.5f) }
         val play = hasContentDescription(label(R.string.player_play))
         val shuffle = hasContentDescription(label(R.string.player_shuffle))
         rule.onNode(play).performScrollTo().assertIsDisplayed()
@@ -93,7 +94,7 @@ class PlaylistDetailsPresentationTest(private val case: UiMatrix.Case) {
         matrix.setContent {
             AnchoredPopupMenuHost(hazeState = null) { PlaylistDetailsContent(state.value) }
         }
-        rule.onNodeWithText(label(R.string.playlist_details_empty_title)).assertIsDisplayed()
+        rule.onNodeWithTag("mornye-header-title").assertTextEquals(label(R.string.playlist_details_empty_title)).assertIsDisplayed()
         rule.onNode(hasContentDescription(label(R.string.player_play))).assertDoesNotExist()
         rule.runOnIdle {
             state.value = PlaylistDetailsUiState(playlist = LibraryPlaylist("empty", "Empty mix", emptyList(), "{}"))

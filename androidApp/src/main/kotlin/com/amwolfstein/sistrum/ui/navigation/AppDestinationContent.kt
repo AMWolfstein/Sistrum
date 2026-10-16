@@ -731,6 +731,7 @@ internal fun AppDestinationContent(
                                 onPlaylistDelete = onPlaylistDelete,
                             )
                             AppStackPage.PlaylistDetails -> PlaylistDetailsContent(
+                                onBack = { onIntent(AppIntent.NavigateBack) },
                                 uiState = selectedPlaylistDetails,
                                 contentPadding = contentPadding,
                                 modifier = Modifier.fillMaxSize(),

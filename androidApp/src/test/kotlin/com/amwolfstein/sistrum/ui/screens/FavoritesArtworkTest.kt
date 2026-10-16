@@ -66,4 +66,20 @@ class FavoritesArtworkTest {
         val details = playlistDetailsUiStateFor(PlaylistDetailsUiState(), FavoritesPlaylistId)
         assertNull(details.customArtworkPath)
     }
+
+    @Test fun `detail custom cover wins over the song grid for playlists and favorites`() {
+        assertEquals(listOf("custom"), playlistDetailCoverPaths("custom", listOf("one", "two", "three", "four")))
+    }
+
+    @Test fun `detail grid uses four covers in song order`() {
+        assertEquals(listOf("one", "two", "three", "four"),
+            playlistDetailCoverPaths(null, listOf("one", "two", "three", "four", "five")))
+    }
+
+    @Test fun `detail grid fills short collections and leaves empty artwork to the tint`() {
+        assertEquals(listOf("one", "one", "one", "one"), playlistDetailCoverPaths(null, listOf("one")))
+        assertEquals(listOf("one", "two", "one", "two"), playlistDetailCoverPaths(null, listOf("one", "two")))
+        assertEquals(listOf("one", "two", "three", "one"), playlistDetailCoverPaths(null, listOf("one", "two", "three")))
+        assertEquals(emptyList(), playlistDetailCoverPaths(null, emptyList()))
+    }
 }
