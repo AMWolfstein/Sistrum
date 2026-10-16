@@ -178,3 +178,12 @@ until the production type exists; later tests can use `val fetcher: HttpFetcher 
 These are test seams and FR-012 boundary choices, with no change to D-7, architecture, or existing networking clients.
 Revisit if: a later provider needs response headers or a body larger than its explicit per-call cap.
 
+## D-26: Fetcher defaults and platform network availability (T022)
+Case: D-25 leaves production timeout/redirect defaults open; T022 needs a ConnectivityManager-backed policy.
+Options: unbounded platform defaults or finite fetcher defaults; network presence alone or validated internet access.
+Chosen: 10-second connect and 15-second read timeouts, at most five redirects, with positive timeout and nonnegative
+size/redirect inputs. Online requires INTERNET and VALIDATED on the active network; unmetered additionally requires
+NOT_METERED. No active network means both false. ACCESS_NETWORK_STATE is required to query these capabilities.
+Cancellation disconnects the active connection; body reads check cancellation and read at most cap plus one byte.
+Revisit if: provider measurements justify different bounds or a later task explicitly needs captive/offline network access.
+
