@@ -1,5 +1,22 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertTrue
+import java.io.File
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.assertCountEquals
@@ -104,5 +121,110 @@ class ArtistDetailsContentTest {
         composeTestRule.onNodeWithText("Add to playlist").performClick()
         assertEquals(listOf("first", "second"), playlistIds)
         assertEquals(true, addOnly)
+    }
+
+    @Test
+    fun optionalSlotsKeepLocalAlbumAndOrderedQueueActions() {
+        var queued: List<String>? = null
+        var selected: String? = null
+        composeTestRule.setContent {
+            SistrumTheme(themeMode = ThemeMode.Dark) {
+                ArtistDetailsContent(
+                    ArtistDetailsUiState(
+                        artist = LibraryArtist("artist", "Muse"),
+                        albums = listOf(LibraryAlbum("local-album", "Local album", "Muse")),
+                        tracks = listOf(
+                            com.amwolfstein.sistrum.sync.LibraryTrack("b", "Second", "Muse"),
+                            com.amwolfstein.sistrum.sync.LibraryTrack("a", "First", "Muse"),
+                        ),
+                    ),
+                    listState = rememberLazyListState(),
+                    portrait = { Box(Modifier.fillMaxSize().background(Color.Blue).testTag("portrait")) },
+                    headerBackground = { Box(Modifier.fillMaxSize().testTag("header-background")) },
+                    about = { Text("Local artist biography") },
+                    onAddToQueue = { queued = it },
+                    onAlbumClick = { selected = it.id },
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag("portrait").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("header-background").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Artist options").performClick()
+        composeTestRule.onNodeWithText("Add to queue").performClick()
+        assertEquals(listOf("b", "a"), queued)
+        composeTestRule.onNodeWithText("Local artist biography").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Local album").performScrollTo().performClick()
+        assertEquals("local-album", selected)
+    }
+
+    @Test
+    fun manualImageWinsAndRemovingItRestoresPortraitSlot() {
+        val file = File.createTempFile("artist-manual-", ".png", InstrumentationRegistry.getInstrumentation().targetContext.cacheDir)
+        try {
+            val bitmap = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(android.graphics.Color.RED)
+            file.outputStream().use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
+            bitmap.recycle()
+            val artist = mutableStateOf(LibraryArtist("artist", "Muse", artworkPath = file.absolutePath, hasCustomArtwork = true))
+            var additions = 0
+            var removals = 0
+            composeTestRule.setContent {
+                SistrumTheme(themeMode = ThemeMode.Dark) {
+                    ArtistDetailsContent(
+                        ArtistDetailsUiState(artist = artist.value),
+                        listState = rememberLazyListState(),
+                        portrait = { Box(Modifier.fillMaxSize().background(Color.Blue).testTag("portrait")) },
+                        onAddArtistImage = { additions++ },
+                        onRemoveArtistImage = { removals++; artist.value = LibraryArtist("artist", "Muse") },
+                    )
+                }
+            }
+            composeTestRule.onNodeWithTag("portrait").assertDoesNotExist()
+            composeTestRule.waitUntil(5_000) {
+                composeTestRule.onAllNodesWithTag("detail-hero-artwork-image").fetchSemanticsNodes().size == 1
+            }
+            val image = composeTestRule.onNodeWithTag("detail-hero-artwork-image").captureToImage()
+            val pixel = image.toPixelMap()[image.width / 2, image.height / 2]
+            assertTrue(pixel.red > 0.95f && pixel.green < 0.05f && pixel.blue < 0.05f)
+            composeTestRule.onNodeWithText("Artist options").performClick()
+            composeTestRule.onNodeWithText("Add artist image").performClick()
+            assertEquals(1, additions)
+            composeTestRule.onNodeWithText("Artist options").performClick()
+            composeTestRule.onNodeWithText("Remove artist image").performClick()
+            assertEquals(1, removals)
+            composeTestRule.onNodeWithTag("portrait").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("detail-hero-artwork-image").assertDoesNotExist()
+            composeTestRule.onNodeWithText("Artist options").performClick()
+            composeTestRule.onNodeWithText("Remove artist image").assertDoesNotExist()
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    fun nullPortraitUsesProjectedNewestTrackCover() {
+        val file = File.createTempFile("artist-default-", ".png", InstrumentationRegistry.getInstrumentation().targetContext.cacheDir)
+        try {
+            val bitmap = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(android.graphics.Color.GREEN)
+            file.outputStream().use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
+            bitmap.recycle()
+            composeTestRule.setContent {
+                SistrumTheme(themeMode = ThemeMode.Dark) {
+                    ArtistDetailsContent(
+                        ArtistDetailsUiState(artist = LibraryArtist("artist", "Muse", artworkPath = file.absolutePath)),
+                        listState = rememberLazyListState(),
+                    )
+                }
+            }
+            composeTestRule.waitUntil(5_000) {
+                composeTestRule.onAllNodesWithTag("detail-hero-artwork-image").fetchSemanticsNodes().size == 1
+            }
+            val image = composeTestRule.onNodeWithTag("detail-hero-artwork-image").captureToImage()
+            val pixel = image.toPixelMap()[image.width / 2, image.height / 2]
+            assertTrue(pixel.green > 0.95f && pixel.red < 0.05f && pixel.blue < 0.05f)
+        } finally {
+            file.delete()
+        }
     }
 }

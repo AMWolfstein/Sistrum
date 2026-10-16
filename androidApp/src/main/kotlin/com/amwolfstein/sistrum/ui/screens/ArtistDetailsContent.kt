@@ -1,5 +1,8 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +27,7 @@ import com.amwolfstein.sistrum.ui.components.DetailHeroArtworkShape
 import com.amwolfstein.sistrum.ui.components.HeroCard
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import androidx.compose.ui.platform.testTag
-import com.amwolfstein.sistrum.ui.components.InsetListDivider
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import com.amwolfstein.sistrum.ui.components.ArtistContextMenu
 import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
 import androidx.compose.runtime.getValue
@@ -51,7 +54,13 @@ internal fun ArtistDetailsContent(
     onRemoveArtistImage: () -> Unit = {},
     onAlbumClick: (LibraryAlbum) -> Unit = {},
     playbackQueue: PlaybackQueueSnapshot = PlaybackQueueSnapshot(),
+    // Null slots retain the local-only screen; a persisted manual image always wins.
+    portrait: (@Composable () -> Unit)? = null,
+    headerBackground: (@Composable () -> Unit)? = null,
+    about: (@Composable () -> Unit)? = null,
 ) {
+    val tokens = LocalSistrumTokens.current
+    val colors = tokens.colors
     val artist = uiState.artist
     if (artist == null) {
         HeroCard(
@@ -64,55 +73,69 @@ internal fun ArtistDetailsContent(
     }
     var menuExpanded by remember(artist.id) { mutableStateOf(false) }
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().background(colors.page),
         state = listState,
         contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
     ) {
         item("hero") {
             ArtworkHeroBackdrop(artist.artworkPath, Modifier.fillMaxWidth(), onHeroColorChanged) {
-                ArtistContextMenu(
-                    trackIds = uiState.tracks.map { it.id },
-                    expanded = menuExpanded,
-                    onDismiss = { menuExpanded = false },
-                    onPlayNext = onPlayNext,
-                    onAddToQueue = onAddToQueue,
-                    onBottomSheetRequested = onTrackContextBottomSheet,
-                    onAddArtistImage = onAddArtistImage,
-                    onRemoveArtistImage = onRemoveArtistImage.takeIf { artist.hasCustomArtwork },
-                    addToPlaylistOnly = true,
-                    hazeState = hazeState,
-                    playbackQueue = playbackQueue,
-                ) {
-                    DetailHero(
-                    title = artist.name,
-                    subtitle = stringResource(
-                        R.string.artist_details_summary,
-                        pluralStringResource(R.plurals.artist_details_album_count, uiState.albums.size, uiState.albums.size),
-                        pluralStringResource(R.plurals.artist_details_track_count, uiState.tracks.size, uiState.tracks.size),
-                    ),
-                    metadata = null,
-                    playLabel = stringResource(R.string.player_play),
-                    shuffleLabel = stringResource(R.string.player_shuffle),
-                    moreLabel = stringResource(R.string.artist_row_more_options),
-                    modifier = Modifier.fillMaxWidth().padding(
-                        start = 24.dp,
-                        top = contentPadding.calculateTopPadding(),
-                        end = 24.dp,
-                        bottom = 20.dp,
-                    ),
-                    artworkPath = artist.artworkPath,
-                    artworkShape = DetailHeroArtworkShape.Circle,
-                    artworkSize = 144.dp,
-                    fallbackSymbol = MaterialSymbols.Person,
-                    onPlayClick = onPlay,
-                    onShuffleClick = onShuffle,
-                    onMoreClick = { menuExpanded = true },
-                    )
+                Box(Modifier.fillMaxWidth()) {
+                    if (headerBackground != null) {
+                        Box(Modifier.matchParentSize()) { headerBackground() }
+                        Box(Modifier.matchParentSize().background(colors.page.copy(alpha = 0.28f)))
+                    }
+                    ArtistContextMenu(
+                        trackIds = uiState.tracks.map { it.id },
+                        expanded = menuExpanded,
+                        onDismiss = { menuExpanded = false },
+                        onPlayNext = onPlayNext,
+                        onAddToQueue = onAddToQueue,
+                        onBottomSheetRequested = onTrackContextBottomSheet,
+                        onAddArtistImage = onAddArtistImage,
+                        onRemoveArtistImage = onRemoveArtistImage.takeIf { artist.hasCustomArtwork },
+                        addToPlaylistOnly = true,
+                        hazeState = hazeState,
+                        playbackQueue = playbackQueue,
+                    ) {
+                        DetailHero(
+                            title = artist.name,
+                            subtitle = stringResource(
+                                R.string.artist_details_summary,
+                                pluralStringResource(R.plurals.artist_details_album_count, uiState.albums.size, uiState.albums.size),
+                                pluralStringResource(R.plurals.artist_details_track_count, uiState.tracks.size, uiState.tracks.size),
+                            ),
+                            metadata = null,
+                            playLabel = stringResource(R.string.player_play),
+                            shuffleLabel = stringResource(R.string.player_shuffle),
+                            moreLabel = stringResource(R.string.artist_row_more_options),
+                            modifier = Modifier.fillMaxWidth().padding(
+                                start = tokens.spacing.extraLarge,
+                                top = contentPadding.calculateTopPadding(),
+                                end = tokens.spacing.extraLarge,
+                                bottom = tokens.spacing.large,
+                            ),
+                            artworkPath = artist.artworkPath,
+                            artworkContent = portrait.takeUnless { artist.hasCustomArtwork },
+                            artworkShape = DetailHeroArtworkShape.Circle,
+                            artworkSize = 144.dp,
+                            fallbackSymbol = MaterialSymbols.Person,
+                            onPlayClick = onPlay,
+                            onShuffleClick = onShuffle,
+                            onMoreClick = { menuExpanded = true },
+                        )
+                    }
+                }
+            }
+        }
+        about?.let { aboutContent ->
+            item("about") {
+                Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge, vertical = tokens.spacing.medium)) {
+                    aboutContent()
                 }
             }
         }
         itemsIndexed(uiState.albums, key = { _, album -> album.id }, contentType = { _, _ -> "artist_album_row" }) { index, album ->
-            if (index == 0) InsetListDivider(Modifier.testTag(ArtistAlbumDividerTag))
+            if (index == 0) Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge).height(1.dp).background(colors.divider).testTag(ArtistAlbumDividerTag))
             AlbumRow(
                 title = album.title,
                 artist = album.artist.ifBlank { stringResource(R.string.album_unknown_artist) },
@@ -120,7 +143,7 @@ internal fun ArtistDetailsContent(
                 audioPath = album.audioPath,
                 onClick = { onAlbumClick(album) },
             )
-            InsetListDivider(Modifier.testTag(ArtistAlbumDividerTag))
+            Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge).height(1.dp).background(colors.divider).testTag(ArtistAlbumDividerTag))
         }
     }
 }
