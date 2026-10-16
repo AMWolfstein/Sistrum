@@ -1,0 +1,6 @@
+# 004 UI milestones for chain.sh (owner order 2026-10-16: plan order). Reviewers per D-18 (+ translation-reviewer where
+# strings change). M1 runs separately. Line: milestone|tasks (last = full gate + phone check)|reviewers
+M2|T009 T010 T011 T012 T013 T013a T014 T015 T016 T017 T018 T018a T020|silent-failure-hunter pr-test-analyzer kotlin-reviewer spec-traceability-auditor comment-analyzer ui-finish-gate-reviewer translation-reviewer
+M3|T021 T022 T023 T024 T025 T026 T027 T028 T029 T030 T031 T032 T033 T034 T035 T036 T037 T038 T039 T040 T041|silent-failure-hunter pr-test-analyzer kotlin-reviewer spec-traceability-auditor comment-analyzer android-security-reviewer port-fidelity-checker opensource-sanitizer translation-reviewer
+M4|T042 T043 T044 T045 T046 T047 T048 T049 T050 T051 T052 T053 T054 T055|silent-failure-hunter pr-test-analyzer kotlin-reviewer spec-traceability-auditor comment-analyzer ui-finish-gate-reviewer playback-lifecycle-reviewer
+M5|T056 T057 T060 T061 T062 T064 T065 T066|silent-failure-hunter pr-test-analyzer kotlin-reviewer spec-traceability-auditor comment-analyzer ui-finish-gate-reviewer translation-reviewer

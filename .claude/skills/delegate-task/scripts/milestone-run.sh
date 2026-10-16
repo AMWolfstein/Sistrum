@@ -79,12 +79,22 @@ for t in $tasks; do
   case "$line" in "- [x]"*|"- [X]"*) echo "SKIP $t (already done)"; continue ;; esac
   effort=${force_effort:-medium}; case "$line" in *"[HIGH-RISK]"*) effort=high ;; esac
   done_ok=0
-  for attempt in "gpt-6.1-sol $effort"; do
-    set -- $attempt; model=$1; eff=$2
-    d="$out/$t/$model"; mkdir -p "$d"; brief "$t" > "$d/brief.md"
+  # Owner 2026-10-16: a BLOCKED task gets ONE retry in a fresh Codex session at high effort (it reads the first
+  # attempt's BLOCKED reason and HANDOFF); if that is BLOCKED too, one last fresh session on gpt-6-astra (high).
+  # Only then the run stops for Claude or the owner.
+  prev_block=""
+  for attempt in "gpt-6.1-sol $effort 1" "gpt-6.1-sol high 2" "gpt-6-astra high 3"; do
+    set -- $attempt; model=$1; eff=$2; n=$3
+    d="$out/$t/$model"; [ "$n" = 2 ] && d="$out/$t/$model-retry"
+    mkdir -p "$d"; brief "$t" > "$d/brief.md"
+    [ -z "$prev_block" ] || cat >> "$d/brief.md" <<EOF
+RETRY: a previous fresh session on $t ended "$prev_block". Read its notes in HANDOFF and \`git status\` first (its
+       uncommitted edits are still in the tree: keep, fix or revert them). Resolve the blocker if it lies within $t's
+       scope and the AGENTS.md rules; otherwise end BLOCKED again with the exact reason. Same MUST NOT rules apply.
+EOF
     before=$(git rev-parse HEAD)
     echo "=== $t $model/$eff $(date +%H:%M)"
-    codex_step "$d" "$d/brief.md" "$model" "$eff"
+    SISTRUM_ALLOW_ASTRA=$([ "$n" = 3 ] && echo 1) codex_step "$d" "$d/brief.md" "$model" "$eff"
     res=$(grep -o 'RESULT: [A-Z]*.*' "$d/run/final.txt" 2>/dev/null | tail -1)
     echo "$t: ${res:-no RESULT line}"
     [ "$(git rev-parse HEAD)" = "$before" ] || { echo "STOP: $t moved HEAD itself; inspect $d"; exit 1; }
@@ -93,7 +103,10 @@ for t in $tasks; do
       exit 1
     fi
     [ -d .codex-commit ] && { echo "STOP: $t BLOCKED but left .codex-commit/; inspect"; exit 1; }
+    prev_block="${res:-no RESULT line}"
+    [ "$n" = 1 ] && echo "RETRY: $t once more, fresh session at high effort"
+    [ "$n" = 2 ] && echo "RETRY: $t last attempt on gpt-6-astra (high)"
   done
-  [ $done_ok = 1 ] || { echo "STOP: $t not done (no Astra fallback; Claude or the owner takes over); see $out/$t and $feature/HANDOFF.md"; exit 1; }
+  [ $done_ok = 1 ] || { echo "STOP: $t not done after the high-effort and Astra retries (Claude or the owner takes over); see $out/$t and $feature/HANDOFF.md"; exit 1; }
 done
 echo "MILESTONE DONE: $tasks"
