@@ -1,8 +1,8 @@
 package com.amwolfstein.sistrum.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -26,6 +27,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import com.amwolfstein.sistrum.R
@@ -46,7 +49,7 @@ import com.amwolfstein.sistrum.ui.components.SistrumPillButtonVariant
 import com.amwolfstein.sistrum.ui.components.trackInfoArtworkSize
 import com.amwolfstein.sistrum.ui.components.liquidGlassBackground
 import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -76,17 +79,18 @@ internal fun PlaylistDetailsContent(
     onPlaylistUpdate: (String, String, android.net.Uri?, Boolean) -> Unit = { _, _, _, _ -> },
     onPlaylistDelete: (String) -> Unit = {},
 ) {
+    val tokens = LocalSistrumTokens.current
+    val colors = tokens.colors
     val playlist = uiState.playlist
     if (playlist == null) {
         HeroCard(
             symbol = MaterialSymbols.QueueMusic,
             title = stringResource(R.string.playlist_details_empty_title),
             description = stringResource(R.string.playlist_details_empty_description),
-            modifier = modifier.fillMaxSize().padding(contentPadding),
+            modifier = modifier.fillMaxSize().background(colors.page).padding(contentPadding).padding(tokens.spacing.extraLarge),
         )
         return
     }
-    val colors = LocalSistrumColors.current
     var contextTrack by remember(playlist.id) { mutableStateOf<String?>(null) }
     var playlistMenuExpanded by remember(playlist.id) { mutableStateOf(false) }
     var showPlaylistEditor by remember(playlist.id) { mutableStateOf(false) }
@@ -122,7 +126,7 @@ internal fun PlaylistDetailsContent(
         if (!isReordering) orderedTrackIds = uiState.tracks.map { it.id }
     }
     LazyColumn(
-        modifier.fillMaxSize(),
+        modifier.fillMaxSize().background(colors.page),
         state = listState,
         contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
     ) {
@@ -136,15 +140,17 @@ internal fun PlaylistDetailsContent(
                     moreLabel = stringResource(if (isReordering) R.string.playlist_reorder_done else R.string.album_row_more_options),
                     moreSymbol = if (isReordering) MaterialSymbols.Check else MaterialSymbols.MoreVert,
                     modifier = Modifier.fillMaxWidth().padding(
-                        start = 24.dp,
+                        start = tokens.spacing.extraLarge,
                         top = contentPadding.calculateTopPadding(),
-                        end = 24.dp,
-                        bottom = 20.dp,
+                        end = tokens.spacing.extraLarge,
+                        bottom = tokens.spacing.extraLarge,
                     ),
                     artworkSize = trackInfoArtworkSize,
                     fallbackSymbol = if (playlist.id == FavoritesPlaylistId) MaterialSymbols.Favorite else MaterialSymbols.QueueMusic,
                     artworkContent = {
-                        PlaylistArtwork(playlist.id, uiState.artworkPaths, size = trackInfoArtworkSize)
+                        BoxWithConstraints(Modifier.fillMaxSize()) {
+                            PlaylistArtwork(playlist.id, uiState.artworkPaths, size = maxWidth)
+                        }
                     },
                     onPlayClick = onPlay,
                     onShuffleClick = onShuffle,
@@ -170,7 +176,7 @@ internal fun PlaylistDetailsContent(
         }
         items(orderedTrackIds, key = { it }) { trackId ->
             val track = tracksById[trackId] ?: return@items
-            Box(Modifier.fillMaxWidth().padding(horizontal = 22.dp).height(1.dp).background(colors.borderGlass).testTag(PlaylistTrackDividerTag))
+            Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge).height(1.dp).background(colors.divider).testTag(PlaylistTrackDividerTag))
             if (isReordering) {
                 ReorderableItem(reorderableState, key = trackId) { isDragging ->
                     TrackRow(
@@ -179,9 +185,9 @@ internal fun PlaylistDetailsContent(
                         artworkPath = track.artworkPath,
                         audioPath = track.audioPath,
                         modifier = Modifier.fillMaxWidth().then(
-                            if (isDragging) Modifier.liquidGlassBackground(
-                                hazeState, hazeBlurRadius = 30.dp, glassTint = colors.glassElevated,
-                            ).border(1.dp, colors.borderGlass) else Modifier,
+                            if (isDragging) Modifier.clip(tokens.shapes.medium).liquidGlassBackground(
+                                hazeState, glassTint = colors.glassTint, borderShape = tokens.shapes.medium,
+                            ) else Modifier,
                         ),
                         trailingContent = {
                             PlaylistDragHandle(
@@ -229,7 +235,7 @@ internal fun PlaylistDetailsContent(
                 }
             }
             if (trackId == orderedTrackIds.lastOrNull()) {
-                Box(Modifier.fillMaxWidth().padding(horizontal = 22.dp).height(1.dp).background(colors.borderGlass).testTag(PlaylistTrackDividerTag))
+                Box(Modifier.fillMaxWidth().padding(horizontal = tokens.spacing.extraLarge).height(1.dp).background(colors.divider).testTag(PlaylistTrackDividerTag))
             }
         }
     }
@@ -257,12 +263,13 @@ internal fun PlaylistDetailsContent(
 
 @Composable
 private fun PlaylistDragHandle(isDragged: Boolean, modifier: Modifier) {
-    val colors = LocalSistrumColors.current
-    androidx.compose.foundation.layout.Box(
-        Modifier.size(48.dp).then(modifier),
+    val colors = LocalSistrumTokens.current.colors
+    val label = stringResource(R.string.playlist_reorder_drag_handle)
+    Box(
+        Modifier.size(48.dp).semantics(mergeDescendants = true) { contentDescription = label }.then(modifier),
         contentAlignment = androidx.compose.ui.Alignment.Center,
     ) {
-        MaterialSymbol(MaterialSymbols.Menu, stringResource(R.string.playlist_reorder_drag_handle), size = 24.dp, tint = if (isDragged) colors.textMain else colors.textMuted)
+        MaterialSymbol(MaterialSymbols.Menu, null, size = 24.dp, tint = if (isDragged) colors.text else colors.mutedText)
     }
 }
 
