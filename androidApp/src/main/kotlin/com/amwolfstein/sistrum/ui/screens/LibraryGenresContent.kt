@@ -1,5 +1,7 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +43,7 @@ internal fun LibraryGenresContent(
     hazeState: HazeState? = null,
     playbackQueue: PlaybackQueueSnapshot = PlaybackQueueSnapshot(),
 ) {
+    val tokens = LocalSistrumTokens.current
     var contextGenreId by remember { mutableStateOf<String?>(null) }
     val listPadding = remember(contentPadding) {
         PaddingValues(
@@ -57,7 +60,7 @@ internal fun LibraryGenresContent(
         contentType = "genre_row",
         listState = listState,
         contentPadding = listPadding,
-        modifier = modifier,
+        modifier = modifier.background(tokens.colors.page),
         dividerTestTag = "genre-row-divider",
         filterKey = "genres",
         filterActive = uiState.filterQuery.isNotBlank(),
@@ -73,8 +76,8 @@ internal fun LibraryGenresContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = tokens.spacing.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(tokens.spacing.large),
             ) {
                 HeroCard(
                     title = stringResource(if (uiState.filterQuery.isBlank()) R.string.genres_empty_title else R.string.genres_no_match_title),

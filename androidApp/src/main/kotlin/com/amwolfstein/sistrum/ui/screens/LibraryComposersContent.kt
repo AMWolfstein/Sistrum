@@ -1,5 +1,7 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +43,7 @@ internal fun LibraryComposersContent(
     hazeState: HazeState? = null,
     playbackQueue: PlaybackQueueSnapshot = PlaybackQueueSnapshot(),
 ) {
+    val tokens = LocalSistrumTokens.current
     var contextComposerId by remember { mutableStateOf<String?>(null) }
     val listPadding = remember(contentPadding) {
         PaddingValues(
@@ -57,7 +60,7 @@ internal fun LibraryComposersContent(
         contentType = "composer_row",
         listState = listState,
         contentPadding = listPadding,
-        modifier = modifier,
+        modifier = modifier.background(tokens.colors.page),
         dividerTestTag = "composer-row-divider",
         filterKey = "composers",
         filterActive = uiState.filterQuery.isNotBlank(),
@@ -73,8 +76,8 @@ internal fun LibraryComposersContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = tokens.spacing.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(tokens.spacing.large),
             ) {
                 HeroCard(
                     title = stringResource(if (uiState.filterQuery.isBlank()) R.string.composers_empty_title else R.string.composers_no_match_title),

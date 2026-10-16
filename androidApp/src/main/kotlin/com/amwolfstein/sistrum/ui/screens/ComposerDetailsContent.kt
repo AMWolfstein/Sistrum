@@ -1,5 +1,7 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,19 +51,20 @@ internal fun ComposerDetailsContent(
     onAlbumClick: (LibraryAlbum) -> Unit = {},
     playbackQueue: PlaybackQueueSnapshot = PlaybackQueueSnapshot(),
 ) {
+    val tokens = LocalSistrumTokens.current
     val composer = uiState.composer
     if (composer == null) {
         HeroCard(
             symbol = MaterialSymbols.StylusFountainPen,
             title = stringResource(R.string.composer_details_empty_title),
             description = stringResource(R.string.composer_details_empty_description),
-            modifier = modifier.fillMaxSize().padding(contentPadding),
+            modifier = modifier.fillMaxSize().background(tokens.colors.page).padding(contentPadding),
         )
         return
     }
     var menuExpanded by remember(composer.id) { mutableStateOf(false) }
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().background(tokens.colors.page),
         state = listState,
         contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
     ) {
@@ -89,11 +92,11 @@ internal fun ComposerDetailsContent(
                     shuffleLabel = stringResource(R.string.player_shuffle),
                     moreLabel = stringResource(R.string.composer_row_more_options),
                     modifier = Modifier.fillMaxWidth().padding(
-                        start = 24.dp,
+                        start = tokens.spacing.extraLarge,
                         // A top inset under 8 dp would make this negative, which crashes.
-                        top = (contentPadding.calculateTopPadding() - 8.dp).coerceAtLeast(0.dp),
-                        end = 24.dp,
-                        bottom = 20.dp,
+                        top = (contentPadding.calculateTopPadding() - tokens.spacing.small).coerceAtLeast(0.dp),
+                        end = tokens.spacing.extraLarge,
+                        bottom = tokens.spacing.large,
                     ),
                     showArtwork = false,
                     onPlayClick = onPlay,

@@ -3,7 +3,7 @@ package com.amwolfstein.sistrum.ui.components
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
@@ -14,11 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 fun GenreRow(
@@ -27,7 +26,7 @@ fun GenreRow(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     val clickModifier = remember(onClick, onLongClick) {
         if (onClick != null || onLongClick != null) Modifier.combinedClickable(
             onClick = { onClick?.invoke() },
@@ -38,19 +37,24 @@ fun GenreRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .heightIn(min = 60.dp)
             .then(clickModifier)
-            .padding(end = 8.dp, start = 24.dp),
+            .padding(
+                end = tokens.spacing.small,
+                start = tokens.spacing.extraLarge,
+                top = tokens.spacing.small,
+                bottom = tokens.spacing.small,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = name,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 8.dp),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = colors.textMain,
-            maxLines = 1,
+                .padding(end = tokens.spacing.small),
+            style = MaterialTheme.typography.titleMedium,
+            color = tokens.colors.text,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
 
@@ -62,7 +66,7 @@ fun GenreRow(
                 symbol = MaterialSymbols.ChevronRight,
                 contentDescription = stringResource(R.string.genre_row_open),
                 size = 20.dp,
-                tint = colors.textMuted,
+                tint = tokens.colors.mutedText,
             )
         }
     }
