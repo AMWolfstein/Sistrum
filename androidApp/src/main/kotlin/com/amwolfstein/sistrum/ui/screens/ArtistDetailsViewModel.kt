@@ -25,6 +25,7 @@ data class ArtistDetailsUiState(
     val artist: LibraryArtist? = null,
     val albums: List<LibraryAlbum> = emptyList(),
     val tracks: List<LibraryTrack> = emptyList(),
+    internal val albumSongCounts: Map<String, Int> = emptyMap(),
     internal val allArtists: List<LibraryArtist> = emptyList(),
     internal val allAlbums: List<LibraryAlbum> = emptyList(),
 ) {
@@ -93,7 +94,8 @@ internal fun artistDetailsUiStateFor(
     val tracks = albums.flatMap { album ->
         tracksByAlbumId[album.id].orEmpty().sortedWith(albumTrackComparator)
     }
-    return ArtistDetailsUiState(artist = artist, albums = albums, tracks = tracks)
+    return ArtistDetailsUiState(artist = artist, albums = albums, tracks = tracks,
+        albumSongCounts = state.tracks.groupingBy { it.albumIdentifier() }.eachCount().filterKeys { it != null }.mapKeys { it.key!! })
 }
 
 private val albumTrackComparator = compareBy<LibraryTrack> {
@@ -122,3 +124,30 @@ private fun LibraryTrack.artistIds(): Set<String> = metadataObject()
             ?.takeIf(String::isNotBlank)
     }
     .toSet()
+
+/** Presentation only: full local album counts include songs by other compilation artists. */
+internal data class ArtistReleaseSections(
+    val latest: LibraryAlbum?,
+    val albums: List<LibraryAlbum>,
+    val singles: List<LibraryAlbum>,
+    val compilations: List<LibraryAlbum>,
+    val popular: List<LibraryTrack>,
+    val songCounts: Map<String, Int>,
+)
+
+internal fun artistReleaseSections(state: ArtistDetailsUiState): ArtistReleaseSections {
+    val counts = state.albums.associate { album ->
+        album.id to (state.albumSongCounts[album.id] ?: state.tracks.count { it.albumIdentifier() == album.id })
+    }
+    val (compilations, own) = state.albums.partition {
+        it.artist.isNotBlank() && !it.artist.trim().equals(state.artist?.name?.trim(), ignoreCase = true)
+    }
+    return ArtistReleaseSections(
+        latest = state.albums.maxByOrNull { it.year },
+        albums = own.filter { counts.getValue(it.id) >= 7 },
+        singles = own.filter { counts.getValue(it.id) in 1..6 },
+        compilations = compilations,
+        popular = state.tracks.sortedByDescending { it.playCount },
+        songCounts = counts,
+    )
+}

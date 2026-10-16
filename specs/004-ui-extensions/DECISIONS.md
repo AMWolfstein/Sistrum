@@ -222,3 +222,9 @@ album; retain Unknown for a track with unknown quality. Use existing disc/track 
 when track tags are missing, and Disc 1 for an untagged disc when grouping a multi-disc album. Footer uses the existing
 millisecond-aware total duration, truncated to whole minutes, through the shared English/Arabic plurals.
 Revisit if: the owner requests a distinct mixed-quality album label or a different policy for missing disc tags.
+
+## D-30: Artist release sections from the local library (T020d)
+Case: D-25 needs release sizes and compilations without a new Room query or album-artist ID column.
+Options: derive counts from the existing complete local track flow and compare the projected album artist name (recommended); extend the data schema.
+Chosen: count all locally available songs per album, including other artists on compilations, while preserving the artist's canonical playback order. A nonblank album artist differing from the trimmed artist name (case-insensitive) marks a compilation; absent album artist remains an own release. Own albums with 7+ songs go to Albums, 1–6 to Singles & EPs; zero-song own releases have no shelf. Latest release uses highest album year, retaining canonical album order for ties or unknown years. Popular sorts all artist songs by descending play count, retaining canonical order for ties (including zero plays), in pages of five. Missing years are omitted from card metadata. The projected default artist image remains governed by D-19.
+Revisit if: the owner requests remote/full-discography song counts, artist-ID matching for album artists, or exclusion of zero-play songs.

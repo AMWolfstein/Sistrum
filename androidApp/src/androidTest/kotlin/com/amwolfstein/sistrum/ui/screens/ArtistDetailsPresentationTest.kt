@@ -56,7 +56,7 @@ class ArtistDetailsPresentationTest(private val case: UiMatrix.Case) {
             }
         }
         rule.onNodeWithText(title).assertExists()
-        rule.onNode(hasTestTag("detail-hero-artwork-image")).assertDoesNotExist()
+        rule.onNode(hasTestTag("mornye-artwork-image")).assertDoesNotExist()
         val play = hasContentDescription(label(R.string.player_play))
         val shuffle = hasContentDescription(label(R.string.player_shuffle))
         rule.onNode(play).performScrollTo().assertIsDisplayed()

@@ -44,6 +44,60 @@ class ArtistDetailsViewModelTest {
         assertEquals(listOf("match"), artistDetailsUiStateFor(state, "artist").tracks.map { it.id })
     }
 
+    @Test
+    fun releaseSectionsUseSevenSongBoundaryAndOtherAlbumArtists() {
+        val details = ArtistDetailsUiState(
+            artist = LibraryArtist("artist", "Artist"),
+            albums = listOf(
+                LibraryAlbum("lp", "LP", "Artist", year = 2020),
+                LibraryAlbum("ep", "EP", " artist ", year = 2024),
+                LibraryAlbum("single", "Single", "Artist", year = 2025),
+                LibraryAlbum("comp", "Compilation", "Various Artists", year = 2023),
+                LibraryAlbum("empty", "Empty", "Artist"),
+            ),
+            albumSongCounts = mapOf("lp" to 7, "ep" to 6, "single" to 1, "comp" to 12, "empty" to 0),
+        )
+        val sections = artistReleaseSections(details)
+        assertEquals("single", sections.latest?.id)
+        assertEquals(listOf("lp"), sections.albums.map { it.id })
+        assertEquals(listOf("ep", "single"), sections.singles.map { it.id })
+        assertEquals(listOf("comp"), sections.compilations.map { it.id })
+        assertEquals(12, sections.songCounts["comp"])
+    }
+
+    @Test
+    fun compilationCountsIncludeOtherArtistsWithoutChangingArtistQueue() {
+        val state = ArtistDetailsUiState(
+            allArtists = listOf(LibraryArtist("artist", "Artist")),
+            allAlbums = listOf(LibraryAlbum("album", "Compilation", "Various Artists")),
+            tracks = listOf(track("own", "album", order = 1)) + List(6) {
+                LibraryTrack("other-$it", "Other", "Other", albumId = "album", metadataJson = metadata("other"))
+            },
+        )
+        val details = artistDetailsUiStateFor(state, "artist")
+        assertEquals(listOf("own"), details.tracks.map { it.id })
+        assertEquals(7, artistReleaseSections(details).songCounts["album"])
+    }
+
+    @Test
+    fun popularSortsByPlayCountKeepingCanonicalOrderForTies() {
+        val tracks = listOf(0, 20, 5, 20, 1, 3).mapIndexed { index, count ->
+            LibraryTrack("$index", "Song $index", "Artist", playCount = count)
+        }
+        assertEquals(listOf("1", "3", "2", "5", "4", "0"),
+            artistReleaseSections(ArtistDetailsUiState(tracks = tracks)).popular.map { it.id })
+    }
+
+    @Test
+    fun emptyLibraryHasNoReleaseSectionsAndUnknownYearsUseCanonicalOrder() {
+        val empty = artistReleaseSections(ArtistDetailsUiState())
+        assertEquals(null, empty.latest)
+        assertEquals(emptyList<LibraryAlbum>(), empty.albums + empty.singles + empty.compilations)
+        assertEquals(emptyList<LibraryTrack>(), empty.popular)
+        val album = LibraryAlbum("first", "First")
+        assertEquals(album, artistReleaseSections(ArtistDetailsUiState(albums = listOf(album, LibraryAlbum("second", "Second")))).latest)
+    }
+
     private fun track(id: String, albumId: String, disc: Int = 0, number: Int = 0, order: Int): LibraryTrack =
         LibraryTrack(id, id, "Artist", albumId = albumId, discNumber = disc, trackNumber = number, syncOrder = order, metadataJson = metadata("artist"))
 

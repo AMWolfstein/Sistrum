@@ -586,4 +586,30 @@
         <item quantity="other">%1$d دقيقة</item>
     </plurals>
     <string name="album_details_disc">القرص %1$d</string>
+    <string name="artist_latest_release">أحدث إصدار</string>
+    <string name="artist_popular">الأكثر استماعًا</string>
+    <plurals name="artist_release_albums">
+        <item quantity="zero">الألبومات (%1$d)</item>
+        <item quantity="one">الألبومات (%1$d)</item>
+        <item quantity="two">الألبومات (%1$d)</item>
+        <item quantity="few">الألبومات (%1$d)</item>
+        <item quantity="many">الألبومات (%1$d)</item>
+        <item quantity="other">الألبومات (%1$d)</item>
+    </plurals>
+    <plurals name="artist_release_singles">
+        <item quantity="zero">الأغاني المنفردة والأسطوانات القصيرة (%1$d)</item>
+        <item quantity="one">الأغاني المنفردة والأسطوانات القصيرة (%1$d)</item>
+        <item quantity="two">الأغاني المنفردة والأسطوانات القصيرة (%1$d)</item>
+        <item quantity="few">الأغاني المنفردة والأسطوانات القصيرة (%1$d)</item>
+        <item quantity="many">الأغاني المنفردة والأسطوانات القصيرة (%1$d)</item>
+        <item quantity="other">الأغاني المنفردة والأسطوانات القصيرة (%1$d)</item>
+    </plurals>
+    <plurals name="artist_release_compilations">
+        <item quantity="zero">التجميعات (%1$d)</item>
+        <item quantity="one">التجميعات (%1$d)</item>
+        <item quantity="two">التجميعات (%1$d)</item>
+        <item quantity="few">التجميعات (%1$d)</item>
+        <item quantity="many">التجميعات (%1$d)</item>
+        <item quantity="other">التجميعات (%1$d)</item>
+    </plurals>
 </resources>

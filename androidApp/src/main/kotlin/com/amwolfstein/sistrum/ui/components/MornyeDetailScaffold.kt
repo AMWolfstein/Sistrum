@@ -62,6 +62,7 @@ fun MornyeDetailScaffold(
     listState: LazyListState = rememberLazyListState(),
     onHeroColorChanged: (Color) -> Unit = {},
     artworkContent: (@Composable BoxScope.() -> Unit)? = null,
+    titleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.headlineLarge,
     header: @Composable ColumnScope.() -> Unit = {},
     content: LazyListScope.() -> Unit,
 ) {
@@ -102,7 +103,7 @@ fun MornyeDetailScaffold(
                                 Spacer(Modifier.height(240.dp))
                                 Text(title, Modifier.fillMaxWidth().background(page)
                                     .padding(horizontal = 24.dp, vertical = 12.dp).testTag("mornye-header-title"),
-                                    color = Color.White, style = MaterialTheme.typography.headlineLarge,
+                                    color = Color.White, style = titleStyle,
                                     fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                             }
                         }

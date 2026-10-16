@@ -599,6 +599,13 @@ internal fun AppDestinationContent(
                             )
                             AppStackPage.ArtistDetails -> ArtistDetailsContent(
                                 uiState = selectedArtistDetails,
+                                onBack = { onIntent(AppIntent.NavigateBack) },
+                                onTrackClick = onTrackClick,
+                                onTrackPlayNext = onTrackPlayNext,
+                                onTrackAddToQueue = onTrackAddToQueue,
+                                onTrackFavoriteToggle = onTrackFavoriteToggle,
+                                onTrackAlbumClick = { onIntent(AppIntent.OpenAlbumDetails(it.albumId)) },
+                                onTrackArtistClick = { onIntent(AppIntent.OpenArtistDetails(it.id)) },
                                 listState = artistDetailsListState,
                                 contentPadding = contentPadding,
                                 modifier = Modifier.fillMaxSize(),
