@@ -77,7 +77,7 @@ fun ArtworkHeroBackdrop(
     }
 }
 
-private fun artworkDominantColor(bitmap: ImageBitmap): Color {
+internal fun artworkDominantColor(bitmap: ImageBitmap): Color {
     val sample = android.graphics.Bitmap.createScaledBitmap(bitmap.asAndroidBitmap(), 24, 24, true)
     val pixels = IntArray(24 * 24)
     sample.getPixels(pixels, 0, 24, 0, 0, 24, 24)

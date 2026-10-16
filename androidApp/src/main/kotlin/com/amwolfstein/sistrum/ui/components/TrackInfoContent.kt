@@ -239,7 +239,7 @@ internal fun TrackInfoContent(track: LibraryTrack, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun TrackQualityBadge(quality: TrackAudioQuality, modifier: Modifier = Modifier) {
+internal fun TrackQualityBadge(quality: TrackAudioQuality, modifier: Modifier = Modifier) {
     if (quality == TrackAudioQuality.Unknown) return
     val colors = LocalSistrumColors.current
     val style = trackQualityBadgeStyle(quality, colors) ?: return

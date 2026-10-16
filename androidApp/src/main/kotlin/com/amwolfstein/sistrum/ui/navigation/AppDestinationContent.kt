@@ -361,6 +361,7 @@ internal fun AppDestinationContent(
                                 listState = homeListState,
                                 contentPadding = contentPadding,
                                 isLoaded = homeUiState.isLoaded,
+                                recentTracks = tracksUiState.recentTracks,
                                 keepListeningTracks = homeUiState.keepListeningTracks,
                                 mostPlayedTracks = homeUiState.mostPlayedTracks,
                                 forgottenTracks = homeUiState.forgottenTracks,
