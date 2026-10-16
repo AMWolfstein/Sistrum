@@ -1,6 +1,7 @@
 package com.amwolfstein.sistrum.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import com.amwolfstein.sistrum.sync.LibraryPlaylist
 import com.amwolfstein.sistrum.sync.LibraryTrack
 import com.amwolfstein.sistrum.ui.theme.SistrumTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -34,8 +36,7 @@ class SearchRestorationTest {
 
     @Test fun queryAndResultsScrollRestoreAndBackRemainsWithTheHost() {
         val restoration = StateRestorationTester(rule)
-        var index = -1
-        var offset = -1
+        lateinit var listState: LazyListState
         var backCount = 0
         val showingSearch = mutableStateOf(true)
         val results = LibrarySearchUiState(
@@ -54,8 +55,7 @@ class SearchRestorationTest {
                     LibrarySearchContent(results.copy(query = query), listState = list, onQueryChange = { query = it })
                 }
                 androidx.compose.runtime.SideEffect {
-                    index = list.firstVisibleItemIndex
-                    offset = list.firstVisibleItemScrollOffset
+                    listState = list
                 }
             }
         }
@@ -63,15 +63,16 @@ class SearchRestorationTest {
         rule.onNode(hasSetTextAction()).performImeAction()
         rule.onNodeWithTag("search-results").performScrollToIndex(8)
         rule.onNodeWithText("Composer result").assertIsDisplayed()
-        val before = rule.runOnIdle { index to offset }
+        val before = rule.runOnIdle { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+        assertTrue("Search results must be scrolled before restoration", before.first > 0 || before.second > 0)
         rule.runOnIdle { showingSearch.value = false }
         rule.onNodeWithTag("search-results").assertDoesNotExist()
         rule.runOnIdle { showingSearch.value = true }
         rule.onNode(hasSetTextAction()).assertTextEquals("local query")
-        rule.runOnIdle { assertEquals(before, index to offset) }
+        rule.runOnIdle { assertEquals(before, listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset) }
         restoration.emulateSavedInstanceStateRestore()
         rule.onNode(hasSetTextAction()).assertTextEquals("local query")
-        rule.runOnIdle { assertEquals(before, index to offset) }
+        rule.runOnIdle { assertEquals(before, listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset) }
         rule.onNodeWithText("Composer result").assertIsDisplayed()
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
         rule.runOnIdle { assertEquals(1, backCount) }
