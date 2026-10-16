@@ -5,7 +5,7 @@ task; SC-012 "no `player/` change" is measured from here).
 
 ## Current status
 
-- **Active (T020-fix3 complete, 2026-10-16):** Commit prepared in `.codex-commit/` for the runner on `feature/media3-migration`. D-24 gate PASS: app 1,501 tests (one existing oracle skip), shared 39/39, build/lint/graph PASS; device 1,051 cases across 36 classes, 50 measured baseline failures, zero new/changed failures. Raw verify.sh banner is FAIL only because it has no baseline allowlist. Final logs `/tmp/verify-task.SSzzLz`; exact-method/cause/count audit `/tmp/t020-fix3-final-acceptance.log`. Home 24/24 and playlist presentation 240/240 pass. T020 remains unchecked and next.
+- **Active (T020 complete, 2026-10-16):** M2 automated full gate and required `.qa` phone classes PASS under D-24. Commit prepared in `.codex-commit/` for the runner on `feature/media3-migration`. Logs `/tmp/verify-task.huW5GI`; audit `/tmp/t020-final-acceptance.log`: app 1,501 (one existing oracle skip), shared 39/39, assemble/lint/graph PASS; device 128 cases across the 14 distinct T020 classes, 27 exact measured baseline failures, zero new/changed failures. Raw verify banner FAIL is baseline only. T020 checked; next implementation task T021. Owner visual finish decisions remain HOLD; manual checks and runner phone-log triage remain pending.
 - **Known baseline rule for every 004 gate (D-24, measured 2026-10-16):** 52 pre-004 device methods failed on the archived `9f0acac` `.qa` build. A gate passes only when host/build/lint pass and every failing device method belongs to this explicit list (fewer failures are allowed). The original 30 methods in AppNavigationTest (16), MiniPlayerTest (8), FullScreenPlayerTest (6) retain their T008 lists below; the 22 additional methods measured by T020-fix3 (including the shared-height Insight consumer check) are:
   - `AlbumDetailsContentTest`: `heroOverflowShowsAlbumActionsAndAddsOnlyNonFavoriteTracks`, `displaysPublishedYearTrackCountAndTotalDurationInHeroMetadata`.
   - `ArtistDetailsContentTest`: `artistMoreMenuUsesOrderedTracksForPlayNextAndPlaylist`, `displaysArtistSummaryAndOpensSelectedAlbum`.
@@ -22,7 +22,7 @@ task; SC-012 "no `player/` change" is measured from here).
   - `LibraryTracksContentTest`: `trackRemainsVisibleWhileContextBottomSheetIsOpen`, `keepsTheFilterVisibleAndReportsChangesWhenAQueryIsActive`.
   - `PlaylistDetailsContentTest`: `displaysTrackCountAndDesktopStyleDurationWithoutArtistOrCopyright`, `favoritesMenuOffersEditButNotDelete`, `reorderModeReplacesTrackOptionsWithDragHandlesAndDoneAction`, `heroMoreShowsPlaylistPlaybackAndEditingActions`.
   Baseline logs: `/tmp/t020-base-device/instr-*.log` and `logcat-*.log`; per-method comparison is in the T020-fix3 report below. Baseline tests remain unchanged; no new 004 test receives an exemption. Phone-log triage treats only these methods as LOW known baseline.
-- **Phase:** **004 UI M1 DONE** (2026-10-16). T008 finished by Claude after Codex ended BLOCKED (owner rule). Final full
+- **Phase:** **004 UI M2 automated gate DONE** (T020, 2026-10-16; manual finish HOLD). **M1 DONE** (2026-10-16). T008 finished by Claude after Codex ended BLOCKED (owner rule). Final full
   gate `logs: /tmp/verify-task.Jdpta3`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lint 0 errors / 72 warnings,
   graph PASS; `.qa` device: UiContractCharacterization 5/5, RtlLayout 5/5, GlassFallback 96/96, Card 1/1, UiMatrix 72/72;
   AppNavigationTest 16, MiniPlayerTest 8, FullScreenPlayerTest 6 failures = **exactly the same method sets as archived
@@ -33,7 +33,7 @@ task; SC-012 "no `player/` change" is measured from here).
   the paragraph is laid out at the incoming max width (936 px) while the box is the measured size (83 px for "Play";
   device debug log 2026-10-16); now overflow = lines cut / ellipsis / a line's own width > box (RTL-safe). UiMatrixTest's
   48 negative clipping/overflow cases still fail as required. Graph-refresh "read-only index" = Codex sandbox only.
-- **Next step:** T020 (M2 full gate and phone check), using the explicit D-24 baseline below and the complete 36-class result table in the T020-fix3 report. Automated host/build/lint/device/graph evidence is now available. Owner/runner work remains: UI finish review and phone-log triage; light/dark/RTL/200% and landscape visual checks, toggle lens/tap/drag and API 31/32 static fallback, frame statistics, real listening/Bluetooth/headset checks. Existing UI finish HOLD decisions remain HOLD; none of those manual checks is represented as PASS.
+- **Next step:** Runner commits the T020 packet, triages `/tmp/verify-task.huW5GI/instr-*.log` and `logcat-*.log`, and proceeds to T021 in a fresh session. Owner/runner checks remain: UI finish approval; light/dark/RTL/200% and landscape visual checks, toggle lens/tap/drag and API 31/32 static fallback, frame statistics, real listening/Bluetooth/headset checks. Existing UI finish HOLD decisions remain HOLD; none of those manual checks is represented as PASS.
 - **Scope now:** UI only (M1–M5). Decoders part of 004 (former 002 Phase 5b / M4b) comes later, after 002 M3–M6 and 003.
 - **Host baseline (SC-010, T001):** app 1,464 tests (1,463 passed, 1 existing skip), shared 39 passed; total
   1,503 discovered / 1,502 passed / 0 failures / 0 errors. Before T001, stored results contained 1,454 app + 39 shared
@@ -52,6 +52,57 @@ task; SC-012 "no `player/` change" is measured from here).
   | `com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest` | PASS: 5/5 | T008 actual `.qa` execution |
 
 - **Owner checks pending (not blocking):** LARGE style look (D-12), Home look (D-22) at the M2 phone check.
+
+## T020 — M2 full gate and phone check (2026-10-16, COMPLETE under D-24)
+
+Impact before editing: `git grep -n T020 -- specs/004-ui-extensions/plan.md specs/004-ui-extensions/tasks.md` confirms M2 closes with this gate. Only tasks.md (completion checkbox) and HANDOFF.md (status, evidence, log) require changes; these records are consumed by the runner and subsequent task sessions. No production/test caller changes, Room, analysis documents, preferences, DecoderProvider order, PlaybackController, schema, public API or shipped behavior touched. All source/tests remain unmodified. No new decision or architecture change; D-24 is applied exactly.
+
+Memory prechecks: `./gradlew --stop`, `pkill -f '[K]otlinCompileDaemon'`, `/proc/meminfo`: attempt 1 MemAvailable 2,956,476 kB; attempt 2 2,871,844 kB, both >= 2 GB. Branch confirmed `feature/media3-migration`; initial working tree clean and no pending `.codex-commit/`.
+
+Attempt 1: full gate with the 36-class T020-fix3 list, driver `/tmp/t020-final-gate.log`, logs `/tmp/verify-task.bAklE8`, INTERRUPTED (exit 130). Host/build/lint passed; completed presentation passes included playlist list 144/144, Search 72/72 + restoration 1/1, playlist details 96/96, artist details 24/24, artist list 96/96, album 72/72 and genre/composer 144/144. `/tmp` filled (2.9 GB tmpfs); verify.sh explicitly failed to write instrumentation logs for Home/Library matrices. Those incomplete logs are NOT valid final evidence; no final gate/audit PASS claimed for this attempt. Shell creation and a HANDOFF write also failed while full; subsequent git status confirmed no project change. Stopped the gate before retrying. Recovery only touched temporary artifacts: removed the two reproducible APKs under `/tmp/t020-base/androidApp/build/outputs/apk/` (archived source and baseline logs preserved), losslessly compressed `logcat-*.log` to `.log.gz` in `/tmp/verify-task.NKwmsw`, `/tmp/verify-task.4LtLF1`, `/tmp/verify-task.bAklE8` (834 MB free). Interrupted logs may already be truncated and are not claimed complete. Both installs prompted Play Protect about sending Sistrum QA to Google; selected Don't send, without changing security settings. No daily app installed/instrumented/force-stopped.
+
+Attempt 2 (final): `bash .claude/skills/verify-task/scripts/verify.sh --files 'specs/004-ui-extensions/tasks.md specs/004-ui-extensions/HANDOFF.md' --lint --instrumented "$(cat /tmp/t020-final-classes.txt)"`. The class file contains the exact 14 distinct classes named by T020 (AppearanceContentTest is duplicated in the task line and ran once), one at a time. Full host suites, no narrowing/quick flag and no early stop. Driver `/tmp/t020-final-gate2.log`; **logs: `/tmp/verify-task.huW5GI`**, including every required class's `instr-*.log` and `logcat-*.log` for runner triage. Only `.qa` APK IDs installed/instrumented on the API 35 phone; QA build left installed.
+
+Host app: 1,501 discovered / 1,500 passed / one unchanged `WaxFlowOracleLoudnessTest.matchesWaxFlowOracleFixtures` skip; shared 39/39; zero failures/errors. Gradle reused UP-TO-DATE completed full-suite results. assembleDevQa and test APK build PASS. Lint task BUILD SUCCESSFUL, XML zero errors/fatal issues, 73 warnings / 14 hints. Graph hook in gate PASS; explicit `python3 .claude/hooks/graph_refresh.py auto` PASS, not needed (no source change); no generated graph changes.
+
+Raw verify.sh **GATE: FAIL** because it has no baseline allowlist. Strict audit `python3 /tmp/t020-final-acceptance.py /tmp/verify-task.huW5GI /tmp/t020-final-gate2.log` **GATE: PASS under D-24**, output `/tmp/t020-final-acceptance.log`. Audit checks host counts and exact skip, completed phases, lint task/XML, expected case counts for all 14 classes and every failing method plus normalized cause against `/tmp/t020-base-device` and the 52-method measured baseline. Audit helpers `/tmp/t020-final-acceptance.py` and `/tmp/t020-check-device.py` reuse the T020-fix3 checks with only the class-list/helper paths adjusted. Device **128 run / 101 passed / 27 exact baseline failures / zero new or changed failures / zero audit problems**. No result edited or exemption added.
+
+| Required device class | Cases | Raw failures | Outside D-24 baseline |
+|---|---:|---:|---:|
+| UiContractCharacterizationTest | 5 | 0 | 0 |
+| AppNavigationTest | 39 | 15 | 0 |
+| LibraryContentTest | 6 | 0 | 0 |
+| LibraryAlbumsContentTest | 9 | 1 | 0 |
+| LibraryTracksContentTest | 17 | 2 | 0 |
+| AlbumDetailsContentTest | 7 | 2 | 0 |
+| ArtistDetailsContentTest | 7 | 2 | 0 |
+| GlassToggleTest | 12 | 0 | 0 |
+| AppearanceContentTest | 1 | 0 | 0 |
+| IntegrationContentTest | 3 | 0 | 0 |
+| LibraryPlaylistsContentTest | 7 | 1 | 0 |
+| PlaylistDetailsContentTest | 6 | 4 | 0 |
+| LibrarySearchContentTest | 1 | 0 | 0 |
+| HomeContentTest | 8 | 0 | 0 |
+
+### T020 final SC-001 / SC-003 evidence
+
+The earlier BLOCKED T020 tables below are historical; this table and the completed T020-fix3 36-class table supersede their unresolved automated findings.
+
+| Criterion / screen group | Evidence | Automated disposition |
+|---|---|---|
+| SC-001 host characterization | Full host suite includes unchanged characterization 10/10 | PASS |
+| SC-001 device navigation / DEFAULT player / mini-player | Final characterization 5/5; AppNavigation 39 cases, 15 exact baseline failures. T020-fix3 completed MiniPlayer 14/8 baseline and FullScreenPlayer 20/6 baseline; unchanged since then | PASS under D-24 |
+| SC-003 Home | Final content 8/8; completed fix3 matrix 24/24 across theme/transparency/language/font scales | PASS |
+| SC-003 Library / lists | Final overview 6/6; list content only measured baseline failures; fix3 Library matrix 24/24, artist list 96/96, ArtistRow 1/1 | PASS under D-24 |
+| SC-003 Album details | Final content 7 cases / 2 baseline failures; fix3 presentation 72/72 (also repeated in interrupted attempt before disk failure) | PASS under D-24 |
+| SC-003 Artist / genre / composer details | Final artist 7 cases / 2 baseline failures; fix3 artist presentation 24/24, genre/composer matrix 144/144; content failures only measured baseline | PASS under D-24 |
+| SC-003 Playlists / editor | Final list 7 cases / 1 baseline failure, detail 6 / 4 baseline; fix3 list presentation 144/144 and detail presentation 96/96 | PASS under D-24 |
+| SC-003 Search | Final content 1/1; fix3 presentation 72/72 and restoration 1/1 (also repeated in interrupted attempt before disk failure) | PASS |
+| SC-003 Settings / shared components | Final toggle 12/12, Appearance 1/1, Integration 3/3; fix3 UiMatrix 72/72 including 48 negative clipping/overflow cases, glass fallback 96/96 | PASS |
+
+Existing `review/M2/` UI finish reviewer VERDICT PASS means no CRITICAL/HIGH finding, not visual approval; its seven finish decisions remain HOLD. Runner phone-log triage is pending by the task's explicit assignment, not performed by this implementer. NOT RUN/manual owner list: light/dark/RTL/200%/landscape visual approval; toggle lens/tap/drag and keyboard focus follow-up; API 31/32 static-fallback visuals (connected device API 35); frame statistics; real listening/Bluetooth/headset checks. Existing oracle skip requires external corpus/fixtures and remains NOT RUN. These are not claimed PASS. Existing MEDIUM/LOW review follow-ups remain deferred. No delegation, code/test edits or architecture changes.
+
+Final self-review: each changed file is required solely to close T020 and hand off evidence; no extra tracked file. All existing tests untouched, none skipped/weakened, no feature removed or exception handling changed. `git diff --check` PASS. Commit prepared only via `.codex-commit/files.txt` and `message.txt`; no staging/commit/push performed. Runner assigns SHA. T020 complete under the task's D-24 rule; next task T021, owner finish HOLD retained.
 
 ## T008-fix2 M1 phone-log triage — 2026-10-16 (BLOCKED)
 
@@ -733,6 +784,7 @@ Owner listening/Bluetooth/headset checks remain manual, never PASS. No phone/dai
 
 | Date | Task | Result |
 |---|---|---|
+| 2026-10-16 | T020 | Commit prepared in `.codex-commit/`, runner assigns SHA. Full gate attempt 2 D-24 PASS: host app 1,501 (one unchanged oracle skip), shared 39/39, assembly/lint/graph PASS; required 14 distinct device classes 128 cases / 27 exact pre-004 baseline failures / zero new or changed failures. Raw script FAIL baseline only; strict method/cause/count audit PASS. Logs `/tmp/verify-task.huW5GI`, driver `/tmp/t020-final-gate2.log`, audit `/tmp/t020-final-acceptance.log`. Attempt 1 interrupted on full tmpfs/log write failures; partial evidence not counted as final gate. Recovered temporary storage with APK removal and lossless old logcat compression; no tracked extras. Changed only tasks.md/HANDOFF.md to close T020 and record SC-001/SC-003 evidence; all source/tests unchanged. Explicit graph hook not needed, diff whitespace PASS. NOT RUN: existing oracle fixture skip; owner visuals/API 31–32/frame stats/listening/Bluetooth/headset and runner phone-log triage; UI finish HOLD retained. D-24 only, no new decision. |
 | 2026-10-16 | T020-fix3 | Commit prepared in `.codex-commit/`, runner assigns SHA. D-24 PASS: full host app 1,501 (one unchanged oracle skip), shared 39/39, build/lint/graph PASS; device 1,051 run / 50 exact pre-004 baseline failures / 0 new or changed failures. Raw script FAIL is baseline only; strict audit PASS. Logs `/tmp/verify-task.SSzzLz`, audit `/tmp/t020-fix3-final-acceptance.log`; baseline `/tmp/t020-base-device`. Fixed Home measured line height (RED 16/24 to GREEN 24/24) and only verified 004-added host/resources/query/scroll/pixel/action fixtures; legacy test bodies and all expected values preserved. Full per-method classification, every file reason, intermediate failed/interrupted attempts and final 36-class table above. Two graph files hook-generated. NOT RUN: existing oracle skip (external fixtures/corpus), API 31/32/owner visuals/frame stats/listening/Bluetooth/headset and runner triage/review (T020/manual). No ADR/schema/player/preferences/decoder/API/feature change; no new decision beyond D-24. |
 | 2026-10-16 | T020 second retry | BLOCKED; no commit packet. Only HANDOFF edited; all inherited changes retained. Source/history, cached Compose bytecode and retained device log independently confirm line 63 clicks at y=-24 and fails expected 12 / actual 4. D-4 requires this test unchanged; shipped Settings cannot be changed to accommodate invalid input. No new baseline exemption or decision. `git diff --check` PASS. Full gate/Gradle/memory precheck/graph/phone/bisection NOT RUN under the brief's explicit stop rule; other M2 failures and reviews remain unresolved. |
 | 2026-10-16 | T020 retry | BLOCKED; no commit packet. Retained prior Home/Library fixes; only HANDOFF edited plus hook-generated graphs. Full gate `/tmp/verify-task.sPMqDF` FAIL: host stopped after the mandatory D-4 conflict was established, assembly/lint PASS (0 errors), wrong device FQCN initialization failure corrected in focused `/tmp/verify-task.Yb3GmW`. Focused host 27/27, RTL 5/5, device characterization 5/5 PASS; unchanged CrossfadeDurationSliderTest 1/2 FAIL. Verified line 63 injects at y=-24; test and production slider identical to pre-004 `9f0acac`; D-4 forbids changing the required unchanged test, and the accepted baseline excludes this class. No tests/player/contracts/decisions changed or daily app touched. Full host, other device failures, archival device bisection, visual/API31–32/frame/Claude reviews remain incomplete/NOT RUN as detailed above. |
