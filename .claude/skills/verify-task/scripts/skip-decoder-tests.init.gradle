@@ -1,0 +1,12 @@
+// Owner 2026-10-16: 004 (UI) milestone gates run the UI and app host tests only; the slow decoder tests run at the end of
+// 004 (T066) and in every other spec. verify.sh passes this init script only while 004's T055 is unticked.
+gradle.allprojects { p ->
+  p.tasks.withType(Test).configureEach { t ->
+    if (t.name == 'testDevQaUnitTest' || t.name == 'test') {
+      t.filter { f ->
+        f.excludeTestsMatching 'com.amwolfstein.sistrum.player.decoders.*'
+        f.excludeTestsMatching 'com.amwolfstein.sistrum.analysis.OfflineDecoderKotlinFormatsTest'
+      }
+    }
+  }
+}

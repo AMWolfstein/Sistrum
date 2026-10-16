@@ -16,6 +16,7 @@
 #                   `<FQCN>` (every test in the class) or `<FQCN>#<method name>` (that test only; the class's other
 #                   tests must pass). All other tests in the run must pass. Prints an "Expected-fail:" line for the
 #                   commit message.
+#   --all-host-tests  run the decoder host tests too while the 004 skip rule is active (see the unit-test step)
 #   --quick         per-task quick gate (owner 2026-10-14, 002+): run these Gradle test tasks instead of the full
 #                   unit suites (e.g. ':codecs:test' or ':androidApp:testDevQaUnitTest'), and compile
 #                   (:androidApp:compileDevQaKotlin) instead of assembling. Full suites, lint and assembleDevQa run at
@@ -32,6 +33,7 @@ while [ $# -gt 0 ]; do
     --instrumented) instrumented="$2"; shift 2 ;;
     --expect-fail) expect_fail="$2"; shift 2 ;;
     --quick) quick="$2"; shift 2 ;;
+    --all-host-tests) all_host=1; shift ;;
     *) echo "verify: unknown argument $1" >&2; exit 2 ;;
   esac
 done
@@ -67,9 +69,16 @@ report() { printf '%-14s %-8s %s\n' "$1" "$2" "$3"; [ "$2" = FAIL ] && overall=F
 if [ -z "$expect_fail" ]; then
   unit_tasks=(:androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest)
   [ -n "$quick" ] && read -r -a unit_tasks <<< "$quick"
-  if ./gradlew "${unit_tasks[@]}" "${filters[@]}" --continue \
+  # Owner 2026-10-16: 004 (UI) gates skip the slow decoder host tests until M4's last task (T055) is ticked; M5's final
+  # gate (T066) and every other spec run them. --all-host-tests overrides.
+  skip_init=() skip_note=""
+  if [ -z "$quick" ] && [ -z "${all_host:-}" ] && grep -q '^- \[ \] T055 ' specs/004-ui-extensions/tasks.md 2>/dev/null; then
+    skip_init=(--init-script "$(dirname "$0")/skip-decoder-tests.init.gradle")
+    skip_note=" (decoder tests skipped: 004 rule until T055)"
+  fi
+  if ./gradlew "${skip_init[@]}" "${unit_tasks[@]}" "${filters[@]}" --continue \
       > "$logs/unit.log" 2>&1; then
-    report "unit tests" PASS "${unit_tasks[*]} ${filters[*]:-(all)}"
+    report "unit tests" PASS "${unit_tasks[*]} ${filters[*]:-(all)}$skip_note"
   else
     report "unit tests" FAIL "see $logs/unit.log"
     grep -E 'FAILED|^e: |What went wrong' -A2 "$logs/unit.log" | head -40
