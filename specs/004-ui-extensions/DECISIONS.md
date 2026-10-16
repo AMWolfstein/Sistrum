@@ -159,3 +159,22 @@ reason in HANDOFF, never by loosening an assertion or expected value. The slider
 `9f0acac`. Task T020-fix3.
 Revisit if: a regression needs a layout that cannot hold an existing action (then an owner question, D-4).
 
+## D-25: Fetcher tests-first bridge and observable transport contract (T021)
+Case: T021 must compile and fail on assertions with no production fetcher; T022 must pass the same tests unmodified.
+Options: production stubs in the tests-only task; reflection at the test boundary, following the existing decoder contracts.
+Chosen: reflection only in test helpers, reporting absent classes as assertion failures. Production remains entirely T022.
+The D-7 interface is `HttpFetcher.get(String, Map<String, String>, Int): FetchResult` (suspend).
+Results observed by these tests are `Success(bytes: ByteArray)`, `HttpError(code: Int)`, `TooLarge`, `InvalidUrl`,
+`RedirectLimit`, `Timeout`, and `NetworkError`; cancellation throws the original `CancellationException`.
+`UrlConnectionFetcher` has an injectable constructor `(openConnection: (URL) -> HttpURLConnection,
+connectTimeoutMs: Int, readTimeoutMs: Int, maxRedirects: Int, log: (String) -> Unit)`; production defaults are T022's
+responsibility. Tests inject 1000/2000 ms and two redirects (initial request plus two hops), fake connections only.
+Use the existing `Sistrum-Android/${BuildConfig.VERSION_NAME}` User-Agent, ignoring case-insensitive caller overrides.
+Accept bodies exactly at the caller's cap, including empty at zero; reject actual over-cap bodies regardless of
+Content-Length, reading at most cap plus one sentinel byte. Inspect redirects manually, resolve relative HTTPS targets,
+and close streams/disconnect on success, failure and cancellation. Diagnostics must record failures without full URLs,
+query tokens or unsanitized exception messages. The scripted test fake exposes `asFetcher<T>()` as an interface proxy
+until the production type exists; later tests can use `val fetcher: HttpFetcher = fake.asFetcher()`.
+These are test seams and FR-012 boundary choices, with no change to D-7, architecture, or existing networking clients.
+Revisit if: a later provider needs response headers or a body larger than its explicit per-call cap.
+
