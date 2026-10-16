@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.amwolfstein.sistrum.sync.LibraryArtist
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 import com.amwolfstein.sistrum.R
 import com.amwolfstein.sistrum.ui.components.ArtistRow
 import com.amwolfstein.sistrum.ui.components.ArtistContextMenu
@@ -31,7 +34,7 @@ internal fun LibraryArtistsContent(
     modifier: Modifier = Modifier,
     listState: LazyListState = remember(uiState.sortOption, uiState.sortOrder) { LazyListState() },
     contentPadding: PaddingValues = PaddingValues(),
-    onArtistClick: ((com.amwolfstein.sistrum.sync.LibraryArtist) -> Unit)? = null,
+    onArtistClick: ((LibraryArtist) -> Unit)? = null,
     onFilterQueryChange: (String) -> Unit = {},
     orderedTrackIdsForArtist: (String) -> List<String> = { emptyList() },
     onArtistPlayNext: (List<String>) -> Unit = {},
@@ -39,7 +42,9 @@ internal fun LibraryArtistsContent(
     onTrackContextBottomSheet: (TrackContextBottomSheetRequest) -> Unit = {},
     hazeState: HazeState? = null,
     playbackQueue: PlaybackQueueSnapshot = PlaybackQueueSnapshot(),
+    portrait: @Composable ((LibraryArtist) -> Unit)? = null,
 ) {
+    val tokens = LocalSistrumTokens.current
     var contextArtistId by remember { mutableStateOf<String?>(null) }
     val listPadding = remember(contentPadding) {
         PaddingValues(
@@ -56,7 +61,7 @@ internal fun LibraryArtistsContent(
         contentType = "artist_row",
         listState = listState,
         contentPadding = listPadding,
-        modifier = modifier,
+        modifier = modifier.background(tokens.colors.page),
         dividerTestTag = "artist-row-divider",
         filterKey = "artists",
         filterActive = uiState.filterQuery.isNotBlank(),
@@ -72,8 +77,8 @@ internal fun LibraryArtistsContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = tokens.spacing.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(tokens.spacing.large),
             ) {
                 HeroCard(
                     title = stringResource(if (uiState.filterQuery.isBlank()) R.string.artists_empty_title else R.string.artists_no_match_title),
@@ -105,6 +110,7 @@ internal fun LibraryArtistsContent(
             ArtistRow(
                 name = artist.name,
                 artworkPath = artist.artworkPath,
+                portrait = portrait?.let { content -> { content(artist) } },
                 onClick = onArtistClick?.let { callback -> { callback(artist) } },
                 onLongClick = { contextArtistId = artist.id },
             )

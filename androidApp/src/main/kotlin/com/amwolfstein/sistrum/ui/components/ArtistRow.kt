@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 fun ArtistRow(
@@ -33,9 +33,10 @@ fun ArtistRow(
     artworkPath: String? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
+    portrait: @Composable (() -> Unit)? = null,
 ) {
-    val colors = LocalSistrumColors.current
-    val bitmap = rememberArtworkThumbnail(artworkPath)
+    val tokens = LocalSistrumTokens.current
+    val bitmap = if (portrait == null) rememberArtworkThumbnail(artworkPath) else null
     val clickModifier = remember(onClick, onLongClick) {
         if (onClick != null || onLongClick != null) Modifier.combinedClickable(
             onClick = { onClick?.invoke() },
@@ -47,18 +48,23 @@ fun ArtistRow(
         modifier = modifier
             .fillMaxWidth()
             .then(clickModifier)
-            .padding(top = 6.dp, end = 8.dp, bottom = 6.dp, start = 24.dp),
+            .padding(
+                top = tokens.spacing.small, end = tokens.spacing.small,
+                bottom = tokens.spacing.small, start = tokens.spacing.extraLarge,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(colors.glassElevated)
-                .border(1.dp, colors.borderGlass, CircleShape),
+                .background(tokens.colors.opaqueFill)
+                .border(1.dp, tokens.colors.divider, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            if (bitmap != null) {
+            if (portrait != null) {
+                portrait()
+            } else if (bitmap != null) {
                 Image(
                     bitmap = bitmap,
                     contentDescription = null,
@@ -70,7 +76,7 @@ fun ArtistRow(
                     symbol = MaterialSymbols.Person,
                     contentDescription = null,
                     size = 22.dp,
-                    tint = colors.textMuted,
+                    tint = tokens.colors.mutedText,
                 )
             }
         }
@@ -79,10 +85,10 @@ fun ArtistRow(
             text = name,
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 12.dp, end = 8.dp),
+                .padding(start = tokens.spacing.medium, end = tokens.spacing.small),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = colors.textMain,
-            maxLines = 1,
+            color = tokens.colors.text,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
 
@@ -94,7 +100,7 @@ fun ArtistRow(
                 symbol = MaterialSymbols.ChevronRight,
                 contentDescription = stringResource(R.string.artist_row_open),
                 size = 20.dp,
-                tint = colors.textMuted,
+                tint = tokens.colors.mutedText,
             )
         }
     }
