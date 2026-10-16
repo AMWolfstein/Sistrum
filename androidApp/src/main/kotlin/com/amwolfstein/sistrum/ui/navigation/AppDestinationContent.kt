@@ -225,7 +225,6 @@ internal fun AppDestinationContent(
     val onTrackClick = library.tracks.onTrackClick
     val onTracksPlayAll = library.tracks.onPlayAll
     val onTracksFilterQueryChange = library.tracks.onFilterQueryChange
-    val onRecentTrackClick = library.tracks.onRecentTrackClick
     val onSearchQueryChange = library.search.onQueryChange
     val onSearchTrackClick = library.search.onTrackClick
     val onAlbumPlayNext = library.albums.onPlayNext
@@ -768,16 +767,7 @@ internal fun AppDestinationContent(
                             else -> LibraryContent(
                                 modifier = Modifier.fillMaxSize(),
                                 contentPadding = contentPadding,
-                                recentTracks = tracksUiState.recentTracks,
                                 listState = libraryListState,
-                                onTrackClick = onRecentTrackClick,
-                                playbackQueue = playbackQueue,
-                                onTrackPlayNext = { track -> onTrackPlayNext(track.id) },
-                                onTrackAddToQueue = { track -> onTrackAddToQueue(track.id) },
-                                onTrackFavoriteToggle = { track, favorite -> onTrackFavoriteToggle(track.id, favorite) },
-                                onTrackAlbumClick = { track -> onIntent(AppIntent.OpenAlbumDetails(track.albumId)) },
-                                onTrackArtistClick = { artist -> onIntent(AppIntent.OpenArtistDetails(artist.id)) },
-                                onTrackContextBottomSheet = onTrackContextBottomSheet,
                                 onSearchSelected = {
                                     onIntent(AppIntent.OpenPage(AppStackPage.LibrarySearch))
                                 },

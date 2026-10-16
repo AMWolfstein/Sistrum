@@ -1,50 +1,37 @@
 package com.amwolfstein.sistrum.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.amwolfstein.sistrum.R
-import com.amwolfstein.sistrum.player.PlaybackQueueSnapshot
-import com.amwolfstein.sistrum.sync.LibraryTrack
-import com.amwolfstein.sistrum.ui.components.ActionList
-import com.amwolfstein.sistrum.ui.components.ActionListContainerStyle
 import com.amwolfstein.sistrum.ui.components.ActionListItem
-import com.amwolfstein.sistrum.ui.components.DiscGridItem
+import com.amwolfstein.sistrum.ui.components.MaterialSymbol
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
-import com.amwolfstein.sistrum.ui.components.TrackContextArtist
-import com.amwolfstein.sistrum.ui.components.TrackContextMenu
-import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
-import com.amwolfstein.sistrum.ui.components.discGridItems
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 internal fun LibraryContent(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    recentTracks: List<LibraryTrack> = emptyList(),
     listState: LazyListState = rememberLazyListState(),
-    onTrackClick: ((String) -> Unit)? = null,
-    playbackQueue: PlaybackQueueSnapshot = PlaybackQueueSnapshot(),
-    onTrackPlayNext: (LibraryTrack) -> Unit = {},
-    onTrackAddToQueue: (LibraryTrack) -> Unit = {},
-    onTrackFavoriteToggle: (LibraryTrack, Boolean) -> Unit = { _, _ -> },
-    onTrackAlbumClick: (LibraryTrack) -> Unit = {},
-    onTrackArtistClick: (TrackContextArtist) -> Unit = {},
     onSearchSelected: (() -> Unit)? = null,
     onArtistsSelected: (() -> Unit)? = null,
     onAlbumsSelected: (() -> Unit)? = null,
@@ -52,112 +39,76 @@ internal fun LibraryContent(
     onGenresSelected: (() -> Unit)? = null,
     onComposersSelected: (() -> Unit)? = null,
     onPlaylistsSelected: (() -> Unit)? = null,
-    onTrackContextBottomSheet: (TrackContextBottomSheetRequest) -> Unit = {},
 ) {
-    val colors = LocalSistrumColors.current
-    var contextTrack by remember { mutableStateOf<LibraryTrack?>(null) }
+    val tokens = LocalSistrumTokens.current
+    val destinations = listOf(
+        ActionListItem(
+            labelRes = R.string.library_search,
+            leadingSymbol = MaterialSymbols.Search,
+            onClick = onSearchSelected,
+        ),
+        ActionListItem(
+            labelRes = R.string.library_artists,
+            leadingSymbol = MaterialSymbols.People,
+            onClick = onArtistsSelected,
+        ),
+        ActionListItem(
+            labelRes = R.string.library_albums,
+            leadingSymbol = MaterialSymbols.Album,
+            onClick = onAlbumsSelected,
+        ),
+        ActionListItem(
+            labelRes = R.string.library_tracks,
+            leadingSymbol = MaterialSymbols.MusicNote,
+            onClick = onTracksSelected,
+        ),
+        ActionListItem(
+            labelRes = R.string.library_genres,
+            leadingSymbol = MaterialSymbols.Label,
+            onClick = onGenresSelected,
+        ),
+        ActionListItem(
+            labelRes = R.string.library_composers,
+            leadingSymbol = MaterialSymbols.StylusFountainPen,
+            onClick = onComposersSelected,
+        ),
+        ActionListItem(
+            labelRes = R.string.library_playlists,
+            leadingSymbol = MaterialSymbols.QueueMusic,
+            onClick = onPlaylistsSelected,
+        ),
+    )
     LazyColumn(
         state = listState,
         modifier = modifier,
         contentPadding = contentPadding,
+        verticalArrangement = Arrangement.spacedBy(tokens.spacing.small),
     ) {
-        item {
-            ActionList(
-                items = listOf(
-                    ActionListItem(
-                        labelRes = R.string.library_search,
-                        leadingSymbol = MaterialSymbols.Search,
-                        leadingIconTint = colors.primary,
-                        onClick = onSearchSelected,
-                    ),
-                    ActionListItem(
-                        labelRes = R.string.library_artists,
-                        leadingSymbol = MaterialSymbols.People,
-                        leadingIconTint = colors.primary,
-                        onClick = onArtistsSelected,
-                    ),
-                    ActionListItem(
-                        labelRes = R.string.library_albums,
-                        leadingSymbol = MaterialSymbols.Album,
-                        leadingIconTint = colors.primary,
-                        onClick = onAlbumsSelected,
-                    ),
-                    ActionListItem(
-                        labelRes = R.string.library_tracks,
-                        leadingSymbol = MaterialSymbols.MusicNote,
-                        leadingIconTint = colors.primary,
-                        onClick = onTracksSelected,
-                    ),
-                    ActionListItem(
-                        labelRes = R.string.library_genres,
-                        leadingSymbol = MaterialSymbols.Label,
-                        leadingIconTint = colors.primary,
-                        onClick = onGenresSelected,
-                    ),
-                    ActionListItem(
-                        labelRes = R.string.library_composers,
-                        leadingSymbol = MaterialSymbols.StylusFountainPen,
-                        leadingIconTint = colors.primary,
-                        onClick = onComposersSelected,
-                    ),
-                    ActionListItem(
-                        labelRes = R.string.library_playlists,
-                        leadingSymbol = MaterialSymbols.QueueMusic,
-                        leadingIconTint = colors.primary,
-                        onClick = onPlaylistsSelected,
-                    ),
-                ),
-                containerStyle = ActionListContainerStyle.Plain,
-                horizontalContentPadding = 0.dp,
-                showTrailingDivider = true,
-            )
-        }
-
-        if (recentTracks.isNotEmpty()) {
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
+        items(destinations, key = { it.labelRes }) { destination ->
+            val clickModifier = destination.onClick?.let { Modifier.clickable(role = Role.Button, onClick = it) }
+                ?: Modifier
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(tokens.shapes.medium)
+                    .background(tokens.colors.opaqueFill)
+                    .then(clickModifier)
+                    .heightIn(min = 72.dp)
+                    .padding(tokens.spacing.large),
+                horizontalArrangement = Arrangement.spacedBy(tokens.spacing.large),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                destination.leadingSymbol?.let { symbol ->
+                    MaterialSymbol(symbol, null, size = 24.dp, tint = tokens.colors.accent)
+                }
                 Text(
-                    text = stringResource(R.string.library_recently_added),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = colors.textMain,
-                    modifier = Modifier.padding(vertical = 8.dp),
+                    stringResource(destination.labelRes),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = tokens.colors.text,
+                    modifier = Modifier.weight(1f),
                 )
+                MaterialSymbol(MaterialSymbols.ChevronRight, null, size = 20.dp, tint = tokens.colors.mutedText)
             }
-            discGridItems(
-                items = recentTracks.map { track ->
-                    DiscGridItem(
-                        id = track.id,
-                        title = track.title,
-                        subtitle = track.artists,
-                        artworkPath = track.artworkPath,
-                        audioPath = track.audioPath,
-                        fallbackSymbol = MaterialSymbols.MusicNote,
-                    )
-                },
-                onClick = onTrackClick,
-                onLongClick = { trackId -> contextTrack = recentTracks.find { it.id == trackId } },
-                itemWrapper = { item, itemModifier, content ->
-                    val track = recentTracks.find { it.id == item.id }
-                    if (track == null) {
-                        content()
-                    } else {
-                        TrackContextMenu(
-                            track = track,
-                            expanded = contextTrack?.id == track.id,
-                            onDismiss = { if (contextTrack?.id == track.id) contextTrack = null },
-                            modifier = itemModifier,
-                            playbackQueue = playbackQueue,
-                            onPlayNext = onTrackPlayNext,
-                            onAddToQueue = onTrackAddToQueue,
-                            onFavoriteChange = onTrackFavoriteToggle,
-                            onGoToAlbum = onTrackAlbumClick,
-                            onGoToArtist = onTrackArtistClick,
-                            onBottomSheetRequested = onTrackContextBottomSheet,
-                            anchor = content,
-                        )
-                    }
-                },
-            )
         }
     }
 }
