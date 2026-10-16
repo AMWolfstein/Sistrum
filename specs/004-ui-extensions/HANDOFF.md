@@ -5,40 +5,124 @@ task; SC-012 "no `player/` change" is measured from here).
 
 ## Current status
 
-- **Phase:** 004 UI M1; T001 committed (`7b5b318e`), T002 committed (`7607b187`), T003 committed (`8ddcf5f5`),
-  T004 committed (`de1193ab`), T005 committed (`b1eb103d`), T006 committed (`a1066c1f`). T007 glass surfaces
-  prepared for the runner on `feature/media3-migration`; quick gate PASS (29 host tests, no failures/errors/skips),
-  app and device-test Kotlin compilation PASS. `GlassSurface` and the shared modifier use tokens and `GlassPolicy`;
-  Opaque attaches no Haze effect modifier. App supplies the live Reduce Transparency preference to all surfaces.
-  Theme provides semantic tokens and live system reduced motion; DEFAULT player geometry/code unchanged.
-  T008 remains. The 96 new GlassFallbackTest matrix cases are compiled only, NOT RUN until T008;
-  T003's explicit frame-script exception recorded the SC-011 baseline below.
+- **Phase:** **004 UI M1 DONE** (2026-10-16). T008 finished by Claude after Codex ended BLOCKED (owner rule). Final full
+  gate `logs: /tmp/verify-task.Jdpta3`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lint 0 errors / 72 warnings,
+  graph PASS; `.qa` device: UiContractCharacterization 5/5, RtlLayout 5/5, GlassFallback 96/96, Card 1/1, UiMatrix 72/72;
+  AppNavigationTest 16, MiniPlayerTest 8, FullScreenPlayerTest 6 failures = **exactly the same method sets as archived
+  T003/T002** (diff 0; legacy baseline below, CLAUDE.md "Known state"), so the script's `GATE: FAIL` is the known
+  baseline only. Two T003 harness bugs fixed in `androidTest/ui/testing/UiMatrix.kt` (test helper only, no assertion
+  changed): output dir from the target `.qa` context (Codex's fix: the test APK context returns null), and the label
+  overflow check (Claude): `hasVisualOverflow` reports overflow for every fitting label in a wrap-content button because
+  the paragraph is laid out at the incoming max width (936 px) while the box is the measured size (83 px for "Play";
+  device debug log 2026-10-16); now overflow = lines cut / ellipsis / a line's own width > box (RTL-safe). UiMatrixTest's
+  48 negative clipping/overflow cases still fail as required. Graph-refresh "read-only index" = Codex sandbox only.
+- **Next step:** chain runner (`chain.sh`, runner-plan.txt) runs M1 phone-log triage + Haiku check, then M2 → M5.
 - **Scope now:** UI only (M1–M5). Decoders part of 004 (former 002 Phase 5b / M4b) comes later, after 002 M3–M6 and 003.
-- **Next step:** runner commits T007; finishes M1 (reviews, T008 gate + phone check, Haiku final check);
-  then M2 (T009–T020) the same way. Order after 004 UI: T021a → 002 M3–M6 → 003 → 004 decoders.
 - **Host baseline (SC-010, T001):** app 1,464 tests (1,463 passed, 1 existing skip), shared 39 passed; total
   1,503 discovered / 1,502 passed / 0 failures / 0 errors. Before T001, stored results contained 1,454 app + 39 shared
   tests (1,493 total); the new class adds 10. Existing skip:
   `WaxFlowOracleLoudnessTest.matchesWaxFlowOracleFixtures` (unchanged; not claimed PASS).
-- **Known baseline:** the instrumented suite has known test-side failures (CLAUDE.md "Known state": missing menu host,
-  stale text expectations, content set twice, empty chart data). Class-level current `.qa` pass/fail is unverified:
-  T002 explicitly compiles only and defers execution to T008; T003's frame-script exception does not execute device tests.
-  T008 must record actual per-class results before attributing failures to later changes; no class is claimed PASS.
+- **Known baseline (now measured on `.qa`):** T008 executed the four existing classes unchanged. The three
+  failing classes have exactly the same failing method sets at archived T003 `8ddcf5f5`; `git diff 7607b187 8ddcf5f5`
+  confirms no production or legacy-test changes since T002. These are recorded failures, not PASS/exemptions.
 
   | Existing device class (unchanged) | Current `.qa` result | Reason |
   |---|---|---|
 | 2026-10-15 | T004 | Commit: prepared in `.codex-commit/`, runner assigns SHA. Added `ui/theme/SistrumTokens.kt`: spacing 4/8/12/16/24/32 dp, rounded shapes 12/16/24/28 dp, ten semantic colors derived from the shipped palettes, and light-default `LocalSistrumTokens`; no theme provision until T005. Added `test/ui/theme/SistrumTokensTest.kt` (14 cases across Light/Dark): exact palette mappings/scales, opaque fallback and glass compositing, WCAG normal text >= 4.5:1 and large accent text >= 3:1 against all three supported surfaces; independent WCAG reference ratios verify the test oracle. Minimum checked normal text 6.1154:1; large accent 3.3368:1 (accent documented for large text). Impact before editing: git grep found 66 existing LocalSistrumColors consumers, palette construction only in SistrumTheme plus two test fixtures; new tokens have no existing callers. No Room, analysis documents, preferences, DecoderProvider order, PlaybackController or feature changes. All existing tests, including ThemeModeTest and characterization tests, untouched. Extra source file required: SistrumTheme.kt changes only palette visibility private -> internal to share actual values without duplication; tasks.md/HANDOFF.md record completion; both graph files generated by required autonomous step 4, never manually edited. Memory precheck: gradlew --stop (no daemons), Kotlin daemon stop, MemAvailable 4,118,932 kB. Gate attempt 1 PASS: `bash .claude/skills/verify-task/scripts/verify.sh --files '<three task Kotlin files>' --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ui.theme.SistrumTokensTest' --tests 'com.amwolfstein.sistrum.settings.ThemeModeTest' --tests 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`; 14 + 2 + 10 = 26 passed, 0 failures/errors/skips; Kotlin compile PASS; `python3 .claude/hooks/graph_refresh.py auto` PASS/changed (11,757 nodes, 34,908 edges). Logs `/tmp/verify-task.W5Lilk`. Self-review: minimal diff, no weakened/disabled tests, swallowed exceptions or contract changes; whitespace clean. NOT RUN: full host/shared suites, lint, APK assembly and device tests (milestone T008 gate); no phone/daily app touched. Decisions: none; no follow-ups beyond planned T005 wiring. |
-  | `com.amwolfstein.sistrum.AppNavigationTest` | NOT RUN; pass/fail unknown | T002 compile-only; device baseline deferred to T008 |
-  | `com.amwolfstein.sistrum.ui.navigation.MiniPlayerTest` | NOT RUN; pass/fail unknown | T002 compile-only; device baseline deferred to T008 |
-  | `com.amwolfstein.sistrum.ui.navigation.FullScreenPlayerTest` | NOT RUN; pass/fail unknown | T002 compile-only; device baseline deferred to T008 |
-  | `com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest` | NOT RUN; pass/fail unknown | T002 compile-only; device baseline deferred to T008 |
+  | `com.amwolfstein.sistrum.AppNavigationTest` | FAIL: 39 run / 16 failures | Same 16 failing methods at archived T003 (T002-equivalent production/tests) |
+  | `com.amwolfstein.sistrum.ui.navigation.MiniPlayerTest` | FAIL: 14 run / 8 failures | Same 8 failing methods at archived T003 |
+  | `com.amwolfstein.sistrum.ui.navigation.FullScreenPlayerTest` | FAIL: 20 run / 6 failures | Same 6 failing methods at archived T003 |
+  | `com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest` | PASS: 5/5 | T008 actual `.qa` execution |
 
 - **Owner checks pending (not blocking):** LARGE style look (D-12), Home look (D-22) at the M2 phone check.
+
+## T008 M1 verification — 2026-10-16 (BLOCKED)
+
+No commit prepared; T008 remains unchecked. The task's final full gate prints `GATE: FAIL`.
+The only code diff is `androidTest/ui/testing/UiMatrix.kt`: use `instrumentation.targetContext` instead of
+`instrumentation.context` for the external output directory. The test APK context returns null on this phone;
+the target context writes under `.qa`'s external-files directory. Existing GlassFallbackTest and UiMatrixTest
+assertions reproduced the failure first and remain untouched. Callers/consumers (`git grep`) are only
+GlassFallbackTest and UiMatrixTest. No production files, Room, analysis documents, preferences, decoder order,
+PlaybackController contracts or existing test assertions changed. Documentation files are required to record
+this blocked gate and baseline. No extra improvements or architecture decisions.
+
+| Verification | Actual result |
+|---|---|
+| Full host suites | PASS: app 1,485 discovered / 1,484 passed / 1 existing skip; shared 39/39; zero failures/errors |
+| `assembleDevQa` | PASS |
+| `lintDevQa` | PASS: 0 errors, 72 warnings, 14 hints (checked report; script prints INFO) |
+| Host UiContractCharacterizationTest (T001) | PASS: 10/10, unmodified |
+| Device UiContractCharacterizationTest (T002) | PASS: 5/5, unmodified |
+| GlassFallbackTest | PASS after directory fix: 96/96 |
+| UiMatrixTest | FAIL: 72 run / 24 failures; all `rendersConfigurationAndSavesArtifact` cases report `action label ... overflows`; 48 negative clipping/overflow checks pass |
+| AppNavigationTest | FAIL: 39 run / 16 failures |
+| MiniPlayerTest | FAIL: 14 run / 8 failures |
+| FullScreenPlayerTest | FAIL: 20 run / 6 failures |
+| RtlLayoutTest | PASS: 5/5 |
+| CardTest | PASS: 1/1 |
+| Graph refresh | FAIL: metadata-only restore attempts `git checkout HEAD -- graphify-out/...`, cannot create read-only Git index.lock |
+
+**SC-001 evidence:** host 10/10 and device 5/5 characterization tests pass unmodified. FullScreenPlayerTest's
+legacy failures are separately recorded above, never represented as PASS.
+**SC-002 evidence:** all 14 SistrumTokensTest cases pass (both palettes, opaque/glass surfaces, normal text >=4.5:1,
+large accent >=3:1 with independent WCAG reference checks). All 96 GlassFallbackTest cases pass over 24 configurations:
+Light/Dark x Reduce Transparency off/on x EN/AR x font scales 1.0/1.3/2.0; assertions inspect actual attached Haze
+modifiers, exercise reduction and recovery, sample opaque pixels and validate text/muted/library-label contrast.
+Reduced screenshots are in `/sdcard/Android/data/com.amwolfstein.sistrum.dev.qa/files/ui-matrix/glass-fallback/`.
+This evidence does not turn the failing overall gate or matrix harness into PASS.
+
+**Commands/results and logs:**
+
+- Before attempts: `./gradlew --stop`; `pkill -f '[K]otlinCompileDaemon'`; MemAvailable 4,146,800 / 3,728,708 /
+  3,721,384 kB (all >=2 GB). No commit bundle existed at entry; branch `feature/media3-migration`.
+- Attempt 1: `bash .claude/skills/verify-task/scripts/verify.sh --files '<HANDOFF.md tasks.md>' --lint
+  --instrumented '<the seven T008 FQCNs in task order>'`: full host/build/lint PASS; characterization/RTL/Card PASS;
+  legacy classes FAIL as above; GlassFallback 96/96 fail in constructor at UiMatrix.kt:60 (null external directory).
+  Graph not needed before source change; `GATE: FAIL`. **logs: `/tmp/verify-task.3FsZhe`**.
+- Attempt 2 after one-line fix: same full gate plus `com.amwolfstein.sistrum.ui.testing.UiMatrixTest`, allowing
+  UiMatrix.kt in `--files`: host/build/lint PASS, characterization 5/5, legacy 16/8/6 failures; session was interrupted
+  by usage limit before remaining classes/graph/summary. **logs: `/tmp/verify-task.N382li`**.
+- Attempt 3 (final): same full gate with `--files 'androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/ui/testing/UiMatrix.kt
+  specs/004-ui-extensions/tasks.md specs/004-ui-extensions/HANDOFF.md' --lint --instrumented
+  'com.amwolfstein.sistrum.ui.components.GlassFallbackTest,com.amwolfstein.sistrum.ui.testing.UiMatrixTest,
+  com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest,com.amwolfstein.sistrum.AppNavigationTest,
+  com.amwolfstein.sistrum.ui.navigation.MiniPlayerTest,com.amwolfstein.sistrum.ui.navigation.FullScreenPlayerTest,
+  com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest,com.amwolfstein.sistrum.ui.components.CardTest'`
+  (FQCN argument is a single comma-separated string without whitespace). Results in table; **`GATE: FAIL`**.
+  **logs: `/tmp/verify-task.mVkOyx`**, including `instr-<Class>.log`, `logcat-<Class>.log`, unit/build/lint/graphify logs.
+- Read-only historical narrowing: `git archive 8ddcf5f5 | tar -x -C /tmp/t008-bisect-t003`;
+  `./gradlew :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest` there PASS after linking existing ignored
+  FFmpeg headers/libraries into the temporary archive (first build lacked artifacts; original native files untouched).
+  Build log `/tmp/t008-bisect-t003-build.log`. Archived T003 is the first matrix-helper commit; only T003 changes separate
+  it from T002, and none touch production or the legacy classes. Install/instrument allowlisted `.qa` IDs only, one
+  failing class at a time: matrix 72/72 constructor failures; legacy 16/8/6 failures with identical failing-method sets.
+  **logs: `/tmp/t008-bisect-t003-device`** (per-class instr/logcat).
+- To expose archived T003 assertions beyond its directory failure, instrument UiMatrixTest with
+  `-e additionalTestOutputDir /sdcard/Android/data/com.amwolfstein.sistrum.dev.qa/files/ui-matrix-baseline`.
+  Same 24 rendering-overflow failures, 48 negative checks pass. This is an instrumentation argument supported by the
+  unchanged helper, not a test/code modification. **logs: `/tmp/t008-bisect-t003-matrix-output`** (instr/logcat).
+- Gate invoked `python3 .claude/hooks/graph_refresh.py auto`; final graph differs only in `built_at_commit`.
+  Its automatic Git checkout and an index-free-intended `git restore --worktree` both hit read-only index.lock.
+  Restored generated graph bytes exactly from the HEAD Git object, without graph content edits; no graph diff remains.
+- After historical diagnostics, reinstalled the current branch app/test APKs with `adb install -r -g` after
+  validating both application IDs with aapt2: PASS. The phone is left with the current `.qa` build.
+- `git diff --check`: PASS. Self-review: no deleted/disabled/weakened assertions, changed expected values, swallowed
+  errors, feature/API changes or production edits. The one-line directory change is boundary handling; 96 glass cases
+  pass with unchanged assertions. All remaining observed failures are recorded, not skipped or hidden.
+
+**NOT RUN:** owner listening/Bluetooth/headset checks (manual only); phone-log triage/final reviewer (runner responsibility);
+remaining follow-up gates/fixes after the three attempts (retry limit). Existing WaxFlowOracleLoudnessTest skip remains
+NOT RUN, never PASS. Only `.qa` APKs were installed/instrumented; no daily app launched, installed or force-stopped.
+**Blockers:** legacy baseline failures and T003 matrix rendering fixture/overflow failures prevent a full PASS;
+graph refresh's metadata restoration also fails under the read-only Git index. No assertions were weakened to obtain PASS.
+Orchestrator follow-up required; no new DECISIONS entry or architecture/ADR changes.
 
 ## Task log (newest first)
 
 | Date | Task | Result |
 |---|---|---|
+| 2026-10-16 | T008 | BLOCKED; no commit/bundle. Full gate FAIL after three attempts (attempt 2 interrupted by usage limit). One-line UiMatrix target-context output fix; host/build/lint and SC-001/SC-002 checks pass; 30 legacy failures and 24 matrix-rendering failures reproduce at archived T003; graph restore hits read-only index. See T008 milestone report above for files, commands, logs, NOT RUN items and follow-ups. |
 | 2026-10-15 | T007 | Commit: prepared in `.codex-commit/`, runner assigns SHA. Added layout-neutral `GlassSurface` backed by the existing shared modifier: token tint/opaque fill, optional token scrim/border, and `GlassPolicy.resolve` with Reduce Transparency, Haze availability and performance fallback; Opaque attaches only background/border, no Haze blur. App provides the live existing preference through `LocalReduceTransparency`; `LocalGlassPerformanceFallback` allows the performance input without new settings/storage. Existing wrapper callers updated; menu/navigation/mini-player background Boxes replaced with the equivalent surface Box; dimensions, clipping, radii, padding and callbacks retained. Library playback labels use normal token text instead of the large-text accent to meet normal-text contrast. Added GlassFallbackTest via all 24 UiMatrix cases: 4 tests/case (96 compiled, 0 executed) inspect real attached Haze modifier elements with positive controls, toggle Reduce Transparency/performance fallback, sample opaque pixels, verify normal/muted text contrast, cover missing Haze and real library-label layout colors against rendered backgrounds, and save reduced screenshots. Impact before editing: git grep found AnchoredPopupMenu, LibraryPlaybackActions, SistrumIconButton, StackPageLayout, FloatingNavigationBar, MiniPlayer and the dragged row in PlaylistDetailsContent; App supplies the preference/Haze state. No Room, analysis documents, preference storage, DecoderProvider order or PlaybackController contracts touched; existing tests/assertions remain unmodified. Required files: LiquidGlass.kt shared surface/policy integration; App.kt preference provision; the seven caller files above to adopt the token wrapper/surface (LibraryPlaybackActions also fixes text contrast); new GlassFallbackTest.kt acceptance; tasks.md/HANDOFF.md completion; both graph files generated by autonomous step 4, never manually edited. Self-review: each file required, no layout/API/feature removal outside the wrapper signature, no weakened/disabled tests, no swallowed failures; full-player explicit solid/background overrides and player code untouched; whitespace clean. Memory precheck before gate: `./gradlew --stop` (no daemons), `pkill -f '[K]otlinCompileDaemon'` (none), MemAvailable 4,163,548 kB. Preliminary `./gradlew :androidApp:compileDevQaAndroidTestKotlin` PASS. Gate attempt 1 PASS: `bash .claude/skills/verify-task/scripts/verify.sh --files '<ten task Kotlin paths in .codex-commit/files.txt>' --quick ':androidApp:compileDevQaAndroidTestKotlin :androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ui.components.LiquidGlassTest' --tests 'com.amwolfstein.sistrum.ui.theme.SistrumTokensTest' --tests 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`; 5 + 14 + 10 = 29 host tests passed, 0 failures/errors/skips; final device-test and app Kotlin compilation PASS. Gate ran `python3 .claude/hooks/graph_refresh.py auto`: PASS/changed (11,802 nodes, 35,038 edges). Logs `/tmp/verify-task.FszXQX`; preliminary compile `/tmp/t007-device-compile.log`. NOT RUN: all device assertions (phone reserved for T008), full host/shared suites, lint and APK assembly (T008 milestone gate); no phone/daily app touched. Decisions: none; no unrelated follow-ups. |
 | 2026-10-15 | T006 | Commit: prepared in `.codex-commit/`, runner assigns SHA. Added `GlassPolicy.resolve(reduceTransparency, hazeAvailable, performanceFallback)` returning Blur only when transparency is allowed, Haze is available and performance fallback is off; otherwise Opaque. Four new LiquidGlassTest cases assert all eight input combinations from FR-002; original full-resolution assertion unchanged. Existing modifier and all call-site APIs/behaviour untouched; surface integration belongs to T007. Impact before editing: git grep identified AnchoredPopupMenu, LibraryPlaybackActions, SistrumIconButton, StackPageLayout, FloatingNavigationBar and MiniPlayer wrapper consumers; App currently translates ThemePreferences-derived reduceTransparency into null Haze state. Policy takes that preference value as a Boolean; preference storage, Room, analysis documents, DecoderProvider order and PlaybackController contracts untouched. All pre-existing tests/assertions stay unmodified. Required files: LiquidGlass.kt policy, LiquidGlassTest.kt new cases, tasks.md/HANDOFF.md completion, and both graph files generated by autonomous step 4 (never manually edited). No new dependency or architecture decision. Memory precheck: `./gradlew --stop` (no daemons), Kotlin daemon stop, MemAvailable 4,161,588 kB. Gate attempt 1 PASS: `bash .claude/skills/verify-task/scripts/verify.sh --files 'androidApp/src/main/kotlin/com/amwolfstein/sistrum/ui/components/LiquidGlass.kt androidApp/src/test/kotlin/com/amwolfstein/sistrum/ui/components/LiquidGlassTest.kt' --quick ':androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ui.components.LiquidGlassTest' --tests 'com.amwolfstein.sistrum.ui.theme.SistrumTokensTest' --tests 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`; 5 + 14 + 10 = 29 passed, 0 failures/errors/skips; Kotlin compile PASS. Gate ran `python3 .claude/hooks/graph_refresh.py auto`: PASS/changed (11,784 nodes, 34,970 edges). Logs `/tmp/verify-task.zNLXyp`. Self-review: minimal additive diff, no existing assertion changed, no disabled tests, swallowed exceptions or feature removal; whitespace clean. NOT RUN: full host/shared suites, lint, APK assembly and device tests (T008 milestone gate); no phone/daily app touched. Decisions: none; no unrelated follow-ups. |
 | 2026-10-15 | T005 | Commit: prepared in `.codex-commit/`, runner assigns SHA. Theme provides palette-derived `LocalSistrumTokens` and `LocalReducedMotion`; `ReducedMotion.kt` observes Settings.Global animator duration scale live, registers before initial read, unregisters on collection cancellation, and propagates failures. `SistrumTokens.motion` adds short/medium/long 150/300/500 ms durations, all zero at system scale 0 (D-6/D-23). New `ReducedMotionTest` (3 cases) checks zero/positive scales, live toggles, registration/read/cancellation ordering, exact normal/reduced durations across both palettes and unchanged colors/spacing/shapes. Impact before editing: git grep found App's SistrumTheme call, no existing token consumers beyond the definition, and MainActivity's existing content-observer pattern; later UI tasks consume the locals. No Room, analysis documents, preference storage, DecoderProvider order or PlaybackController contracts touched; DEFAULT player and all existing tests untouched. Files required: SistrumTheme wiring; ReducedMotion observer; SistrumTokens durations (T005 explicitly requires motion tokens); new host test; tasks/HANDOFF completion; DECISIONS records unspecified numeric defaults; graph files generated by required autonomous step 4, never edited manually. Memory prechecks after daemon stops: 4,170,100 / 4,192,320 kB available. Gate attempt 1 FAIL because --tests followed the compile task (unknown option; no tests executed), production compile and graph PASS; logs `/tmp/verify-task.8f0wiu`. Attempt 2 PASS: `bash .claude/skills/verify-task/scripts/verify.sh --files '<four task Kotlin files>' --quick ':androidApp:compileDevQaAndroidTestKotlin :androidApp:testDevQaUnitTest' --tests 'com.amwolfstein.sistrum.ui.theme.ReducedMotionTest' --tests 'com.amwolfstein.sistrum.ui.theme.SistrumTokensTest' --tests 'com.amwolfstein.sistrum.settings.ThemeModeTest' --tests 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`; 3 + 14 + 2 + 10 = 29 passed, 0 failures/errors/skips; app and device-test Kotlin compilation PASS; required graph refresh PASS/changed (11,776 nodes, 34,954 edges). Logs `/tmp/verify-task.1xQYoN`. Self-review: minimal diff, no existing tests weakened/disabled, no swallowed exceptions, feature removals or data-contract changes; whitespace clean. NOT RUN: full host/shared suites, lint, APK assembly, device characterization and actual system-setting/composition integration (T008 milestone gate; host tests use fake setting callbacks); listening/Bluetooth/headset owner checks. No phone or daily app touched. Decisions: D-23; no unrelated follow-ups. |

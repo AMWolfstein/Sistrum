@@ -57,7 +57,7 @@ class UiMatrix(
             val instrumentation = InstrumentationRegistry.getInstrumentation()
             val supplied = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")
             val base = if (supplied != null) File(supplied) else
-                File(requireNotNull(instrumentation.context.getExternalFilesDir(null)), "ui-matrix")
+                File(requireNotNull(instrumentation.targetContext.getExternalFilesDir(null)), "ui-matrix")
             return File(base, testName)
         }
     }
@@ -99,7 +99,7 @@ class UiMatrix(
     private fun assertLabelsFit(node: SemanticsNode) {
         val results = mutableListOf<TextLayoutResult>()
         node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
-        check(results.none { it.hasVisualOverflow }) { "${case.id}: action label ${node.id} overflows" }
+        check(results.none(::labelOverflows)) { "${case.id}: action label ${node.id} overflows" }
         node.children.forEach(::assertLabelsFit)
     }
 
@@ -123,6 +123,18 @@ class UiMatrix(
         return file
     }
 }
+
+/**
+ * Real truncation only. `hasVisualOverflow` is not usable here: a short label in a wrap-content button is laid out on a
+ * paragraph as wide as the incoming max width (936 px for "Play" on the CPH2307) while the visible text box is its
+ * measured size (83 px), so `didOverflowWidth` reports overflow for every fitting label. A label overflows when lines
+ * were cut, a line is ellipsized, or a line's own text width (start-alignment independent, so RTL too) exceeds the box.
+ */
+private fun labelOverflows(layout: TextLayoutResult): Boolean =
+    layout.multiParagraph.didExceedMaxLines || layout.size.height < layout.multiParagraph.height ||
+        (0 until layout.lineCount).any { line ->
+            layout.isLineEllipsized(line) || layout.getLineRight(line) - layout.getLineLeft(line) > layout.size.width + 0.5f
+        }
 
 private fun Rect.containsRect(other: Rect): Boolean =
     other.left >= left && other.top >= top && other.right <= right && other.bottom <= bottom
