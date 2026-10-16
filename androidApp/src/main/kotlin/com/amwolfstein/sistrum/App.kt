@@ -153,6 +153,7 @@ internal fun App(
         val homeListState = remember(uiState.pageStateGenerationFor(AppDestination.Home, AppStackPage.Root)) { LazyListState() }
         val insightListState = remember(uiState.pageStateGenerationFor(AppDestination.Insight, AppStackPage.Root)) { LazyListState() }
         val libraryListState = remember(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.Root)) { LazyListState() }
+        val searchListState = remember(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.LibrarySearch)) { LazyListState() }
         val tracksListState = remember(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.LibraryTracks), tracksUiState.sortOption, tracksUiState.sortOrder) {
             LazyListState()
         }
@@ -175,6 +176,7 @@ internal fun App(
         homeListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Home, AppStackPage.Root))
         insightListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Insight, AppStackPage.Root))
         libraryListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.Root))
+        searchListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.LibrarySearch))
         tracksListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.LibraryTracks))
         artistsListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.LibraryArtists))
         albumsListState.resetAfterPagePop(uiState.pageStateGenerationFor(AppDestination.Library, AppStackPage.LibraryAlbums))
@@ -320,6 +322,7 @@ internal fun App(
                 homeListState = homeListState,
                 insightListState = insightListState,
                 libraryListState = libraryListState,
+                searchListState = searchListState,
                 tracksListState = tracksListState,
                 artistsListState = artistsListState,
                 albumsListState = albumsListState,

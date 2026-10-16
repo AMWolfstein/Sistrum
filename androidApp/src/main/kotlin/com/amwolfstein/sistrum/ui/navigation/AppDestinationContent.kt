@@ -146,6 +146,7 @@ internal fun AppDestinationContent(
     homeListState: LazyListState,
     insightListState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     libraryListState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    searchListState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     tracksListState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     artistsListState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     albumsListState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
@@ -565,6 +566,7 @@ internal fun AppDestinationContent(
                             when (currentPage.page) {
                             AppStackPage.LibrarySearch -> LibrarySearchContent(
                                 uiState = searchUiState,
+                                listState = searchListState,
                                 contentPadding = contentPadding,
                                 onQueryChange = onSearchQueryChange,
                                 onTrackClick = onSearchTrackClick,

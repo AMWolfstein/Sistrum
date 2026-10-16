@@ -7,17 +7,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items as rowItems
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.background
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -38,12 +37,12 @@ import com.amwolfstein.sistrum.sync.LibraryTrack
 import com.amwolfstein.sistrum.ui.components.AlbumContextMenu
 import com.amwolfstein.sistrum.ui.components.DiscCard
 import com.amwolfstein.sistrum.ui.components.HeroCard
-import com.amwolfstein.sistrum.ui.components.LibraryTextFilter
+import com.amwolfstein.sistrum.ui.components.SistrumTextField
 import com.amwolfstein.sistrum.ui.components.MaterialSymbols
 import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
 import com.amwolfstein.sistrum.ui.components.TrackContextMenu
 import com.amwolfstein.sistrum.ui.components.TrackRow
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 @Composable
 internal fun LibrarySearchContent(
@@ -64,81 +63,93 @@ internal fun LibrarySearchContent(
     onAlbumPlayNext: (List<String>) -> Unit = {},
     onAlbumAddToQueue: (List<String>) -> Unit = {},
     onAlbumAddToFavorites: (List<String>) -> Unit = {},
+    listState: LazyListState = rememberLazyListState(),
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
     var contextTrack by remember { mutableStateOf<LibraryTrack?>(null) }
     var contextAlbumId by remember { mutableStateOf<String?>(null) }
-    BoxWithConstraints(modifier.fillMaxSize()) {
-    val trackDividerWidth = maxWidth * 0.8f
-    Column(Modifier.fillMaxSize()) {
-        LibraryTextFilter(
-            value = uiState.query,
-            onValueChange = onQueryChange,
-            placeholder = stringResource(R.string.library_search_placeholder),
-            modifier = Modifier.padding(top = contentPadding.calculateTopPadding()),
-        )
-        LazyColumn(contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding())) {
-            if (uiState.query.isBlank()) {
-                item { SearchEmptyState(R.string.library_search_empty_title, R.string.library_search_empty_description) }
-            } else if (uiState.isLoaded && uiState.tracks.isEmpty() && uiState.albums.isEmpty() && uiState.artists.isEmpty() && uiState.playlists.isEmpty() && uiState.composers.isEmpty()) {
-                item { SearchEmptyState(R.string.library_search_no_results_title, R.string.library_search_no_results_description) }
-            } else {
-                searchSection(R.string.library_tracks, uiState.tracks, { it.id }, rows = 3, topPadding = 20.dp) { track ->
-                    TrackContextMenu(
-                        track = track, expanded = contextTrack?.id == track.id,
-                        onDismiss = { contextTrack = null }, playbackQueue = playbackQueue,
-                        onPlayNext = onTrackPlayNext, onAddToQueue = onTrackAddToQueue,
-                        onFavoriteChange = onTrackFavoriteToggle, onBottomSheetRequested = onTrackContextBottomSheet,
-                    ) {
-                        Column {
-                            TrackRow(track.title, track.artists, artworkPath = track.artworkPath, audioPath = track.audioPath, contentPadding = PaddingValues(vertical = 6.dp), onClick = { onTrackClick(track.id) }, onMoreClick = { contextTrack = track }, onLongClick = { contextTrack = track })
-                            val trackIndex = uiState.tracks.indexOfFirst { it.id == track.id }
-                            if (trackHasDivider(trackIndex, uiState.tracks.lastIndex)) {
-                                HorizontalDivider(
-                                    color = colors.borderGlass,
-                                    modifier = Modifier.width(trackDividerWidth).align(Alignment.CenterHorizontally),
-                                )
+    BoxWithConstraints(modifier.fillMaxSize().background(tokens.colors.page)) {
+        val trackDividerWidth = maxWidth * 0.8f
+        Column(Modifier.fillMaxSize()) {
+            SistrumTextField(
+                value = uiState.query,
+                onValueChange = onQueryChange,
+                placeholder = stringResource(R.string.library_search_placeholder),
+                leadingSymbol = MaterialSymbols.Search,
+                modifier = Modifier.padding(
+                    start = tokens.spacing.extraLarge, end = tokens.spacing.extraLarge,
+                    top = contentPadding.calculateTopPadding() + tokens.spacing.extraSmall,
+                    bottom = tokens.spacing.medium,
+                ),
+            )
+            LazyColumn(state = listState, modifier = Modifier.testTag("search-results"), contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding())) {
+                if (uiState.query.isBlank()) {
+                    item { SearchEmptyState(R.string.library_search_empty_title, R.string.library_search_empty_description) }
+                } else if (!uiState.isLoaded) {
+                    item("loading") {
+                        Box(Modifier.fillMaxWidth().padding(tokens.spacing.extraLarge), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(Modifier.testTag("search-loading"), color = tokens.colors.text)
+                        }
+                    }
+                } else if (uiState.tracks.isEmpty() && uiState.albums.isEmpty() && uiState.artists.isEmpty() && uiState.playlists.isEmpty() && uiState.composers.isEmpty()) {
+                    item { SearchEmptyState(R.string.library_search_no_results_title, R.string.library_search_no_results_description) }
+                } else {
+                    searchSection(R.string.library_tracks, uiState.tracks, { it.id }, rows = 3, topPadding = tokens.spacing.extraLarge) { track ->
+                        TrackContextMenu(
+                            track = track, expanded = contextTrack?.id == track.id,
+                            onDismiss = { contextTrack = null }, playbackQueue = playbackQueue,
+                            onPlayNext = onTrackPlayNext, onAddToQueue = onTrackAddToQueue,
+                            onFavoriteChange = onTrackFavoriteToggle, onBottomSheetRequested = onTrackContextBottomSheet,
+                        ) {
+                            Column {
+                                TrackRow(track.title, track.artists, artworkPath = track.artworkPath, audioPath = track.audioPath, contentPadding = PaddingValues(vertical = tokens.spacing.small), onClick = { onTrackClick(track.id) }, onMoreClick = { contextTrack = track }, onLongClick = { contextTrack = track })
+                                val trackIndex = uiState.tracks.indexOfFirst { it.id == track.id }
+                                if (trackHasDivider(trackIndex, uiState.tracks.lastIndex)) {
+                                    HorizontalDivider(
+                                        color = tokens.colors.divider,
+                                        modifier = Modifier.width(trackDividerWidth).align(Alignment.CenterHorizontally),
+                                    )
+                                }
                             }
                         }
                     }
-                }
-                searchSection(R.string.library_albums, uiState.albums, { it.id }, topPadding = 32.dp) { album ->
-                    val tracks = uiState.allTracks.filter { it.albumId == album.id }
-                    AlbumContextMenu(
-                        tracks = tracks, expanded = contextAlbumId == album.id, onDismiss = { contextAlbumId = null }, playbackQueue = playbackQueue,
-                        onPlayNext = onAlbumPlayNext, onAddToQueue = onAlbumAddToQueue, onAddToFavorites = onAlbumAddToFavorites,
-                        onBottomSheetRequested = onTrackContextBottomSheet,
-                    ) {
+                    searchSection(R.string.library_albums, uiState.albums, { it.id }, topPadding = tokens.spacing.extraExtraLarge) { album ->
+                        val tracks = uiState.allTracks.filter { it.albumId == album.id }
+                        AlbumContextMenu(
+                            tracks = tracks, expanded = contextAlbumId == album.id, onDismiss = { contextAlbumId = null }, playbackQueue = playbackQueue,
+                            onPlayNext = onAlbumPlayNext, onAddToQueue = onAlbumAddToQueue, onAddToFavorites = onAlbumAddToFavorites,
+                            onBottomSheetRequested = onTrackContextBottomSheet,
+                        ) {
+                            DiscCard(
+                                title = album.title,
+                                subtitle = album.artist,
+                                artworkPath = album.artworkPath,
+                                audioPath = album.audioPath,
+                                fallbackSymbol = MaterialSymbols.Album,
+                                onClick = { onAlbumClick(album.id) },
+                                onLongClick = { contextAlbumId = album.id },
+                            )
+                        }
+                    }
+                    searchSection(R.string.library_artists, uiState.artists, { it.id }, topPadding = tokens.spacing.large) { artist ->
+                        DiscCard(artist.name, "", artworkPath = artist.artworkPath, fallbackSymbol = MaterialSymbols.Person, artworkShape = CircleShape, onClick = { onArtistClick(artist.id) })
+                    }
+                    searchSection(R.string.library_playlists, uiState.playlists, { it.id }, topPadding = tokens.spacing.large) { playlist ->
                         DiscCard(
-                            title = album.title,
-                            subtitle = album.artist,
-                            artworkPath = album.artworkPath,
-                            audioPath = album.audioPath,
-                            fallbackSymbol = MaterialSymbols.Album,
-                            onClick = { onAlbumClick(album.id) },
-                            onLongClick = { contextAlbumId = album.id },
+                            title = playlist.name,
+                            subtitle = "",
+                            artworkPath = uiState.allTracks.firstOrNull { it.id in playlist.trackIds }?.artworkPath,
+                            audioPath = uiState.allTracks.firstOrNull { it.id in playlist.trackIds }?.audioPath,
+                            fallbackSymbol = MaterialSymbols.QueueMusic,
+                            onClick = { onPlaylistClick(playlist.id) },
                         )
                     }
-                }
-                searchSection(R.string.library_artists, uiState.artists, { it.id }, topPadding = 16.dp) { artist ->
-                    DiscCard(artist.name, "", artworkPath = artist.artworkPath, fallbackSymbol = MaterialSymbols.Person, artworkShape = CircleShape, onClick = { onArtistClick(artist.id) })
-                }
-                searchSection(R.string.library_playlists, uiState.playlists, { it.id }, topPadding = 16.dp) { playlist ->
-                    DiscCard(
-                        title = playlist.name,
-                        subtitle = "",
-                        artworkPath = uiState.allTracks.firstOrNull { it.id in playlist.trackIds }?.artworkPath,
-                        audioPath = uiState.allTracks.firstOrNull { it.id in playlist.trackIds }?.audioPath,
-                        fallbackSymbol = MaterialSymbols.QueueMusic,
-                        onClick = { onPlaylistClick(playlist.id) },
-                    )
-                }
-                searchSection(R.string.library_composers, uiState.composers, { it.id }, topPadding = 16.dp) { composer ->
-                    DiscCard(composer.name, "", artworkPath = composer.artworkPath, fallbackSymbol = MaterialSymbols.StylusFountainPen, artworkShape = CircleShape, onClick = { onComposerClick(composer.id) })
+                    searchSection(R.string.library_composers, uiState.composers, { it.id }, topPadding = tokens.spacing.large) { composer ->
+                        DiscCard(composer.name, "", artworkPath = composer.artworkPath, fallbackSymbol = MaterialSymbols.StylusFountainPen, artworkShape = CircleShape, onClick = { onComposerClick(composer.id) })
+                    }
                 }
             }
         }
-    }
     }
 }
 
@@ -150,30 +161,28 @@ private fun <T> LazyListScope.searchSection(
         Text(
             stringResource(title),
             style = MaterialTheme.typography.titleSmall,
-            color = LocalSistrumColors.current.textMuted,
-            modifier = Modifier.padding(start = 24.dp, top = topPadding, bottom = 12.dp),
+            color = LocalSistrumTokens.current.colors.mutedText,
+            modifier = Modifier.padding(start = LocalSistrumTokens.current.spacing.extraLarge, top = topPadding, bottom = LocalSistrumTokens.current.spacing.medium),
         )
     }
     item("section_content_$title") {
-        if (rows == 3) {
-            LazyHorizontalGrid(
-                rows = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxWidth().height(183.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                gridItems(values, key = { searchItemKey(title, key(it)) }) { item ->
-                    Box(Modifier.widthIn(max = SearchTrackColumnMaxWidth)) { row(item) }
-                }
-            }
-        } else {
+        val tokens = LocalSistrumTokens.current
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // A wrap-content column keeps all three tracks reachable at large font scales.
+            val trackWidth = minOf(SearchTrackColumnMaxWidth, maxWidth - tokens.spacing.extraLarge * 2)
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = tokens.spacing.extraLarge),
+                horizontalArrangement = Arrangement.spacedBy(tokens.spacing.medium),
             ) {
-                rowItems(values, key = { searchItemKey(title, key(it)) }) { item ->
-                    Box(Modifier.width(160.dp)) { row(item) }
+                if (rows == 3) {
+                    rowItems(values.chunked(3), key = { searchItemKey(title, key(it.first())) }) { column ->
+                        Column(Modifier.width(trackWidth)) { column.forEach { row(it) } }
+                    }
+                } else {
+                    rowItems(values, key = { searchItemKey(title, key(it)) }) { item ->
+                        Box(Modifier.width(160.dp)) { row(item) }
+                    }
                 }
             }
         }
@@ -189,7 +198,7 @@ internal fun trackHasDivider(index: Int, lastIndex: Int): Boolean = index >= 0 &
 internal const val SearchEmptyStateTag = "search-empty-state"
 
 @Composable private fun SearchEmptyState(title: Int, description: Int) = Box(
-    Modifier.padding(24.dp).testTag(SearchEmptyStateTag),
+    Modifier.padding(LocalSistrumTokens.current.spacing.extraLarge).testTag(SearchEmptyStateTag),
 ) {
     HeroCard(
         title = stringResource(title),
