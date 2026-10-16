@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.amwolfstein.sistrum.settings.ThemeMode
+import com.amwolfstein.sistrum.settings.IntegrationPreferences
+import com.amwolfstein.sistrum.settings.MotionNetworkMode
 import com.amwolfstein.sistrum.settings.ThemeModeStore
 
 data class PageStateKey(
@@ -24,6 +26,10 @@ data class AppUiState(
     val selectedDestination: AppDestination = AppDestination.Home,
     val themeMode: ThemeMode = ThemeMode.System,
     val reduceTransparency: Boolean = false,
+    val wikipediaEnabled: Boolean = true,
+    val deezerEnabled: Boolean = false,
+    val motionEnabled: Boolean = false,
+    val motionNetworkMode: MotionNetworkMode = MotionNetworkMode.WIFI_ONLY,
     val selectedAlbumId: String? = null,
     val selectedArtistId: String? = null,
     val selectedGenreId: String? = null,
@@ -44,6 +50,7 @@ data class AppUiState(
 
 class MainViewModel(
     private val themeModeStore: ThemeModeStore,
+    private val integrationPreferences: IntegrationPreferences,
 ) : ViewModel() {
     private val selectedDestination = MutableStateFlow(AppDestination.Home)
     private val destinationStacks = MutableStateFlow(rootDestinationStacks())
@@ -81,6 +88,14 @@ class MainViewModel(
         state.copy(selectedPlaylistId = playlistId)
     }.combine(pageStateGenerations) { state, generations ->
         state.copy(pageStateGenerations = generations)
+    }.combine(integrationPreferences.wikipediaEnabled) { state, enabled ->
+        state.copy(wikipediaEnabled = enabled)
+    }.combine(integrationPreferences.deezerEnabled) { state, enabled ->
+        state.copy(deezerEnabled = enabled)
+    }.combine(integrationPreferences.motionEnabled) { state, enabled ->
+        state.copy(motionEnabled = enabled)
+    }.combine(integrationPreferences.motionNetworkMode) { state, mode ->
+        state.copy(motionNetworkMode = mode)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
@@ -99,6 +114,18 @@ class MainViewModel(
             AppIntent.NavigateBack -> navigateBack()
             is AppIntent.SetThemeMode -> setThemeMode(intent.themeMode)
             is AppIntent.SetReduceTransparency -> setReduceTransparency(intent.enabled)
+            is AppIntent.SetWikipediaEnabled -> viewModelScope.launch {
+                integrationPreferences.setWikipediaEnabled(intent.enabled)
+            }
+            is AppIntent.SetDeezerEnabled -> viewModelScope.launch {
+                integrationPreferences.setDeezerEnabled(intent.enabled)
+            }
+            is AppIntent.SetMotionEnabled -> viewModelScope.launch {
+                integrationPreferences.setMotionEnabled(intent.enabled)
+            }
+            is AppIntent.SetMotionNetworkMode -> viewModelScope.launch {
+                integrationPreferences.setMotionNetworkMode(intent.mode)
+            }
             is AppIntent.OpenExternalUrl -> _effects.trySend(AppEffect.OpenExternalUrl(intent.url))
         }
     }
@@ -207,11 +234,12 @@ class MainViewModel(
 
     class Factory(
         private val themeModeStore: ThemeModeStore,
+        private val integrationPreferences: IntegrationPreferences,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             check(modelClass.isAssignableFrom(MainViewModel::class.java))
-            return MainViewModel(themeModeStore) as T
+            return MainViewModel(themeModeStore, integrationPreferences) as T
         }
     }
 }

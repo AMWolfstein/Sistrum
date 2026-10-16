@@ -1,5 +1,7 @@
 package com.amwolfstein.sistrum
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -16,6 +18,11 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.test.resetMain
 import com.amwolfstein.sistrum.settings.ThemeMode
+import com.amwolfstein.sistrum.settings.IntegrationPreferences
+import com.amwolfstein.sistrum.settings.MotionNetworkMode
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import com.amwolfstein.sistrum.settings.ThemeModeStore
 import org.junit.After
 import org.junit.Before
@@ -24,6 +31,18 @@ import org.junit.Assert.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
+    @get:Rule val temporary = TemporaryFolder()
+
+    private val preferenceScopes = mutableListOf<CoroutineScope>()
+
+    private fun TestScope.integrationPreferences(): IntegrationPreferences {
+        val scope = CoroutineScope(StandardTestDispatcher(testScheduler))
+        preferenceScopes += scope
+        return IntegrationPreferences(PreferenceDataStoreFactory.create(scope = scope) {
+            temporary.root.resolve("integrations.preferences_pb")
+        })
+    }
+
     private val dispatcher = StandardTestDispatcher()
 
     @Before
@@ -33,12 +52,13 @@ class MainViewModelTest {
 
     @After
     fun tearDown() {
+        preferenceScopes.forEach { it.cancel() }
         Dispatchers.resetMain()
     }
 
     @Test
     fun `selecting a new destination retains other destination stacks`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenPage(AppStackPage.SettingsAppearance))
@@ -54,7 +74,7 @@ class MainViewModelTest {
 
     @Test
     fun `reselecting the destination restores its root stack`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenPage(AppStackPage.SettingsAppearance))
@@ -66,7 +86,7 @@ class MainViewModelTest {
 
     @Test
     fun `opening a settings page selects settings and back pops it`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenPage(AppStackPage.SettingsAppearance))
@@ -81,7 +101,7 @@ class MainViewModelTest {
 
     @Test
     fun `opening genre details selects the genre and pushes the library page`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenGenreDetails("electronic"))
@@ -93,7 +113,7 @@ class MainViewModelTest {
 
     @Test
     fun `opening composer details selects the composer and pushes the library page`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenComposerDetails("glass"))
@@ -105,7 +125,7 @@ class MainViewModelTest {
 
     @Test
     fun `opening playlist details selects the playlist and pushes the library page`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenPlaylistDetails("favorites"))
@@ -117,7 +137,7 @@ class MainViewModelTest {
 
     @Test
     fun `popping a detail page clears its selected page state`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenAlbumDetails("album-1"))
@@ -131,7 +151,7 @@ class MainViewModelTest {
 
     @Test
     fun `popping a nested detail only clears the page that was popped`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenArtistDetails("artist-1"))
@@ -147,7 +167,7 @@ class MainViewModelTest {
 
     @Test
     fun `popping a list page invalidates only that page's cached ui state`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.OpenPage(AppStackPage.LibraryAlbums))
@@ -168,7 +188,7 @@ class MainViewModelTest {
     @Test
     fun `setting the theme persists it and updates ui state`() = runTest {
         val store = FakeThemeModeStore()
-        val viewModel = MainViewModel(store)
+        val viewModel = MainViewModel(store, integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.SetThemeMode(ThemeMode.Dark))
@@ -181,7 +201,7 @@ class MainViewModelTest {
     @Test
     fun `setting reduce transparency persists it and updates ui state`() = runTest {
         val store = FakeThemeModeStore()
-        val viewModel = MainViewModel(store)
+        val viewModel = MainViewModel(store, integrationPreferences())
         activateState(viewModel)
 
         viewModel.dispatch(AppIntent.SetReduceTransparency(true))
@@ -193,7 +213,7 @@ class MainViewModelTest {
 
     @Test
     fun `opening an external url emits one host effect`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         val expected = AppEffect.OpenExternalUrl("https://example.com")
         val effect = async { viewModel.effects.first() }
 
@@ -204,7 +224,7 @@ class MainViewModelTest {
 
     @Test
     fun `popping a page emits its reset effect`() = runTest {
-        val viewModel = MainViewModel(FakeThemeModeStore())
+        val viewModel = MainViewModel(FakeThemeModeStore(), integrationPreferences())
         activateState(viewModel)
         viewModel.dispatch(AppIntent.OpenPage(AppStackPage.LibraryTracks))
         advanceUntilIdle()
@@ -213,6 +233,47 @@ class MainViewModelTest {
         viewModel.dispatch(AppIntent.NavigateBack)
 
         assertEquals(AppEffect.ResetPoppedPage(AppStackPage.LibraryTracks), effect.await())
+    }
+
+    @Test
+    fun `integration intents persist each setting and update ui state`() = runTest {
+        val preferences = integrationPreferences()
+        val viewModel = MainViewModel(FakeThemeModeStore(), preferences)
+        activateState(viewModel)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.uiState.value.wikipediaEnabled)
+        assertEquals(false, viewModel.uiState.value.deezerEnabled)
+        assertEquals(false, viewModel.uiState.value.motionEnabled)
+        assertEquals(MotionNetworkMode.WIFI_ONLY, viewModel.uiState.value.motionNetworkMode)
+
+        viewModel.dispatch(AppIntent.SetWikipediaEnabled(false))
+        viewModel.dispatch(AppIntent.SetDeezerEnabled(true))
+        advanceUntilIdle()
+        assertEquals(false, viewModel.uiState.value.wikipediaEnabled)
+        assertEquals(true, viewModel.uiState.value.deezerEnabled)
+        assertEquals(false, viewModel.uiState.value.motionEnabled)
+        assertEquals(MotionNetworkMode.WIFI_ONLY, viewModel.uiState.value.motionNetworkMode)
+        viewModel.dispatch(AppIntent.SetMotionEnabled(true))
+        viewModel.dispatch(AppIntent.SetMotionNetworkMode(MotionNetworkMode.WIFI_AND_CELLULAR))
+        advanceUntilIdle()
+        assertEquals(false, preferences.wikipediaEnabled.first())
+        assertEquals(true, preferences.deezerEnabled.first())
+        assertEquals(true, preferences.motionEnabled.first())
+        assertEquals(MotionNetworkMode.WIFI_AND_CELLULAR, preferences.motionNetworkMode.first())
+        assertEquals(false, viewModel.uiState.value.wikipediaEnabled)
+        assertEquals(true, viewModel.uiState.value.deezerEnabled)
+        assertEquals(true, viewModel.uiState.value.motionEnabled)
+        assertEquals(MotionNetworkMode.WIFI_AND_CELLULAR, viewModel.uiState.value.motionNetworkMode)
+
+        preferences.setWikipediaEnabled(true)
+        preferences.setDeezerEnabled(false)
+        preferences.setMotionEnabled(false)
+        preferences.setMotionNetworkMode(MotionNetworkMode.WIFI_ONLY)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.uiState.value.wikipediaEnabled)
+        assertEquals(false, viewModel.uiState.value.deezerEnabled)
+        assertEquals(false, viewModel.uiState.value.motionEnabled)
+        assertEquals(MotionNetworkMode.WIFI_ONLY, viewModel.uiState.value.motionNetworkMode)
     }
 
     private fun TestScope.activateState(viewModel: MainViewModel) {

@@ -1,5 +1,6 @@
 package com.amwolfstein.sistrum
 
+import com.amwolfstein.sistrum.settings.MotionNetworkMode
 import com.amwolfstein.sistrum.settings.ThemeMode
 
 /** User-initiated inputs accepted by the app shell. */
@@ -23,6 +24,14 @@ sealed interface AppIntent {
     data class SetThemeMode(val themeMode: ThemeMode) : AppIntent
 
     data class SetReduceTransparency(val enabled: Boolean) : AppIntent
+
+    data class SetWikipediaEnabled(val enabled: Boolean) : AppIntent
+
+    data class SetDeezerEnabled(val enabled: Boolean) : AppIntent
+
+    data class SetMotionEnabled(val enabled: Boolean) : AppIntent
+
+    data class SetMotionNetworkMode(val mode: MotionNetworkMode) : AppIntent
 
     data class OpenExternalUrl(val url: String) : AppIntent
 }

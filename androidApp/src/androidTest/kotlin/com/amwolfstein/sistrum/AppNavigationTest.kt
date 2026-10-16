@@ -931,6 +931,10 @@ private fun reduceAppState(state: AppUiState, intent: AppIntent): AppUiState = w
         }
     }
     is AppIntent.SetThemeMode -> state.copy(themeMode = intent.themeMode)
+    is AppIntent.SetWikipediaEnabled -> state.copy(wikipediaEnabled = intent.enabled)
+    is AppIntent.SetDeezerEnabled -> state.copy(deezerEnabled = intent.enabled)
+    is AppIntent.SetMotionEnabled -> state.copy(motionEnabled = intent.enabled)
+    is AppIntent.SetMotionNetworkMode -> state.copy(motionNetworkMode = intent.mode)
     is AppIntent.SetReduceTransparency -> state.copy(reduceTransparency = intent.enabled)
     is AppIntent.OpenExternalUrl -> state
 }

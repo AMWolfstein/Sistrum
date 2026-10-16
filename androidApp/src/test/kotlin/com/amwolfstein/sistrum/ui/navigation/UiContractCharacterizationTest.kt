@@ -14,15 +14,22 @@ import com.amwolfstein.sistrum.player.PlaybackState
 import com.amwolfstein.sistrum.player.RepeatMode
 import com.amwolfstein.sistrum.settings.ThemeMode
 import com.amwolfstein.sistrum.settings.ThemeModeStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.amwolfstein.sistrum.settings.IntegrationPreferences
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -52,8 +59,13 @@ import org.junit.Test
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class UiContractCharacterizationTest {
+    @get:Rule val temporary = TemporaryFolder()
+
+    private var preferenceScope: CoroutineScope? = null
+
     @After
     fun resetMainDispatcher() {
+        preferenceScope?.cancel()
         Dispatchers.resetMain()
     }
 
@@ -66,7 +78,13 @@ class UiContractCharacterizationTest {
             override suspend fun setThemeMode(themeMode: ThemeMode) { this.themeMode.value = themeMode }
             override suspend fun setReduceTransparency(enabled: Boolean) { reduceTransparency.value = enabled }
         }
-        val viewModel = MainViewModel(store)
+        val scope = CoroutineScope(StandardTestDispatcher(testScheduler))
+        preferenceScope = scope
+        val viewModel = MainViewModel(store, IntegrationPreferences(
+            PreferenceDataStoreFactory.create(scope = scope) {
+                temporary.root.resolve("integrations.preferences_pb")
+            },
+        ))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
 
         viewModel.dispatch(AppIntent.OpenPage(AppStackPage.LibraryAlbums))

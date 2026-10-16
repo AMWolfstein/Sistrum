@@ -222,7 +222,7 @@ class UiContractCharacterizationTest {
                 override val reduceTransparency = MutableStateFlow(true)
                 override suspend fun setThemeMode(themeMode: ThemeMode) { this.themeMode.value = themeMode }
                 override suspend fun setReduceTransparency(enabled: Boolean) { reduceTransparency.value = enabled }
-            }))[MainViewModel::class.java]
+            }, com.amwolfstein.sistrum.settings.IntegrationPreferences(activity)))[MainViewModel::class.java]
             activity.setContent {
                 val state by model.uiState.collectAsState()
                 App(uiState = state, playback = PlaybackModel(state = playing), onIntent = model::dispatch)

@@ -44,6 +44,7 @@ import com.amwolfstein.sistrum.analysis.LoudnessAnalysisScheduler
 import com.amwolfstein.sistrum.player.engine.EngineSelectionPreferences
 import com.amwolfstein.sistrum.player.engine.EngineKind
 import com.amwolfstein.sistrum.settings.ThemeMode
+import com.amwolfstein.sistrum.settings.IntegrationPreferences
 import com.amwolfstein.sistrum.settings.ThemePreferences
 import com.amwolfstein.sistrum.sync.AndroidSyncRuntime
 import com.amwolfstein.sistrum.player.AndroidPlaybackRuntime
@@ -82,7 +83,7 @@ class MainActivity : ComponentActivity() {
     private var analysisNotificationPermissionRequested = false
     private var systemMusicVolumeState by mutableFloatStateOf(0f)
     private val viewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(ThemePreferences(applicationContext))
+        MainViewModel.Factory(ThemePreferences(applicationContext), IntegrationPreferences(applicationContext))
     }
     private val tracksViewModel: LibraryTracksViewModel by viewModels {
         LibraryTracksViewModel.Factory(AndroidSyncRuntime.syncStore(), AndroidPlaybackRuntime.controller())
