@@ -187,3 +187,14 @@ NOT_METERED. No active network means both false. ACCESS_NETWORK_STATE is require
 Cancellation disconnects the active connection; body reads check cancellation and read at most cap plus one byte.
 Revisit if: provider measurements justify different bounds or a later task explicitly needs captive/offline network access.
 
+## D-25: Album, artist and playlist/Favorites pages in SpotiFLAC's "Mornye" style (owner, 2026-10-16)
+Case: owner GIFs of SpotiFLAC Mobile's Mornye style (frames in `research/refs/mornye-*.png`); M2 only recoloured these pages.
+SpotiFLAC is Flutter, so nothing is ported: the look is rebuilt in Compose from the references. Only these screens change
+(no Mornye accent picker, no glass-clarity setting). Buttons keep Sistrum's actions in Mornye's shape: small round Shuffle,
+large white Play (pill; a circle on the artist page), small round "..." with the existing menu (plus edit/reorder on playlists).
+Artist sections map to local data: Latest release, Popular (most played), Albums (7+ songs), Singles & EPs (1-6 songs),
+Compilations (albums by another album artist, e.g. Various Artists; no schema change). Recents panel T020a runs in the same
+mini-milestone M2b. Existing screen tests stay unmodified except an assertion on an element this design removes or moves;
+each such change is listed in HANDOFF with the reason (D-24 rule: never loosen a behaviour check).
+Revisit if: an existing action has no place on the new pages (owner question, D-4).
+
