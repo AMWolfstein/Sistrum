@@ -123,7 +123,7 @@ bash "$scripts/milestone-run.sh" --feature "$feature" --out "$out" --effort low 
 logs=$(grep -o '/tmp/verify-task\.[A-Za-z0-9]*' "$feature/HANDOFF.md" | head -1)
 triage="$reports/phone-log-triage.md"
 if [ -n "$logs" ] && [ -d "$logs" ] && [ ! -s "$triage" ]; then
-  review phone-log-triage "$range" "$triage" "gate logs directory: $logs (logcat-*.log, instr-*.log)" low; rc=$?
+  review phone-log-triage "$range" "$triage" "gate logs directory: $logs (logcat-*.log, instr-*.log). Instrumentation failures of the known baseline in $feature/HANDOFF.md Current status are LOW (known baseline), never HIGH; only failures outside it can be HIGH." low; rc=$?
   [ $rc = 1 ] && exit 1
   commit_docs "docs($(basename "$feature")): $milestone phone-log triage" || exit 1
   if [ $rc = 10 ]; then

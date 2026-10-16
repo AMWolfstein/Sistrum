@@ -5,9 +5,13 @@ task; SC-012 "no `player/` change" is measured from here).
 
 ## Current status
 
-- **Active task:** T008-fix2 is BLOCKED on the unchanged legacy device-test failures described below. No source/test
-  changes or commit packet prepared; the task remains unchecked. The T008 completion record below is historical.
-  Two fresh-session retries independently reconfirmed the shipped-layout/test conflict; see retry notes below.
+- **Active:** chain runner M2 → M5 (`chain.sh`, `runner-plan.txt`). T008-fix2 rejected by Claude (tasks.md).
+- **Known baseline rule for every 004 gate (Claude, 2026-10-16):** the 30 legacy device failures (AppNavigationTest 16,
+  MiniPlayerTest 8, FullScreenPlayerTest 6; method lists in the T008 report below) existed before 004 and are accepted.
+  A milestone gate passes when every other check passes and those three classes fail on **exactly** these methods (or
+  fewer); any new failing method is a real failure. Do not fix or edit those legacy tests in 004; phone-log triage
+  reports them as LOW "known baseline", never HIGH. (M1 triage flagged them HIGH; T008-fix2's medium, high and Astra
+  attempts all correctly BLOCKED; their notes stay below as history.)
 - **Phase:** **004 UI M1 DONE** (2026-10-16). T008 finished by Claude after Codex ended BLOCKED (owner rule). Final full
   gate `logs: /tmp/verify-task.Jdpta3`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lint 0 errors / 72 warnings,
   graph PASS; `.qa` device: UiContractCharacterization 5/5, RtlLayout 5/5, GlassFallback 96/96, Card 1/1, UiMatrix 72/72;
