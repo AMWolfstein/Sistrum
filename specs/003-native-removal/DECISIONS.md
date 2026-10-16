@@ -60,3 +60,12 @@ FFmpeg. Chosen: keep; only comments naming our removed code change. Revisit if: 
 ## D-12: Cleanup scope is SAFE findings only
 Case: registry rows D-09, D-11, D-12 and refactor-cleaner output. Chosen: SAFE only, each with evidence; CAREFUL/RISKY go to the
 review phase list. D-09 rows may be reachable through the 002 tree walk, so CAREFUL until proven.
+
+## D-13: Split the large playback files and their tests after cleanup (owner, 2026-10-15)
+Case: owner asked whether playback should be many Kotlin files or one; answer: many, one responsibility each. Today
+`PlaybackCoordinator.kt` (~1,450 lines) and `media3/Media3Engine.kt` (~1,360) hold several jobs each. Owner: do it, split the
+test files the same way and give the whole test suite a full checkup, and only after FFmpeg/NDK are removed and the cleanup
+is done. Chosen: new milestone M4b between M4 and M5 (T025a–T025i): Claude maps the split first, characterization gaps are
+pinned, one Codex task per file (move-only, [HIGH-RISK], tests moved verbatim, migration-guard), then the whole-suite checkup
+and its fixes. Revisit if: the split map shows a file whose parts share too much state to split without a logic change (then
+that file is left whole with the reason recorded).

@@ -67,6 +67,22 @@ App root: `androidApp/src/main/kotlin/com/amwolfstein/sistrum/` (= `app/`), host
 - [ ] T024 [US4] "After" reports: re-run exactly the T001 commands; add a before/after table (detekt baseline sizes, `usage.txt` line count, UnusedResources count, Kover line coverage per module) to `docs/QUALITY.md` and HANDOFF; no regressions unexplained by removals (SC-008); no production change
 - [ ] T025 M4 full gate + phone check: full suites, `--lint`, `assembleDevQa`, unsigned `assembleProdRelease`, `check-no-native.sh` + `--apk`; on `.qa` run `FormatInventoryPlaybackTest`, `KotlinFormatsPlaybackTest`, `Media3EngineCoreTest`, `Media3EngineGaplessTest`; bisect on failure; `phone-log-triage` (Claude); milestone review as in plan.md
 
+## Phase 5b: M4b — Playback file split and test checkup (owner, 2026-10-15; D-13)
+
+**Goal**: one responsibility per Kotlin file in playback, tests split the same way, whole-suite test checkup. Starts only after
+M4 (FFmpeg/NDK removed and cleanup done). **Independent test**: behaviour unchanged (all existing tests pass unmodified in
+assertions), no `player/` file over ~500 lines unless split-map says why, every split production file has its mirrored test file.
+
+- [ ] T025a [CLAUDE] Split map: run `architecture-boundary-reviewer`, `refactor-cleaner` and `kotlin-reviewer` on `player/` (incl. `media3/`) after M4; write `specs/003-native-removal/research/split-map.md`: every file over ~500 lines (today `PlaybackCoordinator.kt` ~1,450, `media3/Media3Engine.kt` ~1,360, `PlaybackService.kt` ~640, `media3/Media3PlayerFactory.kt` ~610, `media3/LimiterSession.kt` ~530) → target files by responsibility (e.g. queue, transitions/crossfade, Mood Radio, commands; player slots/prepare, gain/clock, seek), symbols moved per file, visibility changes (internal only), and the mirrored test-file split (which test class/cases move where); one row group per Codex task below; behaviour gaps with no test listed for T025b
+- [ ] T025b [TESTS-FIRST] Characterization gaps from split-map: host/device tests that pin behaviour the split could break and no test covers yet; they pass on the unsplit code; no production change. Quick gate
+- [ ] T025c [HIGH-RISK] Split `PlaybackCoordinator.kt` per split-map: move code only (no logic, ordering, threading or lock change), keep the public/`internal` API callers use, move its test cases verbatim into the mirrored test files (no assertion, expected value or timeout changed; `migration-guard` checks); quick gate + `docs/REGRESSION.md` downstream commands + `.qa` classes named in split-map
+- [ ] T025d [HIGH-RISK] Split `media3/Media3Engine.kt` the same way (same rules as T025c)
+- [ ] T025e [HIGH-RISK] Split `media3/Media3PlayerFactory.kt` and `media3/LimiterSession.kt` the same way (same rules as T025c)
+- [ ] T025f [HIGH-RISK] Split `PlaybackService.kt` the same way (same rules as T025c; MediaSession/foreground-service behaviour untouched)
+- [ ] T025g [CLAUDE] Whole test-suite checkup (all modules, host + device, not a commit range): `pr-test-analyzer` and `silent-failure-hunter` in whole-suite mode, plus each device class run 3 times on `.qa` to find flaky ones; write `research/test-checkup.md` (weak/no-throw/loose assertions, duplicates, dead tests for removed code, tests that skip a step real callers take, flaky classes, test files without a production pair); confirmed rows feed T025h
+- [ ] T025h Test-suite fixes from `research/test-checkup.md`: strengthen or merge (never weaken: no assertion removed, bound loosened or test skipped without a D-entry reason), delete only tests of code that no longer exists (list them), rename/move test files to mirror production files; quick gate
+- [ ] T025i M4b full gate + phone check: full suites, `--lint`, `assembleDevQa`; on `.qa` run every `player/`, `media3/`, crossfade, gapless, normalization, Night mode, silence and MediaSession device class one at a time; HANDOFF: before/after file-size table and the split-map rows done; `phone-log-triage`
+
 ## Phase 6: M5 — Docs and final regression
 
 - [ ] T026 Docs (Codex-editable files): `docs/REGRESSION.md` (native rows removed), `docs/dev-setup.md` final check (no NDK, CMake, FFmpeg, per-ABI, 16 KB step), `specs/003-native-removal/quickstart.md` (how to verify: grep script, APK check, inventory test), `scripts/test-corpus/README.md` if it mentions the native engine. Quick gate
@@ -77,7 +93,7 @@ App root: `androidApp/src/main/kotlin/com/amwolfstein/sistrum/` (= `app/`), host
 ## Dependencies & order
 
 T001 → T002 → T003 → T004 → M1 (T005 → T006 → T007) → T008 (OWNER DECISION) → M2 (T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016)
-→ T017 → M3 (T018 → T019 → T020) → M4 (T021 → T022 → T023 → T024 → T025) → M5 (T026 → T027 → T028) → T029.
+→ T017 → M3 (T018 → T019 → T020) → M4 (T021 → T022 → T023 → T024 → T025) → M4b (T025a → T025b → T025c → T025d → T025e → T025f → T025g → T025h → T025i) → M5 (T026 → T027 → T028) → T029.
 Runner order = task id order, no parallel runs. If a Codex task fails or ends BLOCKED, Claude finishes it and restarts from the next one.
 T013 needs T012 (no Kotlin class may still reference the JNI library); T018 needs T017; T022 needs T021.
 

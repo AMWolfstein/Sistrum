@@ -30,6 +30,7 @@ the target). No new dependencies except the report-only quality tooling (T001). 
 | M2 | Step 1: Media3 only, native engine, JNI, cpp, jniLibs, FFmpeg script, CMake blocks gone | T016 |
 | M3 | Step 2: no NDK settings, zero `.so`, build without NDK | T020 |
 | M4 | Cleanup (SAFE only), dead resources, "after" quality reports | T025 |
+| M4b | Playback file split by responsibility, mirrored test split, whole-suite test checkup (owner, D-13) | T025i |
 | M5 | Docs, final full regression, Checkpoint 003 | T028 |
 
 Boundary gates (runner stops): T002 (MANUAL, 002 complete + start approval), T008 (MANUAL, OWNER DECISION on "none" rows + step 1
