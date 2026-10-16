@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -127,6 +128,9 @@ private fun discCardTextStyle(): TextStyle = MaterialTheme.typography.bodyMedium
 /** The height of a [DiscCard] of [width]: square artwork, one title line and one subtitle line. */
 @Composable
 internal fun discCardHeight(width: Dp): Dp {
-    val lineHeight = with(LocalDensity.current) { discCardTextStyle().lineHeight.toDp() }
+    // Text's line box includes font metrics beyond the requested lineHeight (Trim.None).
+    // Use the measured single-line height so larger fonts cannot squeeze the subtitle.
+    val lineHeightPx = rememberTextMeasurer().measure(" ", style = discCardTextStyle(), maxLines = 1).size.height
+    val lineHeight = with(LocalDensity.current) { lineHeightPx.toDp() }
     return width + DiscCardTitleGap + lineHeight + DiscCardSubtitleGap + lineHeight + DiscCardBottomAllowance
 }

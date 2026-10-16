@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
@@ -400,7 +403,7 @@ class LibraryTracksContentTest {
         }
         assertBounded()
         // Filter and playback controls are the first two lazy items.
-        composeTestRule.onNodeWithTag("large-tracks").performScrollToIndex(5_002)
+        composeTestRule.onNode(hasScrollAction() and hasAnyAncestor(hasTestTag("large-tracks"))).performScrollToIndex(5_002)
         composeTestRule.onNodeWithText("Large song 5000").assertIsDisplayed()
         composeTestRule.runOnIdle { assertEquals("track-5000", listState.layoutInfo.visibleItemsInfo.first().key) }
         composeTestRule.onNodeWithText("Large song 0").assertDoesNotExist()

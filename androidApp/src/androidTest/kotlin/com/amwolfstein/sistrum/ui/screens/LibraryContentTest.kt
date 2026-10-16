@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollTo
@@ -171,7 +172,8 @@ class LibraryContentTest {
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val playlists = context.getString(R.string.library_playlists)
-        composeTestRule.onNodeWithText(playlists).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNode(hasScrollAction()).performScrollToIndex(6)
+        composeTestRule.onNodeWithText(playlists).assertIsDisplayed()
         val before = composeTestRule.onNodeWithText(playlists).fetchSemanticsNode().boundsInRoot
         restoration.emulateSavedInstanceStateRestore()
         composeTestRule.onNodeWithText(playlists).assertIsDisplayed()

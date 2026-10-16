@@ -3,6 +3,7 @@ package com.amwolfstein.sistrum.ui.testing
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.LocaleList
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Rect
@@ -10,10 +11,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.getOrNull
@@ -69,12 +72,19 @@ class UiMatrix(
                 setLocales(LocaleList.forLanguageTags(case.language))
                 fontScale = case.fontScale
             }
+            // A localized ConfigurationContext no longer exposes the hosting Activity.
+            val activityResultRegistryOwner = LocalActivityResultRegistryOwner.current
+            val registryProviders = activityResultRegistryOwner?.let {
+                arrayOf(LocalActivityResultRegistryOwner provides it)
+            } ?: emptyArray()
             val context = LocalContext.current.createConfigurationContext(configuration)
             CompositionLocalProvider(
                 LocalContext provides context,
+                LocalResources provides context.resources,
                 LocalConfiguration provides configuration,
                 LocalLayoutDirection provides if (case.language == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr,
                 LocalDensity provides Density(LocalDensity.current.density, case.fontScale),
+                *registryProviders,
             ) {
                 SistrumTheme(themeMode = case.theme) { content(case.reduceTransparency) }
             }
@@ -87,8 +97,10 @@ class UiMatrix(
         val nodes = rule.onAllNodes(actions, useUnmergedTree = true).fetchSemanticsNodes()
         check(nodes.isNotEmpty()) { "${case.id}: no actions matched" }
         for (node in nodes) {
-            val raw = Rect(node.positionInRoot.x, node.positionInRoot.y,
-                node.positionInRoot.x + node.size.width, node.positionInRoot.y + node.size.height)
+            // Mapping the full rectangle also handles mirrored RTL glyphs, whose local
+            // origin is their right edge in root coordinates.
+            val coordinates = node.layoutInfo.coordinates
+            val raw = coordinates.findRootCoordinates().localBoundingBoxOf(coordinates, clipBounds = false)
             check(raw.width > 0 && raw.height > 0 && root.containsRect(raw) && node.boundsInRoot.containsRect(raw)) {
                 "${case.id}: action ${node.id} clipped: raw=$raw visible=${node.boundsInRoot} root=$root"
             }
@@ -99,7 +111,7 @@ class UiMatrix(
     private fun assertLabelsFit(node: SemanticsNode) {
         val results = mutableListOf<TextLayoutResult>()
         node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
-        check(results.none(::labelOverflows)) { "${case.id}: action label ${node.id} overflows" }
+        check(results.none(::labelOverflows)) { "${case.id}: action label ${node.id} overflows: ${results.map { "${it.layoutInput.text} size=${it.size} paragraphHeight=${it.multiParagraph.height}" }}" }
         node.children.forEach(::assertLabelsFit)
     }
 

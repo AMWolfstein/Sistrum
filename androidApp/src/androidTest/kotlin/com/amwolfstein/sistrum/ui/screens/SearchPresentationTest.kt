@@ -9,7 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -62,7 +66,7 @@ class SearchPresentationTest(private val case: UiMatrix.Case) {
         input.performTextReplacement("الموسيقى")
         rule.runOnIdle { assertEquals("الموسيقى", state.value.query) }
         rule.onNode(hasContentDescription(label(R.string.text_field_clear))).performClick()
-        input.assertTextEquals("")
+        input.assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
         rule.onNodeWithText(label(R.string.library_search_empty_description)).assertIsDisplayed()
         rule.runOnIdle { state.value = LibrarySearchUiState(query = "pending", isLoaded = false) }
         input.assertTextEquals("pending")

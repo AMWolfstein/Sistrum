@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithContentDescription
+import com.amwolfstein.sistrum.ui.components.AnchoredPopupMenuHost
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.platform.app.InstrumentationRegistry
@@ -129,27 +131,29 @@ class ArtistDetailsContentTest {
         var selected: String? = null
         composeTestRule.setContent {
             SistrumTheme(themeMode = ThemeMode.Dark) {
-                ArtistDetailsContent(
-                    ArtistDetailsUiState(
-                        artist = LibraryArtist("artist", "Muse"),
-                        albums = listOf(LibraryAlbum("local-album", "Local album", "Muse")),
-                        tracks = listOf(
-                            com.amwolfstein.sistrum.sync.LibraryTrack("b", "Second", "Muse"),
-                            com.amwolfstein.sistrum.sync.LibraryTrack("a", "First", "Muse"),
+                AnchoredPopupMenuHost(hazeState = null) {
+                    ArtistDetailsContent(
+                        ArtistDetailsUiState(
+                            artist = LibraryArtist("artist", "Muse"),
+                            albums = listOf(LibraryAlbum("local-album", "Local album", "Muse")),
+                            tracks = listOf(
+                                com.amwolfstein.sistrum.sync.LibraryTrack("b", "Second", "Muse"),
+                                com.amwolfstein.sistrum.sync.LibraryTrack("a", "First", "Muse"),
+                            ),
                         ),
-                    ),
-                    listState = rememberLazyListState(),
-                    portrait = { Box(Modifier.fillMaxSize().background(Color.Blue).testTag("portrait")) },
-                    headerBackground = { Box(Modifier.fillMaxSize().testTag("header-background")) },
-                    about = { Text("Local artist biography") },
-                    onAddToQueue = { queued = it },
-                    onAlbumClick = { selected = it.id },
-                )
+                        listState = rememberLazyListState(),
+                        portrait = { Box(Modifier.fillMaxSize().background(Color.Blue).testTag("portrait")) },
+                        headerBackground = { Box(Modifier.fillMaxSize().testTag("header-background")) },
+                        about = { Text("Local artist biography") },
+                        onAddToQueue = { queued = it },
+                        onAlbumClick = { selected = it.id },
+                    )
+                }
             }
         }
         composeTestRule.onNodeWithTag("portrait").assertIsDisplayed()
         composeTestRule.onNodeWithTag("header-background").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Artist options").performClick()
+        composeTestRule.onNodeWithContentDescription("Artist options").performClick()
         composeTestRule.onNodeWithText("Add to queue").performClick()
         assertEquals(listOf("b", "a"), queued)
         composeTestRule.onNodeWithText("Local artist biography").performScrollTo().assertIsDisplayed()
@@ -170,13 +174,15 @@ class ArtistDetailsContentTest {
             var removals = 0
             composeTestRule.setContent {
                 SistrumTheme(themeMode = ThemeMode.Dark) {
-                    ArtistDetailsContent(
-                        ArtistDetailsUiState(artist = artist.value),
-                        listState = rememberLazyListState(),
-                        portrait = { Box(Modifier.fillMaxSize().background(Color.Blue).testTag("portrait")) },
-                        onAddArtistImage = { additions++ },
-                        onRemoveArtistImage = { removals++; artist.value = LibraryArtist("artist", "Muse") },
-                    )
+                    AnchoredPopupMenuHost(hazeState = null) {
+                        ArtistDetailsContent(
+                            ArtistDetailsUiState(artist = artist.value),
+                            listState = rememberLazyListState(),
+                            portrait = { Box(Modifier.fillMaxSize().background(Color.Blue).testTag("portrait")) },
+                            onAddArtistImage = { additions++ },
+                            onRemoveArtistImage = { removals++; artist.value = LibraryArtist("artist", "Muse") },
+                        )
+                    }
                 }
             }
             composeTestRule.onNodeWithTag("portrait").assertDoesNotExist()
@@ -186,15 +192,15 @@ class ArtistDetailsContentTest {
             val image = composeTestRule.onNodeWithTag("detail-hero-artwork-image").captureToImage()
             val pixel = image.toPixelMap()[image.width / 2, image.height / 2]
             assertTrue(pixel.red > 0.95f && pixel.green < 0.05f && pixel.blue < 0.05f)
-            composeTestRule.onNodeWithText("Artist options").performClick()
+            composeTestRule.onNodeWithContentDescription("Artist options").performClick()
             composeTestRule.onNodeWithText("Add artist image").performClick()
             assertEquals(1, additions)
-            composeTestRule.onNodeWithText("Artist options").performClick()
+            composeTestRule.onNodeWithContentDescription("Artist options").performClick()
             composeTestRule.onNodeWithText("Remove artist image").performClick()
             assertEquals(1, removals)
             composeTestRule.onNodeWithTag("portrait").assertIsDisplayed()
             composeTestRule.onNodeWithTag("detail-hero-artwork-image").assertDoesNotExist()
-            composeTestRule.onNodeWithText("Artist options").performClick()
+            composeTestRule.onNodeWithContentDescription("Artist options").performClick()
             composeTestRule.onNodeWithText("Remove artist image").assertDoesNotExist()
         } finally {
             file.delete()

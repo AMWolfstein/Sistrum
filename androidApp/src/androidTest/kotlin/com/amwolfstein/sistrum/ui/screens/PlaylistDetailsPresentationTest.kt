@@ -13,7 +13,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -39,7 +40,7 @@ import org.junit.runners.Parameterized
 /** No separate loading/error state exists; null playlist is the existing unavailable state. */
 @RunWith(Parameterized::class)
 class PlaylistDetailsPresentationTest(private val case: UiMatrix.Case) {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     companion object {
         @JvmStatic @Parameterized.Parameters(name = "{0}")

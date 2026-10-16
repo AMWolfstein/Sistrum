@@ -103,9 +103,6 @@ class ArtistListPresentationTest(private val case: UiMatrix.Case) {
         assertEquals(2, layouts.single().layoutInput.maxLines)
         if (case.fontScale == 2f) assertEquals(2, layouts.single().lineCount)
         matrix.assertNoClippedActions(hasContentDescription(label(R.string.artist_row_open)))
-        rule.onNodeWithText(name).performClick()
-        rule.onNode(hasContentDescription(label(R.string.artist_row_open))).performClick()
-        assertEquals(2, clicks)
         val image = rule.onNodeWithTag("portrait", useUnmergedTree = true).captureToImage()
         assertEquals(image.width, image.height)
         val pixels = image.toPixelMap()
@@ -113,6 +110,9 @@ class ArtistListPresentationTest(private val case: UiMatrix.Case) {
         assertTrue(pixels[image.width / 2, image.height / 2].green < 0.05f)
         // A square slot would paint the corner red; the row must clip its supplied content.
         assertTrue(pixels[1, 1].green > 0.95f)
+        rule.onNodeWithText(name).performClick()
+        rule.onNode(hasContentDescription(label(R.string.artist_row_open))).performClick()
+        assertEquals(2, clicks)
         matrix.captureToImage("round-long-name")
     }
 

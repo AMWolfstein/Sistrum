@@ -16,6 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
@@ -217,13 +220,13 @@ class LibraryAlbumsContentTest {
             assertTrue("Composed album cards/rows: $count", count in 1..40)
         }
         assertBounded()
-        composeTestRule.onNodeWithTag("large-albums").performScrollToIndex(5_002)
+        composeTestRule.onNode(hasScrollAction() and hasAnyAncestor(hasTestTag("large-albums"))).performScrollToIndex(5_002)
         composeTestRule.onNodeWithText("Large album 5000").assertIsDisplayed()
         composeTestRule.runOnIdle { assertEquals("album-5000", listState.layoutInfo.visibleItemsInfo.first().key) }
         composeTestRule.onNodeWithText("Large album 0").assertDoesNotExist()
         assertBounded()
         composeTestRule.runOnIdle { layout = AlbumLayoutMode.Grid }
-        composeTestRule.onNodeWithTag("large-albums").performScrollToIndex(2_502)
+        composeTestRule.onNode(hasScrollAction() and hasAnyAncestor(hasTestTag("large-albums"))).performScrollToIndex(2_502)
         composeTestRule.onNodeWithText("Large album 5000").assertIsDisplayed()
         composeTestRule.runOnIdle { assertEquals("album-5000", listState.layoutInfo.visibleItemsInfo.first().key) }
         composeTestRule.onNodeWithText("Large album 0").assertDoesNotExist()

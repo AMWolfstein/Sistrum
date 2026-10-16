@@ -20,7 +20,8 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -49,7 +50,7 @@ import java.io.File
 /** No separate error state or Haze source: both transparency settings use opaque artwork/editor fills. */
 @RunWith(Parameterized::class)
 class PlaylistListPresentationTest(private val case: UiMatrix.Case) {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     companion object {
         @JvmStatic @Parameterized.Parameters(name = "{0}")
@@ -184,7 +185,8 @@ class PlaylistListPresentationTest(private val case: UiMatrix.Case) {
         openMenu()
         rule.onNodeWithText(label(R.string.playlist_edit)).performClick()
         rule.onNodeWithTag("playlist-name-input").performTextReplacement("  Renamed  ")
-        rule.onNodeWithTag("playlist-create-button").performClick()
+        rule.onNodeWithTag("playlist-create-button").assertIsDisplayed()
+            .performSemanticsAction(SemanticsActions.OnClick) { assertTrue(it()) }
         assertEquals("Renamed", updated)
         openMenu()
         rule.onNodeWithText(label(R.string.playlist_delete)).performClick()

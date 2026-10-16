@@ -1,6 +1,8 @@
 package com.amwolfstein.sistrum.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -113,7 +115,9 @@ class HomeContentTest {
 
     @Test fun suppliedScrollStateIsUsedWhenHomeReturns() {
         rule.setContent { SistrumTheme(ThemeMode.Dark) {
-            HomeFixture(shelf = homeTracks(20), state = rememberLazyListState(initialFirstVisibleItemIndex = 2))
+            Box(Modifier.height(320.dp)) {
+                HomeFixture(shelf = homeTracks(20), state = rememberLazyListState(initialFirstVisibleItemIndex = 2))
+            }
         } }
         rule.onNodeWithTag("home-collapsed-title").assertIsDisplayed()
         rule.onNodeWithTag("home-large-title").assertDoesNotExist()

@@ -5,13 +5,23 @@ task; SC-012 "no `player/` change" is measured from here).
 
 ## Current status
 
-- **Active (Claude, 2026-10-16):** T020 ended BLOCKED on medium, high and Astra (report below: 314 device failures, host suite stopped early, slider test clicks at y = -24). Decision D-24: sort every failure against a `9f0acac` build; pre-existing = baseline, new = fix (production; 004-added tests only when the test itself is wrong). New task **T020-fix3** (before T020, also in runner-plan M2); the chain restarts at T020-fix3 → T020 → triage → final check → M3. T020's `HomeContent.kt` (locale lint) and `LibraryContent.kt` (row labels) fixes were committed by Claude in `b3d46d24` (focused gate: host 27/27, lint 0 errors, characterization 5/5).
-- **Known baseline rule for every 004 gate (Claude, 2026-10-16):** the 30 legacy device failures (AppNavigationTest 16,
-  MiniPlayerTest 8, FullScreenPlayerTest 6; method lists in the T008 report below) existed before 004 and are accepted.
-  A milestone gate passes when every other check passes and those three classes fail on **exactly** these methods (or
-  fewer); any new failing method is a real failure. Do not fix or edit those legacy tests in 004; phone-log triage
-  reports them as LOW "known baseline", never HIGH. (M1 triage flagged them HIGH; T008-fix2's medium, high and Astra
-  attempts all correctly BLOCKED; their notes stay below as history.)
+- **Active (T020-fix3 complete, 2026-10-16):** Commit prepared in `.codex-commit/` for the runner on `feature/media3-migration`. D-24 gate PASS: app 1,501 tests (one existing oracle skip), shared 39/39, build/lint/graph PASS; device 1,051 cases across 36 classes, 50 measured baseline failures, zero new/changed failures. Raw verify.sh banner is FAIL only because it has no baseline allowlist. Final logs `/tmp/verify-task.SSzzLz`; exact-method/cause/count audit `/tmp/t020-fix3-final-acceptance.log`. Home 24/24 and playlist presentation 240/240 pass. T020 remains unchecked and next.
+- **Known baseline rule for every 004 gate (D-24, measured 2026-10-16):** 52 pre-004 device methods failed on the archived `9f0acac` `.qa` build. A gate passes only when host/build/lint pass and every failing device method belongs to this explicit list (fewer failures are allowed). The original 30 methods in AppNavigationTest (16), MiniPlayerTest (8), FullScreenPlayerTest (6) retain their T008 lists below; the 22 additional methods measured by T020-fix3 (including the shared-height Insight consumer check) are:
+  - `AlbumDetailsContentTest`: `heroOverflowShowsAlbumActionsAndAddsOnlyNonFavoriteTracks`, `displaysPublishedYearTrackCountAndTotalDurationInHeroMetadata`.
+  - `ArtistDetailsContentTest`: `artistMoreMenuUsesOrderedTracksForPlayNextAndPlaylist`, `displaysArtistSummaryAndOpensSelectedAlbum`.
+  - `ComposerDetailsContentTest`: `displaysComposerSummaryAndOpensSelectedAlbum`, `composerMoreMenuUsesOrderedTracksForPlayNextAndPlaylist`.
+  - `CrossfadeDurationSliderTest`: `tappingNearTheEndSelectsTheTwelveSecondMaximum`.
+  - `GenreDetailsContentTest`: `genreMoreMenuUsesOrderedTracksForPlayNextAndPlaylist`, `displaysGenreSummaryAndOpensSelectedAlbum`.
+  - `InsightContentTest`: `insightReplacesPlaceholderAndExposesFiltersAndExpandableTracks`.
+  - `LibraryAlbumsContentTest`: `holdingAnAlbumOpensItsContextMenu`.
+  - `LibraryArtistsContentTest`: `artistLongPressUsesOrderedTracksAndAddOnlyPlaylist`.
+  - `LibraryComposersContentTest`: `composerOverflowUsesProvidedOrderedTrackIds`.
+  - `LibraryContentTest`: `trackInfoSheetOpensFromRecentlyAddedGrid`.
+  - `LibraryGenresContentTest`: `genreOverflowUsesProvidedOrderedTrackIds`.
+  - `LibraryPlaylistsContentTest`: `displaysPlaylistWithLargerArtworkAndChevron`.
+  - `LibraryTracksContentTest`: `trackRemainsVisibleWhileContextBottomSheetIsOpen`, `keepsTheFilterVisibleAndReportsChangesWhenAQueryIsActive`.
+  - `PlaylistDetailsContentTest`: `displaysTrackCountAndDesktopStyleDurationWithoutArtistOrCopyright`, `favoritesMenuOffersEditButNotDelete`, `reorderModeReplacesTrackOptionsWithDragHandlesAndDoneAction`, `heroMoreShowsPlaylistPlaybackAndEditingActions`.
+  Baseline logs: `/tmp/t020-base-device/instr-*.log` and `logcat-*.log`; per-method comparison is in the T020-fix3 report below. Baseline tests remain unchanged; no new 004 test receives an exemption. Phone-log triage treats only these methods as LOW known baseline.
 - **Phase:** **004 UI M1 DONE** (2026-10-16). T008 finished by Claude after Codex ended BLOCKED (owner rule). Final full
   gate `logs: /tmp/verify-task.Jdpta3`: unit (app + sharedLogic) PASS, assembleDevQa PASS, lint 0 errors / 72 warnings,
   graph PASS; `.qa` device: UiContractCharacterization 5/5, RtlLayout 5/5, GlassFallback 96/96, Card 1/1, UiMatrix 72/72;
@@ -23,7 +33,7 @@ task; SC-012 "no `player/` change" is measured from here).
   the paragraph is laid out at the incoming max width (936 px) while the box is the measured size (83 px for "Play";
   device debug log 2026-10-16); now overflow = lines cut / ellipsis / a line's own width > box (RTL-safe). UiMatrixTest's
   48 negative clipping/overflow cases still fail as required. Graph-refresh "read-only index" = Codex sandbox only.
-- **Next step:** T020 (M2 full gate and phone check). T018a replaced all 13 Material switches in AppearanceContent, PlaybackSettingsContent, IntegrationContent and TagSeparatorsContent with the shared Exhale-derived GlassToggle; those screens otherwise remain unchanged. Backdrop 2.0.0 is confined to the toggle, with Apache-2.0 confirmed from its published POM and recorded in D-21/THIRD-PARTY-NOTICES. GlassPolicy selects a static white-thumb fallback for API < 33, Reduce Transparency, reduced motion or performance fallback. T020 must execute new `GlassToggleTest` (12 tests), unchanged `AppearanceContentTest` (1), `IntegrationContentTest` (3) and `CrossfadeDurationSliderTest` (2), plus visual comparison of the lens/tap/drag in light/dark/RTL and the fallback on API 31/32; compilation passed, device execution NOT RUN here. T018 applied token page/spacing/dividers to local categorized search, made query display controlled by the existing ViewModel state, added explicit loading presentation and hoisted result scroll state through App/AppDestinationContent using the existing page-pop reset pattern. Three-track columns now wrap their content height at large fonts. All five destination callbacks and existing track/album context actions remain wired; matching and local data sources are unchanged. T020 must execute unchanged `LibrarySearchContentTest` (1), new `SearchPresentationTest` (3 tests × 24 configurations = 72 cases), and `SearchRestorationTest` (1); AndroidTest compilation passed, device execution NOT RUN here. T017 applied token page/spacing/dividers and rounded glass drag feedback to playlist details, constrained its cover to a square at narrow widths, and moved the drag label onto the full 48 dp handle. Existing callbacks, stable track keys, reorder persistence, cover resolution and Favorites restrictions remain intact. T020 must execute unchanged `PlaylistDetailsContentTest` (6 tests) plus new `PlaylistDetailsPresentationTest` (4 tests × 24 configurations = 96 cases); AndroidTest compilation passed, device execution NOT RUN here. Unchanged `FavoritesArtworkTest` (7) and playlist detail/reorder host tests (7) passed in the quick gate. T016 restyled the playlist list/row and shared create/edit sheet with tokens, two-line names and a scrollable editor body. All callback signatures, Favorites restrictions, custom cover/mosaic resolution, stable keys and supplied list state remain intact. T020 must execute unchanged `LibraryPlaylistsContentTest` (7 tests), `PlaylistDetailsContentTest` (shared artwork/editor consumers), and new `PlaylistListPresentationTest` (6 tests × 24 configurations = 144 cases); AndroidTest compilation passed, device execution NOT RUN here. T015 added optional artist detail portrait/headerBackground/about slots with token presentation; all slots default to null and manual artwork suppresses the supplied portrait. Local album navigation, ordered-track play/shuffle/context actions, manual-image actions and list state/keys remain intact. T020 must execute `ArtistDetailsContentTest` (7 tests, including 4 original methods unchanged) and `ArtistDetailsPresentationTest` (1 test × 24 matrix configurations), compiled but NOT RUN on device here. T014 added token-based artist list/row presentation, two-line names and a circular optional portrait slot; the list forwards each LibraryArtist to its portrait callback, with null preserving the projected local artwork/person fallback. Existing stable IDs, list virtualization, filter/sort inputs and context actions are unchanged. T020 must execute unchanged `LibraryArtistsContentTest` (3) and `ArtistRowTest` (1), plus `ArtistListPresentationTest` (4 tests × 24 matrix configurations = 96 cases); this task compiled them but did not execute device tests. T013a added default artist photos from the newest artwork-bearing track (year, date added, track ID), with explicit staged images winning and retaining `hasCustomArtwork`. The artist list/context-menu anchor and artist detail header consume the same projected path. T013 applied tokens to album details and the shared detail hero, constrained artwork to available width, allowed longer identity/metadata labels, and kept primary actions at least 48 dp. T020 must execute unchanged `AlbumDetailsContentTest` (7 tests) plus `AlbumDetailsPresentationTest` (3 tests × 24 matrix configurations = 72 cases); also rerun artist/playlist/genre/composer detail classes because they consume the shared hero/backdrop. T012 applied tokens to genre/composer lists/details and shared name rows. T020 must also execute `LibraryGenresContentTest` (3), `LibraryComposersContentTest` (3), `GenreDetailsContentTest` (4), `ComposerDetailsContentTest` (4), and `GenreComposerContentMatrixTest` (6 tests × 24 matrix configurations = 144 cases). T011 restyled album/track rows and album grids with tokens while preserving LibraryVirtualList, IDs, sorts, filters, selection and action wiring. T020 must execute `LibraryAlbumsContentTest` (9 cases) and `LibraryTracksContentTest` (17 cases), including seven new action/state/large-list/RTL cases, alongside both Home classes and the Library overview classes named in T010. M2 device execution and owner visual review remain T020 work.
+- **Next step:** T020 (M2 full gate and phone check), using the explicit D-24 baseline below and the complete 36-class result table in the T020-fix3 report. Automated host/build/lint/device/graph evidence is now available. Owner/runner work remains: UI finish review and phone-log triage; light/dark/RTL/200% and landscape visual checks, toggle lens/tap/drag and API 31/32 static fallback, frame statistics, real listening/Bluetooth/headset checks. Existing UI finish HOLD decisions remain HOLD; none of those manual checks is represented as PASS.
 - **Scope now:** UI only (M1–M5). Decoders part of 004 (former 002 Phase 5b / M4b) comes later, after 002 M3–M6 and 003.
 - **Host baseline (SC-010, T001):** app 1,464 tests (1,463 passed, 1 existing skip), shared 39 passed; total
   1,503 discovered / 1,502 passed / 0 failures / 0 errors. Before T001, stored results contained 1,454 app + 39 shared
@@ -243,6 +253,183 @@ NOT RUN, never PASS. Only `.qa` APKs were installed/instrumented; no daily app l
 **Blockers:** legacy baseline failures and T003 matrix rendering fixture/overflow failures prevent a full PASS;
 graph refresh's metadata restoration also fails under the read-only Git index. No assertions were weakened to obtain PASS.
 Orchestrator follow-up required; no new DECISIONS entry or architecture/ADR changes.
+
+## T020-fix3 — measured pre-004 baseline and M2 corrections (2026-10-16, READY)
+
+Entry: clean tree, `feature/media3-migration`, no `.codex-commit/`. D-24 supplies the baseline/testing exception; this task explicitly requires `.qa` phone use. No daily package installed, instrumented or force-stopped.
+
+Impact before editing (`git grep`, notes `/tmp/t020-fix3-impact.txt`): HomeContent feeds AppDestinationContent and Home/moved-shelf tests; LibraryContent feeds navigation/characterization and overview tests. UiMatrix feeds all 004 presentation/matrix tests and the glass/negative harness tests. ArtistRow and collection rows feed list/detail presentation checks. Only verified 004-added fixture/query/scroll errors may be corrected. No Room/schema/version, analysis documents, preferences, DecoderProvider order, PlaybackController APIs/flows, player/native code or features touched. All pre-004 tests and existing assertion strengths/expected values stay intact.
+
+Baseline: `git archive 9f0acac | tar -x -C /tmp/t020-base`; copied ignored FFmpeg headers and arm64 libraries into the archive. Neither checkout contains local.properties; used the existing ANDROID_HOME/ANDROID_SDK_ROOT instead, without creating/editing local.properties. `./gradlew -p /tmp/t020-base :androidApp:assembleDevQa :androidApp:assembleDevQaAndroidTest` PASS (35 s), `/tmp/t020-base-build.log`. aapt2 verified exactly `com.amwolfstein.sistrum.dev.qa` and `.qa.test` before both installs. Ran all 16 classes present at base that failed T020; `/tmp/t020-base-device-summary.log`, **logs: `/tmp/t020-base-device`** (per-class instr/logcat). 51 baseline failing methods, including the original 30 legacy methods; 50 of the methods that failed T020 are baseline. Base LibraryContentTest additionally fails `holdingRecentlyAddedTrackOpensContextMenu`, which now passes after the approved D-22 shelf move. Five T020 navigation regressions are the missing destination descriptions already fixed in `b3d46d24`. `UiContractCharacterizationTest` was added in 004; its destination description failure was also fixed there.
+
+Per-method classification of every T020 failure (parameterized configurations grouped by method, with **no** baseline exception for 004-added cases):
+
+| Class / method | Actual result at `9f0acac` / classification |
+|---|---|
+| `AlbumDetailsContentTest#heroOverflowShowsAlbumActionsAndAddsOnlyNonFavoriteTracks` | FAIL, same failure — baseline |
+| `AlbumDetailsContentTest#displaysPublishedYearTrackCountAndTotalDurationInHeroMetadata` | FAIL, same failure — baseline |
+| `AppNavigationTest#changingStackPageKeepsCompactNavigationAndMiniPlayer` | FAIL, same failure — baseline |
+| `AppNavigationTest#librarySearchActionOpensTheSearchPage` | PASS — 004 regression (destination labels fixed in b3d46d24) |
+| `AppNavigationTest#fullScreenPlayerUpdatesSystemBarVisibilityWhilePaused` | FAIL, same failure — baseline |
+| `AppNavigationTest#reselectingInsightScrollsToTheTop` | FAIL, same failure — baseline |
+| `AppNavigationTest#libraryAlbumsActionOpensTheAlbumList` | PASS — 004 regression (destination labels fixed in b3d46d24) |
+| `AppNavigationTest#playbackSettingsOpenAndUpdateEqualizer` | FAIL, same failure — baseline |
+| `AppNavigationTest#libraryGenresActionOpensTheGenreList` | PASS — 004 regression (destination labels fixed in b3d46d24) |
+| `AppNavigationTest#fullScreenPlayerOpensAboveNavigationAndClosesWhenDraggedDown` | FAIL, same failure — baseline |
+| `AppNavigationTest#libraryComposersActionOpensTheComposerList` | PASS — 004 regression (destination labels fixed in b3d46d24) |
+| `AppNavigationTest#fullScreenPlayerKeepsMetadataWithArtwork` | FAIL, same failure — baseline |
+| `AppNavigationTest#playbackSettingsExposePersistedCrossfadeControls` | FAIL, same failure — baseline |
+| `AppNavigationTest#reselectingHomeRestoresItsRootStackAndScrollsToTheTop` | FAIL, same failure — baseline |
+| `AppNavigationTest#playbackCardsRespectThePageHorizontalInset` | FAIL, same failure — baseline |
+| `AppNavigationTest#homeDisplaysSyncPlaceholderWhenThereAreNoTracks` | FAIL, same failure — baseline |
+| `AppNavigationTest#homeDisplaysListeningSectionsAndPlaysFromTheirSectionQueue` | FAIL, same failure — baseline |
+| `AppNavigationTest#selectingLibraryDispatchesIntentAndUpdatesTheVisibleDestination` | FAIL, same failure — baseline |
+| `AppNavigationTest#equalizerHeaderMenuResetsBuiltInProfile` | FAIL, same failure — baseline |
+| `AppNavigationTest#equalizerHeaderMenuConfirmsDeletingUserProfile` | FAIL, same failure — baseline |
+| `AppNavigationTest#draggingBackToTheSelectedDestinationDoesNotReselectIt` | FAIL, same failure — baseline |
+| `AppNavigationTest#libraryArtistsActionOpensTheArtistList` | PASS — 004 regression (destination labels fixed in b3d46d24) |
+| `AppNavigationTest#draggingPillMostlyOverTheNextDestinationSelectsIt` | FAIL, same failure — baseline |
+| `ArtistDetailsContentTest#optionalSlotsKeepLocalAlbumAndOrderedQueueActions` | Absent at base — 004-added test, must pass |
+| `ArtistDetailsContentTest#artistMoreMenuUsesOrderedTracksForPlayNextAndPlaylist` | FAIL, same failure — baseline |
+| `ArtistDetailsContentTest#displaysArtistSummaryAndOpensSelectedAlbum` | FAIL, same failure — baseline |
+| `ArtistDetailsContentTest#manualImageWinsAndRemovingItRestoresPortraitSlot` | Absent at base — 004-added test, must pass |
+| `ArtistListPresentationTest#suppliedPortraitIsRoundAndLongNameKeepsOpenActionVisible` | Absent at base — 004-added test, must pass |
+| `ArtistListPresentationTest#loadingEmptyFilteredAndContentStatesKeepArtistIdentity` | Absent at base — 004-added test, must pass |
+| `ComposerDetailsContentTest#displaysComposerSummaryAndOpensSelectedAlbum` | FAIL, same failure — baseline |
+| `ComposerDetailsContentTest#composerMoreMenuUsesOrderedTracksForPlayNextAndPlaylist` | FAIL, same failure — baseline |
+| `CrossfadeDurationSliderTest#tappingNearTheEndSelectsTheTwelveSecondMaximum` | FAIL, same failure — baseline |
+| `FullScreenPlayerTest#lyricsAndQueuePanelsToggleAndPersistAcrossTrackChanges` | FAIL, same failure — baseline |
+| `FullScreenPlayerTest#moreOptionsUsesTheTrackContextMenuForTheCurrentTrack` | FAIL, same failure — baseline |
+| `FullScreenPlayerTest#preparingPlaybackUsesMetadataDuration` | FAIL, same failure — baseline |
+| `FullScreenPlayerTest#moreOptionsRequestsAnArtistPickerForCollaborations` | FAIL, same failure — baseline |
+| `FullScreenPlayerTest#queueStatusBadgeWaitsForQueueButtonBackgroundToFadeOut` | FAIL, same failure — baseline |
+| `FullScreenPlayerTest#queueRowLongPressOpensQueueMenuWithoutAddToQueueOrCurrentTrackPlayNext` | FAIL, same failure — baseline |
+| `GenreComposerContentMatrixTest#composerListLoadingEmptyFilteredAndContentStates` | Absent at base — 004-added test, must pass |
+| `GenreComposerContentMatrixTest#composerLongNameWrapsAndKeepsOpenActionVisible` | Absent at base — 004-added test, must pass |
+| `GenreComposerContentMatrixTest#genreListLoadingEmptyFilteredAndContentStates` | Absent at base — 004-added test, must pass |
+| `GenreComposerContentMatrixTest#genreDetailsMissingEmptyAndAlbumStates` | Absent at base — 004-added test, must pass |
+| `GenreComposerContentMatrixTest#composerDetailsMissingEmptyAndAlbumStates` | Absent at base — 004-added test, must pass |
+| `GenreComposerContentMatrixTest#genreLongNameWrapsAndKeepsOpenActionVisible` | Absent at base — 004-added test, must pass |
+| `GenreDetailsContentTest#genreMoreMenuUsesOrderedTracksForPlayNextAndPlaylist` | FAIL, same failure — baseline |
+| `GenreDetailsContentTest#displaysGenreSummaryAndOpensSelectedAlbum` | FAIL, same failure — baseline |
+| `HomeContentTest#suppliedScrollStateIsUsedWhenHomeReturns` | Absent at base — 004-added test, must pass |
+| `LibraryAlbumsContentTest#holdingAnAlbumOpensItsContextMenu` | FAIL, same failure — baseline |
+| `LibraryAlbumsContentTest#tenThousandAlbumsKeepListAndGridCompositionBounded` | Absent at base — 004-added test, must pass |
+| `LibraryArtistsContentTest#artistLongPressUsesOrderedTracksAndAddOnlyPlaylist` | FAIL, same failure — baseline |
+| `LibraryComposersContentTest#composerOverflowUsesProvidedOrderedTrackIds` | FAIL, same failure — baseline |
+| `LibraryContentTest#libraryScrollRestoresAfterRecreation` | Absent at base — 004-added test, must pass |
+| `LibraryGenresContentTest#genreOverflowUsesProvidedOrderedTrackIds` | FAIL, same failure — baseline |
+| `LibraryPlaylistsContentTest#displaysPlaylistWithLargerArtworkAndChevron` | FAIL, same failure — baseline |
+| `LibraryTracksContentTest#trackRemainsVisibleWhileContextBottomSheetIsOpen` | FAIL, same failure — baseline |
+| `LibraryTracksContentTest#tenThousandTracksKeepCompositionBoundedAndRestoreScrolledPosition` | Absent at base — 004-added test, must pass |
+| `LibraryTracksContentTest#keepsTheFilterVisibleAndReportsChangesWhenAQueryIsActive` | FAIL, same failure — baseline |
+| `MiniPlayerTest#draggingMiniPlayerDownDismissesIt` | FAIL, same failure — baseline |
+| `MiniPlayerTest#hidesWhenPlaybackIsIdleOrFailed` | FAIL, same failure — baseline |
+| `MiniPlayerTest#pausedStateUsesPlayAndPreparingDisablesTheTransportToggle` | FAIL, same failure — baseline |
+| `MiniPlayerTest#swipingMetadataLeftSkipsToTheNextTrackWithNoVerticalPlayerAction` | FAIL, same failure — baseline |
+| `MiniPlayerTest#swipingMetadataRightReturnsToThePreviousTrack` | FAIL, same failure — baseline |
+| `MiniPlayerTest#metadataSwipeUsesTheLatestQueueNavigationAvailability` | FAIL, same failure — baseline |
+| `MiniPlayerTest#newlyStartedPlaybackSlidesMiniPlayerUpFromNavigation` | FAIL, same failure — baseline |
+| `MiniPlayerTest#draggingMiniPlayerUpOpensTheFullScreenPlayer` | FAIL, same failure — baseline |
+| `PlaylistDetailsContentTest#displaysTrackCountAndDesktopStyleDurationWithoutArtistOrCopyright` | FAIL, same failure — baseline |
+| `PlaylistDetailsContentTest#favoritesMenuOffersEditButNotDelete` | FAIL, same failure — baseline |
+| `PlaylistDetailsContentTest#reorderModeReplacesTrackOptionsWithDragHandlesAndDoneAction` | FAIL, same failure — baseline |
+| `PlaylistDetailsContentTest#heroMoreShowsPlaylistPlaybackAndEditingActions` | FAIL, same failure — baseline |
+| `PlaylistDetailsPresentationTest#favoritesKeepLocalizedIdentityAndProtectedActions` | Absent at base — 004-added test, must pass |
+| `PlaylistListPresentationTest#favoritesEditorKeepsNameHiddenAndClearsOnlyTheCover` | Absent at base — 004-added test, must pass |
+| `PlaylistListPresentationTest#createRejectsWhitespaceAndReturnsTrimmedLocalNameWithoutCover` | Absent at base — 004-added test, must pass |
+| `PlaylistListPresentationTest#contextActionsKeepQueueOrderRenameAndConfirmedDelete` | Absent at base — 004-added test, must pass |
+| `PlaylistListPresentationTest#narrowLongNameUsesTwoLinesAndKeepsOpenTarget` | Absent at base — 004-added test, must pass |
+| `PlaylistListPresentationTest#loadingEmptyAndContentKeepFavoritesAndClickIdentity` | Absent at base — 004-added test, must pass |
+| `SearchPresentationTest#controlledQueryClearLoadingAndEmptyStatesKeepFocusUntilDone` | Absent at base — 004-added test, must pass |
+| `UiContractCharacterizationTest#destinationAndChildPageSurviveActivityRecreationAndTabRoundTrip` | Absent at base — 004-added test, must pass |
+| `HomeContentMatrixTest#heroRemainsClickableAtEveryFontAndCarouselsMirror` (T020 focused run) | Absent at base — 004-added test, must pass |
+| `InsightContentTest#insightReplacesPlaceholderAndExposesFiltersAndExpandableTracks` (extra shared-height consumer) | FAIL, same empty-series exception — baseline |
+
+Extra consumer check: InsightContent also uses discCardHeight. Its unchanged `insightReplacesPlaceholderAndExposesFiltersAndExpandableTracks` fails with `IllegalArgumentException: Series can’t be empty` in Vico's chart model on both current and archived `9f0acac` APKs. Archived Insight 4 run / 1 failure, `/tmp/t020-insight-base-summary.log` and `/tmp/t020-base-device/instr-InsightContentTest.log` / `logcat-InsightContentTest.log`; application IDs checked again before archival installation. This adds one measured pre-004 method to the explicit list (52 total); no Insight code/test changed. Current APKs reinstalled for subsequent checks.
+
+Corrections (D-24; every original assertion/expected value retained):
+
+- `HomeContentMatrixTest#heroRemainsClickableAtEveryFontAndCarouselsMirror`: unchanged RED test fails 16/24 before production correction. Diagnostic shows subtitle `Artist 0` at font 1.3 allocated 61 px for an 81 px paragraph, and font 2.0 allocated 92 px for 112 px. `DiscCard.kt` now measures the actual line box rather than assuming requested lineHeight equals the rendered box; Home and Insight are the two callers of `discCardHeight` (`git grep`). Insight is an extra verification consumer, not a separate feature change. Final Home matrix GREEN: 24/24 after the measured-height correction, `/tmp/t020-fix3-resume-focused-device/instr-HomeContentMatrixTest.log`.
+- `HomeContentTest#suppliedScrollStateIsUsedWhenHomeReturns`: added a 320 dp viewport so the existing shelf fixture can actually scroll to its requested index; the unconstrained fixture fits and Compose correctly clamps the state back to the start. Both collapsed/large-title assertions unchanged. Diagnostic PASS.
+- `LibraryContentTest#libraryScrollRestoresAfterRecreation`: scroll the LazyColumn to index 6 before locating its uncomposed last item. Existing display/bounds/restoration assertions unchanged. Diagnostic PASS.
+- `LibraryAlbumsContentTest#tenThousandAlbumsKeepListAndGridCompositionBounded` and `LibraryTracksContentTest#tenThousandTracksKeepCompositionBoundedAndRestoreScrolledPosition`: select the real scrollable descendant of each tagged wrapper. The wrappers have no ScrollToIndex action. All 10,000-item identity, composition bounds, first-key, display and restoration assertions unchanged. Diagnostic PASS for both.
+- `ArtistDetailsContentTest#optionalSlotsKeepLocalAlbumAndOrderedQueueActions` and `#manualImageWinsAndRemovingItRestoresPortraitSlot`: query the options icon by its existing content description, and supply the application popup host needed by AnchoredPopupMenu. All queue order, destination, image-priority, color and add/remove assertions unchanged. Diagnostic class has only its two measured pre-004 failures.
+- `ArtistListPresentationTest#suppliedPortraitIsRoundAndLongNameKeepsOpenActionVisible`: inspect exact portrait pixels before the clicks that start the row ripple; the old ordering captured the transient pressed overlay. All exact color/shape/name-line/callback assertions retained.
+- `UiMatrix.kt`: explicitly preserve localized LocalResources so Dialog stringResource calls use the matrix locale, rather than the Activity's system-English resources. Before this fix, only the 12 Arabic favorites-editor methods fail looking up the unchanged Arabic clear-cover description; the other 132 playlist-list cases pass. Also map the entire un-clipped local rectangle into root coordinates. The old origin-plus-width construction treats a mirrored glyph's right edge as its left edge and reports an otherwise visible arrow as clipped. Both containment assertions and label-overflow checks remain; all 72 existing UiMatrixTest cases PASS, including all 48 negative clipping/overflow cases. Error messages now include measured text height to diagnose real overflow.
+- `SearchPresentationTest#controlledQueryClearLoadingAndEmptyStatesKeepFocusUntilDone`: assert exactly empty EditableText after clear. The merged node also contains the visible placeholder Text, so assertTextEquals on all merged text was the wrong field; all other query/focus/loading/no-results assertions remain.
+- `PlaylistListPresentationTest` (create/favorites/context editor methods) and `PlaylistDetailsPresentationTest#favoritesKeepLocalizedIdentityAndProtectedActions`: use the real ComponentActivity test rule and preserve its LocalActivityResultRegistryOwner in UiMatrix before replacing LocalContext with a localized ConfigurationContext. The latter is not an Activity wrapper; merely adding the Activity rule still reproduced the same 24/96 detail-editor failures. This supplies the actual application host, with no assertion or expected-value changes.
+
+Completed verification and intermediate history follow. Memory precheck `./gradlew --stop`, `pkill -f '[K]otlinCompileDaemon'`, MemAvailable 3,716,552 kB before baseline build. `./gradlew :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest --continue`, `/tmp/t020-fix3-full-host.log`, completed normally in 7m 15s: app 1,501 discovered / 1,500 passed / one existing WaxFlowOracleLoudnessTest.matchesWaxFlowOracleFixtures skip; shared 39/39. No full host run stopped early. Subsequent memory precheck 3,617,848 kB before the final full gate. Intermediate test APK compile diagnostics: missing assert import and nullable registry-provider type error corrected; logs `/tmp/t020-fix3-test-build.log`, `/tmp/t020-fix3-registry-build.log`; successful diagnostic compilation `/tmp/t020-fix3-test-build2.log` (56 s), Home production build `/tmp/t020-fix3-home-build.log` (1m 13s). Low-memory diagnostic builds used `--no-daemon -Dorg.gradle.jvmargs='-Xmx768m -Dfile.encoding=UTF-8' -Pkotlin.compiler.execution.strategy=in-process --max-workers=1` to avoid interrupting the running full host suite.
+
+Diagnostic device run (before final Home height/registry-context corrections were installed): **logs `/tmp/t020-fix3-diagnostic-device`**, `/tmp/t020-fix3-diagnostic-summary.log`. UiMatrix 72/72, ArtistList 96/96, GenreComposer 144/144, Search 72/72, Home 8/8, LibraryContent 6/6; album/track/artist detail classes retain only measured baseline failures. Home matrix RED 16/24 and playlist registry failures informed the subsequent fixes; not represented as passes.
+
+After resuming: `/tmp/t020-fix3-resume-build.log` PASS (42 s); `/tmp/t020-fix3-resume-focused-device` Home matrix 24/24, playlist list 144 run / 12 Arabic fixture failures, Insight 4 run / one measured baseline. `/tmp/t020-fix3-resources-build.log` PASS (40 s). The single-method parameterized diagnostic selected **0 tests** (`/tmp/t020-fix3-localized-editor-summary.log`); NOT RUN, no pass claimed. The full class is rerun instead.
+
+Temporary evidence storage: `/tmp` reached 86% usage during the full gate. Moved this task's completed baseline/diagnostic log directories to `/home/amwolfstein/.cache/sistrum-t020-fix3-evidence/` and left symlinks at their original `/tmp` paths; the cited instr/logcat files remain readable at every reported path. No active gate logs or unrelated artifacts moved or deleted.
+
+Required file reasons / diff review: `DiscCard.kt` fixes the observed Home label truncation in the shared height calculation; `UiMatrix.kt` corrects transformed clipping geometry and preserves the host registry/localized resources; `HomeContentTest.kt` supplies a scrollable restoration viewport; `LibraryContentTest.kt` composes the lazy restoration target; `LibraryAlbumsContentTest.kt` / `LibraryTracksContentTest.kt` target the actual scrollable list; `ArtistDetailsContentTest.kt` corrects only the two 004-added action fixtures; `ArtistListPresentationTest.kt` captures portrait pixels before the press ripple; `PlaylistListPresentationTest.kt` / `PlaylistDetailsPresentationTest.kt` supply the real activity host; `SearchPresentationTest.kt` checks the exact editable field rather than its merged placeholder. `tasks.md` / `HANDOFF.md` are task records; graph files only if generated by the required hook. No source/test cleanup beyond these defects.
+
+Self-review: four pre-004 artist-detail, five album-list, four library-overview and fourteen track-list test bodies compared against HEAD and unchanged; other edited test classes were added in 004. No assertion removed/disabled/weakened or expected value changed; exact pixel, list identity, queue order, restore bounds and callback assertions retained. The original UiMatrix negative clipping/overflow assertions remain intact. No feature/API/schema/default/decoder/player/ADR changes or exception swallowing. `git diff --check` PASS. Existing MEDIUM/LOW M2 review follow-ups remain with T020/owner review; none added to this task's scope.
+
+Gate attempt 2 exposed one new, non-baseline failure after the isolated 144/144 playlist pass: `PlaylistListPresentationTest#contextActionsKeepQueueOrderRenameAndConfirmedDelete[Dark/reduce=true/ar/font=1.3]`, expected Renamed / actual null. Logs `/tmp/verify-task.4LtLF1/instr-PlaylistListPresentationTest.log` and `logcat-PlaylistListPresentationTest.log`; IME request/show at 12:36:51.271–.659, window relayout .881 before the failed tap. The real Activity fixture permits the keyboard to move the dialog; the test tapped before settling. Corrected only that 004-added callback-contract fixture by requiring Save to be displayed and invoking its accessibility OnClick action, asserting that the action returns true. The test already invokes menu long-press by semantics. This avoids a coordinate sampled during asynchronous IME relayout while still requiring the real Save handler and exact rename/id/artwork/queue/delete results; physical Save taps and 48 dp targets remain covered by create/favorites editor cases. No assertion/expected value removed, retries, longer timeouts or baseline exemption added. An attempted Espresso keyboard-close import did not compile because Espresso is not exposed to the test compile classpath (`/tmp/t020-fix3-keyboard-build.log`); removed it, no dependency added. Gate 2 remains recorded as FAIL; final gate 3 verifies the correction below. Gate 2 otherwise completes all classes, with UiMatrix 72/72, GlassFallback 96/96 and graph PASS/changed (12,021 nodes / 36,125 edges); full logs `/tmp/verify-task.4LtLF1`. The correction compiles (`/tmp/t020-fix3-save-action-build.log`, 12 s). Final gate attempt 3 runs all 36 classes with playlist list first, `/tmp/t020-fix3-gate3.log`; no fourth attempt permitted. Gate 3 memory precheck 3,320,212 kB; logs `/tmp/verify-task.SSzzLz`; corrected playlist list GREEN 144/144. All remaining classes completed; final disposition below.
+
+Final localized editor verification: `/tmp/t020-fix3-final-editor-device/instr-PlaylistListPresentationTest.log` and `logcat-PlaylistListPresentationTest.log`: **144/144 PASS**, all 24 configurations, exact existing Arabic clear-cover description preserved. Final Home matrix 24/24 PASS as above. Gate attempt 2 starts after these completed checks (no concurrent instrumentation), memory precheck 3,345,372 kB; full host/build/lint plus all 36 classes, `/tmp/t020-fix3-gate2.log`.
+
+The final gate includes all 31 original T020 classes plus HomeContentMatrixTest, LibraryContentMatrixTest, UiMatrixTest, GlassFallbackTest and InsightContentTest (36 classes). Temporary `/home/amwolfstein/.gradle/init.d/t020-fix3-device-serialization.gradle` only delayed the final test-APK build until the already-running diagnostic instrumentation finished, preventing two runners from using the phone concurrently; it was removed after the usage-limit interruption and is not a project change. Gate attempt 1 logs `/tmp/verify-task.LxTO5v`: host/build PASS, lint 0 errors / 73 warnings / 14 hints. The usage limit terminated the runners before the final test APK build/device phase; that phase is INCOMPLETE, not PASS. The preliminary PlaylistList diagnostic was likewise interrupted before its completed JUnit summary. Final focused verification and gate retry completed as recorded below.
+
+### Final T020-fix3 gate and disposition
+
+Command: `bash .claude/skills/verify-task/scripts/verify.sh --files '<the 11 changed Kotlin files, tasks.md, HANDOFF.md and two generated graph files>' --lint --instrumented '<all 36 classes below; playlist list first>'`. Full command arguments are preserved in `/tmp/t020-fix3-gate3-files.txt` and `/tmp/t020-fix3-gate3-classes.txt`. Driver `/tmp/t020-fix3-gate3.log`; **logs: `/tmp/verify-task.SSzzLz`**, per-class `instr-*.log` and `logcat-*.log` included for runner triage. Only allowlisted `.qa` IDs installed/instrumented, API 35; current branch QA APKs left installed. No daily app installed, instrumented or force-stopped.
+
+- Host: app 1,501 discovered / 1,500 passed / one unchanged oracle skip; shared 39/39; zero failures/errors. The complete slow host suite finished normally, no exclusions or early stop. Final gate reused completed full-suite results where Gradle marked them UP-TO-DATE.
+- Build: assembleDevQa and test APK build PASS. Lint: BUILD SUCCESSFUL, **0 errors / 73 warnings / 14 hints** (XML inspected; the gate only prints INFO).
+- Device: **1,051 executed / 1,001 passed / 50 failures**, all failures exact methods and normalized causes already measured on `9f0acac`; no new/changed failure, no lost cases, no 004-added failing method. The accepted list contains 52 methods; two now pass. Characterization 5/5, Home matrix 24/24, playlist detail 96/96, playlist list 144/144, artist list 96/96, genre/composer 144/144, UiMatrix 72/72 (including all 48 negative clipping/overflow cases), glass fallback 96/96.
+- Graph: gate PASS/changed; explicit `python3 .claude/hooks/graph_refresh.py auto` PASS/changed, 12,021 nodes / 36,125 edges; `/tmp/t020-fix3-final-graph.log`. Both graph files generated by the hook, never manually edited.
+- Raw verify.sh: **GATE: FAIL**, solely its 50 measured pre-004 device failures. D-24 acceptance: **GATE: PASS**. `/tmp/t020-fix3-final-acceptance.py` checks completed phase banners, full host counts/skip identity, lint XML/task success, each class's executed count against the completed previous run, and every failure's method plus normalized cause against the archived logs. Audit `/tmp/t020-fix3-final-acceptance.log`: 36 classes, 1,051 cases, 50 failures, **0 problems**. No results/logs edited or assertions relaxed to produce this disposition.
+
+| Final device class | Executed | Raw failures | Disposition |
+|---|---:|---:|---|
+| `UiContractCharacterizationTest` | 5 | 0 | PASS |
+| `AppNavigationTest` | 39 | 15 | Measured baseline only |
+| `MiniPlayerTest` | 14 | 8 | Measured baseline only |
+| `FullScreenPlayerTest` | 20 | 6 | Measured baseline only |
+| `LibraryContentTest` | 6 | 0 | PASS |
+| `LibraryAlbumsContentTest` | 9 | 1 | Measured baseline only |
+| `LibraryTracksContentTest` | 17 | 2 | Measured baseline only |
+| `AlbumDetailsContentTest` | 7 | 2 | Measured baseline only |
+| `ArtistDetailsContentTest` | 7 | 2 | Measured baseline only |
+| `GlassToggleTest` | 12 | 0 | PASS |
+| `AppearanceContentTest` | 1 | 0 | PASS |
+| `IntegrationContentTest` | 3 | 0 | PASS |
+| `LibraryPlaylistsContentTest` | 7 | 1 | Measured baseline only |
+| `PlaylistDetailsContentTest` | 6 | 4 | Measured baseline only |
+| `LibrarySearchContentTest` | 1 | 0 | PASS |
+| `HomeContentTest` | 8 | 0 | PASS |
+| `CrossfadeDurationSliderTest` | 2 | 1 | Measured baseline only |
+| `SearchPresentationTest` | 72 | 0 | PASS |
+| `SearchRestorationTest` | 1 | 0 | PASS |
+| `PlaylistDetailsPresentationTest` | 96 | 0 | PASS |
+| `PlaylistListPresentationTest` | 144 | 0 | PASS |
+| `ArtistDetailsPresentationTest` | 24 | 0 | PASS |
+| `ArtistListPresentationTest` | 96 | 0 | PASS |
+| `LibraryArtistsContentTest` | 3 | 1 | Measured baseline only |
+| `ArtistRowTest` | 1 | 0 | PASS |
+| `AlbumDetailsPresentationTest` | 72 | 0 | PASS |
+| `LibraryGenresContentTest` | 3 | 1 | Measured baseline only |
+| `LibraryComposersContentTest` | 3 | 1 | Measured baseline only |
+| `GenreDetailsContentTest` | 4 | 2 | Measured baseline only |
+| `ComposerDetailsContentTest` | 4 | 2 | Measured baseline only |
+| `GenreComposerContentMatrixTest` | 144 | 0 | PASS |
+| `HomeContentMatrixTest` | 24 | 0 | PASS |
+| `LibraryContentMatrixTest` | 24 | 0 | PASS |
+| `UiMatrixTest` | 72 | 0 | PASS |
+| `GlassFallbackTest` | 96 | 0 | PASS |
+| `InsightContentTest` | 4 | 1 | Measured baseline only |
+
+NOT RUN (outside T020-fix3; retained for T020/owner): API 31/32 fallback visuals (only API 35 connected), owner light/dark/RTL/large-font/landscape and toggle lens/tap/drag approval, frame statistics, real listening/Bluetooth/headset checks, runner UI finish review / phone-log triage. The single existing WaxFlow oracle host skip requires external oracle fixtures/corpus and remains NOT RUN, never a pass. No outstanding regression or fix3 implementation work. Decisions: D-24 applied; no new decision, ADR or architecture change. Pre-existing MEDIUM/LOW review follow-ups remain deferred as recorded in T020-fix.
+
+Commit prepared, not staged/committed/pushed: `.codex-commit/files.txt` names all 15 paths; `.codex-commit/message.txt` supplies the task/verification/trailer. T020-fix3 checked; T020 unchanged/unchecked. Self-review and `git diff --check` PASS.
 
 ## T020 — M2 full gate and phone check (2026-10-16, BLOCKED)
 
@@ -546,6 +733,7 @@ Owner listening/Bluetooth/headset checks remain manual, never PASS. No phone/dai
 
 | Date | Task | Result |
 |---|---|---|
+| 2026-10-16 | T020-fix3 | Commit prepared in `.codex-commit/`, runner assigns SHA. D-24 PASS: full host app 1,501 (one unchanged oracle skip), shared 39/39, build/lint/graph PASS; device 1,051 run / 50 exact pre-004 baseline failures / 0 new or changed failures. Raw script FAIL is baseline only; strict audit PASS. Logs `/tmp/verify-task.SSzzLz`, audit `/tmp/t020-fix3-final-acceptance.log`; baseline `/tmp/t020-base-device`. Fixed Home measured line height (RED 16/24 to GREEN 24/24) and only verified 004-added host/resources/query/scroll/pixel/action fixtures; legacy test bodies and all expected values preserved. Full per-method classification, every file reason, intermediate failed/interrupted attempts and final 36-class table above. Two graph files hook-generated. NOT RUN: existing oracle skip (external fixtures/corpus), API 31/32/owner visuals/frame stats/listening/Bluetooth/headset and runner triage/review (T020/manual). No ADR/schema/player/preferences/decoder/API/feature change; no new decision beyond D-24. |
 | 2026-10-16 | T020 second retry | BLOCKED; no commit packet. Only HANDOFF edited; all inherited changes retained. Source/history, cached Compose bytecode and retained device log independently confirm line 63 clicks at y=-24 and fails expected 12 / actual 4. D-4 requires this test unchanged; shipped Settings cannot be changed to accommodate invalid input. No new baseline exemption or decision. `git diff --check` PASS. Full gate/Gradle/memory precheck/graph/phone/bisection NOT RUN under the brief's explicit stop rule; other M2 failures and reviews remain unresolved. |
 | 2026-10-16 | T020 retry | BLOCKED; no commit packet. Retained prior Home/Library fixes; only HANDOFF edited plus hook-generated graphs. Full gate `/tmp/verify-task.sPMqDF` FAIL: host stopped after the mandatory D-4 conflict was established, assembly/lint PASS (0 errors), wrong device FQCN initialization failure corrected in focused `/tmp/verify-task.Yb3GmW`. Focused host 27/27, RTL 5/5, device characterization 5/5 PASS; unchanged CrossfadeDurationSliderTest 1/2 FAIL. Verified line 63 injects at y=-24; test and production slider identical to pre-004 `9f0acac`; D-4 forbids changing the required unchanged test, and the accepted baseline excludes this class. No tests/player/contracts/decisions changed or daily app touched. Full host, other device failures, archival device bisection, visual/API31–32/frame/Claude reviews remain incomplete/NOT RUN as detailed above. |
 | 2026-10-16 | T020 | BLOCKED; no commit packet. Full gate `/tmp/verify-task.NKwmsw` FAIL: app host stopped before completion, lint error, 831 device tests/cases with 314 failures including 30 exact legacy failures. Fixed observable Home locale and restored Library destination descriptions; focused gate `/tmp/verify-task.qMyJyA` still FAIL, but 27/27 host tests, compile, lint (0 errors), characterization 5/5 and Library matrix 24/24 PASS; AppNavigation 15 failures are a subset of baseline; Home matrix 16/24 fail and Library restoration still fails. Isolated lifecycle host class PASS; bounded full-host retry exit 124, active WavPack DSD stack captured, no full-app pass claimed. Full per-class SC-001/SC-003 table, logs, file reasons and NOT RUN items in T020 report above. Graph PASS/changed; no tests modified, no daily apps touched. Remaining failures, archival commit bisection, visual finish approval, Claude log triage, frame stats and API 31/32 checks remain undone; no architecture decision changed. |
