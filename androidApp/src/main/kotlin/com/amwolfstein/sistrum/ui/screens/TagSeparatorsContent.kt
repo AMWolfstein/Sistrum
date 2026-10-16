@@ -29,7 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
+import com.amwolfstein.sistrum.ui.components.GlassToggle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -169,7 +169,7 @@ internal fun TagSeparatorsContent(modifier: Modifier = Modifier) {
                         ActionListItem(
                             R.string.tag_separators_enable,
                             trailingContent = {
-                                Switch(checked = current.enabled, onCheckedChange = { scope.launch { preferences.setEnabled(it) } })
+                                GlassToggle(checked = current.enabled, onCheckedChange = { scope.launch { preferences.setEnabled(it) } })
                             },
                             onClick = { scope.launch { preferences.setEnabled(!current.enabled) } },
                         ),

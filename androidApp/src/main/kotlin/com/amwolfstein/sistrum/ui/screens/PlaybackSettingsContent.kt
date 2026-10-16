@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
+import com.amwolfstein.sistrum.ui.components.GlassToggle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -89,7 +89,7 @@ internal fun PlaybackSettingsContent(
                 ActionListItem(
                     labelRes = R.string.playback_show_quality_badge,
                     trailingContent = {
-                        Switch(
+                        GlassToggle(
                             checked = showFullscreenQualityBadge,
                             onCheckedChange = onShowFullscreenQualityBadgeChanged,
                         )
@@ -129,7 +129,7 @@ internal fun EqualizerContent(
                 items = listOf(
                     ActionListItem(
                         labelRes = R.string.equalizer_enable,
-                        trailingContent = { Switch(checked = settings.enabled, onCheckedChange = onEnabledChanged) },
+                        trailingContent = { GlassToggle(checked = settings.enabled, onCheckedChange = onEnabledChanged) },
                         onClick = { onEnabledChanged(!settings.enabled) },
                     ),
                 ),
@@ -217,12 +217,12 @@ internal fun VolumeNormalizationContent(
                 items = listOf(
                     ActionListItem(
                         labelRes = R.string.playback_volume_normalization,
-                        trailingContent = { Switch(checked = normalization.enabled && normalizationAvailable, enabled = normalizationAvailable, onCheckedChange = { onNormalizationChanged(normalization.copy(enabled = it)) }) },
+                        trailingContent = { GlassToggle(checked = normalization.enabled && normalizationAvailable, enabled = normalizationAvailable, onCheckedChange = { onNormalizationChanged(normalization.copy(enabled = it)) }) },
                         onClick = { if (normalizationAvailable) onNormalizationChanged(normalization.copy(enabled = !normalization.enabled)) },
                     ),
                     ActionListItem(
                         labelRes = R.string.playback_normalization_prevent_clip,
-                        trailingContent = { Switch(checked = normalization.preventClip, enabled = normalizationAvailable && normalization.enabled, onCheckedChange = { onNormalizationChanged(normalization.copy(preventClip = it)) }) },
+                        trailingContent = { GlassToggle(checked = normalization.preventClip, enabled = normalizationAvailable && normalization.enabled, onCheckedChange = { onNormalizationChanged(normalization.copy(preventClip = it)) }) },
                         onClick = { if (normalizationAvailable && normalization.enabled) onNormalizationChanged(normalization.copy(preventClip = !normalization.preventClip)) },
                     ),
                 ),
@@ -358,7 +358,7 @@ internal fun SongTransitionContent(
                     ActionListItem(
                         labelRes = R.string.playback_crossfade,
                         trailingContent = {
-                            Switch(
+                            GlassToggle(
                                 checked = enabled,
                                 onCheckedChange = { checked ->
                                     onCrossfadeSecondsChanged(if (checked) lastEnabledCrossfadeSeconds else 0)
@@ -443,7 +443,7 @@ internal fun SongTransitionContent(
                             ActionListItem(
                                 labelRes = R.string.playback_blend_artwork_during_crossfade,
                                 trailingContent = {
-                                    Switch(
+                                    GlassToggle(
                                         checked = blendArtworkDuringCrossfade,
                                         onCheckedChange = onBlendArtworkDuringCrossfadeChanged,
                                     )
@@ -486,7 +486,7 @@ private fun CrossfadeOptionRow(
                 Text(stringResource(it), style = MaterialTheme.typography.bodySmall, color = colors.textMuted)
             }
         }
-        Switch(checked = checked, enabled = enabled, onCheckedChange = onCheckedChange)
+        GlassToggle(checked = checked, enabled = enabled, onCheckedChange = onCheckedChange)
     }
 }
 

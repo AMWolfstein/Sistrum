@@ -59,3 +59,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+Exhale LiquidToggle (ozyern/Exhale, commit 166e2cc7c6a3bcfb944999571e1bc5e0e3c1a066)
+License: GNU General Public License v3.0 (GPL-3.0)
+Source: https://github.com/ozyern/Exhale
+Note: ui/component/liquid/LiquidToggle.kt adapted with modifications in
+androidApp/src/main/kotlin/com/amwolfstein/sistrum/ui/components/GlassToggle.kt.
+
+Backdrop (io.github.kyant0:backdrop:2.0.0)
+License: Apache License 2.0 (confirmed from published POM, 2026-10-16)
+POM: https://repo.maven.apache.org/maven2/io/github/kyant0/backdrop/2.0.0/backdrop-2.0.0.pom
+Source: https://github.com/Kyant0/AndroidLiquidGlass
+Note: used only by GlassToggle for its local-track lens and blur.

@@ -18,6 +18,7 @@ kotlin = "2.4.20"
 material3 = "1.12.0-alpha03"
 datastore = "1.2.1"
 haze = "2.0.0"
+backdrop = "2.0.0"
 serialization = "1.11.0"
 room = "2.8.5"
 ksp = "2.3.12"
@@ -50,6 +51,7 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 compose-uiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
 compose-uiTestManifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeUiTest" }
+backdrop = { module = "io.github.kyant0:backdrop", version.ref = "backdrop" }
 haze-core = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "haze" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }

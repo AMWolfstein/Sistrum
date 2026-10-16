@@ -125,7 +125,7 @@ Case: owner (screenshot from Exhale's settings): the Settings pages keep their l
 Exhale's `LiquidToggle` draws its lens/blur through Kyant's backdrop library, which D-5 had ruled out. Options: rebuild the look on
 Haze (no lens refraction, not the same effect); add the library for the toggle only. Chosen: add `io.github.kyant0:backdrop:2.0.0`
 (Exhale's version) used only by `GlassToggle` (T018a); D-5 still applies to every other glass surface. The task confirms the library
-license (expected Apache-2.0) and stops if it is not permissive. Fallback without lens on API < 33, Reduce Transparency or reduced
+license: **Apache-2.0 confirmed 2026-10-16** from the [published 2.0.0 POM](https://repo.maven.apache.org/maven2/io/github/kyant0/backdrop/2.0.0/backdrop-2.0.0.pom) (`The Apache License, Version 2.0`). Fallback without lens on API < 33, Reduce Transparency or reduced
 motion. Revisit if: the library costs frame time on long settings lists (SC-011) or breaks on an OEM device.
 
 

@@ -2,7 +2,7 @@ package com.amwolfstein.sistrum.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Switch
+import com.amwolfstein.sistrum.ui.components.GlassToggle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -47,7 +47,7 @@ internal fun AppearanceContent(
                     ActionListItem(
                         labelRes = R.string.appearance_reduce_transparency,
                         trailingContent = {
-                            Switch(
+                            GlassToggle(
                                 checked = reduceTransparency,
                                 onCheckedChange = onReduceTransparencyChanged,
                             )

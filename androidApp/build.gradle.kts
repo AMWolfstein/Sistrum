@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.lucideIcons)
     implementation(libs.compose.uiToolingPreview)
+    implementation(libs.backdrop)
     implementation(libs.haze.core)
     implementation(libs.haze.blur)
     implementation(libs.kotlinx.coroutines.core)
