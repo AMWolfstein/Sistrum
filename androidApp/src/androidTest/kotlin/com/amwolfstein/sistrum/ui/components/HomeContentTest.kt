@@ -6,6 +6,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.*
@@ -132,6 +140,21 @@ class HomeContentTest {
         rule.onNodeWithText(context.getString(R.string.track_context_play_next)).performClick()
         assertEquals(tracks[0], next)
     }
+    @Test fun fullRecentListIncludesEveryTrackAndPlaysTheOriginalQueue() {
+        val tracks = homeTracks(30)
+        var queue = emptyList<LibraryTrack>()
+        var selected = ""
+        rule.setContent { SistrumTheme(ThemeMode.Dark) {
+            HomeFixture(recent = tracks, click = { q, id -> queue = q; selected = id })
+        } }
+        rule.onNodeWithTag("home-recent-full-list").performClick()
+        rule.onNodeWithTag("home-recent-list").performScrollToIndex(29)
+        rule.onNodeWithText("Song 29").performClick()
+        assertEquals(tracks, queue)
+        assertEquals("t29", selected)
+        rule.onNodeWithTag("home-recent-list").assertDoesNotExist()
+    }
+
 }
 
 @RunWith(Parameterized::class)
@@ -167,5 +190,83 @@ class HomeContentMatrixTest(private val case: UiMatrix.Case) {
         matrix.assertNoClippedActions(hasTestTag("home-track-t0") and
             hasAnyAncestor(hasTestTag("home-shelf-${R.string.home_keep_listening}")))
         matrix.captureToImage("shelf")
+    }
+}
+
+/** Literal task dimensions across viewport widths, font scales and layout directions. */
+@RunWith(Parameterized::class)
+class HomeRecentPanelTest(private val width: Int, private val scale: Float, private val rtl: Boolean) {
+    @get:Rule val rule = createComposeRule()
+    companion object {
+        @JvmStatic @Parameterized.Parameters(name = "width={0},font={1},rtl={2}")
+        fun cases() = listOf(320, 840).flatMap { width ->
+            listOf(1f, 1.3f, 2f).flatMap { scale ->
+                listOf(false, true).map { rtl -> arrayOf<Any>(width, scale, rtl) }
+            }
+        }
+    }
+
+    @Test fun cardsStayFixedAndTitlesEllipsize() {
+        val tracks = homeTracks(8).map { it.copy(album = "A very long album title ".repeat(12)) }
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(width.dp, 900.dp))) {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(LocalDensity.current.density, scale),
+                    LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+                ) {
+                    SistrumTheme(ThemeMode.Dark) {
+                        HomeFixture(recent = tracks)
+                    }
+                }
+            }
+        }
+        val first = rule.onNodeWithTag("home-hero-t0")
+        val node = first.fetchSemanticsNode()
+        val density = node.layoutInfo.density.density
+        assertEquals(280f * density, node.size.width.toFloat(), 1f)
+        assertEquals(300f * density, node.size.height.toFloat(), 1f)
+        val a = node.boundsInRoot
+        val b = rule.onNodeWithTag("home-hero-t1").fetchSemanticsNode().boundsInRoot
+        if (rtl) assertTrue(b.left < a.left) else assertTrue(b.left > a.left)
+        assertTrue("The next card must peek into the viewport", b.width > 0f && b.height > 0f)
+        val layouts = mutableListOf<TextLayoutResult>()
+        rule.onNodeWithTag("home-recent-title-t0", useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        assertEquals(1, layouts.single().lineCount)
+        assertTrue(layouts.single().isLineEllipsized(0))
+    }
+
+    @Test fun dragSettlesAtACardStartInEitherDirection() {
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(width.dp, 900.dp))) {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(LocalDensity.current.density, scale),
+                    LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+                ) {
+                    SistrumTheme(ThemeMode.Dark) {
+                        HomeFixture(recent = homeTracks(20))
+                    }
+                }
+            }
+        }
+        val firstNode = rule.onNodeWithTag("home-hero-t0").fetchSemanticsNode()
+        val first = firstNode.boundsInRoot
+        val panelDensity = firstNode.layoutInfo.density.density
+        rule.onNodeWithTag("home-recent-carousel").performTouchInput {
+            val start = center
+            swipe(start, start.copy(x = start.x + if (rtl) 180f * panelDensity else -180f * panelDensity), 1000)
+        }
+        rule.waitForIdle()
+        val cards = rule.onAllNodes(hasTestTag("home-hero-t0") or hasTestTag("home-hero-t1") or
+            hasTestTag("home-hero-t2") or hasTestTag("home-hero-t3")).fetchSemanticsNodes()
+        val anchor = if (rtl) first.right else first.left
+        assertTrue("A card must settle at the initial start edge", cards.any {
+            val edge = if (rtl) it.boundsInRoot.right else it.boundsInRoot.left
+            kotlin.math.abs(edge - anchor) < 2f
+        })
+        // The slow drag crosses a card boundary, rather than simply returning to the first card.
+        val moved = rule.onNodeWithTag("home-hero-t1").fetchSemanticsNode().boundsInRoot
+        assertEquals(if (rtl) first.right else first.left,
+            if (rtl) moved.right else moved.left, 1f)
     }
 }

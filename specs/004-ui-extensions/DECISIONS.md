@@ -198,3 +198,10 @@ mini-milestone M2b. Existing screen tests stay unmodified except an assertion on
 each such change is listed in HANDOFF with the reason (D-24 rule: never loosen a behaviour check).
 Revisit if: an existing action has no place on the new pages (owner question, D-4).
 
+## D-27: Recents full list stays inside Home (T020a)
+Case: T020a requires a list icon opening the full recent list without changing navigation or ViewModels.
+Options: a local dismissible list dialog using the existing recent queue and TrackRow/context actions (recommended);
+a new navigation destination and additional routing.
+Chosen: the local virtualized list dialog, with the existing recent queue passed unchanged for every track selection.
+Cards are 280 × 300 dp; track count/year remain as a compact third overlay line to preserve the existing T009 case unchanged.
+Revisit if: the owner requests a dedicated recent-list destination or removal of the metadata line.

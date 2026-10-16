@@ -567,4 +567,5 @@
         <item quantity="many">تحليل الجهارة: %1$d من %2$d مقطعًا</item>
         <item quantity="other">تحليل الجهارة: %1$d من %2$d مقطع</item>
     </plurals>
+    <string name="home_recent_full_list">عرض جميع المقاطع المضافة حديثًا</string>
 </resources>

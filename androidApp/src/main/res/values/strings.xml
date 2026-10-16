@@ -492,4 +492,5 @@
         <item quantity="one">Loudness analysis: %1$d of %2$d track</item>
         <item quantity="other">Loudness analysis: %1$d of %2$d tracks</item>
     </plurals>
+    <string name="home_recent_full_list">Show all recently added tracks</string>
 </resources>
