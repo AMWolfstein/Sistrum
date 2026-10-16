@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.amwolfstein.sistrum.R
 import com.amwolfstein.sistrum.ui.components.ActionListItem
@@ -85,6 +87,7 @@ internal fun LibraryContent(
         verticalArrangement = Arrangement.spacedBy(tokens.spacing.small),
     ) {
         items(destinations, key = { it.labelRes }) { destination ->
+            val label = stringResource(destination.labelRes)
             val clickModifier = destination.onClick?.let { Modifier.clickable(role = Role.Button, onClick = it) }
                 ?: Modifier
             Row(
@@ -93,6 +96,7 @@ internal fun LibraryContent(
                     .clip(tokens.shapes.medium)
                     .background(tokens.colors.opaqueFill)
                     .then(clickModifier)
+                    .semantics(mergeDescendants = true) { contentDescription = label }
                     .heightIn(min = 72.dp)
                     .padding(tokens.spacing.large),
                 horizontalArrangement = Arrangement.spacedBy(tokens.spacing.large),
@@ -102,7 +106,7 @@ internal fun LibraryContent(
                     MaterialSymbol(symbol, null, size = 24.dp, tint = tokens.colors.accent)
                 }
                 Text(
-                    stringResource(destination.labelRes),
+                    label,
                     style = MaterialTheme.typography.titleMedium,
                     color = tokens.colors.text,
                     modifier = Modifier.weight(1f),

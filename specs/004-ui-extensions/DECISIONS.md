@@ -145,3 +145,17 @@ Options: per-screen values; shared short/medium/long durations of 150/300/500 ms
 Chosen: shared 150/300/500 ms defaults in `SistrumTokens.motion`, all zero when the system animator scale is zero (D-6).
 Existing animation durations and DEFAULT player geometry stay unchanged; later screen tasks consume these tokens.
 Revisit if: the screen tasks or measured accessibility/performance checks require a different shared scale.
+
+## D-24: M2 gate failures are sorted against the pre-004 build before anything is fixed (Claude, 2026-10-16)
+Case: T020 (M2 gate) ran 831 device tests for the first time: 314 failures. Per-task gates in M2 were host-only, so the new
+M2 device tests had never run. `CrossfadeDurationSliderTest` (maximum case) clicks at y = -24, outside the slider; the test
+and the slider are unchanged since `9f0acac`. Codex (medium, high, Astra) stopped because D-4 forbids editing existing tests.
+Options: owner question per failure; accept everything; sort each failing method against a build of `9f0acac`.
+Chosen: sort. A method that fails the same way at `9f0acac` joins the known baseline (no fix, no test edit in 004; the
+003 M4b test checkup fixes such tests). A method that passes at `9f0acac` and fails now is a 004 regression: fix the
+production code; existing tests stay unmodified (D-4). A failing test added in 004 may be corrected only when the test
+itself is wrong (wrong tag, missing test host such as `LocalActivityResultRegistryOwner`, no scroll to the item), with the
+reason in HANDOFF, never by loosening an assertion or expected value. The slider case goes to the baseline if it fails at
+`9f0acac`. Task T020-fix3.
+Revisit if: a regression needs a layout that cannot hold an existing action (then an owner question, D-4).
+

@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -216,7 +217,7 @@ private fun HomeAlbumHero(tracks: List<LibraryTrack>, modifier: Modifier, onClic
         .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick)
         .testTag("home-hero-${track.id}")) {
         Column(Modifier.padding(tokens.spacing.large), verticalArrangement = Arrangement.spacedBy(tokens.spacing.extraSmall)) {
-            Text(stringResource(R.string.library_recently_added).uppercase(java.util.Locale.getDefault()),
+            Text(stringResource(R.string.library_recently_added).uppercase(LocalConfiguration.current.locales[0]),
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold), color = tokens.colors.accent)
             Text(track.album.ifBlank { track.title }, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = tokens.colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)

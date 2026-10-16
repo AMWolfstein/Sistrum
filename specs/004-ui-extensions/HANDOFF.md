@@ -5,7 +5,7 @@ task; SC-012 "no `player/` change" is measured from here).
 
 ## Current status
 
-- **Active:** 004 UI M2: T020-fix complete, quick gate PASS (22 host tests; app and AndroidTest compilation), commit packet prepared in `.codex-commit/` for the runner on `feature/media3-migration`. The one HIGH M2 review finding is fixed; MEDIUM/LOW follow-ups are listed below. T020 full gate/device execution and UI finish approval remain pending. M1 legacy device failures remain the accepted baseline below.
+- **Active:** T020 M2 verification remains BLOCKED after the second fresh-session retry. This retry independently rechecked source/history, cached Compose bytecode and retained failure logs; no fresh gate/device execution because the same mandatory stop condition remains. The required unchanged `CrossfadeDurationSliderTest.kt:63` clicks above the control (`y = -24`); the fresh `.qa` run again fails its maximum assertion (expected 12, actual 4). Both test and slider are identical to pre-004 `9f0acac`; D-4 and the unchanged-settings-test requirement prevent correcting the test here. This class is outside the accepted 30-failure baseline. Focused host 27/27, RTL 5/5 and device characterization 5/5 PASS; assembly/lint PASS, but the full app host suite remains INCOMPLETE and other M2 failures remain unresolved. Prior Home/Library fixes retained; T020 unchecked, no commit packet. See the fresh-session retry report below; UI finish approval remains pending.
 - **Known baseline rule for every 004 gate (Claude, 2026-10-16):** the 30 legacy device failures (AppNavigationTest 16,
   MiniPlayerTest 8, FullScreenPlayerTest 6; method lists in the T008 report below) existed before 004 and are accepted.
   A milestone gate passes when every other check passes and those three classes fail on **exactly** these methods (or
@@ -244,6 +244,248 @@ NOT RUN, never PASS. Only `.qa` APKs were installed/instrumented; no daily app l
 graph refresh's metadata restoration also fails under the read-only Git index. No assertions were weakened to obtain PASS.
 Orchestrator follow-up required; no new DECISIONS entry or architecture/ADR changes.
 
+## T020 — M2 full gate and phone check (2026-10-16, BLOCKED)
+
+Initial state: clean tree, branch `feature/media3-migration`, no `.codex-commit/`.
+Impact before edits: `HomeContent` is consumed by AppDestinationContent and Home/Library tests;
+`LibraryContent` is consumed by AppDestinationContent, LibraryContentTest/LibraryContentMatrixTest and
+navigation characterization/AppNavigationTest. No Room, analysis documents, preferences,
+DecoderProvider ordering, PlaybackController APIs/StateFlows or player code changed. All tests stay unmodified.
+
+Attempt 1: memory precheck `./gradlew --stop`, `pkill -f '[K]otlinCompileDaemon'` (none),
+MemAvailable 3,901,532 kB. Ran
+`bash .claude/skills/verify-task/scripts/verify.sh --files 'specs/004-ui-extensions/tasks.md specs/004-ui-extensions/HANDOFF.md' --lint --instrumented '<31 FQCNs listed by the per-class table below>'`.
+Logs: `/tmp/verify-task.NKwmsw`, including `unit.log`, `build.log`, `lint.log`,
+`instr-<class>.log` and `logcat-<class>.log` for every listed class.
+
+- App full host suite: INCOMPLETE (gate phase FAIL after operator stop). Its binary results stopped advancing near
+  `KotlinDecodingExtractorLifecycleTest.initialSeekIsAppliedAndSeekingAfterEofResumesTheCodec`;
+  after several minutes without flushed results, `./gradlew --stop` stopped the daemon. A later thread dump showed active DSD decoding, so this was not a verified deadlock. This is a
+  last-observed test, not a verified root cause. Existing 22-test XML was stale, not full-suite evidence.
+  `jcmd 211 Thread.print` could not attach (nonexistent PID in this tool namespace); diagnostic
+  `/tmp/t020-worker-211.txt`. No decoder/test changes or exclusions made.
+- Shared full host suite: 39 tests, zero failures/errors/skips.
+- `assembleDevQa`: PASS.
+- Lint: FAIL, 1 error / 73 warnings / 14 hints. `HomeContent.kt:219` used non-observable
+  `java.util.Locale.getDefault()` in composition. Corrected to `LocalConfiguration.current.locales[0]`.
+  Gate reports lint as INFO, so its final banner alone does not establish lint success.
+- Device: API 35, QA IDs only; 831 tests/cases, 314 failures. No daily app installed,
+  instrumented or force-stopped. Three original legacy classes compared to retained M1 logs
+  `/tmp/verify-task.Jdpta3`: MiniPlayer's 8 and FullScreenPlayer's 6 failing methods match exactly;
+  AppNavigation contains all 16 baseline methods plus five new Library destination lookup failures.
+- Unchanged characterization: 4/5; `destinationAndChildPageSurviveActivityRecreationAndTabRoundTrip`
+  cannot find Artists content description. `LibraryContent` replaced ActionListRow but omitted
+  its label semantics. Restored the same merged content description on destination rows;
+  this existing failing test provides regression coverage before the fix.
+- Graph: PASS, changed (12,018 nodes / 36,102 edges); generated graph files changed only via hook.
+- Final banner: `GATE: FAIL`.
+
+| Device class (attempt 1, before corrections were rebuilt) | Run | Failures |
+|---|---:|---:|
+| `AlbumDetailsContentTest` | 7 | 2 |
+| `AlbumDetailsPresentationTest` | 72 | 0 |
+| `AppNavigationTest` | 39 | 21 |
+| `AppearanceContentTest` | 1 | 0 |
+| `ArtistDetailsContentTest` | 7 | 4 |
+| `ArtistDetailsPresentationTest` | 24 | 0 |
+| `ArtistListPresentationTest` | 96 | 36 |
+| `ArtistRowTest` | 1 | 0 |
+| `ComposerDetailsContentTest` | 4 | 2 |
+| `CrossfadeDurationSliderTest` | 2 | 1 |
+| `FullScreenPlayerTest` | 20 | 6 |
+| `GenreComposerContentMatrixTest` | 144 | 72 |
+| `GenreDetailsContentTest` | 4 | 2 |
+| `GlassToggleTest` | 12 | 0 |
+| `HomeContentTest` | 8 | 1 |
+| `IntegrationContentTest` | 3 | 0 |
+| `LibraryAlbumsContentTest` | 9 | 2 |
+| `LibraryArtistsContentTest` | 3 | 1 |
+| `LibraryComposersContentTest` | 3 | 1 |
+| `LibraryContentTest` | 6 | 1 |
+| `LibraryGenresContentTest` | 3 | 1 |
+| `LibraryPlaylistsContentTest` | 7 | 1 |
+| `LibrarySearchContentTest` | 1 | 0 |
+| `LibraryTracksContentTest` | 17 | 3 |
+| `MiniPlayerTest` | 14 | 8 |
+| `PlaylistDetailsContentTest` | 6 | 4 |
+| `PlaylistDetailsPresentationTest` | 96 | 24 |
+| `PlaylistListPresentationTest` | 144 | 96 |
+| `SearchPresentationTest` | 72 | 24 |
+| `SearchRestorationTest` | 1 | 0 |
+| `UiContractCharacterizationTest` | 5 | 1 |
+
+Attempt 2 (focused correction verification, not a replacement full milestone pass):
+MemAvailable 3,665,596 kB after daemon checks. Command:
+`bash .claude/skills/verify-task/scripts/verify.sh --files '<HomeContent.kt LibraryContent.kt tasks.md HANDOFF.md>' --quick ':androidApp:testDevQaUnitTest' --tests '*HomeAlbumsTest' --tests '*SistrumTokensTest' --tests '*UiContractCharacterizationTest' --lint --instrumented 'com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest,com.amwolfstein.sistrum.AppNavigationTest,com.amwolfstein.sistrum.ui.screens.LibraryContentTest,com.amwolfstein.sistrum.ui.components.HomeContentMatrixTest,com.amwolfstein.sistrum.ui.screens.LibraryContentMatrixTest'`.
+Logs: `/tmp/verify-task.qMyJyA`, per-class `instr-*.log` and `logcat-*.log`.
+Host: 27/27, zero failures/errors/skips; Kotlin compile PASS. Lint BUILD SUCCESSFUL,
+0 errors / 73 warnings / 14 hints. Device characterization 5/5 PASS; AppNavigation
+39 run / 15 failures, no new methods vs M1 (baseline method
+`changingStackPageKeepsCompactNavigationAndMiniPlayer` now passes); LibraryContentTest
+6 run / 1 failure (unchanged restoration failure); HomeContentMatrixTest 24 run / 16 failures
+(action-label overflow at font scales 1.3 and 2.0); LibraryContentMatrixTest 24/24 PASS.
+Graph PASS/changed, final `GATE: FAIL`. The two code corrections are verified, but other M2 failures remain.
+
+Additional host diagnosis: after daemon checks (MemAvailable 3,865,600 kB),
+`timeout --kill-after=10s 90s ./gradlew --no-daemon :androidApp:testDevQaUnitTest --tests '*KotlinDecodingExtractorLifecycleTest'`
+PASS in 30 s, exit 0; `/tmp/t020-lifecycle.log`. Therefore the class near the last flushed
+binary result is not an established root cause of the initial full-suite delay.
+
+Final bounded full-host retry: daemon checks, MemAvailable 3,868,464 kB;
+`timeout --kill-after=10s 180s ./gradlew --no-daemon :androidApp:testDevQaUnitTest :sharedLogic:testAndroidHostTest --continue`
+exit 124 (time limit), app full suite INCOMPLETE; shared task UP-TO-DATE from its 39-test pass.
+Log `/tmp/t020-full-host-retry.log`; a successful worker thread dump at 60 s is
+`/tmp/t020-full-host-threads.txt`. The Test worker was RUNNABLE in
+`DsdState.decode(Dsd.kt:129)` through `KotlinDsdProviderTest.wavpackDsdSeeksMatchLinearPcmForAllStandaloneDsdRows`.
+This is evidence of active codec work, not a proven infinite loop; no decoder test is blamed,
+excluded or modified. A longer host run remains required. No completed full-app test count claimed.
+Explicit final `python3 .claude/hooks/graph_refresh.py auto`: PASS/changed, 12,018 nodes / 36,102 edges.
+
+Files required: HomeContent.kt fixes the observed lint error; LibraryContent.kt restores shipped
+label semantics proven missing by the unchanged device characterization; HANDOFF.md records actual
+verification and blockers; graph.json/.graphify_analysis.json are generated by the required hook.
+`tasks.md` stays unchanged because T020 is not complete. Self-review: diff kept to these two corrections,
+no tests changed/deleted/disabled/weakened, no swallowed exceptions, API/schema/feature removals or
+unrelated refactors. `git diff --check` PASS. No commit prepared while the milestone gate fails.
+
+### SC-001 / SC-003 evidence
+
+| Criterion | Evidence | Status |
+|---|---|---|
+| SC-001 host characterization | Focused rerun: 10/10 unchanged; full host retry recorded below | PASS (characterization) |
+| SC-001 device characterization | After restoring labels: 5/5 unchanged. AppNavigation 15 failures, all a subset of its 16-method accepted baseline | PASS under accepted baseline rule |
+| SC-003 Home | HomeContentTest 7/8; actual discovered HomeContentMatrixTest 8/24 (historical 48 count was incorrect) | FAIL |
+| SC-003 Library/lists | LibraryContentMatrixTest 24/24; LibraryContentTest 5/6 and other collection/artist-list classes fail | FAIL |
+| SC-003 Album/genre/composer details | Album presentation 72/72; original detail classes and genre/composer matrix fail | FAIL |
+| SC-003 Artist details | Presentation 24/24; content 3/7 | FAIL |
+| SC-003 Playlists/editor | Detail presentation 72/96, list presentation 48/144; original classes fail | FAIL |
+| SC-003 Search | Restoration 1/1, content 1/1; presentation 48/72 | FAIL |
+| Settings toggle | GlassToggle 12/12, Appearance 1/1, Integration 3/3; crossfade slider 1/2 | Mixed, not blanket PASS |
+
+Verified failure details for triage: Search's 24 failures assert empty merged text while EditableText
+is empty and the placeholder remains in Text; playlist editor cases report missing
+`LocalActivityResultRegistryOwner`; large-list album/track tests target wrapper tags without
+ScrollToIndex; Home restoration cannot display collapsed title; crossfade maximum test returns 4
+instead of 12. These are recorded observations, not exemptions or completed fixes. All original
+assertions/expected values remain intact. Other failure stacks are in the per-class instrumentation logs.
+
+NOT RUN: API 31/32 visual fallback (only API 35 connected), owner visual approval of lens/tap/drag
+and screen groups, frame statistics, real listening/Bluetooth/headset (owner manual checks),
+Claude `ui-finish-gate-reviewer` and `phone-log-triage` (no delegation allowed in this session),
+archived-build commit bisection (remaining failures unresolved; no claim of identified culprit).
+Existing UI finish HOLD decisions remain HOLD. T020 remains unchecked; no `.codex-commit/`.
+
+### T020 fresh-session retry — 2026-10-16 (BLOCKED)
+
+Initial state: branch `feature/media3-migration`, no `.codex-commit/`. Read Current status,
+T020, the previous blocked report and `git status` first. Retained all five inherited modified
+files: HomeContent.kt, LibraryContent.kt, HANDOFF.md and both generated graph files.
+Impact before editing: `git grep` confirms AppDestinationContent consumes both screens;
+HomeContentTest, LibraryContentTest/LibraryContentMatrixTest and navigation characterization
+consume their presentation/semantics. Only HANDOFF is edited by this retry; the required hook
+also regenerates the graph. No Room, analysis document, preferences, DecoderProvider order,
+PlaybackController API/StateFlow, player code or tests changed. All tests remain unmodified.
+
+Verified stop condition:
+
+- `androidApp/src/androidTest/kotlin/com/amwolfstein/sistrum/ui/screens/CrossfadeDurationSliderTest.kt:63`
+  calls `click(topRight - Offset(2f, 24f))`. Compose's local `top` is zero, so this injects at
+  `y = -24`, outside the slider. Confirmed against the cached Compose 1.12.1 InjectionScope
+  bytecode (`javap`; classes extracted to `/tmp/t020-ui-test-classes.jar`), rather than assuming
+  what `topRight` means. The fresh correct-class run reproduces expected 12 / actual 4 at line 65.
+- `git diff 9f0acac HEAD -- <CrossfadeDurationSlider.kt> <CrossfadeDurationSliderTest.kt>`
+  is empty (also `git diff --quiet`, exit 0). Neither source nor test was changed by M1/M2.
+  The unchanged RTL test uses `topLeft + Offset(2f, 24f)` and passes on the same rebuilt APK.
+  This establishes a pre-existing test-input defect, not a new slider regression.
+- D-4 (`DECISIONS.md:31–32`) requires existing screen tests unmodified; Current status and
+  T018a explicitly require unchanged CrossfadeDurationSliderTest. Altering its input here
+  would violate that requirement; changing production hit geometry to accept an off-control
+  click would change shipped Settings outside D-20/D-21. Neither is done. The accepted baseline
+  names only AppNavigation/MiniPlayer/FullScreenPlayer; no new exemption is invented.
+  An owner/orchestrator decision on this test is needed before T020 can pass.
+
+Verification attempt 1:
+
+Memory precheck: `./gradlew --stop` (none), `pkill -f '[K]otlinCompileDaemon'` (none),
+MemAvailable 3,839,808 kB. Command:
+`bash .claude/skills/verify-task/scripts/verify.sh --files '<HomeContent.kt LibraryContent.kt tasks.md HANDOFF.md>' --lint --instrumented 'com.amwolfstein.sistrum.ui.components.CrossfadeDurationSliderTest'`.
+Logs: `/tmp/verify-task.sPMqDF` (`unit.log`, `build.log`, `lint.log`, `androidtest-build.log`,
+`instr-CrossfadeDurationSliderTest.log`, `logcat-CrossfadeDurationSliderTest.log`, `graphify.log`).
+
+- Full app host suite: INCOMPLETE. Allowed over four minutes without the earlier 180-second
+  deadline, then stopped with `./gradlew --stop` after establishing the mandatory D-4 stop
+  condition. Gradle reports daemon stopped by stop command. No deadlock or decoder failure is
+  established; no test excluded/modified and no full-app pass/count claimed. Shared suite was
+  UP-TO-DATE; its retained XML contains 39 tests, zero failures/errors/skips (cached evidence).
+- `assembleDevQa`: PASS. `lintDevQa`: BUILD SUCCESSFUL; report XML has zero Errors/Fatal,
+  73 Warnings and 14 Hints. App/AndroidTest APK assembly PASS.
+- The class argument above mistakenly used `ui.components` instead of `ui.screens`:
+  initializationError/ClassNotFoundException, not a slider test result. Corrected in attempt 2.
+- Graph refresh PASS/changed (12,018 nodes / 36,102 edges). Final `GATE: FAIL`.
+
+Verification attempt 2 (focused diagnosis only, not the full milestone gate):
+
+Repeated daemon checks (none), MemAvailable 3,834,824 kB. Command:
+`bash .claude/skills/verify-task/scripts/verify.sh --files '<HomeContent.kt LibraryContent.kt tasks.md HANDOFF.md>' --quick ':androidApp:testDevQaUnitTest' --tests '*HomeAlbumsTest' --tests '*SistrumTokensTest' --tests '*UiContractCharacterizationTest' --instrumented 'com.amwolfstein.sistrum.ui.screens.CrossfadeDurationSliderTest,com.amwolfstein.sistrum.ui.navigation.RtlLayoutTest,com.amwolfstein.sistrum.ui.navigation.UiContractCharacterizationTest'`.
+Logs: `/tmp/verify-task.Yb3GmW`, including per-class `instr-*.log` and `logcat-*.log`.
+Focused host XML: HomeAlbums 3, SistrumTokens 14, characterization 10 = 27 tests,
+zero failures/errors/skips. App Kotlin compilation and QA APK assembly PASS.
+Device: CrossfadeDurationSliderTest 2 run / 1 failure (maximum method); RtlLayoutTest 5/5 PASS;
+UiContractCharacterizationTest 5/5 PASS. No daily app installed, instrumented or force-stopped.
+Graph PASS/changed (12,018 nodes / 36,102 edges); final `GATE: FAIL`.
+
+SC-001: fresh host characterization 10/10 and device characterization 5/5 PASS, with no
+assertions changed. No fresh full AppNavigation/MiniPlayer/FullScreenPlayer result claimed.
+SC-003: the preceding per-group FAIL table remains valid unresolved evidence; no group is
+promoted to PASS by this focused run. Other original M2 device failures, complete host suite,
+archived-build device bisection, API 31/32 fallback/visual comparison, frame statistics and
+Claude finish/log-triage checks are NOT RUN to completion in this retry because the unchanged
+slider-test requirement already blocks the gate. Real listening/Bluetooth/headset remain
+owner manual checks, never PASS. No architecture/ADR/spec-001 behavior changed or decision added.
+
+File reasons/self-review: prior Home locale and Library label corrections are retained for their
+documented lint/accessibility regressions; HANDOFF records the exact stop condition and actual
+results; graph files are generated only by the required hook. No new production changes,
+test weakening/skipping, swallowed exceptions or unrelated fixes. `tasks.md` stays unchecked;
+no `.codex-commit/` while verification fails.
+Explicit final `python3 .claude/hooks/graph_refresh.py auto` PASS/changed (12,018 nodes /
+36,102 edges); final `git diff --check` PASS. No commit/stage/push attempted.
+
+### T020 second fresh-session retry — 2026-10-16 (BLOCKED)
+
+Read Current status, T020 and prior retry notes with initial `git status --short`. Branch is
+`feature/media3-migration`; `.codex-commit/` absent. Kept all five inherited modified files:
+HomeContent.kt, LibraryContent.kt, HANDOFF.md and both generated graph files. This retry edits
+only HANDOFF to record its result; no graph regeneration or source/test changes.
+
+Impact before editing: `git grep` traced CrossfadeDurationSlider to PlaybackSettingsContent
+and its CrossfadeDurationSliderTest/RtlLayoutTest consumers, and both retained screen fixes
+to AppDestinationContent. All existing tests must stay unmodified. No Room, analysis documents,
+preferences, DecoderProvider order, PlaybackController API/StateFlows, architecture or ADR changes.
+
+Independently verified `CrossfadeDurationSliderTest.kt:63` subtracts `Offset(2f, 24f)` from
+`topRight`. `javap` on the retained `/tmp/t020-ui-test-classes.jar` confirms InjectionScope's
+`getTop()` returns zero and `getTopRight` uses it: input y is -24, above the slider.
+`git diff 9f0acac -- <CrossfadeDurationSlider.kt> <CrossfadeDurationSliderTest.kt>` is empty,
+including the working tree. The retained `/tmp/verify-task.Yb3GmW/instr-CrossfadeDurationSliderTest.log`
+confirms expected 12 / actual 4 at line 65. This is historical execution evidence, not a fresh run.
+D-4 requires existing tests unmodified; D-20/D-21 preserve Settings except the specified rows/toggles.
+Changing the test input violates that explicit preservation requirement; changing production to
+accept this off-control click alters shipped behavior. Neither is authorized by this retry.
+This class is outside the accepted three-class legacy baseline; no exemption is added.
+
+Commands/results: `git status`, `git branch --show-current`, `git diff --stat`, scoped
+`git diff`/`git grep`, source/document reads, retained-log `rg` and cached-bytecode `javap`
+completed; `git diff --check` PASS. Full gate, memory precheck, Gradle, lint, graph refresh,
+phone check and archived-build bisection NOT RUN on this retry: the brief explicitly requires
+stopping when resolution would violate scope/ADRs/shipped behavior. Other M2 failures, complete
+host verification, visual/API31–32/frame checks and Claude reviews remain unresolved as previously
+recorded. Owner listening/Bluetooth/headset remain manual, NOT RUN. No device or daily-app action.
+
+Self-review: only the required HANDOFF status/report/log changed in this retry; inherited source
+fixes and generated graphs retained intact. No test/input/assertion weakening, skipped test,
+feature removal or new decision. T020 stays unchecked and no commit packet is prepared.
+
 ## T020-fix — M2 review fixes (2026-10-16)
 
 Read every report in `review/M2/`: comment-analyzer, kotlin-reviewer, pr-test-analyzer,
@@ -304,6 +546,9 @@ Owner listening/Bluetooth/headset checks remain manual, never PASS. No phone/dai
 
 | Date | Task | Result |
 |---|---|---|
+| 2026-10-16 | T020 second retry | BLOCKED; no commit packet. Only HANDOFF edited; all inherited changes retained. Source/history, cached Compose bytecode and retained device log independently confirm line 63 clicks at y=-24 and fails expected 12 / actual 4. D-4 requires this test unchanged; shipped Settings cannot be changed to accommodate invalid input. No new baseline exemption or decision. `git diff --check` PASS. Full gate/Gradle/memory precheck/graph/phone/bisection NOT RUN under the brief's explicit stop rule; other M2 failures and reviews remain unresolved. |
+| 2026-10-16 | T020 retry | BLOCKED; no commit packet. Retained prior Home/Library fixes; only HANDOFF edited plus hook-generated graphs. Full gate `/tmp/verify-task.sPMqDF` FAIL: host stopped after the mandatory D-4 conflict was established, assembly/lint PASS (0 errors), wrong device FQCN initialization failure corrected in focused `/tmp/verify-task.Yb3GmW`. Focused host 27/27, RTL 5/5, device characterization 5/5 PASS; unchanged CrossfadeDurationSliderTest 1/2 FAIL. Verified line 63 injects at y=-24; test and production slider identical to pre-004 `9f0acac`; D-4 forbids changing the required unchanged test, and the accepted baseline excludes this class. No tests/player/contracts/decisions changed or daily app touched. Full host, other device failures, archival device bisection, visual/API31–32/frame/Claude reviews remain incomplete/NOT RUN as detailed above. |
+| 2026-10-16 | T020 | BLOCKED; no commit packet. Full gate `/tmp/verify-task.NKwmsw` FAIL: app host stopped before completion, lint error, 831 device tests/cases with 314 failures including 30 exact legacy failures. Fixed observable Home locale and restored Library destination descriptions; focused gate `/tmp/verify-task.qMyJyA` still FAIL, but 27/27 host tests, compile, lint (0 errors), characterization 5/5 and Library matrix 24/24 PASS; AppNavigation 15 failures are a subset of baseline; Home matrix 16/24 fail and Library restoration still fails. Isolated lifecycle host class PASS; bounded full-host retry exit 124, active WavPack DSD stack captured, no full-app pass claimed. Full per-class SC-001/SC-003 table, logs, file reasons and NOT RUN items in T020 report above. Graph PASS/changed; no tests modified, no daily apps touched. Remaining failures, archival commit bisection, visual finish approval, Claude log triage, frame stats and API 31/32 checks remain undone; no architecture decision changed. |
 | 2026-10-16 | T020-fix | Commit: prepared in `.codex-commit/`, runner assigns SHA. Fixed confirmed pr-test-analyzer HIGH H1 in SearchRestorationTest; nonzero-scroll precondition added first, then live LazyListState reads replace stale SideEffect snapshots. All existing assertions retained; no other tests/production changed. Quick gate attempt 1 PASS, 22 host tests (0 failures/errors/skips), app/AndroidTest compilation PASS; logs `/tmp/verify-task.0tbL7N`. No CRITICAL/HIGH findings rejected; all 10 MEDIUM/LOW follow-ups recorded in the T020-fix report above. Files required: corrected test, task/handoff records, two generated graph files. NOT RUN: device execution/RED reproduction, visual checks, full suites/lint/assembly/frame statistics (T020); owner listening remains manual. Decisions: none. |
 | 2026-10-16 | T018a | Commit: prepared in `.codex-commit/`, runner assigns SHA. Ported Exhale LiquidToggle drawing from pinned checkout `166e2cc7c6a3bcfb944999571e1bc5e0e3c1a066` into GlassToggle with GPL-3 adaptation header: 64×28 dp primary-colored track, 40×24 dp white thumb, local sibling-track lens/blur/highlight/shadow and damped spring drag/tap feedback. Compose toggleable supplies Role.Switch/state and tap/keyboard/accessibility input; horizontal drag respects RTL and cancellation; checked remains caller-controlled; disabled blocks input and uses alpha 0.38. GlassPolicy selects the same-sized static opaque thumb for API < 33, Reduce Transparency, reduced motion or performance fallback. No app-content backdrop is sampled. Impact before editing: git grep found 13 switches in AppearanceContent, PlaybackSettingsContent, IntegrationContent and TagSeparatorsContent; only imports/calls replaced there. No Room/schema, analysis documents, preference values/contracts, DecoderProvider order, PlaybackController API/StateFlows, playback code or screen rows/text/order/icons/cards changed. All existing tests byte-for-byte unmodified. New GlassToggleTest has 12 device tests: touch/semantic taps and switch state, bidirectional LTR/RTL drags, cancelled drag, disabled input and exact alpha, RTL thumb side, static fallback pixel colors/geometry and primary track, reduced motion/dark theme, font scale 2.0, externally controlled state, and live transparency/lens removal/restoration with API-aware positive/negative modifier checks. Backdrop dependency added to catalog/app build; published `backdrop-2.0.0.pom` fetched directly from Maven Central confirms The Apache License, Version 2.0; D-21 and THIRD-PARTY-NOTICES record it and the Exhale source. Memory prechecks: `./gradlew --stop` (no daemons), `pkill -f '[K]otlinCompileDaemon'` (none), MemAvailable 3,931,732 / 4,009,676 / 3,937,536 / 3,932,776 kB. Completed gate 1 FAIL (`/tmp/verify-task.wqN2lO`): new test used removed LayoutInfo.childrenInfo; fixed with direct thumb modifier inspection. Invocation `/tmp/verify-task.tepTH3` interrupted by usage limit before compilation, no result claimed. Resumed gate 2 PASS (`/tmp/verify-task.lo9npx`); self-review then moved semantics fetching out of runOnIdle to avoid UI-thread synchronization. Final gate 3 PASS, logs `/tmp/verify-task.5FsPV7`: `bash .claude/skills/verify-task/scripts/verify.sh --files '<seven task Kotlin/build files>' --quick ':androidApp:compileDevQaAndroidTestKotlin :androidApp:testDevQaUnitTest' --tests '*LiquidGlassTest' --tests '*ReducedMotionTest' --tests '*SistrumTokensTest' --tests '*UiContractCharacterizationTest'`. 32 host tests, 0 failures/errors/skips; app and AndroidTest Kotlin compilation PASS. Gate graph PASS/changed; explicit `python3 .claude/hooks/graph_refresh.py auto` PASS/changed (12,018 nodes, 36,097 edges). Self-review: no weakened/deleted tests, feature removal, swallowed exceptions, Room/player edits or unrelated refactors; whitespace clean, no remaining Material Switch calls under ui. File reasons: new component/test implement required behavior and coverage; four Settings files replace switches only; two build files add required dependency; notice/D-21 record source/license; tasks/HANDOFF record completion; two graph files generated per step 4, never manually edited. NOT RUN: all device tests (including existing Settings tests), visual review, API 31/32 device validation, frame stats, full app/shared suites, lint and APK assembly (T020 milestone gate); owner listening/Bluetooth/headset checks remain manual, never PASS. No phone/daily app touched. Decisions: license confirmation only, no architecture/ADR changes. Follow-up: T020 checks named in Current status. |
 | 2026-10-16 | T018 | Commit: prepared in `.codex-commit/`, runner assigns SHA. LibrarySearchContent uses token page/spacing/divider/section colors, controlled SistrumTextField query/clear/Done semantics, explicit nonblank loading state, and optional supplied lazy-list state. Replaced the fixed 183 dp three-row grid with virtualized horizontal wrap-content columns constrained to the available width, so long EN/AR tracks at font 2.0 keep their actions reachable. Existing category order, local search model/FTS/debounce, empty/no-match text, five navigation callbacks, artwork and track/album context actions remain intact. Impact before editing: git grep found AppDestinationContent as production caller, LibrarySearchContentTest and LibrarySearchViewModelTest as consumers, and LibraryTextFilter as shared input; the shared filter remains untouched. Extra production files required: App.kt owns search scroll state and resets it by the existing page-pop generation; AppDestinationContent.kt forwards that state so opening a result and returning keeps position. No Room/schema, analysis document, preference, DecoderProvider order, PlaybackController API/StateFlow or network contract change. All pre-existing tests, including LibrarySearchContentTest, LibrarySearchViewModelTest and LibraryTextSearchTest, byte-for-byte unmodified. Added LibrarySearchArabicTest (1 host fixture: diacritic-folded Arabic title/artist prefixes, FTS terms, candidate filtering and no match), SearchPresentationTest (72 device cases: controlled query/clear/focus/Done, loading/empty/no-match, every category destination, narrow long EN/AR tracks and unclipped menu actions), SearchRestorationTest (1 device case: query/list restoration, removal/re-entry with hoisted state, host back handling). No error state exists in the search UI contract. Memory prechecks: ./gradlew --stop (no daemons), pkill -f '[K]otlinCompileDaemon' (none), MemAvailable 3,927,624 / 3,898,080 kB. Gate attempt 1 FAIL: new restoration test referenced unavailable Espresso; switched to the repository's existing instrumentation back-key approach, no assertions weakened. Attempt 2 GATE: PASS, logs `/tmp/verify-task.cVC3aa` (attempt 1 `/tmp/verify-task.Z0hbxa`); command `bash .claude/skills/verify-task/scripts/verify.sh --files '<six task Kotlin files>' --quick ':androidApp:compileDevQaAndroidTestKotlin :androidApp:testDevQaUnitTest' --tests '*LibrarySearch*Test' --tests '*LibraryTextSearchTest' --tests '*SistrumTokensTest' --tests '*UiContractCharacterizationTest'`: 36 host tests, 0 failures/errors/skips; app and AndroidTest Kotlin compilation PASS. Gate graph PASS/changed (11,981 nodes, 35,954 edges); explicit `python3 .claude/hooks/graph_refresh.py auto` PASS/changed with the same counts. Self-review: minimal task scope, every extra file required as described, no disabled/weakened tests, swallowed exceptions, removed features, player/Room edits or unrelated refactors; whitespace clean. tasks.md/HANDOFF.md required for completion records; both graph files generated by required refresh, never manually edited. NOT RUN: all device execution, owner visual review, full app/shared suites, lint, APK assembly and frame stats (T020 milestone gate); no phone/daily app touched. Owner listening/Bluetooth/headset checks remain manual, never PASS. Decisions: none. Follow-up: execute all three search device classes at T020. |
