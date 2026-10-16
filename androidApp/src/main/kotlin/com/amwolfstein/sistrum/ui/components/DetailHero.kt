@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.animation.animateColorAsState
@@ -30,6 +33,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -41,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 enum class DetailHeroArtworkShape { Square, Circle }
 
@@ -54,25 +58,26 @@ fun ArtworkHeroBackdrop(
     audioPath: String? = null,
     content: @Composable () -> Unit,
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
+    val colors = tokens.colors
     val bitmap = rememberArtworkThumbnail(artworkPath, audioPath, targetPx = 240)
-    var dominant by remember(artworkPath, audioPath) { mutableStateOf(colors.background) }
-    LaunchedEffect(bitmap, colors.background) {
-        dominant = bitmap?.let { image -> withContext(Dispatchers.Default) { artworkDominantColor(image) } } ?: colors.background
+    var dominant by remember(artworkPath, audioPath) { mutableStateOf(colors.page) }
+    LaunchedEffect(bitmap, colors.page) {
+        dominant = bitmap?.let { image -> withContext(Dispatchers.Default) { artworkDominantColor(image) } } ?: colors.page
         onDominantColorChanged(dominant)
     }
-    val animatedDominant by animateColorAsState(dominant, tween(280, easing = FastOutSlowInEasing), label = "detail-hero-artwork-colour")
-    Box(modifier = modifier.background(colors.background)) {
+    val animatedDominant by animateColorAsState(dominant, tween(tokens.motion.mediumDurationMillis, easing = FastOutSlowInEasing), label = "detail-hero-artwork-colour")
+    Box(modifier = modifier.background(colors.page)) {
         Box(
             Modifier.matchParentSize().background(
                 Brush.verticalGradient(
                     0f to animatedDominant.copy(alpha = 0.52f),
-                    0.68f to colors.background.copy(alpha = 0.10f),
-                    1f to colors.background,
+                    0.68f to colors.page.copy(alpha = 0.10f),
+                    1f to colors.page,
                 ),
             ),
         )
-        Box(Modifier.matchParentSize().background(colors.background.copy(alpha = 0.28f)))
+        Box(Modifier.matchParentSize().background(colors.page.copy(alpha = 0.28f)))
         content()
     }
 }
@@ -113,50 +118,53 @@ fun DetailHero(
     moreSymbol: String = MaterialSymbols.MoreVert,
     moreAction: @Composable (@Composable () -> Unit) -> Unit = { it() },
 ) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
+    val colors = tokens.colors
     val bitmap = rememberArtworkThumbnail(artworkPath, audioPath, targetPx = 480)
-    val artworkClip = if (artworkShape == DetailHeroArtworkShape.Circle) CircleShape else RoundedCornerShape(16.dp)
+    val artworkClip = if (artworkShape == DetailHeroArtworkShape.Circle) CircleShape else tokens.shapes.medium
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(tokens.spacing.medium),
     ) {
         if (showArtwork) {
             Box(
-                modifier = Modifier.size(artworkSize).clip(artworkClip).background(colors.glassElevated).border(1.dp, colors.borderGlass, artworkClip),
+                modifier = Modifier.widthIn(max = artworkSize).fillMaxWidth().aspectRatio(1f).clip(artworkClip).background(colors.opaqueFill).border(1.dp, colors.divider, artworkClip),
                 contentAlignment = Alignment.Center,
             ) {
                 if (artworkContent != null) artworkContent()
-                else if (bitmap != null) Image(bitmap = bitmap, contentDescription = null, modifier = Modifier.matchParentSize(), contentScale = ContentScale.Crop)
-                else MaterialSymbol(fallbackSymbol, null, size = 44.dp, tint = colors.textMuted)
+                else if (bitmap != null) Image(bitmap = bitmap, contentDescription = null, modifier = Modifier.matchParentSize().testTag("detail-hero-artwork-image"), contentScale = ContentScale.Crop)
+                else MaterialSymbol(fallbackSymbol, null, size = 44.dp, tint = colors.mutedText)
             }
         }
         Column(
-            modifier = Modifier.padding(top = 4.dp),
+            modifier = Modifier.padding(top = tokens.spacing.extraSmall),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(tokens.spacing.extraSmall),
         ) {
-            Text(title, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold), color = colors.textMain, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+            Text(title, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold), color = colors.text, maxLines = 3, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
             subtitle?.takeIf(String::isNotBlank)?.let { value ->
-                Text(value, style = MaterialTheme.typography.bodyMedium, color = colors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+                Text(value, style = MaterialTheme.typography.bodyMedium, color = colors.mutedText, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
             }
             metadata?.takeIf(String::isNotBlank)?.let { value ->
-                Text(value, style = MaterialTheme.typography.bodySmall, color = colors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+                Text(value, style = MaterialTheme.typography.bodySmall, color = colors.mutedText, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(tokens.spacing.small, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
             DetailHeroGlassAction(MaterialSymbols.Shuffle, shuffleLabel, onShuffleClick)
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(colors.textMain)
+                    .weight(1f, fill = false)
+                    .heightIn(min = 48.dp)
+                    .clip(tokens.shapes.extraLarge)
+                    .background(colors.text)
                     .semantics { contentDescription = playLabel }
                     .clickable(role = Role.Button, onClick = onPlayClick)
-                    .padding(horizontal = 26.dp, vertical = 10.dp),
+                    .padding(horizontal = tokens.spacing.medium, vertical = tokens.spacing.medium),
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    MaterialSymbol(MaterialSymbols.PlayArrow, null, size = 20.dp, tint = colors.background, filled = true)
-                    Text(playLabel, style = MaterialTheme.typography.labelLarge, color = colors.background)
+                Row(horizontalArrangement = Arrangement.spacedBy(tokens.spacing.small), verticalAlignment = Alignment.CenterVertically) {
+                    MaterialSymbol(MaterialSymbols.PlayArrow, null, size = 20.dp, tint = colors.page, filled = true)
+                    Text(playLabel, style = MaterialTheme.typography.labelLarge, color = colors.page)
                 }
             }
             moreAction { DetailHeroGlassAction(moreSymbol, moreLabel, onMoreClick) }
@@ -166,7 +174,8 @@ fun DetailHero(
 
 @Composable
 private fun DetailHeroGlassAction(symbol: String, label: String, onClick: () -> Unit) {
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
+    val colors = tokens.colors
     Box(
         modifier = Modifier
             .size(48.dp)
@@ -176,8 +185,8 @@ private fun DetailHeroGlassAction(symbol: String, label: String, onClick: () -> 
         contentAlignment = Alignment.Center,
     ) {
         Box(
-            modifier = Modifier.size(40.dp).clip(CircleShape).background(colors.glassElevated).border(1.dp, colors.borderGlass, CircleShape),
+            modifier = Modifier.size(40.dp).clip(CircleShape).liquidGlassBackground(hazeState = null, borderShape = CircleShape),
             contentAlignment = Alignment.Center,
-        ) { MaterialSymbol(symbol, null, size = 20.dp, tint = colors.textMain, filled = true) }
+        ) { MaterialSymbol(symbol, null, size = 20.dp, tint = colors.text, filled = true) }
     }
 }

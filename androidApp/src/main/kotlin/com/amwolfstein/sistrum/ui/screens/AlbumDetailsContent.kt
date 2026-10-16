@@ -37,7 +37,7 @@ import com.amwolfstein.sistrum.ui.components.TrackContextMenu
 import com.amwolfstein.sistrum.ui.components.TrackContextMenuActions
 import com.amwolfstein.sistrum.ui.components.TrackContextBottomSheetRequest
 import com.amwolfstein.sistrum.ui.components.trackInfoArtworkSize
-import com.amwolfstein.sistrum.ui.theme.LocalSistrumColors
+import com.amwolfstein.sistrum.ui.theme.LocalSistrumTokens
 
 private const val AlbumTrackDividerTag = "album-detail-track-divider"
 
@@ -66,7 +66,8 @@ internal fun AlbumDetailsContent(
         HeroCard(symbol = MaterialSymbols.Album, title = stringResource(R.string.album_details_empty_title), description = stringResource(R.string.album_details_empty_description), modifier = modifier.fillMaxSize().padding(contentPadding))
         return
     }
-    val colors = LocalSistrumColors.current
+    val tokens = LocalSistrumTokens.current
+    val colors = tokens.colors
     var contextTrack by remember { mutableStateOf<String?>(null) }
     var albumMenuExpanded by remember(album.id) { mutableStateOf(false) }
     val resources = LocalResources.current
@@ -90,7 +91,7 @@ internal fun AlbumDetailsContent(
         start = 0.dp,
         end = 0.dp,
     )
-    LazyColumn(modifier.fillMaxSize(), contentPadding = listPadding) {
+    LazyColumn(modifier.fillMaxSize().background(colors.page), contentPadding = listPadding) {
         item("hero") {
             ArtworkHeroBackdrop(album.artworkPath, Modifier.fillMaxWidth(), onHeroColorChanged, audioPath = album.audioPath) {
                 DetailHero(
@@ -101,10 +102,10 @@ internal fun AlbumDetailsContent(
                     stringResource(R.string.player_shuffle),
                     stringResource(R.string.album_row_more_options),
                     Modifier.fillMaxWidth().padding(
-                        start = 24.dp,
+                        start = tokens.spacing.extraLarge,
                         top = contentPadding.calculateTopPadding(),
-                        end = 24.dp,
-                        bottom = 20.dp,
+                        end = tokens.spacing.extraLarge,
+                        bottom = tokens.spacing.extraLarge,
                     ),
                     album.artworkPath,
                     audioPath = album.audioPath,
@@ -135,9 +136,9 @@ internal fun AlbumDetailsContent(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 22.dp)
+                    .padding(horizontal = tokens.spacing.extraLarge)
                     .height(1.dp)
-                    .background(colors.borderGlass)
+                    .background(colors.divider)
                     .testTag(AlbumTrackDividerTag),
             )
             TrackContextMenu(
@@ -166,9 +167,9 @@ internal fun AlbumDetailsContent(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
+                        .padding(horizontal = tokens.spacing.extraLarge)
                         .height(1.dp)
-                        .background(colors.borderGlass)
+                        .background(colors.divider)
                         .testTag(AlbumTrackDividerTag),
                 )
             }
@@ -177,9 +178,9 @@ internal fun AlbumDetailsContent(
             item("copyright") {
                 Text(
                     text = copyright,
-                    color = colors.textMuted,
+                    color = colors.mutedText,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 24.dp, top = 16.dp, end = 24.dp, bottom = 12.dp),
+                    modifier = Modifier.padding(start = tokens.spacing.extraLarge, top = tokens.spacing.large, end = tokens.spacing.extraLarge, bottom = tokens.spacing.medium),
                 )
             }
         }
