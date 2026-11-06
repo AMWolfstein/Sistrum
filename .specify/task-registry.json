@@ -1,8 +1,25 @@
 {
-  "version": 1,
-  "next_mission": 1,
-  "next_tor": 1,
-  "next_completion": 1,
   "missions": {},
-  "tasks": {}
+  "next_completion": 2,
+  "next_mission": 1,
+  "next_tor": 2,
+  "tasks": {
+    "TOR001": {
+      "completion": 1,
+      "evidence": {
+        "checks": "validate PASS; workflow unittest 38 OK; git diff vs 0912a8e9 shows only .gitignore change plus 128 expected baseline files; .gitignore conflict resolved keeping all Mornye rules plus .work/; independent read-only review round 1 PASS",
+        "result": "PASS",
+        "reviewer": "task-reviewer-subagent",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "ef40e5a68e44436b92eab079e14e689d",
+      "record": ".specify/quick-tasks/TOR001.md",
+      "status": "complete",
+      "title": "Import Mornye source v5.3.1"
+    }
+  },
+  "version": 1
 }
