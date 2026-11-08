@@ -335,31 +335,8 @@
   "appearanceAccentBlue": "蓝色",
   "appearanceAccentPurple": "紫色",
   "appearanceAccentPink": "粉色",
-  "appearanceGlassClarity": "毛玻璃清晰度",
   "appearanceGlassOutlines": "玻璃描边",
   "appearanceGlassOutlinesSubtitle": "在Mornye玻璃周围显示装饰边缘。关闭后保留模糊和折射效果。",
-  "appearanceGlassClaritySubtitle": "调整Mornye菜单和导航的透明度。文字对比度保持不变。",
-  "appearanceGlassTinted": "着色",
-  "appearanceGlassClear": "清晰",
-  "appearanceGlassClearPerformance": "非常清晰的玻璃可能消耗更多电量，在旧设备上可能不够流畅。降低清晰度以提升性能。",
-  "appearanceGlassClarityBlurOff": "此设备上玻璃为不透明。开启「{setting}」以调整清晰度。",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "你的系统要求增强对比度，因此玻璃保持不透明。开启「{setting}」以调整清晰度。",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "使用系统字体",
   "appearanceUseSystemFontSubtitle": "应用文本使用设备默认字体。",
   "@appearanceStyle": {

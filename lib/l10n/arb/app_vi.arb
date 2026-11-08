@@ -335,31 +335,8 @@
   "appearanceAccentBlue": "Xanh dương",
   "appearanceAccentPurple": "Tím",
   "appearanceAccentPink": "Hồng",
-  "appearanceGlassClarity": "Độ trong suốt hiệu ứng kính",
   "appearanceGlassOutlines": "Viền hiệu ứng kính",
   "appearanceGlassOutlinesSubtitle": "Hiển thị đường viền trang trí quanh các khung kính của Mornye. Khi tắt, hiệu ứng làm mờ và khúc xạ vẫn được giữ nguyên.",
-  "appearanceGlassClaritySubtitle": "Điều chỉnh độ trong suốt của các menu và thanh điều hướng trong Mornye. Độ tương phản của chữ vẫn được giữ rõ nét.",
-  "appearanceGlassTinted": "Phủ màu",
-  "appearanceGlassClear": "Xóa",
-  "appearanceGlassClearPerformance": "Hiệu ứng kính trong suốt cao có thể tốn pin hơn và giảm độ mượt trên các máy đời cũ. Hãy giảm độ trong suốt nếu cần.",
-  "appearanceGlassClarityBlurOff": "Hiệu ứng kính đang bị làm đục trên thiết bị này. Hãy bật “{setting}” để điều chỉnh độ trong suốt.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "Hệ thống đang bật chế độ tăng độ tương phản nên hiệu ứng kính được làm đục. Hãy bật “{setting}” để vẫn bật hiệu ứng kính; độ tương phản của chữ vẫn được đảm bảo.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "Dùng phông chữ hệ thống",
   "appearanceUseSystemFontSubtitle": "Sử dụng kiểu chữ mặc định của thiết bị cho toàn bộ văn bản trong ứng dụng.",
   "@appearanceStyle": {

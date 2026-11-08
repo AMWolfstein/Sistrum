@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:mornye/widgets/mornye_selection_pill.dart';
+import 'package:mornye/widgets/mornye_liquid_backdrop.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/runtime_profile_provider.dart';
@@ -45,7 +46,6 @@ void main() {
     Color? backdrop,
     Color? chromeSurface,
     Widget? body,
-    double glassClarity = 0.75,
     ValueNotifier<int>? activeTab,
   }) async {
     tester.view.physicalSize = const Size(393, 760);
@@ -72,11 +72,7 @@ void main() {
           mornyeLiquidGlassProvider.overrideWithValue(liquidGlass),
         ],
         child: MaterialApp(
-          theme: MornyeTheme.build(
-            brightness,
-            chromeSurface: chromeSurface,
-            glassClarity: glassClarity,
-          ),
+          theme: MornyeTheme.build(brightness, chromeSurface: chromeSurface),
           builder: (_, child) => RepaintBoundary(key: capture, child: child),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -187,8 +183,8 @@ void main() {
     testWidgets(
       'liquid side capsules join the bar read only at rest (player: $withPlayer)',
       (tester) async {
-        MornyeGlass.debugShaderFilterSupport = true;
-        addTearDown(() => MornyeGlass.debugShaderFilterSupport = null);
+        MornyeGlassRules.debugShaderFilterSupport = true;
+        addTearDown(() => MornyeGlassRules.debugShaderFilterSupport = null);
         await pumpShell(tester, blur: true, withPlayer: withPlayer);
         // Every painted lens carries a batch key, so each takes the single
         // composed pass, and lenses with the same key share one read.
@@ -248,7 +244,6 @@ void main() {
           blur: true,
           liquidGlass: liquidGlass,
           brightness: Brightness.dark,
-          glassClarity: 1,
           body: const SizedBox.expand(
             child: CustomPaint(painter: _StripedBackdrop()),
           ),
@@ -588,20 +583,19 @@ void main() {
   }
 
   for (final brightness in Brightness.values) {
-    for (final clarity in [0.0, 0.75, 1.0]) {
+    {
       for (final backdrop in [
         Colors.white,
         Colors.black,
         if (brightness == Brightness.dark) albumBlue,
       ]) {
         testWidgets(
-          'floating glass stays legible in $brightness over $backdrop (clarity: $clarity)',
+          'floating glass stays legible in $brightness over $backdrop ',
           (tester) async {
             await pumpShell(
               tester,
               blur: true,
               brightness: brightness,
-              glassClarity: clarity,
               backdrop: backdrop,
               chromeSurface: backdrop == albumBlue ? albumBlue : null,
             );

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderProxySliver;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mornye/widgets/mornye_glass_lens_fade.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/providers/runtime_profile_provider.dart';
 import 'package:mornye/theme/app_motion.dart';
@@ -166,7 +167,12 @@ class AlbumDetailHeader extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
     );
-    Widget toolbar({bool collapsed = true}) => SliverAppBar(
+    // [fadeExtent] is the scroll offset at which the toolbar is a flat bar: the
+    // glass of its buttons fades out as it approaches it.
+    Widget fading(double? fadeExtent, Widget button) => fadeExtent == null
+        ? button
+        : MornyeGlassLensFade(collapseExtent: fadeExtent, child: button);
+    Widget toolbar({bool collapsed = true, double? fadeExtent}) => SliverAppBar(
       pinned: true,
       backgroundColor: collapsed ? scheme.surface : Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -188,9 +194,11 @@ class AlbumDetailHeader extends StatelessWidget {
         ),
       ),
       leadingWidth: kToolbarHeight + edgeInset,
-      leading: back,
+      leading: fading(fadeExtent, back),
       actionsPadding: EdgeInsetsDirectional.only(end: edgeInset),
-      actions: appBarActions,
+      actions: appBarActions == null
+          ? null
+          : [for (final action in appBarActions!) fading(fadeExtent, action)],
     );
     if (immersive) {
       final detailsTop = (artworkSize - 20).clamp(0.0, double.infinity);
@@ -225,8 +233,12 @@ class AlbumDetailHeader extends StatelessWidget {
             return SliverLayoutInfoBuilder(
               select: (constraints) =>
                   constraints.scrollOffset >= collapseOffset,
-              builder: (context, collapsed) =>
-                  _AlbumOverlayToolbar(child: toolbar(collapsed: collapsed)),
+              builder: (context, collapsed) => MornyeOverlayToolbar(
+                child: toolbar(
+                  collapsed: collapsed,
+                  fadeExtent: collapseOffset,
+                ),
+              ),
             );
           },
         ),
@@ -240,10 +252,10 @@ class AlbumDetailHeader extends StatelessWidget {
                         alignment: Alignment.topCenter,
                         child: SizedBox.square(
                           dimension: artworkSize,
-                          child: _AlbumStretchArtwork(child: artwork),
+                          child: MornyeStretchArtwork(child: artwork),
                         ),
                       )
-                    : _AlbumStretchArtwork(child: artwork),
+                    : MornyeStretchArtwork(child: artwork),
               ),
               Column(
                 children: [
@@ -601,8 +613,10 @@ class MornyeActionCapsule extends ConsumerWidget {
   }
 }
 
-class _AlbumStretchArtwork extends StatelessWidget {
-  const _AlbumStretchArtwork({required this.child});
+/// Pulling the page down past its top enlarges the artwork from its top edge
+/// instead of stretching the layout. Shared by the album and artist headers.
+class MornyeStretchArtwork extends StatelessWidget {
+  const MornyeStretchArtwork({super.key, required this.child});
 
   final Widget child;
 
@@ -654,8 +668,8 @@ Widget headerToolbarTitle(
 
 /// Keeps the pinned toolbar above the artwork without shifting the artwork or
 /// metadata down by the toolbar's safe-area height.
-class _AlbumOverlayToolbar extends SingleChildRenderObjectWidget {
-  const _AlbumOverlayToolbar({required super.child});
+class MornyeOverlayToolbar extends SingleChildRenderObjectWidget {
+  const MornyeOverlayToolbar({super.key, required super.child});
 
   @override
   RenderProxySliver createRenderObject(BuildContext context) =>

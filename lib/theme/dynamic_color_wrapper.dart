@@ -26,7 +26,6 @@ class DynamicColorWrapper extends ConsumerWidget {
           useAmoled: s.useAmoled,
           mornyeAccent: s.mornyeAccent,
           useSystemFont: s.useSystemFont,
-          mornyeGlassClarity: s.mornyeGlassClarity,
           mornyeGlassOutlines: s.mornyeGlassOutlines,
         ),
       ),
@@ -49,7 +48,6 @@ class DynamicColorWrapper extends ConsumerWidget {
               accent: themeSettings.mornyeAccent,
               useSystemFont: themeSettings.useSystemFont,
               fontFamily: fontFamily,
-              glassClarity: themeSettings.mornyeGlassClarity,
               glassOutlines: themeSettings.mornyeGlassOutlines,
             ),
             MornyeTheme.build(
@@ -57,7 +55,6 @@ class DynamicColorWrapper extends ConsumerWidget {
               accent: themeSettings.mornyeAccent,
               useSystemFont: themeSettings.useSystemFont,
               fontFamily: fontFamily,
-              glassClarity: themeSettings.mornyeGlassClarity,
               glassOutlines: themeSettings.mornyeGlassOutlines,
             ),
             themeSettings.themeMode,

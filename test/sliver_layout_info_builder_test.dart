@@ -254,16 +254,22 @@ void main() {
       ),
       matching: find.byType(AnimatedOpacity, skipOffstage: false),
     );
-    for (final offset in [60.0, 200.0, 500.0]) {
+    // Scrolling within the open header never rebuilds the toolbar.
+    for (final offset in [60.0, 200.0]) {
       controller.jumpTo(offset);
       await tester.pump();
       expect(tester.widget(appBar), same(firstBar));
     }
     expect(tester.widget<AnimatedOpacity>(title).opacity, 0);
-    showTitle.value = true;
+    // It rebuilds once when the header goes under it, and not again after.
+    controller.jumpTo(600);
     await tester.pump();
-    expect(tester.widget(appBar), same(firstBar));
+    final collapsedBar = tester.widget(appBar);
+    expect(collapsedBar, isNot(same(firstBar)));
     expect(tester.widget<AnimatedOpacity>(title).opacity, 1);
+    controller.jumpTo(900);
+    await tester.pump();
+    expect(tester.widget(appBar), same(collapsedBar));
   });
 
   testWidgets('artist surface reuses its themes across parent rebuilds', (

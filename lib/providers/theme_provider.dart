@@ -93,7 +93,14 @@ MornyeAccent _loadMornyeAccent(SharedPreferences prefs) {
   return mornyeAccentFromString(stored);
 }
 
+/// The retired Glass Quality slider's stored value. Glass is fixed at Clear, so
+/// the key is removed once at startup and nothing reads it any more.
+const _retiredGlassClarityKey = 'mornye_glass_clarity';
+
 ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
+  if (prefs.containsKey(_retiredGlassClarityKey)) {
+    unawaited(prefs.remove(_retiredGlassClarityKey));
+  }
   return ThemeSettings(
     themeMode: themeModeFromString(prefs.getString(kThemeModeKey)),
     useDynamicColor: prefs.getBool(kUseDynamicColorKey) ?? true,
@@ -109,9 +116,6 @@ ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
     ),
     lyricsBlur: normalizeLyricsBlur(prefs.getDouble(kLyricsBlurKey)),
     lyricsOffsetMs: normalizeLyricsOffsetMs(prefs.getInt(kLyricsOffsetKey)),
-    mornyeGlassClarity: normalizeMornyeGlassClarity(
-      prefs.getDouble(kMornyeGlassClarityKey),
-    ),
     mornyeGlassOutlines: prefs.getBool(kMornyeGlassOutlinesKey) ?? true,
   );
 }
@@ -175,10 +179,6 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
       await prefs.setDouble(kLyricsTextScaleKey, snapshot.lyricsTextScale);
       await prefs.setDouble(kLyricsBlurKey, snapshot.lyricsBlur);
       await prefs.setInt(kLyricsOffsetKey, snapshot.lyricsOffsetMs);
-      await prefs.setDouble(
-        kMornyeGlassClarityKey,
-        snapshot.mornyeGlassClarity,
-      );
       await prefs.setBool(
         kMornyeGlassOutlinesKey,
         snapshot.mornyeGlassOutlines,
@@ -242,14 +242,6 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
 
   Future<void> setLyricsOffsetMs(int value, {bool persist = true}) async {
     _editState((current) => current.copyWith(lyricsOffsetMs: value));
-    if (persist) await _saveToStorage();
-  }
-
-  Future<void> setMornyeGlassClarity(
-    double value, {
-    bool persist = true,
-  }) async {
-    _editState((current) => current.copyWith(mornyeGlassClarity: value));
     if (persist) await _saveToStorage();
   }
 

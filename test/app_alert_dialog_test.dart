@@ -10,7 +10,7 @@ void main() {
   for (final brightness in Brightness.values) {
     for (final reduceMotion in [false, true]) {
       testWidgets(
-        'confirmation keeps blur during entry and cancels promptly ($brightness, reduce motion: $reduceMotion)',
+        'confirmation keeps its tint during entry and cancels promptly ($brightness, reduce motion: $reduceMotion)',
         (tester) async {
           await tester.pumpWidget(
             ProviderScope(
@@ -51,17 +51,14 @@ void main() {
           await tester.pump();
           for (final elapsed in [16, 64, 180]) {
             await tester.pump(Duration(milliseconds: elapsed));
-            final blur = find.descendant(
-              of: find.byType(AppAlertDialog),
-              matching: find.byType(BackdropFilter),
+            // Dialog glass keeps its tint and skips the backdrop read.
+            expect(
+              find.descendant(
+                of: find.byType(AppAlertDialog),
+                matching: find.byType(BackdropFilter),
+              ),
+              findsNothing,
             );
-            expect(blur, findsOneWidget);
-            // An opacity layer isolates the filter from the underlying page
-            // until the route finishes entering.
-            final fades = tester.widgetList<FadeTransition>(
-              find.ancestor(of: blur, matching: find.byType(FadeTransition)),
-            );
-            expect(fades.every((fade) => fade.opacity.value == 1), isTrue);
             final bodyContext = tester.element(
               find.text('This will also delete the files.'),
             );

@@ -194,7 +194,7 @@ void main() {
           tester
               .getTopLeft(
                 find.descendant(
-                  of: find.byType(FlexibleSpaceBar),
+                  of: find.byKey(const ValueKey('artist-header')),
                   matching: find.text('Example Artist'),
                 ),
               )

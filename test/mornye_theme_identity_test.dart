@@ -26,13 +26,12 @@ void main() {
       accent: MornyeAccent.blue,
       useSystemFont: true,
       fontFamily: 'Custom',
-      glassClarity: 0.4,
       glassOutlines: false,
     );
     final b = a.copyWith();
     expect(b, a);
     expect(b.hashCode, a.hashCode);
-    expect(a.copyWith(glassClarity: 0.5), isNot(a));
+    expect(a.copyWith(glassOutlines: true), isNot(a));
     expect(a.copyWith(accent: MornyeAccent.red), isNot(a));
     expect(a.lerp(b, 0.5), a);
   });
@@ -42,21 +41,18 @@ void main() {
       ThemeData build() => MornyeTheme.build(
         brightness,
         accent: MornyeAccent.teal,
-        glassClarity: 0.4,
         glassOutlines: false,
       );
       final first = build();
       expect(identical(build(), first), isTrue);
       final preferences = first.extension<MornyeTheme>()!;
-      expect(preferences.glassClarity, 0.4);
       expect(preferences.glassOutlines, isFalse);
       expect(
         MornyeTheme.build(
           brightness,
           accent: MornyeAccent.teal,
-          glassClarity: 1,
-        ).extension<MornyeTheme>()!.glassClarity,
-        1,
+        ).extension<MornyeTheme>()!.glassOutlines,
+        isTrue,
       );
     }
   });
@@ -132,7 +128,6 @@ void main() {
     SharedPreferences.setMockInitialValues({
       kThemeStyleKey: AppThemeStyle.mornye.name,
       kThemeModeKey: ThemeMode.light.name,
-      kMornyeGlassClarityKey: 0.4,
       kMornyeGlassOutlinesKey: false,
     });
     final prefs = await SharedPreferences.getInstance();
@@ -162,7 +157,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(themes.last.extension<MornyeTheme>()!.glassClarity, 0.4);
+    expect(themes.last.extension<MornyeTheme>()!.glassOutlines, isFalse);
     final initialBuilds = themes.length;
     final notifier = container.read(themeProvider.notifier);
 
@@ -171,9 +166,9 @@ void main() {
     expect(container.read(themeProvider).lyricsTextScale, 1.2);
     expect(themes, hasLength(initialBuilds));
 
-    await notifier.setMornyeGlassClarity(0.6, persist: false);
+    await notifier.setMornyeGlassOutlines(true);
     await tester.pumpAndSettle();
     expect(themes, hasLength(initialBuilds + 1));
-    expect(themes.last.extension<MornyeTheme>()!.glassClarity, 0.6);
+    expect(themes.last.extension<MornyeTheme>()!.glassOutlines, isTrue);
   });
 }

@@ -3,7 +3,6 @@ import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/constants/language_choices.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/providers/theme_provider.dart';
 import 'package:mornye/models/theme_settings.dart';
@@ -113,7 +112,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                     selected: themeSettings.mornyeAccent,
                     onChanged: ref.read(themeProvider.notifier).setMornyeAccent,
                   ),
-                  const _MornyeGlassClaritySlider(),
                   SettingsSwitchItem(
                     key: const ValueKey('mornye-glass-outlines'),
                     icon: Icons.rounded_corner,

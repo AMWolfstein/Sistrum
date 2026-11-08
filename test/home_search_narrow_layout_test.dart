@@ -54,19 +54,21 @@ String _paintFingerprint(WidgetTester tester) {
 /// the Material values re-recorded when sort and view became a grouped
 /// toolbar, the Material desktop value when Home took M3's 24dp window
 /// margin, and the Mornye values when blue became the default accent and the
-/// filter chips gained their glass press layer. A narrow layout must paint
+/// filter chips gained their glass press layer, and the Mornye values again when Glass
+/// became fixed at Clear (the retired Glass Quality slider's old default 0.75 painted a
+/// different tint). A narrow layout must paint
 /// exactly these.
 /// A deliberate change to
 /// the phone rows records new values; the failure prints the fingerprint.
 const _baseFingerprints = {
   'phone Material': 'c975d61edc1fef90079a8ac06bf1a8c5307ac43b',
-  'phone Mornye': 'd72fe45a3f9638e3ebe47b549dee17232cd13e4f',
+  'phone Mornye': '6e6783cff8e10e3318183c51b4e1c54f6c734f63',
   'landscape phone Material': '88fd46463538cd4b3d728743a1174612da7a9731',
-  'landscape phone Mornye': 'ad2081a7237deca37d087111c28546cdec9f1781',
+  'landscape phone Mornye': '9e4af5fa611040bf6c9e5edbca78e137611f034e',
   'portrait tablet Material': '94d41e2ff5146d50d53d7b50f33ec371b88fc11f',
-  'portrait tablet Mornye': 'c4d77afbdcda7e4fbd3b90b586068aa134b1b30b',
+  'portrait tablet Mornye': '1b2ccb077d7103aed1931696bc748fb42a26636c',
   'narrow desktop window Material': '74198bcea5c9b07d7e5a90075abcb974b99f876e',
-  'narrow desktop window Mornye': '481b5d5c69fc3a5b171e0124a6244c306b9489c0',
+  'narrow desktop window Mornye': '7ad0ba125ecb8d92d780242236c8ac290f127f7a',
 };
 
 void main() {

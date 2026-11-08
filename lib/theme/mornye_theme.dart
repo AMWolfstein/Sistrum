@@ -14,7 +14,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     this.accent = MornyeAccent.blue,
     this.useSystemFont = false,
     this.fontFamily,
-    this.glassClarity = kDefaultMornyeGlassClarity,
     this.glassOutlines = true,
   });
 
@@ -22,12 +21,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   final MornyeAccent accent;
   final bool useSystemFont;
   final String? fontFamily;
-  final double glassClarity;
   final bool glassOutlines;
-
-  static double glassClarityOf(BuildContext context) =>
-      Theme.of(context).extension<MornyeTheme>()?.glassClarity ??
-      kDefaultMornyeGlassClarity;
 
   static bool glassOutlinesOf(BuildContext context) =>
       Theme.of(context).extension<MornyeTheme>()?.glassOutlines ?? true;
@@ -135,7 +129,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     MornyeAccent accent = MornyeAccent.blue,
     bool useSystemFont = false,
     String? fontFamily,
-    double glassClarity = kDefaultMornyeGlassClarity,
     bool glassOutlines = true,
   }) {
     final key = (
@@ -168,7 +161,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       _themeCache.remove(_themeCache.keys.first);
     }
     _themeCache[key] = theme;
-    return _withGlassPreferences(theme, glassClarity, glassOutlines);
+    return _withGlassPreferences(theme, glassOutlines);
   }
 
   static ThemeData _withChromeSurface(ThemeData theme, Color chromeSurface) {
@@ -191,19 +184,13 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     );
   }
 
-  // Moving the clarity slider only changes the material, not typography or
+  // The outlines preference only changes the material, not typography or
   // seeded colors. Keep the expensive base theme cached independently, and
   // reuse the last variant so equal preferences keep the same theme identity.
-  static ThemeData _withGlassPreferences(
-    ThemeData theme,
-    double value,
-    bool outlines,
-  ) {
-    final clarity = normalizeMornyeGlassClarity(value);
+  static ThemeData _withGlassPreferences(ThemeData theme, bool outlines) {
     bool matches(ThemeData? candidate) {
       final preferences = candidate?.extension<MornyeTheme>();
-      return preferences?.glassClarity == clarity &&
-          preferences?.glassOutlines == outlines;
+      return preferences?.glassOutlines == outlines;
     }
 
     if (matches(theme)) return theme;
@@ -213,7 +200,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       extensions: [
         for (final extension in theme.extensions.values)
           if (extension is MornyeTheme)
-            extension.copyWith(glassClarity: clarity, glassOutlines: outlines)
+            extension.copyWith(glassOutlines: outlines)
           else
             extension,
       ],
@@ -234,7 +221,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       accent: preferences?.accent ?? MornyeAccent.blue,
       useSystemFont: preferences?.useSystemFont ?? false,
       fontFamily: preferences?.fontFamily,
-      glassClarity: preferences?.glassClarity ?? kDefaultMornyeGlassClarity,
       glassOutlines: preferences?.glassOutlines ?? true,
     );
   }
@@ -453,14 +439,12 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     MornyeAccent? accent,
     bool? useSystemFont,
     String? fontFamily,
-    double? glassClarity,
     bool? glassOutlines,
   }) => MornyeTheme(
     chromeSurface: chromeSurface ?? this.chromeSurface,
     accent: accent ?? this.accent,
     useSystemFont: useSystemFont ?? this.useSystemFont,
     fontFamily: fontFamily ?? this.fontFamily,
-    glassClarity: glassClarity ?? this.glassClarity,
     glassOutlines: glassOutlines ?? this.glassOutlines,
   );
 
@@ -472,9 +456,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     useSystemFont: t < 0.5
         ? useSystemFont
         : other?.useSystemFont ?? useSystemFont,
-    glassClarity:
-        glassClarity +
-        ((other?.glassClarity ?? glassClarity) - glassClarity) * t,
     glassOutlines: t < 0.5
         ? glassOutlines
         : other?.glassOutlines ?? glassOutlines,
@@ -487,7 +468,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       other.accent == accent &&
       other.useSystemFont == useSystemFont &&
       other.fontFamily == fontFamily &&
-      other.glassClarity == glassClarity &&
       other.glassOutlines == glassOutlines;
 
   @override
@@ -496,7 +476,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     accent,
     useSystemFont,
     fontFamily,
-    glassClarity,
     glassOutlines,
   );
 }

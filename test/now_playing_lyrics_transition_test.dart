@@ -943,7 +943,7 @@ void main() {
     addTearDown(playback.close);
     await pumpNowPlaying(
       tester,
-      theme: MornyeTheme.build(Brightness.dark, glassClarity: 0.5),
+      theme: MornyeTheme.build(Brightness.dark),
       size: const Size(393, 852),
       playbackEvents: playback.stream,
     );
@@ -1506,8 +1506,8 @@ void main() {
     testWidgets(
       'manual lyric scrolling keeps its viewport stable while controls animate (height: $height)',
       (tester) async {
-        final clarity = ValueNotifier(0.5);
-        addTearDown(clarity.dispose);
+        final outlines = ValueNotifier(true);
+        addTearDown(outlines.dispose);
         metadataOverrides['lyrics'] = List.generate(
           20,
           (index) =>
@@ -1518,10 +1518,10 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           size: Size(393, height),
           playback: PlaybackState(updatePosition: const Duration(seconds: 30)),
-          wrapPlayer: (player) => ValueListenableBuilder<double>(
-            valueListenable: clarity,
+          wrapPlayer: (player) => ValueListenableBuilder<bool>(
+            valueListenable: outlines,
             builder: (context, value, child) => Theme(
-              data: MornyeTheme.build(Brightness.dark, glassClarity: value),
+              data: MornyeTheme.build(Brightness.dark, glassOutlines: value),
               child: child!,
             ),
             child: player,
@@ -1562,7 +1562,7 @@ void main() {
         expect(transport.hitTestable(), findsNothing);
         // An inherited appearance update must not reset playback following
         // while the user owns the scroll position.
-        clarity.value = 0.6;
+        outlines.value = false;
         await tester.pump();
         await tester.pump();
         expect(state.position.pixels, closeTo(hiddenOffset, 0.01));
@@ -1598,7 +1598,7 @@ void main() {
         await touch.up();
         await settlePlayer(tester);
         final releasedOffset = state.position.pixels;
-        clarity.value = 0.5;
+        outlines.value = true;
         await tester.pump();
         await settlePlayer(tester);
         expect(state.position.pixels, closeTo(releasedOffset, 0.01));
@@ -4157,13 +4157,15 @@ void main() {
         final glass = tester.widget<MornyeGlassPanel>(
           find.byType(MornyeGlassPanel).last,
         );
+        // Overlay glass keeps its tint and skips the backdrop read.
         expect(
           find.descendant(
             of: find.byType(MornyeGlassPanel).last,
             matching: find.byType(BackdropFilter),
           ),
-          findsOneWidget,
+          findsNothing,
         );
+        expect(glass.samplesBackdrop, isFalse);
         expect(glass.tintOpacity, inExclusiveRange(0, 1));
         expect(
           find.text('Hide Pronunciation'),

@@ -1,8 +1,8 @@
 {
   "missions": {},
-  "next_completion": 2,
+  "next_completion": 3,
   "next_mission": 1,
-  "next_tor": 2,
+  "next_tor": 3,
   "tasks": {
     "TOR001": {
       "completion": 1,
@@ -19,6 +19,22 @@
       "record": ".specify/quick-tasks/TOR001.md",
       "status": "complete",
       "title": "Import Mornye source v5.3.1"
+    },
+    "TOR002": {
+      "completion": 2,
+      "evidence": {
+        "checks": "validate PASS; workflow unittest 38 OK; cherry-pick tree matches e02860c6 (62 files, same blob IDs); original commit message kept; independent read-only review round 1 PASS",
+        "result": "PASS",
+        "reviewer": "task-reviewer-subagent",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "dc911542bf3d4213975d26dc83766556",
+      "record": ".specify/quick-tasks/TOR002.md",
+      "status": "complete",
+      "title": "Apply Mornye glass performance commit e02860c6"
     }
   },
   "version": 1

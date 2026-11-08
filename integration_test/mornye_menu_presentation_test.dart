@@ -47,11 +47,7 @@ void main() {
             mornyeBlurEnabledProvider.overrideWithValue(true),
           ],
           child: MaterialApp(
-            theme: MornyeTheme.build(
-              brightness,
-              glassClarity: 1,
-              fontFamily: family,
-            ),
+            theme: MornyeTheme.build(brightness, fontFamily: family),
             builder: (_, child) => RepaintBoundary(
               key: capture,
               child: MornyeGlassPreparation(child: child!),

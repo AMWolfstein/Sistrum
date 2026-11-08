@@ -8,6 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart'
+    show LiquidGlassBlurMethod, LiquidGlassConfiguration;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mornye/app.dart';
@@ -61,6 +63,9 @@ final _log = AppLogger('Main');
 _StartupBenchmark? _startupBenchmark;
 
 void main() {
+  // Glass blurs inside the lens shader: one backdrop read, no separate blur pass.
+  LiquidGlassConfiguration.blurMethod = LiquidGlassBlurMethod.shader;
+  LiquidGlassConfiguration.batchBlurMethod = LiquidGlassBlurMethod.shader;
   if (const bool.fromEnvironment('CORE_BACKEND_STARTUP_BENCHMARK')) {
     _startupBenchmark = _StartupBenchmark();
   }

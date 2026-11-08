@@ -99,7 +99,10 @@ Future<void> _rasterize(ui.FlutterView view) async {
                   ),
                   Padding(
                     padding: EdgeInsets.all(12),
+                    // Overlays skip the backdrop by default; this one exists to
+                    // compile the lens shader.
                     child: MornyeGlassPanel.overlay(
+                      samplesBackdrop: true,
                       child: Center(child: Text('Download')),
                     ),
                   ),

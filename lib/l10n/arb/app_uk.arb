@@ -335,31 +335,8 @@
   "appearanceAccentBlue": "Блакитний",
   "appearanceAccentPurple": "Фіолетовий",
   "appearanceAccentPink": "Рожевий",
-  "appearanceGlassClarity": "Прозорість скла",
   "appearanceGlassOutlines": "Скляні обводи",
   "appearanceGlassOutlinesSubtitle": "Показувати декоративні краї навколо скла Mornye. Вимкнення цієї функції зберігає розмиття та заломлення.",
-  "appearanceGlassClaritySubtitle": "Налаштуйте прозорість меню та навігації Mornye. Контрастність тексту зберігається.",
-  "appearanceGlassTinted": "Тонований",
-  "appearanceGlassClear": "Очистити",
-  "appearanceGlassClearPerformance": "Ефект прозорого скла може споживати більше енергії та уповільнювати старіші пристрої. Зменште прозорість, якщо необхідно.",
-  "appearanceGlassClarityBlurOff": "Скло на цьому пристрої непрозоре. Увімкніть «{setting}», щоб налаштувати прозорість.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "Система запитує підвищену контрастність, тому скло залишається непрозорим. Увімкніть «{setting}», щоб усе одно використовувати ефект скла; контрастність тексту зберігається.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "Використовувати системний шрифт",
   "appearanceUseSystemFontSubtitle": "Використовуйте стандартний шрифт вашого пристрою для тексту в додатку.",
   "@appearanceStyle": {

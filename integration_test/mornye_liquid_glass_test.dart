@@ -157,7 +157,6 @@ void main() {
                             borderRadius: BorderRadius.circular(40),
                             child: MornyeLiquidBackdrop(
                               borderRadius: BorderRadius.circular(40),
-                              clarity: 1,
                               blurSigma: 2,
                               child: const Center(
                                 child: SizedBox(
@@ -229,7 +228,7 @@ void main() {
   ) async {
     var selected = 0;
     final changes = <int>[];
-    final theme = MornyeTheme.build(Brightness.dark, glassClarity: 1);
+    final theme = MornyeTheme.build(Brightness.dark);
     final lens = find.byWidgetPredicate(
       (widget) => widget is MornyeLiquidBackdrop && widget.interaction,
     );

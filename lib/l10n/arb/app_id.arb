@@ -270,31 +270,8 @@
   "appearanceAccentBlue": "Biru",
   "appearanceAccentPurple": "Ungu",
   "appearanceAccentPink": "Merah muda",
-  "appearanceGlassClarity": "Kebeningan kaca",
   "appearanceGlassOutlines": "Garis tepi kaca",
   "appearanceGlassOutlinesSubtitle": "Tampilkan garis dekoratif di tepi kaca Mornye. Mematikannya tetap mempertahankan blur dan pembiasan.",
-  "appearanceGlassClaritySubtitle": "Atur kebeningan kaca menu dan navigasi Mornye. Kontras teks tetap terjaga.",
-  "appearanceGlassTinted": "Berwarna",
-  "appearanceGlassClear": "Bening",
-  "appearanceGlassClearPerformance": "Kaca yang terlalu bening dapat memperlambat performa perangkat lama. Kurangi kebeningan jika perlu.",
-  "appearanceGlassClarityBlurOff": "Efek kaca mati di perangkat ini. Hidupkan \"{setting}\" untuk atur kebeningan kaca.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "Sistem meminta peningkatan kontras, sehingga kaca menjadi buram penuh. Aktifkan “{setting}” untuk tetap menggunakan efek kaca; kontras teks tetap dipertahankan.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "Gunakan font sistem",
   "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
   "@appearanceStyle": {

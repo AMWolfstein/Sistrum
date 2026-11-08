@@ -31,7 +31,7 @@ void main() {
           mornyeBlurEnabledProvider.overrideWithValue(true),
         ],
         child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark, glassClarity: 1),
+          theme: MornyeTheme.build(Brightness.dark),
           builder: (context, child) => RepaintBoundary(
             key: capture,
             child: MediaQuery(
@@ -143,8 +143,8 @@ void main() {
       expect(first.center.dy, closeTo(anchor.center.dy, 0.01));
       expect(first.size, const Size.square(44));
       expect(panel(tester).radius, 22, reason: 'a round drop at the control');
-      expect(find.byType(BackdropFilter), findsOneWidget);
-      final backdrop = tester.element(find.byType(BackdropFilter));
+      expect(find.byType(BackdropFilter), findsNothing);
+      final backdrop = tester.element(find.byType(MornyeGlassPanel));
       await tester.pump(const Duration(milliseconds: 100));
       final flying = visibleBounds(tester);
       expect(flying.width, greaterThan(first.width));
@@ -155,7 +155,7 @@ void main() {
         reason: 'the height runs ahead of the width',
       );
       expect(panel(tester).glassProgress, 1);
-      expect(tester.element(find.byType(BackdropFilter)), same(backdrop));
+      expect(tester.element(find.byType(MornyeGlassPanel)), same(backdrop));
       final openingColor = await surfaceColor(tester, capture);
       await tester.pump(const Duration(milliseconds: 140));
       var widest = 0.0;
@@ -166,7 +166,7 @@ void main() {
       expect(widest, greaterThan(320), reason: 'the glass runs past its size');
       expect(widest, lessThan(320 * 1.04));
       expect(panel(tester).glassProgress, 1);
-      expect(tester.element(find.byType(BackdropFilter)), same(backdrop));
+      expect(tester.element(find.byType(MornyeGlassPanel)), same(backdrop));
       await tester.pumpAndSettle();
       final resting_ = visibleBounds(tester);
       expect(resting_.width, closeTo(320, 0.01));
@@ -193,7 +193,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 160));
       expect(panel(tester).glassProgress, 1);
-      expect(tester.element(find.byType(BackdropFilter)), same(backdrop));
+      expect(tester.element(find.byType(MornyeGlassPanel)), same(backdrop));
       await tester.pumpAndSettle();
       expect(find.byType(MornyeContextMenu), findsNothing);
       expect(tester.takeException(), isNull);

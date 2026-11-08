@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
 import 'package:mornye/providers/runtime_profile_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/theme/mornye_theme.dart';
@@ -39,7 +38,6 @@ void main() {
     bool lowEnd = false,
     Color? backgroundColor,
     GlobalKey? capture,
-    double glassClarity = kDefaultMornyeGlassClarity,
     bool dense = false,
     Color? chromeSurface,
   }) async {
@@ -54,11 +52,7 @@ void main() {
           backdropBlurEnabledProvider.overrideWithValue(false),
         ],
         child: MaterialApp(
-          theme: MornyeTheme.build(
-            brightness,
-            glassClarity: glassClarity,
-            chromeSurface: chromeSurface,
-          ),
+          theme: MornyeTheme.build(brightness, chromeSurface: chromeSurface),
           builder: (context, child) => RepaintBoundary(
             key: capture,
             child: MediaQuery(
@@ -160,62 +154,60 @@ void main() {
   }))!;
 
   for (final brightness in Brightness.values) {
-    for (final clarity in [0.0, kDefaultMornyeGlassClarity, 1.0]) {
+    {
       for (final background in [
         Colors.white,
         Colors.black,
         const Color(0xff6c3a22),
       ]) {
-        testWidgets(
-          'menu labels stay readable over $background ($brightness, clarity: $clarity)',
-          (tester) async {
-            final originalDisableShadows = debugDisableShadows;
-            debugDisableShadows = false;
-            try {
-              final capture = GlobalKey();
-              await openMenu(
-                tester,
-                anchor: const Rect.fromLTWH(330, 144, 44, 44),
-                brightness: brightness,
-                glassClarity: clarity,
-                backgroundColor: background,
-                capture: capture,
-                onResult: (_) {},
-              );
-              final menu = tester.getRect(find.byType(MornyeContextMenu));
-              final pixels = await samplePixels(tester, capture, [
-                for (final x in [menu.left + 8, menu.right - 8])
-                  for (final fraction in [0.25, 0.5, 0.75])
-                    Offset(x, menu.top + menu.height * fraction),
-              ]);
-              final foreground = MornyeTheme.build(
-                brightness,
-              ).colorScheme.onSurface;
-              for (final inside in pixels) {
-                // Busy lyrics and bright artwork must not wash out either label.
-                for (final textColor in [
-                  foreground,
-                  Color.alphaBlend(foreground.withValues(alpha: 0.96), inside),
-                ]) {
-                  final luminances = [
-                    inside.computeLuminance(),
-                    textColor.computeLuminance(),
-                  ]..sort();
-                  final contrast =
-                      (luminances.last + 0.05) / (luminances.first + 0.05);
-                  expect(contrast, greaterThanOrEqualTo(4.5));
-                }
-                // The panel remains even at both edges without an offset lens.
-                expect(inside.r, closeTo(pixels.first.r, 0.015));
-                expect(inside.g, closeTo(pixels.first.g, 0.015));
-                expect(inside.b, closeTo(pixels.first.b, 0.015));
+        testWidgets('menu labels stay readable over $background ($brightness)', (
+          tester,
+        ) async {
+          final originalDisableShadows = debugDisableShadows;
+          debugDisableShadows = false;
+          try {
+            final capture = GlobalKey();
+            await openMenu(
+              tester,
+              anchor: const Rect.fromLTWH(330, 144, 44, 44),
+              brightness: brightness,
+              backgroundColor: background,
+              capture: capture,
+              onResult: (_) {},
+            );
+            final menu = tester.getRect(find.byType(MornyeContextMenu));
+            final pixels = await samplePixels(tester, capture, [
+              for (final x in [menu.left + 8, menu.right - 8])
+                for (final fraction in [0.25, 0.5, 0.75])
+                  Offset(x, menu.top + menu.height * fraction),
+            ]);
+            final foreground = MornyeTheme.build(
+              brightness,
+            ).colorScheme.onSurface;
+            for (final inside in pixels) {
+              // Busy lyrics and bright artwork must not wash out either label.
+              for (final textColor in [
+                foreground,
+                Color.alphaBlend(foreground.withValues(alpha: 0.96), inside),
+              ]) {
+                final luminances = [
+                  inside.computeLuminance(),
+                  textColor.computeLuminance(),
+                ]..sort();
+                final contrast =
+                    (luminances.last + 0.05) / (luminances.first + 0.05);
+                expect(contrast, greaterThanOrEqualTo(4.5));
               }
-              expect(tester.takeException(), isNull);
-            } finally {
-              debugDisableShadows = originalDisableShadows;
+              // The panel remains even at both edges without an offset lens.
+              expect(inside.r, closeTo(pixels.first.r, 0.015));
+              expect(inside.g, closeTo(pixels.first.g, 0.015));
+              expect(inside.b, closeTo(pixels.first.b, 0.015));
             }
-          },
-        );
+            expect(tester.takeException(), isNull);
+          } finally {
+            debugDisableShadows = originalDisableShadows;
+          }
+        });
       }
     }
 
@@ -316,7 +308,6 @@ void main() {
         tester,
         anchor: const Rect.fromLTWH(330, 144, 44, 44),
         brightness: Brightness.dark,
-        glassClarity: 1,
         backgroundColor: Colors.white,
         chromeSurface: cover,
         capture: capture,
@@ -373,23 +364,29 @@ void main() {
     });
   }
 
-  testWidgets('glass override reaches context menu overlays', (tester) async {
-    await openMenu(
-      tester,
-      anchor: const Rect.fromLTWH(330, 144, 44, 44),
-      brightness: Brightness.dark,
-      highContrast: true,
-      forceBlur: true,
-      onResult: (_) {},
-    );
-    final menu = find.byType(MornyeContextMenu);
-    expect(find.byType(BackdropFilter), findsWidgets);
-    expect(MediaQuery.highContrastOf(tester.element(menu)), isTrue);
-    await tester.tap(find.text('Share'));
-    await tester.pumpAndSettle();
-    expect(menu, findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'context menu overlays keep their tint without a backdrop filter',
+    (tester) async {
+      await openMenu(
+        tester,
+        anchor: const Rect.fromLTWH(330, 144, 44, 44),
+        brightness: Brightness.dark,
+        highContrast: true,
+        forceBlur: true,
+        onResult: (_) {},
+      );
+      final menu = find.byType(MornyeContextMenu);
+      expect(
+        find.descendant(of: menu, matching: find.byType(BackdropFilter)),
+        findsNothing,
+      );
+      expect(MediaQuery.highContrastOf(tester.element(menu)), isTrue);
+      await tester.tap(find.text('Share'));
+      await tester.pumpAndSettle();
+      expect(menu, findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'large text in landscape keeps shortcuts and last action usable',

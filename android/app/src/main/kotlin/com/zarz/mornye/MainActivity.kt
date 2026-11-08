@@ -37,6 +37,18 @@ import java.util.LinkedHashMap
 import java.util.concurrent.atomic.AtomicReference
 
 class MainActivity: FlutterFragmentActivity() {
+    private var preferredDisplayController: PreferredDisplayController? = null
+
+    override fun onResume() {
+        super.onResume()
+        preferredDisplayController?.start()
+    }
+
+    override fun onPause() {
+        preferredDisplayController?.stop()
+        super.onPause()
+    }
+
     // Mirrors audio_service's AudioServiceFragmentActivity: the shared engine
     // is owned by AudioServicePlugin's FlutterEngineCache. Without the
     // cached-engine-id + shouldDestroyEngineWithHost overrides, the activity
@@ -402,6 +414,7 @@ class MainActivity: FlutterFragmentActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
+            preferredDisplayController?.applyPreference()
             if (keyboardDismissalPending) {
                 keyboardDismissalPending = false
                 // An IME hide sent while stopped can be rejected because
@@ -438,6 +451,8 @@ class MainActivity: FlutterFragmentActivity() {
     }
 
     override fun onDestroy() {
+        preferredDisplayController?.close()
+        preferredDisplayController = null
         if (isFinishing) {
             val pending = pendingSafTreeResult
             pendingSafTreeResult = null
@@ -481,6 +496,8 @@ class MainActivity: FlutterFragmentActivity() {
         onBackPressedDispatcher.addCallback(this, flutterBackCallback!!)
 
         val messenger = flutterEngine.dartExecutor.binaryMessenger
+        preferredDisplayController?.close()
+        preferredDisplayController = PreferredDisplayController(this)
         registerConcertCalendarChannel(messenger)
         registerAudioOutputChannel(messenger)
 

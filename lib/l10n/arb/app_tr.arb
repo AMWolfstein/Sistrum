@@ -335,31 +335,8 @@
   "appearanceAccentBlue": "Mavi",
   "appearanceAccentPurple": "Mor",
   "appearanceAccentPink": "Pembe",
-  "appearanceGlassClarity": "Cam netliği",
   "appearanceGlassOutlines": "Cam kenarlıkları",
   "appearanceGlassOutlinesSubtitle": "Mornye camı çevresinde dekoratif kenarlıklar gösterir. Kapatıldığında bulanıklık ve kırılma korunur.",
-  "appearanceGlassClaritySubtitle": "Mornye menülerinde ve gezinmede saydamlığı ayarlayın. Metin kontrastı korunur.",
-  "appearanceGlassTinted": "Renkli",
-  "appearanceGlassClear": "Şeffaf",
-  "appearanceGlassClearPerformance": "Çok şeffaf cam, eski cihazlarda daha fazla güç tüketebilir ve daha az akıcı hissettirebilir. Gerekirse netliği düşürün.",
-  "appearanceGlassClarityBlurOff": "Bu cihazda cam opak. Netliği ayarlamak için \"{setting}\" seçeneğini açın.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "Sisteminiz daha yüksek kontrast istiyor, bu nedenle cam opak kalıyor. Yine de cam kullanmak için \"{setting}\" seçeneğini açın; metin kontrastı korunur.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "Sistem yazı tipini kullan",
   "appearanceUseSystemFontSubtitle": "Uygulama metinleri için cihazınızın varsayılan yazı tipini kullanın.",
   "@appearanceStyle": {

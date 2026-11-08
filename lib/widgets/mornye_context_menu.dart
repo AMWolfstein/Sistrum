@@ -547,9 +547,8 @@ class _MenuSurface extends StatelessWidget {
           : dark
           ? const Color(0xff414141)
           : Colors.white,
-      tintOpacity: dark
-          ? 0.80 - 0.20 * (theme.extension<MornyeTheme>()?.glassClarity ?? 0)
-          : 0.80,
+      // Dark menus sit at the Clear end of the old slider: 0.80 - 0.20.
+      tintOpacity: dark ? 0.60 : 0.80,
       child: child,
     );
     final flight = _MenuFlight.maybeOf(context);

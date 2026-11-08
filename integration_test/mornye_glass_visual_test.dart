@@ -161,12 +161,11 @@ void main() {
       await tester.pump();
     }
 
-    for (final (brightness, clarity, outlines) in [
-      (Brightness.dark, 0.6, true),
-      (Brightness.dark, 1.0, true),
-      (Brightness.light, 0.75, true),
-      (Brightness.light, 0.75, false),
-      (Brightness.dark, 0.75, false),
+    for (final (brightness, outlines) in [
+      (Brightness.dark, true),
+      (Brightness.light, true),
+      (Brightness.light, false),
+      (Brightness.dark, false),
     ]) {
       chrome.expand();
       await tester.pumpWidget(
@@ -185,11 +184,7 @@ void main() {
             mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.liquid),
           ],
           child: MaterialApp(
-            theme: MornyeTheme.build(
-              brightness,
-              glassClarity: clarity,
-              glassOutlines: outlines,
-            ),
+            theme: MornyeTheme.build(brightness, glassOutlines: outlines),
             locale: const Locale('en'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -252,14 +247,13 @@ void main() {
         );
       });
       await wait(600);
-      if (Platform.isAndroid && clarity == 0.6) {
+      if (Platform.isAndroid && brightness == Brightness.dark && outlines) {
         await binding.convertFlutterSurfaceToImage();
         await tester.pump();
       }
       expect(find.byType(MiniPlayer), findsOneWidget);
       final player = tester.state(find.byType(MiniPlayer));
-      final prefix =
-          '${brightness.name}_clarity_${(clarity * 100).round()}_outlines_$outlines';
+      final prefix = '${brightness.name}_clear_outlines_$outlines';
       final lenses = tester.widgetList<LiquidGlassLens>(
         find.byType(LiquidGlassLens),
       );

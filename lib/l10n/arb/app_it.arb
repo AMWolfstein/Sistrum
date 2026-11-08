@@ -335,31 +335,8 @@
   "appearanceAccentBlue": "Blu",
   "appearanceAccentPurple": "Viola",
   "appearanceAccentPink": "Rosa",
-  "appearanceGlassClarity": "Vetro trasparente",
   "appearanceGlassOutlines": "Contorni del vetro",
   "appearanceGlassOutlinesSubtitle": "Show decorative edges around Mornye glass. Turning this off keeps blur and refraction.",
-  "appearanceGlassClaritySubtitle": "Adjust transparency in Mornye menus and navigation. Text contrast is preserved.",
-  "appearanceGlassTinted": "Colorato",
-  "appearanceGlassClear": "Cancella",
-  "appearanceGlassClearPerformance": "Il vetro molto trasparente potrebbe consumare più energia e risultare meno fluido sui dispositivi più vecchi. Ridurre la chiarezza se necessario.",
-  "appearanceGlassClarityBlurOff": "Il vetro è opaco su questo dispositivo. Attiva '{setting}' per regolare la chiarezza.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "Il tuo sistema richiede un contrasto maggiore, quindi il vetro rimane opaco. Attiva '{setting}' per utilizzare comunque il vetro; il contrasto del testo viene preservato.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "Usa font di sistema",
   "appearanceUseSystemFontSubtitle": "Utilizza il carattere predefinito del tuo dispositivo per il testo dell'app.",
   "@appearanceStyle": {

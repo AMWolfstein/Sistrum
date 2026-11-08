@@ -186,11 +186,10 @@ extension _ArtistScreenSections on _ArtistScreenState {
                 if (_isLoadingDiscography || hasDiscography)
                   HeaderCircleButton(
                     icon: CupertinoIcons.shuffle,
+                    tonal: true,
                     buttonSize: 50,
                     iconSize: 24,
                     iconColor: colorScheme.primary,
-                    glassTintColor: Colors.white,
-                    glassTintOpacity: 0.10,
                     tooltip: context.l10n.actionShuffle,
                     onPressed: () => _shuffleArtist(context),
                   ),
@@ -221,11 +220,10 @@ extension _ArtistScreenSections on _ArtistScreenState {
                   icon: isFavoriteArtist
                       ? CupertinoIcons.star_fill
                       : CupertinoIcons.star,
+                  tonal: true,
                   buttonSize: 50,
                   iconSize: 24,
                   iconColor: colorScheme.primary,
-                  glassTintColor: Colors.white,
-                  glassTintOpacity: 0.10,
                   tooltip: isFavoriteArtist
                       ? context.l10n.artistOptionRemoveFromFavorites
                       : context.l10n.artistOptionAddToFavorites,

@@ -1,4 +1,4 @@
-import 'dart:ui' show ImageFilter, lerpDouble;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +8,7 @@ import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/mornye_glass_press.dart';
 import 'package:mornye/widgets/mornye_selection_pill.dart';
+import 'package:mornye/widgets/mornye_glass_lens_fade.dart';
 import 'package:mornye/widgets/mornye_liquid_backdrop.dart';
 import 'package:mornye/widgets/mornye_squircle_border.dart';
 import 'package:mornye/widgets/animation_utils.dart';
@@ -59,9 +60,7 @@ class MornyeSegmentedControl extends ConsumerWidget {
               // over an opaque toolbar it only refracts a flat fill, so desktop
               // skips it.
               liquidInteraction:
-                  !isDesktopPlatform &&
-                  ref.watch(mornyeLiquidGlassProvider) &&
-                  MornyeTheme.glassClarityOf(context) > 0.2,
+                  !isDesktopPlatform && ref.watch(mornyeLiquidGlassProvider),
               labels: labels,
               selectedIndex: selectedIndex,
               onChanged: onChanged,
@@ -113,7 +112,10 @@ class MornyeGlassPanel extends ConsumerWidget {
     this.tintOpacity = 0.78,
     this.tintColor,
     this.blurEnabled = true,
-    this.samplesBackdrop = true,
+    // Overlays carry a strong tint, so the page behind them is barely visible:
+    // they keep the tint and skip the backdrop read and blur. Pass true to
+    // sample anyway.
+    this.samplesBackdrop = false,
     this.highlightBorder = false,
     this.smoothCorners = false,
     this.highlightIntensity = 1,
@@ -178,18 +180,6 @@ class MornyeGlass extends ConsumerWidget {
     this.glassProgress = 1,
   });
 
-  // Quantized and shared across surfaces. Avoid composed color filters and
-  // rebuilding a Gaussian filter for each clarity-slider animation frame.
-  static const _blurSigmas = [2.0, 3.0, 6.0, 16.0];
-  static final _blurs = [
-    for (final sigma in _blurSigmas)
-      ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-  ];
-
-  /// Host tests cannot run shader filters; this lets them build the lens.
-  @visibleForTesting
-  static bool? debugShaderFilterSupport;
-
   final Widget child;
   final bool blurEnabled;
   final double radius;
@@ -214,14 +204,12 @@ class MornyeGlass extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final clarity = MornyeTheme.glassClarityOf(context);
     final level = ref.watch(mornyeGlassLevelProvider);
     final reveal = glassProgress.clamp(0.0, 1.0);
     final translucent =
         reveal > 0 &&
         blurEnabled &&
         level != MornyeGlassLevel.flat &&
-        clarity > 0 &&
         !ref.watch(
           mornyeGlassContrastBlockedProvider(
             MediaQuery.highContrastOf(context),
@@ -265,46 +253,31 @@ class MornyeGlass extends ConsumerWidget {
           Colors.black.withValues(alpha: 0.35),
         );
       }
-      // Let the upper end of the clarity slider reveal more of the page. Keep
-      // the tinted endpoint opaque and the single-pass blur budget unchanged.
-      final tintStrength = (1 - clarity) * (1 - clarity);
-      tint = Color.alphaBlend(
-        scheme.surfaceContainerHigh.withValues(alpha: tintStrength),
-        baseTint,
-      );
+      tint = baseTint;
     }
     final insideGlass =
         context.dependOnInheritedWidgetOfExactType<_GlassBackdropScope>() !=
         null;
-    // At low clarity the tint obscures almost all detail. In particular, 10%
-    // must not suddenly enable backdrop sampling on a mid-range GPU.
-    final blurThreshold = level == MornyeGlassLevel.frosted ? 0.5 : 0.2;
-    final sampleBackdrop =
-        translucent &&
-        samplesBackdrop &&
-        !insideGlass &&
-        clarity > blurThreshold;
-    final useLens =
-        sampleBackdrop &&
+    // Header buttons fade their lens out as the header collapses into a flat
+    // bar; everything else reads 1.
+    final lensFade = MornyeGlassLensFade.opacityOf(context);
+    final canSample = translucent && samplesBackdrop && !insideGlass;
+    final sampleBackdrop = canSample && lensFade > 0;
+    final lensEligible =
+        canSample &&
         firstInGroup &&
         lastInGroup &&
         level == MornyeGlassLevel.liquid &&
-        (debugShaderFilterSupport ?? ImageFilter.isShaderFilterSupported);
-    // Clear glass softens the backdrop less. Keep the mid-range fallback at
-    // its small blur budget, and reuse these filters in the lens renderer too.
-    final filterIndex = level == MornyeGlassLevel.frosted
-        ? 1
-        : clarity >= 0.9
-        ? 0
-        : clarity >= 0.6
-        ? 2
-        : 3;
+        MornyeGlassRules.shaderLensSupported;
+    final useLens = lensEligible && lensFade > 0;
     final clearFill = (dark ? const Color(0xff999999) : Colors.white)
         .withValues(alpha: dark ? 0.17 : 0.46);
     final fill = Color.lerp(
       scheme.surfaceContainerHigh,
-      useLens && !strongTint
-          ? Color.lerp(tint, clearFill, ((clarity - 0.2) / 0.8).clamp(0, 1))
+      // A fading header lens blends its clear fill back to the tint, so the
+      // fill is continuous when the lens is removed.
+      lensEligible && !strongTint
+          ? Color.lerp(tint, clearFill, lensFade)!
           : tint,
       reveal,
     );
@@ -329,11 +302,11 @@ class MornyeGlass extends ConsumerWidget {
     final lens = useLens
         ? MornyeLiquidBackdrop(
             borderRadius: shape,
-            clarity: clarity,
-            blurSigma: _blurSigmas[filterIndex],
+            blurSigma: MornyeGlassRules.blurSigma(level),
             refractionDepth: refractionDepth * reveal,
             smoothCorners: squircle,
             highlightIntensity: highlightIntensity * reveal,
+            opacity: lensFade,
             child: surface,
           )
         : null;
@@ -345,7 +318,10 @@ class MornyeGlass extends ConsumerWidget {
               ? LiquidGlassBatch(child: lens)
               : lens
         : sampleBackdrop
-        ? BackdropFilter.grouped(filter: _blurs[filterIndex], child: surface)
+        ? BackdropFilter.grouped(
+            filter: MornyeGlassRules.blurFilter(level),
+            child: surface,
+          )
         : surface;
     return DecoratedBox(
       decoration: squircle
@@ -611,7 +587,6 @@ class MornyeTabBar extends ConsumerWidget {
   }) =>
       blurEnabled &&
       liquidGlass &&
-      MornyeTheme.glassClarityOf(context) > 0 &&
       !MediaQuery.disableAnimationsOf(context) &&
       !contrastBlocked;
 
@@ -633,8 +608,7 @@ class MornyeTabBar extends ConsumerWidget {
         contrastBlocked: contrastBlocked,
         selectionColor: scheme.primary,
         maskItemForeground: false,
-        liquidInteraction:
-            floating && MornyeTheme.glassClarityOf(context) > 0.2,
+        liquidInteraction: floating,
         labels: [for (final destination in destinations) destination.label],
         selectedIndex: selectedIndex,
         onChanged: onSelected,

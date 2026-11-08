@@ -186,6 +186,7 @@ class AppSettings {
   /// profile disabled it for this device tier. Off means "follow the
   /// device default".
   final bool forceBackdropBlur;
+
   final String
   extensionVerificationBrowserMode; // 'external_first' or 'in_app_first'
   final String locale;

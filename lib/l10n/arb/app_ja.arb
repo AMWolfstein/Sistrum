@@ -335,31 +335,8 @@
   "appearanceAccentBlue": "Blue",
   "appearanceAccentPurple": "Purple",
   "appearanceAccentPink": "Pink",
-  "appearanceGlassClarity": "ガラスの透明度",
   "appearanceGlassOutlines": "ガラスの輪郭",
   "appearanceGlassOutlinesSubtitle": "Mornyeガラスの周りに装飾的な縁を表示します。オフにすると、ぼやけて屈折します。",
-  "appearanceGlassClaritySubtitle": "Mornyeメニューとナビゲーションの透明度を調整します。テキストコントラストは保持されます。",
-  "appearanceGlassTinted": "Tinted",
-  "appearanceGlassClear": "消去",
-  "appearanceGlassClearPerformance": "Very clear glass may use more power and feel less smooth on older devices. Lower clarity if needed.",
-  "appearanceGlassClarityBlurOff": "Glass is opaque on this device. Turn on “{setting}” to adjust clarity.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "appearanceGlassClarityHighContrast": "Your system requests increased contrast, so glass stays opaque. Turn on “{setting}” to use glass anyway; text contrast is preserved.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
   "appearanceUseSystemFont": "システムフォントを使用",
   "appearanceUseSystemFontSubtitle": "アプリのテキストにデバイスのデフォルトのフォントを使用します。",
   "@appearanceStyle": {

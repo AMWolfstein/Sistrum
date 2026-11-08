@@ -31,14 +31,7 @@ const int kMaxLyricsOffsetMs = 2000;
 int normalizeLyricsOffsetMs(num? value) => value != null && value.isFinite
     ? value.round().clamp(-kMaxLyricsOffsetMs, kMaxLyricsOffsetMs)
     : 0;
-const String kMornyeGlassClarityKey = 'mornye_glass_clarity';
 const String kMornyeGlassOutlinesKey = 'mornye_glass_outlines';
-const double kDefaultMornyeGlassClarity = 0.75;
-
-double normalizeMornyeGlassClarity(num? value) =>
-    value != null && value.isFinite
-    ? value.toDouble().clamp(0.0, 1.0)
-    : kDefaultMornyeGlassClarity;
 
 enum AppThemeStyle { material, mornye }
 
@@ -76,7 +69,6 @@ class ThemeSettings {
   final double lyricsTextScale;
   final double lyricsBlur;
   final int lyricsOffsetMs;
-  final double mornyeGlassClarity;
   final bool mornyeGlassOutlines;
 
   const ThemeSettings({
@@ -92,7 +84,6 @@ class ThemeSettings {
     this.lyricsTextScale = 1,
     this.lyricsBlur = 1,
     this.lyricsOffsetMs = 0,
-    this.mornyeGlassClarity = kDefaultMornyeGlassClarity,
     this.mornyeGlassOutlines = true,
   });
 
@@ -111,7 +102,6 @@ class ThemeSettings {
     double? lyricsTextScale,
     double? lyricsBlur,
     int? lyricsOffsetMs,
-    double? mornyeGlassClarity,
     bool? mornyeGlassOutlines,
   }) {
     return ThemeSettings(
@@ -131,9 +121,6 @@ class ThemeSettings {
       lyricsOffsetMs: normalizeLyricsOffsetMs(
         lyricsOffsetMs ?? this.lyricsOffsetMs,
       ),
-      mornyeGlassClarity: normalizeMornyeGlassClarity(
-        mornyeGlassClarity ?? this.mornyeGlassClarity,
-      ),
       mornyeGlassOutlines: mornyeGlassOutlines ?? this.mornyeGlassOutlines,
     );
   }
@@ -151,7 +138,6 @@ class ThemeSettings {
     kLyricsTextScaleKey: lyricsTextScale,
     kLyricsBlurKey: lyricsBlur,
     kLyricsOffsetKey: lyricsOffsetMs,
-    kMornyeGlassClarityKey: mornyeGlassClarity,
     kMornyeGlassOutlinesKey: mornyeGlassOutlines,
   };
 
@@ -171,9 +157,6 @@ class ThemeSettings {
       ),
       lyricsBlur: normalizeLyricsBlur(json[kLyricsBlurKey] as num?),
       lyricsOffsetMs: normalizeLyricsOffsetMs(json[kLyricsOffsetKey] as num?),
-      mornyeGlassClarity: normalizeMornyeGlassClarity(
-        json[kMornyeGlassClarityKey] as num?,
-      ),
       mornyeGlassOutlines: json[kMornyeGlassOutlinesKey] as bool? ?? true,
     );
   }
@@ -194,7 +177,6 @@ class ThemeSettings {
         other.lyricsTextScale == lyricsTextScale &&
         other.lyricsBlur == lyricsBlur &&
         other.lyricsOffsetMs == lyricsOffsetMs &&
-        other.mornyeGlassClarity == mornyeGlassClarity &&
         other.mornyeGlassOutlines == mornyeGlassOutlines;
   }
 
@@ -212,7 +194,6 @@ class ThemeSettings {
       lyricsTextScale.hashCode ^
       lyricsBlur.hashCode ^
       lyricsOffsetMs.hashCode ^
-      mornyeGlassClarity.hashCode ^
       mornyeGlassOutlines.hashCode;
 }
 
