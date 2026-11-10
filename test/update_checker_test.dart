@@ -24,7 +24,7 @@ Map<String, Object?> release(String version) => {
   'published_at': '2026-09-26T06:32:33Z',
   'html_url': 'https://github.com/mornyeapp/Mornye/releases/tag/v$version',
   'assets': [
-    for (final abi in ['arm32', 'arm64'])
+    for (final abi in ['x86_64', 'arm64'])
       {
         'name': 'Mornye-v$version-$abi.apk',
         'browser_download_url':
@@ -61,56 +61,91 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  for (final (abi, asset) in [
-    ('arm64-v8a', 'arm64'),
-    ('armeabi-v7a', 'arm32'),
-  ]) {
-    test('5.0.0 discovers 5.0.5 despite a recent cache ($abi)', () async {
-      SharedPreferences.setMockInitialValues({
-        'update_checker_releases_json': jsonEncode([release('5.0.0')]),
-        'update_checker_releases_fetched_at':
-            DateTime.now().millisecondsSinceEpoch,
-        'update_checker_releases_etag': '"old-release-list"',
-      });
-      var requests = 0;
-      final checker = UpdateChecker(
-        installedVersion: '5.0.0',
-        isAndroid: true,
-        supportedAbis: [abi],
-        client: MockClient((request) async {
-          requests++;
-          expect(request.headers['If-None-Match'], '"old-release-list"');
-          return http.Response(
-            jsonEncode([release('5.0.5'), release('5.0.0')]),
-            200,
-            headers: {'etag': '"new-release-list"'},
-          );
-        }),
-      );
-
-      final update = await checker.checkForUpdate();
-      expect(requests, 1);
-      expect(update?.version, '5.0.5');
-      expect(update?.apkDownloadUrl, endsWith('v5.0.5-$asset.apk'));
-      expect(update?.releasesBehind, 1);
-      expect(update?.apkSha256, List.filled(64, 'a').join());
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        (await cached())['update_checker_releases_etag'],
-        '"new-release-list"',
-      );
-      expect(
-        (await cached())['update_checker_releases_json'],
-        contains('v5.0.5'),
-      );
-      expect(prefs.getKeys(), isEmpty);
+  test('5.0.0 discovers 5.0.5 despite a recent cache', () async {
+    SharedPreferences.setMockInitialValues({
+      'update_checker_releases_json': jsonEncode([release('5.0.0')]),
+      'update_checker_releases_fetched_at':
+          DateTime.now().millisecondsSinceEpoch,
+      'update_checker_releases_etag': '"old-release-list"',
     });
-  }
+    var requests = 0;
+    final checker = UpdateChecker(
+      installedVersion: '5.0.0',
+      client: MockClient((request) async {
+        requests++;
+        expect(request.headers['If-None-Match'], '"old-release-list"');
+        return http.Response(
+          jsonEncode([release('5.0.5'), release('5.0.0')]),
+          200,
+          headers: {'etag': '"new-release-list"'},
+        );
+      }),
+    );
+
+    final update = await checker.checkForUpdate();
+    expect(requests, 1);
+    expect(update?.version, '5.0.5');
+    expect(update?.apkDownloadUrl, endsWith('v5.0.5-arm64.apk'));
+    expect(update?.releasesBehind, 1);
+    expect(update?.apkSha256, List.filled(64, 'a').join());
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      (await cached())['update_checker_releases_etag'],
+      '"new-release-list"',
+    );
+    expect(
+      (await cached())['update_checker_releases_json'],
+      contains('v5.0.5'),
+    );
+    expect(prefs.getKeys(), isEmpty);
+  });
+
+  test('the arm64 APK is offered without reading the device ABIs', () async {
+    final checker = UpdateChecker(
+      installedVersion: '5.0.0',
+      client: MockClient(
+        (_) async => http.Response(
+          jsonEncode([release('5.0.5'), release('5.0.0')]),
+          200,
+        ),
+      ),
+    );
+
+    final update = await checker.checkForUpdate();
+    expect(update?.version, '5.0.5');
+    expect(update?.apkDownloadUrl, endsWith('v5.0.5-arm64.apk'));
+    expect(update?.noCompatibleApk, isFalse);
+  });
+
+  test('a newer release without an arm64 APK is a typed no-match', () async {
+    final wrongAbiOnly = release('5.0.5')
+      ..['assets'] = [
+        {
+          'name': 'Mornye-v5.0.5-x86_64.apk',
+          'browser_download_url':
+              'https://example.test/Mornye-v5.0.5-x86_64.apk',
+          'digest': 'sha256:${List.filled(64, 'a').join()}',
+        },
+      ];
+    final checker = UpdateChecker(
+      installedVersion: '5.0.0',
+      client: MockClient(
+        (_) async =>
+            http.Response(jsonEncode([wrongAbiOnly, release('5.0.0')]), 200),
+      ),
+    );
+
+    final update = await checker.checkForUpdate();
+    expect(update?.version, '5.0.5');
+    expect(update?.apkDownloadUrl, isNull);
+    expect(update?.apkSha256, isNull);
+    expect(update?.noCompatibleApk, isTrue);
+  });
 
   test('discovers Mornye release assets after the app rename', () async {
     final renamedRelease = release('5.2.1')
       ..['assets'] = [
-        for (final abi in ['arm32', 'arm64'])
+        for (final abi in ['x86_64', 'arm64'])
           {
             'name': 'Mornye-5.2.1-$abi.apk',
             'browser_download_url':
@@ -120,8 +155,6 @@ void main() {
       ];
     final checker = UpdateChecker(
       installedVersion: '5.2.0',
-      isAndroid: true,
-      supportedAbis: ['arm64-v8a'],
       client: MockClient(
         (_) async => http.Response(jsonEncode([renamedRelease]), 200),
       ),
@@ -140,8 +173,6 @@ void main() {
       var requests = 0;
       final checker = UpdateChecker(
         installedVersion: '5.0.0',
-        isAndroid: true,
-        supportedAbis: ['arm64-v8a'],
         client: MockClient((request) async {
           requests++;
           if (requests == 1) {
@@ -170,9 +201,7 @@ void main() {
     final requestStarted = Completer<void>();
     final response = Completer<http.Response>();
     final delayed = UpdateChecker(
-      isAndroid: true,
       installedVersion: '5.0.0',
-      supportedAbis: ['arm64-v8a'],
       client: MockClient((request) {
         expect(request.headers['If-None-Match'], '"old"');
         requestStarted.complete();
@@ -182,9 +211,7 @@ void main() {
     final waiting = delayed.checkForUpdate();
     await requestStarted.future;
     final newer = UpdateChecker(
-      isAndroid: true,
       installedVersion: '5.0.0',
-      supportedAbis: ['arm64-v8a'],
       client: MockClient(
         (_) async => http.Response(
           jsonEncode([release('5.0.6')]),
@@ -210,8 +237,6 @@ void main() {
       });
       final checker = UpdateChecker(
         installedVersion: '5.0.0',
-        isAndroid: true,
-        supportedAbis: ['arm64-v8a'],
         client: MockClient(
           (_) async => http.Response(jsonEncode([release('5.0.5')]), 200),
         ),
@@ -230,8 +255,6 @@ void main() {
       });
       final checker = UpdateChecker(
         installedVersion: '5.0.0',
-        isAndroid: true,
-        supportedAbis: ['arm64-v8a'],
         client: MockClient((_) async {
           if (failure == 'offline') throw http.ClientException('Offline');
           if (failure == 'rate limit') return http.Response('Limited', 403);
@@ -259,8 +282,6 @@ void main() {
       });
       final checker = UpdateChecker(
         installedVersion: '5.0.0',
-        isAndroid: true,
-        supportedAbis: ['armeabi-v7a'],
         client: MockClient((_) async => throw http.ClientException('Offline')),
       );
       expect((await checker.checkForUpdate())?.version, '5.0.5');
@@ -276,8 +297,6 @@ void main() {
       });
       final checker = UpdateChecker(
         installedVersion: '5.0.0',
-        isAndroid: true,
-        supportedAbis: ['arm64-v8a'],
         client: MockClient((request) async {
           expect(request.headers['If-None-Match'], isNull);
           return http.Response(jsonEncode([release('5.0.5')]), 200);
@@ -290,8 +309,6 @@ void main() {
   test('stable skips previews and counts only newer stable releases', () async {
     final checker = UpdateChecker(
       installedVersion: '4.9.5',
-      isAndroid: true,
-      supportedAbis: ['arm64-v8a'],
       client: MockClient(
         (_) async => http.Response(
           jsonEncode([
@@ -319,7 +336,6 @@ void main() {
     () async {
       final checker = UpdateChecker(
         installedVersion: '5.0.5',
-        isAndroid: true,
         client: MockClient(
           (_) async => http.Response(jsonEncode([release('5.0.5')]), 200),
         ),
@@ -327,17 +343,6 @@ void main() {
       expect(await checker.checkForUpdate(), isNull);
     },
   );
-
-  test('non-Android platforms do not request or offer an APK', () async {
-    final checker = UpdateChecker(
-      installedVersion: '5.0.0',
-      isAndroid: false,
-      client: MockClient(
-        (_) async => throw StateError('Unexpected network request'),
-      ),
-    );
-    expect(await checker.checkForUpdate(), isNull);
-  });
 
   for (final mornye in [false, true]) {
     testWidgets(
@@ -349,8 +354,6 @@ void main() {
         addTearDown(tester.view.resetDevicePixelRatio);
         final checker = UpdateChecker(
           installedVersion: '5.0.0',
-          isAndroid: true,
-          supportedAbis: ['arm64-v8a'],
           client: MockClient(
             (_) async => http.Response(jsonEncode([release('5.0.5')]), 200),
           ),
@@ -400,7 +403,7 @@ void main() {
     );
   }
 
-  testWidgets('installs without a package offer the release page', (
+  testWidgets('a release without an arm64 APK offers the release page', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -420,9 +423,9 @@ void main() {
                   context,
                   updateInfo: UpdateInfo(
                     version: '5.3.0',
-                    changelog: '- Desktop builds',
+                    changelog: '- Android builds',
                     downloadUrl: 'https://example.test/releases/v5.3.0',
-                    installKind: UpdateInstallKind.releasePage,
+                    noCompatibleApk: true,
                   ),
                   onDisableUpdates: () {},
                 ),

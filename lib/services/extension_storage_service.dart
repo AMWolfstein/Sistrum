@@ -2,31 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:mornye/services/secure_storage_options.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 const _extensionMasterKeyName = 'extension_storage_master_key_v2';
-const _localMasterKeyFileName = '.master_key_unsecured';
-
-enum ExtensionStorageModeFailure { keyringRequired, conflictingKeys }
-
-class ExtensionStorageModeException implements Exception {
-  const ExtensionStorageModeException(this.reason);
-
-  final ExtensionStorageModeFailure reason;
-
-  @override
-  String toString() => switch (reason) {
-    ExtensionStorageModeFailure.keyringRequired =>
-      'Unlock the keyring once to move existing encrypted extension data.',
-    ExtensionStorageModeFailure.conflictingKeys =>
-      'The local and keyring extension keys differ. Both have been preserved.',
-  };
-}
 
 class ExtensionStoragePaths {
   const ExtensionStoragePaths({
@@ -45,112 +26,10 @@ class ExtensionStorageService {
 
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
     aOptions: secureStorageAndroidOptions,
-    mOptions: secureStorageMacOsOptions,
   );
   static Future<ExtensionStoragePaths>? _preparing;
-  static Future<void>? _changingMode;
-
-  static bool get supportsUnsecuredStorage =>
-      isDesktopPlatform && defaultTargetPlatform == TargetPlatform.linux;
-
-  @visibleForTesting
-  static void resetForTesting() {
-    _preparing = null;
-    _changingMode = null;
-  }
-
-  static Future<bool> isUnsecuredStorageEnabled() async {
-    if (!supportsUnsecuredStorage) return false;
-    await _changingMode;
-    final support = await getApplicationSupportDirectory();
-    return await _readLocalMasterKey(
-          Directory(p.join(support.path, 'extension_data')),
-        ) !=
-        null;
-  }
-
-  /// The local key file is the durable opt-in. No keyring fallback is automatic.
-  static Future<void> setUnsecuredStorage(bool enabled) {
-    if (!supportsUnsecuredStorage) {
-      return Future.error(
-        UnsupportedError('Unsecured extension storage is Linux-only'),
-      );
-    }
-    final previous = _changingMode;
-    late final Future<void> changing;
-    changing =
-        (() async {
-          if (previous != null) {
-            try {
-              await previous;
-            } catch (_) {}
-          }
-          ExtensionStoragePaths? prepared;
-          try {
-            prepared = await _preparing;
-          } catch (_) {
-            // A failed keyring read must not block an explicit local-storage choice.
-          }
-          _preparing = null;
-          final support = await getApplicationSupportDirectory();
-          final dataDir = Directory(p.join(support.path, 'extension_data'));
-          await dataDir.create(recursive: true);
-          final local = await _readLocalMasterKey(dataDir);
-          if (enabled) {
-            if (local != null) return;
-            String? key = prepared?.masterKey;
-            if (key == null) {
-              try {
-                key = await _secureStorage.read(key: _extensionMasterKeyName);
-              } catch (_) {
-                if (await _hasEncryptedData(dataDir)) {
-                  throw const ExtensionStorageModeException(
-                    ExtensionStorageModeFailure.keyringRequired,
-                  );
-                }
-              }
-            }
-            if (key == null && await _hasEncryptedData(dataDir)) {
-              throw const ExtensionStorageModeException(
-                ExtensionStorageModeFailure.keyringRequired,
-              );
-            }
-            key = key == null ? _generateMasterKey() : _validateMasterKey(key);
-            await _writeLocalMasterKey(dataDir, key);
-          } else if (local != null) {
-            final secured = await _secureStorage.read(
-              key: _extensionMasterKeyName,
-            );
-            if (secured != null && _validateMasterKey(secured) != local) {
-              throw const ExtensionStorageModeException(
-                ExtensionStorageModeFailure.conflictingKeys,
-              );
-            }
-            if (secured == null) {
-              await _secureStorage.write(
-                key: _extensionMasterKeyName,
-                value: local,
-              );
-            }
-            if (await _secureStorage.read(key: _extensionMasterKeyName) !=
-                local) {
-              throw StateError(
-                'Could not verify the extension key in the keyring',
-              );
-            }
-            await File(p.join(dataDir.path, _localMasterKeyFileName)).delete();
-          }
-        })().whenComplete(() {
-          _preparing = null;
-          if (identical(_changingMode, changing)) _changingMode = null;
-        });
-    _changingMode = changing;
-    return changing;
-  }
 
   static Future<ExtensionStoragePaths> prepare() {
-    final changing = _changingMode;
-    if (changing != null) return changing.then((_) => prepare());
     return _preparing ??= _prepare().catchError((
       Object error,
       StackTrace stack,
@@ -168,19 +47,18 @@ class ExtensionStorageService {
     final dataDir = Directory(p.join(supportDir.path, 'extension_data'));
 
     // Mobile builds once kept extensions in the app's private Documents
-    // folder. On desktop that folder is the user's own Documents, which never
     // held app storage, so nothing there may be moved.
-    if (!isDesktopPlatform) {
-      final documentsDir = await getApplicationDocumentsDirectory();
-      await _migrateDirectory(
-        Directory(p.join(documentsDir.path, 'extensions')),
-        extensionsDir,
-      );
-      await _migrateDirectory(
-        Directory(p.join(documentsDir.path, 'extension_data')),
-        dataDir,
-      );
-    }
+
+    final documentsDir = await getApplicationDocumentsDirectory();
+    await _migrateDirectory(
+      Directory(p.join(documentsDir.path, 'extensions')),
+      extensionsDir,
+    );
+    await _migrateDirectory(
+      Directory(p.join(documentsDir.path, 'extension_data')),
+      dataDir,
+    );
+
     await extensionsDir.create(recursive: true);
     await dataDir.create(recursive: true);
 
@@ -192,10 +70,6 @@ class ExtensionStorageService {
   }
 
   static Future<String> _loadOrCreateMasterKey(Directory dataDir) async {
-    if (supportsUnsecuredStorage) {
-      final local = await _readLocalMasterKey(dataDir);
-      if (local != null) return local;
-    }
     final existing = await _secureStorage.read(key: _extensionMasterKeyName);
     if (existing != null) {
       return _validateMasterKey(existing);
@@ -255,38 +129,6 @@ class ExtensionStorageService {
     throw StateError(
       'The extension storage key is invalid. Existing extension data has been preserved.',
     );
-  }
-
-  static Future<String?> _readLocalMasterKey(Directory dataDir) async {
-    final file = File(p.join(dataDir.path, _localMasterKeyFileName));
-    final type = await FileSystemEntity.type(file.path, followLinks: false);
-    if (type == FileSystemEntityType.notFound) return null;
-    if (type != FileSystemEntityType.file) {
-      throw FileSystemException('Refusing a non-file extension key', file.path);
-    }
-    return _validateMasterKey(await file.readAsString());
-  }
-
-  static Future<void> _writeLocalMasterKey(
-    Directory dataDir,
-    String key,
-  ) async {
-    final file = File(p.join(dataDir.path, _localMasterKeyFileName));
-    await file.create(exclusive: true);
-    try {
-      // Set owner-only access before writing any key bytes.
-      final permission = await Process.run('chmod', ['600', file.path]);
-      if (permission.exitCode != 0) {
-        throw FileSystemException(
-          'Could not protect the local extension key',
-          file.path,
-        );
-      }
-      await file.writeAsString(key, flush: true);
-    } catch (_) {
-      await file.delete();
-      rethrow;
-    }
   }
 
   static Future<void> _migrateDirectory(
@@ -359,7 +201,6 @@ class ExtensionStorageService {
       try {
         await temporary.rename(target.path);
       } on FileSystemException {
-        // Windows cannot atomically replace an existing file. Mobile platforms
         // take the first branch; this fallback keeps development migrations
         // functional while retaining the source until replacement succeeds.
         if (!await target.exists()) rethrow;

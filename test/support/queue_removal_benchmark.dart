@@ -3,7 +3,6 @@ import 'dart:isolate';
 import 'package:mornye/models/download_item.dart';
 import 'package:mornye/models/track.dart';
 import 'package:mornye/providers/download_queue_state.dart';
-import 'package:mornye/utils/chunked_list.dart';
 
 Future<DownloadQueueState> queueRemovalFixture(int count) => Isolate.run(() {
   return const DownloadQueueState().copyWith(
@@ -38,35 +37,6 @@ DownloadQueueState legacyRemoveQueueItem(DownloadQueueState state, String id) {
   return result;
 }
 
-Map<String, int> queueRemovalPhases(DownloadQueueState initial, int count) {
-  var state = initial;
-  var filtering = 0;
-  var chunks = 0;
-  var lookup = 0;
-  final total = Stopwatch()..start();
-  for (var i = 0; i < count; i++) {
-    final watch = Stopwatch()..start();
-    final id = 'item-$i';
-    final removed = state.items.where((item) => item.id == id).firstOrNull;
-    final items = state.items.where((item) => item.id != id).toList();
-    filtering += watch.elapsedMicroseconds;
-    watch.reset();
-    final snapshot = ChunkedList<DownloadItem>.from(items);
-    chunks += watch.elapsedMicroseconds;
-    watch.reset();
-    final index = DownloadQueueLookup.fromItems(snapshot);
-    lookup += watch.elapsedMicroseconds;
-    state = state.copyWith(items: snapshot, lookup: index);
-    if (removed == null) throw StateError('Missing fixture item');
-  }
-  return {
-    'total_us': total.elapsedMicroseconds,
-    'filter_us': filtering,
-    'chunks_us': chunks,
-    'lookup_us': lookup,
-    'remaining': state.items.length,
-  };
-}
 
 ({int microseconds, DownloadQueueState state}) queueRemovalRun(
   DownloadQueueState initial, {

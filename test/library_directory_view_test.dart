@@ -1,6 +1,4 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/l10n/l10n.dart';
@@ -16,13 +14,9 @@ import 'package:mornye/services/library_directory_index.dart';
 import 'package:mornye/services/playable_media.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/hover_play_button.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
 import 'package:mornye/widgets/library_directory_view.dart';
 import 'package:mornye/widgets/library_track_selection_bar.dart';
 import 'package:mornye/widgets/track_card.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -76,10 +70,7 @@ Future<_Playback> _pump(
   UnifiedLibraryItem Function(String id) song = _item,
   Widget? home,
   bool mornye = false,
-  bool desktop = false,
 }) async {
-  debugDesktopPlatformOverride = desktop;
-  addTearDown(() => debugDesktopPlatformOverride = null);
   tester.view.physicalSize = const Size(1000, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -226,135 +217,6 @@ void main() {
     expect(find.widgetWithText(TrackCard, 'Album B'), findsOneWidget);
   });
 
-  testWidgets('desktop lists the songs in the song table', (tester) async {
-    final playback = await _pump(
-      tester,
-      desktop: true,
-      index: _index({'a1': _paths['a1']!, 'a2': _paths['a2']!}),
-    );
-
-    expect(find.byType(SliverTrackTable), findsOneWidget);
-    await tester.tap(find.text('Song a2'));
-    await tester.pumpAndSettle();
-    expect(playback.queues.single, [_paths['a1'], _paths['a2']]);
-    expect(playback.starts.single, 1);
-
-    final gesture = await tester.startGesture(
-      tester.getCenter(find.text('Song a1')),
-      kind: PointerDeviceKind.mouse,
-      buttons: kSecondaryMouseButton,
-    );
-    await gesture.up();
-    await tester.pumpAndSettle();
-    expect(find.text('Play next'), findsOneWidget);
-  });
-
-  testWidgets('a click keeps every song table row; the quality label setting '
-      'or a reload rebuilds them', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    const count = 3000;
-    UnifiedLibraryItem song(String id) =>
-        UnifiedLibraryItem.fromDownloadHistory(
-          DownloadHistoryItem(
-            id: id,
-            trackName: 'Song $id',
-            artistName: 'Artist',
-            albumName: 'Album',
-            filePath: '$_root/Flat/$id.flac',
-            service: 'example-provider',
-            downloadedAt: DateTime(2026, 10, 24),
-            bitDepth: 24,
-            sampleRate: 96000,
-            format: 'flac',
-          ),
-        );
-    await _pump(
-      tester,
-      desktop: true,
-      song: song,
-      index: _index({
-        for (var i = 0; i < count; i++) '$i': '$_root/Flat/$i.flac',
-      }),
-    );
-    List<TrackTableRow> rows() =>
-        tester.widget<SliverTrackTable>(find.byType(SliverTrackTable)).rows;
-    int rebuilt(List<TrackTableRow> before) {
-      final kept = Set<TrackTableRow>.identity()..addAll(before);
-      return rows().where((row) => !kept.contains(row)).length;
-    }
-
-    final loaded = rows();
-    expect(loaded, hasLength(count));
-    expect(loaded.first.quality, '24-bit');
-
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
-    await tester.tap(find.text('Song 0'));
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-    await tester.pumpAndSettle();
-    final table = tester.widget<SliverTrackTable>(
-      find.byType(SliverTrackTable),
-    );
-    expect(table.selectedIds, {'dl_0'});
-    expect(table.rows, same(loaded));
-
-    final container = ProviderScope.containerOf(
-      tester.element(find.byType(LibraryDirectoryView)),
-    );
-    container
-        .read(settingsProvider.notifier)
-        .setLibraryQualityLabelMode(AppSettings.libraryQualityLabelBitDepth);
-    await tester.pumpAndSettle();
-    final relabeled = rows();
-    expect(rebuilt(loaded), count);
-    expect(relabeled.first.quality, '24-bit/96kHz');
-    expect(find.text('24-bit/96kHz'), findsWidgets);
-
-    container.invalidate(libraryDirectoryTracksProvider);
-    await tester.pumpAndSettle();
-    expect(rebuilt(relabeled), count);
-    expect(find.text('Song 0'), findsOneWidget);
-  });
-
-  testWidgets('desktop browses a cover grid into album-style folder pages', (
-    tester,
-  ) async {
-    final playback = await _pump(tester, desktop: true);
-
-    // The folders are a grid of covers above the song table, each part
-    // under its own title.
-    expect(find.byType(TrackCard), findsNothing);
-    expect(find.byType(DesktopHoverPlayButton), findsNWidgets(2));
-    expect(find.text('Folders'), findsNWidgets(2));
-    expect(find.text('Songs'), findsOneWidget);
-    expect(find.text('Song loose'), findsOneWidget);
-
-    final gesture = await tester.startGesture(
-      tester.getCenter(find.text('Artist B')),
-      kind: PointerDeviceKind.mouse,
-      buttons: kSecondaryMouseButton,
-    );
-    await gesture.up();
-    await tester.pumpAndSettle();
-    expect(find.text('Open'), findsOneWidget);
-    expect(find.text('Shuffle'), findsOneWidget);
-    await tester.tapAt(Offset.zero);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Artist A'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Album A'));
-    await tester.pumpAndSettle();
-
-    // An opened folder takes the album pages' header.
-    expect(find.text('$_root/Artist A/Album A'), findsOneWidget);
-    expect(find.text('3 tracks'), findsOneWidget);
-    expect(find.byTooltip('Add to playlist'), findsOneWidget);
-    expect(find.text('Songs'), findsNothing);
-    await tester.tap(find.text('Play'));
-    await tester.pumpAndSettle();
-    expect(playback.queues.single, [_paths['a1'], _paths['a2']]);
-    expect(playback.starts.single, 0);
-  });
 
   test('Folders is a default Library view', () {
     final container = ProviderContainer(

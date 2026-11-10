@@ -40,10 +40,8 @@ pub fn library_cover_stem(key: &str) -> String {
 }
 
 /// Songs that embed the same picture share one stored thumbnail through hard
-/// links on desktop and iOS; every song keeps its own name. Android uses
-/// content names. Windows keeps copies because a reader's sharing mode
 /// covers every name of a file.
-const LINK_THUMBNAILS: bool = cfg!(any(target_vendor = "apple", target_os = "linux"));
+const LINK_THUMBNAILS: bool = cfg!(target_os = "linux");
 
 /// Whether a thumbnail written at `modified` may be reused after the
 /// directory's regenerate marker was touched at `regenerate`.
@@ -854,6 +852,14 @@ pub(super) mod tests {
         );
         assert_eq!(std::fs::read(&legacy).unwrap(), pictures[0]);
 
+        // Coarse filesystem timestamps can give the legacy file and the marker
+        // the same mtime, which keeps the legacy file current.
+        std::fs::File::options()
+            .write(true)
+            .open(&legacy)
+            .unwrap()
+            .set_modified(SystemTime::now() - Duration::from_secs(60))
+            .unwrap();
         std::fs::write(cache.join(LIBRARY_COVER_REGENERATE_MARKER), "").unwrap();
         let replacement = backend
             .cache_cover(
@@ -1001,8 +1007,7 @@ pub(super) mod tests {
         std::fs::metadata(path).unwrap().ino()
     }
 
-    /// Desktop and iOS link identical thumbnails; Android keeps copies.
-    const LINKED: bool = cfg!(any(target_vendor = "apple", target_os = "linux"));
+    const LINKED: bool = cfg!(target_os = "linux");
 
     #[cfg(unix)]
     #[test]

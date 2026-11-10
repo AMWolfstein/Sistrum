@@ -21,7 +21,6 @@ typedef DynamicColorSchemes = ({
   material_ui.ColorScheme dark,
 });
 
-/// The system's colors: the Android 12+ wallpaper palette, else the desktop
 /// accent color. Asked once, in the same order as `DynamicColorBuilder`.
 class DynamicColors {
   DynamicColors.request() : future = _read() {

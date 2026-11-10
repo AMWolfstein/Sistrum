@@ -5,8 +5,6 @@ import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/models/track.dart';
 import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/preview_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_icon_button.dart';
 import 'package:mornye/widgets/app_loading_indicator.dart';
 
@@ -14,23 +12,14 @@ class PreviewButton extends ConsumerWidget {
   final Track track;
   final double size;
 
-  /// A 32dp pointer target for desktop table rows.
-  final bool dense;
-
   const PreviewButton({
     super.key,
     required this.track,
     this.size = 24,
-    this.dense = false,
   });
 
-  BoxConstraints get _constraints => dense
-      ? const BoxConstraints(minWidth: 32, minHeight: 32)
-      : const BoxConstraints(minWidth: 48, minHeight: 48);
-
-  ButtonStyle? get _style => dense
-      ? IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap)
-      : null;
+  /// The hit area is always at least 48 dp, whatever the glyph size.
+  static const _constraints = BoxConstraints(minWidth: 48, minHeight: 48);
 
   Future<void> _onPressed(BuildContext context, WidgetRef ref) async {
     try {
@@ -70,7 +59,6 @@ class PreviewButton extends ConsumerWidget {
         iconSize: size,
         padding: EdgeInsets.zero,
         constraints: _constraints,
-        style: _style,
         icon: Icon(
           isPlaying
               ? Icons.pause_circle_filled_rounded
@@ -85,11 +73,7 @@ class PreviewButton extends ConsumerWidget {
       );
     }
 
-    // A preview would need the output that exclusive mode holds.
-    final exclusive =
-        isDesktopPlatform &&
-        ref.watch(settingsProvider.select((s) => s.exclusiveOutput));
-    if (!track.hasPreview || exclusive) return const SizedBox.shrink();
+    if (!track.hasPreview) return const SizedBox.shrink();
 
     final status = ref.watch(
       previewPlayerProvider.select(
@@ -134,7 +118,6 @@ class PreviewButton extends ConsumerWidget {
       iconSize: size,
       padding: EdgeInsets.zero,
       constraints: _constraints,
-      style: _style,
       icon: icon,
       tooltip: tooltip,
       onPressed: () => _onPressed(context, ref),

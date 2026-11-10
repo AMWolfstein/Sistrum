@@ -271,19 +271,7 @@ Future<_PackedTaste> _trainNativePackedTaste(
   }
 }
 
-/// Trains one snapshot on the native worker; persistence stays with Dart.
-Future<AutoplayTasteModel> trainAutoplayTasteInBackground(
-  List<AutoplayTastePlay> plays,
-) async => (await _trainNativePackedTaste(plays)).model;
 
-@visibleForTesting
-Future<AutoplayTasteModel> trainAutoplayTasteDartInBackground(
-  List<AutoplayTastePlay> plays,
-) async => (await compute(
-  _trainPackedTaste,
-  plays,
-  debugLabel: 'autoplay-taste',
-)).model;
 
 class _Position {
   _Position(this.song, this.artist, this.weight);

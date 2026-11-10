@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/android_tv.dart';
 
 const fullPlayerRouteName = '/full-player';
 final _log = AppLogger('Orientation');
@@ -34,13 +33,13 @@ bool get isTabletDevice {
 
 /// Phones rotate in the full player and return to portrait on other pages.
 /// Tablets rotate everywhere, as their layouts adapt to either orientation.
-/// TV stays landscape; sheets and dialogs inherit the underlying orientation.
+/// Sheets and dialogs inherit the underlying orientation.
 Future<void> setAppOrientation({bool playerVisible = false}) {
-  final tablet = !isAndroidTv && isTabletDevice;
+  final tablet = isTabletDevice;
   return SystemChrome.setPreferredOrientations([
-    if (!isAndroidTv) DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitUp,
     if (tablet) DeviceOrientation.portraitDown,
-    if (isAndroidTv || tablet || playerVisible) ...[
+    if (tablet || playerVisible) ...[
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ],

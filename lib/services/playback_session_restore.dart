@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show AudioServiceRepeatMode;
-import 'package:path_provider/path_provider.dart';
 import 'package:mornye/services/cover_store.dart';
 import 'package:mornye/services/music_player_runtime.dart';
 import 'package:mornye/services/playable_media.dart';
@@ -20,12 +19,8 @@ Future<PlaybackResumePreview?> loadPlaybackResumePreview(
     final preview = await runtime.dependencies.sessionDatabase
         .getPlaybackResumePreview();
     if (preview == null || preview['media'] is! Map) return null;
-    final documents = runtime.dependencies.isIOS
-        ? (await getApplicationDocumentsDirectory()).path
-        : null;
     var saved = PlayableMedia.fromJson(
       Map<String, dynamic>.from(preview['media'] as Map),
-      iosDocumentsPath: documents,
     );
     if (saved == null) return null;
     if (!saved.isNetwork && !await files.fileExists(saved.source)) {
@@ -76,7 +71,6 @@ Future<
 >
 prepareRestoredPlaybackMedia(
   List<Object?> rawMedia, {
-  String? iosDocumentsPath,
   required Future<String?> Function(PlayableMedia) loadLibraryCoverPath,
   Future<bool> Function(String)? fileExists,
   Future<String?> Function(PlayableMedia)? recoverSource,
@@ -94,10 +88,7 @@ prepareRestoredPlaybackMedia(
   Future<(PlayableMedia, int, bool, bool)?> resolve(int index) async {
     final entry = rawMedia[index];
     if (entry is! Map) return null;
-    var media = PlayableMedia.fromJson(
-      Map<String, dynamic>.from(entry),
-      iosDocumentsPath: iosDocumentsPath,
-    );
+    var media = PlayableMedia.fromJson(Map<String, dynamic>.from(entry));
     if (media == null) return null;
     var sourceRelocated = false;
     if (!media.isContentUri &&
@@ -192,12 +183,8 @@ Future<bool> restorePlaybackSession(
       return false;
     }
 
-    final iosDocumentsPath = runtime.dependencies.isIOS
-        ? (await getApplicationDocumentsDirectory()).path
-        : null;
     final prepared = await prepareRestoredPlaybackMedia(
       rawMedia,
-      iosDocumentsPath: iosDocumentsPath,
       recoverSource: runtime.dependencies.isAndroid
           ? (media) => runtime.dependencies.recoverMovedDownload(
               media.source,

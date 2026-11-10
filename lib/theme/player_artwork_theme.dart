@@ -17,7 +17,6 @@ class PlayerArtworkPalette {
 
 /// Gives a Material player surface the colour scheme of the current track's
 /// artwork through a local [Theme], so the app chrome around it keeps the
-/// app scheme. The Material desktop detail header scopes its cover or artist
 /// image the same way.
 ///
 /// A cover whose scheme is cached shows it from the first frame. While the

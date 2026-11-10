@@ -147,18 +147,14 @@ pub struct IndexCache {
 
 impl Default for IndexCache {
     fn default() -> Self {
-        Self::with_ttl(Duration::from_secs(5 * 60))
+        Self {
+            state: Mutex::default(),
+            ttl: Duration::from_secs(5 * 60),
+        }
     }
 }
 
 impl IndexCache {
-    pub fn with_ttl(ttl: Duration) -> Self {
-        Self {
-            state: Mutex::default(),
-            ttl,
-        }
-    }
-
     fn cached(&self, directory: &str) -> Option<Arc<Mutex<Index>>> {
         let mut state = self.state.lock().expect("ISRC cache lock");
         state.sequence += 1;

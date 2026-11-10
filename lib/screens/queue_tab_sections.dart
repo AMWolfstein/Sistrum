@@ -190,39 +190,6 @@ extension _QueueTabSections on _QueueTabState {
     });
   }
 
-  /// The sort modes as a checked menu below the sort button, on desktop.
-  /// [anchor] is the button when [context] is not.
-  bool _showSortMenu(BuildContext context, {BuildContext? anchor}) {
-    final position = isDesktopPlatform
-        ? contextMenuPositionBelow(anchor ?? context)
-        : null;
-    if (position == null) return false;
-    showContextMenu(
-      context,
-      position: position,
-      groups: [
-        [
-          for (final mode in _availableLibrarySortModes)
-            ContextMenuAction(
-              icon: switch (mode) {
-                'a-z' || 'z-a' => Icons.sort_by_alpha,
-                'artist-asc' || 'artist-desc' => Icons.person_outline,
-                'album-asc' || 'album-desc' => Icons.album_outlined,
-                'release-newest' || 'release-oldest' => Icons.event_outlined,
-                'genre-asc' || 'genre-desc' => Icons.category_outlined,
-                'size-desc' || 'size-asc' => Icons.storage_outlined,
-                _ => Icons.schedule,
-              },
-              label: _sortLabel(context, mode),
-              checked: mode == _sortMode,
-              onSelected: () => _setSortMode(mode),
-            ),
-        ],
-      ],
-    );
-    return true;
-  }
-
   /// Sort, filter and, given a [viewMode], the list/grid switch of a Library
   /// page. Material 3 Expressive joins them in one connected button group
   /// with the labels and tooltips of the separate buttons, which Mornye and
@@ -246,7 +213,7 @@ extension _QueueTabSections on _QueueTabState {
             label: _sortLabel(context, _sortMode),
             // The menu anchors below the button but opens from the page, so
             // it does not inherit the button's text and icon styles.
-            onPressed: (button) => _showSortSheet(context, anchor: button),
+            onPressed: (_) => _showSortSheet(context),
           ),
           ToolButton(
             icon: Badge(
@@ -297,11 +264,7 @@ extension _QueueTabSections on _QueueTabState {
     builder: (context) => AppScrollableSheet(builder: builder),
   );
 
-  Future<void> _showSortSheet(
-    BuildContext context, {
-    BuildContext? anchor,
-  }) async {
-    if (_showSortMenu(context, anchor: anchor)) return;
+  Future<void> _showSortSheet(BuildContext context) async {
     final selected = await _showLibraryOptionsSheet<String>(
       context,
       builder: (sheetContext, scrollController) => AppBottomSheet(

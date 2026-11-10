@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
-import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons;
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/tv_navigation.dart';
 import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/cover_palette.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/widgets/app_switch.dart';
 import 'package:mornye/widgets/app_checkbox.dart';
@@ -27,8 +25,6 @@ import 'package:mornye/widgets/mornye_chrome.dart';
 import 'package:mornye/widgets/mornye_context_menu.dart';
 import 'package:mornye/widgets/mornye_mix_banner.dart';
 import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/library_search_results.dart';
-import 'package:mornye/screens/mornye_library_screen.dart';
 import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/app_alert_dialog.dart';
 import 'package:mornye/widgets/app_sliver_header.dart';
@@ -47,7 +43,6 @@ import 'package:mornye/providers/recent_access_provider.dart';
 import 'package:mornye/providers/explore_provider.dart';
 import 'package:mornye/providers/home_top_picks_provider.dart';
 import 'package:mornye/providers/user_profile_provider.dart';
-import 'package:mornye/widgets/desktop/desktop_scroll_arrows.dart';
 import 'package:mornye/widgets/explore_featured_section.dart';
 import 'package:mornye/providers/library_counts_provider.dart';
 import 'package:mornye/providers/library_mixes_provider.dart';
@@ -75,17 +70,13 @@ import 'package:mornye/services/cover_download_service.dart';
 import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
 import 'package:mornye/services/shell_navigation_service.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart'
-    show openDesktopNowPlaying;
 import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/utils/home_greeting.dart';
 import 'package:mornye/screens/playlist_screen.dart';
 import 'package:mornye/screens/downloaded_album_screen.dart';
 import 'package:mornye/widgets/download_service_picker.dart';
 import 'package:mornye/widgets/track_collection_quick_actions.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
 import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/widgets/audio_quality_badges.dart';
 import 'package:mornye/widgets/cached_cover_image.dart';
@@ -145,20 +136,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
   static const int _minLiveSearchChars = 3;
   static const Duration _liveSearchDelay = Duration(milliseconds: 800);
 
-  /// The Mornye desktop Search page can switch between the library and the
   /// selected online provider.
-  bool get _offersLibraryScope =>
-      widget.mode == HomeTabMode.search &&
-      context.isMornye &&
-      isDesktopPlatform;
-  bool _searchesLibrary = false;
-  String _libraryQuery = '';
-  Timer? _libraryQueryDebounce;
-  bool get _searchingLibrary => _searchesLibrary && _offersLibraryScope;
-
-  /// Mornye's desktop field uses the compact toolbar size.
-  bool get _compactSearchField => context.isMornye && isDesktopPlatform;
-
   bool _embeddedCoverRefreshScheduled = false;
   List<Extension>? _thumbnailSizesExtensionsCache;
   bool _isCsvImporting = false;
@@ -186,7 +164,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
   List<int>? _sortedTrackIndexesCache;
 
   double _exploreCardSize(BuildContext context) {
-    // Six phone-sized cards across an iPad made the feed look like a desktop
     // page zoomed out. A higher tablet cap gives roughly five generous cards
     // in portrait while leaving all phone sizes unchanged.
     final scale = responsiveScale(context: context, min: 0.82, max: 1.32);
@@ -269,8 +246,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
   }
 
   void _fetchExploreIfNeeded() {
-    // The desktop Mornye Search page browses the feed too.
-    if (!_showsHome && !_offersLibraryScope) return;
+    if (!_showsHome) return;
     if (ref.read(settingsProvider).homeFeedProvider ==
         AppSettings.homeFeedProviderOff) {
       ref.read(exploreProvider.notifier).clear();
@@ -294,7 +270,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
     ShellNavigationService.searchRequests.removeListener(_focusSearchFromShell);
     _homeScrollController.dispose();
     _liveSearchDebounce?.cancel();
-    _libraryQueryDebounce?.cancel();
     _trackStateSub.close();
     _extensionInitSub.close();
     _homeFeedExtSub.close();
@@ -472,23 +447,11 @@ class _HomeTabState extends ConsumerState<HomeTab>
 
     if (text.isEmpty) {
       _liveSearchDebounce?.cancel();
-      _libraryQueryDebounce?.cancel();
-      _libraryQuery = '';
       _activeSearchInput = null;
       _lastSearchQuery = null;
       if (!_isResettingSearchSurface) {
         _resetSearchSurface(clearText: false);
       }
-      return;
-    }
-
-    if (_searchingLibrary) {
-      _libraryQueryDebounce?.cancel();
-      _libraryQueryDebounce = Timer(const Duration(milliseconds: 300), () {
-        if (mounted && _urlController.text.trim() == text) {
-          setState(() => _libraryQuery = text);
-        }
-      });
       return;
     }
 
@@ -894,10 +857,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
         !hasHomeFeedExtension &&
         !hasExploreContent &&
         !hasResults;
-    final searchToolbar = _offersLibraryScope;
-    final showLibraryResults = _searchingLibrary && hasSearchInput;
-    // The library scope waits for input before showing local matches.
-    final showLibraryPrompt = _searchingLibrary && !hasSearchInput;
     final sectionMotion = AppMotion.spatial(
       context,
       const AppMotionSpec(Duration(milliseconds: 250), Curves.easeOut),
@@ -921,7 +880,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
       previous,
       next,
     ) {
-      if (!_showsSearch || _searchingLibrary || previous == next) return;
+      if (!_showsSearch || previous == next) return;
       final selectedSearchFilter = ref.read(
         trackProvider.select((s) => s.selectedSearchFilter),
       );
@@ -966,10 +925,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
             controller: _homeScrollController,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             slivers: [
-              if (searchToolbar)
-                _buildDesktopSearchToolbarSliver()
-              else
-                _buildHeaderSliver(greeting: greeting),
+              _buildHeaderSliver(greeting: greeting),
               if (_showsHome) const SliverToBoxAdapter(child: AppCrashBanner()),
               _buildHomeIntroSliver(
                 sectionMotion: sectionMotion,
@@ -979,28 +935,19 @@ class _HomeTabState extends ConsumerState<HomeTab>
                 screenHeight: screenHeight,
                 showEmptyHomeState: showEmptyHomeState,
               ),
-              if (showSearchBar && !searchToolbar)
+              if (showSearchBar)
                 _buildSearchBarSliver(
                   hasResults: hasResults,
                   showExplore: showFeedSurface,
                   greetsInHeader: greetsInHeader,
                 ),
-              if (hasActiveSearchSurface &&
-                  !showRecentAccess &&
-                  !showLibraryResults)
+              if (hasActiveSearchSurface && !showRecentAccess)
                 _buildSearchFilterSliver(
                   colorScheme: colorScheme,
                   defaultSearchTab: defaultSearchTab,
                 ),
-              if (showRecentAccess && !showLibraryResults && !showLibraryPrompt)
+              if (showRecentAccess)
                 _buildRecentAccessSliver(colorScheme: colorScheme),
-              if (showLibraryResults) _buildLibrarySearchSliver(),
-              if (showLibraryPrompt) _buildLibraryPromptSliver(),
-              if (searchToolbar &&
-                  !hasSearchInput &&
-                  !_searchingLibrary &&
-                  !homeFeedDisabled)
-                _buildBrowseSliver(),
               _buildHomeSectionsSliver(
                 sectionMotion: sectionMotion,
                 hasResults: hasResults,
@@ -1010,7 +957,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
               ),
               if (showExplore) _buildExploreSliver(colorScheme: colorScheme),
               if (showExploreLoading) _buildExploreLoadingSliver(),
-              if (_showsSearch && !showLibraryResults)
+              if (_showsSearch)
                 _buildSearchResultsSliver(
                   colorScheme: colorScheme,
                   hasActiveSearchSurface: hasActiveSearchSurface,
@@ -1024,162 +971,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
     );
   }
 
-  void _setSearchScope({required bool library}) {
-    if (_searchesLibrary == library) return;
-    final text = _urlController.text.trim();
-    _liveSearchDebounce?.cancel();
-    _libraryQueryDebounce?.cancel();
-    setState(() {
-      _searchesLibrary = library;
-      _libraryQuery = library ? text : '';
-    });
-    if (library) {
-      // Online results for the same words would only flash back later.
-      _searchGeneration++;
-      _lastSearchQuery = null;
-      _activeSearchInput = null;
-      ref.read(trackProvider.notifier).clear();
-      ref.read(trackProvider.notifier).setSearchText(text.isNotEmpty);
-    } else if (text.length >= _minLiveSearchChars &&
-        !looksLikeUrlOrSpotifyUri(text)) {
-      _performSearch(text);
-    }
-  }
-
-  /// Centers the search field with the scope control at the trailing edge.
-  Widget _buildDesktopSearchToolbarSliver() {
-    final extensions = ref.watch(extensionProvider.select((s) => s.extensions));
-    final providerId = HomeSearchProviderPolicy.resolveProvider(
-      ref.watch(settingsProvider.select((s) => s.searchProvider)),
-      extensions,
-    );
-    final online =
-        extensions
-            .where((e) => e.id == providerId && e.enabled)
-            .firstOrNull
-            ?.displayName ??
-        context.l10n.librarySourceOnline;
-    // Equal segments, each hugging the longer label.
-    final labelStyle = Theme.of(
-      context,
-    ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600);
-    double labelWidth(String label) {
-      final painter = TextPainter(
-        text: TextSpan(text: label, style: labelStyle),
-        textDirection: Directionality.of(context),
-        textScaler: MediaQuery.textScalerOf(context),
-      )..layout();
-      final width = painter.width;
-      painter.dispose();
-      return width;
-    }
-
-    final scopeWidth =
-        (2 *
-                    (math.max(
-                          labelWidth(online),
-                          labelWidth(context.l10n.navLibrary),
-                        ) +
-                        24) +
-                6)
-            .clamp(150.0, 260.0);
-    const gap = 16.0;
-    final scope = SizedBox(
-      width: scopeWidth,
-      child: MornyeSegmentedControl(
-        key: const ValueKey('search-scope'),
-        compact: true,
-        labels: [online, context.l10n.navLibrary],
-        selectedIndex: _searchesLibrary ? 1 : 0,
-        onChanged: (index) => _setSearchScope(library: index == 1),
-      ),
-    );
-    return SliverAppBar(
-      pinned: true,
-      automaticallyImplyLeading: false,
-      toolbarHeight: 60,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      surfaceTintColor: Colors.transparent,
-      titleSpacing: 0,
-      title: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth - 2 * 24;
-          final centeredField = math.min(480.0, width - 2 * (scopeWidth + gap));
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: centeredField >= 280
-                ? Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(width: centeredField, child: _buildSearchBar()),
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: scope,
-                      ),
-                    ],
-                  )
-                // A narrow window has no room to center the field.
-                : Row(
-                    children: [
-                      Expanded(child: _buildSearchBar()),
-                      const SizedBox(width: gap),
-                      scope,
-                    ],
-                  ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildLibraryPromptSliver() {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SliverFillRemaining(
-      hasScrollBody: false,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppIcon(
-                Icons.search,
-                size: 64,
-                color: colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.searchLibraryPrompt,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLibrarySearchSliver() {
-    return LibrarySearchResults(
-      query: _libraryQuery,
-      shelves: true,
-      onOpenArtist: (artist) => pushPage<void>(
-        context,
-        (_) => Scaffold(
-          body: MornyeLibraryScreen(
-            page: MornyeLibraryPage.albums,
-            artist: artist,
-            onOpenSection: (_) {},
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildHeaderSliver({required String? greeting}) {
     return AppSliverHeader.tabRoot(
       alignToContent: true,
@@ -1187,8 +978,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
       title: widget.mode == HomeTabMode.search
           ? context.l10n.mornyeSearch
           : greeting ?? context.l10n.homeTitle,
-      // The desktop sidebar's account row already opens the profile.
-      actions: context.isMornye && _showsHome && !isDesktopPlatform
+      actions: context.isMornye && _showsHome
           ? const [HomeProfileButton()]
           : null,
     );
@@ -1279,11 +1069,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
             currentSearchProvider,
             extensions,
           );
-          // Section headers are shortcuts; the compact filter menu keeps
-          // every extension-declared filter reachable, even without results.
-          final noChips = wide && isDesktopPlatform && context.isMornye;
-          final showBack = noChips && displayFilter != 'all';
-          if (!showTools && !showBack && searchFilters.isEmpty) {
+          if (!showTools && searchFilters.isEmpty) {
             return const SliverToBoxAdapter(child: SizedBox.shrink());
           }
           final tools = showTools
@@ -1297,20 +1083,12 @@ class _HomeTabState extends ConsumerState<HomeTab>
                 )
               : null;
           return SliverToBoxAdapter(
-            child: noChips
-                ? _buildSearchBackBar(
-                    colorScheme,
-                    showBack: showBack,
-                    filters: searchFilters,
-                    selectedFilter: displayFilter,
-                    tools: tools,
-                  )
-                : _buildSearchFilterBar(
-                    searchFilters,
-                    displayFilter,
-                    colorScheme,
-                    tools: tools,
-                  ),
+            child: _buildSearchFilterBar(
+              searchFilters,
+              displayFilter,
+              colorScheme,
+              tools: tools,
+            ),
           );
         },
       ),
@@ -1427,8 +1205,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
   ) {
     // Phones keep their rows in landscape too. Read here, since the select
     // below runs during layout.
-    final coverLayoutAllowed =
-        isDesktopPlatform || MediaQuery.sizeOf(context).shortestSide >= 600;
+    final coverLayoutAllowed = MediaQuery.sizeOf(context).shortestSide >= 600;
     final inset = homeContentInset(context);
     // Rebuilds only when the layout crosses the breakpoint, not on every
     // scroll frame.

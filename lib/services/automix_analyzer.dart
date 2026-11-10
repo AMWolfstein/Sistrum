@@ -10,7 +10,6 @@ import 'package:mornye/services/ffmpeg_support.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/utils/logger.dart';
 
-/// Only short head/tail windows are decoded. Summaries are bounded in memory;
 /// raw PCM is deleted immediately and is never added to the user's library.
 class AutoMixAnalyzer {
   static const windowSeconds = 24.0;
@@ -62,7 +61,6 @@ class AutoMixAnalyzer {
     _cache.clear();
   }
 
-  /// Retry nearby windows only when the first grid is uncertain. Agreement
   /// with its tempo and phase is required before extrapolating back into the
   /// actual transition window, so a later tempo change cannot move its cue.
   Future<AutoMixBeatGrid?> analyzeTransition(

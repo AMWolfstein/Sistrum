@@ -221,12 +221,6 @@ pub(super) fn private_options() -> OpenOptions {
     }
     // Open a final-component link as itself, like O_NOFOLLOW; callers then
     // reject it as a non-regular file or fail to parse it.
-    #[cfg(windows)]
-    {
-        use cap_std::fs::OpenOptionsExt;
-        use windows_sys::Win32::Storage::FileSystem::FILE_FLAG_OPEN_REPARSE_POINT;
-        options.custom_flags(FILE_FLAG_OPEN_REPARSE_POINT);
-    }
     options
 }
 

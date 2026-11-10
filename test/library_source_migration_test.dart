@@ -55,7 +55,6 @@ void main() {
     displayName: 'Music',
     isRemovable: true,
     available: false,
-    bookmark: 'saved-bookmark',
   );
 
   test(
@@ -65,7 +64,6 @@ void main() {
       await persistLegacyLibrarySource(database, source);
       final restored = database.rows[LibraryDatabase.legacySourceId]!;
       expect(restored['path'], source.path);
-      expect(restored['bookmark'], source.bookmark);
       expect(restored['available'], 0);
       expect(restored['enabled'], 1);
       expect(restored['is_removable'], 1);

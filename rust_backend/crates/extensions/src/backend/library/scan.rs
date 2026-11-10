@@ -981,7 +981,7 @@ mod tests {
         assert_eq!(names.len(), 6);
         assert_eq!(thumbnails(&covers).len(), 6);
         let files: BTreeSet<_> = albums.values().flatten().collect();
-        if cfg!(any(target_vendor = "apple", target_os = "linux")) {
+        if cfg!(target_os = "linux") {
             assert!(albums.values().all(|inodes| inodes.len() == 1));
             assert_eq!(files.len(), 2);
         } else {

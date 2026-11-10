@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/models/library_collections.dart';
@@ -24,15 +23,6 @@ import 'package:mornye/services/library_collections_database.dart';
 import 'package:mornye/services/library_database.dart';
 import 'package:mornye/services/library_search.dart';
 import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/features/link_desktop_remote.dart';
-import 'package:mornye/services/link/features/link_handoff.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/features/link_phone_player.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/features/link_track_resolver.dart';
-import 'package:mornye/services/link/link_protocol.dart';
 import 'package:mornye/services/media_library_browser.dart';
 import 'package:mornye/services/music_player_service.dart';
 import 'package:mornye/services/network_metadata_service.dart';
@@ -48,7 +38,6 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
 
-import 'support/link_fakes.dart';
 import 'support/virtual_time.dart';
 
 /// A NAS download of a three-byte song, held until [release] completes.
@@ -157,81 +146,6 @@ class _Deck implements PlaybackDeck {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _CastDeck extends _Deck {
-  final states = StreamController<PlaybackDeckState>.broadcast(sync: true);
-  final completions = StreamController<void>.broadcast(sync: true);
-
-  @override
-  Stream<PlaybackDeckState> get onPlayerStateChanged => states.stream;
-  @override
-  Stream<void> get onPlayerComplete => completions.stream;
-
-  void remotePlay() {
-    state = PlaybackDeckState.playing;
-    states.add(state);
-  }
-
-  void complete() {
-    state = PlaybackDeckState.completed;
-    states.add(state);
-    completions.add(null);
-  }
-
-  @override
-  Future<void> dispose() async {
-    await states.close();
-    await completions.close();
-    await super.dispose();
-  }
-}
-
-class _QueuedDeck extends _TickingDeck implements QueuedPlaybackDeck {
-  final completions = StreamController<void>.broadcast();
-  void Function()? onStart;
-  String? nextSource;
-  double? nextVolume;
-  bool failQueue = false;
-  int queued = 0;
-
-  @override
-  bool get canQueueNextSource => true;
-  @override
-  Stream<void> get onPlayerComplete => completions.stream;
-  @override
-  Future<bool> queueNextSource(
-    String source, {
-    required double volume,
-    required void Function() onStarted,
-  }) async {
-    queued++;
-    if (failQueue) throw StateError('Native playlist unavailable');
-    nextSource = source;
-    nextVolume = volume;
-    onStart = onStarted;
-    return true;
-  }
-
-  @override
-  Future<void> clearNextSource() async {
-    nextSource = null;
-    nextVolume = null;
-    onStart = null;
-  }
-
-  void advance() {
-    nextSource = null;
-    volumes.add(nextVolume!);
-    position = Duration.zero;
-    onStart?.call();
-  }
-
-  @override
-  Future<void> dispose() async {
-    await completions.close();
-    await super.dispose();
-  }
-}
-
 class _DelayedSeekDeck extends _Deck {
   final seekStarted = Completer<void>();
   final seekBarrier = Completer<void>();
@@ -266,33 +180,6 @@ class _TickingDeck extends _Deck {
   Future<void> dispose() async {
     await positionEvents.close();
     await super.dispose();
-  }
-}
-
-class _HandoffDeck extends _TickingDeck {
-  final preparing = Completer<void>();
-  final prepared = Completer<void>();
-  final resumedPositions = <Duration>[];
-
-  @override
-  Future<void> setFileSource(
-    String path, {
-    bool preferBitPerfect = false,
-    bool directUsb = false,
-    bool allowDop = false,
-    bool requiresDsd = false,
-    bool allowFixedVolume = false,
-    bool dapExclusive = false,
-  }) async {
-    await super.setFileSource(path);
-    preparing.complete();
-    await prepared.future;
-  }
-
-  @override
-  Future<void> resume() async {
-    resumedPositions.add(position);
-    await super.resume();
   }
 }
 
@@ -671,7 +558,6 @@ MusicPlayerRuntime _runtime({
   AutoplayPersonalization Function()? createPersonalization,
   AutoplayTaste Function()? createTaste,
   AutoplayRanker Function()? createRanker,
-  bool isIOS = false,
   bool isAndroid = false,
   Future<void> Function()? synchronizePlaybackState,
   _Session? session,
@@ -743,7 +629,6 @@ MusicPlayerRuntime _runtime({
       sourceDeletionEvents: sourceDeletionEvents ?? SourceDeletionEvents(),
       sourceMetadataEvents: sourceMetadataEvents ?? SourceMetadataEvents(),
       isAndroid: isAndroid,
-      isIOS: isIOS,
     ),
   );
   addTearDown(runtime.dispose);
@@ -764,190 +649,7 @@ const _track = PlayableMedia(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('exclusive gapless advances metadata on one continuous deck', () async {
-    final deck = _QueuedDeck();
-    var created = 0;
-    final runtime = _runtime(
-      settings: const AppSettings(
-        pauseOnMute: false,
-        exclusiveOutput: true,
-        gaplessPlayback: true,
-        autoMix: true,
-        playbackNormalization: true,
-      ),
-      createDeck: (_) {
-        created++;
-        return deck;
-      },
-      readMetadata: (path, {displayName}) async => {
-        'replaygain_track_gain': path == '/two.flac' ? '-12 dB' : '-6 dB',
-      },
-    );
-    playbackExclusiveOutput.value = true;
-    addTearDown(() => playbackExclusiveOutput.value = false);
-    final player = await runtime.initialize();
-    await player.setQueueAndPlay([
-      _track,
-      const PlayableMedia(
-        id: 'two',
-        source: '/two.flac',
-        title: 'Two',
-        artist: 'Artist',
-        duration: Duration(seconds: 60),
-      ),
-      const PlayableMedia(
-        id: 'three',
-        source: '/three.flac',
-        title: 'Three',
-        artist: 'Artist',
-        duration: Duration(seconds: 60),
-      ),
-    ]);
-    deck.positionEvents.add(const Duration(seconds: 45));
-    for (var i = 0; i < 30 && deck.nextSource == null; i++) {
-      await _settle();
-    }
-    expect(deck.nextSource, '/two.flac');
-    deck.advance();
-    await _settle();
-    expect(player.mediaItem.value!.id, 'two');
-    expect(player.playbackState.value.queueIndex, 1);
-    expect(player.processing.normalizationGain, closeTo(0.251189, 0.000001));
-    expect(deck.sources, ['/one.flac']);
-    expect(deck.disposals, 0);
-    expect(created, 1);
-    deck.positionEvents.add(const Duration(seconds: 45));
-    for (var i = 0; i < 30 && deck.nextSource == null; i++) {
-      await _settle();
-    }
-    expect(deck.nextSource, '/three.flac');
-    await player.setRepeatMode(AudioServiceRepeatMode.one);
-    await _settle();
-    expect(deck.nextSource, isNull);
-    expect(created, 1);
-  });
 
-  for (final failure in [false, true]) {
-    test(
-      'exclusive gapless handles cancellation and queue failure ($failure)',
-      () async {
-        final deck = _QueuedDeck()..failQueue = failure;
-        final runtime = _runtime(
-          settings: const AppSettings(
-            pauseOnMute: false,
-            exclusiveOutput: true,
-          ),
-          createDeck: (_) => deck,
-        );
-        playbackExclusiveOutput.value = true;
-        addTearDown(() => playbackExclusiveOutput.value = false);
-        final player = await runtime.initialize();
-        await player.setQueueAndPlay([
-          _track,
-          const PlayableMedia(
-            id: 'two',
-            source: '/two.flac',
-            title: 'Two',
-            artist: 'Artist',
-            duration: Duration(seconds: 60),
-          ),
-        ]);
-        deck.positionEvents.add(const Duration(seconds: 45));
-        for (var i = 0; i < 30 && deck.queued == 0; i++) {
-          await _settle();
-        }
-        expect(deck.queued, 1);
-        if (failure) {
-          await _settle();
-          deck.state = PlaybackDeckState.completed;
-          deck.completions.add(null);
-          for (var i = 0; i < 30 && player.mediaItem.value!.id != 'two'; i++) {
-            await _settle();
-          }
-          expect(player.mediaItem.value!.id, 'two');
-          expect(deck.sources, ['/one.flac', '/two.flac']);
-        } else {
-          final stale = deck.onStart!;
-          await player.stop();
-          stale();
-          await _settle();
-          expect(player.mediaItem.value, isNull);
-          expect(deck.nextSource, isNull);
-          expect(deck.state, PlaybackDeckState.stopped);
-        }
-      },
-    );
-  }
-
-  test(
-    'Cast handoff keeps position, controls and queue, and disconnect returns paused',
-    () async {
-      const channel = MethodChannel('runtime-cast-test');
-      final messenger =
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-      messenger.setMockMethodCallHandler(
-        channel,
-        (call) async => call.method == 'state' ? {'connected': false} : null,
-      );
-      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-      final events = StreamController<Object?>.broadcast(sync: true);
-      final output = CastOutput(channel: channel, events: events.stream);
-      final local = <_Deck>[];
-      final tv = <_CastDeck>[];
-      final runtime = _runtime(
-        decks: local,
-        createCastDeck: (_, _) {
-          final deck = _CastDeck();
-          tv.add(deck);
-          return deck;
-        },
-      );
-      final handler = MusicPlayerHandler(runtime: runtime, castOutput: output);
-      await output.initialize();
-      await handler.setQueueAndPlay([
-        _track,
-        const PlayableMedia(
-          id: 'two',
-          source: '/two.flac',
-          title: 'Two',
-          artist: 'Artist',
-        ),
-      ]);
-      await handler.seek(const Duration(seconds: 12));
-      events.add({
-        'connected': true,
-        'deviceId': 'tv',
-        'host': '192.0.2.10',
-        'volume': 0.4,
-      });
-      await handler.play();
-      expect(local.single.disposals, 1);
-      expect(tv.single.sources, [_track.source]);
-      expect(tv.single.position.inSeconds, 12);
-      expect(handler.playbackState.value.playing, isTrue);
-      await handler.pause();
-      expect(tv.single.state, PlaybackDeckState.paused);
-      tv.single.remotePlay();
-      expect(handler.playbackState.value.playing, isTrue);
-      tv.single.complete();
-      for (var i = 0; i < 20; i++) {
-        await _settle();
-      }
-      expect(tv.single.sources.last, '/two.flac');
-      expect(handler.queue.value, hasLength(2));
-      events.add({'connected': false});
-      for (var i = 0; i < 20; i++) {
-        await _settle();
-      }
-      expect(local, hasLength(2));
-      expect(local.last.sources.last, '/two.flac');
-      expect(local.last.state, isNot(PlaybackDeckState.playing));
-      expect(handler.playbackState.value.playing, isFalse);
-      await runtime.dispose();
-      output.dispose();
-      await events.close();
-    },
-  );
 
   test('a paused song stays paused when moved to the TV', () async {
     const channel = MethodChannel('paused-cast-test');
@@ -1059,40 +761,6 @@ void main() {
     },
   );
 
-  test(
-    'changed tags update queued copies without restarting playback',
-    () async {
-      final events = SourceMetadataEvents();
-      final decks = <_Deck>[];
-      var title = 'Old title';
-      final runtime = _runtime(
-        decks: decks,
-        sourceMetadataEvents: events,
-        readMetadata: (_, {displayName}) async => {
-          'title': title,
-          'artist': 'Edited artist',
-          'album': 'Edited album',
-        },
-      );
-      final handler = await runtime.initialize();
-      await handler.setQueueAndPlay([_track, _track]);
-      await handler.seek(const Duration(seconds: 34));
-      await handler.pause();
-      final sources = List.of(decks.first.sources);
-      final position = decks.first.position;
-      title = 'Edited title';
-      await events.publish(_track.source);
-      expect(handler.mediaItem.value!.title, title);
-      expect(handler.queue.value.map((item) => item.title), [title, title]);
-      expect(handler.mediaItem.value!.artist, 'Edited artist');
-      expect(decks.first.sources, sources);
-      expect(decks.first.position, position);
-      expect(handler.playbackState.value.playing, isFalse);
-      expect(RuntimeLinkPlayerPort(runtime).snapshot().current!.title, title);
-      await runtime.dispose();
-      await events.publish(_track.source);
-    },
-  );
 
   test(
     'relocated sources update every queue occurrence without restarting',
@@ -1157,65 +825,6 @@ void main() {
     expect(handler.androidPlaybackInfo.value, isA<LocalAndroidPlaybackInfo>());
   });
 
-  test(
-    'Link adopts repeat before either player has been initialized',
-    () async {
-      final desktop = _runtime();
-      await RuntimeLinkPlayerPort(desktop).setRepeat(LinkRepeatMode.one);
-      expect(
-        desktop.handler!.playbackState.value.repeatMode,
-        AudioServiceRepeatMode.one,
-      );
-      final phone = _runtime();
-      await LinkMusicPhonePlayer(
-        runtime: phone,
-        controller: MusicPlayerController(runtime: phone),
-        writeVolume: (_) async {},
-      ).setRepeat(LinkRepeatMode.all);
-      expect(
-        phone.handler!.playbackState.value.repeatMode,
-        AudioServiceRepeatMode.all,
-      );
-    },
-  );
-
-  for (final desktop in [false, true]) {
-    test('Link handoff starts at its position on desktop=$desktop', () async {
-      final deck = _HandoffDeck();
-      final runtime = _runtime(createDeck: (_) => deck);
-      final handler = await runtime.initialize();
-      const target = Duration(seconds: 42);
-      final positions = <Duration>[];
-      final subscription = handler.playbackState.listen((state) {
-        if (handler.mediaItem.value?.id == _track.id) {
-          positions.add(state.updatePosition);
-        }
-      });
-      addTearDown(subscription.cancel);
-      final playing = desktop
-          ? RuntimeLinkPlayerPort(
-              runtime,
-            ).playQueue([_track], index: 0, position: target, playing: true)
-          : LinkMusicPhonePlayer(
-              runtime: runtime,
-              controller: MusicPlayerController(runtime: runtime),
-              writeVolume: (_) async {},
-            ).playQueue([_track], index: 0, position: target, playing: true);
-      try {
-        await deck.preparing.future;
-        deck.positionEvents.add(Duration.zero);
-        await _settle();
-        expect(handler.playbackState.value.updatePosition, target);
-        expect(positions, isNotEmpty);
-        expect(positions, everyElement(target));
-      } finally {
-        deck.prepared.complete();
-        await playing;
-      }
-      expect(deck.resumedPositions, [target]);
-      expect(positions, everyElement(target));
-    });
-  }
 
   test(
     'a handed-off shuffled queue keeps its order and current song',
@@ -1900,44 +1509,6 @@ void main() {
     },
   );
 
-  test(
-    'queued network song prefers its offline original and retains its origin',
-    () async {
-      final temp = await Directory.systemTemp.createTemp('player-offline-');
-      addTearDown(() => temp.delete(recursive: true));
-      final local = await File(
-        '${temp.path}/song.flac',
-      ).writeAsBytes([1, 2, 3]);
-      final decks = <_Deck>[];
-      var remoteRequests = 0;
-      final handler = await _runtime(
-        decks: decks,
-        offlineCopy: (_) async => local.path,
-        resolveNetworkSource: (_) async {
-          remoteRequests++;
-          throw const SocketException('Offline');
-        },
-      ).initialize();
-      await handler.setQueueAndPlay([
-        const PlayableMedia(
-          id: 'nas-song',
-          source: 'network://nas/a.flac',
-          title: 'NAS song',
-          artist: 'Artist',
-        ),
-      ]);
-      expect(decks.single.sources, [local.path]);
-      expect(remoteRequests, 0);
-      expect(handler.mediaItem.value!.extras!['source'], local.path);
-      expect(
-        handler.mediaItem.value!.extras!['originSource'],
-        'network://nas/a.flac',
-      );
-      await handler.onSourceDeleted('network://nas/a.flac');
-      expect(handler.queue.value, hasLength(1));
-      expect(handler.playbackState.value.playing, isTrue);
-    },
-  );
 
   test(
     'missing offline file falls back to its server without requiring a rescan',
@@ -1997,30 +1568,6 @@ void main() {
       );
     }
 
-    test('a whole copy plays as a local file', () async {
-      final cache = await networkCache();
-      cache.want([source]);
-      expect(await cache.ready(source, const Duration(seconds: 5)), isTrue);
-      final decks = <_Deck>[];
-      var remoteRequests = 0;
-      final handler = await _runtime(
-        decks: decks,
-        networkCache: cache,
-        resolveNetworkSource: (_) async {
-          remoteRequests++;
-          return 'http://127.0.0.1:1/song.flac';
-        },
-      ).initialize();
-
-      await handler.setQueueAndPlay([song]);
-
-      final path = decks.single.sources.single;
-      expect(cache.owns(path), isTrue);
-      expect(await File(path).readAsBytes(), [1, 2, 3]);
-      expect(remoteRequests, 0);
-      // The queue keeps the server song; only this playback opens the copy.
-      expect(handler.mediaItem.value!.extras!['source'], source);
-    });
 
     test('a song still downloading streams from its server', () async {
       final cache = await networkCache(release: Completer<void>().future);
@@ -2148,21 +1695,6 @@ void main() {
     },
   );
 
-  test('a gone file no phone can send fails as unavailable', () async {
-    final decks = <_Deck>[];
-    final runtime = _runtime(
-      decks: decks,
-      recoverMissingFile: (_) async =>
-          throw const LinkException('unavailable', 'No phone is connected'),
-    );
-    final handler = await runtime.initialize();
-    await handler.setQueueAndPlay([_track]);
-    expect(decks.single.sources, isEmpty);
-    expect(
-      handler.playbackState.value.errorMessage,
-      contains('Audio file is unavailable'),
-    );
-  });
 
   test('denied or failed audio focus cannot resume a paused source', () async {
     final session = _Session();
@@ -2279,115 +1811,6 @@ void main() {
     },
   );
 
-  test(
-    'iOS restores controls across unlock/background without changing track',
-    () async {
-      const channel = MethodChannel(
-        'com.ryanheise.audio_service.client.methods',
-      );
-      final calls = <MethodCall>[];
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (call) async => calls.add(call));
-      addTearDown(
-        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(channel, null),
-      );
-      final session = _Session();
-      final runtime = _runtime(isIOS: true, session: session);
-      final handler = await runtime.initialize();
-      await _settle();
-      handler.mediaItem.add(_item);
-      final state = PlaybackState(
-        playing: true,
-        processingState: AudioProcessingState.ready,
-        updatePosition: const Duration(seconds: 17),
-      );
-      handler.playbackState.add(state);
-      final configurations = session.configurations;
-      for (final lifecycle in [
-        AppLifecycleState.inactive,
-        AppLifecycleState.paused,
-        AppLifecycleState.resumed,
-        AppLifecycleState.inactive,
-        AppLifecycleState.paused,
-      ]) {
-        handler.didChangeAppLifecycleState(lifecycle);
-        await _settle();
-      }
-      expect(session.configurations, configurations + 5);
-      expect(session.activations, List.filled(5, true));
-      expect(
-        calls.map((call) => call.method),
-        List.filled(5, 'refreshNowPlayingInfo'),
-      );
-      expect(handler.mediaItem.value, same(_item));
-      expect(handler.playbackState.value, same(state));
-    },
-  );
-
-  test(
-    'iOS does not reclaim controls when paused, stopped or interrupted',
-    () async {
-      final session = _Session();
-      final runtime = _runtime(isIOS: true, session: session);
-      final handler = await runtime.initialize();
-      await _settle();
-      final configurations = session.configurations;
-      await handler.restoreIosNowPlaying();
-      handler.mediaItem.add(_item);
-      handler.playbackState.add(
-        PlaybackState(processingState: AudioProcessingState.ready),
-      );
-      await handler.restoreIosNowPlaying();
-      handler.playbackState.add(PlaybackState(playing: true));
-      await handler.restoreIosNowPlaying();
-      expect(session.configurations, configurations);
-      expect(session.activations, isEmpty);
-
-      handler.playbackState.add(
-        PlaybackState(
-          playing: true,
-          processingState: AudioProcessingState.ready,
-        ),
-      );
-      session.interruptions.add(
-        AudioInterruptionEvent(true, AudioInterruptionType.pause),
-      );
-      await _settle();
-      await handler.restoreIosNowPlaying();
-      expect(session.activations, isEmpty);
-      await handler.dispose();
-      await handler.restoreIosNowPlaying();
-      expect(session.activations, isEmpty);
-    },
-  );
-
-  test(
-    'iOS recovery cannot activate audio after a pause during configuration',
-    () async {
-      final session = _Session();
-      final handler = await _runtime(
-        isIOS: true,
-        session: session,
-      ).initialize();
-      await _settle();
-      handler.mediaItem.add(_item);
-      handler.playbackState.add(
-        PlaybackState(
-          playing: true,
-          processingState: AudioProcessingState.ready,
-        ),
-      );
-      session.configureBarrier = Completer<void>();
-      final restore = handler.restoreIosNowPlaying();
-      await _settle();
-      await handler.pause();
-      session.configureBarrier!.complete();
-      await restore;
-      expect(session.activations, isEmpty);
-      expect(handler.playbackState.value.playing, isFalse);
-    },
-  );
 
   test(
     'muted start pauses and warns; explicit resume survives source reload',
@@ -3630,84 +3053,6 @@ void main() {
     },
   );
 
-  test(
-    'provider scopes isolate transport settings and notification favorites',
-    () async {
-      final firstDecks = <_Deck>[];
-      final secondDecks = <_Deck>[];
-      final first = _runtime(
-        decks: firstDecks,
-        settings: const AppSettings(
-          pauseOnMute: false,
-          playbackNormalization: true,
-        ),
-      );
-      final second = _runtime(
-        decks: secondDecks,
-        settings: const AppSettings(
-          pauseOnMute: false,
-          usbBitPerfect: true,
-          usbDirect: true,
-          usbDsdOverPcm: true,
-          usbAllowFixedVolume: true,
-          dapExclusive: true,
-        ),
-      );
-      final containers = [
-        for (final runtime in [first, second])
-          ProviderContainer(
-            overrides: [musicPlayerRuntimeProvider.overrideWithValue(runtime)],
-          ),
-      ];
-      for (final container in containers) {
-        addTearDown(container.dispose);
-        await container.read(musicPlayerControllerProvider).playSingle(_track);
-      }
-      expect(firstDecks.single.state, PlaybackDeckState.playing);
-      expect(secondDecks.single.state, PlaybackDeckState.playing);
-      expect(firstDecks.single.volumes.last, closeTo(0.501, 0.001));
-      expect(secondDecks.single.volumes.last, 1);
-      expect(firstDecks.single.outputOptions!.values, everyElement(isFalse));
-      expect(secondDecks.single.outputOptions!.values, everyElement(isTrue));
-      final toggled = <String>[];
-      first.configureNotification(
-        presentation: const PlaybackNotification(mornye: true),
-        toggleFavorite: (item) async {
-          toggled.add('first:${item.id}');
-          return true;
-        },
-      );
-      second.configureNotification(
-        presentation: const PlaybackNotification(mornye: true),
-        toggleFavorite: (item) async {
-          toggled.add('second:${item.id}');
-          return false;
-        },
-      );
-      await first.handler!.customAction(PlaybackNotification.favoriteAction);
-      expect(first.notification.loved, isTrue);
-      expect(second.notification.loved, isFalse);
-      await second.handler!.customAction(PlaybackNotification.favoriteAction);
-      expect(toggled, ['first:one', 'second:one']);
-      expect(
-        first.handler!.playbackState.value.controls.first.label,
-        'Remove from favorites',
-      );
-      expect(
-        second.handler!.playbackState.value.controls.first.label,
-        'Favorite',
-      );
-      // A pre-amp change reaches the playing track without a restart.
-      first.configure(first.settings.copyWith(playbackNormalizationPreamp: -6));
-      await _settle();
-      expect(firstDecks.single.volumes.last, closeTo(0.251, 0.001));
-      first.configure(first.settings.copyWith(playbackNormalization: false));
-      await _settle();
-      expect(firstDecks.single.volumes.last, 1);
-      expect(second.settings.usbBitPerfect, isTrue);
-      expect(secondDecks.single.volumes, [1]);
-    },
-  );
 
   group('network covers', () {
     const cover = 'network://nas/Album/cover.jpg';
@@ -4311,115 +3656,6 @@ void main() {
       );
     });
 
-    test(
-      "a desktop song played on the phone shows the desktop's new cover",
-      () async {
-        // A desktop song as Link resolves it, with the server's cover.
-        final source = linkDesktopSongSource(linkTestServer, 's0');
-        final reference = linkDesktopCoverSource(linkTestServer, 's0');
-        final desktopSong = PlayableMedia(
-          id: 'desktop-s0',
-          source: source,
-          title: 'Song s0',
-          artist: 'Artist',
-          networkArtworkSource: reference,
-        );
-        // Its tags come with that same cover, read to a temporary file.
-        final temporary = await Directory.systemTemp.createTemp('link-tags-');
-        addTearDown(() => temporary.delete(recursive: true));
-        final served =
-            File(p.join(temporary.path, 'network_metadata', 'subsonic.image'))
-              ..createSync(recursive: true)
-              ..writeAsBytesSync([0xFF, 0xD8, 0xFF, 0]);
-        final recorder = _Recorder(
-          write: (_) async {},
-          elapsed: () => Duration.zero,
-          now: () => DateTime(2026),
-        );
-        final handler = await _runtime(
-          coverStore: covers,
-          recorder: recorder,
-          resolveNetworkSource: resolve,
-          readNetworkMetadata: (_) async => {
-            'title': 'Played',
-            'cover_path': served.path,
-          },
-        ).initialize();
-        await handler.setQueueAndPlay([desktopSong]);
-        await until(
-          () =>
-              handler.mediaItem.value?.title == 'Played' &&
-              handler.mediaItem.value?.artUri ==
-                  Uri.file(covers.indexedFile(reference) ?? ''),
-        );
-        // Stored once, under the reference the desktop keeps fresh.
-        expect(covers.songCover(source), isNull);
-        await _settle();
-        expect(recorder.latestTrack?.artwork, reference);
-
-        // The phone's remote view of the desktop playing it.
-        final client = FakeLinkClient(
-          onGet: (_, _) => null,
-          onPost: (_, _) => {'resolved': 1, 'missing': <int>[]},
-        );
-        final container = ProviderContainer(
-          overrides: [linkPhoneClientProvider.overrideWithValue(client)],
-        );
-        addTearDown(container.dispose);
-        final lookup = FakeLibraryLookup();
-        final playback = LinkRemotePlayback(
-          name: 'Studio PC',
-          remote: container.read(linkDesktopRemoteProvider.notifier),
-          handoff: LinkHandoff(
-            client: client,
-            player: FakePhonePlayer(),
-            refs: LinkTrackRefCache(lookup: lookup, server: client.server),
-            resolver: LinkTrackResolver(lookup: lookup, server: client.server),
-          ),
-          covers: covers,
-          extractArtwork: (_) async => null,
-          tick: const Duration(milliseconds: 10),
-        );
-        addTearDown(playback.dispose);
-        container.listen(linkDesktopRemoteProvider, (_, next) {
-          playback.update(next);
-        });
-        // The remote's first state request answers before the push.
-        await Future<void>.delayed(Duration.zero);
-        final track = TrackRef(
-          title: 'Song s0',
-          artist: 'Artist',
-          durationMs: 200000,
-          songId: 's0',
-          serverId: linkTestServer.serverId,
-        );
-        client.push({
-          'type': LinkMessageTypes.playerState,
-          'state': LinkPlayerState(
-            track: track,
-            playing: true,
-            durationMs: 200000,
-            updatedMs: 1,
-            queue: [track],
-            index: 0,
-          ).toJson(),
-        });
-        final before = await playback.mediaItems
-            .firstWhere((item) => item?.artUri != null)
-            .timeout(const Duration(seconds: 5));
-        expect(before!.artUri, handler.mediaItem.value!.artUri);
-
-        // The desktop changes the cover.
-        version = 1;
-        playback.refreshCover(reference);
-        final after = await playback.mediaItems
-            .firstWhere((item) => item?.artUri != before.artUri)
-            .timeout(const Duration(seconds: 5));
-        expect(after!.artUri!.toFilePath(), covers.indexedFile(reference));
-        expect(File(after.artUri!.toFilePath()).readAsBytesSync()[3], 1);
-        await until(() => handler.mediaItem.value!.artUri == after.artUri);
-      },
-    );
 
     test(
       'a restored session shows its stored cover from the first item',

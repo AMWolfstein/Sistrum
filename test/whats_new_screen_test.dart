@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show LogicalKeyboardKey, MethodChannel;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,54 +144,6 @@ void main() {
     expect(saved['whatsNewSeen'], AppInfo.whatsNewRelease);
   });
 
-  test('pages list only the features this device has', () async {
-    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
-    List<String> titles({required bool androidPhone, required bool desktop}) =>
-        [
-          for (final page in whatsNewHighlights(
-            l10n,
-            androidPhone: androidPhone,
-            desktop: desktop,
-          ))
-            for (final feature in page.features) feature.title,
-        ];
-
-    final phone = titles(androidPhone: true, desktop: false);
-    expect(phone, contains(l10n.whatsNewPlayerAutoTitle));
-    expect(phone, isNot(contains(l10n.whatsNewPlayerExclusiveTitle)));
-    final computer = titles(androidPhone: false, desktop: true);
-    expect(computer, contains(l10n.whatsNewPlayerExclusiveTitle));
-    expect(computer, isNot(contains(l10n.whatsNewPlayerAutoTitle)));
-    final iPhone = titles(androidPhone: false, desktop: false);
-    expect(iPhone, isNot(contains(l10n.whatsNewPlayerAutoTitle)));
-    expect(iPhone, isNot(contains(l10n.whatsNewPlayerExclusiveTitle)));
-    // The Nearby devices page follows Mornye Link only when asked for, and
-    // the overview leaves it out.
-    final asking = whatsNewHighlights(l10n, nearbyDevices: true);
-    expect(asking[1].title, l10n.whatsNewLinkTitle);
-    expect(asking[2].nearbyDevices, isTrue);
-    expect(asking.where((page) => page.nearbyDevices), hasLength(1));
-    expect([
-      for (final feature in asking.first.features) feature.title,
-    ], isNot(contains(l10n.whatsNewNearbyTitle)));
-    expect(
-      whatsNewHighlights(l10n).where((page) => page.nearbyDevices),
-      isEmpty,
-    );
-
-    // The opening page names every section that follows it.
-    final pages = whatsNewHighlights(l10n, androidPhone: true, desktop: false);
-    expect(pages.first.title, 'Mornye ${AppInfo.whatsNewRelease} is here');
-    expect(
-      [for (final feature in pages.first.features) feature.title],
-      [for (final page in pages.skip(1)) page.title],
-    );
-    expect(pages.first.features.every((f) => f.body == null), isTrue);
-    expect(
-      pages.skip(1).every((page) => page.features.every((f) => f.body != null)),
-      isTrue,
-    );
-  });
 
   testWidgets('Skip stops at Nearby devices, which waits for an answer', (
     tester,
@@ -223,8 +175,6 @@ void main() {
     tester,
   ) async {
     await _openNearbyTour(tester, allow: true);
-    await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
@@ -292,7 +242,6 @@ void main() {
       expect(find.text('Mornye ${AppInfo.whatsNewRelease} is here'), findsOne);
       expect(find.text('Skip for now'), findsOne);
       for (final title in [
-        'Mornye Link',
         'A Home that learns',
         'Player and lyrics',
         'Library and search',
@@ -332,7 +281,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final container = await openTour(tester, textScale: 1.6);
-      for (var page = 0; page < 5; page++) {
+      for (var page = 0; page < 4; page++) {
         expect(tester.takeException(), isNull);
         await tester.tap(find.text('Continue'));
         await tester.pumpAndSettle();
@@ -349,93 +298,5 @@ void main() {
       );
     });
 
-    Future<ProviderContainer> openDialog(WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1280, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final container = ProviderContainer(
-        overrides: [
-          settingsProvider.overrideWith(
-            () => _Settings(_updated, _Preferences()),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) => TextButton(
-                onPressed: () => showWhatsNewDialog(context),
-                child: const Text('about'),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('about'));
-      await tester.pumpAndSettle();
-      return container;
-    }
-
-    testWidgets('$style desktop dialog lists the sections beside one', (
-      tester,
-    ) async {
-      final container = await openDialog(tester);
-
-      expect(find.byType(WhatsNewScreen), findsNothing);
-      expect(find.text('Mornye ${AppInfo.whatsNewRelease} is here'), findsOne);
-      // The list names every section; the first one is shown.
-      for (final title in [
-        'A Home that learns',
-        'Player and lyrics',
-        'Library and search',
-        'Faster everywhere',
-      ]) {
-        expect(find.text(title), findsOne);
-      }
-      expect(find.text('Mornye Link'), findsNWidgets(2));
-      expect(find.text('Play across devices'), findsOne);
-
-      // A click on a section shows it; Next walks to the last one.
-      await tester.tap(find.text('Library and search'));
-      await tester.pumpAndSettle();
-      expect(find.text('Browse by folder'), findsOne);
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(find.text('Faster everywhere'), findsNWidgets(2));
-      expect(find.text('Skip for now'), findsNothing);
-      expect(tester.takeException(), isNull);
-
-      await tester.tap(find.text('Start listening'));
-      await tester.pumpAndSettle();
-      expect(find.text('Faster everywhere'), findsNothing);
-      expect(
-        container.read(settingsProvider).whatsNewSeen,
-        AppInfo.whatsNewRelease,
-      );
-    });
-
-    testWidgets('$style desktop dialog marks the tour seen on Esc', (
-      tester,
-    ) async {
-      final container = await openDialog(tester);
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle();
-      expect(find.text('Gapless playback'), findsNothing);
-      expect(find.text('Mixes from your Library'), findsOne);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await tester.pumpAndSettle();
-      expect(find.text('Mixes from your Library'), findsNothing);
-      expect(
-        container.read(settingsProvider).whatsNewSeen,
-        AppInfo.whatsNewRelease,
-      );
-    });
   }
 }

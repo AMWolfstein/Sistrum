@@ -8,7 +8,6 @@ import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/theme/player_artwork_theme.dart';
 import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
 import 'package:mornye/widgets/now_playing_indicator.dart';
 import 'package:mornye/widgets/settings_group.dart';
 
@@ -102,7 +101,6 @@ class TrackCard extends StatelessWidget {
     this.isSelected = false,
     this.onTap,
     this.onLongPress,
-    this.onContextMenu,
     this.margin,
     this.isCurrent = false,
     this.isPlaying = false,
@@ -138,10 +136,6 @@ class TrackCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
-
-  /// Desktop right-click, with the global pointer position. See
-  /// [DesktopContextMenuRegion].
-  final ValueChanged<Offset>? onContextMenu;
 
   /// Overrides the default outer margin. Prefer the default so track lists stay
   /// aligned with each other.
@@ -367,31 +361,25 @@ class TrackCard extends StatelessWidget {
     if (material) {
       // The card keeps its connected-group corners; a clip inside the
       // margin rounds the current row's ends into a pill, ripple included.
-      return DesktopContextMenuRegion(
-        onContextMenu: onContextMenu,
-        child: morph(
-          card,
-          from: RoundedRectangleBorder(borderRadius: borderRadius),
-          to: const StadiumBorder(),
-          inset: cardMargin.resolve(textDirection),
-        ),
+      return morph(
+        card,
+        from: RoundedRectangleBorder(borderRadius: borderRadius),
+        to: const StadiumBorder(),
+        inset: cardMargin.resolve(textDirection),
       );
     }
-    return DesktopContextMenuRegion(
-      onContextMenu: onContextMenu,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          card,
-          Padding(
-            padding: EdgeInsetsDirectional.only(
-              start: tokens.coverList + 40,
-              end: 20,
-            ),
-            child: const Divider(),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        card,
+        Padding(
+          padding: EdgeInsetsDirectional.only(
+            start: tokens.coverList + 40,
+            end: 20,
           ),
-        ],
-      ),
+          child: const Divider(),
+        ),
+      ],
     );
   }
 }
@@ -495,7 +483,6 @@ class TrackGridCard extends StatelessWidget {
     this.overlays = const [],
     this.onTap,
     this.onLongPress,
-    this.onContextMenu,
     this.isSelected = false,
     this.semanticLabel,
   });
@@ -515,8 +502,6 @@ class TrackGridCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
-  /// Desktop right-click, with the global pointer position.
-  final ValueChanged<Offset>? onContextMenu;
   final bool isSelected;
   final String? semanticLabel;
 
@@ -527,10 +512,7 @@ class TrackGridCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final borderRadius = tokens.borderRadiusThumb;
 
-    return DesktopContextMenuRegion(
-      onContextMenu: onContextMenu,
-      child: _buildCell(context, tokens, theme, colorScheme, borderRadius),
-    );
+    return _buildCell(context, tokens, theme, colorScheme, borderRadius);
   }
 
   Widget _buildCell(

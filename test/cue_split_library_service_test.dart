@@ -29,6 +29,14 @@ void main() {
       path: '${directory.path}/local_library.db',
     );
     await createNativeLibraryFixture(db);
+    await db.execute('''
+      CREATE TABLE history_db.history AS
+      SELECT *, track_name_norm AS sort_track, artist_name_norm AS sort_artist,
+        album_name_norm AS sort_album, album_artist_norm AS sort_album_artist,
+        NULL AS cover_url, NULL AS downloaded_at, NULL AS service,
+        NULL AS origin_file_path
+      FROM library WHERE 0
+    ''');
     cue = await File(
       '${directory.path}/Album.cue',
     ).writeAsString('Original CUE');

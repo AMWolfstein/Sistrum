@@ -76,8 +76,6 @@ class _MusicAutoMix {
       !handler._cast.active &&
       handler._settings.autoMix &&
       !handler._settings.usbBitPerfect &&
-      // A second deck cannot open a device held in exclusive mode.
-      !playbackExclusiveOutput.value &&
       !handler._player.isDirect &&
       !handler._disposed &&
       handler._sourceReady &&
@@ -175,10 +173,10 @@ class _MusicAutoMix {
       final current = handler._media[index];
       final next = handler._media[nextIndex];
       if (current.isNetwork || next.isNetwork) return;
-      final currentPath = await handler._formats.resolve(current);
+      final currentPath = await handler._resolveSource(current);
       if (currentPath == null || !_current(generation)) return;
       pins.add(currentPath);
-      final nextPath = await handler._formats.resolve(next);
+      final nextPath = await handler._resolveSource(next);
       if (nextPath == null || !_current(generation)) return;
       // A song a paired phone is still sending (or sending again, its
       // received copy gone) streams from a URL, which neither the mix deck
@@ -418,10 +416,7 @@ class _MusicAutoMix {
       handler._playRequestGeneration++;
       handler._recordPlayHistory(nextIndex);
       handler._normalizationVolume = _incomingVolume;
-      handler._activeResolvedPath =
-          next.isContentUri || handler._formats.owns(_nextPath)
-          ? _nextPath
-          : null;
+      handler._activeResolvedPath = next.isContentUri ? _nextPath : null;
       handler._pendingRestorePosition = null;
       handler._failures.started(next, _nextPath);
       rate = plan.rate;

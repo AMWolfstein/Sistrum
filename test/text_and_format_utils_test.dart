@@ -297,15 +297,6 @@ void main() {
       expect(buildPathMatchKeys('   '), isEmpty);
     });
 
-    test('normalizes windows-style separators', () {
-      final keys = buildPathMatchKeys(r'C:\Music\Song.mp3');
-
-      expect(keys, contains(r'C:\Music\Song.mp3'));
-      expect(keys, contains('C:/Music/Song.mp3'));
-      expect(keys, contains('c:/music/song.mp3'));
-      expect(keys, contains('C:/Music/Song'));
-    });
-
     test('matches a primary-storage SAF URI to its raw Android path', () {
       const safUri =
           'content://com.android.externalstorage.documents/'

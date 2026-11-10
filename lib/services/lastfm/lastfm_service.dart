@@ -18,7 +18,7 @@ enum LastfmProblem {
   rejected,
 }
 
-/// Bound only to the local audio handler. Remote Link sessions and short
+/// Bound only to the local audio handler. Remote sessions and short
 /// catalog previews never feed this service.
 class LastfmService extends ChangeNotifier {
   LastfmService({
@@ -75,7 +75,6 @@ class LastfmService extends ChangeNotifier {
   String Function() _unknownArtist = () => 'Unknown artist';
 
   bool get configured => _api.credentials.configured;
-  bool get initialized => _initialized;
   bool get connected => _session != null;
   String? get username => _session?.username;
   bool get enabled => _enabled;

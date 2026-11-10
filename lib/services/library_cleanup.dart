@@ -104,7 +104,7 @@ Future<void> deleteLibraryItemsByIds(Database db, Iterable<String> ids) async {
 }
 
 /// Every store besides the `library` table that keeps Library cover paths
-/// copied from rows, the player or Link save offline.
+/// copied from rows, or the player saves offline.
 Future<List<LibraryCoverReferenceColumn>>
 appLibraryCoverReferenceColumns() async {
   final collections = await LibraryCollectionsDatabase.instance.database;
@@ -223,9 +223,7 @@ Future<int> _pruneUnreferencedLibraryCovers(
     return deleted;
   }
   if (privateSnapshotPath != null) {
-    throw StateError(
-      'The desktop cache adapter requires explicit cover references',
-    );
+    throw StateError('The cache adapter requires explicit cover references');
   }
   final path = directory.path;
   final outcome = await _pruneCoversOnWorker(path, referencedPaths, minimumAge);
@@ -301,7 +299,6 @@ Future<int> clearLibraryCoverFiles(
 ) async {
   await CacheMaintenanceService.clearDirectoryContents(directory.path);
   // Rows keep the scan's spelling of the folder (canonical /data/data on
-  // older Android, backslashes on Windows), so match the folder by name:
   // after the clear, every file in a library_covers folder is gone.
   // Below the audio version, the incremental snapshot reports the file as
   // changed; the lyrics version keeps lyrics filters as they were meanwhile.

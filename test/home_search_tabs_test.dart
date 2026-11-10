@@ -9,16 +9,13 @@ import 'package:mornye/models/track.dart';
 import 'package:mornye/providers/download_queue_provider.dart';
 import 'package:mornye/providers/explore_provider.dart';
 import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/library_search_provider.dart';
 import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/recent_access_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/providers/track_provider.dart';
 import 'package:mornye/screens/home_tab.dart';
-import 'package:mornye/services/library_search.dart';
 import 'package:mornye/services/music_player_service.dart'
     show PlayableMedia, PlaybackResumePreview;
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/widgets/animation_utils.dart';
@@ -28,20 +25,16 @@ import 'package:mornye/widgets/mornye_chrome.dart';
 import 'package:mornye/widgets/mornye_context_menu.dart';
 
 void main() {
-  for (final desktop in [false, true]) {
+  {
     for (final mornye in [false, true]) {
       testWidgets('Home keeps Resume without a player '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        debugDesktopPlatformOverride = desktop;
-        addTearDown(() => debugDesktopPlatformOverride = null);
+          '(Mornye: $mornye)', (tester) async {
         tester.platformDispatcher.accessibilityFeaturesTestValue =
             const FakeAccessibilityFeatures(disableAnimations: true);
         addTearDown(
           tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
         );
-        tester.view.physicalSize = desktop
-            ? const Size(1280, 800)
-            : const Size(430, 932);
+        tester.view.physicalSize = const Size(430, 932);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final controller = _ResumeController();
@@ -173,15 +166,11 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  for (final desktop in [false, true]) {
+  {
     for (final mornye in [false, true]) {
       testWidgets('Home keeps its feed layout through slow startup '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        debugDesktopPlatformOverride = desktop;
-        addTearDown(() => debugDesktopPlatformOverride = null);
-        tester.view.physicalSize = desktop
-            ? const Size(1280, 800)
-            : const Size(430, 932);
+          '(Mornye: $mornye)', (tester) async {
+        tester.view.physicalSize = const Size(430, 932);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final extensions = _StartupExtensions();
@@ -335,14 +324,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final desktop in [false, true]) {
-    testWidgets('first search extension collapses the empty Home prompt '
-        '(desktop: $desktop)', (tester) async {
-      debugDesktopPlatformOverride = desktop;
-      addTearDown(() => debugDesktopPlatformOverride = null);
-      tester.view.physicalSize = desktop
-          ? const Size(1280, 800)
-          : const Size(430, 932);
+  {
+    testWidgets('first search extension collapses the empty Home prompt ', (tester) async {
+      tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final extensions = _StartupExtensions();
@@ -503,80 +487,6 @@ void main() {
     );
   }
 
-  testWidgets('Material desktop Home runs across a full screen window', (
-    tester,
-  ) async {
-    debugDesktopPlatformOverride = true;
-    addTearDown(() => debugDesktopPlatformOverride = null);
-    const size = Size(2000, 1200);
-    tester.view.physicalSize = size;
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    ExploreItem item(String section, int index) => ExploreItem(
-      id: '$section-$index',
-      uri: 'example:album:$section-$index',
-      type: 'album',
-      name: '$section album $index',
-      artists: 'Example artist',
-    );
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          settingsProvider.overrideWith(_Settings.new),
-          extensionProvider.overrideWith(_Extensions.new),
-          exploreProvider.overrideWith(
-            () => _Explore(
-              sections: [
-                ExploreSection(
-                  uri: 'example:new',
-                  title: 'New',
-                  isFeatured: true,
-                  items: [for (var i = 0; i < 6; i++) item('new', i)],
-                ),
-                ExploreSection(
-                  uri: 'example:songs',
-                  title: 'Best New Songs',
-                  items: [for (var i = 0; i < 20; i++) item('songs', i)],
-                ),
-              ],
-            ),
-          ),
-          downloadHistoryProvider.overrideWith(_History.new),
-          recentAccessProvider.overrideWith(_Recent.new),
-          trackProvider.overrideWith(_Search.new),
-        ],
-        child: MaterialApp(
-          theme: AppTheme.dark(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const HomeTab(mode: HomeTabMode.combined),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    // M3's 24dp window margin, not the centered reading column.
-    final search = tester.getRect(find.byType(AppSearchField));
-    expect(search.left, 24);
-    expect(search.right, size.width - 24, reason: 'the search runs full');
-    for (final title in ['New', 'Best New Songs']) {
-      expect(tester.getTopLeft(find.text(title)).dx, 24, reason: title);
-    }
-    expect(
-      tester.getTopLeft(find.text('new album 0')).dx,
-      24,
-      reason: 'the first featured card starts under its title',
-    );
-    // Both shelves still scroll to the window's edge.
-    for (final title in ['new album 0', 'songs album 0']) {
-      final shelf = find
-          .ancestor(of: find.text(title), matching: find.byType(ListView))
-          .first;
-      expect(tester.getRect(shelf).left, 0, reason: title);
-      expect(tester.getRect(shelf).right, size.width, reason: title);
-    }
-    expect(tester.takeException(), isNull);
-  });
 
   testWidgets(
     'Home keeps its feed while Search retains its query and results',
@@ -868,118 +778,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye desktop Search centers the field over a row of recent '
-      'cards and can search the library instead', (tester) async {
-    debugDesktopPlatformOverride = true;
-    addTearDown(() => debugDesktopPlatformOverride = null);
-    tester.view.physicalSize = const Size(1280, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final libraryQueries = <String>[];
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          settingsProvider.overrideWith(_Settings.new),
-          extensionProvider.overrideWith(_Extensions.new),
-          exploreProvider.overrideWith(
-            () => _Explore(
-              sections: [
-                for (final title in ['New releases', 'Empty section'])
-                  ExploreSection(
-                    uri: 'example:$title',
-                    title: title,
-                    items: [
-                      if (title == 'New releases')
-                        for (var index = 0; index < 3; index++)
-                          ExploreItem(
-                            id: 'album-$index',
-                            uri: 'example:album:$index',
-                            type: 'album',
-                            name: 'Browse album $index',
-                            artists: '',
-                          ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-          downloadHistoryProvider.overrideWith(_History.new),
-          recentAccessProvider.overrideWith(() => _Recent(itemCount: 6)),
-          trackProvider.overrideWith(_Search.new),
-          librarySearchProvider.overrideWith((ref, request) async {
-            libraryQueries.add(request.query);
-            return switch (request.kind) {
-              LibrarySearchKind.songs || LibrarySearchKind.artists => [
-                LibrarySearchHit(
-                  kind: request.kind,
-                  id: 'owned',
-                  title: 'Owned ${request.kind.name} ${request.query}',
-                ),
-              ],
-              _ => [],
-            };
-          }),
-        ],
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const HomeTab(mode: HomeTabMode.search),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Search'), findsNothing);
-    final field = tester.getRect(find.byType(AppSearchField));
-    expect(field.center.dx, closeTo(640, 1));
-    expect(find.text('Recently Searched'), findsOneWidget);
-
-    final cards = find.byKey(const ValueKey('recent-access-cards'));
-    expect(cards, findsOneWidget);
-    final first = tester.getRect(find.text('Recent artist 0'));
-    final second = tester.getRect(find.text('Recent artist 1'));
-    expect(second.top, closeTo(first.top, 1));
-    expect(second.left, greaterThan(first.right));
-
-    expect(find.text('Browse'), findsOneWidget);
-    expect(find.text('Empty section'), findsNothing);
-    expect(find.text('New releases'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('browse-example:New releases')));
-    await tester.pumpAndSettle();
-    expect(find.text('Browse album 2'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(const ValueKey('search-scope')),
-        matching: find.text('Library'),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Search Your Library'), findsOneWidget);
-    expect(find.text('Recently Searched'), findsNothing);
-    expect(find.text('Browse'), findsNothing);
-
-    await tester.enterText(find.byType(TextField), 'song');
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-
-    expect(libraryQueries, contains('song'));
-    expect(find.text('Search Your Library'), findsNothing);
-    // Artists lead as artwork; songs follow as rows, with no filter chips.
-    final artist = tester.getRect(find.text('Owned artists song'));
-    final song = tester.getRect(find.text('Owned songs song'));
-    expect(artist.top, lessThan(song.top));
-    expect(find.text('All'), findsNothing);
-
-    await tester.tap(find.text('Artists'));
-    await tester.pumpAndSettle();
-    expect(find.text('All'), findsOneWidget);
-    expect(find.text('Owned songs song'), findsNothing);
-    expect(find.text('Found artist'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
 
   for (final withSearchExtension in [false, true]) {
     testWidgets('Mornye Home without a feed still shows local playback '

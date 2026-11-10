@@ -164,7 +164,7 @@ void main() {
         await output.writeAsBytes(_jpeg(1));
       },
     );
-    const ref = 'network://desktop/subsonic/cover/YQ.image';
+    const ref = 'network://server/subsonic/cover/YQ.image';
     final calls = [for (var call = 0; call < 5; call++) covers.file(ref)];
     await pumpEventQueue();
     release.complete();
@@ -191,7 +191,7 @@ void main() {
     );
     final calls = [
       for (var row = 0; row < 10; row++)
-        covers.file('network://desktop/subsonic/cover/$row.image'),
+        covers.file('network://server/subsonic/cover/$row.image'),
     ];
     await until(() => started == 4);
     await pumpEventQueue();
@@ -216,7 +216,7 @@ void main() {
     );
     final stale = [
       for (var row = 0; row < 5; row++)
-        'network://desktop/subsonic/cover/$row.image',
+        'network://server/subsonic/cover/$row.image',
     ];
     final old = DateTime.now().subtract(const Duration(days: 2));
     for (final ref in stale) {
@@ -230,7 +230,7 @@ void main() {
     }
     await until(() => started.isNotEmpty);
     expect(started, [stale.first]);
-    const playing = 'network://desktop/subsonic/cover/playing.image';
+    const playing = 'network://server/subsonic/cover/playing.image';
     final first = covers.file(playing);
     await pumpEventQueue();
     gate.complete();
@@ -251,7 +251,7 @@ void main() {
       }
 
       final covers = store(fetch: broken);
-      const ref = 'network://desktop/subsonic/cover/YQ.image';
+      const ref = 'network://server/subsonic/cover/YQ.image';
       expect(await covers.file(ref), isNull);
       expect(await covers.file(ref), isNull);
       expect(fetches, 1);
@@ -274,9 +274,9 @@ void main() {
         fetch: (ref, output) async {
           fetches.update(ref, (count) => count + 1, ifAbsent: () => 1);
           switch (ref) {
-            case 'network://desktop/missing':
+            case 'network://server/missing':
               throw const NetworkMediaUnavailable('Server returned 404');
-            case 'network://desktop/document':
+            case 'network://server/document':
               await output.writeAsString('{"subsonic-response":{}}');
             default:
               throw const HttpException('Connection closed');
@@ -284,18 +284,18 @@ void main() {
         },
       );
       for (final ref in [
-        'network://desktop/missing',
-        'network://desktop/document',
-        'network://desktop/offline',
+        'network://server/missing',
+        'network://server/document',
+        'network://server/offline',
       ]) {
         expect(await covers.file(ref), isNull);
         expect(await covers.file(ref), isNull);
       }
       // Only the transfer failure is tried again after retryDelay.
       expect(fetches, {
-        'network://desktop/missing': 1,
-        'network://desktop/document': 1,
-        'network://desktop/offline': 2,
+        'network://server/missing': 1,
+        'network://server/document': 1,
+        'network://server/offline': 2,
       });
       expect(names(), isEmpty);
     },
@@ -346,7 +346,7 @@ void main() {
           await output.writeAsBytes(bytes);
         },
       );
-      const ref = 'network://desktop/subsonic/cover/YQ.image';
+      const ref = 'network://server/subsonic/cover/YQ.image';
       final first = (await covers.file(ref))!;
       expect(await covers.file(ref), first);
       expect(fetches, 1);
@@ -451,7 +451,7 @@ void main() {
         await output.writeAsBytes(_jpeg(1));
       },
     );
-    const ref = 'network://desktop/subsonic/cover/YQ.image';
+    const ref = 'network://server/subsonic/cover/YQ.image';
     final path = (await covers.file(ref))!;
     await directory.delete(recursive: true);
     expect(covers.cachedFile(ref), isNull);
@@ -469,7 +469,7 @@ void main() {
     }
 
     final covers = store(fetch: fetch);
-    const ref = 'network://desktop/subsonic/cover/YQ.image';
+    const ref = 'network://server/subsonic/cover/YQ.image';
     final path = (await covers.file(ref))!;
     final ahead = DateTime.now().add(const Duration(days: 400));
     await File(path).setLastModified(ahead);
@@ -484,7 +484,7 @@ void main() {
     bytes = _jpeg(2);
     final changed = store(fetch: fetch);
     expect(await changed.file(ref), path);
-    const other = 'network://desktop/subsonic/cover/Yg.image';
+    const other = 'network://server/subsonic/cover/Yg.image';
     final otherPath = (await changed.file(other))!;
     await changed.dispose();
     expect(fetches, 4);
@@ -540,7 +540,7 @@ void main() {
     final covers = store(
       fetch: (_, output) async => output.writeAsBytes(_jpeg(1)),
     );
-    const ref = 'network://desktop/subsonic/cover/YQ.image';
+    const ref = 'network://server/subsonic/cover/YQ.image';
     expect(covers.indexedFile(ref), isNull);
     final path = (await covers.file(ref))!;
     expect(covers.indexedFile(ref), path);
@@ -603,7 +603,6 @@ void main() {
       await covers.warmUp();
       expect(covers.indexedFile(ref), isNull);
     },
-    skip: Platform.isWindows ? 'FIFO fixture requires a Unix host' : false,
   );
 
   test(
@@ -673,7 +672,7 @@ void main() {
         await output.writeAsBytes(_jpeg(version));
       },
     );
-    const ref = 'network://desktop/subsonic/cover/YQ.image';
+    const ref = 'network://server/subsonic/cover/YQ.image';
     final path = (await covers.file(ref))!;
     expect(await covers.file(ref), path);
     expect(fetches, 1);
@@ -683,7 +682,7 @@ void main() {
     for (var i = 0; i < 50; i++) {
       covers
         ..invalidate(ref)
-        ..invalidate('network://desktop/subsonic/cover/$i.image');
+        ..invalidate('network://server/subsonic/cover/$i.image');
     }
     covers.invalidate(null);
     await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -700,7 +699,7 @@ void main() {
 
     // A fetch that failed while offline is not waited out once back.
     offline = true;
-    const missing = 'network://desktop/subsonic/cover/Yg.image';
+    const missing = 'network://server/subsonic/cover/Yg.image';
     expect(await covers.file(missing), isNull);
     offline = false;
     expect(await covers.file(missing), isNull);
@@ -796,7 +795,7 @@ void main() {
     for (final reference in [
       'https://example.test/cover.jpg',
       'http://192.168.1.20/cover.jpg',
-      'network://desktop/subsonic/cover/YQ.image',
+      'network://server/subsonic/cover/YQ.image',
       'content://media/external/images/media/1',
       '/music/covers/a.jpg',
       Uri.file('/music/covers/a.jpg').toString(),

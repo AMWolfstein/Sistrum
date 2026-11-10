@@ -172,6 +172,12 @@ void main() {
       expect(encoded, 20);
       expect(_rows(file), hasLength(40));
 
+      // Remember the fetched times: updating an object stamps its touched time.
+      final fetchedTouched = {
+        for (final object in objects.take(10))
+          object.id!: object.touched!.millisecondsSinceEpoch,
+      };
+      await Future<void>.delayed(const Duration(milliseconds: 5));
       for (final object in objects.take(10)) {
         await repository.update(object);
       }
@@ -183,20 +189,31 @@ void main() {
       await repository.update(objects[12].copyWith(eTag: '"new"'));
       await _until(() => writes.count == 2, 'the update save');
       expect(encoded, 31);
-      final touchedRows = {
-        for (final row in _rows(file)) row['_id'] as int: row['touched'],
+      // Touch-only changes persist later, so read the stamped times from the
+      // repository rather than from the file.
+      final current = {
+        for (final object in await repository.getAllObjects())
+          object.id!: object.touched!.millisecondsSinceEpoch,
       };
       for (final object in objects.take(10)) {
-        expect(
-          touchedRows[object.id],
-          greaterThan(object.touched!.millisecondsSinceEpoch),
-        );
+        expect(current[object.id], greaterThan(fetchedTouched[object.id]!));
       }
 
       await repository.delete(objects[19].id!);
       await repository.close();
       expect(writes.count, 3);
       expect(encoded, 31);
+      // Closing flushes the touch-only changes: the saved index holds the
+      // new stamps too.
+      final savedTouched = {
+        for (final row in _rows(file)) row['_id'] as int: row['touched'],
+      };
+      for (final object in objects.take(10)) {
+        expect(
+          savedTouched[object.id],
+          greaterThan(fetchedTouched[object.id]!),
+        );
+      }
     }, writes);
     expect(_rows(file), hasLength(39));
   });
@@ -319,23 +336,31 @@ void main() {
   });
 
   test('an index it cannot read is reported and never replaced', () async {
+    // Permission bits cannot make the file unreadable for root, so the read
+    // fails through an IO override instead. The worker is refused so that the
+    // read happens in this isolate, where the override applies.
     await _writeIndex(file, 3);
     final written = file.readAsBytesSync();
-    await Process.run('chmod', ['000', file.path]);
-    addTearDown(() => Process.run('chmod', ['644', file.path]));
     final errors = <FlutterErrorDetails>[];
     final previous = FlutterError.onError;
     FlutterError.onError = errors.add;
     addTearDown(() => FlutterError.onError = previous);
-    final repository = CoverCacheInfoRepository(() async => file);
-    await repository.open();
+    final repository = CoverCacheInfoRepository(
+      () async => file,
+      runInWorker: <T>(_) =>
+          Future<T>.error(IsolateSpawnException('no worker')),
+    );
+    await IOOverrides.runWithIOOverrides(
+      repository.open,
+      _UnreadableFile(file.path),
+    );
     expect(errors.single.exception, isA<FileSystemException>());
     final added = await repository.insert(_cover(9));
     expect(await repository.get(added.key), isNotNull);
     await repository.close();
-    await Process.run('chmod', ['644', file.path]);
     expect(file.readAsBytesSync(), written);
-  }, skip: Platform.isWindows ? 'needs POSIX permissions' : null);
+    expect(File('${file.path}.tmp').existsSync(), isFalse);
+  });
 
   test('a corrupt index is reported and replaced', () async {
     await file.writeAsString('[{"_id": 1, "url": ');
@@ -352,4 +377,34 @@ void main() {
     await repository.close();
     expect(_rows(file), hasLength(1));
   });
+}
+
+/// Makes the file at [path] exist but fail every read, as an index without
+/// read permission does.
+base class _UnreadableFile extends IOOverrides {
+  _UnreadableFile(this.path);
+
+  final String path;
+
+  @override
+  File createFile(String path) =>
+      path == this.path ? _UnreadableFileEntity(path) : super.createFile(path);
+}
+
+class _UnreadableFileEntity implements File {
+  _UnreadableFileEntity(this.path);
+
+  @override
+  final String path;
+
+  @override
+  bool existsSync() => true;
+
+  @override
+  Uint8List readAsBytesSync() =>
+      throw FileSystemException('Permission denied', path);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnsupportedError('${invocation.memberName} is not used');
 }

@@ -83,7 +83,6 @@ class LibraryDatabase {
         },
         onUpgrade: LibrarySchema.upgrade,
         onOpen: (db) async {
-          await LibrarySchema.onOpen(db);
           await migrateAndroidLibraryCovers(db);
         },
       );
@@ -106,7 +105,7 @@ class LibraryDatabase {
   ) => _ingestion.readNetworkScanRows(sourceId, paths);
 
   /// Keeps native scan output native through parsing, indexing and the atomic
-  /// source swap. The stream implementation remains the desktop/test adapter.
+  /// source swap.
   Future<({int inserted, int skipped})> replaceSourceScanFile(
     String sourceId,
     LibraryScanNDJSONFile scan, {
@@ -311,7 +310,6 @@ class LibraryDatabase {
       id: row['id'] as String,
       path: row['path'] as String,
       displayName: row['display_name'] as String,
-      bookmark: row['bookmark'] as String?,
       volumeId: row['volume_id'] as String?,
       isRemovable: (row['is_removable'] as num?)?.toInt() == 1,
       enabled: (row['enabled'] as num?)?.toInt() != 0,
@@ -328,7 +326,6 @@ class LibraryDatabase {
     final values = <String, Object?>{
       'path': source.path,
       'display_name': source.displayName,
-      'bookmark': source.bookmark,
       'volume_id': source.volumeId,
       'is_removable': source.isRemovable ? 1 : 0,
       'enabled': source.enabled ? 1 : 0,
@@ -382,7 +379,6 @@ class LibraryDatabase {
   Future<void> migrateLegacySource({
     required String path,
     required String displayName,
-    String? bookmark,
     String? volumeId,
     bool isRemovable = false,
     bool available = true,
@@ -396,7 +392,6 @@ class LibraryDatabase {
         id: legacySourceId,
         path: path,
         displayName: displayName,
-        bookmark: bookmark,
         volumeId: volumeId,
         isRemovable: isRemovable,
         available: available,
@@ -425,7 +420,6 @@ class LibraryDatabase {
           {
             'path': 'legacy://local-library',
             'display_name': 'Music',
-            'bookmark': null,
             'volume_id': null,
             'is_removable': 0,
             'enabled': 1,
@@ -1195,7 +1189,6 @@ Future<void> persistLegacyLibrarySource(
   final values = <String, Object?>{
     'path': source.path,
     'display_name': source.displayName,
-    'bookmark': source.bookmark,
     'volume_id': source.volumeId,
     'is_removable': source.isRemovable ? 1 : 0,
     'available': source.available ? 1 : 0,

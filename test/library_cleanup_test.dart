@@ -174,9 +174,9 @@ void main() {
         ('local', '/music/a.flac', '$stored/cover_a.jpg', 4),
         ('saf', 'content://tree/b.flac', '${covers.path}/cover_b.png', 4),
         (
-          'windows',
-          r'C:\Music\f.flac',
-          r'\\?\C:\Users\me\AppData\Roaming\mornye\library_covers\cover_f.jpg',
+          'posix',
+          '/music/f.flac',
+          '$stored/cover_f.jpg',
           4,
         ),
         ('network', 'network://nas/b.flac', '$stored/x.image', 4),
@@ -207,7 +207,7 @@ void main() {
         {
           'local': -1,
           'saf': -1,
-          'windows': -1,
+          'posix': -1,
           'network': 1000,
           'download': 1000,
           'named': -1,

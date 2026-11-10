@@ -8,7 +8,6 @@ class _MusicFailures {
   final MusicPlayerHandler handler;
   int _failures = 0;
   int _skipGeneration = -1;
-  int _queueLimit = 0;
   int? _checkingGeneration;
   PlayableMedia? _startedMedia;
   String? _startedPath;
@@ -79,12 +78,13 @@ class _MusicFailures {
     if (media.isNetwork ||
         media.originSource != null ||
         (resolved == null && !media.isContentUri) ||
-        _MusicFormats._isUrl(resolved ?? '')) {
+        const {
+          'http',
+          'https',
+        }.contains(Uri.tryParse(resolved ?? '')?.scheme)) {
       return false;
     }
-    final path = media.isContentUri || handler._formats.owns(resolved)
-        ? media.source
-        : resolved ?? media.source;
+    final path = media.isContentUri ? media.source : resolved ?? media.source;
     if (path.isEmpty) return false;
     final access = await handler._dependencies.fileAccess(path);
     if (!handler._isCurrentPlayRequest(generation, media)) return true;
@@ -122,33 +122,7 @@ class _MusicFailures {
     if (_failures == 0 || generation != _skipGeneration) {
       _failures = 0;
       // Autoplay additions cannot keep a failing pass running forever.
-      _queueLimit = handler._media.length;
     }
     _failures++;
-  }
-
-  bool canSkip(int generation, {required bool startPaused, int? limit}) {
-    _recordFailure(generation);
-    final count = handler._media.length;
-    final repeatAll = handler._repeatMode == AudioServiceRepeatMode.all;
-    return !startPaused &&
-        !handler._userPaused &&
-        handler._repeatMode != AudioServiceRepeatMode.one &&
-        (handler._index + 1 < count || (repeatAll && count > 1)) &&
-        _failures < min(_queueLimit, limit ?? _queueLimit);
-  }
-
-  void playNext() {
-    final next = handler._index + 1 < handler._media.length
-        ? handler._index + 1
-        : handler._beginRepeatPass(handler._repeatPassStart());
-    // Finish the failed source change before opening the next song.
-    final playing = handler._playIndex(next);
-    _skipGeneration = handler._playRequestGeneration;
-    unawaited(
-      playing.catchError((Object error) {
-        _log.w('Could not play the next song: $error');
-      }),
-    );
   }
 }

@@ -155,7 +155,7 @@ void main() {
         sourceId: 's',
         filePath: _document('Rock/Album/01 Song.flac'),
       ),
-      (id: 'plain', sourceId: 's', filePath: r'C:\Music\Jazz\Live\Take.flac'),
+      (id: 'plain', sourceId: 's', filePath: '/music/Jazz/Live/Take.flac'),
       (id: 'one', sourceId: 's', filePath: '/m/A/Intro.flac'),
       (id: 'two', sourceId: 's', filePath: '/m/B/Intro.flac'),
       (id: 'cue', sourceId: 's', filePath: '/m/Live/disc.flac#track=1'),
@@ -167,8 +167,7 @@ void main() {
       'saf',
     );
     expect(index.match('../album/01 song.FLAC'), 'saf');
-    expect(index.match('file:///sdcard/Jazz/Live/Take.flac'), 'plain');
-    expect(index.match(r'Live\Take.flac'), 'plain');
+    expect(index.match('file:///music/Jazz/Live/Take.flac'), 'plain');
     expect(index.match('file:///x/A/Intro.flac'), 'one');
     expect(index.match('Intro.flac'), isNull);
     expect(index.match('/other/Missing.flac'), isNull);

@@ -10,7 +10,6 @@ import 'package:material_3_expressive/material_3_expressive.dart'
         M3EButtonStyle;
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 /// One tool in a [ToolButtonGroup].
 class ToolButton {
@@ -34,7 +33,6 @@ class ToolButton {
 /// A page's tools (sort, filter, view) as one connected Material 3
 /// Expressive button group, so the related controls read as one object, as
 /// on Library pages and search results. The group is 44dp tall on phones
-/// and 40dp for desktop pointer input; both keep the 48dp touch target.
 class ToolButtonGroup extends StatefulWidget {
   const ToolButtonGroup({super.key, required this.tools});
 
@@ -83,7 +81,7 @@ class _ToolButtonGroupState extends State<ToolButtonGroup> {
   @override
   Widget build(BuildContext context) {
     final tools = widget.tools;
-    final height = isDesktopPlatform ? 40.0 : 44.0;
+    final height = 44.0;
     return GestureDetector(
       onLongPressStart: tools.any((tool) => tool.onLongPress != null)
           ? _handleLongPress

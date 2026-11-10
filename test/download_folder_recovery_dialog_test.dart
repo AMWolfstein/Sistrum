@@ -52,7 +52,7 @@ void main() {
         reselect: true,
       ),
       (
-        name: 'bookmark access failure',
+        name: 'lost folder access failure',
         error: downloadFolderAccessLostErrorMessage,
         type: DownloadErrorType.permission,
         network: '',

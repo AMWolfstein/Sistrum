@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,7 +16,6 @@ import 'package:mornye/utils/artist_utils.dart';
 import 'package:mornye/utils/audio_format_utils.dart';
 import 'package:mornye/utils/audio_conversion_utils.dart';
 import 'package:mornye/utils/audio_quality_badge_policy.dart';
-import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/utils/logger.dart';
 
 const _settingsKey = 'app_settings';
@@ -70,14 +68,12 @@ AppSettings resetInstallationBoundSettings(AppSettings settings) {
     downloadDirectory: '',
     networkDownloadFolder: '',
     networkDownloadLabel: '',
-    downloadDirectoryBookmark: '',
     storageMode: 'app',
     downloadTreeUri: '',
     isFirstLaunch: true,
     useAllFilesAccess: false,
     localLibraryEnabled: false,
     localLibraryPath: '',
-    localLibraryBookmark: '',
     localLibraryAutoScan: 'off',
     hasCompletedTutorial: false,
   );
@@ -139,7 +135,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   Future<SharedPreferences> get _prefs => _loadPreferences();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     aOptions: secureStorageAndroidOptions,
-    mOptions: secureStorageMacOsOptions,
   );
   Future<void>? _saveSettingsFuture;
   final _previousDownloadDirectories = <String>{};
@@ -234,7 +229,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
         );
 
         await _runMigrations(prefs);
-        await _normalizeIosDownloadDirectoryIfNeeded();
         await _normalizeSongLinkRegionIfNeeded();
       }
     }
@@ -440,7 +434,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       downloadDirectory: current.downloadDirectory,
       networkDownloadFolder: current.networkDownloadFolder,
       networkDownloadLabel: current.networkDownloadLabel,
-      downloadDirectoryBookmark: current.downloadDirectoryBookmark,
       storageMode: current.storageMode,
       downloadTreeUri: current.downloadTreeUri,
       embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
@@ -454,30 +447,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     _syncLyricsSettingsToBackend();
     await _syncNetworkCompatibilitySettingsToBackend();
     await _syncExtensionFallbackSettingsToBackend();
-  }
-
-  Future<void> _normalizeIosDownloadDirectoryIfNeeded() async {
-    if (!Platform.isIOS) return;
-
-    // A security-scoped bookmark is the source of truth for folders picked
-    // from Files: its stored path may legitimately point outside the app
-    // container, and the download flow re-resolves the real path from the
-    // bookmark. "Fixing" the path here would also drop the bookmark and
-    // silently revert the user's chosen folder.
-    if (state.downloadDirectoryBookmark.isNotEmpty) return;
-
-    final currentDir = state.downloadDirectory.trim();
-    if (currentDir.isEmpty) return;
-
-    final normalizedDir = await validateOrFixIosPath(currentDir);
-    if (normalizedDir == currentDir) return;
-
-    _log.i('Normalized iOS download directory: $currentDir -> $normalizedDir');
-    state = state.copyWith(
-      downloadDirectory: normalizedDir,
-      downloadDirectoryBookmark: '',
-    );
-    await _saveSettings();
   }
 
   String _normalizeSongLinkRegion(String region) {
@@ -569,12 +538,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setSingleFilenameFormat(String format) =>
       _commit(state.copyWith(singleFilenameFormat: format));
 
-  void setDownloadDirectory(String directory, {String? iosBookmark}) => _commit(
+  void setDownloadDirectory(String directory) => _commit(
     state.copyWith(
       networkDownloadFolder: '',
       networkDownloadLabel: '',
       downloadDirectory: directory,
-      downloadDirectoryBookmark: iosBookmark ?? '',
     ),
   );
 
@@ -600,7 +568,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       state.copyWith(
         storageMode: 'app',
         downloadDirectory: directory,
-        downloadDirectoryBookmark: '',
         downloadTreeUri: '',
       ),
     );
@@ -613,9 +580,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       downloadTreeUri: uri,
       storageMode: uri.isNotEmpty ? 'saf' : state.storageMode,
       downloadDirectory: displayName ?? state.downloadDirectory,
-      downloadDirectoryBookmark: uri.isNotEmpty
-          ? ''
-          : state.downloadDirectoryBookmark,
     ),
   );
 
@@ -679,9 +643,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setAutoMixLowPass(bool enabled) =>
       _commit(state.copyWith(autoMixLowPass: enabled));
 
-  void setDiscordRichPresenceEnabled(bool enabled) =>
-      _commit(state.copyWith(discordRichPresenceEnabled: enabled));
-
   void setAutoplay(bool enabled) => _commit(state.copyWith(autoplay: enabled));
 
   void setAutoplayPersonalization(bool enabled) =>
@@ -733,12 +694,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setDapExclusive(bool enabled) => _commit(
     state.copyWith(dapExclusive: enabled, usbDirect: enabled ? false : null),
   );
-
-  void setExclusiveOutput(bool enabled) =>
-      _commit(state.copyWith(exclusiveOutput: enabled));
-
-  void setExclusiveOutputDevice(String device) =>
-      _commit(state.copyWith(exclusiveOutputDevice: device));
 
   void setEmbedMetadata(bool enabled) =>
       _commit(state.copyWith(embedMetadata: enabled));
@@ -1058,9 +1013,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setLocalLibraryEnabled(bool enabled) =>
       _commit(state.copyWith(localLibraryEnabled: enabled));
 
-  void setLocalLibraryPathAndBookmark(String path, String bookmark) => _commit(
-    state.copyWith(localLibraryPath: path, localLibraryBookmark: bookmark),
-  );
+  void setLocalLibraryPath(String path) =>
+      _commit(state.copyWith(localLibraryPath: path));
 
   void setLocalLibraryShowDuplicates(bool show) =>
       _commit(state.copyWith(localLibraryShowDuplicates: show));

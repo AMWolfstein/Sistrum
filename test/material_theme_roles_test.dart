@@ -8,11 +8,9 @@ import 'package:mornye/providers/theme_provider.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/dynamic_color_wrapper.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
 import 'package:mornye/widgets/settings_group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'support/app_icon_finder.dart';
 
 double _contrast(Color first, Color second) {
   final a = first.computeLuminance();
@@ -221,85 +219,6 @@ void main() {
       }
     });
 
-    testWidgets('desktop context menu wears the skin and selected fill', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _host(
-          Builder(
-            builder: (context) => TextButton(
-              onPressed: () => showContextMenu(
-                context,
-                position: const Offset(100, 100),
-                groups: [
-                  [
-                    ContextMenuAction(
-                      icon: Icons.favorite_border,
-                      label: 'Favorite',
-                      checked: true,
-                      onSelected: () {},
-                    ),
-                    ContextMenuAction(
-                      icon: Icons.queue_music,
-                      label: 'Add to queue',
-                      onSelected: () {},
-                    ),
-                  ],
-                  [
-                    ContextMenuAction(
-                      icon: Icons.delete_outline,
-                      label: 'Delete',
-                      destructive: true,
-                      onSelected: () {},
-                    ),
-                  ],
-                ],
-              ),
-              child: const Text('Open'),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-
-      final scheme = AppTheme.light().colorScheme;
-      List<Material> materialsAbove(String label) => tester
-          .widgetList<Material>(
-            find.ancestor(
-              of: find.text(label),
-              matching: find.byType(Material),
-            ),
-          )
-          .toList();
-
-      final checked = materialsAbove('Favorite');
-      expect(checked.first.color, scheme.tertiaryContainer);
-      expect(
-        DefaultTextStyle.of(tester.element(find.text('Favorite'))).style.color,
-        scheme.onTertiaryContainer,
-      );
-      expect(findAppIcon(Icons.check), findsOneWidget);
-
-      final plain = materialsAbove('Add to queue');
-      expect(plain.first.color, isNot(scheme.tertiaryContainer));
-      expect(_radiusOf(plain.first.shape), BorderRadius.circular(12));
-      expect(_radiusOf(checked.first.shape), BorderRadius.circular(12));
-      final panel = plain.firstWhere(
-        (material) => material.color == scheme.surfaceContainerLow,
-      );
-      expect(_radiusOf(panel.shape), BorderRadius.circular(16));
-
-      expect(
-        tester.widget<Text>(find.text('Delete')).style?.color,
-        scheme.error,
-      );
-      expect(
-        tester.getTopLeft(find.text('Delete')).dy,
-        greaterThan(tester.getTopLeft(find.text('Add to queue')).dy),
-      );
-      expect(find.byType(Divider), findsOneWidget);
-    });
   });
 
   group('settings fills', () {

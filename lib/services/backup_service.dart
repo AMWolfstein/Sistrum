@@ -299,7 +299,8 @@ class BackupService {
       } else {
         await _encodeArchiveInBackground(partFile.path, archiveFiles);
       }
-      if (await output.exists()) await output.delete();
+      // rename replaces an existing backup atomically on Android, so the old
+      // file survives until the new one is complete.
       await partFile.rename(output.path);
       _log.i('Streaming backup written to ${output.path}');
       return output;
@@ -374,7 +375,6 @@ class BackupService {
       await restoreNativeHistory(database, bundle);
       return;
     }
-    // Desktop and legacy in-memory callers retain the established codec.
     await HistoryDatabase.instance.clearAll();
     var batch = <Map<String, dynamic>>[];
     await for (final item in bundle.streamHistory()) {
@@ -403,8 +403,6 @@ class BackupService {
         'history_path': snapshotPath,
         'ndjson_path': path,
         'platform': nativePlatformName(),
-        if (Platform.isIOS)
-          'documents_path': (await getApplicationDocumentsDirectory()).path,
       });
       if (result['published'] != true || result['count'] is! int) {
         throw const FormatException('Incomplete native history backup');

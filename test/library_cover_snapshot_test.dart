@@ -312,28 +312,4 @@ void main() {
     });
   });
 
-  test(
-    'desktop reference pages remain bounded and retain exact distinct paths',
-    () async {
-      await database.transaction((txn) async {
-        for (var index = 0; index < 800; index++) {
-          await txn.rawInsert('INSERT INTO library VALUES (?, ?, ?)', [
-            'bulk-$index',
-            'hidden',
-            '/covers/${index.toString().padLeft(4, '0')}.jpg',
-          ]);
-        }
-      });
-      final references = await readLibraryCoverReferences(database);
-      expect(references.length, 802);
-      expect(
-        references,
-        containsAll([
-          '/covers/0000.jpg',
-          '/covers/0799.jpg',
-          '/alias/hidden.jpg',
-        ]),
-      );
-    },
-  );
 }

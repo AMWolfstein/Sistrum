@@ -87,7 +87,6 @@ void main() {
 
   test('only plain and document paths are writable', () {
     expect(isReEnrichableLibraryPath('/music/a.flac'), isTrue);
-    expect(isReEnrichableLibraryPath(r'C:\Music\a.flac'), isTrue);
     expect(
       isReEnrichableLibraryPath('content://com.android/tree/x/document/y'),
       isTrue,

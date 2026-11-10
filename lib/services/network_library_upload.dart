@@ -4,14 +4,14 @@ import 'package:path/path.dart' as p;
 import 'package:mornye/models/library_database_models.dart';
 import 'package:mornye/models/unified_library_item.dart';
 import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
+import 'package:mornye/services/offline_saver.dart';
 import 'package:mornye/services/network_storage_service.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/utils/file_access.dart'
     show deleteFileQuietly, isContentUri, isCueVirtualPath;
 
 /// Whether [item] is a file on this device that can be copied to network
-/// storage: a path or an Android content URI. Network and Link songs already
+/// storage: a path or an Android content URI. Network songs already
 /// live on a server, an offline copy came from one, and a CUE track is only a
 /// range of its album file.
 bool canUploadLibraryItem(UnifiedLibraryItem item) {
@@ -111,7 +111,7 @@ String networkUploadFileName(UnifiedLibraryItem item) {
     );
     return '$stem$extension';
   }
-  return LinkOfflineSaver.fileNameFor(
+  return OfflineSaver.fileNameFor(
     item.localItem ??
         LocalLibraryItem(
           id: item.id,
@@ -175,7 +175,7 @@ class NetworkUploadReadOnly implements Exception {
   String toString() => 'NetworkUploadReadOnly: connection is not writable';
 }
 
-class NetworkUploadResult extends LinkOfflineResult {
+class NetworkUploadResult extends OfflineResult {
   const NetworkUploadResult({
     required super.saved,
     required super.failed,
@@ -227,8 +227,8 @@ class NetworkLibraryUploader {
   Future<NetworkUploadResult> upload(
     List<NetworkUploadSong> songs, {
     required String folder,
-    LinkOfflineCancel? cancel,
-    void Function(LinkOfflineProgress progress)? onProgress,
+    OfflineCancel? cancel,
+    void Function(OfflineProgress progress)? onProgress,
   }) async {
     if (!canUploadToNetworkFolder(folder, await connections())) {
       throw const NetworkUploadReadOnly();
@@ -243,7 +243,7 @@ class NetworkLibraryUploader {
       if (cancel?.cancelled ?? false) break;
       final done = saved + skipped + failed;
       onProgress?.call(
-        LinkOfflineProgress(done: done, total: songs.length, title: song.title),
+        OfflineProgress(done: done, total: songs.length, title: song.title),
       );
       NetworkUploadFile? local;
       try {
@@ -261,7 +261,7 @@ class NetworkLibraryUploader {
           'library/${song.path}',
           checkpoint: checkpoint,
           progress: (sent, total) => onProgress?.call(
-            LinkOfflineProgress(
+            OfflineProgress(
               done: done,
               total: songs.length,
               title: song.title,

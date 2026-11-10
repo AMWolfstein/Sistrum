@@ -23,7 +23,6 @@ jobs:
     outputs:
       dart: ${{ steps.filter.outputs.dart }}
       android: ${{ steps.filter.outputs.android }}
-      ios: ${{ steps.filter.outputs.ios }}
       rust: ${{ steps.filter.outputs.rust }}
     steps:
       - name: Checkout repository
@@ -36,7 +35,8 @@ jobs:
           filters: |
             dart:
               - 'third_party/audio_service/**'
-              - 'third_party/mornye_discord/**'
+              - 'third_party/audioplayers_android/**'
+              - 'third_party/ffmpeg_kit_flutter_new_audio/**'
               - 'lib/**'
               - 'test/**'
               - 'integration_test/**'
@@ -58,42 +58,13 @@ jobs:
               - 'android/gradlew'
               - 'android/gradle/wrapper/**'
               - '.github/workflows/ci.yml'
-            ios:
-              - 'third_party/audio_service/**'
-              - 'third_party/mornye_discord/**'
-              - 'scripts/setup_discord_sdk.sh'
-              - 'scripts/prepare_discord_sdk.py'
-              - 'scripts/test_prepare_discord_sdk.py'
-              - '.github/actions/discord-sdk/**'
-              - 'third_party/discord/*.zip.gpg'
-              - 'ios/**'
-              - 'scripts/build_ios.sh'
-              - 'scripts/flutter_git_commit.sh'
-              - 'scripts/test_flutter_git_commit.py'
-              - 'scripts/prepare_flutter_sdk.dart'
-              - 'patches/flutter/**'
-              - 'scripts/check_backend_ios.py'
-              - 'scripts/test_check_backend_ios.py'
-              - 'lib/**'
-              - 'assets/**'
-              - 'pubspec.yaml'
-              - 'pubspec.lock'
-              - 'l10n.yaml'
-              - '.fvmrc'
-              - '.github/workflows/ci.yml'
             android:
               - 'third_party/audio_service/**'
-              - 'third_party/mornye_discord/**'
-              - 'scripts/setup_discord_sdk.sh'
-              - 'scripts/prepare_discord_sdk.py'
-              - 'scripts/test_prepare_discord_sdk.py'
-              - '.github/actions/discord-sdk/**'
-              - 'third_party/discord/*.zip.gpg'
+              - 'third_party/audioplayers_android/**'
+              - 'third_party/ffmpeg_kit_flutter_new_audio/**'
               - 'android/**'
               - 'rust_backend/**'
               - 'scripts/build_android.sh'
-              - 'scripts/flutter_git_commit.sh'
-              - 'scripts/test_flutter_git_commit.py'
               - 'scripts/prepare_flutter_sdk.dart'
               - 'patches/flutter/**'
               - 'scripts/build_rust_backend.sh'
@@ -153,6 +124,13 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Run the memory tests with the VM service
+        run: >-
+          flutter test --enable-vmservice
+          test/library_memory_release_test.dart
+          test/network_smb_memory_test.dart
+          test/network_library_memory_test.dart
+
   rust:
     name: Rust checks & Android libraries
     runs-on: ubuntu-latest
@@ -187,78 +165,12 @@ jobs:
       - name: Rust formatting, Clippy and unit tests
         run: bash scripts/check_rust_backend.sh
 
-  rust-ios:
-    name: Rust iOS libraries & release application
-    runs-on: xcode-27
-    needs: changes
-    if: needs.changes.outputs.rust == 'true' || needs.changes.outputs.ios == 'true'
-    env:
-      MORNYE_DISCORD_SDK: "0"
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Activate pinned Rust toolchain
-        working-directory: rust_backend
-        run: rustup show
-
-      - name: Cache Cargo registry and build output
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-            rust_backend/target
-          key: cargo-${{ runner.os }}-rust-ios-${{ hashFiles('rust_backend/rust-toolchain.toml') }}-${{ hashFiles('rust_backend/Cargo.lock') }}
-          restore-keys: cargo-${{ runner.os }}-rust-ios-${{ hashFiles('rust_backend/rust-toolchain.toml') }}-
-
-      - name: Build iOS device and universal simulator XCFramework
-        run: bash scripts/build_rust_backend.sh ios
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
-        with:
-          channel: "stable"
-          flutter-version-file: .fvmrc
-          cache: true
-
-      - name: Prepare Flutter framework patch
-        run: dart scripts/prepare_flutter_sdk.dart
-
-      - name: Prepare pinned Discord SDK
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: ./.github/actions/discord-sdk
-        with:
-          passphrase: ${{ secrets.DISCORD_MOBILE_SDK_PASSPHRASE }}
-
-      - name: Configure Rust application pods
-        run: |
-          flutter pub get
-          cd ios
-          pod install
-
-      - name: Build and audit Rust iOS release application
-        run: |
-          python3 -m unittest discover -s scripts -p 'test_check_backend_ios.py'
-          python3 -m unittest discover -s scripts -p 'test_flutter_git_commit.py'
-          flutter build ios --release --no-codesign --target lib/main.dart
-          test -s build/ios/iphoneos/Runner.app/Extensions/LinkNowPlaying.appex/LinkNowPlaying
-          if [[ "$MORNYE_DISCORD_SDK" == "1" ]]; then
-            test -f build/ios/iphoneos/Runner.app/Frameworks/discord_partner_sdk.framework/discord_partner_sdk
-            test -f build/ios/iphoneos/Runner.app/Frameworks/mornye_discord.framework/Discord-License-Notices.txt
-          fi
-          python3 scripts/check_backend_ios.py build/ios/iphoneos/Runner.app \
-            --backend rust --archs arm64 --platform ios --release
-
   android:
     name: Android Rust builds & native tests
     runs-on: ubuntu-latest
     needs: changes
     if: needs.changes.outputs.android == 'true'
     env:
-      MORNYE_DISCORD_SDK: "0"
 
     steps:
       - name: Checkout repository
@@ -301,17 +213,8 @@ jobs:
 
       - name: Test SDK preparation, release selection and APK audits
         run: |
-          python3 -m unittest discover -s scripts -p 'test_prepare_discord_sdk.py'
           python3 -m unittest discover -s scripts -p 'test_build_android.py'
-          python3 -m unittest discover -s scripts -p 'test_flutter_git_commit.py'
           python3 -m unittest discover -s scripts -p 'test_check_backend_apk.py'
-
-      # Fork PRs cannot access repository secrets and exercise the Lite build.
-      - name: Prepare pinned Discord SDK
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: ./.github/actions/discord-sdk
-        with:
-          passphrase: ${{ secrets.DISCORD_MOBILE_SDK_PASSPHRASE }}
 
       - name: Get Flutter dependencies
         run: flutter pub get
@@ -343,38 +246,25 @@ jobs:
         run: gradle -p android :app:assembleDebug :app:testDebugUnitTest
 
       - name: Build Rust release application
-        run: |
-          if [[ "$MORNYE_DISCORD_SDK" == "1" ]]; then
-            bash scripts/build_android.sh --production --target lib/main.dart
-          else
-            bash scripts/build_android.sh --lite --target lib/main.dart
-          fi
+        env:
+          MORNYE_ALLOW_DEBUG_SIGNING: "1"
+        run: bash scripts/build_android.sh --target lib/main.dart
 
-      - name: Verify Rust release APK payloads
+      - name: Verify Rust release APK payload
         run: |
-          audit_flags=()
-          if [[ "$MORNYE_DISCORD_SDK" == "1" ]]; then
-            audit_flags+=(--discord-sdk)
-          fi
           python3 scripts/check_backend_apk.py \
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
-            --backend rust --abis arm64-v8a "${audit_flags[@]}"
-          python3 scripts/check_backend_apk.py \
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
-            --backend rust --abis armeabi-v7a "${audit_flags[@]}"
+            build/app/outputs/flutter-apk/app-release.apk \
+            --backend rust --abis arm64-v8a
           # PR builds use Gradle's test key; production signing stays in Release.
-          for abi in arm64-v8a armeabi-v7a; do
-            "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose \
-              "build/app/outputs/flutter-apk/app-${abi}-release.apk"
-          done
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose \
+            build/app/outputs/flutter-apk/app-release.apk
 
       - name: Record Android symbol provenance
         run: |
           test -s build/symbols/android/app.android-arm64.symbols
-          test -s build/symbols/android/app.android-arm.symbols
           test -s build/app/outputs/mapping/release/mapping.txt
           git rev-parse HEAD > build/symbols/android/commit.txt
-          sha256sum build/app/outputs/flutter-apk/*release.apk > build/symbols/android/apk-sha256.txt
+          sha256sum build/app/outputs/flutter-apk/app-release.apk > build/symbols/android/apk-sha256.txt
 
       - name: Retain Android debug symbols
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -333,26 +333,6 @@ void main() {
     expect(analyzer.calls, ['/a.flac', '/b.flac', '/c.flac']);
   });
 
-  test('iOS analyzes only the song playing, never documents', () async {
-    library = ['/a.flac', 'content://media/b'];
-    final (analysis, store) = create(
-      sweep: SongAnalysisSweep.never,
-      isAndroid: false,
-    );
-    analysis.start(playing.stream);
-    expect(await waits.next(), const Duration(seconds: 90));
-    waits.release();
-    await analysis.refreshProgress();
-    expect(analysis.progress.value?.total, 1);
-
-    playing.add(_playing('content://media/b'));
-    final current = analyzer.next();
-    playing.add(_playing('/b.flac'));
-    expect(await current, '/b.flac');
-    await pumpEventQueue(times: 50);
-    expect(analyzer.calls, ['/b.flac']);
-    expect((await store.records()).keys, ['/b.flac']);
-  });
 
   test('windows skip intros and stay inside the song', () {
     List<double> offsets(int seconds) =>

@@ -6,12 +6,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 case "${1:-arm64-v8a}" in
   arm64-v8a) target=aarch64-linux-android; compiler=aarch64-linux-android24-clang ;;
-  armeabi-v7a) target=armv7-linux-androideabi; compiler=armv7a-linux-androideabi24-clang ;;
-  *) echo "Usage: $0 [arm64-v8a|armeabi-v7a]" >&2; exit 2 ;;
+  *) echo "Usage: $0 [arm64-v8a]" >&2; exit 2 ;;
 esac
 : "${ANDROID_NDK_HOME:?Set ANDROID_NDK_HOME}"
 case "$(uname -s)" in
-  Darwin) ndk_host=darwin-x86_64 ;;
   Linux) ndk_host=linux-x86_64 ;;
   *) exit 2 ;;
 esac

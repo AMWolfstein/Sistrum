@@ -18,12 +18,8 @@ import 'package:mornye/utils/provider_resource_ids.dart';
 import 'package:mornye/widgets/playlist_picker_sheet.dart';
 import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/link/link_actions.dart';
 import 'package:mornye/widgets/motion_header_banner.dart';
 import 'package:mornye/widgets/track_list_tile.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/desktop_selection.dart';
-import 'package:mornye/widgets/desktop/track_list_table.dart';
 import 'package:mornye/widgets/track_detail_actions.dart';
 import 'package:mornye/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:mornye/widgets/error_card.dart';
@@ -62,8 +58,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
         CollapsingHeaderScrollMixin<PlaylistScreen> {
   final _historySnapshot = TrackHistorySnapshot();
 
-  /// Double click and Enter actions of the desktop table rows, by row id.
-  final Map<String, VoidCallback> _desktopActivations = {};
   List<Track>? _fetchedTracks;
   bool _isLoading = false;
   String? _error;
@@ -270,11 +264,7 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
     ];
     pruneSelection(ids.toSet());
 
-    return DesktopListScope(
-      onSelectAll: ids.isEmpty ? null : () => selectAll(ids),
-      onClearSelection: isSelectionMode ? exitSelectionMode : null,
-      onActivate: () => _desktopActivations[selectionAnchorId]?.call(),
-      child: CollectionScaffold(
+    return CollectionScaffold(
         scrollController: scrollController,
         isSelectionMode: isSelectionMode,
         onExitSelectionMode: exitSelectionMode,
@@ -296,8 +286,7 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
               tracks: _tracks,
             ),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
@@ -364,15 +353,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
           ),
         ],
       ),
-      appBarActions: ref.watch(linkPhoneClientProvider) == null
-          ? null
-          : [
-              LinkDownloadOnDesktopButton(
-                tracks: _tracks,
-                service: _recommendedDownloadService(),
-                playlistName: _playlistName,
-              ),
-            ],
       actions: CollectionHeaderActions(
         tracks: _tracks,
         onLoveAll: () => loveAllTracks(this.context, ref, _tracks),
@@ -441,43 +421,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
     final existingHistoryKeys = ref.watch(
       downloadHistoryVisibleBatchExistsProvider(_historySnapshot.request),
     );
-    if (isDesktopPlatform) {
-      final ids = [
-        for (var i = 0; i < _tracks.length; i++)
-          _trackSelectionId(_tracks[i], i),
-      ];
-      final inHistory = [
-        for (final key in historyKeys) existingHistoryKeys.contains(key),
-      ];
-      final tracks = _tracks;
-      void activate(int index) => TrackListTile.activate(
-        context,
-        ref,
-        tracks[index],
-        isInHistory: inHistory[index],
-        onDownload: ({bool forceQualityPicker = false}) => _downloadTrack(
-          context,
-          tracks[index],
-          playlistPosition: index + 1,
-          forceQualityPicker: forceQualityPicker,
-        ),
-      );
-      _desktopActivations
-        ..clear()
-        ..addAll({
-          for (var i = 0; i < ids.length; i++) ids[i]: () => activate(i),
-        });
-      return TrackListTable(
-        tracks: tracks,
-        ids: ids,
-        isInHistory: inHistory,
-        selectedIds: selectedIds,
-        onSelect: applyDesktopClick,
-        onActivate: activate,
-        showArtwork: true,
-        showAlbum: true,
-      );
-    }
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
       sliver: SliverList(

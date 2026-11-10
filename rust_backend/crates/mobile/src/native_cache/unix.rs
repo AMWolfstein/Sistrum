@@ -96,7 +96,6 @@ fn root(path: &str) -> Result<Option<CacheRoot>, String> {
     if !display.is_absolute() {
         return Err("Cache directory must be absolute".into());
     }
-    // A root alias is valid (iOS /var and /private/var are aliases); children
     // are opened relative to this descriptor with NOFOLLOW below.
     let fd = match open(
         &display,
@@ -130,7 +129,6 @@ fn modified(stat: &Stat) -> i128 {
 }
 
 /// When a Library cover name appeared. A hard link shares its inode's mtime,
-/// so a thumbnail linked moments ago (desktop and iOS) counts from the ctime
 /// that linking updates; a file with one name keeps its mtime.
 fn named(stat: &Stat) -> i128 {
     let changed = i128::from(stat.st_ctime) * 1_000_000_000 + i128::from(stat.st_ctime_nsec);

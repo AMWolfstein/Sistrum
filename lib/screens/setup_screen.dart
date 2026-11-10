@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:mornye/theme/app_motion.dart';
 import 'package:mornye/theme/material_expressive.dart';
 import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/app_content_card.dart';
 import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/app_icon_button.dart';
@@ -17,13 +14,11 @@ import 'package:mornye/widgets/app_loading_indicator.dart';
 import 'package:mornye/widgets/app_progress_indicator.dart';
 import 'package:mornye/widgets/expressive_button.dart';
 import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/extension_storage_setting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
 import 'package:mornye/services/local_network_access.dart';
 import 'package:mornye/services/setup_progress_store.dart';
 import 'package:mornye/providers/settings_provider.dart';
@@ -31,10 +26,6 @@ import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/constants/language_choices.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_folders.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/widgets/scroll_edge_fade.dart';
 import 'package:mornye/utils/logger.dart';
 
@@ -57,9 +48,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     with WidgetsBindingObserver {
   final _progressStore = SetupProgressStore();
   final _platform = defaultTargetPlatform;
-  // Desktop has no runtime storage permission: setup skips that step and
-  // picks a plain folder.
-  final _isDesktop = isDesktopPlatform;
   PageController? _pageController;
   final ScrollController _languageScrollController = ScrollController();
   late final Future<void> _initialization;
@@ -77,23 +65,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
   /// Set once Android refuses Nearby devices, so setup can go on.
   bool _nearbyRefused = false;
   String? _selectedDirectory;
-  String? _selectedDirectoryBookmark;
   String? _selectedTreeUri;
   bool _isLoading = false;
   int _androidSdkVersion = 0;
 
-  int get _totalSteps => _isDesktop || isAndroidTv
-      ? 3
-      : _androidSdkVersion >= 33
-      ? (_asksNearby ? 6 : 5)
-      : 4;
+  int get _totalSteps => _androidSdkVersion >= 33 ? (_asksNearby ? 6 : 5) : 4;
 
-  /// Android 17 asks for Nearby devices before LAN access, which Mornye Link
-  /// and network storage need. Earlier releases allow it without asking.
+  /// Android 17 asks for Nearby devices before LAN access, which network
+  /// storage needs. Earlier releases allow it without asking.
   bool get _asksNearby =>
-      _platform == TargetPlatform.android &&
-      !isAndroidTv &&
-      _androidSdkVersion >= 37;
+      _platform == TargetPlatform.android && _androidSdkVersion >= 37;
 
   void _setState(VoidCallback fn) => setState(fn);
 
@@ -132,15 +113,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
         final draft = jsonDecode(saved) as Map<String, dynamic>;
         _currentStep = ((draft['step'] as int?) ?? 0).clamp(0, _totalSteps - 1);
         _selectedDirectory = draft['directory'] as String?;
-        _selectedDirectoryBookmark = draft['bookmark'] as String?;
         _selectedTreeUri = draft['treeUri'] as String?;
         _notificationPermissionSkipped = draft['skipNotifications'] == true;
         _nearbyRefused = draft['nearbyRefused'] == true;
-      }
-      if (_isDesktop) {
-        _selectedDirectory ??= await resolveDesktopDefaultOutputDirectory();
-      } else if (isAndroidTv) {
-        _selectedDirectory ??= await _getDefaultDirectory();
       }
       await _checkInitialPermissions();
       if (_platform == TargetPlatform.android) await _restoreSelectedFolder();
@@ -176,7 +151,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     await _progressStore.writeDraft({
       'step': step ?? _currentStep,
       'directory': _selectedDirectory,
-      'bookmark': _selectedDirectoryBookmark,
       'treeUri': _selectedTreeUri,
       'skipNotifications': _notificationPermissionSkipped,
       'nearbyRefused': _nearbyRefused,
@@ -205,25 +179,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
   }
 
   Future<void> _checkInitialPermissions() async {
-    if (isAndroidTv) {
-      if (mounted) {
-        setState(() {
-          _storagePermissionGranted = true;
-          _notificationPermissionGranted = true;
-        });
-      }
-      return;
-    }
-    if (_platform == TargetPlatform.iOS) {
-      final notificationStatus = await Permission.notification.status;
-      if (mounted) {
-        setState(() {
-          _storagePermissionGranted = true;
-          _notificationPermissionGranted =
-              notificationStatus.isGranted || notificationStatus.isProvisional;
-        });
-      }
-    } else if (_platform == TargetPlatform.android) {
+    if (_platform == TargetPlatform.android) {
       final storageGranted = await _hasAndroidStoragePermission();
 
       PermissionStatus notificationStatus = PermissionStatus.granted;
@@ -265,9 +221,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     try {
       await _saveProgress();
       if (!mounted) return;
-      if (_platform == TargetPlatform.iOS) {
-        setState(() => _storagePermissionGranted = true);
-      } else if (_platform == TargetPlatform.android) {
+      if (_platform == TargetPlatform.android) {
         var allGranted = await _hasAndroidStoragePermission();
 
         if (!allGranted && _androidSdkVersion >= 33) {
@@ -334,15 +288,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     try {
       await _saveProgress();
       if (!mounted) return;
-      if (_platform == TargetPlatform.iOS) {
-        final status = await Permission.notification.request();
-        if (!mounted) return;
-        if (status.isGranted || status.isProvisional) {
-          setState(() => _notificationPermissionGranted = true);
-        } else if (status.isPermanentlyDenied) {
-          await _showPermissionDeniedDialog(permissionNotification);
-        }
-      } else if (_androidSdkVersion >= 33) {
+      if (_androidSdkVersion >= 33) {
         final status = await Permission.notification.request();
         if (!mounted) return;
         if (status.isGranted) {
@@ -365,10 +311,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     setState(() => _isLoading = true);
     try {
       await _saveProgress();
-      // Through Link, so discovery that found nothing without it starts over.
-      await ref
-          .read(linkClientControllerProvider.notifier)
-          .requestLocalNetworkAccess();
+      await LocalNetworkAccess.instance.ensureGranted();
       if (mounted) setState(() => _nearbyGranted = true);
     } on LocalNetworkPermissionException {
       if (!mounted) return;
@@ -416,11 +359,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       // the external picker is visible, including on Android 13 devices.
       await _saveProgress();
       if (!mounted) return;
-      if (_isDesktop) {
-        await _pickDesktopDirectory();
-      } else if (_platform == TargetPlatform.iOS) {
-        await _showIOSDirectoryOptions();
-      } else if (_platform == TargetPlatform.android) {
+      if (_platform == TargetPlatform.android) {
         Map<String, dynamic>? result;
         try {
           result = await PlatformBridge.pickSafTree(forSetup: true);
@@ -474,143 +413,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     }
   }
 
-  /// Desktop folders are plain paths: no SAF tree and no iOS bookmark.
-  Future<void> _pickDesktopDirectory() async {
-    final title = context.l10n.setupDownloadLocationTitle;
-    final picked = await FilePicker.getDirectoryPath(
-      dialogTitle: title,
-      initialDirectory: await resolveDesktopPickerInitialDirectory(
-        _selectedDirectory,
-      ),
-    );
-    if (picked == null || picked.isEmpty || !mounted) return;
-    setState(() {
-      _selectedDirectory = picked;
-      _selectedDirectoryBookmark = null;
-      _selectedTreeUri = null;
-    });
-    await _saveProgress();
-  }
-
-  Future<void> _showIOSDirectoryOptions() async {
-    final colorScheme = Theme.of(context).colorScheme;
-    await showAppModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-              child: Text(
-                context.l10n.setupDownloadLocationTitle,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-              child: Text(
-                context.l10n.setupDownloadLocationIosMessage,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.folder_special, color: colorScheme.primary),
-              title: Text(context.l10n.setupAppDocumentsFolder),
-              onTap: () async {
-                final dir = await _getDefaultDirectory();
-                if (!mounted) return;
-                setState(() {
-                  _selectedDirectory = dir;
-                  _selectedDirectoryBookmark = null;
-                });
-                if (ctx.mounted) Navigator.pop(ctx);
-                await _saveProgress();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.cloud, color: colorScheme.onSurfaceVariant),
-              title: Text(context.l10n.setupChooseFromFiles),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await Future<void>.delayed(const Duration(milliseconds: 250));
-
-                IosPickedDirectory? picked;
-                try {
-                  picked = await PlatformBridge.pickIosDirectory();
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          context.l10n.snackbarFolderPickerFailed(
-                            context.friendlyError(e),
-                          ),
-                        ),
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-                  }
-                  return;
-                }
-
-                if (picked == null) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(context.l10n.setupNoFolderSelected),
-                      ),
-                    );
-                  }
-                  return;
-                }
-
-                final validation = validateIosPath(
-                  picked.path,
-                  bookmark: picked.bookmark,
-                );
-                if (!validation.isValid) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          validation.errorReason ??
-                              context.l10n.errorInvalidFolderSelected,
-                        ),
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-                  }
-                  return;
-                }
-
-                final pickedDir = picked;
-                if (!mounted) return;
-                setState(() {
-                  _selectedDirectory = pickedDir.path;
-                  _selectedDirectoryBookmark = pickedDir.bookmark;
-                });
-                await _saveProgress();
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<String> _getDefaultDirectory() async {
-    if (isAndroidTv) {
-      final appDir = await getApplicationDocumentsDirectory();
-      return '${appDir.path}/Mornye';
-    }
     if (_platform == TargetPlatform.android) {
       final downloadDir = Directory('/storage/emulated/0/Download/Mornye');
       try {
@@ -631,25 +434,15 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     setState(() => _isLoading = true);
 
     try {
-      if (_platform != TargetPlatform.android ||
-          _selectedTreeUri == null ||
-          _selectedTreeUri!.isEmpty) {
-        final iosBookmark = _platform == TargetPlatform.iOS
-            ? _selectedDirectoryBookmark
-            : null;
-        if (iosBookmark == null || iosBookmark.isEmpty) {
-          final dir = Directory(_selectedDirectory!);
-          if (!await dir.exists()) {
-            await dir.create(recursive: true);
-          }
+      if (_selectedTreeUri == null || _selectedTreeUri!.isEmpty) {
+        final dir = Directory(_selectedDirectory!);
+        if (!await dir.exists()) {
+          await dir.create(recursive: true);
         }
         ref.read(settingsProvider.notifier).setStorageMode('app');
         ref
             .read(settingsProvider.notifier)
-            .setDownloadDirectory(
-              _selectedDirectory!,
-              iosBookmark: iosBookmark,
-            );
+            .setDownloadDirectory(_selectedDirectory!);
         ref.read(settingsProvider.notifier).setDownloadTreeUri('');
       } else {
         ref.read(settingsProvider.notifier).setStorageMode('saf');
@@ -720,9 +513,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
 
     final logicStep = step - 2;
 
-    if (_isDesktop || isAndroidTv) {
-      return logicStep == 0 && _selectedDirectory != null;
-    }
     if (_androidSdkVersion >= 33) {
       // Nearby devices, when asked, comes before the folder.
       final folderStep = _asksNearby ? 3 : 2;
@@ -858,58 +648,19 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
             children: [
               _buildWelcomeStep(colorScheme),
               _buildLanguageStep(colorScheme),
-              if (!_isDesktop && !isAndroidTv) _buildStorageStep(colorScheme),
-              if (_androidSdkVersion >= 33 && !isAndroidTv)
-                _buildNotificationStep(colorScheme),
+              _buildStorageStep(colorScheme),
+              if (_androidSdkVersion >= 33) _buildNotificationStep(colorScheme),
               if (_asksNearby) _buildNearbyStep(colorScheme),
               _buildDirectoryStep(colorScheme),
             ],
           ),
         ),
-        // Desktop windows keep the button in the centered column, beside the
-        // content, rather than in the far corner of a wide window.
-        if (_isDesktop)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: nextButton,
-            ),
-          ),
       ],
     );
-    if (_isDesktop) {
-      content = Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: content,
-        ),
-      );
-    }
-
-    final scaffold = Scaffold(
+    return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(child: content),
-      floatingActionButton: _isDesktop ? null : nextButton,
+      floatingActionButton: nextButton,
     );
-    if (!_isDesktop) return scaffold;
-    // Enter moves on, as the default button of a desktop window would.
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.enter): _advanceFromKeyboard,
-        const SingleActivator(LogicalKeyboardKey.numpadEnter):
-            _advanceFromKeyboard,
-      },
-      child: Focus(autofocus: true, child: scaffold),
-    );
-  }
-
-  void _advanceFromKeyboard() {
-    if (_isLoading) return;
-    if (_currentStep >= _totalSteps - 1) {
-      unawaited(_completeSetup());
-    } else if (_isStepCompleted(_currentStep)) {
-      _nextPage();
-    }
   }
 }

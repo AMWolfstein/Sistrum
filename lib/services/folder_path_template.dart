@@ -38,7 +38,6 @@ abstract final class FolderPathTemplate {
     r'date:[^{}]+)$',
   );
 
-  /// Accepts relative folders only, including Windows-style separators.
   static List<String> segments(String template) {
     final value = template.trim();
     if (value.isEmpty ||

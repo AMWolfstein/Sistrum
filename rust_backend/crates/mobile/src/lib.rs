@@ -1,5 +1,4 @@
-//! UniFFI mobile API. This crate is the only backend and routes the app on
-//! Android and iOS.
+//! UniFFI mobile API. This crate is the only backend and routes the app on Android.
 //!
 //! Comments that mention "Go" describe the retired Go backend, whose observable
 //! behavior (wire formats, parsing quirks, file layouts) remains a compatibility
@@ -38,8 +37,6 @@ mod usb_audio;
 
 uniffi::setup_scaffolding!();
 
-// Plain Rust surface for the desktop C ABI crate (`crates/desktop`), which
-// dispatches the same calls without a UniFFI foreign binding.
 pub use cancellation::{CancellationDomain, CancellationError, CancellationRegistry, RequestLease};
 pub use data_jobs::run_native_data_job;
 pub use extensions::{DownloadDirectoryScope, ExtensionEnvironment, JsExtensionError};

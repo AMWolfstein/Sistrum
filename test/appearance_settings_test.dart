@@ -308,10 +308,7 @@ void main() {
         );
         expect(tester.takeException(), isNull);
       },
-      variant: const TargetPlatformVariant({
-        TargetPlatform.android,
-        TargetPlatform.iOS,
-      }),
+      variant: const TargetPlatformVariant({TargetPlatform.android}),
     );
   }
 }

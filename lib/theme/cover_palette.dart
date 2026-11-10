@@ -281,7 +281,6 @@ class CoverPalette {
             [for (final value in pair as List) (value as num).toInt()],
         ];
       } on MissingPluginException {
-        // Desktop tests and unsupported hosts retain exact Material output,
         // with the same expensive quantizer moved off the UI isolate.
       }
       final (seed, sourceColor) = await compute(_seedAndSourceColor, (

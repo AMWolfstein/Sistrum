@@ -79,7 +79,7 @@ class PlayerWidgetService {
       await _channel.invokeMethod<void>('ready');
       await _refreshConsumers();
     } on MissingPluginException {
-      // Desktop and tests do not install the mobile widget bridge.
+      // The widget bridge is not installed in tests.
     } on PlatformException catch (error) {
       _log.w('Widget bridge unavailable: ${error.code}');
     }
@@ -90,7 +90,7 @@ class PlayerWidgetService {
       final count = await _channel.invokeMethod<int>('getInstalledWidgetCount');
       if (count != null) await _setInstalledWidgetCount(count);
     } on MissingPluginException {
-      // Older bridges and desktop keep the existing lightweight publishing.
+      // The widget bridge is not installed in tests.
     } on PlatformException catch (error) {
       _log.w('Widget consumer query failed: ${error.code}');
     }

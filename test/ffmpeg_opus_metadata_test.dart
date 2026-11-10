@@ -129,7 +129,7 @@ void main() {
               expect(
                 arguments.join(' ').length,
                 lessThan(32767),
-                reason: 'Cover bytes must not exceed the Windows command limit',
+                reason: 'Cover bytes must stay under the command length limit',
               );
               const prefix = 'METADATA_BLOCK_PICTURE=';
               final format = arguments.indexOf('ffmetadata');

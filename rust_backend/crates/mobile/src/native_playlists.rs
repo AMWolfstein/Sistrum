@@ -262,7 +262,6 @@ fn parse_m3u(
 }
 
 fn basename_stem(path: &str) -> String {
-    // The app uses path's POSIX context on Android and iOS. A leading dot is
     // part of a filename, rather than an extension.
     let filename = path
         .trim_end_matches('/')

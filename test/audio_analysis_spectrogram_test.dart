@@ -223,7 +223,6 @@ lavfi.r128.true_peak=0.907
     const nyquist = 96000.0;
 
     test('preserves exact cutoffs across noisy and transient spectra', () {
-      // Captured from the estimator before sharing sorted percentile windows.
       // Cover sharp/gradual limits, full-band slopes, noise and stepped bands
       // at several resolutions and Nyquist frequencies.
       const expected = <int, double>{

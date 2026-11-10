@@ -52,7 +52,6 @@ String _paintFingerprint(WidgetTester tester) {
 /// SHA-1 of each fingerprint, recorded on the base layout (commit 44cbb57b)
 /// before search results gained cover grids and shelves on wide screens, with
 /// the Material values re-recorded when sort and view became a grouped
-/// toolbar, the Material desktop value when Home took M3's 24dp window
 /// margin, and the Mornye values when blue became the default accent and the
 /// filter chips gained their glass press layer, and the Mornye values again when Glass
 /// became fixed at Clear (the retired Glass Quality slider's old default 0.75 painted a
@@ -67,16 +66,16 @@ const _baseFingerprints = {
   'landscape phone Mornye': '9e4af5fa611040bf6c9e5edbca78e137611f034e',
   'portrait tablet Material': '94d41e2ff5146d50d53d7b50f33ec371b88fc11f',
   'portrait tablet Mornye': '1b2ccb077d7103aed1931696bc748fb42a26636c',
-  'narrow desktop window Material': '74198bcea5c9b07d7e5a90075abcb974b99f876e',
-  'narrow desktop window Mornye': '7ad0ba125ecb8d92d780242236c8ac290f127f7a',
+  'narrow tablet window Material': 'b6100a1f1a4c5b744139bc06e924b7a12d498ac5',
+  'narrow tablet window Mornye': '793c650e24e620c3e58b6be284549a938a05462b',
 };
 
 void main() {
-  for (final (name, size, desktop) in [
-    ('phone', const Size(430, 1400), false),
-    ('landscape phone', const Size(932, 430), false),
-    ('portrait tablet', const Size(800, 1280), false),
-    ('narrow desktop window', const Size(820, 1400), true),
+  for (final (name, size) in [
+    ('phone', const Size(430, 1400)),
+    ('landscape phone', const Size(932, 430)),
+    ('portrait tablet', const Size(800, 1280)),
+    ('narrow tablet window', const Size(820, 1400)),
   ]) {
     for (final mornye in [false, true]) {
       final key = '$name ${mornye ? 'Mornye' : 'Material'}';
@@ -87,7 +86,6 @@ void main() {
           tester,
           size: size,
           mornye: mornye,
-          desktop: desktop,
         );
         expect(find.text('Found artist 0'), findsOneWidget);
         expect(find.byType(SliverGrid), findsNothing);

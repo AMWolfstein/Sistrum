@@ -222,7 +222,7 @@ void main() {
       live,
       temporaryDirectory: root,
       nativeJobRunner: native.run,
-      platform: 'ios',
+      platform: 'android',
     );
     await addNativeLibraryTrack(live, nativeLibraryTrack('old'));
     await addNativeLibraryTrack(

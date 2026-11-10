@@ -324,7 +324,6 @@ String audioSpectrogramExportBaseName(String filePath, {String? exportName}) {
 
   var name = filePath;
   final uri = Uri.tryParse(filePath);
-  // One-letter schemes are Windows drive letters, not URIs.
   if (uri != null && uri.scheme.length > 1) {
     name = uri.pathSegments.isEmpty ? '' : uri.pathSegments.last;
   }

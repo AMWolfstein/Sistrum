@@ -28,8 +28,6 @@ class AppInfo {
   static const String githubRepo = 'mornyeapp/Mornye';
   static const String githubUrl = 'https://github.com/$githubRepo';
 
-  /// Desktop packages are published here; the source stays in [githubRepo].
-  static const String desktopGithubRepo = 'mornyeapp/Mornye-Desktop';
   // The server keeps the endpoint name from before the rename.
   static const String remoteConfigApiUrl =
       'https://api.zarz.moe/v1/spotiflac-mobile/config';

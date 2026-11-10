@@ -177,37 +177,6 @@ void main() {
     });
   }
 
-  testWidgets('desktop track menu offers the link only when known', (
-    tester,
-  ) async {
-    final labels = <String, List<String>>{};
-    const linked = Track(
-      id: 'deezer:42',
-      name: 'Example track',
-      artistName: 'Example artist',
-      albumName: 'Example album',
-      duration: 180,
-    );
-    await tester.pumpWidget(
-      _app(
-        Consumer(
-          builder: (context, ref, _) {
-            for (final track in [_track, linked]) {
-              labels[track.id] = [
-                for (final group in trackOptionMenuGroups(context, ref, track))
-                  for (final action in group) action.label,
-              ];
-            }
-            return const SizedBox();
-          },
-        ),
-        _Collections(),
-        brightness: Brightness.light,
-      ),
-    );
-    expect(labels['deezer:42'], contains('Copy Deezer link'));
-    expect(labels['example-track']!.where((l) => l.contains('link')), isEmpty);
-  });
 
   testWidgets('track menu hides the link for an unknown service', (
     tester,

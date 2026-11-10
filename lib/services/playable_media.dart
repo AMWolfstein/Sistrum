@@ -7,7 +7,6 @@ import 'package:mornye/services/music_player_runtime.dart';
 import 'package:mornye/services/playback_metadata.dart';
 import 'package:mornye/utils/file_access.dart' show isContentUri;
 import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/ios_container_paths.dart';
 import 'package:mornye/utils/string_utils.dart';
 
 class PlayableMedia {
@@ -81,10 +80,7 @@ class PlayableMedia {
     if (displayMetadata.isNotEmpty) 'displayMetadata': displayMetadata,
   };
 
-  static PlayableMedia? fromJson(
-    Map<String, dynamic> json, {
-    String? iosDocumentsPath,
-  }) {
+  static PlayableMedia? fromJson(Map<String, dynamic> json) {
     final id = json['id'] as String?;
     final source = json['source'] as String?;
     if (id == null || id.isEmpty || source == null || source.isEmpty) {
@@ -92,18 +88,6 @@ class PlayableMedia {
     }
     final durationMs = (json['durationMs'] as num?)?.toInt();
     var artwork = json['artUri'] as String?;
-    if (artwork != null && iosDocumentsPath != null) {
-      final uri = Uri.tryParse(artwork);
-      if (uri != null && uri.scheme == 'file' && uri.host.isEmpty) {
-        try {
-          final path = uri.toFilePath();
-          final rebased = rebaseIosSandboxPath(path, iosDocumentsPath);
-          if (rebased != path) artwork = Uri.file(rebased).toString();
-        } on UnsupportedError {
-          // Leave malformed or non-local artwork URIs to the image fallback.
-        }
-      }
-    }
     return PlayableMedia(
       id: id,
       source: source,

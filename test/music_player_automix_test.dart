@@ -4,11 +4,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/services/automix_analysis.dart';
 import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/models/settings.dart';
 import 'package:mornye/services/playback_notification.dart';
 import 'package:mornye/models/automix_options.dart';
 import 'package:mornye/services/automix_status.dart';
-import 'package:mornye/services/playback_deck.dart';
 
 import 'support/music_player_automix_harness.dart';
 
@@ -30,43 +28,6 @@ final _passTracks = [
 void main() {
   setUpMusicPlayerHarness();
 
-  test(
-    'USB preference is opt-in and persists with existing DSP preferences',
-    () {
-      const defaults = AppSettings();
-      expect(defaults.usbBitPerfect, isFalse);
-      expect(defaults.usbDirect, isFalse);
-      expect(defaults.usbDsdOverPcm, isFalse);
-      expect(defaults.usbAllowFixedVolume, isFalse);
-      expect(defaults.dapExclusive, isFalse);
-      final upgraded = AppSettings.fromJson({
-        'usbBitPerfect': true,
-        'usbDirect': true,
-      });
-      expect(upgraded.usbAllowFixedVolume, isFalse);
-      final selected = defaults.copyWith(
-        usbBitPerfect: true,
-        usbDirect: true,
-        usbDsdOverPcm: true,
-        usbAllowFixedVolume: true,
-        autoMix: true,
-        playbackNormalization: true,
-      );
-      final restored = AppSettings.fromJson(selected.toJson());
-      expect(restored.usbBitPerfect, isTrue);
-      expect(restored.usbDirect, isTrue);
-      expect(restored.usbDsdOverPcm, isTrue);
-      expect(restored.usbAllowFixedVolume, isTrue);
-      expect(
-        AppSettings.fromJson(
-          defaults.copyWith(dapExclusive: true).toJson(),
-        ).dapExclusive,
-        isTrue,
-      );
-      expect(restored.autoMix, isTrue);
-      expect(restored.playbackNormalization, isTrue);
-    },
-  );
 
   fakeTimeTest(
     'USB mode prevents a second DSP deck even when AutoMix is enabled',
@@ -1224,39 +1185,6 @@ void main() {
     expect(effectRenderer.tails, isEmpty);
   });
 
-  test(
-    'effect startup keeps dry audio audible and blends before disposal',
-    () async {
-      setAutoMixOptions(const AutoMixOptions(effect: AutoMixEffect.muffled));
-      await prepare();
-      await _until(
-        () => native.sources.values.any((path) => path.endsWith('/tail.wav')),
-      );
-      final effect = native.sources.entries
-          .singleWhere((entry) => entry.value.endsWith('/tail.wav'))
-          .key;
-      final ready = Completer<void>();
-      native.resumeGates[effect] = ready;
-      native.positions['music-player'] = 55000;
-      await _until(
-        () => native.calls.any(
-          (call) => call.$1 == effect && call.$2 == 'resume',
-        ),
-      );
-      expect(native.lastVolume('music-player'), 1);
-      expect(native.lastVolume(effect), 0);
-      expect(native.playing, contains('music-player'));
-      ready.complete();
-      await _until(() => (native.lastVolume(effect) ?? 0) > 0);
-      expect(native.lastVolume('music-player'), inExclusiveRange(0, 1));
-      expect(native.lastVolume(effect), inExclusiveRange(0, 1));
-      // Pausing during the handover must clean up both the dry and wet decks.
-      await handler.pause();
-      expect(native.live, hasLength(1));
-      expect(native.playing, isEmpty);
-      expect(await effectRenderer.tails.single.directory.exists(), isFalse);
-    },
-  );
 
   test(
     'turning AutoMix off releases the standby player without changing song',
@@ -1733,23 +1661,7 @@ void main() {
     await _until(() => handler.mediaItem.value?.id == 'one');
   });
 
-  fakeTimeTest('exclusive output keeps the last 150 s unmixed', () async {
-    setLengths(const Duration(minutes: 4));
-    setAutoMixEnabled(true);
-    // Settings changes set it from the exclusive output setting.
-    playbackExclusiveOutput.value = true;
-    addTearDown(() => playbackExclusiveOutput.value = false);
-    await handler.setQueueAndPlay(_tracks);
-    native.positions['music-player'] = 200000;
-    await Future<void>.delayed(const Duration(seconds: 1));
-    expect(analyzer.calls, isEmpty);
-    expect(native.live, {'music-player'});
-    playbackExclusiveOutput.value = false;
-    await _until(() => native.calls.any((c) => c.$2 == 'setPlaybackRate'));
-    expect(analyzer.calls, ['/one.flac', '/two.flac']);
-  });
-
-  fakeTimeTest(
+fakeTimeTest(
     'a next song that arrives before the last 150 s is mixed in',
     () async {
       setLengths(const Duration(minutes: 4));

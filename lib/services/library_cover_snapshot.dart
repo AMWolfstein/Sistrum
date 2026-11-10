@@ -185,7 +185,6 @@ Future<int> withLibraryCoverSnapshot(
   }
 }
 
-/// Desktop fallback: bounded channel replies while the caller holds its
 /// source transaction. Native projection reads transfer no paths through Dart.
 Future<Set<String>> readLibraryCoverReferences(DatabaseExecutor db) async {
   final paths = <String>{};

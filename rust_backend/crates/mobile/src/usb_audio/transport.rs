@@ -320,6 +320,9 @@ struct Session {
     feedback_slot: Option<Box<Slot>>,
     format: UsbOutputFormat,
     volume: Option<Volume>,
+    // Set when libusb did not acknowledge a cancellation in time. The transfers,
+    // handle and context are then kept alive for the rest of the process.
+    abandoned: bool,
 }
 impl volume::Control for Session {
     fn transfer(
@@ -349,6 +352,7 @@ impl Session {
             high_speed: false,
             interval: 0,
             slots: vec![],
+            abandoned: false,
             feedback_slot: None,
             format: candidates[0].1.clone(),
             volume: None,
@@ -523,14 +527,26 @@ impl Session {
             }
         }
         // Cancellation is asynchronous. Keep every buffer and the context alive
-        // until libusb acknowledges it, including USB detach and error paths.
+        // until libusb acknowledges it. A wait is bounded: if libusb never
+        // acknowledges (for example after the device disappeared), freeing the
+        // transfers would be a use-after-free, so they are leaked instead.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
         while self
             .slots
             .iter()
             .chain(self.feedback_slot.iter())
             .any(|s| s.pending)
         {
-            let _ = self.events();
+            if std::time::Instant::now() >= deadline {
+                self.abandoned = true;
+                std::mem::forget(std::mem::take(&mut self.slots));
+                std::mem::forget(self.feedback_slot.take());
+                return;
+            }
+            // Back off while libusb keeps reporting errors, instead of spinning.
+            if self.events().is_err() {
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
         }
     }
     fn run(&mut self, shared: &Shared) -> Result<(), String> {
@@ -571,6 +587,9 @@ impl Session {
             if s.flush != s.flushed {
                 drop(s);
                 self.drain();
+                if self.abandoned {
+                    return Err("USB transfers did not stop in time".into());
+                }
                 s = shared.0.lock().unwrap();
                 s.bytes.clear();
                 s.frames = 0;
@@ -674,6 +693,10 @@ impl Session {
 impl Drop for Session {
     fn drop(&mut self) {
         self.drain();
+        if self.abandoned {
+            // Transfers, handle and context are leaked on purpose (see drain).
+            return;
+        }
         self.slots.clear();
         self.feedback_slot = None;
         self.release();

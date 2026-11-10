@@ -8,7 +8,6 @@ import 'package:mornye/screens/whats_new_screen.dart';
 import 'package:mornye/theme/mornye_icons.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/nav_bar_inset.dart';
 import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/widgets/settings_group.dart';
@@ -210,11 +209,10 @@ class AboutPage extends StatelessWidget {
                     AppInfo.whatsNewRelease,
                   ),
                   // Above the shell, as it shows after an update.
-                  onTap: () => isDesktopPlatform
-                      ? showWhatsNewDialog(context)
-                      : Navigator.of(context, rootNavigator: true).push(
-                          slidePageRoute<void>(page: const WhatsNewScreen()),
-                        ),
+                  onTap: () => Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  ).push(slidePageRoute<void>(page: const WhatsNewScreen())),
                   showDivider: true,
                 ),
                 _AboutSettingsItem(

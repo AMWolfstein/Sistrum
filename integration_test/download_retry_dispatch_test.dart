@@ -43,7 +43,7 @@ void main() {
   final report = <String, dynamic>{
     'platform': Platform.operatingSystem,
     'note':
-        'Real native cancellation bridge, five alternating old/new pairs per size. Bounded cancellation seeding and a 50ms settle are excluded. Measures reset dispatch latency and caller heartbeat, not download speed or FPS. iOS debug is correctness only.',
+        'Real native cancellation bridge, five alternating old/new pairs per size. Bounded cancellation seeding and a 50ms settle are excluded. Measures reset dispatch latency and caller heartbeat, not download speed or FPS. Debug builds are correctness only.',
   };
   var completed = 0;
   late Directory root;

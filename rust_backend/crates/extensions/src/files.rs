@@ -1,10 +1,8 @@
 //! File capabilities granted by the native manager, never by JavaScript.
 
 mod index;
-#[cfg(any(target_vendor = "apple", target_os = "linux", target_os = "android"))]
+#[cfg(any(target_os = "linux", target_os = "android"))]
 mod unix;
-#[cfg(windows)]
-mod windows;
 
 use cap_std::ambient_authority;
 use cap_std::fs::{Dir, File, OpenOptions};
@@ -33,14 +31,6 @@ impl Root {
             path,
         }))
     }
-}
-
-/// Windows: check the part of a path below its granted root.
-#[cfg(not(unix))]
-fn check_windows_relative(relative: &Path) -> Result<(), String> {
-    let relative = relative.to_str().ok_or("invalid UTF-8 path")?;
-    crate::windows_path::check_relative(relative)
-        .map_err(|error| format!("file access denied: {error}"))
 }
 
 #[derive(Default)]
@@ -142,8 +132,6 @@ impl FileRegistry {
         {
             let base = clean(&std::path::absolute(base).map_err(|error| error.to_string())?);
             if let Ok(relative) = target.strip_prefix(&base) {
-                #[cfg(not(unix))]
-                check_windows_relative(relative)?;
                 let directory = match Dir::open_ambient_dir(&base, ambient_authority()) {
                     Ok(directory) => directory,
                     // Go accepts a future output path; validation must not create it.
@@ -253,14 +241,9 @@ impl ExtensionFiles {
             let root = root.or_else(|| self.registry.temporary.read().expect("temporary file grants lock")
                 .iter().filter_map(Weak::upgrade).find(|root| input.starts_with(&root.path)))
                 .ok_or("file access denied: absolute paths are not allowed. Use relative paths within extension sandbox")?;
-            #[cfg(not(unix))]
-            check_windows_relative(input.strip_prefix(&root.path).expect("granted file root"))?;
             (root, input)
         } else {
             // Check the raw text: cleaning would hide `..` and Win32 aliases.
-            #[cfg(not(unix))]
-            crate::windows_path::check_relative(path)
-                .map_err(|error| format!("file access denied: {error}"))?;
             let absolute = clean(&self.root.path.join(input));
             if !absolute.starts_with(&self.root.path) {
                 return Err(format!(
@@ -290,7 +273,6 @@ impl ExtensionFiles {
         check: &dyn Fn() -> Result<(), String>,
     ) -> Result<OutputGuard, String> {
         // Go coordinates case-folded paths, including aliases on the default
-        // case-insensitive mobile/macOS filesystems.
         self.registry
             .lock(Path::new(&path.display().to_lowercase()), check)
     }
@@ -485,109 +467,6 @@ impl FilePath {
         ))
     }
 
-    /// Windows twin of the Unix walk: open each component below its parent
-    /// handle with `FILE_FLAG_OPEN_REPARSE_POINT`, so a symlink, junction or
-    /// mount point opens as itself and is rejected instead of followed. The
-    /// next component is opened through the verified handle, never by path.
-    #[cfg(windows)]
-    pub(crate) fn open_native_read(&self) -> io::Result<File> {
-        use cap_std::fs::OpenOptionsExt;
-        use std::os::windows::fs::MetadataExt;
-        use windows_sys::Win32::Storage::FileSystem::{
-            FILE_ATTRIBUTE_REPARSE_POINT, FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT,
-        };
-
-        let special =
-            || io::Error::other("native media path must not contain symlinks or special files");
-        let not_regular = || io::Error::new(io::ErrorKind::InvalidInput, "not a regular file");
-        let mut directory: Option<Dir> = None;
-        let mut components = self.relative.components().peekable();
-        while let Some(component) = components.next() {
-            let last = components.peek().is_none();
-            let name = match component {
-                Component::Normal(name) => name,
-                Component::CurDir if last => return Err(not_regular()),
-                Component::CurDir => continue,
-                _ => {
-                    return Err(io::Error::new(
-                        io::ErrorKind::InvalidInput,
-                        "invalid native path",
-                    ));
-                }
-            };
-            let parent = directory.as_ref().unwrap_or(&self.root.directory);
-            let mut options = OpenOptions::new();
-            // Backup semantics are required to open a directory handle.
-            options.read(true).custom_flags(if last {
-                FILE_FLAG_OPEN_REPARSE_POINT
-            } else {
-                FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS
-            });
-            let file = match parent.open_with(name, &options) {
-                Ok(file) => file,
-                Err(error) => {
-                    // Match the Unix errors for a final directory, links and
-                    // special files that refuse a plain read open.
-                    if error.kind() != io::ErrorKind::NotFound
-                        && let Ok(info) = parent.symlink_metadata(name)
-                    {
-                        if last && info.is_dir() {
-                            return Err(not_regular());
-                        }
-                        if !info.is_file() && !info.is_dir() {
-                            return Err(special());
-                        }
-                    }
-                    return Err(error);
-                }
-            };
-            // Metadata comes from the opened handle, so it describes the
-            // object this walk continues from. A link reports neither a
-            // file nor a directory.
-            let metadata = file.metadata()?;
-            if last {
-                if metadata.is_dir() {
-                    return Err(not_regular());
-                }
-                if !metadata.is_file() {
-                    return Err(special());
-                }
-                let file = file.into_std();
-                if file.metadata()?.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT == 0 {
-                    return Ok(File::from_std(file));
-                }
-                // A reparse point that is not a link (a cloud placeholder or
-                // deduplicated file) needs its filter driver to supply data,
-                // which the flag bypasses. Reopen it through the verified
-                // parent; cap-std keeps a racing replacement inside the root.
-                let reopened = parent.open_with(name, OpenOptions::new().read(true))?;
-                return if reopened.metadata()?.is_file() {
-                    Ok(reopened)
-                } else {
-                    Err(special())
-                };
-            }
-            if !metadata.is_dir() {
-                return Err(if metadata.is_file() {
-                    io::Error::new(io::ErrorKind::NotADirectory, "not a directory")
-                } else {
-                    special()
-                });
-            }
-            directory = Some(Dir::from_std_file(file.into_std()));
-        }
-        Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "empty native path",
-        ))
-    }
-
-    #[cfg(not(any(unix, windows)))]
-    pub(crate) fn open_native_read(&self) -> io::Result<File> {
-        self.native_display().map_err(io::Error::other)?;
-        self.open(OpenOptions::new().read(true))
-    }
-
     pub fn remove(&self) -> io::Result<()> {
         let info = self.root.directory.symlink_metadata(&self.relative)?;
         if info.is_dir() {
@@ -691,8 +570,6 @@ impl FilePath {
                     Err(_) => {}
                 }
             }
-            #[cfg(not(unix))]
-            let _ = source;
             let mut options = OpenOptions::new();
             options.read(true).write(true).create_new(true);
             #[cfg(unix)]
@@ -735,21 +612,8 @@ impl StagedFile {
     pub fn publish_new(mut self, check: &dyn Fn() -> Result<(), String>) -> io::Result<()> {
         self.file.sync_all()?;
         check().map_err(io::Error::other)?;
-        #[cfg(any(target_vendor = "apple", target_os = "linux", target_os = "android"))]
+        #[cfg(any(target_os = "linux", target_os = "android"))]
         unix::publish_new(&self.parent, &self.name, &self.target)?;
-        #[cfg(windows)]
-        windows::publish_new(&self.parent, &self.name, &self.target)?;
-        #[cfg(not(any(
-            target_vendor = "apple",
-            target_os = "linux",
-            target_os = "android",
-            windows
-        )))]
-        {
-            self.parent
-                .hard_link(&self.name, &self.parent, &self.target)?;
-            let _ = self.parent.remove_file(&self.name);
-        }
         self.published = true;
         let _ = self
             .parent
@@ -775,30 +639,14 @@ impl StagedFile {
     }
 
     /// Publishes a file of a cache that can be regenerated and leaves the
-    /// folder flush to `batch`. On Apple, `sync_all` is F_FULLFSYNC, which
-    /// drains the drive cache for every file. fsync(2) still hands the whole
-    /// file to the drive before its name appears, and the batch's single
-    /// F_FULLFSYNC makes everything before it as durable as `publish`. Other
-    /// platforms publish as `publish` does.
+    /// folder flush to `batch`. Each file is synced before its name appears,
+    /// and the batch's final folder sync makes everything before it as durable
+    /// as `publish`.
     pub fn publish_batched(
         self,
         batch: &SyncBatch,
         check: &dyn Fn() -> Result<(), String>,
     ) -> Result<(), String> {
-        #[cfg(target_vendor = "apple")]
-        {
-            let mut stage = self;
-            rustix::fs::fsync(&stage.file).map_err(|error| error.to_string())?;
-            check()?;
-            stage
-                .parent
-                .rename(&stage.name, &stage.parent, &stage.target)
-                .map_err(|error| error.to_string())?;
-            stage.published = true;
-            batch.add(&stage.parent);
-            Ok(())
-        }
-        #[cfg(not(target_vendor = "apple"))]
         {
             let _ = batch;
             self.publish(check)
@@ -818,41 +666,10 @@ impl Drop for StagedFile {
 /// still wait for their flush. [`Self::flush`], or dropping the batch,
 /// flushes each folder once.
 #[derive(Default)]
-pub(crate) struct SyncBatch {
-    #[cfg(target_vendor = "apple")]
-    folders: Mutex<Vec<(u64, u64, Dir)>>,
-}
+pub(crate) struct SyncBatch {}
 
 impl SyncBatch {
-    #[cfg(target_vendor = "apple")]
-    fn add(&self, folder: &Dir) {
-        let Ok(stat) = rustix::fs::fstat(folder) else {
-            let _ = rustix::fs::fcntl_fullfsync(folder);
-            return;
-        };
-        let (device, inode) = (stat.st_dev as u64, stat.st_ino);
-        let mut folders = self.folders.lock().expect("sync batch lock");
-        if folders
-            .iter()
-            .any(|(known_device, known_inode, _)| (*known_device, *known_inode) == (device, inode))
-        {
-            return;
-        }
-        match folder.try_clone() {
-            Ok(folder) => folders.push((device, inode, folder)),
-            Err(_) => {
-                drop(folders);
-                let _ = rustix::fs::fcntl_fullfsync(folder);
-            }
-        }
-    }
-
-    pub fn flush(&self) {
-        #[cfg(target_vendor = "apple")]
-        for (_, _, folder) in std::mem::take(&mut *self.folders.lock().expect("sync batch lock")) {
-            let _ = folder.into_std_file().sync_all();
-        }
-    }
+    pub fn flush(&self) {}
 }
 
 impl Drop for SyncBatch {

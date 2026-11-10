@@ -7,8 +7,8 @@ adding another playback engine or native SDK.
 The root `pubspec.yaml` uses this copy as a path dependency
 (`audio_service: path: third_party/audio_service`), so the version is the one
 in this folder's `pubspec.yaml` (0.18.19, unchanged from upstream).
-`example/`, `test/`, `analysis_options.yaml` and `darwin/audio_service/.swiftpm`
-from the upstream package are not vendored.
+`example/`, `test/`, `analysis_options.yaml` and the upstream `darwin/`
+sources are not vendored; this copy is Android only.
 
 ## Patches
 
@@ -39,7 +39,7 @@ from the upstream package are not vendored.
   PlaybackState custom actions: background launches from media-session binder
   callbacks are blocked on newer Android. Use its native output switcher.
   This is only for app-owned controls, not extension input. No app code
-  (Dart, Kotlin or Swift) currently sets `mornye.activity`.
+  (Dart or Kotlin) currently sets `mornye.activity`.
 - Android: bound retained browser metadata to 256 recent items with
   `PinnedMetadataCache`. The active queue and current item stay pinned so
   notification, Android Auto and browser lookups survive recent-item eviction.
@@ -100,37 +100,16 @@ from the upstream package are not vendored.
   their pixels; the notification's 256 px large icon is now scaled from the
   512 px bitmap instead of from up to 1023 px (owner-approved). The app's
   instrumented `MediaControlMetadataTest` covers the 512 px bound.
-- Darwin: `setMediaItem` reuses the last `MPMediaItemArtwork` while its
-  `artCacheFile` has the same path, device, inode, size and modification time
-  (`artworkForFile:`), instead of reading the file into a new image and
-  artwork for each media item (two to four per song). `updateNowPlayingField`
-  treats `NSNull` and a missing field as equal: upstream counted an item
-  without an album or `isLive` (the app sends neither) as changed on every
-  call, so each call reassigned `nowPlayingInfo`. A media item that changes
-  nothing now leaves `MPNowPlayingInfoCenter` alone, and the system keeps
-  advancing the elapsed time it last got. `stopService` empties the retained
-  `nowPlayingInfo` fields together with the center's, so the next update
-  sends every field again.
 - Android build (`android/build.gradle.kts`): AGP 9.0.1 to 9.4.1, compileSdk
   35 to 37, `androidx.media:media` 1.7.0 to 1.8.0, `androidx.core:core`
   1.13.1 to 1.19.1, a `junit:junit:4.13.2` test dependency, and
   `-Xlint:deprecation` dropped (androidx.media 1.8 deprecates the whole compat
   media-session API this plugin uses). The Gradle wrapper moves from 8.7 to
   9.8.2. These follow the app's Android toolchain.
-- iOS: allow the active music handler to re-publish retained Now Playing
-  metadata after restoring its audio session on app lifecycle/video changes.
-  Refresh keeps artwork and extrapolates elapsed time without restarting audio;
-  it never activates the audio session or revives a stopped service.
-  `lib/audio_service.dart` adds `AudioService.refreshNowPlayingInfo()`, which
-  calls the new `refreshNowPlayingInfo` method in AudioServicePlugin.m;
-  `lib/services/music_player_service.dart` in the app calls it.
 - Dart: `_observeQueue` in `lib/audio_service.dart` sends the queue to the
-  platform only on Android, the only plugin that reads it. The darwin plugin
-  answers `setQueue` with `@{}` and drops it, the web plugin's `setQueue` is
-  a no-op, and the app's desktop sessions (SMTC, MPRIS) inherit the no-op of
-  `NoOpAudioService`, yet each queue change mapped and encoded every item
-  (about 10 MB for 20,000 songs). `preloadArtwork` still runs on every
-  platform. On Android an idle change is sent at once; while a `setQueue` is
+  platform only on Android, the only plugin that reads it; elsewhere each
+  queue change mapped and encoded every item (about 10 MB for 20,000 songs)
+  for nothing. `preloadArtwork` still runs. On Android an idle change is sent at once; while a `setQueue` is
   in flight, later changes keep only the newest queue, which is sent as soon
   as the in-flight call completes or fails, so the native queue always ends
   on the latest change and keeps its place among `setMediaItem` and
@@ -175,7 +154,6 @@ Compared against the pub.dev 0.18.19 package in the local pub cache:
 - `android/src/test/java/com/ryanheise/audioservice/PinnedMetadataCacheTest.java` (new)
 - `android/src/test/java/com/ryanheise/audioservice/RecentArtCacheTest.java` (new)
 - `android/src/test/java/com/ryanheise/audioservice/QueueItemIndexTest.java` (new)
-- `darwin/audio_service/Sources/audio_service/AudioServicePlugin.m`
 - `lib/audio_service.dart`
 - `lib/src/android_queue_window.dart` (new)
 
@@ -189,9 +167,9 @@ Compared against the pub.dev 0.18.19 package in the local pub cache:
    each patch above by hand. Check first whether upstream now configures
    engines it creates, shows custom
    actions on Android 12 and older, bounds its metadata cache or art cache,
-   reuses its media executor, or compares Now Playing fields with `NSNull`.
+   or reuses its media executor.
 4. Keep the Gradle values in step with the app's `android/app/build.gradle.kts`.
 5. Test notification controls on Android 12 or older and on Android 13+,
-   Android Auto browsing, and iOS lock screen controls after a video plays.
+   and Android Auto browsing.
 6. Run `flutter pub get` so the root `pubspec.lock` records the new version,
    and update this file.

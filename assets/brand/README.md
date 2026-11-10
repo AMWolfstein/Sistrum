@@ -13,7 +13,7 @@ Preserve the supplied proportions, colors, and outlined wordmark. Do not
 stretch, rotate, outline, recolor, or add shadows or gradients to the logo.
 Use the supplied platform containers for launcher icons.
 
-`icon.png` uses the supplied iOS icon. `icon_android.png` uses the Android
+`icon.png` is the square master icon. `icon_android.png` uses the Android
 store icon. The Android foreground and monochrome files already contain
 adaptive-icon safe-zone padding, so the launcher generator adds no inset.
 Regenerate launcher resources with the pinned Flutter SDK:

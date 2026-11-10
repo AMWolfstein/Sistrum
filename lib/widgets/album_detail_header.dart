@@ -22,9 +22,7 @@ import 'package:mornye/widgets/expressive_button.dart';
 import 'package:mornye/widgets/expressive_button_group.dart';
 import 'package:mornye/widgets/expressive_icon_button.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/desktop/detail_header.dart';
+import 'package:mornye/widgets/track_lists/context_menu.dart';
 import 'package:mornye/widgets/settled_blur.dart';
 import 'package:mornye/widgets/sliver_layout_info_builder.dart';
 
@@ -37,8 +35,6 @@ import 'package:mornye/widgets/sliver_layout_info_builder.dart';
 /// Colours come from a scheme derived from [paletteSource] (see [CoverPalette])
 /// and are published to descendants through [HeaderPalette], so the header
 /// follows both the artwork and the app's light/dark mode instead of assuming a
-/// black backdrop with white text. The Material desktop header scopes the same
-/// scheme to its artwork and details (see [desktopDetailHeaderSlivers]).
 class AlbumDetailHeader extends StatelessWidget {
   const AlbumDetailHeader({
     super.key,
@@ -59,11 +55,7 @@ class AlbumDetailHeader extends StatelessWidget {
     this.backgroundColor,
     this.immersive = false,
     this.squareArtwork = true,
-    this.moreMenu,
   });
-
-  /// Desktop only: page actions behind a "More" button in the toolbar.
-  final List<List<ContextMenuAction>> Function()? moreMenu;
 
   final String title;
   final double expandedHeight;
@@ -122,8 +114,7 @@ class AlbumDetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isDesktopPlatform ||
-        (context.isMornye && (coverBuilder != null || immersive))) {
+    if ((context.isMornye && (coverBuilder != null || immersive))) {
       final scheme = Theme.of(context).colorScheme;
       return HeaderPalette(
         scheme: scheme,
@@ -142,7 +133,6 @@ class AlbumDetailHeader extends StatelessWidget {
   /// Keep the toolbar at the collection scroll-view level so it stays pinned
   /// after the dynamically sized artwork and metadata have scrolled away.
   List<Widget> buildSlivers(BuildContext context) {
-    if (isDesktopPlatform) return _buildDesktopSlivers(context);
     if (!context.isMornye || (coverBuilder == null && !immersive)) {
       return [this];
     }
@@ -274,23 +264,6 @@ class AlbumDetailHeader extends StatelessWidget {
     ];
   }
 
-  List<Widget> _buildDesktopSlivers(BuildContext context) =>
-      desktopDetailHeaderSlivers(
-        context,
-        title: title,
-        artwork: (context, size) =>
-            coverBuilder?.call(context, size) ?? background,
-        paletteSource: paletteSource,
-        subtitle: subtitle,
-        meta: meta,
-        actions: actions,
-        appBarActions: appBarActions,
-        moreMenu: moreMenu,
-        appBarTitle: appBarTitle,
-        leading: leading,
-        backgroundColor: backgroundColor,
-      );
-
   Widget _buildMornyeDetails(BuildContext context) => Padding(
     padding: EdgeInsets.fromLTRB(20, immersive ? 0 : 20, 20, 28),
     child: Column(
@@ -346,11 +319,9 @@ class AlbumDetailHeader extends StatelessWidget {
   Widget _buildAppBar(BuildContext context, ColorScheme headerScheme) {
     final tokens = context.tokens;
     final plainArtworkHeader = context.isMornye && coverBuilder != null;
-    // iOS does not add horizontal safe-area padding in portrait. Give toolbar
-    // controls and header content an explicit inset so circular actions do not
-    // sit against the glass edge on either iPhone or iPad. Android uses a
-    // smaller inset for the same reason.
-    final iosEdgeInset = detailHeaderEdgeInset(context);
+    // Controls and header content get an explicit edge inset so circular
+    // actions do not touch the screen edge.
+    final headerEdgeInset = detailHeaderEdgeInset(context);
     // Scrim and gradient are drawn from the palette surface instead of black,
     // so a light theme gets a light header with dark text and a dark theme
     // keeps the familiar dark treatment — both tinted by the artwork.
@@ -513,8 +484,8 @@ class AlbumDetailHeader extends StatelessWidget {
                     ),
                   ),
                 Positioned(
-                  left: 20 + iosEdgeInset,
-                  right: 20 + iosEdgeInset,
+                  left: 20 + headerEdgeInset,
+                  right: 20 + headerEdgeInset,
                   bottom: 40,
                   child: expressive
                       ? IgnorePointer(
@@ -540,9 +511,9 @@ class AlbumDetailHeader extends StatelessWidget {
           );
         },
       ),
-      leadingWidth: kToolbarHeight + iosEdgeInset,
+      leadingWidth: kToolbarHeight + headerEdgeInset,
       leading: Padding(
-        padding: EdgeInsetsDirectional.only(start: iosEdgeInset),
+        padding: EdgeInsetsDirectional.only(start: headerEdgeInset),
         child:
             leading ??
             // Centered so the tight leading slot cannot stretch the circle.
@@ -563,7 +534,7 @@ class AlbumDetailHeader extends StatelessWidget {
               ),
             ),
       ),
-      actionsPadding: EdgeInsetsDirectional.only(end: iosEdgeInset),
+      actionsPadding: EdgeInsetsDirectional.only(end: headerEdgeInset),
       actions: appBarActions,
     );
   }
@@ -700,7 +671,6 @@ class AlbumPlayActions extends StatelessWidget {
     required this.onPlay,
     required this.onShuffle,
     this.isPlaying = false,
-    this.onAddToPlaylist,
     this.onDownload,
   });
 
@@ -710,15 +680,12 @@ class AlbumPlayActions extends StatelessWidget {
   final VoidCallback onShuffle;
   final bool isPlaying;
 
-  /// Desktop only: a round "+" after Play that adds the songs to a playlist.
-  final VoidCallback? onAddToPlaylist;
   final VoidCallback? onDownload;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final scheme = HeaderPalette.of(context);
-    if (isDesktopPlatform) return _buildDesktop(context, scheme);
     if (context.isMornye) {
       return Row(
         children: [
@@ -780,76 +747,6 @@ class AlbumPlayActions extends StatelessWidget {
           backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.8),
           foregroundColor: scheme.onSecondaryContainer,
         ),
-      ],
-    );
-  }
-
-  /// Shuffle, Play and "+" at their own widths along the artwork's bottom
-  /// edge: round gray buttons around the Play capsule in Mornye, a filled
-  /// Play button with tonal icon buttons in Material.
-  Widget _buildDesktop(BuildContext context, ColorScheme scheme) {
-    final addLabel = context.l10n.collectionAddToPlaylist;
-    if (context.isMornye) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 10,
-        children: [
-          if (onDownload != null)
-            HeaderCircleButton(
-              icon: Icons.download_for_offline_outlined,
-              tooltip: context.l10n.offlineSave,
-              onPressed: onDownload,
-            ),
-          HeaderCircleButton(
-            icon: CupertinoIcons.shuffle,
-            tooltip: shuffleTooltip,
-            tonal: true,
-            onPressed: onShuffle,
-          ),
-          _MornyeHeaderButton(
-            icon: isPlaying
-                ? CupertinoIcons.pause_fill
-                : CupertinoIcons.play_fill,
-            label: playLabel,
-            onPressed: onPlay,
-          ),
-          if (onAddToPlaylist != null)
-            HeaderCircleButton(
-              icon: CupertinoIcons.add,
-              tooltip: addLabel,
-              tonal: true,
-              onPressed: onAddToPlaylist,
-            ),
-        ],
-      );
-    }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 8,
-      children: [
-        if (onDownload != null)
-          HeaderCircleButton(
-            icon: Icons.download_for_offline_outlined,
-            tooltip: context.l10n.offlineSave,
-            onPressed: onDownload,
-          ),
-        FilledButton.icon(
-          onPressed: onPlay,
-          icon: AppIcon(isPlaying ? Icons.pause : Icons.play_arrow, size: 20),
-          label: Text(playLabel),
-          style: FilledButton.styleFrom(minimumSize: const Size(112, 40)),
-        ),
-        IconButton.filledTonal(
-          tooltip: shuffleTooltip,
-          onPressed: onShuffle,
-          icon: const AppIcon(Icons.shuffle),
-        ),
-        if (onAddToPlaylist != null)
-          IconButton.filledTonal(
-            tooltip: addLabel,
-            onPressed: onAddToPlaylist,
-            icon: const AppIcon(Icons.playlist_add),
-          ),
       ],
     );
   }
@@ -935,28 +832,15 @@ class HeaderCircleButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tokens = context.tokens;
     final scheme = HeaderPalette.of(context);
-    // Desktop headers use pointer-sized controls.
-    final desktop = isDesktopPlatform;
-    // Tonal circles stay level with the action pills beside them.
-    final toolbarGlass = context.isMornye && !tonal;
-    final buttonSize =
-        this.buttonSize ??
-        (desktop ? (context.isMornye ? (tonal ? 36.0 : 44.0) : 40.0) : null);
-    final iconSize = desktop && this.iconSize == 22 && !toolbarGlass
-        ? 18.0
-        : this.iconSize;
+    final buttonSize = this.buttonSize;
+    final iconSize = this.iconSize;
     if (context.isMornye && HeaderActionGroup.of(context)) {
       return IconButton(
         onPressed: onPressed,
         tooltip: tooltip,
         icon: AppIcon(mornyeIconFor(icon), size: iconSize),
         style: IconButton.styleFrom(
-          // Pointer controls use a compact width within the shared capsule.
-          minimumSize: desktop
-              ? Size(42, buttonSize ?? 44)
-              : Size.square(buttonSize ?? 44),
-          padding: desktop ? EdgeInsets.zero : null,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          minimumSize: Size.square(buttonSize ?? 44),
           foregroundColor: iconColor ?? scheme.onSurface,
         ),
       );
@@ -966,24 +850,29 @@ class HeaderCircleButton extends ConsumerWidget {
         return Tooltip(
           message: tooltip,
           child: SizedBox.square(
-            dimension: buttonSize ?? 44,
-            child: MornyeGlassPress(
-              radius: (buttonSize ?? 44) / 2,
-              enabled: onPressed != null,
-              child: CupertinoButton(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.square(buttonSize ?? 44),
-                borderRadius: BorderRadius.circular((buttonSize ?? 48) / 2),
-                color: scheme.onSurface.withValues(
-                  alpha: scheme.brightness == Brightness.dark ? 0.10 : 0.06,
-                ),
-                onPressed: onPressed,
-                child: AppIcon(
-                  mornyeIconFor(icon),
-                  size: iconSize,
-                  color: onPressed == null
-                      ? scheme.onSurfaceVariant
-                      : iconColor ?? scheme.primary,
+            dimension: math.max(buttonSize ?? 44, 48),
+            child: Center(
+              child: SizedBox.square(
+                dimension: buttonSize ?? 44,
+                child: MornyeGlassPress(
+                  radius: (buttonSize ?? 44) / 2,
+                  enabled: onPressed != null,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.square(buttonSize ?? 44),
+                    borderRadius: BorderRadius.circular((buttonSize ?? 48) / 2),
+                    color: scheme.onSurface.withValues(
+                      alpha: scheme.brightness == Brightness.dark ? 0.10 : 0.06,
+                    ),
+                    onPressed: onPressed,
+                    child: AppIcon(
+                      mornyeIconFor(icon),
+                      size: iconSize,
+                      color: onPressed == null
+                          ? scheme.onSurfaceVariant
+                          : iconColor ?? scheme.primary,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -997,8 +886,6 @@ class HeaderCircleButton extends ConsumerWidget {
         icon: AppIcon(mornyeIconFor(icon), size: iconSize),
         style: IconButton.styleFrom(
           minimumSize: Size.square(buttonSize ?? 44),
-          // Keep the glass circle at the button's size for the pointer.
-          tapTargetSize: desktop ? MaterialTapTargetSize.shrinkWrap : null,
           foregroundColor: iconColor ?? scheme.onSurface,
         ),
       );
@@ -1071,27 +958,20 @@ class _MornyeHeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = HeaderPalette.of(context);
-    // Desktop action pills use a compact, neutral fill.
-    final desktop = isDesktopPlatform;
-    final filled = prominent && !desktop;
+    final filled = prominent;
     final foreground = onPressed == null
         ? scheme.onSurfaceVariant
         : filled
         ? scheme.onPrimary
         : scheme.primary;
     return ConstrainedBox(
-      constraints: desktop
-          ? const BoxConstraints(minHeight: 36, maxHeight: 36, minWidth: 130)
-          : const BoxConstraints(minHeight: 50),
+      constraints: const BoxConstraints(minHeight: 50),
       child: MornyeGlassPress(
-        radius: desktop ? 18 : 28,
+        radius: 28,
         enabled: onPressed != null,
         child: CupertinoButton(
-          padding: desktop
-              ? const EdgeInsets.symmetric(horizontal: 18)
-              : const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          minimumSize: desktop ? const Size(130, 36) : null,
-          borderRadius: BorderRadius.circular(desktop ? 18 : 28),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          borderRadius: BorderRadius.circular(28),
           color: filled
               ? scheme.primary
               : scheme.onSurface.withValues(
@@ -1102,15 +982,15 @@ class _MornyeHeaderButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              AppIcon(icon, size: desktop ? 16 : 20, color: foreground),
-              SizedBox(width: desktop ? 6 : 8),
+              AppIcon(icon, size: 20, color: foreground),
+              const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: desktop ? 15 : 17,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
                     color: foreground,
                   ),
@@ -1151,7 +1031,7 @@ class HeaderMetaRow extends StatelessWidget {
     }
 
     return Wrap(
-      alignment: isDesktopPlatform ? WrapAlignment.start : WrapAlignment.center,
+      alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       runSpacing: 4,
       children: parts,
@@ -1169,23 +1049,16 @@ class HeaderMetaItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = HeaderPalette.of(context);
-    final desktop = isDesktopPlatform;
     final textStyle = TextStyle(
-      color: context.isMornye || desktop
-          ? scheme.onSurfaceVariant
-          : scheme.onSurface,
-      fontSize: desktop && context.isMornye ? 12 : 13,
-      fontWeight: desktop ? FontWeight.w600 : FontWeight.w500,
+      color: context.isMornye ? scheme.onSurfaceVariant : scheme.onSurface,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
     );
     if (icon == null) return Text(label, style: textStyle);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppIcon(
-          icon,
-          size: 15,
-          color: desktop ? scheme.onSurfaceVariant : scheme.onSurface,
-        ),
+        AppIcon(icon, size: 15, color: scheme.onSurface),
         const SizedBox(width: 4),
         Text(label, style: textStyle),
       ],

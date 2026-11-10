@@ -134,7 +134,6 @@ abstract final class HistoryRowMapper {
   }
 
   /// [filePath] is the already-normalized value for `row['file_path']`, since
-  /// iOS container rebasing depends on HistoryDatabase state.
   static Map<String, dynamic> dbRowToJson(
     Map<String, dynamic> row,
     String filePath,

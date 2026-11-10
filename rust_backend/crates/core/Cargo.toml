@@ -23,11 +23,8 @@ tempfile.workspace = true
 [target.'cfg(unix)'.dependencies]
 rustix.workspace = true
 
-[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+[target.'cfg(not(target_os = "android"))'.dependencies]
 tz-rs.workspace = true
-
-[target.'cfg(windows)'.dependencies]
-windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_System_Time"] }
 
 [lints]
 workspace = true

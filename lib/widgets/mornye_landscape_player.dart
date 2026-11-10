@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/widgets/audio_output_button.dart';
-import 'package:mornye/utils/android_tv.dart';
 
 /// Landscape opens on the player. Lyrics can hide their bottom actions until
 /// the user touches the player, while the cover and header stay in place.
@@ -54,7 +53,6 @@ class _MornyeLandscapePlayerState extends State<MornyeLandscapePlayer> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!widget.autoHideLyricsControls ||
-        isAndroidTv ||
         MediaQuery.accessibleNavigationOf(context)) {
       _actionsVisible = true;
       _hideTimer?.cancel();
@@ -80,7 +78,6 @@ class _MornyeLandscapePlayerState extends State<MornyeLandscapePlayer> {
     _hideTimer?.cancel();
     if (widget.page != 1 ||
         !widget.autoHideLyricsControls ||
-        isAndroidTv ||
         !widget.isPlaying ||
         widget.controlsHeldOpen ||
         !_actionsVisible ||
@@ -123,7 +120,6 @@ class _MornyeLandscapePlayerState extends State<MornyeLandscapePlayer> {
               behavior: HitTestBehavior.translucent,
               onTap:
                   widget.page == 1 &&
-                      !isAndroidTv &&
                       !MediaQuery.accessibleNavigationOf(context)
                   ? () {
                       setState(() => _actionsVisible = !_actionsVisible);

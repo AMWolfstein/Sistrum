@@ -168,11 +168,6 @@ impl Backend {
             .map_err(|error| error.to_string())
     }
 
-    pub fn get_available_lyrics_providers_json(&self) -> Result<String, String> {
-        let _operation = self.enter()?;
-        serde_json::to_string(&config::available_providers()).map_err(|error| error.to_string())
-    }
-
     pub fn set_lyrics_fetch_options_json(&self, raw: &str) -> Result<(), String> {
         let _operation = self.enter()?;
         let _settings = self.lyrics_settings.lock().expect("lyrics settings lock");

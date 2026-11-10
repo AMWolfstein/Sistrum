@@ -21,7 +21,6 @@ import 'package:mornye/services/metadata_cover_resources.dart';
 import 'package:mornye/services/metadata_persistence_service.dart';
 import 'package:mornye/services/library_database.dart';
 import 'package:mornye/services/cue_split_library_service.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
 import 'package:mornye/widgets/network_offline_actions.dart';
 import 'package:mornye/widgets/network_upload_actions.dart';
 import 'package:mornye/providers/network_upload_provider.dart';
@@ -56,7 +55,6 @@ import 'package:mornye/utils/audio_conversion_utils.dart';
 import 'package:mornye/utils/audio_format_utils.dart';
 import 'package:mornye/utils/artist_utils.dart';
 import 'package:mornye/utils/cover_art_utils.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/logger.dart';
 import 'package:mornye/utils/lyrics_metadata_helper.dart';
 import 'package:mornye/utils/mime_utils.dart';
@@ -74,11 +72,6 @@ import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/theme/mornye_icons.dart';
 import 'package:mornye/widgets/album_detail_header.dart'
     show HeaderMetaRow, HeaderMetaItem, HeaderCircleButton, HeaderFilledButton;
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/link/link_actions.dart';
-import 'package:mornye/widgets/link/link_library_actions.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
 import 'package:mornye/widgets/mornye_context_menu.dart';
 import 'package:mornye/widgets/mornye_metadata_row.dart';
 import 'package:mornye/widgets/player_artwork.dart';
@@ -288,11 +281,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   @override
   double calculateExpandedHeight(BuildContext context) {
     final mediaSize = MediaQuery.sizeOf(context);
-    // Desktop windows are wide and short, so the header takes more of the
     // height to leave the cover room (see _buildHeaderBackground).
-    if (isDesktopPlatform) {
-      return (mediaSize.height * 0.62).clamp(440.0, 640.0);
-    }
     return (mediaSize.height * 0.55).clamp(360.0, 520.0);
   }
 

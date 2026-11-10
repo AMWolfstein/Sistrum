@@ -10,7 +10,7 @@ publish.workspace = true
 mornye-core.workspace = true
 mornye-network.workspace = true
 mornye-providers.workspace = true
-rquickjs.workspace = true
+rquickjs = { workspace = true, features = ["bindgen"] }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
@@ -34,15 +34,6 @@ cap-std.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 rustix.workspace = true
-
-# rquickjs-sys ships bindings for x86_64 and aarch64 Windows MSVC, so Windows
-# builds need no libclang. Android and iOS still generate theirs.
-[target.'cfg(not(windows))'.dependencies]
-rquickjs = { workspace = true, features = ["bindgen"] }
-
-[target.'cfg(windows)'.dependencies]
-windows-sys = { workspace = true, features = ["Win32_Storage_FileSystem"] }
-winx = "=0.36.4"
 
 [dev-dependencies]
 image.workspace = true

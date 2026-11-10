@@ -2,7 +2,6 @@
 part of 'home_tab.dart';
 
 /// Search results once the content is [searchCoverLayoutMinWidth] wide, on
-/// tablets and desktop windows: every filter, Songs included, shows a grid
 /// of covers, and the All view shows one shelf of covers per kind.
 extension _HomeTabSearchWideUI on _HomeTabState {
   List<Widget> _buildWideSearchResults({
@@ -146,14 +145,12 @@ extension _HomeTabSearchWideUI on _HomeTabState {
               item: albums[index],
               kindLabel: context.l10n.recentTypeAlbum,
               onTap: () => _navigateToExtensionAlbum(albums[index]),
-              onSaveCover: () => _saveSearchResultCover(albums[index]),
             ),
             _ => _SearchTopCollectionCard(
               key: ValueKey('top-playlist-${playlists[index].id}'),
               item: playlists[index],
               kindLabel: context.l10n.recentTypePlaylist,
               onTap: () => _navigateToExtensionPlaylist(playlists[index]),
-              onSaveCover: () => _saveSearchResultCover(playlists[index]),
             ),
           },
       ];
@@ -336,7 +333,6 @@ extension _HomeTabSearchWideUI on _HomeTabState {
   }
 
   /// One [kind] in the All view: [count] covers from [cell] in a row that
-  /// scrolls sideways, with arrows for a mouse on desktop.
   Widget _buildSearchCoverShelf(
     int count,
     String kind,
@@ -353,20 +349,14 @@ extension _HomeTabSearchWideUI on _HomeTabState {
           );
           return SizedBox(
             height: extent + searchCoverTextHeight(context) + 8,
-            child: DesktopScrollArrows(
+            child: ListView.separated(
               key: ValueKey('search-shelf-$kind'),
-              builder: (context, controller) => ListView.separated(
-                controller: controller,
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: edge),
-                itemCount: count,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(width: searchCoverGap),
-                itemBuilder: (context, index) => SizedBox(
-                  width: extent,
-                  child: cell(context, index, extent),
-                ),
-              ),
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: edge),
+              itemCount: count,
+              separatorBuilder: (_, _) => const SizedBox(width: searchCoverGap),
+              itemBuilder: (context, index) =>
+                  SizedBox(width: extent, child: cell(context, index, extent)),
             ),
           );
         },
@@ -388,7 +378,6 @@ class _SearchTopResultCard extends StatelessWidget {
     required this.trailing,
     required this.onTap,
     this.onLongPress,
-    required this.onContextMenu,
   });
 
   static const _artwork = 42.0;
@@ -402,7 +391,6 @@ class _SearchTopResultCard extends StatelessWidget {
   final Widget trailing;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
-  final ValueChanged<Offset> onContextMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -422,62 +410,57 @@ class _SearchTopResultCard extends StatelessWidget {
     final subtitle = artistName.isEmpty
         ? kindLabel
         : '$kindLabel · $artistName';
-    return DesktopContextMenuRegion(
-      onContextMenu: onContextMenu,
-      child: Material(
-        color: colorScheme.onSurface.withValues(alpha: 0.08),
-        borderRadius: radius,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          hoverColor: colorScheme.onSurface.withValues(alpha: 0.05),
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 14, end: 4),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: coverUrl?.isNotEmpty == true
-                      ? CachedCoverImage(
-                          imageUrl: coverUrl!,
-                          width: _artwork,
-                          height: _artwork,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, _, _) => placeholder,
-                        )
-                      : placeholder,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ExplicitTrackTitle(
-                        title: title,
-                        explicit: explicit,
-                        maxLines: 1,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 15,
-                        ),
+    return Material(
+      color: colorScheme.onSurface.withValues(alpha: 0.08),
+      borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        hoverColor: colorScheme.onSurface.withValues(alpha: 0.05),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 14, end: 4),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: coverUrl?.isNotEmpty == true
+                    ? CachedCoverImage(
+                        imageUrl: coverUrl!,
+                        width: _artwork,
+                        height: _artwork,
+                        fit: BoxFit.cover,
+                        errorWidget: (_, _, _) => placeholder,
+                      )
+                    : placeholder,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ExplicitTrackTitle(
+                      title: title,
+                      explicit: explicit,
+                      maxLines: 1,
+                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 13,
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 13,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                trailing,
-              ],
-            ),
+              ),
+              trailing,
+            ],
           ),
         ),
       ),
@@ -545,7 +528,6 @@ class _SearchTopSongCard extends ConsumerWidget {
         onDownload: onDownload,
       ),
       onLongPress: showOptions,
-      onContextMenu: (position) => showOptions(position: position),
       trailing: IconButton(
         tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
         iconSize: 18,
@@ -563,18 +545,14 @@ class _SearchTopCollectionCard extends StatelessWidget {
     required this.item,
     required this.kindLabel,
     required this.onTap,
-    required this.onSaveCover,
   });
 
   final Track item;
   final String kindLabel;
   final VoidCallback onTap;
-  final VoidCallback onSaveCover;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final hasCover = item.coverUrl?.isNotEmpty == true;
     return _SearchTopResultCard(
       coverUrl: item.coverUrl,
       placeholderIcon: item.isPlaylistItem ? Icons.playlist_play : Icons.album,
@@ -583,25 +561,6 @@ class _SearchTopCollectionCard extends StatelessWidget {
       artistName: item.artistName,
       explicit: item.explicit == true,
       onTap: onTap,
-      onContextMenu: (position) => showContextMenu(
-        context,
-        position: position,
-        groups: [
-          [
-            ContextMenuAction(
-              icon: Icons.open_in_new,
-              label: l10n.desktopMenuOpen,
-              onSelected: onTap,
-            ),
-            if (hasCover)
-              ContextMenuAction(
-                icon: Icons.image_outlined,
-                label: l10n.trackSaveCoverArt,
-                onSelected: onSaveCover,
-              ),
-          ],
-        ],
-      ),
       trailing: Padding(
         padding: const EdgeInsetsDirectional.only(end: 12),
         child: Icon(
@@ -707,74 +666,66 @@ class _SearchSongCoverCell extends ConsumerWidget {
       ),
     );
 
-    final desktopMaterial = isDesktopPlatform && !mornye;
-    return DesktopContextMenuRegion(
-      onContextMenu: (position) => showOptions(position: position),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: () => _TrackItemWithStatus.activate(
-            context,
-            ref,
-            track,
-            isQueued: isQueued,
-            isInHistory: isInHistory,
-            isInLocalLibrary: isInLocalLibrary,
-            onDownload: onDownload,
-          ),
-          onLongPress: showOptions,
-          borderRadius: radius,
-          // The M3 hover state layer; a pointer press shows as a state
-          // layer rather than a ripple.
-          hoverColor: mornye
-              ? null
-              : colorScheme.onSurface.withValues(alpha: 0.08),
-          highlightColor: desktopMaterial
-              ? colorScheme.onSurface.withValues(alpha: 0.1)
-              : null,
-          splashFactory: desktopMaterial ? NoSplash.splashFactory : null,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox.square(
-                dimension: extent,
-                child: Stack(
-                  children: [
-                    cover,
-                    PositionedDirectional(
-                      start: 4,
-                      bottom: 4,
-                      child: PreviewButton(track: track, size: 28, dense: true),
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: () => _TrackItemWithStatus.activate(
+          context,
+          ref,
+          track,
+          isQueued: isQueued,
+          isInHistory: isInHistory,
+          isInLocalLibrary: isInLocalLibrary,
+          onDownload: onDownload,
+        ),
+        onLongPress: showOptions,
+        borderRadius: radius,
+        // The M3 hover state layer; a pointer press shows as a state
+        // layer rather than a ripple.
+        hoverColor: mornye
+            ? null
+            : colorScheme.onSurface.withValues(alpha: 0.08),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox.square(
+              dimension: extent,
+              child: Stack(
+                children: [
+                  cover,
+                  PositionedDirectional(
+                    start: 4,
+                    bottom: 4,
+                    child: PreviewButton(track: track, size: 28),
+                  ),
+                  if (isInLocalLibrary)
+                    const PositionedDirectional(
+                      end: 8,
+                      top: 8,
+                      child: InLibraryBadge(),
                     ),
-                    if (isInLocalLibrary)
-                      const PositionedDirectional(
-                        end: 8,
-                        top: 8,
-                        child: InLibraryBadge(),
-                      ),
-                  ],
-                ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                track.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              track.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 2),
-              Text(
-                track.artistName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              track.artistName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -858,72 +809,46 @@ class _SearchCoverCell extends StatelessWidget {
     );
 
     final textAlign = isArtist ? TextAlign.center : TextAlign.start;
-    final desktopMaterial = isDesktopPlatform && !mornye;
-    return DesktopContextMenuRegion(
-      onContextMenu: (position) => showContextMenu(
-        context,
-        position: position,
-        groups: [
-          [
-            ContextMenuAction(
-              icon: Icons.open_in_new,
-              label: l10n.desktopMenuOpen,
-              onSelected: onTap,
-            ),
-            if (hasCover)
-              ContextMenuAction(
-                icon: Icons.image_outlined,
-                label: l10n.trackSaveCoverArt,
-                onSelected: onSaveCover,
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        // The M3 hover state layer; a pointer press shows as a state
+        // layer rather than a ripple.
+        hoverColor: mornye
+            ? null
+            : colorScheme.onSurface.withValues(alpha: 0.08),
+        child: Column(
+          crossAxisAlignment: isArtist
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
+          children: [
+            cover,
+            const SizedBox(height: 8),
+            Text(
+              item.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: textAlign,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-          ],
-        ],
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: radius,
-          // The M3 hover state layer; a pointer press shows as a state
-          // layer rather than a ripple.
-          hoverColor: mornye
-              ? null
-              : colorScheme.onSurface.withValues(alpha: 0.08),
-          highlightColor: desktopMaterial
-              ? colorScheme.onSurface.withValues(alpha: 0.1)
-              : null,
-          splashFactory: desktopMaterial ? NoSplash.splashFactory : null,
-          child: Column(
-            crossAxisAlignment: isArtist
-                ? CrossAxisAlignment.center
-                : CrossAxisAlignment.start,
-            children: [
-              cover,
-              const SizedBox(height: 8),
+            ),
+            // Artist cards need no repeated artist-name subtitle.
+            if (!(mornye && isArtist)) ...[
+              const SizedBox(height: 2),
               Text(
-                item.name,
+                _CollectionItemWidget.subtitleOf(context, item),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: textAlign,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              // Artist cards need no repeated artist-name subtitle.
-              if (!(mornye && isArtist)) ...[
-                const SizedBox(height: 2),
-                Text(
-                  _CollectionItemWidget.subtitleOf(context, item),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: textAlign,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );

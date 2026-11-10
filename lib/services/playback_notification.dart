@@ -25,7 +25,6 @@ class PlaybackNotification {
     this.shuffleOffLabel = 'Shuffle off',
   });
 
-  String get favoriteActionLabel => loved ? unfavoriteLabel : favoriteLabel;
 
   PlaybackNotification withFavorite(MediaItem item, bool loved) =>
       PlaybackNotification(

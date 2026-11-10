@@ -31,55 +31,6 @@ class _Connectivity implements Connectivity {
 void main() {
   const interval = Duration(seconds: 1);
 
-  testWidgets('polling never activates the failing Windows event channel', (
-    tester,
-  ) async {
-    const methods = MethodChannel('dev.fluttercommunity.plus/connectivity');
-    const events = MethodChannel(
-      'dev.fluttercommunity.plus/connectivity_status',
-    );
-    final messenger = tester.binding.defaultBinaryMessenger;
-    var checks = 0;
-    var listens = 0;
-    final methodCalls = <String>[];
-    messenger.setMockMethodCallHandler(methods, (call) async {
-      methodCalls.add(call.method);
-      checks++;
-      return ['wifi'];
-    });
-    messenger.setMockMethodCallHandler(events, (call) async {
-      if (call.method == 'listen') {
-        listens++;
-        throw PlatformException(
-          code: '-2147024809',
-          message: 'NetworkManager::StartListen',
-        );
-      }
-      return null;
-    });
-    addTearDown(() {
-      messenger.setMockMethodCallHandler(methods, null);
-      messenger.setMockMethodCallHandler(events, null);
-    });
-    final monitor = ConnectivityMonitor(
-      usePolling: true,
-      pollInterval: interval,
-    );
-    final results = <List<ConnectivityResult>>[];
-    final subscription = monitor.changes.listen(results.add);
-    addTearDown(subscription.cancel);
-    await tester.pump();
-    await tester.pump(interval);
-    expect(checks, 2);
-    expect(methodCalls, ['check', 'check']);
-    expect(listens, 0);
-    expect(results, [
-      [ConnectivityResult.wifi],
-    ]);
-    expect(tester.takeException(), isNull);
-    unawaited(subscription.cancel());
-    await tester.pump();
-  });
 
   testWidgets('polling reports initial status and changed interface sets', (
     tester,

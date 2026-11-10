@@ -40,7 +40,6 @@ class _Library extends LocalLibraryNotifier {
   Future<LocalLibrarySource> addSource({
     required String path,
     required String displayName,
-    String? bookmark,
     String? volumeId,
     bool isRemovable = false,
   }) async {

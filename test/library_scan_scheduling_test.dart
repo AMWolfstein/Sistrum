@@ -12,8 +12,6 @@ import 'package:mornye/models/settings.dart';
 import 'package:mornye/providers/local_library_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/link/client/link_client_library.dart';
-import 'package:mornye/services/link/desktop/link_phone_library.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/services/notification_service.dart';
 import 'package:mornye/services/network_storage_service.dart';
@@ -175,7 +173,7 @@ void main() {
     available = {
       for (final source in database.sources) source.path: source.available,
     };
-    probe = (path, {bookmark}) async => available[path];
+    probe = (path) async => available[path];
     scans = [];
     calls = [];
     notificationCalls = [];
@@ -207,8 +205,7 @@ void main() {
           () => LocalLibraryNotifier(
             database: database,
             networkStorage: storage,
-            availabilityProbe: (path, {bookmark}) =>
-                probe(path, bookmark: bookmark),
+            availabilityProbe: (path) => probe(path),
           ),
         ),
       ],
@@ -484,79 +481,6 @@ void main() {
     });
   }
 
-  for (final desktop in [false, true]) {
-    test(
-      'Link automatic scan failures stay silent (desktop: $desktop)',
-      () async {
-        const connection = NetworkConnection(
-          id: 'peer',
-          name: 'Peer',
-          protocol: NetworkProtocol.smb,
-          address: 'smb://peer.test/music/',
-        );
-        await storage.save(connection);
-        final root = NetworkStorageService.source('peer', '');
-        database.sources[0] = LocalLibrarySource(
-          id: 'active',
-          path: root,
-          displayName: 'Peer',
-        );
-        available[root] = true;
-        final bridge = Provider<Future<void> Function(String)>((ref) {
-          if (desktop) {
-            return LinkPhoneLibraryBridge(ref, database: database).rescan;
-          }
-          return LinkNetworkLibraryBridge(
-            ref,
-            database: database,
-            storage: storage,
-          ).rescan;
-        });
-        await container.read(bridge)('peer');
-        await storage.started.future.timeout(const Duration(seconds: 5));
-        storage.listing.completeError(
-          const SocketException('Peer disconnected'),
-        );
-        await _waitFor(
-          () =>
-              database.sources.first.lastScanError?.contains(
-                'Peer disconnected',
-              ) ==
-              true,
-        );
-        final prefs = await SharedPreferences.getInstance();
-        await _waitFor(
-          () => !prefs.containsKey(localLibraryActiveScanSourceKey),
-        );
-        expect(
-          notificationCalls.where((call) => call.method == 'show'),
-          isEmpty,
-        );
-      },
-    );
-
-    test('Link disposal cancels a pending source lookup ($desktop)', () async {
-      final response = Completer<LocalLibrarySource?>();
-      database.sourceLookup = (_) => response.future;
-      final bridge = Provider<Future<void> Function(String)>((ref) {
-        if (desktop) {
-          return LinkPhoneLibraryBridge(ref, database: database).rescan;
-        }
-        return LinkNetworkLibraryBridge(
-          ref,
-          database: database,
-          storage: storage,
-        ).rescan;
-      });
-      final pending = container.read(bridge)('peer');
-      container.dispose();
-      response.complete(database.sources.first);
-      await pending;
-      expect(scans, isEmpty);
-      expect(storage.started.isCompleted, isFalse);
-    });
-  }
-
   test('simultaneous automatic starts serialize after admission', () async {
     final first = library.startSourceScan(
       'active',
@@ -696,7 +620,7 @@ void main() {
   test('concurrent starts own one preflight and one native scan', () async {
     final pending = Completer<bool?>();
     var probes = 0;
-    probe = (path, {bookmark}) {
+    probe = (path) {
       probes++;
       return pending.future;
     };
@@ -715,7 +639,7 @@ void main() {
     test('${dispose ? 'disposal' : 'cancel'} stops owned preflight', () async {
       final pending = Completer<bool?>();
       final started = Completer<void>();
-      probe = (path, {bookmark}) {
+      probe = (path) {
         started.complete();
         return pending.future;
       };
@@ -731,7 +655,7 @@ void main() {
       expect(scans, isEmpty);
       if (!dispose) {
         expect(container.read(localLibraryProvider).scanWasCancelled, isTrue);
-        probe = (path, {bookmark}) async => available[path];
+        probe = (path) async => available[path];
         final retry = library.startSourceScan('active');
         await _waitFor(() => scans.length == 1);
         scans.single.$2.complete('{"cancelled":true}');
@@ -750,7 +674,7 @@ void main() {
           final snapshot = Completer<List<LocalLibrarySource>>();
           final oldSources = List.of(database.sources);
           if (duringProbe) {
-            probe = (path, {bookmark}) {
+            probe = (path) {
               started.complete();
               return pending.future;
             };
@@ -863,7 +787,7 @@ void main() {
     await reconnect();
     final pending = Completer<bool?>();
     final started = Completer<void>();
-    probe = (path, {bookmark}) {
+    probe = (path) {
       if (path.endsWith('/reconnect') && !started.isCompleted) {
         started.complete();
         return pending.future;

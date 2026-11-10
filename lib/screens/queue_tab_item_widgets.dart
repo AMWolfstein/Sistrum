@@ -96,10 +96,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
             onLongPress: item.status == DownloadStatus.queued
                 ? () => _showQueuedItemMenu(context, item)
                 : null,
-            onContextMenu: item.status == DownloadStatus.queued
-                ? (position) =>
-                      _showQueuedItemMenu(context, item, position: position)
-                : null,
             background: item.status == DownloadStatus.downloading
                 ? SmoothedProgressBuilder(
                     builder: (context, progress, child) => Align(
@@ -386,47 +382,9 @@ extension _QueueTabItemWidgets on _QueueTabState {
     );
   }
 
-  /// The queued download's actions: a menu at [position] on desktop, a
   /// sheet elsewhere.
-  Future<void> _showQueuedItemMenu(
-    BuildContext context,
-    DownloadItem item, {
-    Offset? position,
-  }) {
+  Future<void> _showQueuedItemMenu(BuildContext context, DownloadItem item) {
     final notifier = ref.read(downloadQueueProvider.notifier);
-    if (position != null && isDesktopPlatform) {
-      return showContextMenu(
-        context,
-        position: position,
-        groups: [
-          [
-            ContextMenuAction(
-              icon: Icons.skip_next,
-              label: context.l10n.queueDownloadNext,
-              onSelected: () => notifier.downloadNext(item.id),
-            ),
-            ContextMenuAction(
-              icon: Icons.arrow_upward,
-              label: context.l10n.queueMoveUp,
-              onSelected: () => notifier.moveQueuedItem(item.id, -1),
-            ),
-            ContextMenuAction(
-              icon: Icons.arrow_downward,
-              label: context.l10n.queueMoveDown,
-              onSelected: () => notifier.moveQueuedItem(item.id, 1),
-            ),
-          ],
-          [
-            ContextMenuAction(
-              icon: Icons.close,
-              label: context.l10n.dialogCancel,
-              destructive: true,
-              onSelected: () => notifier.cancelItem(item.id),
-            ),
-          ],
-        ],
-      );
-    }
     return showAppBottomSheet<void>(
       context: context,
       title: item.track.name,
@@ -877,168 +835,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     );
   }
 
-  /// A desktop click on a library song opens its details, as a tap does on
-  /// a phone; modifier clicks select.
-  void _desktopLibraryItemClick(
-    UnifiedLibraryItem item,
-    List<UnifiedLibraryItem> libraryItems,
-    VoidCallback open,
-  ) {
-    handleDesktopRowClick(
-      item.id,
-      select: (kind) => _applyDesktopClick(item.id, kind, [
-        for (final song in libraryItems) song.id,
-      ]),
-      activate: open,
-    );
-  }
-
-  /// The desktop Songs table, after the [leadCount] active downloads. Songs
-  /// load in pages already sorted, so the header sorts through the Library
-  /// sort modes.
-  Widget _buildLibrarySongTable(
-    BuildContext context, {
-    required String filterMode,
-    required List<UnifiedLibraryItem> items,
-    required int leadCount,
-    required Widget Function(int index) leadBuilder,
-    required VoidCallback Function(UnifiedLibraryItem item) openAction,
-  }) {
-    final table = _librarySongTableRows(
-      filterMode,
-      items,
-      Theme.of(context).colorScheme,
-    );
-    final byId = table.byId;
-    final sort = switch (_sortMode) {
-      'a-z' => (column: TrackTableColumn.title, ascending: true),
-      'z-a' => (column: TrackTableColumn.title, ascending: false),
-      'artist-asc' => (column: TrackTableColumn.artist, ascending: true),
-      'artist-desc' => (column: TrackTableColumn.artist, ascending: false),
-      'album-asc' => (column: TrackTableColumn.album, ascending: true),
-      'album-desc' => (column: TrackTableColumn.album, ascending: false),
-      _ => null,
-    };
-    final inset = EdgeInsets.symmetric(horizontal: wideListInset(context));
-    return SliverMainAxisGroup(
-      slivers: [
-        if (leadCount > 0)
-          SliverPadding(
-            padding: inset,
-            sliver: SliverList.builder(
-              itemCount: leadCount,
-              itemBuilder: (context, index) => leadBuilder(index),
-            ),
-          ),
-        SliverPadding(
-          padding: inset,
-          sliver: SliverTrackTable(
-            rows: table.rows,
-            uniformRowHeight: true,
-            columns: const [
-              TrackTableColumn.title,
-              TrackTableColumn.artist,
-              TrackTableColumn.album,
-              TrackTableColumn.quality,
-              TrackTableColumn.duration,
-            ],
-            selectedIds: _selectedIds,
-            onSelect: _applyDesktopClick,
-            // A click opens the song's details, as a tap does on a phone.
-            onActivate: (id) {
-              final item = byId[id];
-              if (item != null) openAction(item)();
-            },
-            onContextMenu: (id, position) {
-              final item = byId[id];
-              if (item == null) return;
-              _showLibraryItemMenu(
-                context,
-                item,
-                items,
-                position,
-                onOpenDetails: openAction(item),
-              );
-            },
-            sort: sort,
-            sortableColumns: const {
-              TrackTableColumn.title,
-              TrackTableColumn.artist,
-              TrackTableColumn.album,
-            },
-            onSort: (next) {
-              final mode = switch (next) {
-                null => 'latest',
-                (column: TrackTableColumn.title, ascending: true) => 'a-z',
-                (column: TrackTableColumn.title, ascending: false) => 'z-a',
-                (column: TrackTableColumn.artist, ascending: true) =>
-                  'artist-asc',
-                (column: TrackTableColumn.artist, ascending: false) =>
-                  'artist-desc',
-                (column: TrackTableColumn.album, ascending: true) =>
-                  'album-asc',
-                (column: TrackTableColumn.album, ascending: false) =>
-                  'album-desc',
-                _ => _sortMode,
-              };
-              _setSortMode(mode);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// The Songs table rows for [items], kept while the songs, the quality
-  /// label mode and [colorScheme] stay the same. A new list, such as one
-  /// with another page loaded, reuses the rows of the songs it keeps.
-  _LibrarySongTableRows _librarySongTableRows(
-    String filterMode,
-    List<UnifiedLibraryItem> items,
-    ColorScheme colorScheme,
-  ) {
-    final qualityMode = _libraryQualityLabelMode;
-    final cached = _songTableByMode[filterMode];
-    final reusable =
-        cached != null &&
-        cached.qualityMode == qualityMode &&
-        cached.colorScheme == colorScheme;
-    if (reusable && identical(cached.items, items)) return cached;
-    final previous = reusable ? cached.rowByItem : null;
-    final rows = <TrackTableRow>[];
-    final rowByItem = Map<UnifiedLibraryItem, TrackTableRow>.identity();
-    final byId = <String, UnifiedLibraryItem>{};
-    for (final item in items) {
-      final row =
-          previous?[item] ??
-          TrackTableRow(
-            id: item.id,
-            title: item.trackName,
-            artist: item.artistName,
-            album: item.albumName,
-            quality: item.qualityForMode(qualityMode),
-            duration: switch (item.historyItem?.duration ??
-                item.localItem?.duration) {
-              final seconds? when seconds > 0 => Duration(seconds: seconds),
-              _ => null,
-            },
-            leading: _buildUnifiedCoverImage(item, colorScheme, 32),
-            playback: mediaItemPlaybackUiProvider(_libraryPlaybackKey(item)),
-          );
-      rows.add(row);
-      rowByItem[item] = row;
-      byId[item.id] = item;
-    }
-    return _songTableByMode[filterMode] = _LibrarySongTableRows(
-      items: items,
-      qualityMode: qualityMode,
-      colorScheme: colorScheme,
-      rows: rows,
-      rowByItem: rowByItem,
-      byId: byId,
-    );
-  }
-
   Widget _buildUnifiedLibraryItem(
     BuildContext context,
     UnifiedLibraryItem item,
@@ -1185,18 +981,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
       isCurrent: current,
       isPlaying: playing,
       leadingArtwork: true,
-      onTap: isDesktopPlatform
-          ? () => _desktopLibraryItemClick(item, libraryItems, open)
-          : _isSelectionMode
-          ? () => _toggleSelection(item.id)
-          : open,
-      onContextMenu: (position) => _showLibraryItemMenu(
-        context,
-        item,
-        libraryItems,
-        position,
-        onOpenDetails: open,
-      ),
+      onTap: _isSelectionMode ? () => _toggleSelection(item.id) : open,
       onLongPress: playlistDragEnabled
           ? null
           : _isSelectionMode
@@ -1259,18 +1044,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
         item.trackName,
         item.artistName,
       ),
-      onTap: isDesktopPlatform
-          ? () => _desktopLibraryItemClick(item, libraryItems, open)
-          : _isSelectionMode
-          ? () => _toggleSelection(item.id)
-          : open,
-      onContextMenu: (position) => _showLibraryItemMenu(
-        context,
-        item,
-        libraryItems,
-        position,
-        onOpenDetails: open,
-      ),
+      onTap: _isSelectionMode ? () => _toggleSelection(item.id) : open,
       onLongPress: playlistDragEnabled
           ? null
           : _isSelectionMode
@@ -1309,8 +1083,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
               child: _buildLibraryQualityBadge(context, colorScheme, quality),
             ),
           ),
-        // A desktop click selects, so the play button stays during selection.
-        if (!_isSelectionMode || isDesktopPlatform)
+        if (!_isSelectionMode)
           PositionedDirectional(
             end: 4,
             bottom: 4,
@@ -1441,24 +1214,4 @@ class _LibraryPlaybackButton extends ConsumerWidget {
       ),
     );
   }
-}
-
-/// The desktop Songs table rows of one song list, with the inputs they were
-/// built from.
-class _LibrarySongTableRows {
-  const _LibrarySongTableRows({
-    required this.items,
-    required this.qualityMode,
-    required this.colorScheme,
-    required this.rows,
-    required this.rowByItem,
-    required this.byId,
-  });
-
-  final List<UnifiedLibraryItem> items;
-  final String qualityMode;
-  final ColorScheme colorScheme;
-  final List<TrackTableRow> rows;
-  final Map<UnifiedLibraryItem, TrackTableRow> rowByItem;
-  final Map<String, UnifiedLibraryItem> byId;
 }

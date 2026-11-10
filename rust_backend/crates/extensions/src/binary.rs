@@ -171,9 +171,9 @@ pub(crate) fn decode_value(value: Value<'_>, encoding: &str) -> Result<Vec<u8>, 
                 {
                     return Ok(number as i64 as u8);
                 }
-                #[cfg(any(target_arch = "aarch64", target_arch = "arm"))]
+                #[cfg(target_arch = "aarch64")]
                 return Ok(number as isize as u8);
-                #[cfg(not(any(target_arch = "aarch64", target_arch = "arm")))]
+                #[cfg(not(target_arch = "aarch64"))]
                 Ok(go_float_i64(number) as u8)
             })
             .collect();
@@ -191,29 +191,7 @@ fn copy_typed(bytes: &TypedArray<'_, u8>) -> Vec<u8> {
 fn go_float_i64(number: f64) -> i64 {
     #[cfg(target_arch = "aarch64")]
     return number as i64;
-    #[cfg(target_arch = "arm")]
-    {
-        // Go ARM32 uses runtime._d2v for int64 conversions, while byte-array
-        // conversion above uses the hardware's native int32 instruction.
-        let bits = number.to_bits();
-        let shift = ((bits >> 52) & 0x7ff) as i32 - 1075;
-        let mantissa = (bits & ((1_u64 << 52) - 1)) | (1_u64 << 52);
-        let magnitude = if shift < -63 {
-            0
-        } else if shift < 0 {
-            mantissa >> -shift
-        } else if shift <= 11 {
-            mantissa << shift
-        } else {
-            u64::from(number as u32) << 32
-        };
-        return if number.is_sign_negative() {
-            magnitude.wrapping_neg() as i64
-        } else {
-            magnitude as i64
-        };
-    }
-    #[cfg(not(any(target_arch = "aarch64", target_arch = "arm")))]
+    #[cfg(not(target_arch = "aarch64"))]
     if number.is_finite()
         && (-9_223_372_036_854_775_808.0..9_223_372_036_854_775_808.0).contains(&number)
     {

@@ -42,9 +42,6 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     try {
       final picked = await FilePicker.pickFile(
         type: FileType.image,
-        darwinOptions: const DarwinOptions(
-          assetRepresentationMode: DarwinAssetRepresentationMode.compatible,
-        ),
       );
       if (picked == null) return;
       if ((await picked.length() ?? 0) > 20 * 1024 * 1024) {
@@ -74,7 +71,6 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
       await ref
           .read(userProfileProvider.notifier)
           .save(name: _name.text, photo: _photo, removePhoto: _removePhoto);
-      // In the desktop Settings detail pane the page is the pane's only
       // route and stays open.
       if (mounted && Navigator.of(context).canPop()) {
         Navigator.of(context).pop();

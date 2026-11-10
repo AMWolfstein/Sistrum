@@ -14,7 +14,6 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/providers/download_history_provider.dart';
 import 'package:mornye/providers/local_library_provider.dart';
 import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/link/link_source_names.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
 import 'package:mornye/utils/nav_bar_inset.dart';
@@ -26,7 +25,6 @@ import 'package:mornye/widgets/app_loading_indicator.dart';
 import 'package:mornye/widgets/app_progress_indicator.dart';
 import 'package:mornye/widgets/expressive_button.dart';
 import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/ios_library_folder_sheet.dart';
 
 part 'library_settings_page_widgets.dart';
 
@@ -84,8 +82,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
           }
         }
       }
-    } else if (Platform.isIOS) {
-      setState(() => _hasStoragePermission = true);
     } else {
       setState(() => _hasStoragePermission = true);
     }
@@ -136,48 +132,14 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
         }
       }
     } else {
-      // Older Android needs storage permission; iOS chooses internal or Files.
       if (!_hasStoragePermission) {
         final granted = await _requestStoragePermission();
         if (!granted) return;
-      }
-      if (Platform.isIOS) {
-        if (!mounted) return;
-        IosPickedDirectory? picked;
-        try {
-          picked = await showIosLibraryFolderSheet(context);
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  context.l10n.snackbarFolderPickerFailed(
-                    context.friendlyError(e),
-                  ),
-                ),
-              ),
-            );
-          }
-          return;
-        }
-        if (picked != null && mounted) {
-          final library = ref.read(localLibraryProvider.notifier);
-          final source = await library.addSource(
-            path: picked.path,
-            displayName: picked.bookmark.isEmpty
-                ? context.l10n.setupAppDocumentsFolder
-                : picked.path,
-            bookmark: picked.bookmark,
-          );
-          await library.startSourceScan(source.id);
-        }
-        return;
       }
       String? result;
       try {
         result = await FilePicker.getDirectoryPath();
       } catch (e) {
-        // Linux reaches the picker through the desktop portal, which a
         // session may not run.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -341,9 +303,7 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
     await ref.read(localLibraryProvider.notifier).removeSource(source.id);
     final settings = ref.read(settingsProvider);
     if (settings.localLibraryPath == source.path) {
-      ref
-          .read(settingsProvider.notifier)
-          .setLocalLibraryPathAndBookmark('', '');
+      ref.read(settingsProvider.notifier).setLocalLibraryPath('');
     }
   }
 
@@ -607,12 +567,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                       );
                       return _LibrarySourceSettingsItem(
                         source: source,
-                        link:
-                            linkSourceName(
-                              ref.watch(linkSourceNamesProvider),
-                              source.path,
-                            ) !=
-                            null,
                         failures: scan.failures,
                         isScanning: scan.active,
                         isFinalizing: scan.finalizing,

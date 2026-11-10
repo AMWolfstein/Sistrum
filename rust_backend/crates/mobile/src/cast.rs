@@ -1,5 +1,3 @@
-//! Google Cast for Android and iOS (`mornye_cast::CastService`). Android
-//! keeps Google's sender and uses the media server methods; iOS uses the
 //! whole service. Events are pulled with `next_event`, as the platforms do
 //! for download progress.
 

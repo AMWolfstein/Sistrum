@@ -17,7 +17,6 @@ import 'package:mornye/services/library_collections_database.dart';
 import 'package:mornye/services/library_database.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/track_card.dart';
 
 import 'support/fixed_settings.dart';
@@ -68,8 +67,6 @@ void main() {
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({});
-      debugDesktopPlatformOverride = false;
-      addTearDown(() => debugDesktopPlatformOverride = null);
       tester.view.physicalSize = const Size(430, 1000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

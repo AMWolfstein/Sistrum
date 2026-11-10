@@ -34,16 +34,15 @@ if (keystorePropertiesFile.exists()) {
 
 val rustBackendDir = rootProject.file("../rust_backend")
 val rustAndroidAbis = providers.environmentVariable("MORNYE_RUST_ANDROID_ABIS")
-    .orElse("arm64-v8a,armeabi-v7a")
+    .orElse("arm64-v8a")
     .get()
     .split(",")
-val supportedRustAndroidAbis = setOf("arm64-v8a", "armeabi-v7a")
-val discordSdkEnabled = providers.environmentVariable("MORNYE_DISCORD_SDK").orElse("1").get() != "0"
+val supportedRustAndroidAbis = setOf("arm64-v8a")
 require(rustAndroidAbis.size == rustAndroidAbis.toSet().size) {
     "MORNYE_RUST_ANDROID_ABIS must not contain duplicate ABIs"
 }
 require(rustAndroidAbis.all { it in supportedRustAndroidAbis }) {
-    "MORNYE_RUST_ANDROID_ABIS must contain only arm64-v8a and/or armeabi-v7a"
+    "MORNYE_RUST_ANDROID_ABIS must contain only arm64-v8a"
 }
 
 android {
@@ -54,10 +53,6 @@ android {
     buildFeatures {
         buildConfig = true
     }
-    packaging {
-        if (discordSdkEnabled) jniLibs.pickFirsts += "**/libdiscord_partner_sdk.so"
-    }
-
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -161,10 +156,8 @@ android {
 
     splits {
         abi {
-            isEnable = true
+            isEnable = false
             reset()
-            include(*rustAndroidAbis.toTypedArray())
-            isUniversalApk = true // Also generate universal APK
         }
     }
 }
@@ -205,10 +198,6 @@ flutter {
 }
 
 dependencies {
-    val discordSdk = file("../../third_party/mornye_discord/sdk/discord_partner_sdk.aar")
-    if (discordSdkEnabled && discordSdk.exists()) {
-        implementation(files(discordSdk))
-    }
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation("net.java.dev.jna:jna:5.19.1@aar")
 

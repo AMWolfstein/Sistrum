@@ -28,7 +28,7 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => _initial;
 
   @override
-  Future<int> cleanupMissingFiles({String? iosBookmark}) => _cleanup();
+  Future<int> cleanupMissingFiles() => _cleanup();
 
   void _beginScan() => state = state.copyWith(isScanning: true);
 }

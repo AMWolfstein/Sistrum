@@ -26,7 +26,6 @@ class MornyePlaybackButton extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final bool loading;
 
-  /// The desktop capsule's press: the glyph shrinks to 90% over
   /// a disc that grows past the button, both 200ms easing out.
   final bool pointerPress;
 

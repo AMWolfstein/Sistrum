@@ -416,7 +416,6 @@ class SubsonicClient {
   }
 
   /// The lyrics of [song] from the OpenSubsonic songLyrics extension, as
-  /// LRC or plain text; empty when the server has none. A Mornye desktop
   /// also sends the stored text (`mornyeRaw`), which keeps word timing.
   /// Throws when the server lacks the extension.
   Future<String> lyrics(SubsonicSong song) async {
@@ -453,7 +452,6 @@ class SubsonicClient {
     return '${two(time ~/ 60000)}:${two(time ~/ 1000 % 60)}.${two(time % 1000 ~/ 10)}';
   }
 
-  /// Every song of the server once. A Mornye desktop (`type: "mornye"`)
   /// pages them through an empty `search3` query, which answers the same
   /// song objects as `getAlbum`; other servers are walked album by album.
   Stream<SubsonicSong> catalog({
@@ -467,7 +465,6 @@ class SubsonicClient {
         : _albumCatalog(first, checkpoint);
   }
 
-  /// Whether [catalog] lists songs newest first: a Mornye desktop pages them
   /// in its export order, its Library's latest sort. Known by the first song.
   bool get catalogNewestFirst => _catalogNewestFirst;
   bool _catalogNewestFirst = false;

@@ -10,8 +10,6 @@ import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/app_loading_indicator.dart';
 import 'package:mornye/widgets/app_snack_bar.dart';
 
-/// Google Cast receivers for platforms without Google's device dialog (iOS
-/// and desktop). Looks for receivers while open; a row connects on tap and
 /// closes the sheet, and a connected session offers Stop Casting.
 Future<void> showCastDevicePicker(BuildContext context, {CastOutput? output}) =>
     showAppBottomSheet<void>(

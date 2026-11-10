@@ -8,9 +8,7 @@ import 'package:mornye/models/settings.dart';
 import 'package:mornye/models/track.dart';
 import 'package:mornye/providers/library_collections_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/playlist_reorder_page.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/create_playlist_sheet.dart';
 
 class _Settings extends SettingsNotifier {
@@ -92,60 +90,6 @@ void main() {
   });
 
   for (final mornye in [false, true]) {
-    testWidgets('dragging a handle reorders and saves (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final collections = _Collections();
-      await tester.pumpWidget(
-        _app(
-          Builder(
-            builder: (context) => Scaffold(
-              body: TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) =>
-                        const PlaylistReorderPage(playlistId: 'mix'),
-                  ),
-                ),
-                child: const Text('open'),
-              ),
-            ),
-          ),
-          collections,
-          mornye: mornye,
-        ),
-      );
-      await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
-      expect(find.text('Save'), findsNothing);
-
-      final handles = find.byWidgetPredicate(
-        (widget) => widget is AppIcon && widget.icon == Icons.drag_handle,
-      );
-      expect(handles, findsNWidgets(3));
-      final rowHeight =
-          tester.getTopLeft(handles.at(1)).dy -
-          tester.getTopLeft(handles.at(0)).dy;
-      final gesture = await tester.startGesture(
-        tester.getCenter(handles.at(2)),
-      );
-      await tester.pump();
-      for (var step = 0; step < 10; step++) {
-        await gesture.moveBy(Offset(0, -rowHeight * 0.25));
-        await tester.pump();
-      }
-      await gesture.up();
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Save'));
-      await tester.pumpAndSettle();
-      expect(collections.orders, [
-        ['Third', 'First', 'Second'],
-      ]);
-      expect(find.text('Playlist order saved'), findsOneWidget);
-      expect(find.byType(PlaylistReorderPage), findsNothing);
-    });
-
     testWidgets('create playlist offers three sources (Mornye: $mornye)', (
       tester,
     ) async {

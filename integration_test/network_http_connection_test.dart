@@ -46,7 +46,6 @@ void main() {
         });
         const secrets = FlutterSecureStorage(
           aOptions: secureStorageAndroidOptions,
-          mOptions: secureStorageMacOsOptions,
         );
         final key = 'network_http_regression_$redirect';
         addTearDown(() => secrets.delete(key: key));

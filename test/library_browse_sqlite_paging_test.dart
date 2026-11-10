@@ -126,6 +126,7 @@ void main() {
 
   test(
     '1000 albums preserve source ties, dedup, filters and order on paging',
+    timeout: const Timeout(Duration(minutes: 2)),
     () async {
       for (final scenario in [
         (

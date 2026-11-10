@@ -53,38 +53,27 @@ class _SessionStore implements AppStateDatabase {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-/// A player with native source failures and an optional FFmpeg stand-in.
+/// A player with native source failures and isolated playback dependencies.
 class _Player {
   _Player({
-    required Future<bool> Function(List<String>) convert,
-    required Directory copies,
     bool gapless = false,
-    bool avPlayer = true,
     bool android = false,
     Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess = checkFileAccess,
   }) : this._(
-         convert,
-         copies,
          gapless,
-         avPlayer,
          android,
          recoverMissingFile,
          fileAccess,
          _SessionStore(),
-         [],
        );
 
   _Player._(
-    Future<bool> Function(List<String>) convert,
-    Directory copies,
     bool gapless,
-    bool avPlayer,
     bool android,
     Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess,
     this.session,
-    this.conversions,
   ) : runtime = MusicPlayerRuntime(
         settings: const AppSettings().copyWith(
           musicHaptics: false,
@@ -94,18 +83,12 @@ class _Player {
           autoplay: false,
         ),
         dependencies: PlaybackDependencies(
-          isMacOS: avPlayer,
           isAndroid: android,
           synchronizePlaybackState: () async {},
           recoverMissingFile: recoverMissingFile ?? (_) async => null,
           fileAccess: fileAccess,
           sessionDatabase: session,
           recoverMovedDownload: (_, _, _) async => null,
-          convertAudio: (arguments) {
-            conversions.add(arguments);
-            return convert(arguments);
-          },
-          playbackCopies: copies,
         ),
       ) {
     handler = MusicPlayerHandler(
@@ -121,7 +104,6 @@ class _Player {
   final MusicPlayerRuntime runtime;
   final _SessionStore session;
   late final MusicPlayerHandler handler;
-  final List<List<String>> conversions;
   final notices = <UnplayableSong>[];
   late final StreamSubscription<UnplayableSong> _subscription;
 
@@ -132,25 +114,25 @@ class _Player {
   }
 }
 
-/// Writes FFmpeg's output file, the argument before the trailing `-y`.
-Future<bool> _convert(List<String> arguments) async {
-  await File(arguments[arguments.length - 2]).writeAsBytes([1, 2, 3]);
-  return true;
-}
-
-String _output(List<String> arguments) => arguments[arguments.length - 2];
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
   late AudioNative native;
   late Directory folder;
   const backend = MethodChannel('com.zarz.mornye/backend');
+  const ffmpeg = MethodChannel('flutter.arthenica.com/ffmpeg_kit');
+  final ffmpegCalls = <MethodCall>[];
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
   setUp(() async {
     native = AudioNative()..install();
+    ffmpegCalls.clear();
+    messenger.setMockMethodCallHandler(ffmpeg, (call) async {
+      ffmpegCalls.add(call);
+      return null;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(ffmpeg, null));
     folder = await Directory.systemTemp.createTemp('unsupported-formats-');
     addTearDown(() => folder.delete(recursive: true));
     addTearDown(() => messenger.setMockMethodCallHandler(backend, null));
@@ -169,9 +151,7 @@ void main() {
   }
 
   Future<_Player> player({
-    Future<bool> Function(List<String>) convert = _convert,
     bool gapless = false,
-    bool avPlayer = true,
     bool android = false,
     Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess = checkFileAccess,
@@ -184,10 +164,7 @@ void main() {
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
     }
     final player = _Player(
-      convert: convert,
-      copies: Directory('${folder.path}/copies'),
       gapless: gapless,
-      avPlayer: avPlayer,
       android: android,
       recoverMissingFile: recoverMissingFile,
       fileAccess: fileAccess,
@@ -200,107 +177,11 @@ void main() {
     return player;
   }
 
-  test('an APE song plays from a FLAC copy', () async {
-    final ape = await song('one.ape');
-    native.sourceFailures.add(ape.source);
-    final p = await player();
-    await p.handler.setQueueAndPlay([ape, await song('two.flac')]);
-
-    expect(p.conversions, hasLength(1));
-    expect(p.conversions.single, containsAllInOrder(['-i', ape.source]));
-    final copy = _output(p.conversions.single);
-    expect(native.resumedSources, [copy]);
-    expect(p.handler.playbackState.value.playing, isTrue);
-    expect(p.handler.mediaItem.value?.id, 'one.ape');
-    expect(p.notices, isEmpty);
-  });
-
-  test('a song AVPlayer refuses plays from a copy made after', () async {
-    // AVPlayer needs an extension to open a local file.
-    final odd = await song('one', format: 'flac');
-    native.sourceFailures.add(odd.source);
-    final p = await player();
-    await p.handler.setQueueAndPlay([odd]);
-
-    expect(p.conversions, hasLength(1));
-    expect(native.resumedSources, [_output(p.conversions.single)]);
-    expect(p.handler.playbackState.value.errorMessage, isNull);
-
-    // Playing it again uses the same copy at once.
-    await p.handler.skipToQueueItem(0);
-    expect(p.conversions, hasLength(1));
-    expect(native.resumedSources.last, _output(p.conversions.single));
-  });
-
-  test('unplayable songs name their format and give way', () async {
-    final ape = await song('one.ape');
-    final wavPack = await song('two.wv');
-    final flac = await song('three.flac');
-    native.sourceFailures.addAll([ape.source, wavPack.source]);
-    final p = await player(convert: (_) async => false);
-    await p.handler.setQueueAndPlay([ape, wavPack, flac]);
-    await waitUntil(() => p.handler.mediaItem.value?.id == 'three.flac');
-    await waitUntil(() => native.resumedSources.isNotEmpty);
-
-    expect(p.notices, [
-      (format: 'APE', skipped: true),
-      (format: 'WavPack', skipped: true),
-    ]);
-    expect(native.resumedSources, [flac.source]);
-    expect(p.handler.playbackState.value.playing, isTrue);
-    expect(p.handler.playbackState.value.errorMessage, isNull);
-  });
-
-  test('a queue of unplayable songs stops after one pass', () async {
-    final songs = [
-      await song('one.ape'),
-      await song('two.dsf'),
-      await song('three.wv'),
-    ];
-    native.sourceFailures.addAll(songs.map((song) => song.source));
-    final p = await player(convert: (_) async => false);
-    await p.handler.setRepeatMode(AudioServiceRepeatMode.all);
-    await p.handler.setQueueAndPlay(songs);
-    await waitUntil(
-      () =>
-          p.handler.playbackState.value.processingState ==
-          AudioProcessingState.error,
-    );
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-
-    expect(p.notices, [
-      (format: 'APE', skipped: true),
-      (format: 'DSF', skipped: true),
-      (format: 'WavPack', skipped: false),
-    ]);
-    expect(p.handler.mediaItem.value?.id, 'three.wv');
-    expect(p.handler.playbackState.value.playing, isFalse);
-    expect(native.resumedSources, isEmpty);
-
-    // Choosing a song again starts a new run.
-    await p.handler.skipToQueueItem(0);
-    await waitUntil(() => p.notices.length == 6);
-  });
-
-  test('the last unplayable song stops with its format named', () async {
-    final ape = await song('one.ape');
-    native.sourceFailures.add(ape.source);
-    final p = await player(convert: (_) async => false);
-    await p.handler.setQueueAndPlay([ape]);
-    await waitUntil(() => p.notices.isNotEmpty);
-
-    expect(p.notices, [(format: 'APE', skipped: false)]);
-    expect(
-      p.handler.playbackState.value.processingState,
-      AudioProcessingState.error,
-    );
-  });
-
   test('a missing file skips without an unsupported format notice', () async {
     final gone = await song('one.ape');
     await File(gone.source).delete();
     native.sourceFailures.add(gone.source);
-    final p = await player(convert: (_) async => false);
+    final p = await player();
     await p.handler.setQueueAndPlay([gone, await song('two.flac')]);
     await waitUntil(() => native.resumedSources.isNotEmpty);
 
@@ -318,7 +199,7 @@ void main() {
       final last = await song('last.flac');
       await File(gone.source).delete();
       native.sourceFailures.add(gone.source);
-      final p = await player(android: true, avPlayer: false);
+      final p = await player(android: true);
       await p.handler.setQueueAndPlay([first, gone, last]);
       await native.complete('music-player');
       await waitUntil(() => native.resumedSources.length == 2);
@@ -342,7 +223,7 @@ void main() {
       }
       native.sourceFailures.addAll(missing.map((song) => song.source));
       final last = await song('last.flac');
-      final p = await player(avPlayer: false);
+      final p = await player();
       await p.handler.setQueueAndPlay([...missing, last]);
       await waitUntil(() => native.resumedSources.isNotEmpty);
 
@@ -360,7 +241,7 @@ void main() {
         await File(media.source).delete();
         native.sourceFailures.add(media.source);
       }
-      final p = await player(avPlayer: false);
+      final p = await player();
       await p.handler.setRepeatMode(AudioServiceRepeatMode.all);
       await p.handler.setQueueAndPlay(missing, initialIndex: 1);
       await waitUntil(
@@ -389,7 +270,7 @@ void main() {
     final gone = await song('gone.flac');
     await File(gone.source).delete();
     native.sourceFailures.add(gone.source);
-    final p = await player(avPlayer: false);
+    final p = await player();
     await p.handler.setRepeatMode(AudioServiceRepeatMode.one);
     await p.handler.setQueueAndPlay([gone, await song('next.flac')]);
     await waitUntil(() => native.resumedSources.isNotEmpty);
@@ -409,7 +290,7 @@ void main() {
       final gone = await song('gone.flac');
       final first = await song('first.flac');
       final next = await song('next.flac');
-      final p = await player(avPlayer: false);
+      final p = await player();
       await p.handler.setQueueAndPlay([
         gone,
         first,
@@ -436,7 +317,7 @@ void main() {
       final first = await song('first.flac');
       final gone = await song('gone.flac');
       final last = await song('last.flac');
-      final p = await player(avPlayer: false);
+      final p = await player();
       await p.handler.restoreSession(
         items: [gone, last, first],
         index: 0,
@@ -470,7 +351,7 @@ void main() {
       () async {
         final gone = await song('gone.flac');
         final first = await song('first.flac');
-        final p = await player(avPlayer: false);
+        final p = await player();
         await p.handler.setQueueAndPlay([
           if (!onlySong) first,
           gone,
@@ -495,7 +376,7 @@ void main() {
     final first = await song('first.flac');
     final gone = await song('gone.flac');
     final next = await song('next.flac');
-    final p = await player(avPlayer: false);
+    final p = await player();
     await p.handler.restoreSession(
       items: [first, gone, next],
       index: 0,
@@ -526,7 +407,6 @@ void main() {
         final denied = await song('denied.flac');
         final next = await song('next.flac');
         final p = await player(
-          avPlayer: false,
           fileAccess: (_) async => FileAccessUnavailable(
             FileSystemException(
               'Permission denied',
@@ -558,7 +438,6 @@ void main() {
     () async {
       const source = 'https://example.com/song.flac';
       final p = await player(
-        avPlayer: false,
         fileAccess: (_) async => throw StateError('Must not probe a stream'),
       );
       await p.handler.setQueueAndPlay([
@@ -578,29 +457,11 @@ void main() {
   );
 
   test(
-    'a failed temporary playback copy does not remove the original song',
-    () async {
-      final ape = await song('one.ape');
-      native.sourceFailures.add(ape.source);
-      final p = await player();
-      await p.handler.setQueueAndPlay([ape, await song('next.flac')]);
-      await File(native.resumedSources.single).delete();
-      await native.error('music-player');
-      await waitUntil(() => p.handler.playbackState.value.errorMessage != null);
-
-      expect(p.handler.mediaItem.value?.id, ape.id);
-      expect(p.handler.queue.value, hasLength(2));
-      expect(await File(ape.source).exists(), isTrue);
-    },
-  );
-
-  test(
     'a late missing-file probe cannot remove a newer playback request',
     () async {
       final probing = Completer<void>();
       final result = Completer<FileAccessCheck>();
       final p = await player(
-        avPlayer: false,
         fileAccess: (_) {
           probing.complete();
           return result.future;
@@ -632,7 +493,6 @@ void main() {
       await File(gone.source).delete();
       native.sourceFailures.add(gone.source);
       final p = await player(
-        avPlayer: false,
         recoverMissingFile: (path) async =>
             path == gone.source ? recovered.source : null,
       );
@@ -665,7 +525,7 @@ void main() {
         if (status == 'found') return '{"exists":true}';
         throw PlatformException(code: status);
       });
-      final p = await player(android: true, avPlayer: false);
+      final p = await player(android: true);
       final next = await song('next.flac');
       await p.handler.setQueueAndPlay([
         PlayableMedia(
@@ -702,7 +562,7 @@ void main() {
         if (!probing.isCompleted) probing.complete();
         return result.future;
       });
-      final p = await player(android: true, avPlayer: false);
+      final p = await player(android: true);
       final next = await song('next.flac');
       final opening = p.handler.setQueueAndPlay([
         PlayableMedia(
@@ -727,44 +587,15 @@ void main() {
   );
 
   test(
-    'mixed missing and unplayable songs share one failing repeat pass',
-    () async {
-      final songs = [
-        await song('one.ape'),
-        await song('missing.flac'),
-        await song('three.wv'),
-      ];
-      await File(songs[1].source).delete();
-      native.sourceFailures.addAll(songs.map((song) => song.source));
-      final p = await player(convert: (_) async => false);
-      await p.handler.setRepeatMode(AudioServiceRepeatMode.all);
-      await p.handler.setQueueAndPlay(songs);
-      await waitUntil(
-        () =>
-            p.handler.playbackState.value.processingState ==
-            AudioProcessingState.error,
-      );
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-
-      expect(p.notices, [
-        (format: 'APE', skipped: true),
-        (format: 'WavPack', skipped: false),
-      ]);
-      expect(p.handler.mediaItem.value?.id, 'three.wv');
-      expect(native.resumedSources, isEmpty);
-    },
-  );
-
-  test(
-    'other engines do not copy or skip an existing unplayable file',
+    'native playback does not transcode or skip an existing unplayable file',
     () async {
       final ape = await song('one.ape');
       native.sourceFailures.add(ape.source);
-      final p = await player(avPlayer: false);
+      final p = await player();
       await p.handler.setQueueAndPlay([ape, await song('two.flac')]);
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      expect(p.conversions, isEmpty);
+      expect(ffmpegCalls, isEmpty);
       expect(p.notices, isEmpty);
       expect(p.handler.mediaItem.value?.id, 'one.ape');
       expect(
@@ -773,26 +604,4 @@ void main() {
       );
     },
   );
-
-  test('gapless playback prepares the next song from its copy', () async {
-    final flac = await song('one.flac');
-    final ape = await song('two.ape');
-    native.sourceFailures.add(ape.source);
-    final p = await player(gapless: true);
-    await p.handler.setQueueAndPlay([flac, ape]);
-    await waitUntil(() => p.handler.mediaItem.value?.duration != null);
-    await p.handler.seek(const Duration(seconds: 45));
-    await waitUntil(() => p.conversions.length == 1);
-    final copy = _output(p.conversions.single);
-    await waitUntil(
-      () => native.live.any(
-        (id) => id.startsWith('music-gapless-') && native.sources[id] == copy,
-      ),
-    );
-
-    await native.complete('music-player');
-    await waitUntil(() => p.handler.mediaItem.value?.id == 'two.ape');
-    expect(native.resumedSources, [flac.source, copy]);
-    expect(await File(copy).exists(), isTrue);
-  });
 }

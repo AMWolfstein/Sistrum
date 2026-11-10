@@ -57,7 +57,6 @@ void main() {
         binding.scheduleFrame();
         await binding.endOfFrame.timeout(const Duration(seconds: 10));
         await probe.wait(const Duration(milliseconds: 500));
-        // A fresh isolated macOS bundle has no cache directory yet.
         await (await getTemporaryDirectory()).create(recursive: true);
       });
       buffer.stopNativeLogPolling();

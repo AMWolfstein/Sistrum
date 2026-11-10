@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:mornye/theme/material_expressive.dart';
@@ -29,10 +28,7 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/services/folder_path_template.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_folders.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/utils/saf_download_tree.dart';
 import 'package:mornye/widgets/settings_group.dart';
 import 'package:mornye/widgets/app_icon.dart';
@@ -141,11 +137,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                   icon: Icons.folder_outlined,
                   title: context.l10n.downloadDirectory,
                   subtitle: settings.downloadDirectory.isEmpty
-                      ? (Platform.isIOS
-                            ? context.l10n.setupAppDocumentsFolder
-                            : isDesktopPlatform
-                            ? 'Music/$desktopOutputFolderName'
-                            : 'Download/Mornye')
+                      ? ('Download/Mornye')
                       : settings.downloadDirectory,
                   onTap: () => _pickDirectory(context, ref),
                   showDivider: false,
@@ -484,42 +476,9 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
   }
 
   Future<void> _pickDirectory(BuildContext context, WidgetRef ref) async {
-    if (isDesktopPlatform) {
-      await _pickDesktopDirectory(context, ref);
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      _showIOSDirectoryOptions(context, ref);
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       _showAndroidDirectoryOptions(context, ref);
     }
-  }
-
-  /// Desktop folders are plain paths: no SAF tree and no iOS bookmark.
-  Future<void> _pickDesktopDirectory(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    final title = context.l10n.setupDownloadLocationTitle;
-    final current = ref.read(settingsProvider).downloadDirectory;
-    String? picked;
-    try {
-      picked = await FilePicker.getDirectoryPath(
-        dialogTitle: title,
-        initialDirectory: await resolveDesktopPickerInitialDirectory(current),
-      );
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.l10n.snackbarFolderPickerFailed(context.friendlyError(e)),
-            ),
-          ),
-        );
-      }
-      return;
-    }
-    if (picked == null || picked.isEmpty) return;
-    await ref.read(settingsProvider.notifier).useAppFolderStorage(picked);
   }
 
   Future<String> _getDefaultAndroidDirectory() async {
@@ -591,108 +550,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 await _pickSafTreeAndSave();
                 await _checkSafAccess();
               },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showIOSDirectoryOptions(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-    showAppScrollableBottomSheet<void>(
-      context: context,
-      title: context.l10n.setupDownloadLocationTitle,
-      subtitle: context.l10n.setupDownloadLocationIosMessage,
-      builder: (ctx, controller) => SingleChildScrollView(
-        controller: controller,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppSheetOption(
-              leading: AppIcon(
-                Icons.folder_special,
-                color: colorScheme.primary,
-              ),
-              title: Text(context.l10n.setupAppDocumentsFolder),
-              subtitle: Text(context.l10n.setupAppDocumentsFolderSubtitle),
-              trailing: AppIcon(Icons.check_circle, color: colorScheme.primary),
-              onTap: () async {
-                final dir = await getApplicationDocumentsDirectory();
-                ref
-                    .read(settingsProvider.notifier)
-                    .setDownloadDirectory(dir.path);
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-            ),
-            AppSheetOption(
-              leading: AppIcon(
-                Icons.cloud,
-                color: context.isMornye
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
-              ),
-              title: Text(context.l10n.setupChooseFromFiles),
-              subtitle: Text(context.l10n.setupChooseFromFilesSubtitle),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await Future<void>.delayed(const Duration(milliseconds: 250));
-                IosPickedDirectory? picked;
-                try {
-                  picked = await PlatformBridge.pickIosDirectory();
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          context.l10n.snackbarFolderPickerFailed(
-                            context.friendlyError(e),
-                          ),
-                        ),
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-                  }
-                  return;
-                }
-                if (picked == null || !context.mounted) return;
-
-                final validation = validateIosPath(
-                  picked.path,
-                  bookmark: picked.bookmark,
-                );
-                if (!validation.isValid) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          validation.errorReason ??
-                              context.l10n.setupIcloudNotSupported,
-                        ),
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-                  }
-                  return;
-                }
-
-                ref
-                    .read(settingsProvider.notifier)
-                    .setDownloadDirectory(
-                      picked.path,
-                      iosBookmark: picked.bookmark,
-                    );
-              },
-            ),
-            SettingsInfoCard(
-              icon: Icons.info_outline,
-              tone: SettingsInfoTone.warning,
-              message: context.l10n.setupIosEmptyFolderWarning,
-              margin: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             ),
             const SizedBox(height: 8),
           ],

@@ -114,7 +114,6 @@ extension _TrackMetadataMornye on _TrackMetadataScreenState {
                             ),
                           ),
                         const SizedBox(height: 12),
-                        // Centered under the title; desktop detail headers
                         // start the row at the leading edge instead.
                         Center(
                           child: HeaderMetaRow(

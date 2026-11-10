@@ -23,7 +23,6 @@ class AutoMixBeatGrid {
 }
 
 /// Bounded, original onset/autocorrelation detector. Runs in an isolate on
-/// 24-second mono PCM windows, not on the UI isolate or an entire music file.
 /// The onset -> autocorrelation -> phase approach is described in DAFx-09,
 /// "Real-time beat-synchronous analysis of musical audio":
 /// https://www.dafx.de/paper-archive/2009/papers/paper_65.pdf

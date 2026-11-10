@@ -4,13 +4,10 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mornye/services/cover_cache_manager.dart';
 
 /// The cache audio_service loads web covers through, or null for its default.
-/// Android and Apple read the file as each song arrives. The Windows and Linux
 /// sessions hand its path to other programs that read it later, and the cover
 /// cache may delete an old file while its song still plays.
 BaseCacheManager? mediaSessionArtCache() => switch (defaultTargetPlatform) {
-  TargetPlatform.android ||
-  TargetPlatform.iOS ||
-  TargetPlatform.macOS => const MediaSessionArtCache(),
+  TargetPlatform.android => const MediaSessionArtCache(),
   _ => null,
 };
 

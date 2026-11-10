@@ -15,7 +15,6 @@ import 'package:mornye/providers/runtime_profile_provider.dart';
 import 'package:mornye/providers/theme_provider.dart';
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/lyrics_parser.dart';
 import 'package:mornye/utils/lyrics_timeline.dart';
 import 'package:mornye/utils/synced_lyrics_scroll.dart';
@@ -26,17 +25,15 @@ import 'package:mornye/widgets/lyric_scroll_motion.dart';
 import 'package:mornye/widgets/lyric_gap_indicator.dart';
 import 'package:mornye/widgets/mornye_player_slider.dart';
 import 'package:mornye/widgets/lyrics_text_scale.dart';
-import 'package:mornye/widgets/tv_navigation.dart';
 
 part 'player_lyrics_line_style.dart';
 part 'player_lyrics_word_sweep.dart';
 
 const _mornyeLyricFontSize = 34.0;
 
-/// Material lyric sizes on desktop, where the lyrics panel is far wider than
 /// a phone. Null keeps the text theme's size (phones and tablets).
-double? get _materialLyricFontSize => isDesktopPlatform ? 32 : null;
-double get _materialBackgroundLyricFontSize => isDesktopPlatform ? 24 : 18;
+double? get _materialLyricFontSize => null;
+double get _materialBackgroundLyricFontSize => 18;
 const mornyeLyricsContentInset = 28.0 + MornyePlayerSlider.horizontalInset;
 
 /// How much of the lyrics area's bottom the player's controls cover. The
@@ -127,7 +124,6 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
   /// estimated offset, before settling on the line.
   bool _awaitingFirstScroll = false;
   bool _tickerEnabled = true;
-  // An inactive app is still on screen: a desktop window behind another
   // app's window, or a phone under a system overlay.
   bool get _visible =>
       widget.isActive &&
@@ -260,7 +256,6 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Focus moving between windows keeps the lyrics running as they are.
     if ((_positionSubscription != null) != _visible) {
       _syncPositionSubscription(resetUserScroll: false);
     }
@@ -1218,7 +1213,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                 textAlign,
                 Padding(
                   padding: _linePadding(index),
-                  child: TvTapTarget(
+                  child: GestureDetector(
                     onTap: () => ref
                         .read(musicPlayerControllerProvider)
                         .seek(_sungTime(line.time)),

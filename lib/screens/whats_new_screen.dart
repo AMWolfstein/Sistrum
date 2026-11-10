@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback, LogicalKeyboardKey;
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_3_expressive/material_3_expressive.dart'
@@ -15,22 +15,15 @@ import 'package:material_3_expressive/material_3_expressive.dart'
 import 'package:mornye/constants/app_info.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
 import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/mornye_icons.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/app_icon_button.dart';
 import 'package:mornye/widgets/app_shape.dart';
 import 'package:mornye/widgets/expressive_button.dart';
 
 /// The highlights of [AppInfo.whatsNewRelease] on phones and tablets, shown
-/// once after an update and again from About. It keeps the look of the
-/// 5.2 rebrand tour; pages list only what this device can use. Desktop uses
-/// [showWhatsNewDialog] instead.
+/// once after an update and again from About.
 class WhatsNewScreen extends ConsumerStatefulWidget {
   const WhatsNewScreen({super.key, this.localNetworkAccess});
 
@@ -59,7 +52,6 @@ class _WhatsNewScreenState extends ConsumerState<WhatsNewScreen> {
   @override
   void initState() {
     super.initState();
-    if (isAndroidTv) return;
     _localNetwork.isGranted().then((granted) {
       if (mounted && !granted) setState(() => _asksNearby = true);
     }, onError: (_) {});
@@ -89,8 +81,8 @@ class _WhatsNewScreenState extends ConsumerState<WhatsNewScreen> {
     if (_page > 0) _goTo(_page - 1);
   }
 
-  /// Skip never passes an unanswered Nearby devices page: Link cannot find a
-  /// computer on Android 17 without it.
+  /// Skip never passes an unanswered Nearby devices page: network storage
+  /// cannot find servers on Android 17 without it.
   void _skip(int nearbyPage) {
     if (nearbyPage > _page && _nearbyAllowed == null) {
       _goTo(nearbyPage);
@@ -104,12 +96,6 @@ class _WhatsNewScreenState extends ConsumerState<WhatsNewScreen> {
     try {
       await _localNetwork.ensureGranted();
       // Discovery that found nothing without it starts over.
-      if (ref.read(linkClientSupportedProvider)) {
-        ref
-            .read(linkClientControllerProvider.notifier)
-            .requestLocalNetworkAccess()
-            .ignore();
-      }
       if (mounted) setState(() => _nearbyAllowed = true);
     } on LocalNetworkPermissionException {
       if (mounted) setState(() => _nearbyAllowed = false);
@@ -257,7 +243,7 @@ class _WhatsNewScreenState extends ConsumerState<WhatsNewScreen> {
                         ),
                         child: Text(
                           gated
-                              ? l10n.whatsNewLinkNearbyAllow
+                              ? l10n.whatsNewNearbyAllow
                               : last
                               ? l10n.whatsNewDone
                               : l10n.upgradeIntroContinue,
@@ -266,259 +252,6 @@ class _WhatsNewScreenState extends ConsumerState<WhatsNewScreen> {
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Desktop shows the tour once over the app, as the dialog of
-/// [showWhatsNewDialog], instead of the phone's full-screen pages.
-Future<void> maybeShowWhatsNewDialog(BuildContext context, WidgetRef ref) {
-  if (!isDesktopPlatform ||
-      ref.read(settingsProvider).whatsNewSeen == AppInfo.whatsNewRelease) {
-    return Future.value();
-  }
-  return showWhatsNewDialog(context);
-}
-
-/// The tour as a desktop dialog: the sections listed beside the selected
-/// one, Skip and Continue in the footer. Closing it any way marks it seen.
-Future<void> showWhatsNewDialog(BuildContext context) async {
-  final settings = ProviderScope.containerOf(
-    context,
-    listen: false,
-  ).read(settingsProvider.notifier);
-  await showAppSheetDialog<void>(
-    context: context,
-    isScrollControlled: true,
-    dialogSize: AppDialogSize.wide,
-    builder: (_) => const _WhatsNewDialog(),
-  );
-  settings.setWhatsNewSeen();
-}
-
-class _WhatsNewDialog extends StatefulWidget {
-  const _WhatsNewDialog();
-
-  @override
-  State<_WhatsNewDialog> createState() => _WhatsNewDialogState();
-}
-
-class _WhatsNewDialogState extends State<_WhatsNewDialog> {
-  int _selected = 0;
-
-  void _select(int index, int count) {
-    if (index < 0 || index >= count) return;
-    setState(() => _selected = index);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final tokens = context.tokens;
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    // The header already says what the opening page would.
-    final sections = whatsNewHighlights(l10n).skip(1).toList();
-    final section = sections[_selected];
-    final isLast = _selected == sections.length - 1;
-    void close() => Navigator.of(context).pop();
-    void forward() =>
-        isLast ? close() : _select(_selected + 1, sections.length);
-
-    final body = Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          width: 220,
-          child: ListView(
-            padding: EdgeInsetsDirectional.fromSTEB(
-              tokens.gapMd,
-              tokens.gapSm,
-              0,
-              tokens.gapMd,
-            ),
-            children: [
-              for (var i = 0; i < sections.length; i++)
-                _SectionTab(
-                  highlight: sections[i],
-                  selected: i == _selected,
-                  onTap: () => _select(i, sections.length),
-                ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsetsDirectional.fromSTEB(
-              tokens.gapXl,
-              tokens.gapSm,
-              tokens.gapXl,
-              tokens.gapLg,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    AppShapeBadge(
-                      // Sections keep the hero shape they have on phones.
-                      kind: _heroShapes[_selected + 1].$1,
-                      size: 56,
-                      color: scheme.primaryContainer,
-                      child: Icon(
-                        context.adaptiveIcon(section.icon),
-                        size: 28,
-                        color: scheme.onPrimaryContainer,
-                      ),
-                    ),
-                    SizedBox(width: tokens.gapLg),
-                    Expanded(
-                      child: Text(
-                        section.title,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: context.isMornye
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: tokens.gapMd),
-                Text(
-                  section.description,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.4,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                SizedBox(height: tokens.gapXl),
-                _FeatureList(features: section.features),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.enter): forward,
-        const SingleActivator(LogicalKeyboardKey.numpadEnter): forward,
-        const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
-            _select(_selected + 1, sections.length),
-        const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
-            _select(_selected - 1, sections.length),
-      },
-      child: Focus(
-        autofocus: true,
-        child: AppBottomSheet(
-          title: l10n.whatsNewIntroTitle(AppInfo.whatsNewRelease),
-          subtitle: l10n.whatsNewIntroDesc,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // One height for every section, so the dialog does not jump.
-              Flexible(child: SizedBox(height: 500, child: body)),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  tokens.gapXl,
-                  tokens.gapMd,
-                  tokens.gapXl,
-                  tokens.gapXl,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (!isLast) ...[
-                      ExpressiveButton(
-                        text: true,
-                        onPressed: close,
-                        child: Text(l10n.setupSkip),
-                      ),
-                      SizedBox(width: tokens.gapSm),
-                    ],
-                    ExpressiveButton(
-                      onPressed: forward,
-                      child: Text(
-                        isLast ? l10n.whatsNewDone : l10n.upgradeIntroContinue,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A section in the dialog's list, filled while it is shown.
-class _SectionTab extends StatelessWidget {
-  const _SectionTab({
-    required this.highlight,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final WhatsNewHighlight highlight;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final tokens = context.tokens;
-    final foreground = selected
-        ? scheme.onSecondaryContainer
-        : scheme.onSurfaceVariant;
-    return Padding(
-      padding: EdgeInsets.only(bottom: tokens.gapXs),
-      child: Semantics(
-        selected: selected,
-        button: true,
-        child: Material(
-          color: selected ? scheme.secondaryContainer : Colors.transparent,
-          borderRadius: BorderRadius.circular(tokens.radiusControl),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: tokens.minTouchTarget),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: tokens.gapMd,
-                  vertical: tokens.gapSm,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      context.adaptiveIcon(highlight.icon),
-                      size: 20,
-                      color: foreground,
-                    ),
-                    SizedBox(width: tokens.gapMd),
-                    Expanded(
-                      child: Text(
-                        highlight.title,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: selected ? foreground : scheme.onSurface,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -545,7 +278,7 @@ class WhatsNewHighlight {
   final List<WhatsNewFeature> features;
 
   /// The page that asks for Android's Nearby devices permission, which
-  /// Mornye Link and network storage need from Android 17.
+  /// network storage needs from Android 17.
   final bool nearbyDevices;
 }
 
@@ -562,39 +295,14 @@ class WhatsNewFeature {
 
 /// The tour for [AppInfo.whatsNewRelease]: an overview, then one page per
 /// area. Android Auto and exclusive output appear only where they exist;
-/// [nearbyDevices] adds the Nearby devices page right after Mornye Link.
+/// [nearbyDevices] adds the Nearby devices page right after the overview.
 @visibleForTesting
 List<WhatsNewHighlight> whatsNewHighlights(
   AppLocalizations l10n, {
-  bool? androidPhone,
-  bool? desktop,
   bool nearbyDevices = false,
 }) {
-  final showAndroidAuto = androidPhone ?? (Platform.isAndroid && !isAndroidTv);
-  final showExclusiveOutput = desktop ?? isDesktopPlatform;
+  final showAndroidAuto = Platform.isAndroid;
   final sections = [
-    WhatsNewHighlight(
-      icon: Icons.computer,
-      title: l10n.whatsNewLinkTitle,
-      description: l10n.whatsNewLinkDesc,
-      features: [
-        WhatsNewFeature(
-          Icons.play_circle,
-          l10n.whatsNewLinkPlayTitle,
-          l10n.whatsNewLinkPlayBody,
-        ),
-        WhatsNewFeature(
-          Icons.swap_horiz,
-          l10n.whatsNewLinkTransferTitle,
-          l10n.whatsNewLinkTransferBody,
-        ),
-        WhatsNewFeature(
-          Icons.sync,
-          l10n.whatsNewLinkSyncTitle,
-          l10n.whatsNewLinkSyncBody,
-        ),
-      ],
-    ),
     WhatsNewHighlight(
       icon: Icons.auto_awesome,
       title: l10n.whatsNewHomeTitle,
@@ -642,12 +350,6 @@ List<WhatsNewHighlight> whatsNewHighlights(
             Icons.directions_car,
             l10n.whatsNewPlayerAutoTitle,
             l10n.whatsNewPlayerAutoBody,
-          ),
-        if (showExclusiveOutput)
-          WhatsNewFeature(
-            Icons.high_quality,
-            l10n.whatsNewPlayerExclusiveTitle,
-            l10n.whatsNewPlayerExclusiveBody,
           ),
       ],
     ),
@@ -716,7 +418,6 @@ List<WhatsNewHighlight> whatsNewHighlights(
           WhatsNewFeature(section.icon, section.title),
       ],
     ),
-    sections.first,
     // A setup step rather than a highlight, so the overview leaves it out.
     if (nearbyDevices)
       WhatsNewHighlight(
@@ -725,11 +426,6 @@ List<WhatsNewHighlight> whatsNewHighlights(
         description: l10n.whatsNewNearbyDesc,
         nearbyDevices: true,
         features: [
-          WhatsNewFeature(
-            Icons.computer,
-            l10n.whatsNewNearbyLinkTitle,
-            l10n.whatsNewNearbyLinkBody,
-          ),
           WhatsNewFeature(
             Icons.dns,
             l10n.whatsNewNearbyStorageTitle,
@@ -742,7 +438,7 @@ List<WhatsNewHighlight> whatsNewHighlights(
           ),
         ],
       ),
-    ...sections.skip(1),
+    ...sections,
   ];
 }
 
@@ -887,9 +583,7 @@ class _NearbyStatus extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              allowed
-                  ? l10n.whatsNewLinkNearbyGranted
-                  : l10n.whatsNewNearbyRefused,
+              allowed ? l10n.whatsNewNearbyGranted : l10n.whatsNewNearbyRefused,
               style: theme.textTheme.titleSmall?.copyWith(color: color),
             ),
           ),

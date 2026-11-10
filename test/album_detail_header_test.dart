@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mornye/l10n/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/widgets/album_detail_header.dart';
 import 'package:mornye/widgets/settled_blur.dart';
@@ -96,6 +98,60 @@ void main() {
   });
 
   tearDownAll(() => _cover.dispose());
+
+  testWidgets('the Material header shows its title, cover and actions and '
+      'collapses on a phone', (tester) async {
+    _phone(tester);
+    final controller = ScrollController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomScrollView(
+              controller: controller,
+              slivers: [
+                AlbumDetailHeader(
+                  title: 'Album',
+                  expandedHeight: 534,
+                  showTitleInAppBar: false,
+                  background: RawImage(image: _cover, fit: BoxFit.cover),
+                  coverBuilder: (context, size) =>
+                      RawImage(image: _cover, fit: BoxFit.cover),
+                  actions: AlbumPlayActions(
+                    playLabel: 'Play',
+                    shuffleTooltip: 'Shuffle',
+                    onPlay: () {},
+                    onShuffle: () {},
+                    onDownload: () {},
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 2000)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(find.text('Album'), findsWidgets);
+    expect(find.byType(RawImage), findsWidgets);
+    final download = find.byType(HeaderCircleButton);
+    expect(download, findsOneWidget);
+    expect(
+      tester.getSize(download).shortestSide,
+      greaterThanOrEqualTo(kMinInteractiveDimension),
+    );
+    controller.jumpTo(600);
+    await tester.pump();
+    controller.jumpTo(0);
+    await tester.pump();
+    expect(find.text('Album'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('the Material header blurs its cover once, not per scroll or '
       'playback frame', (tester) async {

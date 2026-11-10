@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/widgets/mornye_glass_press.dart';
@@ -116,21 +115,6 @@ void main() {
     expect(deformation(tester), isNull);
   });
 
-  testWidgets('a mouse over it lifts it a little', (tester) async {
-    await pumpPress(tester, onTap: () {});
-    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-    addTearDown(mouse.removePointer);
-    await mouse.addPointer(location: Offset.zero);
-    await mouse.moveTo(tester.getCenter(find.byKey(box)));
-    await tester.pumpAndSettle();
-    expect(
-      deformation(tester)!.getMaxScaleOnAxis(),
-      closeTo(1 + 0.3 * 3.6 / 36, 0.01),
-    );
-    await mouse.moveTo(Offset.zero);
-    await tester.pumpAndSettle();
-    expect(deformation(tester), isNull);
-  });
 
   testWidgets('Reduce Motion keeps the shape still', (tester) async {
     var taps = 0;

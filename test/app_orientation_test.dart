@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/screens/now_playing_screen.dart';
 import 'package:mornye/services/app_orientation.dart';
-import 'package:mornye/utils/android_tv.dart';
 
 class _PlayerRoute extends NowPlayingRoute {
   _PlayerRoute() : super(child: const SizedBox());
@@ -98,16 +97,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  test('a TV is never treated as a tablet', () async {
-    debugAndroidTvOverride = true;
-    debugTabletOverride = true;
-    addTearDown(() => debugAndroidTvOverride = null);
-    await setAppOrientation();
-    expect(requests, [
-      ['DeviceOrientation.landscapeLeft', 'DeviceOrientation.landscapeRight'],
-    ]);
-  });
-
   test('a display at least 600 wide on its shorter side is a tablet', () {
     final view =
         TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
@@ -124,21 +113,6 @@ void main() {
         ..devicePixelRatio = dpr;
       expect(isTabletDevice, tablet, reason: '$size at $dpr');
     }
-  });
-
-  test('TV stays landscape in setup, library and full player', () async {
-    debugAndroidTvOverride = true;
-    addTearDown(() => debugAndroidTvOverride = null);
-    await setAppOrientation();
-    await setAppOrientation(playerVisible: true);
-    await setAppOrientation();
-    expect(
-      requests,
-      List.filled(3, [
-        'DeviceOrientation.landscapeLeft',
-        'DeviceOrientation.landscapeRight',
-      ]),
-    );
   });
 
   testWidgets('only the full player enables landscape; sheets inherit it', (

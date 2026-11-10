@@ -7,10 +7,9 @@
 use std::collections::BTreeMap;
 use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Condvar, Mutex, Weak};
+use std::sync::{Arc, Mutex, Weak};
 use std::task::Waker;
 use std::thread::Thread;
-use std::time::{Duration, Instant};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CancellationDomain {
@@ -64,14 +63,12 @@ impl State {
 #[derive(Default)]
 struct Shared {
     state: Mutex<State>,
-    changed: Condvar,
     waker: Option<Waker>,
     threads: Mutex<Vec<Weak<Thread>>>,
 }
 
 impl Shared {
     fn notify(&self) {
-        self.changed.notify_all();
         self.threads
             .lock()
             .expect("cancellation thread lock")
@@ -158,23 +155,6 @@ impl CancellationRegistry {
             self.shared.notify();
         }
         Ok(())
-    }
-
-    /// Cancel active work only. Idle sentinels remain available to reset/retry.
-    /// IDs are sorted for deterministic native results; Go's ordering is unspecified.
-    pub fn cancel_active(&self) -> Result<Vec<String>, CancellationError> {
-        let state = self.shared.state.lock().expect("cancellation state lock");
-        state.check_open()?;
-        let mut ids = Vec::new();
-        for (id, entry) in &state.entries {
-            if entry.references > 0 {
-                entry.cancelled.store(true, Ordering::Release);
-                ids.push(id.clone());
-            }
-        }
-        drop(state);
-        self.shared.notify();
-        Ok(ids)
     }
 
     pub fn is_cancelled(&self, id: &str) -> Result<bool, CancellationError> {
@@ -291,32 +271,6 @@ impl RequestLease {
         Ok(())
     }
 
-    /// Block without polling. True means cancelled, false means heartbeat expiry.
-    /// Bounds match the existing progress waiter: default 15 s, maximum 60 s.
-    /// Call from a worker thread; cancellation/release/shutdown may run elsewhere.
-    pub fn wait_cancelled(&self, timeout_ms: i64) -> Result<bool, CancellationError> {
-        let timeout = wait_timeout(timeout_ms);
-        let started = Instant::now();
-        let mut state = self.shared.state.lock().expect("cancellation state lock");
-        loop {
-            self.check_live(&state)?;
-            if self.cancelled.load(Ordering::Acquire) {
-                return Ok(true);
-            }
-            let remaining = timeout.saturating_sub(started.elapsed());
-            if remaining.is_zero() {
-                return Ok(false);
-            }
-            // Every predicate change takes this same lock, avoiding lost wakeups
-            // between checking the predicate and entering Condvar::wait_timeout.
-            (state, _) = self
-                .shared
-                .changed
-                .wait_timeout(state, remaining)
-                .expect("cancellation wait lock");
-        }
-    }
-
     /// Release this acquisition once; other acquisitions for the same ID remain.
     /// Holding or dropping this old lease cannot remove a later retry's entry.
     pub fn release(&self) {
@@ -339,15 +293,6 @@ impl Drop for RequestLease {
     fn drop(&mut self) {
         self.release();
     }
-}
-
-fn wait_timeout(timeout_ms: i64) -> Duration {
-    let bounded_ms = if timeout_ms <= 0 {
-        15_000
-    } else {
-        timeout_ms.min(60_000)
-    };
-    Duration::from_millis(bounded_ms as u64)
 }
 
 #[cfg(test)]
@@ -469,7 +414,7 @@ mod tests {
         assert!(!anonymous.is_cancelled().unwrap());
         // Dropping the temporary idle lease also notifies its release.
         let before = observer.calls.load(Ordering::Relaxed);
-        assert_eq!(registry.cancel_active().unwrap(), ["first", "second"]);
+        registry.cancel("second").unwrap();
         assert!(second.is_cancelled().unwrap());
         assert!(!anonymous.is_cancelled().unwrap());
         assert_eq!(observer.calls.load(Ordering::Relaxed), before + 1);
@@ -487,16 +432,5 @@ mod tests {
             registry.cancel_many(["later"]),
             Err(CancellationError::RegistryClosed)
         );
-    }
-
-    #[test]
-    fn timeout_bounds_do_not_overflow() {
-        for input in [i64::MIN, -1, 0] {
-            assert_eq!(wait_timeout(input), Duration::from_secs(15));
-        }
-        assert_eq!(wait_timeout(1), Duration::from_millis(1));
-        for input in [60_000, 60_001, i64::MAX] {
-            assert_eq!(wait_timeout(input), Duration::from_secs(60));
-        }
     }
 }

@@ -14,7 +14,6 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/services/lyrics_ai_client.dart';
 import 'package:mornye/services/lyrics_translation.dart';
 import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
 import 'package:mornye/utils/lyrics_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,13 +39,6 @@ class _MediaItems extends CurrentMediaItemNotifier {
 
   @override
   Stream<MediaItem?> build() => _items;
-}
-
-class _DelayedCache extends LyricsTranslationCache {
-  final readGate = Completer<LyricsTranslationResult?>();
-
-  @override
-  Future<LyricsTranslationResult?> read(String key) => readGate.future;
 }
 
 const _settings = AppSettings(
@@ -320,162 +312,6 @@ void main() {
     },
   );
 
-  test(
-    'upgrades a line-only cache and shares word alignment with local timing',
-    () async {
-      const lyrics = ParsedLyrics(
-        synced: true,
-        wordSynced: true,
-        plainText: 'Hello World',
-        lines: [
-          LyricLine(
-            time: Duration(seconds: 10),
-            end: Duration(seconds: 14),
-            text: 'Hello World',
-            words: [
-              LyricWord(
-                time: Duration(seconds: 10),
-                end: Duration(seconds: 12),
-                text: 'Hello ',
-              ),
-              LyricWord(
-                time: Duration(seconds: 12),
-                end: Duration(seconds: 14),
-                text: 'World',
-              ),
-            ],
-          ),
-        ],
-      );
-      final cache = LyricsTranslationCache(directory: () async => directory);
-      await cache.write(
-        lyricsTranslationCacheKey(
-          sourceHash: LyricsTranslationSource.of(lyrics).hash,
-          language: 'es',
-          config: lyricsAiConfigFor(_settings),
-        ),
-        const LyricsTranslationResult(['Old translation']),
-      );
-      final container = await containerFor(
-        settings: _settings.copyWith(lyricsAiWordSync: true),
-      );
-      final controller = container.read(lyricsTranslationProvider.notifier);
-      final outgoing = container
-          .read(lyricsTranslationSharingProvider)
-          .outgoing
-          .first;
-      expect((await controller.translate(lyrics)).error, isNull);
-      expect(requests, hasLength(1));
-      final displayed = controller.display(lyrics).lines.single;
-      expect(displayed.translation, 'es:Hello World');
-      expect(displayed.translationWords.single.time.inSeconds, 10);
-      expect(displayed.translationWords.single.end!.inSeconds, 14);
-      final published = await outgoing;
-      expect(published.result.alignments.single.single.source, 0);
-      await controller.translate(lyrics);
-      expect(
-        requests,
-        hasLength(1),
-        reason: 'aligned cache does not call AI again',
-      );
-
-      final peer = await containerFor(
-        settings: const AppSettings(
-          lyricsAiProvider: 'custom',
-          lyricsAiModel: '',
-          lyricsAiWordSync: true,
-        ),
-        keys: {},
-      );
-      peer
-          .read(lyricsTranslationSharingProvider)
-          .receive(
-            SharedLyricsTranslation(
-              sourceHash: LyricsTranslationSource.of(lyrics).hash,
-              language: 'es',
-              updatedMs: 1,
-              result: const LyricsTranslationResult(
-                ['Hola Mundo'],
-                alignments: [
-                  [
-                    LyricsTranslationChunk('Hola ', 0),
-                    LyricsTranslationChunk('Mundo', 1),
-                  ],
-                ],
-              ),
-            ),
-          );
-      final peerLine = peer
-          .read(lyricsTranslationProvider.notifier)
-          .display(lyrics)
-          .lines
-          .single;
-      expect(peerLine.translationWords.last.time.inSeconds, 12);
-      expect(requests, hasLength(1));
-    },
-  );
-
-  test(
-    'upgrades cached AI pronunciation to word timing and publishes it',
-    () async {
-      const lyrics = ParsedLyrics(
-        synced: true,
-        wordSynced: true,
-        plainText: '君を',
-        lines: [
-          LyricLine(
-            time: Duration(seconds: 10),
-            end: Duration(seconds: 14),
-            text: '君を',
-            words: [
-              LyricWord(
-                time: Duration(seconds: 10),
-                end: Duration(seconds: 12),
-                text: '君',
-              ),
-              LyricWord(
-                time: Duration(seconds: 12),
-                end: Duration(seconds: 14),
-                text: 'を',
-              ),
-            ],
-          ),
-        ],
-      );
-      final cache = LyricsTranslationCache(directory: () async => directory);
-      await cache.write(
-        lyricsTranslationCacheKey(
-          sourceHash: LyricsTranslationSource.of(lyrics).hash,
-          language: 'es',
-          config: lyricsAiConfigFor(_settings),
-        ),
-        const LyricsTranslationResult(
-          ['Old translation'],
-          romanizations: ['kimi o'],
-          alignments: [
-            [LyricsTranslationChunk('Old translation', 0)],
-          ],
-        ),
-      );
-      final container = await containerFor(
-        settings: _settings.copyWith(lyricsAiWordSync: true),
-      );
-      final controller = container.read(lyricsTranslationProvider.notifier);
-      final outgoing = container
-          .read(lyricsTranslationSharingProvider)
-          .outgoing
-          .first;
-      expect((await controller.translate(lyrics)).error, isNull);
-      expect(requests, hasLength(1));
-      final displayed = controller.display(lyrics).lines.single;
-      expect(displayed.romanizationWords.single.time.inSeconds, 10);
-      expect(displayed.romanizationWords.single.end!.inSeconds, 14);
-      expect((await outgoing).result.romanizationWordSynced, isTrue);
-      await controller.translate(lyrics);
-      expect(requests, hasLength(1));
-    },
-  );
-
   test('translates once, shows it and persists it apart', () async {
     final container = await containerFor();
     final controller = container.read(lyricsTranslationProvider.notifier);
@@ -523,124 +359,6 @@ void main() {
         .read(settingsProvider.notifier)
         .setLyricsTranslationLanguage('ja');
     expect(later.display(_lyrics).lines.first.translation, isNull);
-  });
-
-  test(
-    'linked translation refreshes lyrics without local AI configuration',
-    () async {
-      final container = await containerFor(
-        settings: const AppSettings(
-          lyricsAiProvider: 'custom',
-          lyricsAiModel: '',
-        ),
-        keys: {},
-      );
-      final controller = container.read(lyricsTranslationProvider.notifier);
-      final sharing = container.read(lyricsTranslationSharingProvider);
-      final initial = container.read(lyricsTranslationProvider).results;
-      expect(controller.display(_lyrics), same(_lyrics));
-      sharing.receive(
-        SharedLyricsTranslation(
-          sourceHash: LyricsTranslationSource.of(_lyrics).hash,
-          language: 'id',
-          updatedMs: 100,
-          result: const LyricsTranslationResult(['Halo', 'Dunia']),
-        ),
-      );
-      await Future<void>.delayed(Duration.zero);
-      expect(
-        container.read(lyricsTranslationProvider).results,
-        isNot(same(initial)),
-      );
-      expect(
-        controller.display(_lyrics).lines.map((line) => line.translation),
-        ['Halo', 'Dunia', 'Halo'],
-      );
-      final different = ParsedLyrics(
-        synced: true,
-        wordSynced: false,
-        lines: const [LyricLine(time: Duration.zero, text: 'Another song')],
-        plainText: 'Another song',
-      );
-      expect(controller.display(different), same(different));
-      expect(requests, isEmpty);
-      expect(_lyrics.lines.first.translation, isNull);
-    },
-  );
-
-  test(
-    'completed AI results are published without credentials or paths',
-    () async {
-      final container = await containerFor();
-      final sharing = container.read(lyricsTranslationSharingProvider);
-      final published = sharing.outgoing.first;
-      final result = await container
-          .read(lyricsTranslationProvider.notifier)
-          .translate(_lyrics);
-      expect(result.error, isNull);
-      final update = await published;
-      expect(update.sourceHash, LyricsTranslationSource.of(_lyrics).hash);
-      expect(update.language, 'es');
-      expect(update.result.translations, ['es:Hello', 'es:World']);
-      expect(
-        update.toJson().keys,
-        unorderedEquals([
-          'sourceHash',
-          'language',
-          'translations',
-          'romanizations',
-          'updatedMs',
-        ]),
-      );
-      expect(jsonEncode(update.toJson()), isNot(contains('sk-test')));
-    },
-  );
-
-  test('local language choice takes over a received translation', () async {
-    final container = await containerFor();
-    final controller = container.read(lyricsTranslationProvider.notifier);
-    container
-        .read(lyricsTranslationSharingProvider)
-        .receive(
-          SharedLyricsTranslation(
-            sourceHash: LyricsTranslationSource.of(_lyrics).hash,
-            language: 'id',
-            updatedMs: 100,
-            result: const LyricsTranslationResult(['Halo', 'Dunia']),
-          ),
-        );
-    await Future<void>.delayed(Duration.zero);
-    expect(controller.display(_lyrics).lines.first.translation, 'Halo');
-    container
-        .read(settingsProvider.notifier)
-        .setLyricsTranslationLanguage('ja');
-    expect(controller.display(_lyrics), same(_lyrics));
-  });
-
-  test('a late local cache read cannot replace a linked translation', () async {
-    final cache = _DelayedCache();
-    final container = await containerFor(cache: cache);
-    final controller = container.read(lyricsTranslationProvider.notifier);
-    final sharing = container.read(lyricsTranslationSharingProvider);
-    final published = <SharedLyricsTranslation>[];
-    final subscription = sharing.outgoing.listen(published.add);
-    addTearDown(subscription.cancel);
-    controller.display(_lyrics);
-    await pumpEventQueue();
-    sharing.receive(
-      SharedLyricsTranslation(
-        sourceHash: LyricsTranslationSource.of(_lyrics).hash,
-        language: 'id',
-        updatedMs: 100,
-        result: const LyricsTranslationResult(['Halo', 'Dunia']),
-      ),
-    );
-    await pumpEventQueue();
-    cache.readGate.complete(const LyricsTranslationResult(['Old', 'Cache']));
-    await pumpEventQueue();
-    expect(controller.display(_lyrics).lines.first.translation, 'Halo');
-    expect(published, isEmpty);
-    expect(requests, isEmpty);
   });
 
   test(
@@ -718,38 +436,6 @@ void main() {
     // A saved translation without one is enough while it is off.
     expect((await controller.translate(lyrics)).error, isNull);
     expect(requests, hasLength(1));
-  });
-
-  test('cancelling and changing tracks stop the job', () async {
-    final container = await containerFor();
-    final controller = container.read(lyricsTranslationProvider.notifier);
-    gate = Completer<void>();
-    final owner = Object();
-    final published = <SharedLyricsTranslation>[];
-    final subscription = container
-        .read(lyricsTranslationSharingProvider)
-        .outgoing
-        .listen(published.add);
-    addTearDown(subscription.cancel);
-
-    var pending = controller.translate(_lyrics, owner: owner);
-    await pumpEventQueue();
-    controller.cancel(owner: Object());
-    expect(container.read(lyricsTranslationProvider).job, isNotNull);
-    controller.cancel(owner: owner);
-    expect(container.read(lyricsTranslationProvider).job, isNull);
-    expect((await pending).cancelled, isTrue);
-
-    pending = controller.translate(_lyrics);
-    await pumpEventQueue();
-    mediaItems.add(const MediaItem(id: 'song-b', title: 'B'));
-    await pumpEventQueue();
-    expect((await pending).cancelled, isTrue);
-    expect(container.read(lyricsTranslationProvider).job, isNull);
-    gate.complete();
-    expect(controller.display(_lyrics).lines.first.translation, isNull);
-    expect(await controller.cachedCount(), 0);
-    expect(published, isEmpty);
   });
 
   test('reports a missing setup without sending anything', () async {

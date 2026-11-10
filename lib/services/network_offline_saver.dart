@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:mornye/models/library_database_models.dart';
 import 'package:mornye/models/unified_library_item.dart';
 import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
+import 'package:mornye/services/offline_saver.dart';
 import 'package:mornye/services/network_storage_service.dart';
 
 String networkOfflineHistoryId(String origin) =>
@@ -29,13 +29,13 @@ String? networkOfflineOrigin(UnifiedLibraryItem item) {
   return canSaveNetworkOfflineSource(origin) ? origin : null;
 }
 
-List<LinkOfflineSong> networkOfflineSongs(Iterable<UnifiedLibraryItem> items) {
+List<OfflineSong> networkOfflineSongs(Iterable<UnifiedLibraryItem> items) {
   final origins = <String>{};
   return [
     for (final item in items)
       if (networkOfflineOrigin(item) case final origin?)
         if (origins.add(origin))
-          LinkOfflineSong(
+          OfflineSong(
             songId: origin,
             item:
                 item.localItem ??
@@ -58,8 +58,8 @@ List<LinkOfflineSong> networkOfflineSongs(Iterable<UnifiedLibraryItem> items) {
 ) {
   if (path == null || path.trim().isEmpty) {
     return (
-      relativeDir: LinkOfflineSaver.relativeDirFor(item),
-      fileName: LinkOfflineSaver.fileNameFor(item),
+      relativeDir: OfflineSaver.relativeDirFor(item),
+      fileName: OfflineSaver.fileNameFor(item),
     );
   }
   final parts = path
@@ -77,7 +77,7 @@ List<LinkOfflineSong> networkOfflineSongs(Iterable<UnifiedLibraryItem> items) {
   );
 }
 
-class NetworkOfflineTransport implements LinkOfflineTransport {
+class NetworkOfflineTransport implements OfflineTransport {
   NetworkOfflineTransport({NetworkStorageService? storage})
     : downloadFile = NetworkFileDownload(
         storage ?? NetworkStorageService.instance,
@@ -85,10 +85,10 @@ class NetworkOfflineTransport implements LinkOfflineTransport {
 
   final NetworkFileDownload downloadFile;
 
-  Future<LinkOfflineSong> prepare(LinkOfflineSong song) async {
+  Future<OfflineSong> prepare(OfflineSong song) async {
     final path = await downloadFile.originalPath(song.songId);
     final layout = networkOfflineLayout(song.item, path);
-    return LinkOfflineSong(
+    return OfflineSong(
       item: song.item,
       songId: song.songId,
       relativeDir: layout.relativeDir,

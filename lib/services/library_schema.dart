@@ -1,12 +1,7 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:mornye/models/library_database_models.dart';
 import 'package:mornye/services/library_row_mapper.dart';
 import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/ios_container_paths.dart';
 import 'package:mornye/utils/logger.dart';
 
 final _log = AppLogger('LibraryDatabase');
@@ -229,7 +224,6 @@ abstract final class LibrarySchema {
         id TEXT PRIMARY KEY,
         path TEXT NOT NULL UNIQUE,
         display_name TEXT NOT NULL,
-        bookmark TEXT,
         volume_id TEXT,
         is_removable INTEGER NOT NULL DEFAULT 0,
         enabled INTEGER NOT NULL DEFAULT 1,
@@ -274,25 +268,14 @@ abstract final class LibrarySchema {
   }
 
   static Future<void> _createVisibleView(DatabaseExecutor db) async {
-    // Keep alias records addressable by old playlist IDs. Only suppress a
-    // Windows physical-file alias while another available record represents
-    // it. The dedicated keys keep converted formats and CUE tracks distinct.
+    // Keep alias records addressable by old playlist IDs. The dedicated keys
+    // keep converted formats and CUE tracks distinct.
     await db.execute('DROP VIEW IF EXISTS $visibleView');
     await db.execute('''
       CREATE VIEW $visibleView AS
       SELECT l.* FROM library l
       JOIN library_sources s ON s.id = l.source_id
       WHERE s.enabled = 1 AND s.available = 1
-        AND NOT EXISTS (
-          SELECT 1 FROM library_path_keys own
-          JOIN library_path_keys other ON other.path_key = own.path_key
-          JOIN library duplicate ON duplicate.id = other.item_id
-          JOIN library_sources ds ON ds.id = duplicate.source_id
-          WHERE own.item_id = l.id
-            AND own.path_key GLOB 'windows-file:*'
-            AND duplicate.id < l.id
-            AND ds.enabled = 1 AND ds.available = 1
-        )
         AND l.file_path NOT IN (
           SELECT c.file_path FROM library_cue_split_sources c
           JOIN (
@@ -461,156 +444,4 @@ abstract final class LibrarySchema {
       value TEXT NOT NULL
     )
   ''');
-
-  /// Raise when [rebaseContainerPaths] must run again in the same container.
-  static const _containerPathsVersion = 1;
-  static const _containerPathsKey = 'ios_container_paths';
-  static const _containerPathsPage = 256;
-
-  static Future<void> onOpen(Database db) async {
-    await migrateIosContainerPaths(db);
-    if (Platform.isWindows) {
-      await sqlite.repairWindowsPathKeysOnOpen(
-        db,
-        'library',
-        'library_path_keys',
-      );
-    }
-  }
-
-  static Future<void> migrateIosContainerPaths(Database db) async {
-    if (!Platform.isIOS) return;
-    final documents = await getApplicationDocumentsDirectory();
-    await rebaseContainerPaths(db, documents.path);
-  }
-
-  /// Rebases app-owned paths after iOS moves the app container, then stores
-  /// the container in the file itself, so later opens in that container read
-  /// one row. A restored or migrated file names its old container and runs
-  /// again. Returns whether it read the Library rows.
-  @visibleForTesting
-  static Future<bool> rebaseContainerPaths(Database db, String documentsPath) =>
-      db.transaction((txn) async {
-        final marker = '$_containerPathsVersion|$documentsPath';
-        final stored = await txn.query(
-          stateTable,
-          columns: ['value'],
-          where: 'key = ?',
-          whereArgs: [_containerPathsKey],
-        );
-        if (stored.firstOrNull?['value'] == marker) return false;
-        final containerPrefix = documentsPath.substring(
-          0,
-          documentsPath.lastIndexOf('/') + 1,
-        );
-        final sources = await txn.query(
-          'library_sources',
-          columns: ['id', 'path'],
-          where: "bookmark IS NULL OR bookmark = ''",
-        );
-        final localSourceIds = sources.map((source) => source['id']).toSet();
-        String? afterId;
-        while (true) {
-          final rows = await txn.query(
-            'library',
-            columns: ['id', 'source_id', 'file_path', 'cover_path'],
-            where:
-                '(substr(file_path, 1, ?) != ? OR '
-                'substr(cover_path, 1, ?) != ?)'
-                '${afterId == null ? '' : ' AND id > ?'}',
-            whereArgs: [
-              containerPrefix.length,
-              containerPrefix,
-              containerPrefix.length,
-              containerPrefix,
-              ?afterId,
-            ],
-            orderBy: 'id',
-            limit: _containerPathsPage,
-          );
-          if (rows.isEmpty) break;
-          final batch = txn.batch();
-          for (final row in rows) {
-            final updates = <String, Object?>{};
-            for (final column in ['file_path', 'cover_path']) {
-              // External audio paths remain bookmark-owned. Extracted covers
-              // always belong to our sandbox, including bookmarked sources.
-              if (column == 'file_path' &&
-                  !localSourceIds.contains(row['source_id'])) {
-                continue;
-              }
-              final previous = row[column] as String?;
-              if (previous == null) continue;
-              final current = rebaseIosSandboxPath(previous, documentsPath);
-              if (current != previous) updates[column] = current;
-            }
-            if (updates.isEmpty) continue;
-            final id = row['id'] as String;
-            batch.update('library', updates, where: 'id = ?', whereArgs: [id]);
-            if (updates.containsKey('file_path')) {
-              sqlite.putPathKeysInBatch(
-                batch,
-                'library_path_keys',
-                id,
-                updates['file_path'] as String,
-              );
-            }
-          }
-          await batch.commit(noResult: true);
-          if (rows.length < _containerPathsPage) break;
-          afterId = rows.last['id'] as String;
-        }
-        final batch = txn.batch();
-        for (final source in sources) {
-          final previous = source['path'] as String;
-          final current = rebaseIosSandboxPath(previous, documentsPath);
-          if (current == previous) continue;
-          batch.update(
-            'library_sources',
-            {'path': current},
-            where: 'id = ?',
-            whereArgs: [source['id']],
-          );
-        }
-        await batch.commit(noResult: true);
-        for (final table in const [
-          'library_cue_split_sources',
-          'library_cue_split_outputs',
-        ]) {
-          int? afterRowId;
-          while (true) {
-            final rows = await txn.query(
-              table,
-              columns: ['rowid', 'file_path', 'cue_path'],
-              where: afterRowId == null ? null : 'rowid > ?',
-              whereArgs: afterRowId == null ? null : [afterRowId],
-              orderBy: 'rowid',
-              limit: _containerPathsPage,
-            );
-            if (rows.isEmpty) break;
-            final cueBatch = txn.batch();
-            for (final row in rows) {
-              final previousPath = row['file_path'] as String;
-              final previousCue = row['cue_path'] as String;
-              final path = rebaseIosSandboxPath(previousPath, documentsPath);
-              final cue = rebaseIosSandboxPath(previousCue, documentsPath);
-              if (path == previousPath && cue == previousCue) continue;
-              cueBatch.update(
-                table,
-                {'file_path': path, 'cue_path': cue},
-                where: 'rowid = ?',
-                whereArgs: [row['rowid']],
-              );
-            }
-            await cueBatch.commit(noResult: true);
-            if (rows.length < _containerPathsPage) break;
-            afterRowId = rows.last['rowid'] as int;
-          }
-        }
-        await txn.insert(stateTable, {
-          'key': _containerPathsKey,
-          'value': marker,
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
-        return true;
-      });
 }

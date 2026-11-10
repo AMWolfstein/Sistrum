@@ -7,10 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mornye/services/backend/backend_channel.dart';
-import 'package:mornye/services/desktop_diagnostics.dart';
 import 'package:mornye/services/download_request_payload.dart';
 import 'package:mornye/utils/audio_format_utils.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/utils/hash_utils.dart';
 import 'package:mornye/utils/logger.dart';
@@ -76,7 +74,6 @@ class PlatformBridge {
   /// that contain a percentage but no byte counts.
   static const int notificationPercentTotal = 10000;
 
-  /// MethodChannel on Android and iOS, the Rust library on desktop.
   static BackendChannel get _channel => backendChannel;
 
   static int _nativeDataJobSerial = 0;
@@ -135,10 +132,7 @@ class PlatformBridge {
   }
 
   static Future<void> setScreenAwake(bool enabled) async {
-    if (defaultTargetPlatform != TargetPlatform.android &&
-        defaultTargetPlatform != TargetPlatform.iOS) {
-      return;
-    }
+    if (defaultTargetPlatform != TargetPlatform.android) return;
     await _channel.invokeMethod<void>('setScreenAwake', {'enabled': enabled});
   }
 
@@ -207,31 +201,9 @@ class PlatformBridge {
       StreamController<void>.broadcast();
   static final StreamController<void> _extensionAuthCallbackEvents =
       StreamController<void>.broadcast();
-  static final StreamController<List<String>>
-  _iosBackgroundDownloadExpirationEvents =
-      StreamController<List<String>>.broadcast();
-  static final StreamController<String> _discordPresenceStatusEvents =
-      StreamController<String>.broadcast();
-  static final StreamController<String> _libraryFolderChangeEvents =
-      StreamController<String>.broadcast();
-  static final StreamController<Map<String, dynamic>> _linkRequestEvents =
-      StreamController<Map<String, dynamic>>.broadcast();
-  static final StreamController<Map<String, dynamic>> _linkMessageEvents =
-      StreamController<Map<String, dynamic>>.broadcast();
-  static final StreamController<Map<String, dynamic>> _linkClientEvents =
-      StreamController<Map<String, dynamic>>.broadcast();
-  static final StreamController<Map<String, dynamic>> _linkPairedEvents =
-      StreamController<Map<String, dynamic>>.broadcast();
-  static final StreamController<String> _linkPairingEndedEvents =
-      StreamController<String>.broadcast();
-  static final StreamController<Map<Object?, Object?>> _castEvents =
-      StreamController<Map<Object?, Object?>>.broadcast();
   static bool _backendEventHandlerInstalled = false;
 
-  /// The Rust backend answers on Android and iOS through the MethodChannel
-  /// and on desktop through dart:ffi, with plain filesystem paths.
-  static bool get supportsCoreBackend =>
-      Platform.isAndroid || Platform.isIOS || isDesktopPlatform;
+  static bool get supportsCoreBackend => Platform.isAndroid;
 
   static bool get supportsExtensionSystem => supportsCoreBackend;
 
@@ -257,199 +229,10 @@ class PlatformBridge {
   static Future<void> processPendingExtensionCallbacks() =>
       _channel.invokeMethod<void>('processPendingExtensionCallbacks');
 
-  /// Desktop only: hands a `mornye://` URL the OS delivered to the backend.
-  /// Returns false when it is not an extension callback. The backend then
-  /// raises `extensionAuthCallbackReceived`, as the mobile hosts do.
-  static Future<bool> queueExtensionCallbackUrl(String url) async {
-    if (!isDesktopPlatform) return false;
-    final queued = await _channel.invokeMethod<bool>(
-      'queueExtensionCallbackUrl',
-      {'url': url},
-    );
-    return queued == true;
-  }
-
-  /// Desktop only: keeps the computer from idle sleeping while downloads
-  /// run. Idempotent; returns whether the OS granted the request.
-  static Future<bool> beginKeepAwake({
-    String reason = 'Downloading music',
-  }) async {
-    if (!isDesktopPlatform) return false;
-    final granted = await _channel.invokeMethod<bool>('beginKeepAwake', {
-      'reason': reason,
-    });
-    return granted == true;
-  }
-
-  /// Desktop only: releases [beginKeepAwake]. Safe without a prior begin.
-  static Future<void> endKeepAwake() async {
-    if (!isDesktopPlatform) return;
-    await _channel.invokeMethod<bool>('endKeepAwake');
-  }
-
-  /// Desktop Discord Rich Presence (`discordPresenceInitialize`, `Update`,
-  /// `Clear`, `Shutdown`) over Discord's local IPC in the Rust backend.
-  static Future<T?> invokeDiscordPresence<T>(
-    String method, [
-    Object? arguments,
-  ]) => _channel.invokeMethod<T>(method, arguments);
-
-  /// Desktop Discord status changes: `active` or `unavailable`.
-  static Stream<String> discordPresenceStatusEvents() =>
-      _events(_discordPresenceStatusEvents);
-
-  /// Desktop only: replaces the watched library folders. Returns the folders
-  /// that are being watched.
-  static Future<List<String>> watchLibraryFolders(List<String> paths) async {
-    if (!isDesktopPlatform) return const [];
-    final watched = await _channel.invokeMethod<List<dynamic>>(
-      'watchLibraryFolders',
-      {'paths': paths},
-    );
-    return [for (final path in watched ?? const []) path.toString()];
-  }
-
-  static Future<void> unwatchLibraryFolders() async {
-    if (!isDesktopPlatform) return;
-    await _channel.invokeMethod<void>('unwatchLibraryFolders');
-  }
-
-  /// Desktop watched library roots whose content changed (throttled).
-  static Stream<String> libraryFolderChangeEvents() =>
-      _events(_libraryFolderChangeEvents);
-
   static Future<String?> consumeVerificationNotification() =>
       _channel.invokeMethod<String>('consumeVerificationNotification');
 
-  static Stream<List<String>> iosBackgroundDownloadExpirationEvents() =>
-      _events(_iosBackgroundDownloadExpirationEvents);
-
-  // Mornye Link, the desktop server phones connect to. The Rust backend owns
-  // the server; these calls and events follow the bridge table of the link
-  // contract.
-
-  /// Starts the server as [name]; returns `port`, `fingerprint`, `serverId`,
-  /// `name` and `addresses`.
-  static Future<Map<String, dynamic>> linkStart({
-    required String name,
-    int? port,
-  }) async => _linkMap(
-    await _channel.invokeMethod('linkStart', {'name': name, 'port': ?port}),
-  );
-
-  static Future<void> linkStop() => _invokeVoid('linkStop');
-
-  // Desktop Google Cast (rust_backend/crates/cast): one call per service
   // method, and the session and device list as events.
-
-  static Future<Object?> castCall(
-    String method, [
-    Map<String, Object?>? arguments,
-  ]) => _channel.invokeMethod<Object?>('castCall', {
-    'method': method,
-    'args': ?arguments,
-  });
-
-  /// Session snapshots, and `{"devices": [...]}` when the list changes.
-  static Stream<Map<Object?, Object?>> castEvents() => _events(_castEvents);
-
-  /// `running`, `port`, `fingerprint`, `serverId`, `name`, `addresses` and
-  /// the connected `clients`.
-  static Future<Map<String, dynamic>> linkStatus() async =>
-      _linkMap(await _channel.invokeMethod('linkStatus'));
-
-  /// Hands the NDJSON catalog at [path] to the server; returns `songs` and
-  /// `version`.
-  static Future<Map<String, dynamic>> linkSetCatalog(String path) async =>
-      _linkMap(await _channel.invokeMethod('linkSetCatalog', {'path': path}));
-
-  /// Opens a pairing window: `pin`, `expiresMs` and `fingerprint`.
-  static Future<Map<String, dynamic>> linkBeginPairing() async =>
-      _linkMap(await _channel.invokeMethod('linkBeginPairing'));
-
-  static Future<void> linkEndPairing() => _invokeVoid('linkEndPairing');
-
-  /// Paired devices and Subsonic app keys.
-  static Future<List<Map<String, dynamic>>> linkDevices() async {
-    final result = await _channel.invokeMethod<List<dynamic>>('linkDevices');
-    return [
-      for (final device in result ?? const [])
-        if (device is Map) _linkMap(device),
-    ];
-  }
-
-  static Future<void> linkRevoke(String deviceId) =>
-      _invokeVoid('linkRevoke', {'deviceId': deviceId});
-
-  /// Mints a key for a third-party Subsonic app: `deviceId` and `apiKey`.
-  static Future<Map<String, dynamic>> linkCreateKey(String name) async =>
-      _linkMap(await _channel.invokeMethod('linkCreateKey', {'name': name}));
-
-  /// Answers a `linkRequest` with [result], or with [error] (`code`,
-  /// `message`).
-  static Future<void> linkReply(
-    String requestId, {
-    Object? result,
-    Map<String, dynamic>? error,
-  }) => _invokeVoid('linkReply', {
-    'requestId': requestId,
-    if (error != null) 'error': error else 'result': result,
-  });
-
-  /// Sends [message] over the WebSocket of [deviceId], or of every connected
-  /// phone when null. Returns how many received it.
-  static Future<int> linkSend(
-    Map<String, dynamic> message, {
-    String? deviceId,
-  }) async {
-    final result = _linkMap(
-      await _channel.invokeMethod('linkSend', {
-        'deviceId': ?deviceId,
-        'message': message,
-      }),
-    );
-    return (result['delivered'] as num?)?.toInt() ?? 0;
-  }
-
-  /// Whether each audio file of [paths] embeds a picture the server would
-  /// serve; null for one that is not a readable file. Works while stopped.
-  static Future<List<bool?>> linkEmbeddedPictures(List<String> paths) async {
-    final result = _linkMap(
-      await _channel.invokeMethod('linkEmbeddedPictures', {'paths': paths}),
-    );
-    final pictures = result['pictures'];
-    return [
-      for (var i = 0; i < paths.length; i++)
-        pictures is List && i < pictures.length && pictures[i] is bool
-            ? pictures[i] as bool
-            : null,
-    ];
-  }
-
-  /// Forwarded requests: `requestId`, `op`, `deviceId` and `args`.
-  static Stream<Map<String, dynamic>> linkRequestEvents() =>
-      _events(_linkRequestEvents);
-
-  /// WebSocket messages from phones: `deviceId` and `message`.
-  static Stream<Map<String, dynamic>> linkMessageEvents() =>
-      _events(_linkMessageEvents);
-
-  /// The connected phones whenever one connects or disconnects: `clients`.
-  static Stream<Map<String, dynamic>> linkClientEvents() =>
-      _events(_linkClientEvents);
-
-  /// A phone finished pairing: `deviceId`, `name` and `platform`.
-  static Stream<Map<String, dynamic>> linkPairedEvents() =>
-      _events(_linkPairedEvents);
-
-  /// Why a pairing window closed: `paired`, `expired`, `attempts` or
-  /// `cancelled`.
-  static Stream<String> linkPairingEndedEvents() =>
-      _events(_linkPairingEndedEvents);
-
-  static Map<String, dynamic> _linkMap(Object? value) => value is Map
-      ? value.map((key, value) => MapEntry(key.toString(), value))
-      : <String, dynamic>{};
 
   static void _ensureBackendEventHandler() {
     if (_backendEventHandlerInstalled) return;
@@ -488,65 +271,8 @@ class PlatformBridge {
         case 'libraryStorageChanged':
           _libraryStorageEvents.add(null);
           return null;
-        case 'discordPresenceStatus':
-          final status = call.arguments;
-          if (status is String) _discordPresenceStatusEvents.add(status);
-          return null;
-        case 'libraryFolderChanged':
-          final args = call.arguments;
-          final root = args is Map ? args['root']?.toString() ?? '' : '';
-          if (root.isNotEmpty) _libraryFolderChangeEvents.add(root);
-          return null;
-        case 'linkRequest':
-          if (call.arguments is Map) {
-            _linkRequestEvents.add(_linkMap(call.arguments));
-          }
-          return null;
-        case 'linkMessage':
-          if (call.arguments is Map) {
-            _linkMessageEvents.add(_linkMap(call.arguments));
-          }
-          return null;
-        case 'linkClients':
-          if (call.arguments is Map) {
-            _linkClientEvents.add(_linkMap(call.arguments));
-          }
-          return null;
-        case 'linkPaired':
-          if (call.arguments is Map) {
-            _linkPairedEvents.add(_linkMap(call.arguments));
-          }
-          return null;
-        case 'linkPairingEnded':
-          final args = call.arguments;
-          final reason = args is Map ? args['reason']?.toString() : null;
-          _linkPairingEndedEvents.add(reason ?? 'cancelled');
-          return null;
-        case 'castStatus' || 'castDevices':
-          if (call.arguments case final Map<Object?, Object?> payload) {
-            _castEvents.add(payload);
-          }
-          return null;
         case 'extensionVerificationNotificationTapped':
           _verificationNotificationEvents.add(null);
-          return null;
-        case 'iosBackgroundDownloadExpired':
-          final raw = call.arguments;
-          var itemIds = const <String>[];
-          try {
-            final decoded = raw is String ? jsonDecode(raw) : raw;
-            if (decoded is List) {
-              itemIds = decoded
-                  .map((value) => value.toString().trim())
-                  .where((value) => value.isNotEmpty)
-                  .toSet()
-                  .toList(growable: false);
-            }
-          } catch (_) {
-            // Older/native-mismatched builds may send no payload. The queue
-            // still pauses its currently visible active items below.
-          }
-          _iosBackgroundDownloadExpirationEvents.add(itemIds);
           return null;
         default:
           return null;
@@ -1077,23 +803,6 @@ class PlatformBridge {
     return reset;
   }
 
-  /// iOS only: run a verification/OAuth page inside ASWebAuthenticationSession.
-  /// The session intercepts the callback scheme in-process, so the flow
-  /// completes even where the app's URL scheme is not registered with the OS
-  /// (e.g. sideload containers like LiveContainer). Returns true when the
-  /// session was presented; the callback is delivered through the native side
-  /// exactly like an OS deep link.
-  static Future<bool> startIosWebAuthSession(
-    String url, {
-    String callbackScheme = 'mornye',
-  }) async {
-    final result = await _channel.invokeMethod('startWebAuthSession', {
-      'url': url,
-      'callback_scheme': callbackScheme,
-    });
-    return result == true;
-  }
-
   static Future<void> setDownloadDirectory(String path) =>
       _invokeVoid('setDownloadDirectory', {'path': path});
 
@@ -1577,11 +1286,7 @@ class PlatformBridge {
     try {
       final directories = <String>{
         for (final path in paths)
-          if (path.startsWith('/'))
-            p.posix.dirname(path)
-          else if (p.windows.isAbsolute(path) &&
-              !p.windows.isRootRelative(path))
-            p.windows.dirname(path),
+          if (path.startsWith('/')) p.posix.dirname(path),
       };
       for (final directory in directories) {
         scopes.add(await acquireDownloadDirectory(directory));
@@ -1694,7 +1399,6 @@ class PlatformBridge {
       _invokeVoid('stopDownloadService');
 
   /// Keeps user-started work of [kind] alive with the screen off: an Android
-  /// foreground service, or an iOS background-task grace period. Returns
   /// whether the platform accepted it.
   static Future<bool> startBackgroundWork(
     String kind, {
@@ -1726,16 +1430,6 @@ class PlatformBridge {
   static Future<void> stopBackgroundWork(String kind) =>
       _invokeVoid('stopBackgroundWork', {'kind': kind});
 
-  /// Keeps a paired Android phone available as a Link playback target.
-  static Future<bool> startLinkConnectionService(String name) async =>
-      await _channel.invokeMethod<bool>('startLinkConnectionService', {
-        'name': name,
-      }) ??
-      false;
-
-  static Future<void> stopLinkConnectionService() =>
-      _invokeVoid('stopLinkConnectionService');
-
   static Future<void> updateDownloadServiceProgress({
     required String trackName,
     required String artistName,
@@ -1754,22 +1448,6 @@ class PlatformBridge {
 
   static Future<bool> isDownloadServiceRunning() =>
       _invokeAs('isDownloadServiceRunning');
-
-  /// iOS only: keep in-flight downloads running briefly after backgrounding.
-  static Future<void> beginBackgroundDownloadTask() async {
-    if (!Platform.isIOS) return;
-    try {
-      await _channel.invokeMethod('beginBackgroundDownloadTask');
-    } catch (_) {}
-  }
-
-  /// iOS only: stop the background-time extension (queue finished or paused).
-  static Future<void> endBackgroundDownloadTask() async {
-    if (!Platform.isIOS) return;
-    try {
-      await _channel.invokeMethod('endBackgroundDownloadTask');
-    } catch (_) {}
-  }
 
   static Future<void> startNativeDownloadWorker({
     required List<Map<String, dynamic>> requests,
@@ -2491,29 +2169,24 @@ class PlatformBridge {
     }
   }
 
-  // Android reports process exits natively; desktop uses the session marker
-  // in DesktopDiagnostics.
+  // in the diagnostics session marker.
 
   static Future<Map<String, dynamic>?> getPendingAppCrash() async {
-    if (isDesktopPlatform) return DesktopDiagnostics.instance?.pendingCrash();
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
     return _invokeDecoded(_decodeNullableMapResult, 'getPendingAppCrash');
   }
 
   static Future<void> dismissAppCrash(String id) async {
-    if (isDesktopPlatform) return DesktopDiagnostics.instance?.dismiss(id);
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
     await _channel.invokeMethod<void>('dismissAppCrash', {'id': id});
   }
 
   static Future<Map<String, dynamic>?> getLatestAppCrash() async {
-    if (isDesktopPlatform) return DesktopDiagnostics.instance?.latestCrash();
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
     return _invokeDecoded(_decodeNullableMapResult, 'getLatestAppCrash');
   }
 
   static Future<void> markAppCrashShown(String id) async {
-    if (isDesktopPlatform) return DesktopDiagnostics.instance?.markShown(id);
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
     await _channel.invokeMethod<void>('markAppCrashShown', {'id': id});
   }
@@ -2523,13 +2196,6 @@ class PlatformBridge {
     required String stack,
     required String logs,
   }) async {
-    if (isDesktopPlatform) {
-      return DesktopDiagnostics.instance?.recordRuntimeError(
-        error: error,
-        stack: stack,
-        logs: logs,
-      );
-    }
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
     await _channel.invokeMethod<void>('recordAppRuntimeError', {
       'error': error,
@@ -2850,75 +2516,6 @@ class PlatformBridge {
     return decoded is Map
         ? decoded.cast<String, dynamic>()
         : const <String, dynamic>{};
-  }
-
-  /// Present the native iOS folder picker. The security-scoped bookmark is
-  /// created inside the picker callback while its access grant is still
-  /// active; creating it later from a bare path loses the grant.
-  /// Returns null when the user cancels; throws on picker/bookmark failure.
-  static Future<IosPickedDirectory?> pickIosDirectory() async {
-    _log.i('Opening iOS folder picker');
-    try {
-      final result = await _channel.invokeMethod('pickIosDirectory');
-      final map = _decodeNullableMapResult(result, 'pickIosDirectory');
-      if (map == null) {
-        _log.i('iOS folder selection cancelled');
-        return null;
-      }
-      final path = map['path'] as String? ?? '';
-      final bookmark = map['bookmark'] as String? ?? '';
-      if (!path.startsWith('/') || bookmark.trim().isEmpty) {
-        throw const FormatException('Invalid iOS folder selection');
-      }
-      _log.i('iOS folder selected with an access bookmark');
-      return IosPickedDirectory(path: path, bookmark: bookmark);
-    } catch (error, stack) {
-      _log.e('iOS folder selection failed', error, stack);
-      rethrow;
-    }
-  }
-
-  /// Resolve a base64-encoded iOS security-scoped bookmark and start accessing
-  /// the resource. The returned lease must be passed to
-  /// [stopAccessingIosBookmark] by the operation that acquired it.
-  static Future<IosSecurityScopedAccess?> startAccessingIosBookmark(
-    String bookmark,
-  ) async {
-    try {
-      final result = await _channel.invokeMethod('startAccessingIosBookmark', {
-        'bookmark': bookmark,
-      });
-      if (result is! Map) {
-        throw FormatException(
-          'startAccessingIosBookmark returned ${result.runtimeType}',
-        );
-      }
-      final path = result['path'];
-      final token = result['token'];
-      if (path is! String ||
-          path.trim().isEmpty ||
-          token is! String ||
-          token.trim().isEmpty) {
-        throw const FormatException('Invalid iOS bookmark access lease');
-      }
-      return IosSecurityScopedAccess(path: path, token: token);
-    } catch (e) {
-      _log.w('Failed to start accessing iOS bookmark: $e');
-      return null;
-    }
-  }
-
-  /// Releases exactly the security-scoped lease acquired by the caller.
-  static Future<void> stopAccessingIosBookmark(
-    IosSecurityScopedAccess access,
-  ) async {
-    try {
-      await _channel.invokeMethod('stopAccessingIosBookmark', {
-        'token': access.token,
-      });
-    } catch (e) {
-      _log.w('Failed to stop accessing iOS bookmark: $e');
-    }
   }
 
   static Future<Map<String, dynamic>?> readAudioMetadata(

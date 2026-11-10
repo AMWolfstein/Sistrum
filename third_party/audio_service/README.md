@@ -1,6 +1,6 @@
 # audio_service
 
-This plugin wraps around your existing audio code to allow it to run in the background and interact with the media notification, the lock screen, headset buttons, wearables and Android Auto. It supports Android, iOS, web and Linux (via [audio_service_mpris](https://pub.dev/packages/audio_service_mpris)). It is suitable for:
+This plugin wraps around your existing audio code to allow it to run in the background and interact with the media notification, the lock screen, headset buttons, wearables and Android Auto. This vendored copy supports Android only. It is suitable for:
 
 * Music players
 * Text-to-speech readers
@@ -17,19 +17,19 @@ You encapsulate your audio code in an audio handler which implements a set of st
 
 You implement these callbacks to play the particular type of audio that your app needs to play in response to these requests. For example, a Text-to-speech reader app might implement these callbacks using [flutter_tts](https://pub.dartlang.org/packages/flutter_tts) to render the speech, while a music player app might implement these callbacks using [just_audio](https://pub.dartlang.org/packages/just_audio) to render the audio.
 
-| Feature                            | Android   | iOS     | macOS   | Web     |
-| -------                            | :-------: | :-----: | :-----: | :-----: |
-| background audio                   | ✅        | ✅      | ✅      | ✅      |
-| headset clicks                     | ✅        | ✅      | ✅      | ✅      |
-| play/pause/seek/rate/stop          | ✅        | ✅      | ✅      | ✅      |
-| fast forward/rewind                | ✅        | ✅      | ✅      | ✅      |
-| repeat/shuffle mode                | ✅        | ✅      | ✅      | ✅      |
-| queue manipulation, skip next/prev | ✅        | ✅      | ✅      | ✅      |
-| custom actions/events/states       | ✅        | ✅      | ✅      | ✅      |
-| notifications/control center       | ✅        | ✅      | ✅      | ✅      |
-| lock screen controls               | ✅        | ✅      |         | ✅      |
-| album art                          | ✅        | ✅      | ✅      | ✅      |
-| Android Auto, Apple CarPlay        | ✅        | ✅      |         |         |
+| Feature                            | Android   |
+| -------                            | :-------: |
+| background audio                   | ✅        |
+| headset clicks                     | ✅        |
+| play/pause/seek/rate/stop          | ✅        |
+| fast forward/rewind                | ✅        |
+| repeat/shuffle mode                | ✅        |
+| queue manipulation, skip next/prev | ✅        |
+| custom actions/events/states       | ✅        |
+| notifications                      | ✅        |
+| lock screen controls               | ✅        |
+| album art                          | ✅        |
+| Android Auto                       | ✅        |
 
 If you'd like to help with any missing features, please join us on the [GitHub issues page](https://github.com/ryanheise/audio_service/issues).
 
@@ -45,7 +45,7 @@ If you'd like to help with any missing features, please join us on the [GitHub i
 
 Yes! `audio_service` is designed to let you implement the audio logic however you want, using whatever plugins you want. You can use your favourite audio plugins such as [just_audio](https://pub.dartlang.org/packages/just_audio), [flutter_tts](https://pub.dartlang.org/packages/flutter_tts), and others, within your audio handler. There are also plugins like [just_audio_handlers](https://github.com/yringler/inside-app/tree/master/just_audio_handlers) that provide default implementations of `AudioHandler` to make your job easier.
 
-Note that this plugin will not work with other audio plugins that overlap in responsibility with this plugin (i.e. background audio, iOS control center, Android notifications, lock screen, headset buttons, etc.)
+Note that this plugin will not work with other audio plugins that overlap in responsibility with this plugin (i.e. background audio, Android notifications, lock screen, headset buttons, etc.)
 
 ## Example
 
@@ -399,27 +399,3 @@ class MainActivity extends AudioServiceFragmentActivity {
 ```
 
 You can also write your own activity class from scratch, and override the `provideFlutterEngine`, `getCachedEngineId` and `shouldDestroyEngineWithHost` methods yourself. For inspiration, see the source code of the provided `AudioServiceActivity` and `AudioServiceFragmentActivity` classes.
-
-## iOS setup
-
-Insert this in your `Info.plist` file:
-
-```
-  <key>UIBackgroundModes</key>
-  <array>
-    <string>audio</string>
-  </array>
-```
-
-The example project may be consulted for context.
-
-Note that the `audio` background mode permits an app to run in the background only for the purpose of playing audio. The OS may kill your process if it sits idly without playing audio, for example, by using a timer to sleep for a few seconds. If your app needs to pause for a few seconds between audio tracks, consider playing a silent audio track to create that effect rather than using an idle timer.
-
-## macOS setup
-
-The minimum supported macOS version is 10.12.2 (though this could be changed with some work in the future).  
-Modify the platform line in `macos/Podfile` to look like the following:
-
-```
-platform :osx, '10.12.2'
-```

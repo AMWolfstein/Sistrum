@@ -256,25 +256,13 @@
     "description": "Section for special thanks"
   },
   "aboutLinks": "Links",
-  "@aboutLinks": {
-    "description": "Section for external links"
-  },
   "aboutMobileSource": "Mobile source code",
-  "@aboutMobileSource": {
-    "description": "Link to mobile GitHub repo"
-  },
   "aboutReportIssue": "Report an issue",
-  "@aboutReportIssue": {
-    "description": "Link to report bugs"
-  },
   "aboutReportIssueSubtitle": "Report any problems you encounter",
   "@aboutReportIssueSubtitle": {
     "description": "Subtitle for report issue"
   },
   "aboutFeatureRequest": "Feature request",
-  "@aboutFeatureRequest": {
-    "description": "Link to suggest features"
-  },
   "aboutFeatureRequestSubtitle": "Suggest new features for the app",
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
@@ -385,30 +373,6 @@
   "setupDownloadLocationTitle": "Download Location",
   "@setupDownloadLocationTitle": {
     "description": "Download location dialog title"
-  },
-  "setupDownloadLocationIosMessage": "On iOS, downloads are saved to the app's Documents folder. You can access them via the Files app.",
-  "@setupDownloadLocationIosMessage": {
-    "description": "iOS-specific folder info"
-  },
-  "setupAppDocumentsFolder": "App Documents Folder",
-  "@setupAppDocumentsFolder": {
-    "description": "iOS documents folder option"
-  },
-  "setupAppDocumentsFolderSubtitle": "Recommended - accessible via Files app",
-  "@setupAppDocumentsFolderSubtitle": {
-    "description": "Subtitle for documents folder"
-  },
-  "setupChooseFromFiles": "Choose from Files",
-  "@setupChooseFromFiles": {
-    "description": "iOS file picker option"
-  },
-  "setupChooseFromFilesSubtitle": "Select iCloud or other location",
-  "@setupChooseFromFilesSubtitle": {
-    "description": "Subtitle for file picker"
-  },
-  "setupIosEmptyFolderWarning": "iOS limitation: Empty folders cannot be selected. Choose a folder with at least one file.",
-  "@setupIosEmptyFolderWarning": {
-    "description": "iOS folder selection warning"
   },
   "setupDownloadInFlac": "Baixe músicas com qualidade sem perdas e Hi-Res",
   "@setupDownloadInFlac": {
@@ -1603,25 +1567,16 @@
     "description": "Section for translators"
   },
   "aboutTelegramChannel": "Telegram Channel",
-  "@aboutTelegramChannel": {
-    "description": "Link to Telegram channel"
-  },
   "aboutTelegramChannelSubtitle": "Announcements and updates",
   "@aboutTelegramChannelSubtitle": {
     "description": "Subtitle for Telegram channel"
   },
   "aboutTelegramChat": "Telegram Community",
-  "@aboutTelegramChat": {
-    "description": "Link to Telegram chat group"
-  },
   "aboutTelegramChatSubtitle": "Chat with other users",
   "@aboutTelegramChatSubtitle": {
     "description": "Subtitle for Telegram chat"
   },
   "aboutSocial": "Social",
-  "@aboutSocial": {
-    "description": "Section for social links"
-  },
   "artistPopular": "Popular",
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
@@ -1635,10 +1590,6 @@
         "description": "Formatted listener count"
       }
     }
-  },
-  "setupIcloudNotSupported": "iCloud Drive is not supported. Please use the app Documents folder.",
-  "@setupIcloudNotSupported": {
-    "description": "Error when user selects iCloud Drive on iOS"
   },
   "dialogDownload": "Download",
   "@dialogDownload": {

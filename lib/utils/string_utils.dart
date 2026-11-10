@@ -20,13 +20,10 @@ bool? parseExplicitFlag(dynamic value) {
   return null;
 }
 
-final RegExp _windowsAbsolutePathPattern = RegExp(r'^[A-Za-z]:[\\/]');
-
 bool _looksLikeLocalReference(String value) {
   return value.startsWith('/') ||
       value.startsWith('content://') ||
-      value.startsWith('file://') ||
-      _windowsAbsolutePathPattern.hasMatch(value);
+      value.startsWith('file://');
 }
 
 String? normalizeCoverReference(String? value) {

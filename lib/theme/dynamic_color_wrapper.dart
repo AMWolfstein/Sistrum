@@ -37,7 +37,6 @@ class DynamicColorWrapper extends ConsumerWidget {
 
     // Both styles build below the same _DynamicColorBuilder. Switching styles
     // must update the app in place: a different parent remounted the whole
-    // app, losing its state and briefly mounting a second macOS menu bar.
     return _DynamicColorBuilder(
       colors: ref.watch(initialDynamicColorsProvider),
       builder: (lightDynamic, darkDynamic) {

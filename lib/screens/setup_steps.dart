@@ -104,7 +104,6 @@ extension _SetupScreenSteps on _SetupScreenState {
         final titleGap = (shortestSide * 0.06).clamp(16.0, 32.0);
         final descriptionGap = (shortestSide * 0.04).clamp(8.0, 16.0);
         final actionGap = (shortestSide * 0.09).clamp(20.0, 48.0);
-        // Desktop already centers setup in a narrow column, so the inset
         // follows this step's width rather than the window's.
         final inset = wideInsetForWidth(
           constraints.maxWidth,
@@ -330,7 +329,7 @@ extension _SetupScreenSteps on _SetupScreenState {
       title: context.l10n.setupNearbyEnable,
       description: context.l10n.setupNearbyDescription,
       icon: Icons.devices,
-      // No Skip: Android 17 blocks Link and network storage without it.
+      // No Skip: Android 17 blocks network storage without it.
       // A refusal still enables Next, so nobody is stuck here.
       child: _nearbyGranted
           ? _SuccessCard(
@@ -395,7 +394,6 @@ extension _SetupScreenSteps on _SetupScreenState {
               ),
               child: Text(context.l10n.setupSelectFolder),
             ),
-          const ExtensionStorageSetting(),
         ],
       ),
     );

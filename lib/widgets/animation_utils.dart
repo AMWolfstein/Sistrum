@@ -4,8 +4,6 @@ import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/material_expressive.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
 
 /// Wraps a child in a staggered fade-in + slide-up animation.
 ///
@@ -267,9 +265,6 @@ class TrackListSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isDesktopPlatform) {
-      return _DesktopTrackListSkeleton(itemCount: itemCount, showArtwork: true);
-    }
     if (context.isMornye) {
       return ShimmerLoading(
         child: SingleChildScrollView(
@@ -388,7 +383,6 @@ class _MaterialTrackSkeleton extends StatelessWidget {
 /// (track number + title + artist + trailing icon, no cover art thumbnail).
 class AlbumTrackListSkeleton extends StatelessWidget {
   final int itemCount;
-  final bool showQuality;
 
   /// Mornye only; Material loading screens show the real header.
   final bool showCoverHeader;
@@ -397,18 +391,10 @@ class AlbumTrackListSkeleton extends StatelessWidget {
     super.key,
     this.itemCount = 10,
     this.showCoverHeader = false,
-    this.showQuality = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isDesktopPlatform) {
-      return _DesktopTrackListSkeleton(
-        itemCount: itemCount,
-        albumLayout: context.isMornye,
-        showQuality: showQuality,
-      );
-    }
     if (context.isMornye) {
       return ShimmerLoading(
         child: SingleChildScrollView(
@@ -442,176 +428,6 @@ class AlbumTrackListSkeleton extends StatelessWidget {
                 ),
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Uses the loaded desktop table's columns and row density. The collection
-/// header is already visible above these rows, including in the Mornye style.
-class _DesktopTrackListSkeleton extends StatelessWidget {
-  const _DesktopTrackListSkeleton({
-    required this.itemCount,
-    this.showArtwork = false,
-    this.albumLayout = false,
-    this.showQuality = false,
-  });
-
-  final int itemCount;
-  final bool showArtwork;
-  final bool albumLayout;
-  final bool showQuality;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final scaler = MediaQuery.textScalerOf(context);
-    final style = Theme.of(context).textTheme.bodyMedium;
-    final lineHeight =
-        scaler.scale(style?.fontSize ?? 14) * (style?.height ?? 1.4);
-    final columns = [
-      TrackTableColumn.number,
-      TrackTableColumn.title,
-      TrackTableColumn.artist,
-      if (showArtwork) TrackTableColumn.album,
-      if (showQuality) TrackTableColumn.quality,
-      TrackTableColumn.duration,
-    ];
-
-    Widget bar(double fraction, {bool end = false}) => Align(
-      alignment: end
-          ? AlignmentDirectional.centerEnd
-          : AlignmentDirectional.centerStart,
-      child: FractionallySizedBox(
-        widthFactor: fraction,
-        child: SkeletonBox(
-          width: double.infinity,
-          height: scaler.scale(12),
-          borderRadius: 4,
-        ),
-      ),
-    );
-
-    Widget cell(TrackTableColumn column, int index, {bool header = false}) {
-      final key = ValueKey(
-        'track-table-skeleton-${header ? 'header' : index}-${column.name}',
-      );
-      if (!header && column == TrackTableColumn.title && showArtwork) {
-        return Row(
-          key: key,
-          children: [
-            const SkeletonBox(width: 32, height: 32, borderRadius: 4),
-            const SizedBox(width: 10),
-            Expanded(child: bar(0.6 + (index % 3) * 0.1)),
-          ],
-        );
-      }
-      return KeyedSubtree(
-        key: key,
-        child: bar(
-          column == TrackTableColumn.number ? 0.25 : 0.55 + (index % 3) * 0.1,
-          end: TrackTableLayout.alignEnd(column),
-        ),
-      );
-    }
-
-    Widget row(int index) {
-      if (albumLayout) {
-        return Padding(
-          key: ValueKey('track-table-skeleton-row-$index'),
-          padding: EdgeInsetsDirectional.only(start: tokens.gapXs),
-          child: Row(
-            children: [
-              SizedBox(
-                width: TrackTableLayout.albumNumber,
-                child: bar(0.4, end: true),
-              ),
-              const SizedBox(width: TrackTableLayout.albumTitleGap),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(
-                    minHeight: TrackTableLayout.albumRowHeight,
-                  ),
-                  decoration: index == itemCount - 1
-                      ? null
-                      : BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outlineVariant
-                                  .withValues(alpha: 0.6),
-                              width: 0.5,
-                            ),
-                          ),
-                        ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(height: lineHeight, child: bar(0.6)),
-                      ),
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: scaler.scale(32),
-                        child: bar(1, end: true),
-                      ),
-                      SizedBox(width: 8 + 32 + tokens.gapXs),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-      return Padding(
-        key: ValueKey('track-table-skeleton-row-$index'),
-        padding: EdgeInsets.symmetric(
-          horizontal: tokens.gapXs * 2,
-          vertical: 1,
-        ),
-        child: SizedBox(
-          height: lineHeight > TrackTableLayout.rowMinHeightFor(context)
-              ? lineHeight
-              : TrackTableLayout.rowMinHeightFor(context),
-          child: Row(
-            children: TrackTableLayout.layout(
-              columns: columns,
-              hasTrailing: true,
-              cell: (column) => cell(column, index),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ExcludeSemantics(
-      child: ShimmerLoading(
-        child: SingleChildScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
-            child: Column(
-              children: [
-                if (!albumLayout)
-                  SizedBox(
-                    height: TrackTableLayout.headerHeightFor(context),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: tokens.gapSm),
-                      child: Row(
-                        children: TrackTableLayout.layout(
-                          columns: columns,
-                          hasTrailing: true,
-                          cell: (column) => cell(column, 0, header: true),
-                        ),
-                      ),
-                    ),
-                  ),
-                for (var index = 0; index < itemCount; index++) row(index),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -722,9 +538,7 @@ class CollectionHeaderSkeletonRows {
   static Widget subtitle(BuildContext context) => ShimmerLoading(
     child: SkeletonBox(
       width: 140,
-      height: MediaQuery.textScalerOf(
-        context,
-      ).scale(isDesktopPlatform ? 24 : 18),
+      height: MediaQuery.textScalerOf(context).scale(18),
       borderRadius: 4,
     ),
   );
@@ -742,39 +556,6 @@ class CollectionHeaderSkeletonRows {
   );
 
   static Widget actions(BuildContext context) {
-    if (isDesktopPlatform) {
-      final target = context.isMornye ? 36.0 : 40.0;
-      return ShimmerLoading(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: context.isMornye ? 10 : 8,
-          children: [
-            if (context.isMornye)
-              SkeletonBox(
-                width: target,
-                height: target,
-                borderRadius: target / 2,
-              ),
-            SkeletonBox(
-              width: context.isMornye ? 130 : 112,
-              height: context.isMornye ? 36 : 40,
-              borderRadius: 20,
-            ),
-            SkeletonBox(
-              width: target,
-              height: target,
-              borderRadius: target / 2,
-            ),
-            if (!context.isMornye)
-              SkeletonBox(
-                width: target,
-                height: target,
-                borderRadius: target / 2,
-              ),
-          ],
-        ),
-      );
-    }
     final target = context.tokens.minTouchTarget;
     return ShimmerLoading(
       child: Row(
@@ -837,7 +618,7 @@ class ArtistScreenSkeleton extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (showCoverHeader && !isDesktopPlatform)
+              if (showCoverHeader)
                 LayoutBuilder(
                   builder: (context, constraints) => Stack(
                     children: [
@@ -941,7 +722,7 @@ class ArtistScreenSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showCoverHeader && !isDesktopPlatform)
+            if (showCoverHeader)
               LayoutBuilder(
                 builder: (context, constraints) => SkeletonBox(
                   width: constraints.maxWidth,

@@ -6,7 +6,6 @@ import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/widgets/settings_group.dart';
 
 /// A page with a connected group below an app-level idle focus node, as the
-/// desktop shortcuts hold one to read Space for playback.
 Widget _page(FocusNode idle) => MaterialApp(
   theme: AppTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,

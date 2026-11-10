@@ -20,13 +20,11 @@ import 'package:mornye/services/library_search.dart';
 import 'package:mornye/services/local_track_redownload_service.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_choice_chip.dart';
 import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/desktop/hover_play_button.dart';
-import 'package:mornye/widgets/desktop/library_track_menu.dart';
+import 'package:mornye/widgets/track_lists/context_menu.dart';
+import 'package:mornye/widgets/track_lists/library_track_menu.dart';
 import 'package:mornye/widgets/library_track_selection_bar.dart';
 import 'package:mornye/widgets/library_selection_playback_actions.dart';
 import 'package:mornye/widgets/selection_bottom_bar.dart';
@@ -234,7 +232,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     );
   }
 
-  /// The desktop menu of a result. A song outside the selection becomes the
   /// selection for this menu only, so the menu acts on the song clicked: the
   /// selection bar stays hidden under the menu, and the selection ends if
   /// the menu closes without a choice.
@@ -248,7 +245,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           [
             ContextMenuAction(
               icon: Icons.open_in_new,
-              label: l10n.desktopMenuOpen,
+              label: l10n.menuOpen,
               onSelected: () => _open(hit),
             ),
           ],
@@ -468,7 +465,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           ? () => _toggleSelection(hit)
           : null,
       onLongPress: song ? () => _toggleSelection(hit) : null,
-      onContextMenu: (position) => _showHitMenu(hit, position),
     );
     if (!song || context.isMornye) return card();
     // Material song rows follow the file they play, so a track change
@@ -642,11 +638,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                         ),
                       ),
                     ],
-                    if (song && !_selecting)
-                      DesktopHoverPlayButton(
-                        tooltip: context.l10n.tooltipPlay,
-                        onPlay: () => _open(hit, play: true),
-                      ),
                   ],
                 ),
               ),
@@ -681,7 +672,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     final size = artist ? 160.0 : 180.0;
     return SizedBox(
       height: size + 8 + _tileTextHeight(artist: artist) + 16,
-      // Shelves have no paging arrows, so they keep the desktop scrollbar
       // the app hides on other sideways rows.
       child: ScrollConfiguration(
         behavior: const MaterialScrollBehavior().copyWith(
@@ -727,8 +717,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
   @override
   Widget build(BuildContext context) {
     // Phones keep their rows in landscape too, as the extension search does.
-    final coverAllowed =
-        isDesktopPlatform || MediaQuery.sizeOf(context).shortestSide >= 600;
+    final coverAllowed = MediaQuery.sizeOf(context).shortestSide >= 600;
     final inset = wideListInset(context);
     return PopScope(
       canPop: !_selecting,

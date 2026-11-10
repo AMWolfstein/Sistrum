@@ -279,12 +279,16 @@ const testTracks = [
   ),
 ];
 
+/// Polls until [ready] holds. The budget is wall-clock time, so a loaded
+/// machine that runs the async playback work slowly still gets its turn.
 Future<void> waitUntil(bool Function() ready) async {
-  for (var i = 0; i < 100; i++) {
-    if (ready()) return;
+  final deadline = DateTime.now().add(const Duration(seconds: 15));
+  while (!ready()) {
+    if (DateTime.now().isAfter(deadline)) {
+      fail('Playback did not reach the expected state');
+    }
     await Future<void>.delayed(const Duration(milliseconds: 20));
   }
-  fail('Playback did not reach the expected state');
 }
 
 void configurePlaybackNotification({

@@ -19,7 +19,7 @@ AudioServicePlatform _platform = AudioServicePlatform.instance;
 
 /// The buttons on a headset.
 enum MediaButton {
-  /// The "media" button on Android, or the play/pause button on iOS.
+  /// The "media" button on Android.
   media,
 
   /// The "skip to next" button.
@@ -137,8 +137,7 @@ enum AudioProcessingState {
 
 /// The playback state which includes a [playing] boolean state, a processing
 /// state such as [AudioProcessingState.buffering], the playback position and
-/// the currently enabled actions to be shown in the Android notification or the
-/// iOS control center.
+/// the currently enabled actions to be shown in the Android notification.
 class PlaybackState {
   /// The audio processing state e.g. [AudioProcessingState.buffering].
   final AudioProcessingState processingState;
@@ -183,13 +182,8 @@ class PlaybackState {
   /// * [MediaAction.seekBackward] (enable press-and-hold rewind control)
   ///
   /// Note that specifying [MediaAction.seek] in [systemActions] will enable a
-  /// seek bar in both the Android notification and the iOS control center, but
-  /// on Android, it will show only if the media item's duration has been set.
-  /// [MediaAction.seekForward] and [MediaAction.seekBackward] have a special
-  /// behaviour on iOS in which if you have already enabled the
-  /// [MediaAction.skipToNext] and [MediaAction.skipToPrevious] buttons, these
-  /// additional actions will allow the user to press and hold the buttons to
-  /// activate the continuous seeking behaviour.
+  /// seek bar in the Android notification, but it will show only if the media
+  /// item's duration has been set.
   ///
   /// When enabling the seek bar, also note that some Android devices will not
   /// render the seek bar correctly unless your [AudioServiceConfig.androidNotificationIcon]
@@ -1151,8 +1145,7 @@ class AudioService {
       if (_config.preloadArtwork) {
         _loadAllArtwork(queue);
       }
-      // Only the Android plugin reads the queue; the darwin and web plugins
-      // and the desktop sessions ignore it.
+      // Only the Android plugin reads the queue.
       if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
       window.updateQueue(queue, _handler.playbackState.value.queueIndex);
       sendQueue();
@@ -1294,13 +1287,6 @@ class AudioService {
     await _platform.androidForceEnableMediaButtons(
       const AndroidForceEnableMediaButtonsRequest(),
     );
-  }
-
-  /// Re-publishes the retained iOS metadata after the audio session is restored.
-  /// Does not reload artwork or change playback. Call only on iOS.
-  static Future<void> refreshNowPlayingInfo() async {
-    await const MethodChannel('com.ryanheise.audio_service.client.methods')
-        .invokeMethod<void>('refreshNowPlayingInfo');
   }
 
   /// Stops the service.
@@ -1947,8 +1933,7 @@ abstract class BackgroundAudioTask {
 
 /// An [AudioHandler] plays audio, provides state updates and query results to
 /// clients. It implements standard protocols that allow it to be remotely
-/// controlled by the lock screen, media notifications, the iOS control center,
-/// headsets, smart watches, car audio systems, and other compatible agents.
+/// controlled by the lock screen, media notifications, headsets, smart watches, car audio systems, and other compatible agents.
 ///
 /// This class cannot be subclassed directly. Implementations should subclass
 /// [BaseAudioHandler], and composite behaviours should be defined as subclasses
@@ -3558,13 +3543,11 @@ class AudioServiceConfig {
   /// [artDownscaleWidth] must also be specified.
   final int? artDownscaleHeight;
 
-  /// The interval to be used in [AudioHandler.fastForward]. This value will
-  /// also be used on iOS to render the skip-forward button. This value must be
+  /// The interval to be used in [AudioHandler.fastForward]. This value must be
   /// positive.
   final Duration fastForwardInterval;
 
-  /// The interval to be used in [AudioHandler.rewind]. This value will also be
-  /// used on iOS to render the skip-backward button. This value must be
+  /// The interval to be used in [AudioHandler.rewind]. This value must be
   /// positive.
   final Duration rewindInterval;
 

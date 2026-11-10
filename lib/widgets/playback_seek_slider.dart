@@ -12,7 +12,6 @@ class PlaybackSeekSlider extends StatefulWidget {
   final PlaybackSeekPreview? preview;
   final bool playing;
 
-  /// Mornye only: a hairline track with no side inset, for the desktop
   /// player capsule.
   final bool hairline;
 

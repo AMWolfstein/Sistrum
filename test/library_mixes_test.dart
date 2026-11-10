@@ -41,42 +41,6 @@ Map<String, Object?> _json(List<LibraryMix> mixes) => {
 
 void main() {
   group('genre families', () {
-    test('spellings of one genre share a family', () {
-      for (final tag in [
-        'Hip-Hop',
-        'hip hop',
-        'HipHop',
-        'Rap',
-        'Pop Rap',
-        'Trap',
-        'Alternative Hip-Hop',
-      ]) {
-        expect(libraryGenreFamilies(tag), ['hiphop'], reason: tag);
-      }
-      for (final tag in ['R&B', 'Contemporary R&B', "R'n'B", 'rnb', 'Soul']) {
-        expect(libraryGenreFamilies(tag), ['rnb'], reason: tag);
-      }
-    });
-
-    test('a genre is named by its last word, the longer name winning', () {
-      expect(libraryGenreFamilies('Dance Pop'), ['pop']);
-      expect(libraryGenreFamilies('K-Pop'), ['kpop']);
-      expect(libraryGenreFamilies('J-Rock'), ['jpop']);
-      expect(libraryGenreFamilies('Indie Rock'), ['indie']);
-      expect(libraryGenreFamilies('Drum & Bass'), ['electronic']);
-      expect(libraryGenreFamilies('Lo-Fi'), ['chill']);
-    });
-
-    test('tags split into their families, skipping empty ones', () {
-      expect(libraryGenreFamilies('Hip-Hop/Rap; R&B'), ['hiphop', 'rnb']);
-      expect(libraryGenreFamilies('Pop, Rock'), ['pop', 'rock']);
-      expect(libraryGenreFamilies('(17)'), isEmpty);
-      expect(libraryGenreFamilies('Other'), isEmpty);
-      expect(libraryGenreFamilies(null), isEmpty);
-      expect(libraryGenreFamilies('Sundanese'), ['tag:sundanese']);
-      expect(libraryGenreFamilyLabel('hiphop'), 'Hip-Hop');
-      expect(libraryGenreFamilyLabel('tag:sundanese'), isNull);
-    });
   });
 
   group('mixes', () {
@@ -530,7 +494,7 @@ void main() {
       await db.execute("ATTACH DATABASE ':memory:' AS history_db");
       await db.execute('''
         CREATE TABLE history_db.history (
-          id TEXT PRIMARY KEY, file_path TEXT, track_name TEXT,
+          origin_file_path TEXT, id TEXT PRIMARY KEY, file_path TEXT, track_name TEXT,
           artist_name TEXT, album_name TEXT, genre TEXT, duration INTEGER,
           release_date TEXT, downloaded_at TEXT
         )

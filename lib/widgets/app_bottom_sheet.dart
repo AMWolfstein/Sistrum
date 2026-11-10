@@ -4,9 +4,7 @@ import 'package:flutter/cupertino.dart'
 import 'package:mornye/theme/app_motion.dart';
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
 import 'package:mornye/widgets/mornye_chrome.dart';
 import 'package:mornye/theme/mornye_icons.dart';
 
@@ -26,8 +24,6 @@ class AppSheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    // Desktop shows sheets as dialogs, which nothing drags.
-    if (isDesktopPlatform) return SizedBox(height: tokens.gapMd);
     return ExcludeSemantics(
       child: Center(
         child: Container(
@@ -82,11 +78,8 @@ class AppBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final theme = Theme.of(context);
-    // Material desktop dialogs end their header with a close button for the
     // pointer; Esc and a click outside close them too.
-    final closes =
-        titleTrailing == null && isDesktopPlatform && !context.isMornye;
-    final trailing = closes ? const _SheetDialogCloseButton() : titleTrailing;
+    final trailing = titleTrailing;
 
     Widget content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -95,12 +88,10 @@ class AppBottomSheet extends StatelessWidget {
         if (showHandle) const AppSheetHandle(),
         if (title != null)
           Padding(
-            // The close button's touch target is taller than the title, so
-            // its row starts higher to keep the title where it sat before.
             padding: EdgeInsetsDirectional.fromSTEB(
               tokens.gapXl,
-              closes ? tokens.gapXs : tokens.gapLg,
-              closes ? tokens.gapMd : tokens.gapXl,
+              tokens.gapLg,
+              tokens.gapXl,
               subtitle == null ? tokens.gapSm : tokens.gapXs,
             ),
             child: Row(
@@ -160,23 +151,11 @@ class AppBottomSheet extends StatelessWidget {
   }
 }
 
-class _SheetDialogCloseButton extends StatelessWidget {
-  const _SheetDialogCloseButton();
-
-  @override
-  Widget build(BuildContext context) => AppIconButton(
-    icon: const AppIcon(Icons.close_rounded),
-    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-    onPressed: () => Navigator.of(context).maybePop(),
-  );
-}
-
 /// Opens a modal bottom sheet wrapped in [AppBottomSheet].
 ///
 /// The shape comes from `ThemeData.bottomSheetTheme`, which is derived from
 /// [AppTokens.radiusSheet]; call sites no longer pass a `shape` and therefore
 /// cannot drift from the scale. [dialogSize] picks the width of the dialog
-/// that replaces the sheet on desktop.
 Future<T?> showAppBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -377,7 +356,6 @@ Future<void> showAppChoiceSheet<T>({
 
 /// Adaptive surface for sheets which already supply their own header/layout.
 ///
-/// Desktop windows present the sheet as a centered dialog instead
 /// ([showAppSheetDialog]) of [dialogSize]; there is no edge to slide from or
 /// drag to. Mornye draws the sheet on overlay glass unless [mornyeGlass] is
 /// false for content that brings its own.
@@ -395,18 +373,6 @@ Future<T?> showAppModalBottomSheet<T>({
   Color? backgroundColor,
   AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
-  if (isDesktopPlatform) {
-    return showAppSheetDialog<T>(
-      context: context,
-      builder: builder,
-      isScrollControlled: isScrollControlled,
-      isDismissible: isDismissible,
-      topInset: showDragHandle == true,
-      mornyeGlass: mornyeGlass,
-      backgroundColor: backgroundColor,
-      dialogSize: dialogSize,
-    );
-  }
   final mornye = context.isMornye;
   return showModalBottomSheet<T>(
     context: context,
@@ -432,7 +398,6 @@ Future<T?> showAppModalBottomSheet<T>({
 /// Width of a [AppDialogSize.medium] sheet dialog, the default class.
 const double appSheetDialogMaxWidth = 560;
 
-/// Width classes of a sheet presented as a desktop dialog. Each is the
 /// widest the dialog grows; a narrower window shrinks it.
 enum AppDialogSize {
   /// A confirmation or a single field.
@@ -449,45 +414,7 @@ enum AppDialogSize {
   final double width;
 }
 
-/// Presents sheet content as a centered modal dialog, as desktop windows do
-/// with every sheet that is not an action menu. The dialog takes the width
-/// of [dialogSize] and a height cap (85% of the window for scroll-controlled
-/// sheets, 60% otherwise), so content built for a sheet, including a
-/// [DraggableScrollableSheet], lays out unchanged: its header stays put and
-/// its body scrolls.
-///
-/// Mornye draws the dialog on overlay glass unless [mornyeGlass] is false
-/// for content that brings its own; Material uses `surfaceContainerHigh`.
-/// [topInset] replaces the space of a drag handle the sheet would show.
-Future<T?> showAppSheetDialog<T>({
-  required BuildContext context,
-  required WidgetBuilder builder,
-  bool isScrollControlled = false,
-  bool isDismissible = true,
-  bool topInset = false,
-  bool mornyeGlass = true,
-  Color? backgroundColor,
-  AppDialogSize dialogSize = AppDialogSize.medium,
-}) {
-  final mornye = context.isMornye;
-  return showDialog<T>(
-    context: context,
-    barrierDismissible: isDismissible,
-    barrierColor: mornye
-        ? CupertinoDynamicColor.resolve(kCupertinoModalBarrierColor, context)
-        : null,
-    builder: (dialogContext) => AppSheetDialog(
-      isScrollControlled: isScrollControlled,
-      topInset: topInset,
-      mornyeGlass: mornyeGlass,
-      backgroundColor: backgroundColor,
-      dialogSize: dialogSize,
-      child: Builder(builder: builder),
-    ),
-  );
-}
-
-/// The dialog surface of [showAppSheetDialog].
+/// A dialog surface that lays out sheet content within a bounded window.
 class AppSheetDialog extends StatelessWidget {
   const AppSheetDialog({
     super.key,
@@ -506,7 +433,6 @@ class AppSheetDialog extends StatelessWidget {
   final Color? backgroundColor;
   final AppDialogSize dialogSize;
 
-  /// Mornye's sheet token is the 32pt iOS sheet corner; its dialogs keep
   /// the corner they have always had.
   static const double _mornyeRadius = 28;
   static const double _margin = 24;
@@ -531,7 +457,6 @@ class AppSheetDialog extends StatelessWidget {
     if (mornye && mornyeGlass) {
       content = MornyeGlassPanel.overlay(radius: radius, child: content);
     } else if (!mornye) {
-      // Desktop scrollbars normally fade out when idle. In a dialog the
       // body's bar stays visible, so a cut-off list reads as scrollable.
       content = ScrollbarTheme(
         data: ScrollbarTheme.of(

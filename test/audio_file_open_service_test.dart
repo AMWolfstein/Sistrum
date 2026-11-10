@@ -89,9 +89,7 @@ void main() {
     () async {
       await File(p.join(directory.path, 'a.wav')).writeAsString('a');
       await File(p.join(directory.path, 'b.wav')).writeAsString('b');
-      if (!Platform.isWindows) {
-        await Link(p.join(directory.path, 'loop')).create(directory.path);
-      }
+      await Link(p.join(directory.path, 'loop')).create(directory.path);
       expect(
         await collectOpenAudioFiles([OpenAudioFile(directory.path)]),
         hasLength(2),

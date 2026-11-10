@@ -1,12 +1,9 @@
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mornye/widgets/mornye_glass_lens_fade.dart';
 import 'package:mornye/theme/cover_palette.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/services/shell_navigation_service.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/album_detail_header.dart';
 import 'package:mornye/widgets/cached_cover_image.dart';
 import 'package:mornye/widgets/sliver_layout_info_builder.dart';
@@ -48,23 +45,9 @@ class _MornyeArtistSurfaceState extends State<MornyeArtistSurface> {
     super.dispose();
   }
 
-  /// The sidebar's artwork scrolls with the hero it continues.
-  bool _onPageScroll(ScrollNotification notification) {
-    final metrics = notification.metrics;
-    if (notification.depth == 0 && metrics.axis == Axis.vertical) {
-      ShellNavigationService.setChromeBackdropOffset(
-        this,
-        math.max(metrics.pixels, 0),
-      );
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Desktop album and playlist pages keep the plain pane background and
     // app accent; artist pages keep their artwork tint.
-    if (isDesktopPlatform && widget.neutralActions) return widget.child;
     final baseTheme = Theme.of(context);
     if (!identical(baseTheme, _baseTheme) ||
         defaultTargetPlatform != _basePlatform) {
@@ -127,9 +110,6 @@ class _MornyeArtistSurfaceState extends State<MornyeArtistSurface> {
               route: route,
               brightness: Brightness.dark,
               surface: surface,
-              backdrop: isDesktopPlatform && !widget.neutralActions
-                  ? source
-                  : null,
             );
           }
           return CoverPaletteBuilder(
@@ -192,15 +172,7 @@ class _MornyeArtistSurfaceState extends State<MornyeArtistSurface> {
                 scheme: _innerTheme.colorScheme,
                 child: widget.child,
               );
-              return Theme(
-                data: _innerTheme,
-                child: isDesktopPlatform && !widget.neutralActions
-                    ? NotificationListener<ScrollNotification>(
-                        onNotification: _onPageScroll,
-                        child: page,
-                      )
-                    : page,
-              );
+              return Theme(data: _innerTheme, child: page);
             },
           );
         },
@@ -219,7 +191,6 @@ class MornyeArtistHeader extends StatelessWidget {
     required this.actions,
     required this.showTitle,
     this.toolbarActions = const [],
-    this.showTitleListenable,
     this.listeners,
     this.logoUrl,
     this.badge,
@@ -233,8 +204,6 @@ class MornyeArtistHeader extends StatelessWidget {
   final List<Widget> toolbarActions;
   final bool showTitle;
 
-  /// Replaces [showTitle] when set; see [headerToolbarTitle].
-  final ValueListenable<bool>? showTitleListenable;
   final String? listeners;
   final String? logoUrl;
   final Widget? badge;
@@ -251,9 +220,8 @@ class MornyeArtistHeader extends StatelessWidget {
 
   /// The mobile header is two slivers so its toolbar stays pinned; use these
   /// directly in the scroll view. [build] wraps them in a group.
-  List<Widget> buildSlivers(BuildContext context) => isDesktopPlatform
-      ? _buildDesktopSlivers(context)
-      : _buildMobileSlivers(context);
+  List<Widget> buildSlivers(BuildContext context) =>
+      _buildMobileSlivers(context);
 
   double _textHeight(
     BuildContext context,
@@ -476,182 +444,8 @@ class MornyeArtistHeader extends StatelessWidget {
     ];
   }
 
-  List<Widget> _buildDesktopSlivers(BuildContext context) {
-    final surface = Theme.of(context).colorScheme.surface;
-    final back = Padding(
-      padding: EdgeInsetsDirectional.only(start: isDesktopPlatform ? 8 : 12),
-      child: Align(
-        alignment: AlignmentDirectional.centerStart,
-        widthFactor: 1,
-        child: HeaderCircleButton(
-          icon: Icons.arrow_back,
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-    );
-    return [
-      // Keep safe-area dependencies inside this sliver: folding the shell
-      // navigation must not rebuild the artist's entire discography.
-      SliverLayoutInfoBuilder(
-        select: (constraints) => (
-          constraints.crossAxisExtent,
-          isDesktopPlatform ? constraints.viewportMainAxisExtent : 0.0,
-        ),
-        builder: (context, extents) {
-          final (width, viewportHeight) = extents;
-          final textWidth = (width - 48).clamp(0.0, double.infinity);
-          final textScaler = MediaQuery.textScalerOf(context);
-          double textHeight(String text, TextStyle style) {
-            final painter = TextPainter(
-              text: TextSpan(
-                text: text,
-                style: DefaultTextStyle.of(context).style.merge(style),
-              ),
-              textDirection: Directionality.of(context),
-              textScaler: textScaler,
-              textAlign: TextAlign.center,
-            )..layout(maxWidth: textWidth);
-            final height = painter.height;
-            painter.dispose();
-            return height;
-          }
-
-          final nameHeight = textHeight(
-            name,
-            TextStyle(fontSize: _nameSize, fontWeight: FontWeight.bold),
-          );
-          final hasLogo = logoUrl?.trim().isNotEmpty == true;
-          final identityHeight = hasLogo
-              ? nameHeight.clamp(_logoSize.height, double.infinity)
-              : nameHeight;
-          final listenersHeight = listeners == null
-              ? 0.0
-              : 7 + textHeight(listeners!, const TextStyle(fontSize: 13));
-          final photoHeight = (width * 0.76).clamp(240.0, 340.0);
-          final contentHeight =
-              identityHeight +
-              listenersHeight +
-              (actions.isEmpty ? 0 : 94) +
-              32;
-          // The desktop portrait fills most of the content pane.
-          final expandedHeight = isDesktopPlatform
-              ? math.max(
-                  contentHeight + 160,
-                  (viewportHeight * 0.82).clamp(420.0, 820.0),
-                )
-              : photoHeight + contentHeight;
-          final appBarHeight =
-              expandedHeight - MediaQuery.paddingOf(context).top;
-          // Scroll offset at which the header is a flat toolbar: its buttons
-          // fade their glass lens out as they approach it.
-          final collapseExtent = appBarHeight - kToolbarHeight;
-          return SliverAppBar(
-            pinned: true,
-            stretch: !MediaQuery.disableAnimationsOf(context),
-            expandedHeight: appBarHeight,
-            backgroundColor: surface,
-            surfaceTintColor: Colors.transparent,
-            leadingWidth: 64,
-            leading: MornyeGlassLensFade(
-              collapseExtent: collapseExtent,
-              child: back,
-            ),
-            actions: toolbarActions.isEmpty
-                ? null
-                : [
-                    MornyeGlassLensFade(
-                      collapseExtent: collapseExtent,
-                      child: MornyeActionCapsule(children: toolbarActions),
-                    ),
-                  ],
-            actionsPadding: EdgeInsetsDirectional.only(
-              end: isDesktopPlatform ? 8 : 12,
-            ),
-            // The desktop hero already displays the artist's name.
-            title: isDesktopPlatform
-                ? null
-                : headerToolbarTitle(
-                    showTitleListenable,
-                    showTitle,
-                    (showTitle) => AnimatedOpacity(
-                      opacity: showTitle ? 1 : 0,
-                      duration: const Duration(milliseconds: 180),
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              stretchModes: const [StretchMode.zoomBackground],
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _ArtistCollapsingArtwork(surface: surface, child: artwork),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (badge != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: badge,
-                            ),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: identityHeight,
-                            ),
-                            child: _buildIdentity(context),
-                          ),
-                          if (listeners != null) ...[
-                            const SizedBox(height: 7),
-                            Text(
-                              listeners!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
-                            ),
-                          ],
-                          if (actions.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: 74,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 24,
-                                children: actions,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    ];
-  }
-
-  /// The name and logo are larger over the wide desktop portrait.
-  static double get _nameSize => isDesktopPlatform ? 44 : 30;
-  static Size get _logoSize =>
-      isDesktopPlatform ? const Size(440, 128) : const Size(320, 96);
+  static double get _nameSize => 30;
+  static Size get _logoSize => const Size(320, 96);
 
   Widget _buildIdentity(BuildContext context) {
     final fallback = Text(
@@ -686,90 +480,6 @@ class MornyeArtistHeader extends StatelessWidget {
                 child: child,
               ),
         errorBuilder: (_, _, _) => fallback,
-      ),
-    );
-  }
-}
-
-/// Follow the sliver's actual collapse extent so scrolling back restores the
-/// same artwork immediately, without a timer or rebuilding the discography.
-class _ArtistCollapsingArtwork extends StatelessWidget {
-  const _ArtistCollapsingArtwork({required this.surface, required this.child});
-
-  final Color surface;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = context
-        .dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
-    final range = settings == null
-        ? 0.0
-        : settings.maxExtent - settings.minExtent;
-    final collapse = range <= 0
-        ? 0.0
-        : ((settings!.maxExtent - settings.currentExtent) / range).clamp(
-            0.0,
-            1.0,
-          );
-    final fade = const Interval(
-      0.30,
-      0.88,
-      curve: Curves.easeInOut,
-    ).transform(collapse);
-    return ClipRect(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          TickerMode(
-            enabled: fade < 1,
-            // The photograph and video stay sharp as the header collapses; the
-            // gradient and the fade below darken and dissolve them into the page.
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final height = settings?.maxExtent ?? constraints.maxHeight;
-                final zoom = height > 0
-                    ? (constraints.maxHeight / height).clamp(
-                        1.0,
-                        double.infinity,
-                      )
-                    : 1.0;
-                // Stretch the photograph uniformly around its top edge.
-                // Identity and actions remain outside this transform, moving
-                // down with the sliver without growing along with the image.
-                return OverflowBox(
-                  alignment: Alignment.topCenter,
-                  minHeight: height,
-                  maxHeight: height,
-                  child: Transform.scale(
-                    scale: zoom,
-                    alignment: Alignment.topCenter,
-                    child: RepaintBoundary(child: child),
-                  ),
-                );
-              },
-            ),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: const [0, 0.48, 0.82, 1],
-                colors: [
-                  Colors.black.withValues(alpha: 0.15),
-                  surface.withValues(alpha: 0),
-                  surface.withValues(alpha: 0.55),
-                  surface,
-                ],
-              ),
-            ),
-          ),
-          ColoredBox(
-            key: const ValueKey('artist-artwork-fade'),
-            color: surface.withValues(alpha: fade),
-          ),
-        ],
       ),
     );
   }

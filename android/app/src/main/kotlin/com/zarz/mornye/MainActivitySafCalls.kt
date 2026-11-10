@@ -366,7 +366,7 @@ internal suspend fun MainActivity.handleWriteTempToSaf(call: MethodCall, result:
                 """{"success":false,"error":"Failed to write back to SAF"}"""
             }
         } finally {
-            try { File(tempPath).delete() } catch (_: Exception) {}
+            File(tempPath).deleteBestEffort()
         }
     }
     result.success(response)

@@ -89,7 +89,7 @@ void main() {
       'platform': Platform.operatingSystem,
       'completed_cases': cases.length,
       'note':
-          'Five alternating pairs after warming both methods: 10000 sparse progress snapshots for front candidates, 500 for tail candidates. Both use the current index update; legacy selection scans items, current selection reads cached first positions. Setup excluded. CPU only, not rendered frames or download speed. iOS debug correctness only.',
+          'Five alternating pairs after warming both methods: 10000 sparse progress snapshots for front candidates, 500 for tail candidates. Both use the current index update; legacy selection scans items, current selection reads cached first positions. Setup excluded. CPU only, not rendered frames or download speed. Debug correctness only.',
       'cases': cases,
     };
   });

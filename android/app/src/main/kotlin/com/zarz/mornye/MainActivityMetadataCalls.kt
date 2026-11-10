@@ -108,13 +108,13 @@ internal suspend fun MainActivity.handleEditFileMetadata(call: MethodCall, resul
                         // Note: temp file NOT deleted here - Dart will clean up after FFmpeg + writeTempToSaf
                     }
                     if (!writeUriFromPath(uri, tempPath)) {
-                        try { File(tempPath).delete() } catch (_: Exception) {}
+                        File(tempPath).deleteBestEffort()
                         return@withContext """{"error":"Failed to write metadata back to SAF file"}"""
                     }
-                    try { File(tempPath).delete() } catch (_: Exception) {}
+                    File(tempPath).deleteBestEffort()
                     raw
                 } catch (e: Exception) {
-                    try { File(tempPath).delete() } catch (_: Exception) {}
+                    File(tempPath).deleteBestEffort()
                     throw e
                 }
             } else {
@@ -271,7 +271,7 @@ internal suspend fun MainActivity.handleReEnrichFile(call: MethodCall, result: M
                     raw
                 } finally {
                     if (!retainedForFfmpeg) {
-                        try { File(tempPath).delete() } catch (_: Exception) {}
+                        File(tempPath).deleteBestEffort()
                     }
                 }
             } else {
@@ -372,7 +372,7 @@ internal suspend fun MainActivity.handleParseCueSheet(call: MethodCall, result: 
                         .put("cue_path", cuePath)
                         .toString()
                 } finally {
-                    try { File(tempCuePath).delete() } catch (_: Exception) {}
+                    File(tempCuePath).deleteBestEffort()
                 }
             } else {
                 coreBackend.parseCueSheet(cuePath, audioDir)

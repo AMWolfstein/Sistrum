@@ -10,10 +10,6 @@ void main() {
       expect(useNavigationRailForWidth(1366), isFalse);
     });
 
-    test('reserves the navigation rail for desktop-width windows', () {
-      expect(useNavigationRailForWidth(navigationRailBreakpoint - 1), isFalse);
-      expect(useNavigationRailForWidth(navigationRailBreakpoint), isTrue);
-    });
   });
 
   group('adaptive navigation (Material)', () {
@@ -51,9 +47,6 @@ void main() {
       expect(adaptiveUiScaleForSize(const Size(1366, 1024)), 1.2);
     });
 
-    test('keeps desktop-width windows at native density', () {
-      expect(adaptiveUiScaleForSize(const Size(1440, 900)), 1);
-    });
 
     testWidgets('reflows the tablet viewport and preserves touch mapping', (
       tester,

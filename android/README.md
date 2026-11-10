@@ -1,11 +1,11 @@
 # Native Channel Contract
 
-How the Flutter app talks to the Android and iOS hosts. Channel names, method
-names, argument keys and reply keys below are a compatibility contract: Dart,
-Kotlin and Swift must change together.
+How the Flutter app talks to the Android host. Channel names, method
+names, argument keys and reply keys below are a compatibility contract: Dart
+and Kotlin must change together.
 
 Kotlin sources live in `android/app/src/main/kotlin/com/zarz/mornye/`
-(abbreviated `kotlin/` below). Swift sources live in `ios/Runner/`.
+(abbreviated `kotlin/` below).
 
 ## The Backend Channel
 
@@ -18,7 +18,6 @@ All app-level calls use one `MethodChannel` named `com.zarz.mornye/backend`.
 | Android handlers | `MainActivity*.kt` extension functions in `kotlin/` (table below) |
 | Android Rust route | `android/app/src/rust/kotlin/com/zarz/mornye/SelectedCoreBackend.kt` |
 | Routing test | `android/app/src/test/kotlin/com/zarz/mornye/MainActivityRoutingTest.kt` |
-| iOS dispatcher | `ios/Runner/AppDelegate.swift`, `handleMethodCall` |
 
 ### Routing on Android
 
@@ -138,15 +137,14 @@ Native code calls Dart over the same channel. `PlatformBridge` handles them in
 | Method | Sent by | Payload |
 | --- | --- | --- |
 | `extensionAuthCallbackReceived` | Android | none |
-| `extensionSessionGrantCompleted` | Android, iOS | `{extension_id, success}`; iOS only sends `success: true` |
+| `extensionSessionGrantCompleted` | Android | `{extension_id, success}` |
 | `extensionVerificationNotificationTapped` | Android | none |
 | `setupFolderSelectionChanged` | Android | none |
 | `libraryScanError` | Android | `{path, operation, message}` |
 | `libraryStorageChanged` | Android | `{action}` (media mount and unmount broadcasts) |
-| `iosBackgroundDownloadExpired` | iOS | JSON list of cancelled item IDs |
 
 Session-grant events raised before the channel exists are queued and sent
-when the engine is configured, on both platforms.
+when the engine is configured.
 
 ## The `__json_file` Spill
 
@@ -154,14 +152,12 @@ Large JSON replies are written to a file and the reply becomes
 `{"__json_file": "<absolute path>"}`.
 
 - Threshold: 256 KiB of UTF-8 (`LARGE_JSON_RESULT_FILE_THRESHOLD_BYTES` in
-  MainActivity.kt and AppDelegate.swift). Keep both in step.
+  MainActivity.kt).
 - Android writes a `bridge_json_` file (nanoTime suffix) in `cacheDir`, through
   `bridgeJsonResult` or the streaming `SpillJsonWriter` (which inlines a small
   result and deletes its file). Users: `scanLibraryFolderIncremental`,
   `scanSafTreeIncremental`, and `runNativeDataJob`
   (`android/app/src/rust/kotlin/com/zarz/mornye/NativeDataJobs.kt`).
-- iOS writes a `bridge_json_` file (UUID suffix) in the temporary directory. Users:
-  `scanLibraryFolderIncremental` and `runNativeDataJob`.
 - Dart reads and deletes the file in `_decodeJsonResultAsync`
   (`lib/services/platform_bridge.dart`), decoding it in a background isolate.
 - Android also sweeps `bridge_json_`, `saf_`, `native_saf_` and `ms_` files
@@ -171,17 +167,13 @@ Large JSON replies are written to a file and the reply becomes
 ## Progress Streams
 
 Two `EventChannel`s, registered on Android in
-`android/app/src/main/kotlin/com/zarz/mornye/MainActivityProgressStreams.kt`
-and on iOS in AppDelegate.swift. Dart listens in platform_bridge.dart.
+`android/app/src/main/kotlin/com/zarz/mornye/MainActivityProgressStreams.kt`.
+Dart listens in platform_bridge.dart.
 
 | Channel | Payload | Emission |
 | --- | --- | --- |
-| `com.zarz.mornye/download_progress_stream` | Backend delta: `seq`, optional `reset`, `items` (by item ID), `removed` | Long poll `waitDelta(seq, 15000 ms)`. Android pauses 250 ms after each delivered change or error. iOS (`ios/Runner/DownloadProgressSubscription.swift`) pauses 0.25 s before every next wait |
-| `com.zarz.mornye/library_scan_progress_stream` | `total_files`, `scanned_files`, `current_file`, `error_count`, `progress_pct`, `is_complete` | Polled; sent only when the JSON changed. Android: every 400 ms (`LIBRARY_SCAN_PROGRESS_STREAM_POLLING_INTERVAL_MS`). iOS: every 800 ms (timer in `startLibraryScanProgressStream`) |
-
-The library-scan poll interval differs between the platforms (400 ms versus
-800 ms). Whether that is intended is an open question; do not "fix" one side
-without checking with the maintainer.
+| `com.zarz.mornye/download_progress_stream` | Backend delta: `seq`, optional `reset`, `items` (by item ID), `removed` | Long poll `waitDelta(seq, 15000 ms)`. Android pauses 250 ms after each delivered change or error |
+| `com.zarz.mornye/library_scan_progress_stream` | `total_files`, `scanned_files`, `current_file`, `error_count`, `progress_pct`, `is_complete` | Polled; sent only when the JSON changed. Every 400 ms (`LIBRARY_SCAN_PROGRESS_STREAM_POLLING_INTERVAL_MS`) |
 
 ## Other Android Channels
 
@@ -266,56 +258,3 @@ The generated bindings load `libmornye_mobile.so` through JNA
 `rust_backend/crates/mobile/uniffi.toml`). The app depends on
 `net.java.dev.jna:jna` for this, and `android/app/proguard-rules.pro` keeps
 `com.sun.jna`.
-
-## iOS
-
-`ios/Runner/AppDelegate.swift` registers the same `com.zarz.mornye/backend`
-channel and both progress `EventChannel`s on the `mornye-player` engine.
-`handleMethodCall` routes in this order:
-
-1. `setScreenAwake` sets `isIdleTimerDisabled`.
-2. Names outside the `osMethods` set go to Rust:
-   `coreBackend.invokeApplication` in `ios/Runner/CoreBackend.swift`.
-   Unknown names fail there with "Rust application method is not connected
-   yet" as a `FlutterError` with code `ERROR`. iOS never replies
-   `notImplemented` on this channel.
-3. `osMethods` names run in `AppDelegate`: background tasks, the folder
-   picker and `startWebAuthSession` inline, the rest in `invokeOsMethod`.
-
-Handled in `AppDelegate` on iOS: `getBackendImplementations`,
-`rewriteSplitArtistTags`, `writeM4AFreeformTags`, `ensureAC4Config`,
-`writeAC4Metadata`, `downloadCoverToFile`, `extractCoverToFile`,
-`reEnrichFile`, `checkHiResAuthenticity`, `releaseMemory`,
-`releaseMemoryUnderPressure`, `setLibraryCoverCacheDir`,
-`scanLibraryFolderToNDJSONFile`, `scanLibraryFolderIncremental`,
-`getLibraryScanProgress`, `cancelLibraryScan`, `pauseLibraryScan`,
-`resumeLibraryScan`, `parseCueSheet`, `startBackgroundWork`,
-`updateBackgroundWork` (a no-op) and `stopBackgroundWork`.
-
-Android-native names that iOS sends to Rust: `downloadByStrategy`,
-`readFileMetadata`, `editFileMetadata`, `readAudioMetadata`,
-`runPostProcessingV2`.
-
-Android-native names with no iOS implementation (they reach Rust and fail):
-every `saf*` method, `pickSafTree`, `isSafTreeAccessible`,
-`probeSafTreeReadAccess`, `resolveSafFile`, `inspectSafFiles`,
-`getSafFileModTimes`, `scanSafTreeToNDJSONFile`, `scanSafTreeIncremental`,
-`openContentUri`, `shareContentUri`, `writeTempToSaf`, `writeSafSidecarLrc`,
-`readSetupFolderSelection`, `acknowledgeSetupFolderSelection`,
-`ensureInstallMarker`, `prepareRuntimeState`,
-`processPendingExtensionCallbacks`, `consumeVerificationNotification`,
-`exitApp`, the download service methods and the native download worker
-methods. Dart must guard these with `Platform.isAndroid`.
-
-iOS-only names: `beginBackgroundDownloadTask`, `endBackgroundDownloadTask`
-(a `UIApplication` background task while downloads run), `pickIosDirectory`
-(returns `{path, bookmark}`), `startAccessingIosBookmark` (returns
-`{path, token}`, a security-scoped lease), `stopAccessingIosBookmark`
-(`token`) and `startWebAuthSession` (`url`, `callback_scheme`).
-
-On iOS `startBackgroundWork` begins a `UIApplication` background task per
-`kind` and returns true; when a `library_scan` task expires, the scan is
-cancelled. Other iOS channels: `ios/Runner/ConcertCalendarBridge.swift`,
-`ios/Runner/PlayerWidgetBridge.swift`, `ios/Runner/MusicHaptics.swift`, and
-`ios/Runner/AudioOutputView.swift` (`playback_notification`, `audio_route`,
-and the per-view `com.zarz.mornye/audio_output/<id>`).

@@ -1,15 +1,7 @@
 class ExtensionRestoreResult {
-  final int installed;
-  final int alreadyPresent;
   final int failed;
-  final List<String> failedIds;
 
-  const ExtensionRestoreResult({
-    this.installed = 0,
-    this.alreadyPresent = 0,
-    this.failed = 0,
-    this.failedIds = const [],
-  });
+  const ExtensionRestoreResult({this.failed = 0});
 }
 
 class ExtensionDownloadTransferPolicy {

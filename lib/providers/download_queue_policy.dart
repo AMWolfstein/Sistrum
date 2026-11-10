@@ -32,7 +32,6 @@ class QueueProcessingGate {
 const String safPermissionLostErrorMessage =
     'SAF permission invalid or revoked. Please reconfigure download location in Settings.';
 
-/// Set on queued items when the iOS download folder bookmark can no longer be
 /// opened. The queue UI matches on this to offer re-selecting the folder.
 const String downloadFolderAccessLostErrorMessage =
     'Download folder access lost. Please re-select your download folder in Settings.';

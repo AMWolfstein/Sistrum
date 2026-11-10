@@ -136,14 +136,6 @@ impl DownloadState {
         Ok(())
     }
 
-    pub fn cancel_active(&self) -> Result<Vec<String>, CancellationError> {
-        let ids = self.cancellation.cancel_active()?;
-        for id in &ids {
-            let _ = self.progress.remove(id);
-        }
-        Ok(ids)
-    }
-
     /// The application's bulk cancel/clear operation. Cancellation includes
     /// queued sentinels; progress cleanup is best effort even during shutdown.
     pub fn cancel_many(&self, ids: &[String]) -> Result<(), CancellationError> {

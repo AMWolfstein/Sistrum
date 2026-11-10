@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the supported Android release APKs for Mornye.
+# Build the Android arm64 release APK for Mornye.
 
 set -euo pipefail
 
@@ -7,71 +7,29 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 OUTPUT_DIR="$PROJECT_DIR/build/app/outputs/flutter-apk"
 FLUTTER_ARGS=()
-PRODUCTION_BUILD=0
-LITE_BUILD=0
 for argument in "$@"; do
   case "$argument" in
-    --production) PRODUCTION_BUILD=1 ;;
-    --lite) LITE_BUILD=1; export MORNYE_DISCORD_SDK=0 ;;
     --target-platform|--target-platform=*|--split-per-abi|--no-split-per-abi)
-      echo "Error: set MORNYE_RUST_ANDROID_ABIS to select the release APK architectures." >&2
+      echo "Error: the build always targets android-arm64 only." >&2
       exit 1
       ;;
     *) FLUTTER_ARGS+=("$argument") ;;
   esac
 done
 
-if [[ "$PRODUCTION_BUILD" == "1" ]]; then
-  if [[ "$LITE_BUILD" == "1" ]]; then
-    echo "Error: production builds require Discord; --production cannot be combined with --lite." >&2
-    exit 1
-  fi
-  export MORNYE_DISCORD_SDK=1
+if [[ -n "${MORNYE_RUST_ANDROID_ABIS-}" && "${MORNYE_RUST_ANDROID_ABIS}" != "arm64-v8a" ]]; then
+  echo "Error: MORNYE_RUST_ANDROID_ABIS must be arm64-v8a (the only supported ABI)." >&2
+  exit 1
 fi
+export MORNYE_RUST_ANDROID_ABIS="arm64-v8a"
 
-case "${MORNYE_DISCORD_SDK:-1}" in
-  0|1) ;;
-  *) echo "Error: MORNYE_DISCORD_SDK must be 0 (Lite) or 1 (full)." >&2; exit 1 ;;
-esac
-
-ANDROID_ABIS_RAW="${MORNYE_RUST_ANDROID_ABIS-arm64-v8a,armeabi-v7a}"
-case "$ANDROID_ABIS_RAW" in
-  arm64-v8a|armeabi-v7a|arm64-v8a,armeabi-v7a|armeabi-v7a,arm64-v8a) ;;
-  *)
-    echo "Error: MORNYE_RUST_ANDROID_ABIS must contain arm64-v8a and/or armeabi-v7a, comma-separated without spaces or duplicates." >&2
-    exit 1
-    ;;
-esac
-export MORNYE_RUST_ANDROID_ABIS="$ANDROID_ABIS_RAW"
-IFS=',' read -r -a ANDROID_ABIS <<< "$ANDROID_ABIS_RAW"
-TARGET_PLATFORMS=()
-for abi in "${ANDROID_ABIS[@]}"; do
-  case "$abi" in
-    arm64-v8a) TARGET_PLATFORMS+=(android-arm64) ;;
-    armeabi-v7a) TARGET_PLATFORMS+=(android-arm) ;;
-  esac
-done
-TARGET_PLATFORM_LIST="$(IFS=','; echo "${TARGET_PLATFORMS[*]}")"
-
-if [[ "$PRODUCTION_BUILD" == "1" ]]; then
-  SDK_ROOT="$PROJECT_DIR/third_party/mornye_discord/sdk"
-  for sdk_file in discord_partner_sdk.aar notices/Discord-License-Notices.txt android/prefab/modules/discord_partner_sdk/include/discordpp.h; do
-    if [[ ! -f "$SDK_ROOT/$sdk_file" ]]; then
-      echo "Error: production requires the staged Discord SDK ($sdk_file). Run scripts/setup_discord_sdk.sh with the official SDK first." >&2
-      exit 1
-    fi
-  done
-  for abi in "${ANDROID_ABIS[@]}"; do
-    if [[ ! -f "$SDK_ROOT/android/jni/$abi/libdiscord_partner_sdk.so" ]]; then
-      echo "Error: production requires the Discord SDK library for $abi." >&2
-      exit 1
-    fi
-  done
-fi
-
-AUDIT_FLAGS=()
-if [[ "${MORNYE_DISCORD_SDK:-1}" != "0" && -f "$PROJECT_DIR/third_party/mornye_discord/sdk/discord_partner_sdk.aar" ]]; then
-  AUDIT_FLAGS+=(--discord-sdk)
+# Without android/key.properties the release build is signed with the debug key.
+# That is only allowed when the caller says so (CI, or a release job that
+# re-signs the APK with its own keystore).
+if [[ ! -f "$PROJECT_DIR/android/key.properties" && "${MORNYE_ALLOW_DEBUG_SIGNING:-}" != "1" ]]; then
+  echo "Error: no android/key.properties, so the APK would be signed with the debug key." >&2
+  echo "Add key.properties, or set MORNYE_ALLOW_DEBUG_SIGNING=1 for CI tests or a job that re-signs the APK." >&2
+  exit 1
 fi
 
 cd "$PROJECT_DIR"
@@ -100,24 +58,15 @@ BUILD_GIT_COMMIT="$(git rev-parse --short=8 HEAD)"
   --release \
   --obfuscate \
   --split-debug-info "$PROJECT_DIR/build/symbols/android" \
-  --split-per-abi \
-  --target-platform "$TARGET_PLATFORM_LIST" \
+  --target-platform android-arm64 \
   --dart-define="GIT_COMMIT=$BUILD_GIT_COMMIT" \
   ${FLUTTER_ARGS[@]+"${FLUTTER_ARGS[@]}"}
 
-for target in "${ANDROID_ABIS[@]}" universal; do
-  apk="app-$target-release.apk"
-  abis="$target"
-  if [[ "$target" == "universal" ]]; then
-    apk=app-release.apk
-    abis="$ANDROID_ABIS_RAW"
-  fi
-  if [[ ! -f "$OUTPUT_DIR/$apk" ]]; then
-    echo "Error: expected APK was not created: $OUTPUT_DIR/$apk" >&2
-    exit 1
-  fi
-  python3 scripts/check_backend_apk.py "$OUTPUT_DIR/$apk" \
-    --backend rust --abis "$abis" ${AUDIT_FLAGS[@]+"${AUDIT_FLAGS[@]}"}
-done
+APK="$OUTPUT_DIR/app-release.apk"
+if [[ ! -f "$APK" ]]; then
+  echo "Error: expected APK was not created: $APK" >&2
+  exit 1
+fi
+python3 scripts/check_backend_apk.py "$APK" --backend rust --abis arm64-v8a
 
-echo "Built Android release APKs in $OUTPUT_DIR"
+echo "Built the Android arm64 release APK at $APK"

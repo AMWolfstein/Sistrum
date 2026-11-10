@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mornye/providers/settings_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/music_player_service.dart';
 
 final _log = AppLogger('MotionHeaderBanner');
 
@@ -168,8 +167,6 @@ class _MotionHeaderBannerState extends ConsumerState<MotionHeaderBanner>
       _disposeController();
       setState(() => _failed = true);
       widget.onError?.call();
-    } finally {
-      await restoreMusicAudioSessionAfterVideo();
     }
   }
 

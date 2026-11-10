@@ -39,7 +39,7 @@ fn number(value: Option<&Value>, fallback: i64) -> i64 {
 pub(crate) fn rounded_int(value: f64) -> i64 {
     let rounded = value.round();
     // Go uses the target's conversion: ARM saturates, while x86 returns
-    // MinInt on overflow. Keep the native Go int width on ARM32 as well.
+    // MinInt on overflow.
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     if rounded >= isize::MAX as f64 || rounded < isize::MIN as f64 {
         return isize::MIN as i64;

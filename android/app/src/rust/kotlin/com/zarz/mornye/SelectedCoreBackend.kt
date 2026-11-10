@@ -45,7 +45,10 @@ internal suspend fun MainActivity.dispatchBackendApplication(call: MethodCall, r
                             coreBackend.invokeApplication(call.method, request)
                         },
                     ) ?: when (call.method) {
-                        "getLyricsLRC" -> ""
+                        // A failed access is an error, not "no lyrics": the Dart side must
+                        // tell permission loss apart from a track without lyrics.
+                        "getLyricsLRC", "getLyricsLRCWithSource" ->
+                            throw IllegalStateException("Failed to access the audio document")
                         "fetchAndSaveLyrics" -> """{"success":false,"error":"Failed to access the audio document"}"""
                         else -> """{"lyrics":"","source":"","sync_type":"","instrumental":false}"""
                     }

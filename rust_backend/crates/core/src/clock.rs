@@ -1,10 +1,6 @@
 use chrono::{DateTime, Datelike, Timelike, Utc};
 use serde::Serialize;
 
-// The rule conversion is pure, so host tests cover it on every platform.
-#[cfg(all(any(windows, test), not(any(target_os = "android", target_os = "ios"))))]
-mod windows_zone;
-
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LocalTime {
@@ -48,14 +44,14 @@ pub fn local_time_at(timestamp: i64) -> Result<LocalTime, String> {
 }
 
 pub(crate) fn zone_at(timestamp: i64) -> (i32, String, String) {
-    // Go 1.26's Android and iOS initLocal use UTC. Host Unix builds load TZ or
+    // Go 1.26's Android initLocal uses UTC. Host Unix builds load TZ or
     // /etc/localtime once; retain that distinction in the compatibility SDK.
-    #[cfg(any(target_os = "android", target_os = "ios"))]
+    #[cfg(target_os = "android")]
     {
         let _ = timestamp;
         (0, "UTC".into(), "UTC".into())
     }
-    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    #[cfg(not(target_os = "android"))]
     {
         static LOCAL: std::sync::LazyLock<(tz::TimeZone, String)> =
             std::sync::LazyLock::new(load_zone);
@@ -71,12 +67,7 @@ pub(crate) fn zone_at(timestamp: i64) -> (i32, String, String) {
     }
 }
 
-#[cfg(windows)]
-fn load_zone() -> (tz::TimeZone, String) {
-    windows_zone::load()
-}
-
-#[cfg(not(any(target_os = "android", target_os = "ios", windows)))]
+#[cfg(not(target_os = "android"))]
 fn load_zone() -> (tz::TimeZone, String) {
     use std::io::Read;
     let load = |path: &std::path::Path| {

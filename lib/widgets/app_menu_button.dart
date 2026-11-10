@@ -191,7 +191,6 @@ class _ExpressiveMenuAnchorState<T extends Object>
     _entry = OverlayEntry(
       builder: (context) => themes.wrap(
         MaterialExpressiveScope(
-          // The popup draws its own scrollbar; the app's desktop scroll
           // behavior would stack a second one beside it.
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(

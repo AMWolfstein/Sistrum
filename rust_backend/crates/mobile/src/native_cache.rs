@@ -11,9 +11,4 @@ pub(crate) fn execute(
     {
         unix::execute(request, check)
     }
-    #[cfg(not(unix))]
-    {
-        let _ = (request, check);
-        Err("Native cache maintenance requires a Unix platform".into())
-    }
 }

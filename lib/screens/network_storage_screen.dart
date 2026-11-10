@@ -6,7 +6,6 @@ import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/local_library_provider.dart';
 import 'package:mornye/providers/network_upload_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/link_source_names.dart';
 import 'package:mornye/services/music_player_service.dart';
 import 'package:mornye/services/network_storage_service.dart';
 import 'package:mornye/services/network_storage_error.dart';
@@ -328,9 +327,6 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
         ? connection.name
         : widget.displayName ??
               widget.path.split('/').where((p) => p.isNotEmpty).last;
-    // Paired computers are served over Subsonic but are Mornye Link, which
-    // manages them, so they show as that and are not edited here.
-    final links = ref.watch(linkSourceNamesProvider);
     final visible = _entries
         .where((e) => e.directory || (e.audio && !widget.pickUploadFolder))
         .toList();
@@ -517,30 +513,23 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                     itemCount: _connections.length,
                     itemBuilder: (context, index) {
                       final c = _connections[index];
-                      final link = links.containsKey(c.id);
                       return SettingsGroup(
                         children: [
                           SettingsItem(
-                            icon: switch ((link, context.isMornye)) {
-                              (true, true) => CupertinoIcons.desktopcomputer,
-                              (true, false) => Icons.computer,
-                              (false, true) => CupertinoIcons.cloud,
-                              (false, false) => Icons.dns_outlined,
-                            },
+                            icon: context.isMornye
+                                ? CupertinoIcons.cloud
+                                : Icons.dns_outlined,
                             showIconInMornye: true,
                             title: c.name,
-                            subtitle:
-                                '${_kindLabel(c, links)} · ${c.root.host}',
+                            subtitle: '${_kindLabel(c)} · ${c.root.host}',
                             onTap: () => _open(c),
                             showDivider: false,
-                            trailing: link
-                                ? null
-                                : _NetworkIconAction(
-                                    tooltip: context.l10n.networkEditConnection,
-                                    onPressed: () => _edit(c),
-                                    icon: Icons.edit_outlined,
-                                    cupertinoIcon: CupertinoIcons.pencil,
-                                  ),
+                            trailing: _NetworkIconAction(
+                              tooltip: context.l10n.networkEditConnection,
+                              onPressed: () => _edit(c),
+                              icon: Icons.edit_outlined,
+                              cupertinoIcon: CupertinoIcons.pencil,
+                            ),
                           ),
                         ],
                       );
@@ -552,7 +541,7 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
                       child: Text(
-                        '${_kindLabel(connection, links)} · ${connection.root.host}'
+                        '${_kindLabel(connection)} · ${connection.root.host}'
                         '${_subsonic ? '' : '\n/${widget.path}'}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1105,12 +1094,9 @@ String _protocolLabel(NetworkProtocol protocol) => switch (protocol) {
   NetworkProtocol.subsonic => 'Subsonic',
 };
 
-/// What [connection] is: Mornye Link for a paired computer ([links]), else
-/// its protocol.
-String _kindLabel(NetworkConnection connection, Map<String, String> links) =>
-    links.containsKey(connection.id)
-    ? 'Mornye Link'
-    : _protocolLabel(connection.protocol);
+/// What [connection] is: its protocol.
+String _kindLabel(NetworkConnection connection) =>
+    _protocolLabel(connection.protocol);
 
 String _networkErrorMessage(BuildContext context, NetworkStorageError error) =>
     switch (error) {

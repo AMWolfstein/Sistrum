@@ -11,20 +11,6 @@ pub(crate) fn configuration(extra_roots: &[CertificateDer<'static>]) -> io::Resu
     let supplemental = rustls_pemfile::certs(&mut include_bytes!("roots.pem").as_slice())
         .collect::<Result<Vec<_>, _>>()?;
 
-    #[cfg(target_vendor = "apple")]
-    let builder = {
-        // This is the OS certificate and hostname verifier, including iOS's
-        // system trust store. It never skips certificate verification.
-        let mut supplemental = supplemental;
-        supplemental.extend_from_slice(extra_roots);
-        let verifier =
-            rustls_platform_verifier::Verifier::new_with_extra_roots(supplemental, provider)
-                .map_err(io::Error::other)?;
-        builder
-            .dangerous()
-            .with_custom_certificate_verifier(Arc::new(verifier))
-    };
-    #[cfg(not(target_vendor = "apple"))]
     let builder = {
         let load = || {
             let mut roots = rustls::RootCertStore::empty();

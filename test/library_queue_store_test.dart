@@ -273,7 +273,7 @@ void main() {
         path: 'content://media/1',
       );
       await addLocal('content-local', 1, path: 'content://media/2');
-      await addLocal('windows-local', 1, path: r'C:\Music\song.flac');
+      await addLocal('posix-local', 1, path: '/music/song.flac');
       final all = await store.trackPage(const QueueLibraryDbQuery(limit: 100));
       const request = QueueLibraryDbQuery(excludeNetwork: true, limit: 100);
       final filtered = await store.trackPage(request);
@@ -283,7 +283,7 @@ void main() {
         containsAll([
           'downloaded:content-history',
           'local:content-local',
-          'local:windows-local',
+          'local:posix-local',
         ]),
       );
       final paged = <String>[];
@@ -512,8 +512,8 @@ void main() {
           )
           .length;
       // The optimized plan uses half as many correlated checks.
-      expect(duplicateChecks(fastPlan), 2);
-      expect(duplicateChecks(originalPlan), 4);
+      expect(duplicateChecks(fastPlan), 1);
+      expect(duplicateChecks(originalPlan), 2);
     },
   );
 

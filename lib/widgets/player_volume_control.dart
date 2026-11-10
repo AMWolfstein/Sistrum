@@ -4,12 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/system_volume_provider.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/desktop/desktop_volume_scroll.dart';
 import 'package:mornye/widgets/mornye_player_slider.dart';
 import 'package:mornye/utils/logger.dart';
 import 'package:mornye/services/music_playback_deck.dart';
@@ -44,10 +42,7 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
 
   Future<void> _flushVolume() async {
     _writing = true;
-    final remote = ref.read(activeRemotePlaybackProvider);
-    final write = remote == null
-        ? ref.read(systemVolumeWriterProvider)
-        : remote.setVolume;
+    final write = ref.read(systemVolumeWriterProvider);
     final usbToken = usbHardwareVolume.value?.token;
     try {
       // Send changes during the gesture. If the platform is still processing
@@ -73,15 +68,8 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
 
   @override
   Widget build(BuildContext context) {
-    // While another device plays in this one's place, the slider sets its
-    // volume.
-    final remote = ref.watch(activeRemotePlaybackProvider) != null;
-    final usb = remote
-        ? null
-        : ref.watch(usbVolumeProvider).value ?? usbHardwareVolume.value;
-    final volume = remote
-        ? ref.watch(activeRemoteVolumeProvider).value
-        : usb == null
+    final usb = ref.watch(usbVolumeProvider).value ?? usbHardwareVolume.value;
+    final volume = usb == null
         ? ref.watch(systemVolumeProvider).value
         : usb.available
         ? usb.fraction
@@ -155,7 +143,7 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
               ),
       ),
     );
-    return DesktopVolumeScroll(child: control);
+    return control;
   }
 
   /// The expressive slider has no drag-start callback, so the pointer marks

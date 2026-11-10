@@ -3,29 +3,14 @@ import 'package:mornye/utils/logger.dart';
 
 final _log = AppLogger('AudioRoute');
 
-enum AudioBitPerfectStatus { verified, systemMixed, processed, unverified }
+enum AudioBitPerfectStatus { verified, systemMixed }
 
-/// Exclusive access bypasses mixing but does not verify unchanged PCM samples.
-/// Only an active verified direct path proves that. Applied software gain or
-/// tempo changes rule it out even when the output is exclusive.
-AudioBitPerfectStatus audioBitPerfectStatus({
-  required bool directActive,
-  required bool exclusiveActive,
-  double normalizationGain = 1,
-  double tempo = 1,
-  double softwareVolume = 1,
-}) {
-  if (directActive) return AudioBitPerfectStatus.verified;
-  if (!exclusiveActive) return AudioBitPerfectStatus.systemMixed;
-  if ([
-    normalizationGain,
-    tempo,
-    softwareVolume,
-  ].any((value) => value.isFinite && (value - 1).abs() > 0.000001)) {
-    return AudioBitPerfectStatus.processed;
-  }
-  return AudioBitPerfectStatus.unverified;
-}
+/// Only an active direct USB path proves unchanged PCM samples; the system
+/// mixer changes them.
+AudioBitPerfectStatus audioBitPerfectStatus({required bool directActive}) =>
+    directActive
+    ? AudioBitPerfectStatus.verified
+    : AudioBitPerfectStatus.systemMixed;
 
 /// Output route and platform stream facts for the audio information sheet.
 /// Every field is optional: platforms and releases expose different subsets.
@@ -89,7 +74,6 @@ class AudioRouteInfo {
   final bool? lowLatency;
   final bool? proAudio;
 
-  /// Android: stream steps out of [maxVolume]. iOS: a 0–1 fraction.
   final double? volume;
   final int? maxVolume;
   final bool? fixedVolume;
@@ -122,7 +106,6 @@ class AudioRouteDevice {
     this.floatOutput = false,
     this.mixerSampleRate,
     this.mixerBitDepth,
-    this.mixerBitPerfect,
   });
 
   factory AudioRouteDevice.fromMap(Map<dynamic, dynamic> map) {
@@ -135,7 +118,6 @@ class AudioRouteDevice {
       floatOutput: map['float'] == true,
       mixerSampleRate: mixer is Map ? _int(mixer['sampleRate']) : null,
       mixerBitDepth: mixer is Map ? _int(mixer['bitDepth']) : null,
-      mixerBitPerfect: mixer is Map ? mixer['bitPerfect'] as bool? : null,
     );
   }
 
@@ -152,7 +134,6 @@ class AudioRouteDevice {
   final bool floatOutput;
   final int? mixerSampleRate;
   final int? mixerBitDepth;
-  final bool? mixerBitPerfect;
 }
 
 class AudioRouteStream {
@@ -177,7 +158,6 @@ class AudioRouteStream {
         hardwareDecoder: map['hardwareDecoder'] as bool?,
       );
 
-  /// MIME type on Android (audio/flac), a format code on iOS (flac, alac).
   final String? mime;
   final int? sampleRate;
   final int? channels;

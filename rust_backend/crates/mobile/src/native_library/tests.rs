@@ -44,7 +44,7 @@ impl Fixture {
             CREATE TRIGGER library_fts_ad AFTER DELETE ON library BEGIN INSERT INTO library_search_fts(library_search_fts,rowid,search_text) VALUES('delete',old.rowid,old.search_text); END;" )).unwrap();
         let history_db = Connection::open(&history).unwrap();
         history_db.execute_batch("CREATE TABLE history_path_keys(item_id TEXT,path_key TEXT); CREATE INDEX history_key_index ON history_path_keys(path_key);").unwrap();
-        let request = json!({"operation":"library_full_import","library_path":library.to_str().unwrap(),"history_path":history.to_str().unwrap(),"source_id":"source","expected_source_path":"/music","platform":"ios","error_count":0});
+        let request = json!({"operation":"library_full_import","library_path":library.to_str().unwrap(),"history_path":history.to_str().unwrap(),"source_id":"source","expected_source_path":"/music","platform":"android","error_count":0});
         Self {
             directory,
             db,

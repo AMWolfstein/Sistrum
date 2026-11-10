@@ -7,14 +7,14 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/providers/local_library_provider.dart';
 import 'package:mornye/services/library_database.dart';
 import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
+import 'package:mornye/services/offline_saver.dart';
 import 'package:mornye/services/network_offline_saver.dart';
 import 'package:mornye/services/network_storage_service.dart';
 import 'package:mornye/services/notification_service.dart';
 import 'package:mornye/utils/file_access.dart';
 
 final networkOfflineProvider =
-    NotifierProvider<NetworkOfflineNotifier, LinkOfflineProgress?>(
+    NotifierProvider<NetworkOfflineNotifier, OfflineProgress?>(
       NetworkOfflineNotifier.new,
     );
 
@@ -25,23 +25,23 @@ final networkOfflineStorageProvider = Provider<NetworkStorageService>(
 /// One owned transfer at a time, shared by both themes and every Library
 /// entry point. Leaving a screen keeps it running; cancellation closes only
 /// the transfer's own network connections.
-class NetworkOfflineNotifier extends Notifier<LinkOfflineProgress?> {
-  LinkOfflineCancel? _cancel;
+class NetworkOfflineNotifier extends Notifier<OfflineProgress?> {
+  OfflineCancel? _cancel;
 
   @override
-  LinkOfflineProgress? build() {
+  OfflineProgress? build() {
     ref.onDispose(() => _cancel?.cancel());
     return null;
   }
 
   void cancel() => _cancel?.cancel();
 
-  Future<LinkOfflineResult?> save(List<UnifiedLibraryItem> items) async {
+  Future<OfflineResult?> save(List<UnifiedLibraryItem> items) async {
     if (_cancel != null) return null;
     final songs = networkOfflineSongs(items);
     if (songs.isEmpty) return null;
     final songsByOrigin = {for (final song in songs) song.songId: song};
-    final cancel = LinkOfflineCancel();
+    final cancel = OfflineCancel();
     _cancel = cancel;
     final storage = ref.read(networkOfflineStorageProvider);
     final transport = NetworkOfflineTransport(storage: storage);
@@ -60,7 +60,7 @@ class NetworkOfflineNotifier extends Notifier<LinkOfflineProgress?> {
     };
     final notices = NotificationService();
     final l10n = appLocalizationsFor(settings.locale);
-    state = LinkOfflineProgress(done: 0, total: songs.length, title: '');
+    state = OfflineProgress(done: 0, total: songs.length, title: '');
     var lastProgressAt = DateTime.fromMillisecondsSinceEpoch(0);
     try {
       await notices.beginBackgroundWork(
@@ -70,13 +70,13 @@ class NetworkOfflineNotifier extends Notifier<LinkOfflineProgress?> {
       final originSources = remoteHistoryIds.isEmpty
           ? <LocalLibrarySource>[]
           : [...await LibraryDatabase.instance.getSources()];
-      return await LinkOfflineSaver(
+      return await OfflineSaver(
         serverId: 'network',
         idPrefix: 'offline',
         serviceName: 'Network offline',
         openTransport: () => transport,
         prepareSong: transport.prepare,
-        destination: LinkDownloadFolderDestination(settings),
+        destination: DownloadFolderDestination(settings),
         historyIdForSong: (song) =>
             remoteHistoryIds[song.songId] ??
             networkOfflineHistoryId(song.songId),

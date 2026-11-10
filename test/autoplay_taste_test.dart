@@ -29,13 +29,6 @@ AutoplayFeedback _feedback(
   reward: reward,
 );
 
-PlayableMedia _media(String artist, String title) => PlayableMedia(
-  id: '$artist/$title',
-  source: '/$artist/$title.flac',
-  title: title,
-  artist: artist,
-);
-
 /// Sessions three hours apart, alternating between two groups of artists
 /// the listener never plays together: Night 1-3 and Day 1-3.
 List<AutoplayFeedback> _clusters({int sessions = 16, int length = 8}) {
@@ -369,70 +362,6 @@ void main() {
     expect(closer, pairs);
     // The same history learns the same model.
     expect(trainAutoplayTaste(plays).vectors, model.vectors);
-  });
-
-  test('the signal favors cluster mates, keeps unknown songs neutral and '
-      'waits for enough plays', () async {
-    final directory = await _directory();
-    final db = await _database(directory);
-    addTearDown(db.close);
-    final trainings = <int>[];
-    final taste = _taste(db, trainings: trainings);
-    final history = _clusters();
-    // Too few plays: no effect yet.
-    for (final feedback in history.take(40)) {
-      taste.record(feedback);
-    }
-    await taste.train();
-    final session = [_media('Night 1', 'Song 0'), _media('Night 2', 'Song 1')];
-    final mate = _media('Night 3', 'Song 2');
-    final unheardMate = _media('Night 3', 'Song 9');
-    final stranger = _media('Day 2', 'Song 2');
-    final unknown = _media('Somebody Else', 'Song 1');
-    final candidates = [mate, unheardMate, stranger, unknown];
-    expect(taste.model?.positives, 40);
-    expect(await taste.signal(session, candidates), isNull);
-
-    for (final feedback in history.skip(40)) {
-      taste.record(feedback);
-    }
-    await taste.train();
-    // Learning again covers every play logged before it was asked for.
-    expect(taste.model?.positives, history.length);
-    expect(trainings.last, history.length);
-    // No session song known: no effect.
-    expect(
-      await taste.signal([unknown, _media('Day 9', 'Song 0')], candidates),
-      isNull,
-    );
-    final signal = (await taste.signal(session, candidates))!;
-    signal.prepare(session, candidates);
-    final known = [mate, unheardMate, stranger].map(signal.score).toList();
-    debugPrint('Taste scores: mate, unheard mate, stranger $known');
-    expect(signal.score(mate), greaterThan(signal.score(stranger) + 2));
-    expect(signal.score(unheardMate), greaterThan(signal.score(stranger) + 2));
-    expect(signal.score(mate), lessThanOrEqualTo(4));
-    expect(
-      signal.score(unknown),
-      closeTo(known.reduce((a, b) => a + b) / known.length, 1e-9),
-    );
-    final selected = selectAutoplayTracks(
-      seed: session.last,
-      candidates: [stranger, mate],
-      upcoming: [],
-      recent: [session.first],
-      dismissedSources: {},
-      random: Random(1),
-      signals: [signal],
-    );
-    expect(selected, [mate, stranger]);
-
-    // The cached model serves a later launch without learning again.
-    final later = _taste(db, trainings: trainings);
-    final count = trainings.length;
-    expect(await later.signal(session, candidates), isNotNull);
-    expect(later.model!.vectors, taste.model!.vectors);
-    expect(trainings, hasLength(count));
   });
 
   test(

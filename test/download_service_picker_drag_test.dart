@@ -101,7 +101,7 @@ void main() {
             child: MaterialApp(
               theme: mornye
                   ? MornyeTheme.build(Brightness.dark)
-                  : ThemeData(platform: TargetPlatform.iOS),
+                  : ThemeData(platform: TargetPlatform.android),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               home: Scaffold(

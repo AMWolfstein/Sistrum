@@ -611,7 +611,14 @@ mod tests {
             },
             move |lease| {
                 worker_started.store(true, Ordering::Release);
-                assert!(lease.wait_cancelled(60_000).is_err());
+                let deadline = std::time::Instant::now() + Duration::from_secs(60);
+                while lease.is_cancelled().is_ok() {
+                    assert!(
+                        std::time::Instant::now() < deadline,
+                        "lease was not released"
+                    );
+                    std::thread::sleep(Duration::from_millis(1));
+                }
                 worker_joined.store(true, Ordering::Release);
                 Ok("{}".into())
             },

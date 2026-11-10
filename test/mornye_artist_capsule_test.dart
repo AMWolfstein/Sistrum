@@ -4,22 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
+import 'package:mornye/widgets/track_lists/context_menu.dart';
 import 'package:mornye/widgets/mornye_artist_header.dart';
 import 'package:mornye/widgets/mornye_chrome.dart';
 
 void main() {
-  tearDown(() => debugDesktopPlatformOverride = null);
-
   Future<void> pumpHeader(
     WidgetTester tester, {
     required List<String> log,
-    required bool desktop,
     bool showTitle = false,
   }) async {
-    debugDesktopPlatformOverride = desktop;
     await tester.binding.setSurfaceSize(const Size(900, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -63,37 +58,44 @@ void main() {
     );
   }
 
-  for (final desktop in [true, false]) {
-    final platform = desktop ? 'desktop' : 'mobile';
+  {
+    const platform = 'mobile';
 
     testWidgets('$platform toolbar title follows the platform', (tester) async {
-      await pumpHeader(tester, log: [], desktop: desktop, showTitle: true);
+      await pumpHeader(tester, log: [], showTitle: true);
       // The hero always names the artist; only the phone repeats it above.
-      expect(find.text('Artist'), findsNWidgets(desktop ? 1 : 2));
+      expect(find.text('Artist'), findsNWidgets(2));
     });
 
     testWidgets('$platform groups Share and More at the trailing edge', (
       tester,
     ) async {
       final log = <String>[];
-      await pumpHeader(tester, log: log, desktop: desktop);
+      await pumpHeader(tester, log: log);
 
       final capsule = find.byType(MornyeActionCapsule);
       final bounds = tester.getRect(
         find.descendant(of: capsule, matching: find.byType(MornyeGlass)),
       );
-      expect(bounds.right, 900 - (desktop ? 8 : 12));
+      expect(bounds.right, 900 - 12);
       // Level with the round back button.
       final back = tester.getRect(find.byTooltip('Back'));
       expect(bounds.center.dy, back.center.dy);
-      expect(bounds.height, 44);
-      if (desktop) expect(back.left, 8);
+      // Material keeps a 48 dp touch target inside the shared glass capsule.
+      expect(bounds.height, kMinInteractiveDimension);
       final share = tester.getRect(find.byTooltip('Share'));
       final more = tester.getRect(
         find.byTooltip(
           MaterialLocalizations.of(tester.element(capsule)).showMenuTooltip,
         ),
       );
+      for (final button in tester.widgetList<IconButton>(
+        find.descendant(of: capsule, matching: find.byType(IconButton)),
+      )) {
+        final target = tester.getRect(find.byWidget(button));
+        expect(target.width, greaterThanOrEqualTo(kMinInteractiveDimension));
+        expect(target.height, greaterThanOrEqualTo(kMinInteractiveDimension));
+      }
       expect(share.right, lessThanOrEqualTo(more.left));
 
       await tester.tap(find.byTooltip('Share'));
@@ -109,7 +111,6 @@ void main() {
   }
 
   testWidgets('selection mode leaves the toolbar empty', (tester) async {
-    debugDesktopPlatformOverride = false;
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(

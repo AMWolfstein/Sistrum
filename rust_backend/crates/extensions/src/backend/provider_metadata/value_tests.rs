@@ -407,7 +407,14 @@ fn metadata_value_worker_joins_cancellation_and_reports_panic() {
         },
         |lease| {
             started.store(true, Ordering::Release);
-            assert!(lease.wait_cancelled(60_000).is_err());
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
+            while lease.is_cancelled().is_ok() {
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "lease was not released"
+                );
+                std::thread::sleep(std::time::Duration::from_millis(1));
+            }
             joined.store(true, Ordering::Release);
             Ok(json!({"tracks":[]}))
         },

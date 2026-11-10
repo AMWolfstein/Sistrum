@@ -161,7 +161,6 @@ pub fn parse(bytes: &[u8]) -> Result<Device, String> {
 }
 
 /// A deliberately small exact-match registry based on documented USB transport
-/// identities in Linux sound/usb/quirks.c, not a product-name heuristic.
 fn native_encoding(device: &Device, a: &Alternate) -> Option<&'static str> {
     if !a.uac2 || a.subslot != 4 {
         return None;

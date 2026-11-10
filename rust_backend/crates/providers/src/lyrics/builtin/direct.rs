@@ -67,7 +67,6 @@ impl BuiltinLyricsClient {
         if query.trim().is_empty() {
             return Err(LyricsError::NotFound("empty search query".into()));
         }
-        // The desktop search CGI now answers HTTP 500. Search suggestions
         // still list songs, without durations, so the song detail CGI checks
         // the length of the best few title and artist matches.
         let response: models::QqSearch = http::decode(

@@ -1,6 +1,5 @@
 //! A compact description of how a song sounds, so Autoplay can pick songs
 //! that sound like the listening session and flow into each other. Flutter
-//! decodes one or two short mono windows; whole files never come here, and
 //! no model or network is involved.
 
 use crate::media::hires::fft::Radix2Fft;
@@ -10,7 +9,6 @@ use serde::Serialize;
 /// Changes whenever the vector's layout or meaning does, so stored vectors
 /// of another version are analyzed again.
 pub const AUDIO_FEATURES_VERSION: u32 = 1;
-/// The rate of the mono s16le windows Flutter decodes.
 pub const AUDIO_FEATURES_SAMPLE_RATE: usize = 22_050;
 pub const MAX_AUDIO_FEATURE_WINDOWS: usize = 2;
 pub const MFCC_COEFFICIENTS: usize = 13;
@@ -96,7 +94,6 @@ impl AudioFeatures {
     }
 }
 
-/// Reads one or two decoded windows, each at most 25 seconds.
 pub fn analyze_audio_features_files(
     paths: &[&str],
     check: &dyn Fn() -> Result<(), String>,
@@ -112,7 +109,6 @@ pub fn analyze_audio_features_files(
     analyze_audio_features(&windows, check)
 }
 
-/// Describes mono s16le windows at [`AUDIO_FEATURES_SAMPLE_RATE`]. None
 /// means too little audible audio to describe.
 pub fn analyze_audio_features(
     windows: &[&[u8]],
@@ -517,7 +513,6 @@ fn estimate_key(chroma: &[f64; 12]) -> (usize, bool, f64) {
     best
 }
 
-/// One tempo for the song: windows that agree reinforce each other; a
 /// disagreement keeps the surer one at reduced confidence.
 fn combine_tempos(tempos: &[(f64, f64)], windows: usize) -> (f64, f64) {
     match tempos {

@@ -16,7 +16,6 @@ import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/theme/cover_palette.dart';
 import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
 import 'package:mornye/widgets/app_search_field.dart';
 import 'package:mornye/widgets/mornye_chrome.dart';
 import 'package:mornye/widgets/app_sliver_header.dart';
@@ -97,32 +96,6 @@ void main() {
       );
     });
 
-    testWidgets(
-      'Mornye keeps a font family and Cupertino tracking in text roles',
-      (tester) async {
-        final theme = MornyeTheme.build(Brightness.light);
-        final apple = theme.platform == TargetPlatform.iOS;
-        for (final role in [
-          theme.textTheme.bodyLarge,
-          theme.textTheme.bodyMedium,
-          theme.textTheme.titleMedium,
-          theme.textTheme.titleSmall,
-          theme.textTheme.labelLarge,
-          theme.textTheme.labelSmall,
-        ]) {
-          expect(role?.fontFamily, apple ? 'CupertinoSystemText' : 'Inter');
-          expect(role?.letterSpacing, lessThan(0));
-        }
-        expect(
-          theme.textTheme.headlineLarge?.fontFamily,
-          apple ? 'CupertinoSystemDisplay' : 'Inter',
-        );
-      },
-      variant: const TargetPlatformVariant({
-        TargetPlatform.iOS,
-        TargetPlatform.android,
-      }),
-    );
 
     testWidgets('context.tokens falls back to the standard scale', (
       tester,
@@ -429,37 +402,7 @@ void main() {
   });
 
   group('AlbumDetailHeader', () {
-    testWidgets('keeps iOS toolbar controls clear of the screen edge', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light().copyWith(platform: TargetPlatform.iOS),
-          home: Scaffold(
-            body: CustomScrollView(
-              slivers: const [
-                AlbumDetailHeader(
-                  title: 'Album',
-                  expandedHeight: 500,
-                  showTitleInAppBar: false,
-                  background: ColoredBox(color: Colors.orange),
-                  appBarActions: [SizedBox.square(dimension: 48)],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
 
-      final appBar = tester.widget<SliverAppBar>(find.byType(SliverAppBar));
-      expect(appBar.leadingWidth, kToolbarHeight + 12);
-      expect(appBar.actionsPadding, const EdgeInsetsDirectional.only(end: 12));
-      final leadingPadding = appBar.leading! as Padding;
-      expect(
-        leadingPadding.padding,
-        const EdgeInsetsDirectional.only(start: 12),
-      );
-    });
   });
 
   group('AppSliverHeader', () {
@@ -516,52 +459,6 @@ void main() {
       final style = tester.widget<Text>(find.text('Home')).style!;
       expect(style.fontSize, AppTokens.standard.headerExpandedTitleSize);
     });
-
-    for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
-      testWidgets(
-        'collapsed page title clears leading control on ${platform.name}',
-        (tester) async {
-          final controller = ScrollController();
-          addTearDown(controller.dispose);
-          final topInset = platform == TargetPlatform.iOS ? 59.0 : 24.0;
-
-          await tester.pumpWidget(
-            MaterialApp(
-              theme: AppTheme.light().copyWith(platform: platform),
-              home: MediaQuery(
-                data: MediaQueryData(
-                  size: const Size(430, 932),
-                  padding: EdgeInsets.only(top: topInset),
-                ),
-                child: Scaffold(
-                  body: CustomScrollView(
-                    controller: controller,
-                    slivers: const [
-                      AppSliverHeader.page(title: 'Metadata'),
-                      SliverToBoxAdapter(child: SizedBox(height: 1200)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-
-          controller.jumpTo(AppTokens.standard.headerExpandedHeight);
-          await tester.pump();
-
-          final title = find.text('Metadata');
-          final backIcon = findAppIcon(Icons.arrow_back);
-          expect(
-            tester.getRect(title).overlaps(tester.getRect(backIcon)),
-            isFalse,
-          );
-          expect(
-            tester.widget<Text>(title).style?.fontSize,
-            AppTokens.standard.headerCollapsedTitleSize,
-          );
-        },
-      );
-    }
 
     test('is the only collapsing header implementation left', () {
       final offenders = _libSources()

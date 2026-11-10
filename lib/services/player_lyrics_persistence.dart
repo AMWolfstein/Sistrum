@@ -9,8 +9,7 @@ Future<void> persistPlayerLyrics(String source, String lyrics) async {
   final localPath = uri?.scheme == 'file' ? uri!.toFilePath() : source;
   if (!source.startsWith('content://') &&
       !source.startsWith('network://') &&
-      !p.posix.isAbsolute(localPath) &&
-      !p.windows.isAbsolute(localPath)) {
+      !p.posix.isAbsolute(localPath)) {
     throw UnsupportedError('The playing source is not an editable audio file');
   }
   final covers = MetadataCoverResources();

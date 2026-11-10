@@ -136,35 +136,6 @@ const _autoplaySessionWindow = 12;
 /// in this session), and `signal:<name>` and `follow:<name>` per signal.
 typedef AutoplayPick = ({PlayableMedia media, Map<String, double> parts});
 
-/// Picks songs like [rankAutoplayTracks], without their score parts.
-List<PlayableMedia> selectAutoplayTracks({
-  required PlayableMedia seed,
-  required List<PlayableMedia> candidates,
-  required List<PlayableMedia> upcoming,
-  required List<PlayableMedia> recent,
-  required Set<String> dismissedSources,
-  required Random random,
-  int limit = 6,
-  double Function(PlayableMedia)? preferenceAdjustment,
-  double Function(PlayableMedia)? exploration,
-  List<AutoplaySignal> signals = const [],
-  Map<String, double> weights = const {},
-}) => [
-  for (final pick in rankAutoplayTracks(
-    seed: seed,
-    candidates: candidates,
-    upcoming: upcoming,
-    recent: recent,
-    dismissedSources: dismissedSources,
-    random: random,
-    limit: limit,
-    preferenceAdjustment: preferenceAdjustment,
-    exploration: exploration,
-    signals: signals,
-    weights: weights,
-  ))
-    pick.media,
-];
 
 /// Rank once per refill, so the visible queue is the actual playback order.
 /// Songs score by how well their genres fit the listening session (the

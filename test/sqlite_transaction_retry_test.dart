@@ -112,16 +112,4 @@ void main() {
     expect(db.attempts, 1);
   });
 
-  test('extended BUSY codes and iOS lock messages are recognized', () async {
-    for (final error in [
-      _SqliteError('SQLITE_BUSY_SNAPSHOT', 517),
-      _SqliteError('database table is locked', null),
-    ]) {
-      final db = _AdmissionDatabase()
-        ..deniedBegins = 1
-        ..beginError = error;
-      expect(await transactionWithBusyRetry(db, (_) async => 'ok'), 'ok');
-      expect(db.attempts, 2);
-    }
-  });
 }

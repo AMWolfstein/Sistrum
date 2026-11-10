@@ -49,7 +49,6 @@ class ExpressivePlaybackTransport extends StatefulWidget {
   final Widget? trailing;
   final bool compact;
 
-  /// The 40dp desktop size for a bar that also holds the seek row, sized for
   /// a pointer rather than a thumb.
   final bool dense;
 

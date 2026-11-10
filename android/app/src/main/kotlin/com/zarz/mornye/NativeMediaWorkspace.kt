@@ -26,12 +26,17 @@ internal class NativeMediaWorkspace(privateDirectory: File) {
         File.createTempFile(prefix, suffix, ensureDirectory())
 }
 
+/** Removes a file the caller no longer needs; a failed delete leaves only a file the OS or a later run reclaims. */
+internal fun File.deleteBestEffort() {
+    try { delete() } catch (_: Exception) {}
+}
+
 /** Only the caller's newly created input belongs to this operation, not a hook's replacement. */
 internal inline fun <T> withOwnedTemporaryMediaFile(file: File, block: (File) -> T): T {
     try {
         return block(file)
     } finally {
-        try { file.delete() } catch (_: Exception) {}
+        file.deleteBestEffort()
     }
 }
 
@@ -48,7 +53,7 @@ internal fun copyToTemporaryMediaFile(file: File, openInput: () -> InputStream?)
         return file
     } finally {
         if (!complete) {
-            try { file.delete() } catch (_: Exception) {}
+            file.deleteBestEffort()
         }
     }
 }

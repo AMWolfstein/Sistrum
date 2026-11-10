@@ -54,7 +54,7 @@ internal object AudioOpenBridge {
             Intent.ACTION_SEND -> listOfNotNull(intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM))
             Intent.ACTION_SEND_MULTIPLE -> intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM).orEmpty()
             else -> return
-        }.filter { it.scheme == "content" || it.scheme == "file" }.distinct()
+        }.filter { it.scheme == "content" }.distinct()
         if (uris.isEmpty()) return
         // Do not let receive_sharing_intent resolve the same documents to
         // inaccessible /storage paths or copy them synchronously on the UI thread.

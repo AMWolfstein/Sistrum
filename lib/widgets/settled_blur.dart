@@ -103,8 +103,12 @@ class RenderSettledBlur extends RenderProxyBox with WidgetsBindingObserver {
   @visibleForTesting
   ui.Image? get debugImage => _image;
 
-  bool get _canSnapshot =>
-      WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+  // Null means the engine has not reported a state yet, as in tests; only a
+  // known pause, inactive, hidden or detached state stops the snapshot.
+  bool get _canSnapshot {
+    final state = WidgetsBinding.instance.lifecycleState;
+    return state == null || state == AppLifecycleState.resumed;
+  }
 
   // Keeps the blur on its own layer, so moving it reuses that layer.
   @override

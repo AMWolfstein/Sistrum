@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mornye/models/theme_settings.dart';
 import 'package:mornye/theme/app_tokens.dart';
 
-/// Flutter counterpart of Mornye's iPhone visual system. Reference values come
-/// from AccentColor.colorset, Components.swift, PlayerViews.swift and Motion.md
-/// in the Mornye project; keep this palette independent of wallpaper colors.
+/// Mornye's own accent, surface and motion tokens; keep this palette
+/// independent of wallpaper colors.
 @immutable
 class MornyeTheme extends ThemeExtension<MornyeTheme> {
   const MornyeTheme({
@@ -60,7 +59,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   }
 
   static const lightAccent = Color.fromRGBO(204, 46, 51, 1);
-  // iOS dark systemRed: accent text stays readable on #1C1C1E cells.
   static const darkAccent = Color.fromRGBO(255, 69, 58, 1);
 
   static Color accentColor(MornyeAccent accent, Brightness brightness) {
@@ -268,27 +266,21 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
               : const Color(0xffc6c6c8),
           surfaceTint: Colors.transparent,
         );
-    // Cupertino's font proxies resolve to SF on Apple and the platform fallback
-    // elsewhere. Inter remains the default on other platforms unless opted out.
-    final apple =
-        defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS;
+    // Inter is the default font unless the user opts into the system font.
     final type = CupertinoThemeData(brightness: brightness).textTheme;
     final text = type.textStyle.copyWith(
       inherit: true,
       color: foreground,
       fontFamily:
           fontFamily ??
-          (apple || useSystemFont ? type.textStyle.fontFamily : 'Inter'),
+          (useSystemFont ? type.textStyle.fontFamily : 'Inter'),
     );
     final display = type.navLargeTitleTextStyle.copyWith(
       inherit: true,
       color: foreground,
       fontFamily:
           fontFamily ??
-          (apple || useSystemFont
-              ? type.navLargeTitleTextStyle.fontFamily
-              : 'Inter'),
+          (useSystemFont ? type.navLargeTitleTextStyle.fontFamily : 'Inter'),
     );
     // Supply complete styles: replacing a Material role with a bare TextStyle
     // loses its system family and retains Material tracking in other roles.
@@ -358,8 +350,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
         },
       ),
       appBarTheme: AppBarTheme(
@@ -484,7 +474,6 @@ extension MornyeThemeContext on BuildContext {
   bool get isMornye => Theme.of(this).extension<MornyeTheme>() != null;
 }
 
-/// Settings uses iOS's inset grouped surfaces while the music library keeps
 /// its artwork-led, plain background.
 class MornyeSettingsTheme extends StatelessWidget {
   const MornyeSettingsTheme({super.key, required this.child});

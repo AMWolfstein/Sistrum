@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/models/download_history.dart';
 import 'package:mornye/models/library_database_models.dart';
 import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
+import 'package:mornye/services/offline_saver.dart';
 import 'package:mornye/services/network_library_upload.dart';
 import 'package:mornye/services/network_storage_service.dart';
 
@@ -234,7 +234,7 @@ void main() {
           return NetworkUploadFile(File(path), () async => released.add(path));
         },
       );
-      final progress = <LinkOfflineProgress>[];
+      final progress = <OfflineProgress>[];
       final result = await uploader.upload(
         [
           song(a, 'a.flac'),
@@ -285,7 +285,7 @@ void main() {
     });
 
     test('cancelling stops the run without counting a failure', () async {
-      final cancel = LinkOfflineCancel();
+      final cancel = OfflineCancel();
       final a = await file('a.flac');
       final b = await file('b.flac');
       final published = <String>[];

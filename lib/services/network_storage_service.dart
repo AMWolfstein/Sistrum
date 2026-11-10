@@ -273,7 +273,6 @@ typedef NetworkVirtualSong = ({
 });
 
 /// `network://` hosts that are not saved connections, such as a paired
-/// phone's songs on the Mornye Link desktop. Their owner installs them as
 /// [NetworkStorageService.virtualSources]; Library scans, playback and tag
 /// reads of a host they own go to them. Saved connection lists never show
 /// them.
@@ -296,7 +295,6 @@ abstract interface class NetworkVirtualSources {
 }
 
 /// [NetworkVirtualSources] that keep local copies of the songs they play,
-/// such as the songs paired phones sent the Mornye Link desktop, and fetch
 /// one again once it is gone.
 abstract interface class NetworkLocalCopies implements NetworkVirtualSources {
   /// What plays in place of the local file [path] when it is one of these
@@ -336,7 +334,6 @@ class NetworkStorageService {
   static final instance = NetworkStorageService();
   static const _storage = FlutterSecureStorage(
     aOptions: secureStorageAndroidOptions,
-    mOptions: secureStorageMacOsOptions,
   );
   static const _key = 'network_storage_connections_v1';
   final Future<String?> Function() _read;
@@ -458,8 +455,7 @@ class NetworkStorageService {
 
   /// Whether the `network://` [source] can play now: a host its virtual
   /// source reaches, or a saved connection not known to be out of reach.
-  /// Songs of a host neither knows, such as a phone after Link stopped,
-  /// cannot.
+  /// Songs of a host that is no longer known cannot.
   Future<bool> reachable(String source) async {
     final host = Uri.tryParse(source)?.host ?? '';
     if (virtualFor(host) case final virtual?) return virtual.reachable(host);
@@ -692,7 +688,6 @@ class NetworkStorageService {
     return 'http://127.0.0.1:${server.port}/$token';
   }
 
-  /// Marks connection [id] out of reach, as a paired Mornye Link desktop
   /// whose session cannot connect, or reachable again. Songs of a marked
   /// connection check its server briefly before playing instead of
   /// waiting [timeout] for it.

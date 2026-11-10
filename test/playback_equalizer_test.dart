@@ -6,7 +6,6 @@ import 'package:mornye/models/equalizer_settings.dart';
 import 'package:mornye/services/music_playback_deck.dart';
 import 'package:mornye/services/playback_deck.dart';
 import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -186,23 +185,6 @@ void main() {
     expect(playbackEqualizerError.value, isNull);
   });
 
-  test('a desktop deck without the tap reports EQ as unavailable', () async {
-    debugDesktopPlatformOverride = true;
-    addTearDown(() => debugDesktopPlatformOverride = null);
-    final deck = AudioplayersPlaybackDeck(
-      playerId: 'eq-desktop',
-      equalizerAvailable: false,
-    );
-    await deck.setFileSource('/song.flac');
-    playbackEqualizer.value = const EqualizerSettings(enabled: true);
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    expect(calls.where((c) => c.method == 'setEqualizer'), isEmpty);
-    expect(playbackEqualizerError.value, isNotNull);
-    playbackEqualizer.value = const EqualizerSettings();
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    expect(playbackEqualizerError.value, isNull);
-    await deck.dispose();
-  });
 
   test('in-app output volume scales the gain of every deck', () async {
     addTearDown(() => playbackOutputVolume.value = 1);

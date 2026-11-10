@@ -66,13 +66,11 @@ object SafDownloadHandler {
      * Flushes and fsyncs a SAF output stream so the copied bytes are durable
      * before the staged document is renamed to its final name; without this a
      * power loss right after the rename can leave a truncated "complete" file.
+     * A failure propagates to the caller, which must not publish the file.
      */
     fun syncOutputStream(output: OutputStream) {
-        try {
-            output.flush()
-            (output as? FileOutputStream)?.fd?.sync()
-        } catch (_: Exception) {
-        }
+        output.flush()
+        (output as? FileOutputStream)?.fd?.sync()
     }
 
     internal fun handle(context: Context, requestJson: String, backend: CoreBackend): String {
@@ -363,7 +361,7 @@ object SafDownloadHandler {
             }
             createdTemp.absolutePath
         } catch (e: Exception) {
-            try { temp?.delete() } catch (_: Exception) {}
+            temp?.deleteBestEffort()
             android.util.Log.w("Mornye", "Failed to copy SAF URI to temp: ${e.message}")
             null
         }

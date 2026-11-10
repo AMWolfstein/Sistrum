@@ -22,11 +22,11 @@ void main() {
     expect(topLevel.folder, isEmpty);
 
     const file = LibraryScanFailure(
-      path: r'C:\Music\Album\Song.mp3',
+      path: '/music/Album/Song.mp3',
       message: 'EIO',
     );
     expect(file.fileName, 'Song.mp3');
-    expect(file.folder, 'C:/Music/Album');
+    expect(file.folder, '/music/Album');
 
     const malformed = LibraryScanFailure(
       path: 'content://example.documents/document/%E0%A4%A.flac',

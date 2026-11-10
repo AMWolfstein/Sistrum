@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 
 /// Mounts [child] without letting it take keyboard focus.
 ///
-/// `M3EButtonGroup` autofocuses its first enabled segment. On desktop that
 /// moves focus off the app's idle node, so Space presses the segment instead
 /// of toggling playback. The descendants stay unfocusable until the
 /// autofocus pass of the mounting frame has run; after that, Tab and

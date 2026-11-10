@@ -9,7 +9,6 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/theme/mornye_icons.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/mornye_chrome.dart';
 
@@ -48,9 +47,6 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
       useRootNavigator: true,
       isScrollControlled: true,
       showDragHandle: !mornye,
-      // Phones float the glass above the home indicator; the desktop dialog
-      // draws its own glass around the picker.
-      mornyeGlass: isDesktopPlatform,
       // Explicit constraints replace the theme's, so repeat its tablet width.
       constraints: BoxConstraints(
         maxWidth: 640,
@@ -72,7 +68,6 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
             Flexible(child: picker),
           ],
         );
-        if (isDesktopPlatform) return content;
         return Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           child: MornyeGlassPanel.overlay(child: content),

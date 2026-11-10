@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show compute, visibleForTesting;
 import 'package:flutter/widgets.dart'
-    show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
+    show AppLifecycleState, WidgetsBindingObserver;
 import 'package:mornye/services/playback_notification.dart';
 import 'package:audio_session/audio_session.dart'
     show
@@ -24,7 +24,6 @@ import 'package:mornye/services/playback_automation.dart';
 import 'package:mornye/services/playback_session_writer.dart';
 import 'package:mornye/services/content_uri_playback_cache.dart';
 import 'package:mornye/services/file_access_check.dart';
-import 'package:mornye/services/avplayer_formats.dart';
 import 'package:mornye/services/cast_output.dart';
 import 'package:mornye/services/cover_store.dart';
 import 'package:mornye/services/music_player_runtime.dart';
@@ -42,7 +41,6 @@ import 'package:mornye/models/settings.dart';
 import 'package:mornye/services/automix_effect_renderer.dart';
 import 'package:mornye/services/automix_status.dart';
 import 'package:mornye/services/music_haptics.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/int_utils.dart';
 import 'package:mornye/utils/playback_artwork.dart';
 import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
@@ -60,17 +58,11 @@ part 'music_player_automix.dart';
 part 'music_player_autoplay.dart';
 part 'music_player_covers.dart';
 part 'music_player_cast.dart';
-part 'music_player_formats.dart';
 part 'music_player_failures.dart';
 part 'music_player_gapless.dart';
 part 'music_player_prefetch.dart';
 
 final _log = AppLogger('MusicPlayer');
-
-/// Muted artwork shares the music session. Recover its Now Playing ownership
-/// after video initialization, including failed or abandoned initialization.
-Future<void> restoreMusicAudioSessionAfterVideo() async =>
-    musicPlayerRuntime.handler?.restoreIosNowPlaying();
 
 /// Gain and rate the player applies to the current track.
 class PlaybackProcessing {
@@ -84,7 +76,6 @@ class PlaybackProcessing {
   final double normalizationGain;
 
   /// A verified native direct path that bypasses the system mixer and DSP.
-  /// Desktop exclusive output may still apply software processing.
   final bool direct;
 
   /// AutoMix tempo matching; 1 outside a transition.
@@ -143,7 +134,6 @@ class MusicPlayerHandler extends BaseAudioHandler
   late final _MusicAutoMix _autoMix;
   late final _MusicGapless _gapless = _MusicGapless(this);
   late final _MusicPrefetch _prefetch = _MusicPrefetch(this);
-  late final _MusicFormats _formats = _MusicFormats(this);
   late final _MusicFailures _failures = _MusicFailures(this);
   late final _MusicCovers _covers = _MusicCovers(this);
   late final _MusicAutoplay _autoplay;
@@ -240,14 +230,12 @@ class MusicPlayerHandler extends BaseAudioHandler
     }
     if (previous.autoMix != settings.autoMix ||
         previous.autoMixOptions != settings.autoMixOptions ||
-        previous.usbBitPerfect != settings.usbBitPerfect ||
-        previous.exclusiveOutput != settings.exclusiveOutput) {
+        previous.usbBitPerfect != settings.usbBitPerfect) {
       unawaited(_autoMix.cancel());
     }
     if (previous.gaplessPlayback != settings.gaplessPlayback ||
         previous.autoMix != settings.autoMix ||
-        previous.usbBitPerfect != settings.usbBitPerfect ||
-        previous.exclusiveOutput != settings.exclusiveOutput) {
+        previous.usbBitPerfect != settings.usbBitPerfect) {
       unawaited(_gapless.cancel());
     }
     // USB changes apply at the next source boundary, without raising volume.
@@ -308,10 +296,7 @@ class MusicPlayerHandler extends BaseAudioHandler
     _player = _dependencies.createDeck('music-player');
     _cast = _MusicCast(
       this,
-      castOutput ??
-          (Platform.isAndroid || Platform.isIOS || isDesktopPlatform
-              ? CastOutput.instance
-              : null),
+      castOutput ?? (Platform.isAndroid ? CastOutput.instance : null),
     );
     _normalizationCache = PlaybackNormalizationCache(
       readMetadata: _dependencies.readMetadata,
@@ -428,7 +413,6 @@ class MusicPlayerHandler extends BaseAudioHandler
 
     _listenToPlayer(_player);
     _cast.initialize();
-    if (_dependencies.isIOS) WidgetsBinding.instance.addObserver(this);
   }
 
   /// Writes listening time every 10 s from the start of playback until a
@@ -457,11 +441,6 @@ class MusicPlayerHandler extends BaseAudioHandler
       unawaited(_runtime.taste.flush());
       unawaited(_runtime.ranker.flush());
     }
-    if (state == AppLifecycleState.resumed ||
-        state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
-      unawaited(restoreIosNowPlaying());
-    }
   }
 
   /// Haptics follow only decodable local files; streams have no full copy.
@@ -474,9 +453,7 @@ class MusicPlayerHandler extends BaseAudioHandler
     // Use a stable document identity for both direct playback and AutoMix.
     // Haptics opens its own SAF input; the player's descriptor is short-lived.
     final path = document ? source : (resolved.isNotEmpty ? resolved : source);
-    // Desktop has no vibration motor.
     final local =
-        !isDesktopPlatform &&
         path.isNotEmpty &&
         (document || !path.contains('://')) &&
         _settings.musicHaptics &&
@@ -502,32 +479,6 @@ class MusicPlayerHandler extends BaseAudioHandler
             state.playing &&
             state.processingState == AudioProcessingState.ready,
       );
-    }
-  }
-
-  /// Recover system controls without reloading, seeking or restarting audio.
-  /// Never reclaim audio focus for a paused/interrupted/stopped player.
-  Future<void> restoreIosNowPlaying() async {
-    final generation = _playRequestGeneration;
-    bool canRestore() =>
-        _dependencies.isIOS &&
-        !_disposed &&
-        generation == _playRequestGeneration &&
-        !_interruptionActive &&
-        !_userPaused &&
-        playbackState.value.playing &&
-        playbackState.value.processingState == AudioProcessingState.ready &&
-        mediaItem.value != null;
-    if (!canRestore()) return;
-    try {
-      final session = _audioSession ?? await _dependencies.audioSession();
-      if (!canRestore()) return;
-      await session.configure(const AudioSessionConfiguration.music());
-      if (!canRestore()) return;
-      if (!await session.setActive(true) || !canRestore()) return;
-      await AudioService.refreshNowPlayingInfo();
-    } catch (error) {
-      _log.w('Could not restore iOS playback controls: $error');
     }
   }
 
@@ -670,8 +621,6 @@ class MusicPlayerHandler extends BaseAudioHandler
   /// pauses and the UI/notification reflect the real state instead of staying
   /// stuck on "playing".
   Future<void> _configureAudioSession() async {
-    // audio_session models mobile audio focus; desktop has no equivalent.
-    if (isDesktopPlatform) return;
     try {
       final session = await _dependencies.audioSession();
       _audioSession = session;
@@ -731,16 +680,13 @@ class MusicPlayerHandler extends BaseAudioHandler
   void _refreshPlaybackAutomation() {
     if (_disposed) return;
     // Both follow mobile system volume and audio_session routes, which
-    // desktop does not use.
     final pauseOnMute =
         !_cast.active &&
-        !isDesktopPlatform &&
         _settings.playerMode == 'internal' &&
         _settings.pauseOnMute &&
         !_settings.usbBitPerfect;
     final playOnHeadphonesConnected =
         !_cast.active &&
-        !isDesktopPlatform &&
         _settings.playerMode == 'internal' &&
         _settings.playOnHeadphonesConnected;
     unawaited(
@@ -838,7 +784,6 @@ class MusicPlayerHandler extends BaseAudioHandler
 
   Future<bool> _activateAudioSession(int generation) async {
     if (_cast.active) return true;
-    if (isDesktopPlatform) return true;
     try {
       // Android 15+ rejects background focus requests without an active
       // foreground service. Publishing Dart state alone does not await it.
@@ -848,11 +793,6 @@ class MusicPlayerHandler extends BaseAudioHandler
       if (generation != _playRequestGeneration || _disposed) return false;
       final session = _audioSession ?? await _dependencies.audioSession();
       _audioSession = session;
-      // Other media plugins can change the process-wide iOS category/options
-      // after initialization. Mixing makes us ineligible for Now Playing.
-      if (_dependencies.isIOS) {
-        await session.configure(const AudioSessionConfiguration.music());
-      }
       if (generation != _playRequestGeneration || _disposed) return false;
       final granted = await session.setActive(true);
       if (!granted) {
@@ -1084,8 +1024,6 @@ class MusicPlayerHandler extends BaseAudioHandler
     _normalizationGeneration++;
     _normalizationCache.invalidate(source);
     await _sourceCache.invalidate(source, waitForPending: true);
-    // A FLAC copy carries the tags it was made with.
-    await _formats.invalidate(source);
     if (_disposed) return;
     if (_index >= 0 &&
         _index < _media.length &&
@@ -1451,7 +1389,6 @@ class MusicPlayerHandler extends BaseAudioHandler
   }
 
   /// Shows the restored song's cover from its file when the saved session
-  /// kept none, as playing it would. The desktop backend reads files only
   /// once extensions are ready, which may be after the restore.
   Future<void> recoverRestoredArtwork() async {
     if (_index < 0 || _index >= _media.length) return;
@@ -1689,7 +1626,7 @@ class MusicPlayerHandler extends BaseAudioHandler
     // AudioPlayer.play combines prepare/seek/resume without a cancellation
     // boundary. A late prepare from an old request could resume the wrong
     // source. Serialize preparation and recheck before making it audible.
-    // Link may resolve a network song to its completed local copy.
+    // A network song may resolve to its completed local copy.
     // A file still arriving resolves to its HTTP stream instead.
     try {
       if (const {'http', 'https'}.contains(Uri.tryParse(path)?.scheme)) {
@@ -1709,16 +1646,7 @@ class MusicPlayerHandler extends BaseAudioHandler
         );
       }
     } catch (_) {
-      if (!_isCurrentPlayRequest(generation, media)) rethrow;
-      final copy = await _formats.afterFailure(media, path);
-      if (copy == null || !_isCurrentPlayRequest(generation, media)) rethrow;
-      return _startResolvedSource(
-        copy,
-        generation,
-        media,
-        position,
-        startPaused: startPaused,
-      );
+      rethrow;
     }
     if (!_isCurrentPlayRequest(generation, media)) return path;
     if (position != null) {
@@ -1817,7 +1745,7 @@ class MusicPlayerHandler extends BaseAudioHandler
         _log.w('Failed to open direct SAF playback lease: $e');
       }
     }
-    var resolved = playbackLease?.path ?? await _formats.resolve(media);
+    var resolved = playbackLease?.path ?? await _resolveSource(media);
     var usingLocalSafCopy = media.isContentUri && playbackLease == null;
     if (!_isCurrentPlayRequest(generation, media)) {
       if (playbackLease != null) {
@@ -1843,9 +1771,6 @@ class MusicPlayerHandler extends BaseAudioHandler
       return;
     }
 
-    try {
-      await _runtime.exclusiveAudioHook?.call();
-    } catch (_) {}
     if (!_isCurrentPlayRequest(generation, media)) {
       if (playbackLease != null) {
         await PlatformBridge.closeContentUriPlaybackLease(playbackLease.token);
@@ -1935,9 +1860,7 @@ class MusicPlayerHandler extends BaseAudioHandler
         unawaited(_loadNetworkMetadata(media, generation));
       }
       _pendingRestorePosition = null;
-      _activeResolvedPath = usingLocalSafCopy || _formats.owns(resolved)
-          ? resolved
-          : null;
+      _activeResolvedPath = usingLocalSafCopy ? resolved : null;
       _failures.started(media, resolved);
       await _cleanupPendingResolvedPaths();
       if (!_isCurrentPlayRequest(generation, media)) return;
@@ -1958,15 +1881,6 @@ class MusicPlayerHandler extends BaseAudioHandler
     } catch (e, stackTrace) {
       if (!_isCurrentPlayRequest(generation, media)) return;
       if (await _failures.skipMissing(
-        media,
-        resolved,
-        generation,
-        startPaused: startPaused,
-      )) {
-        return;
-      }
-      if (!_isCurrentPlayRequest(generation, media)) return;
-      if (await _formats.skipUnplayable(
         media,
         resolved,
         generation,
@@ -2780,7 +2694,6 @@ class MusicPlayerHandler extends BaseAudioHandler
     await _cast.dispose();
     _runtime.personalization.finish();
     await _runtime.personalization.flush();
-    if (_dependencies.isIOS) WidgetsBinding.instance.removeObserver(this);
     if (identical(musicPlayerRuntime.handler, this)) {
       autoMixStatus.value = AutoMixStatus.idle;
       autoMixPreparing.value = false;
@@ -2810,7 +2723,6 @@ class MusicPlayerHandler extends BaseAudioHandler
     }
     _activeResolvedPath = null;
     await _sourceCache.dispose();
-    await _formats.dispose();
   }
 }
 

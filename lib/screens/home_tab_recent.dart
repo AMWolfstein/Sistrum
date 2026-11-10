@@ -1,21 +1,11 @@
 part of 'home_tab.dart';
 
 extension _HomeTabRecentUI on _HomeTabState {
-  /// The Mornye desktop Search page lays recents out as a horizontal card shelf.
-  bool get _recentAccessAsCards =>
-      context.isMornye &&
-      isDesktopPlatform &&
-      widget.mode == HomeTabMode.search;
-
   Widget _buildRecentAccess(_RecentAccessView view, ColorScheme colorScheme) {
     return SliverMainAxisGroup(
       slivers: [
         SliverToBoxAdapter(child: _buildRecentAccessHeader(view, colorScheme)),
-        if (view.uniqueItems.isNotEmpty && _recentAccessAsCards)
-          SliverToBoxAdapter(
-            child: _buildRecentAccessCardRow(view, colorScheme),
-          )
-        else if (view.uniqueItems.isNotEmpty)
+        if (view.uniqueItems.isNotEmpty)
           SliverPadding(
             padding:
                 const EdgeInsets.fromLTRB(16, 0, 16, 8) +
@@ -58,19 +48,12 @@ extension _HomeTabRecentUI on _HomeTabState {
             children: [
               Semantics(
                 header: true,
-                child: _recentAccessAsCards
-                    ? Text(
-                        context.l10n.searchRecentlySearched,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      )
-                    : Text(
-                        context.l10n.homeRecent,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+                child: Text(
+                  context.l10n.homeRecent,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
               if (uniqueItems.isNotEmpty)
                 ExpressiveButton(
@@ -213,156 +196,6 @@ extension _HomeTabRecentUI on _HomeTabState {
         ),
         fallbackIcon: fallbackIcon,
         colorScheme: colorScheme,
-      ),
-    );
-  }
-
-  Widget _buildRecentAccessCardRow(
-    _RecentAccessView view,
-    ColorScheme colorScheme,
-  ) {
-    final scaler = MediaQuery.textScalerOf(context);
-    final textTheme = Theme.of(context).textTheme;
-    // Two lines of text or the cover, whichever is taller, inside the
-    // card's padding; grows with the text size instead of clipping.
-    final textHeight =
-        scaler.scale(textTheme.bodyLarge?.fontSize ?? 17) * 1.3 +
-        scaler.scale(textTheme.bodySmall?.fontSize ?? 13) * 1.3 +
-        2;
-    final cardHeight =
-        math.max(context.tokens.coverList, textHeight) + 2 * _recentCardPadding;
-    final inset = 16 + homeContentInset(context);
-    return SizedBox(
-      height: cardHeight + 20,
-      child: DesktopScrollArrows(
-        builder: (context, controller) => ListView.separated(
-          key: const ValueKey('recent-access-cards'),
-          controller: controller,
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.fromLTRB(inset, 4, inset, 16),
-          itemCount: view.uniqueItems.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 16),
-          itemBuilder: (context, index) {
-            final item = view.uniqueItems[index];
-            return KeyedSubtree(
-              key: ValueKey('${item.type.name}:${item.id}'),
-              child: _buildRecentAccessCard(
-                item,
-                colorScheme,
-                view.downloadFilePathByRecentKey,
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  static const double _recentCardPadding = 12;
-
-  Widget _buildRecentAccessCard(
-    RecentAccessItem item,
-    ColorScheme colorScheme,
-    Map<String, String> downloadFilePathByRecentKey,
-  ) {
-    final (typeIcon, typeLabel) = _recentAccessType(item);
-    final textTheme = Theme.of(context).textTheme;
-    final tokens = context.tokens;
-
-    void showMenu(BuildContext anchorContext) {
-      final box = anchorContext.findRenderObject();
-      showMornyeContextMenu<void>(
-        context: anchorContext,
-        anchor: box is RenderBox && box.hasSize
-            ? box.localToGlobal(Offset.zero) & box.size
-            : null,
-        builder: (menuContext) => MornyeContextMenu(
-          groups: [
-            [
-              MornyeMenuAction(
-                icon: mornyeIconFor(Icons.delete_outline),
-                label: menuContext.l10n.dialogRemove,
-                destructive: true,
-                onPressed: () {
-                  Navigator.pop(menuContext);
-                  _removeRecentAccessItem(item);
-                },
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    // A plain grouped fill: recents are content, not floating controls.
-    return SizedBox(
-      width: 320,
-      child: Material(
-        color: MornyeTheme.controlFill(context),
-        borderRadius: BorderRadius.circular(tokens.radiusCard),
-        clipBehavior: Clip.antiAlias,
-        child: Builder(
-          builder: (cardContext) => InkWell(
-            onTap: () => _navigateToRecentItem(item),
-            onSecondaryTap: () => showMenu(cardContext),
-            onLongPress: () => showMenu(cardContext),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                _recentCardPadding,
-                _recentCardPadding,
-                4,
-                _recentCardPadding,
-              ),
-              child: Row(
-                children: [
-                  _buildRecentAccessCover(
-                    item,
-                    colorScheme,
-                    downloadFilePathByRecentKey,
-                    fallbackIcon: typeIcon,
-                    radius: tokens.radiusThumb,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodyLarge,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _recentAccessSubtitle(item, typeLabel),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Builder(
-                    builder: (buttonContext) => AppIconButton(
-                      tooltip: MaterialLocalizations.of(
-                        buttonContext,
-                      ).moreButtonTooltip,
-                      icon: Icon(
-                        Icons.more_horiz,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      onPressed: () => showMenu(buttonContext),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

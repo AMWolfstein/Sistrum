@@ -6,8 +6,8 @@ import 'package:mornye/widgets/cached_cover_image.dart';
 import 'package:mornye/widgets/local_library_artwork_builder.dart';
 import 'package:mornye/widgets/player_artwork.dart';
 
-/// Queue entries may not have artwork yet, as for files a phone sent through
-/// Link. Recover only visible rows through the shared bounded cover cache.
+/// Queue entries may not have artwork yet. Recover only visible rows through
+/// the shared bounded cover cache.
 class PlayerQueueArtwork extends StatelessWidget {
   const PlayerQueueArtwork({
     super.key,

@@ -134,7 +134,7 @@ internal fun MainActivity.scanSafTree(
                 throw IOException("SAF scan returned no files while a resumable scan exists")
             }
             File(ndjsonOutputPath).writeText("", Charsets.UTF_8)
-            try { File(safScanCheckpointPath(ndjsonOutputPath)).delete() } catch (_: Exception) {}
+            File(safScanCheckpointPath(ndjsonOutputPath)).deleteBestEffort()
             return mapOf("path" to ndjsonOutputPath, "count" to 0, "error_count" to 0)
         }
 
@@ -272,9 +272,9 @@ internal fun MainActivity.scanSafTree(
             outputFile.parentFile?.mkdirs()
             // Discard stale output that has no checkpoint.
             if (outputFile.exists() && !checkpointFile.exists()) {
-                try { outputFile.delete() } catch (_: Exception) {}
+                outputFile.deleteBestEffort()
             } else if (!outputFile.exists() && checkpointFile.exists()) {
-                try { checkpointFile.delete() } catch (_: Exception) {}
+                checkpointFile.deleteBestEffort()
             }
             repairSafScanOutput(outputFile.absolutePath)
             reconcileSafScanCheckpoint(

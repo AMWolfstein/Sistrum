@@ -7,7 +7,6 @@ import 'package:mornye/controllers/player_metadata_controller.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/link_source_names.dart';
 import 'package:mornye/theme/app_motion.dart';
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/material_expressive.dart';
@@ -66,12 +65,11 @@ class PlayerPlaybackControls extends ConsumerWidget {
     final mornye = context.isMornye;
     final isPlaying = ref.watch(playbackPlayingProvider);
     final isLoading = ref.watch(playbackLoadingProvider);
-    // Mornye's desktop player keeps a compact transport, with shuffle
     // and repeat at the timeline's ends; its phone player has them in the queue.
-    final desktopMornye = mornye && edgeAligned;
+    final wideMornye = mornye && edgeAligned;
     final showModes = showPlaybackModes && (!mornye || edgeAligned);
-    final skipSize = desktopMornye ? 30.0 : 40.0;
-    final playPauseSize = desktopMornye
+    final skipSize = wideMornye ? 30.0 : 40.0;
+    final playPauseSize = wideMornye
         ? (isPlaying ? 34.0 : 32.0)
         : compact
         ? (isPlaying ? 44.0 : 40.0)
@@ -664,14 +662,7 @@ class _QualityBadge extends StatelessWidget {
           type: MaterialType.transparency,
           child: InkWell(
             borderRadius: radius,
-            onTap: () => showAudioInfoSheet(
-              context,
-              metadata: metadata,
-              linkSources: ProviderScope.containerOf(
-                context,
-                listen: false,
-              ).read(linkSourceNamesProvider),
-            ),
+            onTap: () => showAudioInfoSheet(context, metadata: metadata),
             child: badge,
           ),
         ),

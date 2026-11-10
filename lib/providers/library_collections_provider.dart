@@ -681,7 +681,7 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
   });
 
   /// Built-in collections use descending added-at order. Keep the same
-  /// ordering contract in storage, backups and Link, with new likes first.
+  /// ordering contract in storage and backups, with new likes first.
   Future<bool> reorderSavedTracks(
     LibraryTracksFolderMode mode,
     List<String> orderedKeys,
@@ -862,7 +862,7 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     _invalidatePlaylistPickerSummaries();
   });
 
-  /// Reloads every collection after another writer (Mornye Link sync)
+  /// Reloads every collection after another writer
   /// changed the database. Queued behind pending mutations.
   Future<void> reloadFromDatabase() => _mutate(() async {
     await _load();

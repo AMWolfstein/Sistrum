@@ -444,7 +444,7 @@ void main() {
       read: () async => null,
       write: (_) async {},
     );
-    // A phone's songs after Link stopped belong to no host.
+    // Songs of a host that is no longer known belong to no host.
     expect(await service.reachable('network://phone/song.flac'), isFalse);
     final sources = _VirtualSources();
     service.virtualSources = sources;

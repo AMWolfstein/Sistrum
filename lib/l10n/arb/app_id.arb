@@ -1,41 +1,18 @@
 {
   "libraryLyricsSearchDescription": "Cari lirik yang tersimpan di lagu. Pencarian pertama bisa memerlukan waktu; ganti filter untuk menghentikannya.",
   "libraryLyricsIndexing": "Menyiapkan pencarian lirik: {count} lagu diperiksa",
-  "@libraryLyricsIndexing": {"placeholders": {"count": {"type": "int"}}},
+  "@libraryLyricsIndexing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "libraryLyricsSearchIncomplete": "Beberapa lagu tidak dapat dibaca. Hasil mungkin belum lengkap.",
   "libraryLyricsRefresh": "Perbarui pencarian lirik",
   "networkErrorListing": "Server merespons, tetapi daftar foldernya tidak dapat dibaca. Untuk WebDAV, gunakan endpoint WebDAV. Untuk HTTP, gunakan daftar direktori atau URL audio langsung.",
   "networkErrorStorage": "Server berhasil diakses, tetapi perangkat ini tidak dapat menyimpan koneksi. Periksa log aplikasi lalu coba lagi.",
-  "extensionsUnsecuredStorage": "Gunakan penyimpanan extension tanpa keyring",
-  "extensionsUnsecuredStorageDescription": "Jalankan extension tanpa keyring Linux. Kunci disimpan secara lokal, sehingga siapa pun yang dapat mengakses file aplikasi bisa membaca kredensial extension. Nonaktifkan untuk memakai keyring sistem.",
-  "extensionsStorageKeyringRequired": "Data extension yang ada memerlukan kunci aslinya. Buka keyring sistem sekali, lalu aktifkan lagi penyimpanan tanpa keyring. Data kamu tetap tersimpan.",
-  "extensionsStorageKeyConflict": "Kunci lokal dan keyring sistem berbeda. Penyimpanan tidak diubah dan kedua kunci tetap tersimpan.",
-  "extensionsStorageKeyringUnavailable": "Keyring sistem tidak tersedia atau terkunci. Jalankan atau buka keyring sebelum beralih ke penyimpanan aman. Kunci lokal kamu tetap tersimpan.",
-  "linkFileActionOn": "{action} di {name}",
-  "linkFileActionsDescription": "Perubahan diterapkan pada file musik di {name}. Pekerjaan yang diterima tetap berjalan jika HP ini terputus.",
-  "linkFileDeleteConfirm": "Hapus {count} file musik dari {name}? File akan dihapus dari penyimpanan komputer tersebut.",
-  "linkFileJobs": "Perubahan file",
-  "linkFileJobsSubtitle": "Edit, konversi, dan penghapusan di {name}",
-  "linkFileJobsEmpty": "Belum ada perubahan file",
-  "linkFileJobsEmptyMessage": "Edit, konversi, dan penghapusan lagu di komputer yang kamu mulai dari HP ini akan muncul di sini.",
-  "linkDesktopFileJobsSubtitle": "Perubahan yang diminta dari HP kamu",
-  "linkDesktopFileJobsEmptyMessage": "Edit, konversi, dan penghapusan yang diminta dari HP kamu akan muncul di sini.",
-  "linkFileJobRequestedBy": "Dari {name}",
-  "linkFileJobsView": "Lihat",
-  "linkFileJobProgress": "{finished} dari {total} lagu",
-  "linkFileJobFailedCount": "{count} gagal",
-  "linkFileJobFinished": "{action} selesai di {name}",
-  "linkFileDeleting": "Menghapus...",
   "linkFileReading": "Membaca tag...",
-  "linkFileSavingCover": "Menyimpan cover art...",
-  "linkFileJobsUnsupported": "Perbarui Mornye di komputer agar file musiknya bisa dikelola dari HP ini.",
-  "linkFileSelectionOneDevice": "Pilih lagu dari satu komputer yang terhubung (maksimal 100 lagu).",
-  "linkFileCancelHint": "Hentikan setelah lagu yang sedang diproses",
-  "linkFileJobCancelled": "Dihentikan",
-  "linkFileJobQueued": "Dalam antrean",
-  "linkFileJobCompleted": "Selesai",
-  "linkFileChanged": "File berubah sejak pratinjau dibuat. Buat pratinjau lagi sebelum menyimpan.",
-  "linkFileOperationFailed": "Operasi tidak berhasil diselesaikan. Periksa log di komputer untuk detailnya.",
   "trackBpm": "BPM",
   "trackMood": "Mood",
   "subsonicAddToLibrary": "Tambahkan server ke Koleksi",
@@ -228,20 +205,6 @@
   "dapExclusive": "Hi-Res DAP (eksklusif AAudio)",
   "dapExclusiveDescription": "Gunakan Oboe/AAudio pada sample rate dan presisi asli FLAC/WAV PCM. Butuh Android 8.1+ dan hardware didukung. Akses eksklusif diperiksa; format tak didukung akan gunakan pemutaran normal. DSD butuh driver Direct USB. Berlaku di lagu selanjutnya.",
   "dapExclusiveUnavailable": "Akses eksklusif AAudio tidak tersedia di lagu dan output ini. Lagu akan diputar normal. Jika pakai DAC USB, coba pakai driver Direct USB.",
-  "exclusiveOutputWindows": "Mode eksklusif WASAPI",
-  "exclusiveOutputMacos": "Akses eksklusif (hog mode)",
-  "exclusiveOutputLinux": "Output ALSA langsung",
-  "exclusiveOutputDescriptionWindows": "Lewati mixer Windows agar output mengikuti sample rate dan bit depth tiap lagu. Aplikasi lain tidak bisa memutar suara selama Mornye memegang perangkat. AutoMix dan preview mati di mode ini. Untuk output bit-perfect, biarkan volume di 100% dengan equalizer dan normalisasi mati.",
-  "exclusiveOutputDescriptionMacos": "Pegang perangkat output khusus untuk Mornye dan ubah ke sample rate dan bit depth tiap lagu, agar Core Audio tidak melakukan resampling. Aplikasi lain tidak bisa memutar suara selama Mornye memegang perangkat. AutoMix dan preview mati di mode ini. Untuk output bit-perfect, biarkan volume di 100% dengan equalizer dan normalisasi mati.",
-  "exclusiveOutputDescriptionLinux": "Putar langsung ke perangkat hardware ALSA, melewati PipeWire atau PulseAudio, agar output mengikuti sample rate dan bit depth tiap lagu. Perangkat harus bebas: sound server melepas kartu yang menganggur setelah beberapa detik, atau ubah profilnya ke Off. AutoMix dan preview mati di mode ini.",
-  "exclusiveOutputPending": "Perangkat diambil saat lagu diputar.",
-  "exclusiveOutputActive": "Diputar dalam mode eksklusif.",
-  "exclusiveOutputUnavailableWindows": "Perangkat menolak akses eksklusif, jadi lagu ini diputar lewat mixer Windows. Tutup aplikasi lain yang memakai perangkat, atau izinkan kontrol eksklusif di properti suara perangkat di Windows.",
-  "exclusiveOutputUnavailableMacos": "Aplikasi lain sedang memegang perangkat output, jadi lagu ini diputar lewat mixer sistem.",
-  "exclusiveOutputUnavailableLinux": "Perangkat ALSA sedang dipakai, biasanya oleh sound server, jadi lagu ini diputar lewat sound server. Ubah profil kartu ke Off di pengaturan suara, atau pilih perangkat lain.",
-  "exclusiveOutputDevice": "Perangkat output",
-  "exclusiveOutputDeviceFirst": "Kartu suara pertama",
-  "exclusiveOutputNoDevices": "Tidak ada perangkat playback ALSA",
   "usbDirect": "Driver Direct USB",
   "usbDirectDescription": "Gunakan audio USB eksklusif pada FLAC/WAV, DSF/DFF, dan WavPack DSD dengan izin USB Android. DSD Native butuh DAC yang didukung dan dikenali. Format PCM lain akan diputar normal. Berlaku di lagu selanjutnya.",
   "usbDsdOverPcm": "DSD melalui PCM (DoP)",
@@ -314,18 +277,6 @@
   "homeRecent": "Terbaru",
   "@homeRecent": {
     "description": "Section header for recent searches"
-  },
-  "searchRecentlySearched": "Baru Ditelusuri",
-  "@searchRecentlySearched": {
-    "description": "Section header for recent searches on the desktop Search page"
-  },
-  "searchLibraryPrompt": "Telusuri Koleksimu",
-  "@searchLibraryPrompt": {
-    "description": "Shown on the desktop Search page when the Library scope has no search words yet"
-  },
-  "searchBrowse": "Jelajahi",
-  "@searchBrowse": {
-    "description": "Section header for home feed tiles on the desktop Search page"
   },
   "historyFilterAll": "Semua",
   "@historyFilterAll": {
@@ -747,57 +698,30 @@
     "description": "Section for special thanks"
   },
   "aboutLinks": "Link",
-  "@aboutLinks": {
-    "description": "Section for external links"
-  },
   "aboutMobileSource": "Source code",
-  "@aboutMobileSource": {
-    "description": "Link to mobile GitHub repo"
-  },
   "aboutLyricsWebsite": "Website lirik",
-  "@aboutLyricsWebsite": {
-    "description": "Link to the Zarz-LRC website for searching and saving word-timed lyrics"
-  },
   "aboutServiceStatus": "Status layanan",
-  "@aboutServiceStatus": {
-    "description": "Link to the status page of the Mornye online services"
-  },
   "aboutReportIssue": "Laporkan masalah",
-  "@aboutReportIssue": {
-    "description": "Link to report bugs"
-  },
   "aboutReportIssueSubtitle": "Laporkan masalah yang kamu temui",
   "@aboutReportIssueSubtitle": {
     "description": "Subtitle for report issue"
   },
   "aboutFeatureRequest": "Minta fitur baru",
-  "@aboutFeatureRequest": {
-    "description": "Link to suggest features"
-  },
   "aboutFeatureRequestSubtitle": "Sarankan fitur baru untuk aplikasi",
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
   "aboutTelegramChannel": "Channel Telegram",
-  "@aboutTelegramChannel": {
-    "description": "Link to Telegram channel"
-  },
   "aboutTelegramChannelSubtitle": "Pengumuman dan update",
   "@aboutTelegramChannelSubtitle": {
     "description": "Subtitle for Telegram channel"
   },
   "aboutTelegramChat": "Komunitas Telegram",
-  "@aboutTelegramChat": {
-    "description": "Link to Telegram chat group"
-  },
   "aboutTelegramChatSubtitle": "Chat dengan pengguna lain",
   "@aboutTelegramChatSubtitle": {
     "description": "Subtitle for Telegram chat"
   },
   "aboutSocial": "Media Sosial",
-  "@aboutSocial": {
-    "description": "Section for social links"
-  },
   "aboutApp": "Aplikasi",
   "@aboutApp": {
     "description": "Section for app info"
@@ -931,34 +855,6 @@
   "@setupDownloadLocationTitle": {
     "description": "Download location dialog title"
   },
-  "setupDownloadLocationIosMessage": "Di iOS, download disimpan ke folder Documents. Kamu dapat mengaksesnya melalui aplikasi Files.",
-  "@setupDownloadLocationIosMessage": {
-    "description": "iOS-specific folder info"
-  },
-  "setupAppDocumentsFolder": "Folder Documents Aplikasi",
-  "@setupAppDocumentsFolder": {
-    "description": "iOS documents folder option"
-  },
-  "setupAppDocumentsFolderSubtitle": "Disarankan - dapat diakses via aplikasi Files",
-  "@setupAppDocumentsFolderSubtitle": {
-    "description": "Subtitle for documents folder"
-  },
-  "setupChooseFromFiles": "Pilih dari Files",
-  "@setupChooseFromFiles": {
-    "description": "iOS file picker option"
-  },
-  "setupChooseFromFilesSubtitle": "Pilih lokasi iCloud atau lainnya",
-  "@setupChooseFromFilesSubtitle": {
-    "description": "Subtitle for file picker"
-  },
-  "setupIosEmptyFolderWarning": "Batasan iOS: Folder kosong tidak dapat dipilih. Pilih folder dengan minimal satu file.",
-  "@setupIosEmptyFolderWarning": {
-    "description": "iOS folder selection warning"
-  },
-  "setupIcloudNotSupported": "iCloud Drive tidak didukung. Silakan gunakan folder Dokumen di aplikasi.",
-  "@setupIcloudNotSupported": {
-    "description": "Error when user selects iCloud Drive on iOS"
-  },
   "setupDownloadInFlac": "Download musik dengan kualitas loseless dan Hi-Res",
   "@setupDownloadInFlac": {
     "description": "App tagline in setup"
@@ -1008,20 +904,18 @@
     "description": "Skip button text"
   },
   "setupNearbyEnable": "Izinkan Perangkat di Sekitar",
-  "setupNearbyDescription": "Mornye Link memakainya untuk menemukan komputermu di jaringan yang sama, dan penyimpanan jaringan memerlukannya untuk menjangkau server di rumah.",
+  "setupNearbyDescription": "Penyimpanan jaringan memerlukannya untuk menjangkau server di rumah.",
   "setupNearbyGranted": "Perangkat di Sekitar Diizinkan!",
   "permissionNearbyDevices": "Perangkat di sekitar",
-  "whatsNewLinkNearbyAllow": "Izinkan perangkat di sekitar",
-  "whatsNewLinkNearbyGranted": "Perangkat di sekitar diizinkan",
+  "whatsNewNearbyAllow": "Izinkan perangkat di sekitar",
+  "whatsNewNearbyGranted": "Perangkat di sekitar diizinkan",
   "whatsNewNearbyTitle": "Perangkat di sekitar",
   "whatsNewNearbyDesc": "Android kini meminta izin sebelum aplikasi bisa menjangkau perangkat lain di jaringanmu. Mornye memerlukannya untuk:",
-  "whatsNewNearbyLinkTitle": "Menemukan komputermu",
-  "whatsNewNearbyLinkBody": "Mornye Link mencari komputermu di Wi-Fi yang sama dan tetap terhubung dengannya.",
   "whatsNewNearbyStorageTitle": "Penyimpanan jaringan",
   "whatsNewNearbyStorageBody": "Putar musik dari NAS atau server di rumah lewat SMB atau WebDAV.",
   "whatsNewNearbyPrivateTitle": "Hanya perangkatmu sendiri",
   "whatsNewNearbyPrivateBody": "Mornye memakainya hanya untuk menjangkau perangkat di jaringanmu, tidak pernah untuk mengetahui lokasimu.",
-  "whatsNewNearbyRefused": "Tidak diizinkan. Mornye Link dan penyimpanan jaringan tidak aktif sampai kamu mengizinkan Perangkat di sekitar untuk Mornye di pengaturan Android.",
+  "whatsNewNearbyRefused": "Tidak diizinkan. penyimpanan jaringan tidak aktif sampai kamu mengizinkan Perangkat di sekitar untuk Mornye di pengaturan Android.",
   "setupNext": "Lanjut",
   "@setupNext": {
     "description": "Next button text"
@@ -1199,9 +1093,6 @@
     "description": "Track option and sheet title listing streaming platforms where the track can be opened"
   },
   "trackOpenOnNoLinks": "Tidak menemukan link platform untuk lagu ini.",
-  "@trackOpenOnNoLinks": {
-    "description": "Shown in the Open on sheet when song.link returns no links"
-  },
   "libraryReviewDuplicates": "Tinjau duplikat",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1665,26 +1556,6 @@
   "updateViewRelease": "Lihat Rilisan",
   "@updateViewRelease": {
     "description": "Update button - open the release page when this install cannot update itself (deb, Flatpak, no matching package)"
-  },
-  "updateStartingInstaller": "Memulai instaler...",
-  "@updateStartingInstaller": {
-    "description": "Update status on Windows - the downloaded installer is starting and the app will close"
-  },
-  "updateMacInstallHint": "Image disk terbuka di Finder. Keluar dari Mornye, lalu tarik Mornye dari image disk ke Aplikasi dan ganti versi lamanya.",
-  "@updateMacInstallHint": {
-    "description": "Update instructions on macOS after the downloaded disk image opens"
-  },
-  "updateQuitApp": "Keluar Mornye",
-  "@updateQuitApp": {
-    "description": "Update button on macOS - quit the app so the new version can replace it"
-  },
-  "updateReadyToRestart": "Update diinstal. Restart Mornye untuk menggunakannya.",
-  "@updateReadyToRestart": {
-    "description": "Update status on Linux after the AppImage was replaced"
-  },
-  "updateRestartNow": "Restart Sekarang",
-  "@updateRestartNow": {
-    "description": "Update button on Linux - restart the app after the AppImage was replaced"
   },
   "providerPriorityTitle": "Prioritas Provider",
   "@providerPriorityTitle": {
@@ -2461,10 +2332,6 @@
   "downloadAutoConvertFormat": "Format output",
   "@downloadAutoConvertFormat": {
     "description": "Automatic conversion output format setting"
-  },
-  "downloadAutoConvertFormatSubtitle": "Pilih format lossy yang digunakan untuk download selanjutnya.",
-  "@downloadAutoConvertFormatSubtitle": {
-    "description": "Automatic conversion format picker explanation"
   },
   "downloadAutoConvertBitrate": "Kualitas output",
   "@downloadAutoConvertBitrate": {
@@ -3396,14 +3263,6 @@
   },
   "whatsNewIntroTitle": "Mornye {version} sudah hadir",
   "whatsNewIntroDesc": "Pembaruan terbesar kami sejauh ini. Ini sekilas yang baru.",
-  "whatsNewLinkTitle": "Mornye Link",
-  "whatsNewLinkDesc": "Hubungkan HP dan komputer di jaringan yang sama. Mornye Link masih beta.",
-  "whatsNewLinkPlayTitle": "Putar di semua perangkat",
-  "whatsNewLinkPlayBody": "Jelajahi koleksi komputer dari HP, kendalikan yang diputarnya, dan pindahkan pemutaran tanpa kehilangan posisi.",
-  "whatsNewLinkTransferTitle": "Pindahkan lagu dua arah",
-  "whatsNewLinkTransferBody": "Kirim lagu ke komputer atau simpan ke HP, langsung dari menu lagu.",
-  "whatsNewLinkSyncTitle": "Tetap sinkron",
-  "whatsNewLinkSyncBody": "Koleksi dan riwayat dengar tetap sama di perangkat yang terhubung.",
   "whatsNewHomeTitle": "Beranda yang belajar",
   "whatsNewHomeDesc": "Mix dan autoplay kini mengikuti caramu mendengarkan.",
   "whatsNewHomeMixesTitle": "Mix dari Koleksi",
@@ -3422,8 +3281,6 @@
   "whatsNewPlayerTimingBody": "Majukan atau mundurkan lirik sinkron saat tidak pas dengan lagu.",
   "whatsNewPlayerAutoTitle": "Android Auto",
   "whatsNewPlayerAutoBody": "Jelajahi dan putar Koleksi dari layar mobil.",
-  "whatsNewPlayerExclusiveTitle": "Output eksklusif",
-  "whatsNewPlayerExclusiveBody": "Kirim audio langsung ke perangkat output tanpa mixer sistem.",
   "whatsNewLibraryTitle": "Koleksi dan pencarian",
   "whatsNewLibraryDesc": "Cara baru untuk menemukan dan mengatur musikmu.",
   "whatsNewLibraryFoldersTitle": "Jelajahi per folder",
@@ -4763,9 +4620,6 @@
     "description": "Error shown on downloads that failed because the persisted Android SAF folder grant is no longer valid"
   },
   "downloadErrorFolderAccessLost": "Akses folder download hilang, mohon pilih folder download baru di Setelan.",
-  "@downloadErrorFolderAccessLost": {
-    "description": "Error shown on downloads that failed because the iOS download folder bookmark could not be opened"
-  },
   "downloadFilenameDescription": "Gunakan {artist}, {title}, {album}, {track}, {year}, {date}, {disc} untuk sementara.",
   "@downloadFilenameDescription": {
     "description": "Description shown in filename format editor"
@@ -6530,9 +6384,6 @@
     }
   },
   "extensionOauthConnectHint": "Ketuk Hubungkan ke Spotify untuk isi kolom.",
-  "@extensionOauthConnectHint": {
-    "description": "Hint for an OAuth login link field before connecting Spotify"
-  },
   "extensionLastChecked": "Terakhir diperiksa {time}",
   "@extensionLastChecked": {
     "description": "Timestamp for the latest extension service health check",
@@ -6660,10 +6511,6 @@
   "@permissionNotification": {
     "description": "Notification permission type label"
   },
-  "errorInvalidFolderSelected": "Folder tidak valid",
-  "@errorInvalidFolderSelected": {
-    "description": "Error when the selected folder is invalid"
-  },
   "storeAnyVersion": "Mana saja",
   "@storeAnyVersion": {
     "description": "Store detail value when any app version is accepted"
@@ -6730,20 +6577,13 @@
     "description": "Title and tooltip for finding the current collection in other services"
   },
   "shareSheetNoExtensions": "Tidak ada layanan yang kompatibel",
-  "@shareSheetNoExtensions": {
-    "description": "Empty state when no extensions can be searched for cross-service links"
-  },
   "shareSheetNotFound": "Tidak ditemukan",
   "@shareSheetNotFound": {
     "description": "Cross-service share sheet row subtitle when a service has no match"
   },
   "shareSheetCopyLink": "Salin Link",
-  "@shareSheetCopyLink": {
-    "description": "Tooltip for copying a cross-service link"
-  },
   "shareSheetLinkCopied": "{service} link tersalin",
   "@shareSheetLinkCopied": {
-    "description": "Snackbar after copying a cross-service link",
     "placeholders": {
       "service": {}
     }
@@ -6931,46 +6771,8 @@
   "@nowPlayingNoMetadata": {
     "description": "Empty state when track metadata cannot be loaded"
   },
-  "linkDevicesTitle": "Perangkat",
-  "linkConnectionConnected": "Terhubung",
-  "linkConnectionConnecting": "Menghubungkan",
-  "linkConnectionDisconnected": "Tidak terhubung",
-  "linkThisPhone": "Ponsel ini",
-  "linkPlayingOn": "Diputar di {name}",
-  "linkDesktopDownloads": "Download di {name}",
-  "linkHandoffStarted": "Diputar di {name}",
-  "linkHandoffSending": "Mengirim lagu ini ke {name}...",
-  "linkHandoffMissing": "Diputar di {name}. Tidak ditemukan di sana: {titles}",
-  "linkHandoffNotFound": "{name} tidak punya satu pun lagu ini",
-  "linkHandoffNothingPlaying": "Tidak ada yang diputar di ponsel ini",
-  "linkContinueSkipped": "Tidak ada di ponsel ini: {titles}",
-  "linkContinueNotFound": "Tidak ada satu pun lagu ini di ponsel ini",
-  "linkRequestFailed": "Tidak dapat menghubungi {name}",
-  "linkDownloadOnDesktop": "Download di {name}",
-  "linkDownloadQueuedOnDesktop": "{count, plural, other{{count} lagu masuk antrean di {name}}}",
-  "linkOpenOnDesktop": "Buka di {name}",
-  "linkOpenedOnDesktop": "Dibuka di {name}",
-  "linkSendToDesktop": "Kirim ke {name}",
-  "linkSaveToPhone": "Simpan ke ponsel ini",
-  "linkSavingToPhone": "Menyimpan ke ponsel ini",
-  "linkSavedToPhone": "{count, plural, other{{count} lagu disimpan ke ponsel ini}}",
-  "linkSaveToPhoneFailed": "{count, plural, other{{count} lagu tidak dapat disimpan}}",
   "linkSaveToPhoneCancelled": "Penyimpanan dihentikan",
-  "linkTransferPhoneReceiving": "{count, plural, =1{Menyimpan {title} dari {name}} other{Menyimpan {count} lagu dari {name}}}",
-  "linkTransferPhoneOffered": "{count, plural, =1{{name} mengirim {title} ke ponsel ini} other{{name} mengirim {count} lagu ke ponsel ini}}",
-  "linkTransferPhoneView": "Lihat",
-  "linkTransferPhoneWith": "Transfer dengan {name}",
-  "linkTransferPhoneNothing": "Tidak ada lagu ini di {name}",
-  "linkSendSending": "{count, plural, =1{Mengirim {title} ke {name}} other{Mengirim {count} lagu ke {name}}}",
-  "linkSendNothing": "Tidak ada lagu yang bisa dikirim ke {name}",
-  "linkDownloadStatusQueued": "Menunggu",
-  "linkDownloadStatusDownloading": "Mendownload",
-  "linkDownloadStatusDone": "Selesai",
-  "linkDownloadStatusFailed": "Gagal",
   "announcementUnableToOpenLink": "Tidak dapat membuka link. Coba lagi.",
-  "@announcementUnableToOpenLink": {
-    "description": "Snackbar shown when an announcement CTA link cannot be opened"
-  },
   "trackConvertLosslessOutputWithCap": "Output loseless dengan batas {quality}",
   "@trackConvertLosslessOutputWithCap": {
     "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
@@ -7425,10 +7227,6 @@
   "@autoHideLyricsControlsDescription": {
     "description": "Subtitle explaining the five-second Now Playing lyrics timeout"
   },
-  "playerCoverStyleDefault": "Default",
-  "@playerCoverStyleDefault": {
-    "description": "Cover art style: artwork card above the controls"
-  },
   "playerCoverStyleCard": "Kartu",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7461,8 +7259,6 @@
   "@musicHapticsStrength": {
     "description": "Slider for how strongly the phone vibrates with music haptics"
   },
-  "autoMixOn": "AutoMix hidup",
-  "autoMixOff": "AutoMix mati",
   "autoplayOn": "Autoplay hidup",
   "autoplayOff": "Autoplay mati",
   "autoplayFromLibrary": "Autoplay dari Koleksi Anda",
@@ -7525,9 +7321,6 @@
     "description": "Rotating Home prompt under the greeting"
   },
   "homeTaglineLink": "Punya link? Tempel saja di pencarian",
-  "@homeTaglineLink": {
-    "description": "Rotating Home prompt explaining that links can be pasted into search"
-  },
   "homeTaglineDiscover": "Temukan album favoritmu berikutnya",
   "@homeTaglineDiscover": {
     "description": "Rotating Home prompt under the greeting"
@@ -7545,9 +7338,6 @@
     "description": "Home section header for the most played tracks of the last four weeks"
   },
   "homeShortcuts": "Pintasan",
-  "@homeShortcuts": {
-    "description": "Home section header for quick links to player tools"
-  },
   "artistUpcomingConcerts": "Konser Mendatang",
   "artistAllUpcomingConcerts": "Semua Konser Mendatang",
   "artistNoUpcomingConcerts": "Tiada konser mendatang.",
@@ -7813,18 +7603,6 @@
   "motionArtworkDescription": "Putar berulang cover video dari penyedia metadata. Matikan untuk memakai cover diam dan menghemat baterai.",
   "libraryLoading": "Memuat Library…",
   "libraryLoadFailed": "Library tidak dapat dimuat. Coba lagi untuk memuat folder tersimpan dan indeks lagu.",
-  "discordPresenceDescription": "Tampilkan judul, artis, album, dan progres musik dari pemutar bawaan di profil Discord Anda. File audio dan cover lokal tidak diunggah. Status dihapus saat musik dijeda atau dihentikan.",
-  "discordPresenceDisabled": "Nonaktif",
-  "discordPresenceLink": "Hubungkan akun Discord",
-  "discordPresenceConnecting": "Menghubungkan ke Discord…",
-  "discordPresenceReady": "Siap saat musik diputar",
-  "discordPresenceActive": "Menampilkan lagu saat ini",
-  "discordPresenceUnavailable": "Discord tidak tersedia. Mencoba lagi saat musik diputar.",
-  "discordPresenceBuildUnavailable": "SDK Discord tidak tersedia di build ini.",
-  "discordPresenceAndroidHelp": "Pasang Discord dan masuk di ponsel ini. Izinkan berbagi aktivitas di Discord. Pemutar eksternal tidak didukung.",
-  "discordPresenceIosHelp": "Hubungkan akun melalui Discord dan izinkan berbagi aktivitas. Ketuk untuk menghubungkan ulang jika otorisasi gagal.",
-  "discordPresenceDesktopHelp": "Biarkan aplikasi desktop Discord berjalan dan masuk di komputer ini, lalu izinkan berbagi aktivitas di Discord.",
-  "discordPresenceDisconnect": "Putuskan dan lupakan akun",
   "autoMixSettingsTitle": "Transisi mix",
   "autoMixAutomaticDuration": "Durasi otomatis",
   "autoMixDuration": "Durasi mix",
@@ -8075,149 +7853,13 @@
   "@optionsEmbeddedCoverSizeOriginal": {
     "description": "Option that preserves the provider artwork at its original resolution"
   },
-  "desktopShortcutTooltip": "{action} ({shortcut})",
-  "@desktopShortcutTooltip": {
-    "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
-    "placeholders": {
-      "action": {
-        "type": "String"
-      },
-      "shortcut": {
-        "type": "String"
-      }
-    }
-  },
-  "desktopPlayerIdle": "Tidak ada yang diputar",
-  "@desktopPlayerIdle": {
-    "description": "Desktop player bar text when no track is loaded"
-  },
-  "desktopVolumeUp": "Naikkan volume",
-  "desktopVolumeDown": "Turunkan volume",
-  "desktopTableSortedAscending": "{column}, urut naik",
-  "@desktopTableSortedAscending": {
-    "description": "Screen reader label of a song table column header that sorts the table A to Z",
-    "placeholders": {
-      "column": {
-        "type": "String"
-      }
-    }
-  },
-  "desktopTableSortedDescending": "{column}, urut turun",
-  "@desktopTableSortedDescending": {
-    "description": "Screen reader label of a song table column header that sorts the table Z to A",
-    "placeholders": {
-      "column": {
-        "type": "String"
-      }
-    }
-  },
-  "desktopMenuOpen": "Buka",
-  "@desktopMenuOpen": {
+  "menuOpen": "Buka",
+  "@menuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
   },
-  "desktopMenuShowDetails": "Lihat detail",
-  "@desktopMenuShowDetails": {
+  "menuShowDetails": "Lihat detail",
+  "@menuShowDetails": {
     "description": "Context menu item that opens a track's metadata page"
-  },
-  "desktopDropToImport": "Lepaskan untuk menambahkan ke perpustakaan",
-  "@desktopDropToImport": {
-    "description": "Overlay shown while music files or folders are dragged over the desktop window"
-  },
-  "desktopDropImported": "Menambahkan {count} {count, plural, =1{folder} other{folder}} ke koleksi Anda",
-  "@desktopDropImported": {
-    "description": "Snackbar after dropping music onto the desktop window; the folders are scanned into the library",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "desktopDropNothingToImport": "Lepaskan berkas atau folder musik untuk menambahkannya ke perpustakaan",
-  "@desktopDropNothingToImport": {
-    "description": "Snackbar when the dropped items contain no folders or audio files"
-  },
-  "desktopAllPlaylists": "Semua Playlist",
-  "@desktopAllPlaylists": {
-    "description": "Desktop sidebar row that opens the list of every playlist"
-  },
-  "desktopMenuSettings": "Pengaturan…",
-  "@desktopMenuSettings": {
-    "description": "macOS app menu item that opens Settings"
-  },
-  "desktopMenuFile": "Berkas",
-  "desktopMenuEdit": "Edit",
-  "desktopMenuView": "Tampilan",
-  "desktopWindowMode": "Mode jendela",
-  "desktopWindowed": "Berjendela",
-  "desktopWindowFullscreen": "Layar penuh",
-  "desktopWindowBorderless": "Tanpa bingkai",
-  "desktopExitFullscreen": "Keluar layar penuh",
-  "desktopMinimizeWindow": "Minimalkan jendela",
-  "desktopZoomWindow": "Maksimalkan atau pulihkan jendela",
-  "desktopWindowModeUnavailable": "Mode jendela tidak dapat diubah. Coba lagi setelah perpindahan jendela selesai.",
-  "desktopMenuControls": "Kontrol",
-  "desktopMenuWindow": "Jendela",
-  "desktopMenuHelp": "Bantuan",
-  "desktopMenuPlayPause": "Putar/Jeda",
-  "desktopMenuMiniPlayer": "Mini Player",
-  "@desktopMenuMiniPlayer": {
-    "description": "Window menu item, player bar button and Keyboard Shortcuts row that shrink the window into a small player floating above other windows"
-  },
-  "desktopMiniPlayerExpand": "Tampilan Jendela Penuh",
-  "@desktopMiniPlayerExpand": {
-    "description": "Mini player button that returns the window to its full size"
-  },
-  "desktopMenuRefresh": "Refresh",
-  "@desktopMenuRefresh": {
-    "description": "View menu item and Keyboard Shortcuts row that reloads the page on screen (Home, Repo, statistics)"
-  },
-  "desktopMenuProjectPage": "Halaman proyek",
-  "@desktopMenuProjectPage": {
-    "description": "Help menu item that opens the app's source repository"
-  },
-  "desktopDownloadsShowAll": "Tampilkan semua",
-  "@desktopDownloadsShowAll": {
-    "description": "Button in the desktop downloads popover that opens the full download queue"
-  },
-  "desktopDownloadsQueued": "Menunggu",
-  "@desktopDownloadsQueued": {
-    "description": "Status of a download in the desktop downloads popover that has not started yet"
-  },
-  "desktopDownloadsCancel": "Batalkan download",
-  "@desktopDownloadsCancel": {
-    "description": "Tooltip of the button that cancels one download in the desktop downloads popover"
-  },
-  "desktopScrollBack": "Gulir ke belakang",
-  "@desktopScrollBack": {
-    "description": "Tooltip of the desktop button that scrolls a horizontal shelf of albums or artists back"
-  },
-  "desktopScrollForward": "Gulir ke depan",
-  "@desktopScrollForward": {
-    "description": "Tooltip of the desktop button that scrolls a horizontal shelf of albums or artists forward"
-  },
-  "settingsKeyboardShortcuts": "Pintasan Keyboard",
-  "@settingsKeyboardShortcuts": {
-    "description": "Desktop Settings page that lists the app's keyboard shortcuts"
-  },
-  "settingsKeyboardShortcutsSubtitle": "Tombol untuk pemutaran, navigasi dan panel",
-  "@settingsKeyboardShortcutsSubtitle": {
-    "description": "Subtitle of the Keyboard Shortcuts entry in desktop Settings"
-  },
-  "desktopShortcutsNavigation": "Navigasi",
-  "@desktopShortcutsNavigation": {
-    "description": "Keyboard Shortcuts section for moving between pages"
-  },
-  "desktopShortcutDismiss": "Tutup dialog atau halaman",
-  "@desktopShortcutDismiss": {
-    "description": "Keyboard Shortcuts row for Escape, which leaves a text field or closes the top dialog or page"
-  },
-  "desktopShortcutForward": "Maju",
-  "@desktopShortcutForward": {
-    "description": "Keyboard Shortcuts row and View menu item that returns to the destination left with Back"
-  },
-  "desktopShortcutToggleSidebar": "Tampilkan atau sembunyikan sidebar",
-  "@desktopShortcutToggleSidebar": {
-    "description": "Keyboard Shortcuts row for the shortcut that collapses or expands the desktop sidebar"
   },
   "libraryFolders": "Folder",
   "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folder}}",
@@ -8225,161 +7867,8 @@
   "libraryFoldersEmptyMessage": "Unduh lagu atau tambahkan folder musik di setelan Koleksi Lokal untuk menjelajahinya per folder.",
   "libraryFolderMissing": "Folder ini tidak ada lagi di Koleksi",
   "libraryFoldersLoadFailed": "Tidak dapat membaca folder",
-  "linkDesktopSettingsTitle": "Mornye di ponsel",
-  "linkDesktopSettingsSubtitle": "Putar Library dan kendalikan pemutaran dari ponsel",
-  "linkDesktopEnableTitle": "Bagikan ke Mornye di ponsel",
-  "linkDesktopEnableSubtitle": "Ponsel dapat menjelajah, memutar, dan download melalui komputer ini di jaringan lokal",
-  "linkDesktopStatusStarting": "Memulai",
-  "linkDesktopStatusRunning": "Aktif, {count, plural, =0{tidak ada ponsel terhubung} other{{count} ponsel terhubung}}",
-  "linkDesktopStatusFailed": "Tidak dapat dimulai: {error}",
-  "linkDesktopFirewallHint": "Komputer mungkin bertanya apakah Mornye boleh menerima koneksi jaringan masuk. Izinkan agar ponsel dapat terhubung.",
-  "linkDesktopSectionComputer": "Komputer ini",
-  "linkDesktopDeviceName": "Nama",
-  "linkDesktopDeviceNameHint": "Ponsel menampilkan nama ini saat menemukan komputer ini",
-  "linkDesktopAddress": "Alamat",
-  "linkDesktopSecurityCode": "Kode keamanan",
-  "linkDesktopSecurityCodeHint": "Ponsel menampilkan kode yang sama saat dipasangkan",
-  "linkDesktopCatalogSongs": "{count} lagu dibagikan",
-  "linkDesktopSectionPhones": "Ponsel",
-  "linkDesktopPairPhone": "Pasangkan ponsel",
-  "linkDesktopPairPhoneSubtitle": "Tampilkan kode untuk dimasukkan di ponsel",
-  "linkDesktopNoDevices": "Belum ada ponsel yang dipasangkan",
-  "linkDesktopDeviceConnected": "Terhubung",
-  "linkDesktopDeviceLastSeen": "Terakhir terlihat {date}",
-  "linkDesktopDeviceNeverSeen": "Belum pernah terhubung",
-  "linkDesktopSubsonicApp": "Aplikasi Subsonic",
-  "linkDesktopRevoke": "Hapus",
-  "linkDesktopRevokeTitle": "Hapus {name}?",
-  "linkDesktopRevokeMessage": "Perangkat ini harus dipasangkan lagi sebelum dapat terhubung ke komputer ini.",
-  "linkDesktopRevoked": "{name} dihapus",
-  "linkDesktopSectionOtherApps": "Aplikasi lain",
-  "linkDesktopAddSubsonicApp": "Tambah aplikasi Subsonic lain",
-  "linkDesktopAddSubsonicAppSubtitle": "Buat kunci untuk pemutar Subsonic di perangkat lain",
-  "linkDesktopAppName": "Nama aplikasi",
-  "linkDesktopCreateKey": "Buat kunci",
-  "linkDesktopAppKeyTitle": "Hubungkan {name}",
-  "linkDesktopAppKeyMessage": "Masukkan detail ini di aplikasi. Kunci hanya ditampilkan sekarang.",
-  "linkDesktopServerAddress": "Alamat server",
-  "linkDesktopUsername": "Nama pengguna",
-  "linkDesktopApiKey": "Kata sandi atau kunci API",
-  "linkDesktopCopy": "Salin {label}",
-  "linkDesktopPairInstructions": "Buka Mornye di ponsel, pilih komputer ini, lalu masukkan kode ini.",
-  "linkDesktopPairCheckCode": "Pastikan ponsel menampilkan kode keamanan {code}.",
-  "linkDesktopPairExpires": "Kode berakhir dalam {time}",
-  "linkDesktopPaired": "Terpasang dengan {name}",
-  "linkDesktopPairExpired": "Kode sudah berakhir. Pasangkan lagi untuk mendapatkan kode baru.",
-  "linkDesktopPairAttempts": "Terlalu banyak kode salah. Pasangkan lagi untuk mendapatkan kode baru.",
-  "linkDesktopPairFailed": "Tidak dapat memulai pemasangan",
-  "linkDesktopDevicesTitle": "Ponsel",
-  "linkDesktopPhoneNothingPlaying": "Tidak ada yang diputar",
-  "linkDesktopContinueOnPhone": "Lanjutkan di ponsel",
-  "linkDesktopOpenOnPhone": "Buka link di ponsel",
-  "linkDesktopOpenLinkTitle": "Buka link di {name}",
-  "linkDesktopOpenLinkLabel": "Link",
-  "linkDesktopOpen": "Buka",
-  "linkDesktopSentToPhone": "Terkirim ke {name}",
-  "linkDesktopNotDelivered": "Ponsel tidak menerimanya",
-  "linkDesktopNothingToContinue": "Tidak ada yang diputar di komputer ini",
-  "linkTransferDesktopSendTo": "Kirim ke {name}",
-  "linkTransferDesktopSaveHere": "Simpan ke komputer ini",
-  "linkTransferDesktopSendingSong": "Mengirim \"{title}\" ke {name}",
-  "linkTransferDesktopSendingSongs": "{count, plural, other{Mengirim {count} lagu ke {name}}}",
-  "linkTransferDesktopReceivingSong": "Menerima \"{title}\" dari {name}",
-  "linkTransferDesktopReceivingSongs": "{count, plural, other{Menerima {count} lagu dari {name}}}",
-  "linkTransferDesktopView": "Lihat",
-  "linkTransferDesktopNothingToSend": "Lagu-lagu ini tidak bisa dikirim sekarang",
-  "linkTransferDesktopNothingToSave": "Lagu-lagu ini tidak bisa disimpan sekarang",
-  "linkSettingsTitle": "Mornye di komputer Anda",
-  "linkSettingsSubtitle": "Putar dan kendalikan pustaka komputer Anda",
-  "linkPageTitle": "Komputer",
-  "linkPageDescription": "Pasangkan dengan Mornye di komputer Anda untuk memutar pustakanya di ponsel ini dan mengendalikan yang diputarnya. Kedua perangkat harus berada di jaringan yang sama.",
-  "linkPairedSection": "Komputer terpasang",
-  "linkPhoneSection": "Ponsel ini",
-  "linkShareSongsTitle": "Tampilkan lagu di komputer",
-  "linkShareSongsSubtitle": "Lagu di ponsel ini muncul di Library komputer dan bisa diputar di sana selama ponsel ini terhubung",
-  "linkFollowDesktopTitle": "Ikuti pemutaran komputer",
-  "linkFollowDesktopSubtitle": "Saat komputer mulai memutar, ponsel ini menampilkan dan mengendalikannya",
-  "linkNearbySection": "Di jaringan ini",
-  "linkSearching": "Mencari komputer...",
-  "linkNoneFoundTitle": "Tidak ada komputer ditemukan",
-  "linkNoneFound": "Buka Mornye di komputer Anda dan aktifkan Bagikan dengan Mornye di ponsel Anda di pengaturannya.",
-  "linkAddManually": "Tambah lewat alamat",
-  "linkManualHost": "Alamat komputer",
-  "linkManualPort": "Port",
-  "linkManualMessage": "Mornye di komputer Anda menampilkan alamat dan port di tempat Anda mengaktifkan berbagi.",
-  "linkContinue": "Lanjutkan",
-  "linkStateConnected": "Terhubung",
-  "linkStateConnecting": "Menghubungkan...",
-  "linkStateDisconnected": "Tidak terhubung",
-  "linkStateInactive": "Ketuk untuk memakai komputer ini",
-  "linkActive": "Dipakai",
-  "linkForget": "Lupakan",
-  "linkForgetTitle": "Lupakan {name}?",
-  "linkForgetMessage": "Ponsel ini berhenti terhubung ke komputer tersebut. Anda dapat memasangkannya lagi nanti.",
-  "linkForgetRemoveLibrary": "Hapus juga musiknya dari Pustaka",
-  "linkPinTitle": "Pasangkan dengan {name}",
-  "linkPinMessage": "Masukkan PIN 6 digit yang tampil di komputer Anda.",
-  "linkPinField": "PIN",
-  "linkPinCode": "Komputer Anda menampilkan kode {code} di samping PIN. Pasangkan hanya jika kodenya sama.",
-  "linkPinNotOpen": "Pemasangan belum dibuka. Mulai pemasangan di Mornye pada komputer Anda untuk menampilkan PIN.",
-  "linkPair": "Pasangkan",
-  "linkPaired": "Terpasang dengan {name}. Musiknya sedang ditambahkan ke Pustaka.",
-  "linkPairAgain": "Pasangkan lagi",
-  "linkTransfersTitle": "Transfer",
-  "linkTransfersInProgress": "Sedang berjalan",
-  "linkTransfersFinished": "Selesai",
-  "linkTransfersClearFinished": "Hapus yang selesai",
-  "linkTransfersEmptyTitle": "Belum ada transfer",
-  "linkTransfersEmptyMessage": "Kirim atau simpan lagu dari menu lagu, album, atau pilihan.",
-  "linkTransfersSending": "Mengirim {count, plural, other{{count} lagu}} ke {name}",
-  "linkTransfersReceiving": "Menerima {count, plural, other{{count} lagu}} dari {name}",
-  "linkTransfersSendingSong": "Mengirim {title} ke {name}",
-  "linkTransfersReceivingSong": "Menerima {title} dari {name}",
-  "linkTransfersSongsTo": "{count, plural, other{{count} lagu}} ke {name}",
-  "linkTransfersSongsFrom": "{count, plural, other{{count} lagu}} dari {name}",
-  "linkTransfersSongTo": "{title} ke {name}",
-  "linkTransfersSongFrom": "{title} dari {name}",
-  "linkTransfersPosition": "{position} dari {total}",
-  "linkTransfersPercent": "{percent}%",
-  "linkTransfersWaiting": "Menunggu",
-  "linkTransfersSavedCount": "{count, plural, other{{count} tersimpan}}",
-  "linkTransfersAlreadyThereCount": "{count, plural, other{{count} sudah ada}}",
-  "linkTransfersFailedCount": "{count, plural, other{{count} gagal}}",
-  "linkTransfersStopped": "{done, plural, =0{Dihentikan} other{Dihentikan setelah {done} dari {total}}}",
-  "linkTransfersReasonDisconnected": "Koneksi terputus",
-  "linkTransfersReasonNoFolder": "Pilih folder download dulu",
-  "linkTransfersReasonNoFolderPeer": "{name} belum punya folder download",
-  "linkTransfersReasonBusy": "Sedang sibuk, coba lagi nanti",
-  "linkTransfersReasonError": "Terjadi kesalahan",
-  "linkTransfersSongSaved": "Tersimpan",
-  "linkTransfersSongAlreadyThere": "Sudah ada",
-  "linkTransfersSongFailed": "Gagal",
-  "linkTransfersSongCopying": "Menyalin",
-  "linkTransfersSongNotCopied": "Tidak disalin",
-  "linkTransfersStop": "Hentikan transfer",
-  "linkTransfersActiveCount": "{count, plural, other{{count} transfer}}",
-  "linkTransfersFinishedCount": "{count, plural, other{{count} transfer selesai}}",
-  "linkErrorBadPin": "PIN tersebut salah. Periksa PIN di komputer Anda dan coba lagi.",
-  "linkErrorPairingClosed": "Pemasangan tidak dibuka di komputer Anda. Mulai pemasangan di sana, lalu coba lagi.",
-  "linkErrorTooManyAttempts": "Terlalu banyak percobaan. Tunggu sebentar, lalu coba lagi.",
-  "linkErrorCertificateTitle": "Komputer tidak terverifikasi",
-  "linkErrorCertificate": "Sertifikat keamanan komputer tidak cocok dengan yang dilaporkannya. Seseorang di jaringan ini mungkin menyadap koneksi, jadi pemasangan dihentikan.",
-  "linkErrorIncompatible": "Komputer ini menjalankan versi Mornye yang tidak dapat dipasangkan dengan ponsel ini. Perbarui Mornye di kedua perangkat.",
-  "linkErrorUnreachable": "Komputer tidak dapat dijangkau. Pastikan Mornye terbuka di komputer dan kedua perangkat berada di jaringan yang sama.",
-  "linkErrorTimeout": "Komputer tidak menjawab tepat waktu. Coba lagi.",
-  "linkErrorInvalidAddress": "Masukkan alamat dan port yang valid, misalnya 192.168.1.20 dan 47710.",
-  "linkErrorFailed": "Pemasangan gagal. Coba lagi.",
-  "linkLocalNetworkTitle": "Perlu akses jaringan lokal",
-  "linkLocalNetworkMessage": "Mornye memerlukan akses jaringan lokal untuk menemukan komputer Anda dan terhubung ke sana.",
-  "linkLocalNetworkAllow": "Izinkan akses",
-  "linkWifiOffTitle": "Tidak terhubung ke Wi-Fi",
-  "linkWifiOffMessage": "Hubungkan ponsel ini ke jaringan Wi-Fi yang sama dengan komputer Anda.",
-  "linkIssueUnauthorized": "{name} tidak lagi menerima ponsel ini. Pasangkan lagi untuk terhubung kembali.",
-  "linkIssueCertificate": "{name} menampilkan sertifikat keamanan yang berbeda. Pasangkan lagi hanya jika Anda memasang ulang atau mengatur ulang Mornye di komputer tersebut.",
-  "linkIssueIncompatible": "Perbarui Mornye di ponsel ini dan di {name} untuk terhubung.",
   "playlistEditOrder": "Ubah urutan",
   "playlistEditOrderDescription": "Seret lagu lewat pegangannya, atau sentuh lama, untuk memindahkannya.",
-  "playlistEditOrderSaved": "Urutan playlist disimpan",
   "collectionOrderSaved": "Urutan lagu disimpan",
   "collectionOrderChanged": "Koleksi ini berubah saat diedit. Silakan atur ulang urutannya.",
   "collectionOrderSaveFailed": "Urutan lagu tidak dapat disimpan. Coba lagi.",
@@ -8426,7 +7915,6 @@
   "lyricsAiModeSyncedDescription": "Menyelaraskan terjemahan dan romanisasi dengan kata serta frasa yang dinyanyikan. Lebih lama dan memerlukan lirik dengan timing kata.",
   "offlineSave": "Simpan offline",
   "offlineOnDevice": "Di perangkat ini",
-  "offlineOnIPhone": "Di iPhone",
   "offlineOnPhone": "Di ponsel",
   "offlineServerOnly": "Hanya server",
   "offlineServerAndDevice": "Server + perangkat",
@@ -8442,5 +7930,7 @@
   "offlineNoSongs": "Tidak ada lagu Library jaringan dalam pilihan ini.",
   "offlineCopyUnavailable": "Salinan offline tidak tersedia. Simpan kembali sebelum menghapus salinan server.",
   "offlinePlayingLocal": "Memutar dari perangkat ini",
-  "offlineStreaming": "Streaming dari {server}"
+  "offlineStreaming": "Streaming dari {server}",
+  "autoMixOn": "AutoMix hidup",
+  "autoMixOff": "AutoMix mati"
 }

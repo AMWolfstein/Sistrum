@@ -407,19 +407,12 @@ fn resolve_path(base: &str, reference: &str) -> String {
 }
 
 fn escape(value: &str, host: bool) -> String {
-    let mut result = String::with_capacity(value.len());
-    for byte in value.bytes() {
-        let allowed = byte.is_ascii_alphanumeric()
-            || b"-._~!$&'()*+,;=:[]".contains(&byte)
-            || (!host && b"/%@?".contains(&byte));
-        if allowed {
-            result.push(char::from(byte));
-        } else {
-            use std::fmt::Write;
-            let _ = write!(result, "%{byte:02X}");
-        }
-    }
-    result
+    let reserved: &[u8] = if host {
+        b"!$&'()*+,;=:[]"
+    } else {
+        b"!$&'()*+,;=:[]/%@?"
+    };
+    escape_component(value.as_bytes(), reserved)
 }
 
 fn valid_port(port: &str) -> bool {

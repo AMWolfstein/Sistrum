@@ -319,7 +319,7 @@ fn export(request: &Value, check: Check<'_>) -> Result<Value, String> {
                 };
                 stored.insert(column.clone(), value);
             }
-            let json = decode(&stored, request);
+            let json = decode(&stored);
             let encoded = serde_json::to_vec(&json).map_err(|e| err("encode History export", e))?;
             bytes += encoded.len() as u64 + 1;
             if bytes > MAX_HISTORY_BYTES {
@@ -344,19 +344,13 @@ fn export(request: &Value, check: Check<'_>) -> Result<Value, String> {
     result
 }
 
-fn decode(stored: &Map<String, Value>, request: &Value) -> Map<String, Value> {
+fn decode(stored: &Map<String, Value>) -> Map<String, Value> {
     let mut json = Map::new();
     for (key, column) in COLUMNS {
         json.insert(
             (*key).into(),
             stored.get(*column).cloned().unwrap_or(Value::Null),
         );
-    }
-    if request["platform"] == "ios"
-        && let Some(documents) = request["documents_path"].as_str()
-        && let Some(path) = json["filePath"].as_str()
-    {
-        json.insert("filePath".into(), rebase_ios(path, documents).into());
     }
     for (key, column) in [
         ("safRepaired", "saf_repaired"),
@@ -386,34 +380,6 @@ fn decode(stored: &Map<String, Value>, request: &Value) -> Map<String, Value> {
         );
     }
     json
-}
-
-fn rebase_ios(path: &str, documents: &str) -> String {
-    use std::sync::OnceLock;
-    static ROOT: OnceLock<regex::Regex> = OnceLock::new();
-    let regex=ROOT.get_or_init(||regex::Regex::new(r"(?i)^(?:/private)?/var/mobile/Containers/Data/Application/[A-F0-9\-]+|^/[^\n]+/Library/Developer/CoreSimulator/Devices/[A-F0-9\-]+/data/Containers/Data/Application/[A-F0-9\-]+").expect("iOS container pattern"));
-    let Some(current) = regex.find(documents) else {
-        return path.into();
-    };
-    let Some(previous) = regex.find(path) else {
-        return path.into();
-    };
-    if &documents[current.end()..] != "/Documents" || !path[previous.end()..].starts_with('/') {
-        return path.into();
-    }
-    let suffix = &path[previous.end()..];
-    if suffix.split('/').any(|v| v == "..")
-        || ![
-            "/Documents",
-            "/Library/Application Support",
-            "/Library/Caches",
-        ]
-        .iter()
-        .any(|root| suffix == *root || suffix.starts_with(&format!("{root}/")))
-    {
-        return path.into();
-    }
-    format!("{}{suffix}", &documents[..current.end()])
 }
 
 fn import(request: &Value, check: Check<'_>) -> Result<Value, String> {

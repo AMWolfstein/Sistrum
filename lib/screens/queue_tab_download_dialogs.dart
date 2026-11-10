@@ -119,46 +119,6 @@ extension _QueueTabDownloadDialogs on _QueueTabState {
     if (Platform.isAndroid) {
       return pickAndStoreSafDownloadTree(ref);
     }
-    if (Platform.isIOS) {
-      IosPickedDirectory? picked;
-      try {
-        picked = await PlatformBridge.pickIosDirectory();
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                context.l10n.snackbarFolderPickerFailed(
-                  context.friendlyError(e),
-                ),
-              ),
-            ),
-          );
-        }
-        return false;
-      }
-      if (picked == null || !mounted) return false;
-      final validation = validateIosPath(
-        picked.path,
-        bookmark: picked.bookmark,
-      );
-      if (!validation.isValid) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                validation.errorReason ?? context.l10n.setupIcloudNotSupported,
-              ),
-            ),
-          );
-        }
-        return false;
-      }
-      ref
-          .read(settingsProvider.notifier)
-          .setDownloadDirectory(picked.path, iosBookmark: picked.bookmark);
-      return true;
-    }
     return false;
   }
 }

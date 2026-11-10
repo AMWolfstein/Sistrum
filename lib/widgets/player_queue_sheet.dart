@@ -43,7 +43,6 @@ class PlayerQueueSheet extends ConsumerWidget {
   final ColorScheme colorScheme;
   final ScrollController scrollController;
 
-  /// Shown in a panel that has its own title, such as the desktop
   /// inspector, rather than in a sheet: no title, and shuffling the library
   /// keeps the panel open.
   final bool embedded;

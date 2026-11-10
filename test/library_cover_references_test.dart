@@ -69,7 +69,6 @@ void main() {
         'track_json': jsonEncode({'coverUrl': retained[0].path}),
         'added_at': '2026-10-30',
       });
-      // An older iOS container and a file URI still name today's file.
       await collections.insert('loved_tracks', {
         'track_key': 'two',
         'track_json': jsonEncode({

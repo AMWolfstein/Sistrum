@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 /// A Cast receiver on the network, listed where the app draws the picker.
 @immutable
@@ -33,7 +31,6 @@ class CastDevice {
 }
 
 /// How [CastOutput] reaches the platform: Android's Google Cast plugin and
-/// the iOS Rust sender answer on a MethodChannel; desktop calls the Rust
 /// backend over dart:ffi. Events are session snapshots, or `{"devices"}`
 /// when the discovered list changes.
 abstract interface class CastTransport {
@@ -63,17 +60,6 @@ class MethodChannelCastTransport implements CastTransport {
       ).receiveBroadcastStream();
 }
 
-class DesktopCastTransport implements CastTransport {
-  const DesktopCastTransport();
-
-  @override
-  Future<Object?> invoke(String method, [Map<String, Object?>? arguments]) =>
-      PlatformBridge.castCall(method, arguments);
-
-  @override
-  Stream<Object?> events() => PlatformBridge.castEvents();
-}
-
 /// The Cast session. On Android it survives Activity recreation with the
 /// shared engine; elsewhere it lives in the Rust backend.
 class CastOutput extends ChangeNotifier {
@@ -88,9 +74,7 @@ class CastOutput extends ChangeNotifier {
        nativePicker =
            nativePicker ?? defaultTargetPlatform == TargetPlatform.android;
 
-  static final instance = CastOutput(
-    transport: isDesktopPlatform ? const DesktopCastTransport() : null,
-  );
+  static final instance = CastOutput(transport: null);
 
   /// Android shows Google's own device dialog ([showPicker]); other
   /// platforms list [devices] after [discover].
@@ -190,10 +174,6 @@ class CastOutput extends ChangeNotifier {
               .invoke(name, arguments)
               .timeout(const Duration(seconds: 25))
           as T?;
-
-  Future<Duration> position() async => Duration(
-    milliseconds: (await _transport.invoke('position') as num?)?.toInt() ?? 0,
-  );
 
   @override
   void dispose() {

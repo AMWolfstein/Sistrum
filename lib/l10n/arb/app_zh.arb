@@ -378,49 +378,28 @@
     "description": "Section for special thanks"
   },
   "aboutLinks": "相关链接",
-  "@aboutLinks": {
-    "description": "Section for external links"
-  },
   "aboutMobileSource": "移动版本源代码",
-  "@aboutMobileSource": {
-    "description": "Link to mobile GitHub repo"
-  },
   "aboutReportIssue": "报告一个问题",
-  "@aboutReportIssue": {
-    "description": "Link to report bugs"
-  },
   "aboutReportIssueSubtitle": "报告您遇到的任何问题",
   "@aboutReportIssueSubtitle": {
     "description": "Subtitle for report issue"
   },
   "aboutFeatureRequest": "功能建议",
-  "@aboutFeatureRequest": {
-    "description": "Link to suggest features"
-  },
   "aboutFeatureRequestSubtitle": "为应用建议新功能",
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
   "aboutTelegramChannel": "Telegram 频道",
-  "@aboutTelegramChannel": {
-    "description": "Link to Telegram channel"
-  },
   "aboutTelegramChannelSubtitle": "公告和更新",
   "@aboutTelegramChannelSubtitle": {
     "description": "Subtitle for Telegram channel"
   },
   "aboutTelegramChat": "Telegram 社区",
-  "@aboutTelegramChat": {
-    "description": "Link to Telegram chat group"
-  },
   "aboutTelegramChatSubtitle": "与其他用户聊天",
   "@aboutTelegramChatSubtitle": {
     "description": "Subtitle for Telegram chat"
   },
   "aboutSocial": "社交",
-  "@aboutSocial": {
-    "description": "Section for social links"
-  },
   "aboutApp": "App",
   "@aboutApp": {
     "description": "Section for app info"
@@ -541,34 +520,6 @@
   "setupDownloadLocationTitle": "下载位置",
   "@setupDownloadLocationTitle": {
     "description": "Download location dialog title"
-  },
-  "setupDownloadLocationIosMessage": "在 iOS 上，下载内容会保存到应用的 Documents 文件夹。你可以通过“文件”应用访问。",
-  "@setupDownloadLocationIosMessage": {
-    "description": "iOS-specific folder info"
-  },
-  "setupAppDocumentsFolder": "应用程序文档文件夹",
-  "@setupAppDocumentsFolder": {
-    "description": "iOS documents folder option"
-  },
-  "setupAppDocumentsFolderSubtitle": "推荐 - 可通过“文件”应用访问",
-  "@setupAppDocumentsFolderSubtitle": {
-    "description": "Subtitle for documents folder"
-  },
-  "setupChooseFromFiles": "从“文件”中选择",
-  "@setupChooseFromFiles": {
-    "description": "iOS file picker option"
-  },
-  "setupChooseFromFilesSubtitle": "选择 iCloud 或其他位置",
-  "@setupChooseFromFilesSubtitle": {
-    "description": "Subtitle for file picker"
-  },
-  "setupIosEmptyFolderWarning": "iOS 限制：无法选择空文件夹。请选择至少包含一个文件的文件夹。",
-  "@setupIosEmptyFolderWarning": {
-    "description": "iOS folder selection warning"
-  },
-  "setupIcloudNotSupported": "不支持 iCloud Drive。请使用应用 Documents 文件夹。",
-  "@setupIcloudNotSupported": {
-    "description": "Error when user selects iCloud Drive on iOS"
   },
   "setupDownloadInFlac": "Download music in lossless and Hi-Res quality",
   "@setupDownloadInFlac": {
@@ -795,9 +746,6 @@
     "description": "Track option and sheet title listing streaming platforms where the track can be opened"
   },
   "trackOpenOnNoLinks": "No platform links found for this track.",
-  "@trackOpenOnNoLinks": {
-    "description": "Shown in the Open on sheet when song.link returns no links"
-  },
   "libraryReviewDuplicates": "Review duplicates",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1966,10 +1914,6 @@
   "downloadAutoConvertFormat": "Output format",
   "@downloadAutoConvertFormat": {
     "description": "Automatic conversion output format setting"
-  },
-  "downloadAutoConvertFormatSubtitle": "Choose the lossy format used for newly completed downloads.",
-  "@downloadAutoConvertFormatSubtitle": {
-    "description": "Automatic conversion format picker explanation"
   },
   "downloadAutoConvertBitrate": "Output quality",
   "@downloadAutoConvertBitrate": {
@@ -4079,9 +4023,6 @@
     "description": "Error shown on downloads that failed because the persisted Android SAF folder grant is no longer valid"
   },
   "downloadErrorFolderAccessLost": "Download folder access lost. Please re-select your download folder in Settings.",
-  "@downloadErrorFolderAccessLost": {
-    "description": "Error shown on downloads that failed because the iOS download folder bookmark could not be opened"
-  },
   "downloadFilenameDescription": "Use {artist}, {title}, {album}, {track}, {year}, {date}, {disc} as placeholders.",
   "@downloadFilenameDescription": {
     "description": "Description shown in filename format editor"
@@ -5639,9 +5580,6 @@
     }
   },
   "extensionOauthConnectHint": "Tap Connect to Spotify to fill this field.",
-  "@extensionOauthConnectHint": {
-    "description": "Hint for an OAuth login link field before connecting Spotify"
-  },
   "extensionLastChecked": "Last checked {time}",
   "@extensionLastChecked": {
     "description": "Timestamp for the latest extension service health check",
@@ -5769,10 +5707,6 @@
   "@permissionNotification": {
     "description": "Notification permission type label"
   },
-  "errorInvalidFolderSelected": "Invalid folder selected",
-  "@errorInvalidFolderSelected": {
-    "description": "Error when the selected folder is invalid"
-  },
   "storeAnyVersion": "Any",
   "@storeAnyVersion": {
     "description": "Store detail value when any app version is accepted"
@@ -5839,20 +5773,13 @@
     "description": "Title and tooltip for finding the current collection in other services"
   },
   "shareSheetNoExtensions": "No other compatible services",
-  "@shareSheetNoExtensions": {
-    "description": "Empty state when no extensions can be searched for cross-service links"
-  },
   "shareSheetNotFound": "Not found",
   "@shareSheetNotFound": {
     "description": "Cross-service share sheet row subtitle when a service has no match"
   },
   "shareSheetCopyLink": "Copy Link",
-  "@shareSheetCopyLink": {
-    "description": "Tooltip for copying a cross-service link"
-  },
   "shareSheetLinkCopied": "{service} link copied",
   "@shareSheetLinkCopied": {
-    "description": "Snackbar after copying a cross-service link",
     "placeholders": {
       "service": {}
     }
@@ -5955,9 +5882,6 @@
     "description": "Empty state when track metadata cannot be loaded"
   },
   "announcementUnableToOpenLink": "Unable to open link. Please try again.",
-  "@announcementUnableToOpenLink": {
-    "description": "Snackbar shown when an announcement CTA link cannot be opened"
-  },
   "trackConvertLosslessOutputWithCap": "Lossless output with {quality} cap",
   "@trackConvertLosslessOutputWithCap": {
     "description": "Hint shown when lossless conversion will cap bit depth or sample rate",

@@ -12,7 +12,6 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/screens/settings/playback_settings_page.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/settings_search_catalog.dart';
 import 'package:mornye/widgets/material_player_backdrop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,8 +122,6 @@ void main() {
       'automatic fullscreen lyrics is saved and searchable (Mornye: $mornye)',
       (tester) async {
         SharedPreferences.setMockInitialValues({});
-        debugDesktopPlatformOverride = false;
-        addTearDown(() => debugDesktopPlatformOverride = null);
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);

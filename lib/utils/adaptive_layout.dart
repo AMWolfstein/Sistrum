@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/android_tv.dart';
 
 /// Keeps touch-first tablets on the bottom navigation used by phones. A rail
-/// is reserved for genuinely desktop-width windows; the old 600dp threshold
-/// made an iPad portrait layout look like a shrunken desktop app.
 const double navigationRailBreakpoint = 1440;
 
 /// Material's expanded window class. Landscape tablets switch the Material
@@ -22,24 +18,12 @@ bool useMaterialNavigationRailForWidth(double width) =>
     width >= expandedLayoutBreakpoint;
 
 /// Explicit horizontal safe spacing for controls drawn in full-bleed detail
-/// headers. iOS reports no left/right safe-area inset in portrait, so toolbar
-/// buttons otherwise land only a few pixels from the device edge. Filled
-/// expressive circles need the same breathing room on Android.
-double detailHeaderEdgeInset(BuildContext context) {
-  final platform = Theme.of(context).platform;
-  return platform == TargetPlatform.iOS || platform == TargetPlatform.macOS
-      ? 12
-      : 8;
-}
+/// headers. Filled expressive circles need breathing room from the device edge.
+double detailHeaderEdgeInset(BuildContext context) => 8;
 
-/// Visual scale for touch-first tablet surfaces. Large iPads have enough
 /// pixels to make an unscaled phone density feel miniature, especially when
-/// Simulator shrinks the whole device to fit a desktop display. Desktop
-/// windows keep native density at every size.
 double adaptiveUiScaleForSize(Size size) {
-  if (isDesktopPlatform ||
-      size.shortestSide < 600 ||
-      size.width >= navigationRailBreakpoint) {
+  if (size.shortestSide < 600 || size.width >= navigationRailBreakpoint) {
     return 1;
   }
   return size.shortestSide >= 800 ? 1.2 : 1.1;
@@ -64,7 +48,7 @@ class AdaptiveUiScaler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final scale = isAndroidTv ? 1.15 : adaptiveUiScaleForSize(mediaQuery.size);
+    final scale = adaptiveUiScaleForSize(mediaQuery.size);
     if (scale == 1) return child;
 
     final scaledSize = Size(
@@ -114,34 +98,20 @@ double wideInsetForWidth(
 
 /// Horizontal inset that centers full-width list content on tablets/landscape;
 /// zero on phones, so rows stop stretching across the whole screen. Mornye
-/// desktop pages run across the whole content pane and center
-/// only past [desktopContentMaxWidth]. Material desktop pages center past
-/// [desktopMaterialContentMaxWidth], so long lists keep a reading width
 /// instead of stretching across a wide window.
 double wideListInset(BuildContext context, {double? contentMaxWidth}) =>
     wideInsetForWidth(
       MediaQuery.sizeOf(context).width,
-      contentMaxWidth:
-          contentMaxWidth ??
-          (isDesktopPlatform
-              ? (context.isMornye
-                    ? desktopContentMaxWidth
-                    : desktopMaterialContentMaxWidth)
-              : defaultWideContentMaxWidth),
+      contentMaxWidth: contentMaxWidth ?? (defaultWideContentMaxWidth),
     );
 
-/// The Home tab's extra side inset. Material desktop runs Home across the
 /// whole pane, as M3 panes do, with the 24dp margin of expanded and larger
-/// windows (the 16dp phone edge plus 8), so its cover shelves reach the
 /// edge; elsewhere Home centers with [wideListInset].
-double homeContentInset(BuildContext context) =>
-    isDesktopPlatform && !context.isMornye ? 8 : wideListInset(context);
-
-const double desktopContentMaxWidth = 1600;
+double homeContentInset(BuildContext context) => wideListInset(context);
 
 /// The M3 large window class starts at 1200dp; the extra 80dp leaves room
 /// for the navigation rail, since the inset is measured on the window width.
-const double desktopMaterialContentMaxWidth = 1280;
+const double materialContentMaxWidth = 1280;
 
 /// Discography cover geometry shared by loaded cards and loading placeholders.
 double artistAlbumTileSize(BuildContext context) {

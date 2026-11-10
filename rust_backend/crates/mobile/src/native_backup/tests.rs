@@ -26,7 +26,7 @@ fn actual_complete_dart_history_codec_and_path_identity_parity() {
             row["input"]["id"]
         );
         assert_eq!(
-            Value::Object(decode(&encoded, &json!({}))),
+            Value::Object(decode(&encoded)),
             row["decoded"],
             "decoding {:?}",
             row["input"]["id"]
@@ -42,26 +42,6 @@ fn actual_complete_dart_history_codec_and_path_identity_parity() {
             expected
         );
     }
-}
-
-#[test]
-fn ios_export_rebases_only_app_owned_paths_and_keeps_import_verbatim() {
-    let old = "/var/mobile/Containers/Data/Application/AAAA/Documents/Music/track.flac";
-    let current = "/var/mobile/Containers/Data/Application/BBBB/Documents";
-    assert_eq!(
-        rebase_ios(old, current),
-        "/var/mobile/Containers/Data/Application/BBBB/Documents/Music/track.flac"
-    );
-    for path in [
-        "/var/mobile/Containers/Data/Application/AAAA/tmp/a.flac",
-        "/var/mobile/Containers/Data/Application/AAAA/Documents/../tmp/a.flac",
-        "/external/Music/a.flac",
-    ] {
-        assert_eq!(rebase_ios(path, current), path);
-    }
-    let mut row = track("old");
-    row["filePath"] = old.into();
-    assert_eq!(encode(&row).unwrap()["file_path"], old);
 }
 
 #[test]
@@ -119,7 +99,7 @@ impl Fixture {
             .collect::<Vec<_>>()
             .join(",");
         db.execute_batch(&format!("PRAGMA journal_mode=WAL;PRAGMA user_version=16;PRAGMA recursive_triggers=ON;CREATE TABLE history({columns});CREATE TABLE history_path_keys(item_id TEXT,path_key TEXT,PRIMARY KEY(item_id,path_key));CREATE VIRTUAL TABLE history_search_fts USING fts5(search_text,content='history',content_rowid='rowid',tokenize='trigram');CREATE TRIGGER history_fts_ai AFTER INSERT ON history BEGIN INSERT INTO history_search_fts(rowid,search_text) VALUES(new.rowid,new.search_text);END;CREATE TRIGGER history_fts_ad AFTER DELETE ON history BEGIN INSERT INTO history_search_fts(history_search_fts,rowid,search_text) VALUES('delete',old.rowid,old.search_text);END;")).unwrap();
-        let request = json!({"history_path":path.to_str().unwrap(),"platform":"ios"});
+        let request = json!({"history_path":path.to_str().unwrap(),"platform":"android"});
         Self { dir, db, request }
     }
     fn restore(&self, rows: &[Value], expected: u64, check: Check<'_>) -> Result<Value, String> {

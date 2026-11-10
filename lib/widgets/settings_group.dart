@@ -201,8 +201,6 @@ bool settingsRowsConnected(BuildContext context) =>
 /// Horizontal margin of settings content on a surface [maxWidth] wide: the
 /// 16dp edge plus the wide-layout centering inset. Groups, section headers,
 /// info cards and page-level buttons share it so their edges line up, also
-/// with page titles and cards placed by [wideListInset]: desktop pages run
-/// across the pane until the desktop reading width, as their lists do, while
 /// a narrower box such as a sheet keeps its own centering.
 double settingsHorizontalInset(BuildContext context, double maxWidth) =>
     16 +
@@ -782,7 +780,6 @@ class SettingsChoiceChip extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: theme.textTheme.bodyMedium?.copyWith(
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        // Like an iOS segment, the filled chip marks the choice; accent text
         // on Mornye's grey fill falls below readable contrast.
         color: context.isMornye && isSelected
             ? colorScheme.onSurface

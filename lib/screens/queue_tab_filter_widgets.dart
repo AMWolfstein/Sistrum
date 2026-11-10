@@ -276,9 +276,8 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     // Active downloads and the library tracks below them form one connected
     // run of rows.
     Widget leadListCell(int index) {
-      // Sectioned lists and desktop tables keep the active downloads as
       // their own run.
-      final runLength = isDesktopPlatform || (rootLibrary && !context.isMornye)
+      final runLength = (rootLibrary && !context.isMornye)
           ? leadCount
           : leadCount + filteredUnifiedItems.length;
       if (index < activeDownloadIds.length) {
@@ -609,35 +608,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
                   childCount:
                       leadCount + collectionCount + filteredUnifiedItems.length,
                 ),
-              ),
-            )
-          else if (isDesktopPlatform &&
-              (filteredUnifiedItems.isNotEmpty ||
-                  leadCount > 0 ||
-                  collectionCount > 0))
-            // Desktop lists songs in the sortable table, with the collections
-            // and active downloads leading it.
-            _buildLibrarySongTable(
-              context,
-              filterMode: filterMode,
-              items: filteredUnifiedItems,
-              leadCount: collectionCount + leadCount,
-              leadBuilder: (index) => index < collectionCount
-                  ? _buildAllTabListCollectionItem(
-                      context: context,
-                      colorScheme: colorScheme,
-                      entry: collectionEntries[index],
-                      collectionState: collectionState,
-                      filteredUnifiedItems: filteredUnifiedItems,
-                    )
-                  : leadListCell(index - collectionCount),
-              openAction: (item) => _libraryItemOpenAction(
-                item,
-                downloadedNavigationItems: downloadedNavigationItems,
-                downloadedNavigationIndex:
-                    downloadedNavigationIndexByUnifiedId[item.id],
-                localNavigationItems: localNavigationItems,
-                localNavigationIndex: localNavigationIndexByUnifiedId[item.id],
               ),
             )
           else if (sectioned)
@@ -1011,101 +981,76 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         ),
         ?completenessLabel,
       ].join('. '),
-      child: DesktopContextMenuRegion(
-        onContextMenu: (position) => showContextMenu(
-          context,
-          position: position,
-          groups: [
-            [
-              ContextMenuAction(
-                icon: Icons.open_in_new,
-                label: context.l10n.desktopMenuOpen,
-                onSelected: onTap,
-              ),
-              if (onPlay != null)
-                ContextMenuAction(
-                  icon: Icons.play_arrow_rounded,
-                  label: context.l10n.tooltipPlay,
-                  onSelected: onPlay,
-                ),
-            ],
-          ],
-        ),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: coverWidget ?? _albumPlaceholder(colorScheme),
-                    ),
-                    PositionedDirectional(
-                      end: 8,
-                      bottom: 8,
-                      child: Tooltip(
-                        message:
-                            completenessLabel ??
-                            context.l10n.tracksCount(trackCount),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AppIcon(
-                                badgeIcon,
-                                size: 12,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: coverWidget ?? _albumPlaceholder(colorScheme),
+                  ),
+                  PositionedDirectional(
+                    end: 8,
+                    bottom: 8,
+                    child: Tooltip(
+                      message:
+                          completenessLabel ??
+                          context.l10n.tracksCount(trackCount),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AppIcon(
+                              badgeIcon,
+                              size: 12,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              completeness?.badge ?? '$trackCount',
+                              style: TextStyle(
                                 color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(width: 4),
-                              Text(
-                                completeness?.badge ?? '$trackCount',
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    DesktopHoverPlayButton(
-                      tooltip: context.l10n.tooltipPlay,
-                      onPlay: onPlay,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                albumName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              albumName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            ClickableArtistName(
+              artistName: artistName,
+              coverUrl: coverUrl,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
-              ClickableArtistName(
-                artistName: artistName,
-                coverUrl: coverUrl,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

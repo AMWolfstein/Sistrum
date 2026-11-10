@@ -16,13 +16,11 @@ import 'package:mornye/app.dart';
 import 'package:mornye/constants/app_info.dart';
 import 'package:mornye/controllers/extension_auth_launcher.dart';
 import 'package:mornye/l10n/supported_locales.dart';
-import 'package:mornye/models/library_database_models.dart';
 import 'package:mornye/models/settings.dart';
 import 'package:mornye/models/theme_settings.dart';
 import 'package:mornye/providers/download_queue_provider.dart';
 import 'package:mornye/providers/extension_provider.dart';
 import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/runtime_profile_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/providers/theme_provider.dart';
@@ -36,28 +34,12 @@ import 'package:mornye/services/app_orientation.dart';
 import 'package:mornye/services/activity_attachment.dart';
 import 'package:mornye/services/app_crash_service.dart';
 import 'package:mornye/services/background_favorites.dart';
-import 'package:mornye/services/desktop_deep_links.dart';
-import 'package:mornye/services/desktop_diagnostics.dart';
-import 'package:mornye/services/desktop_library_watcher.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/desktop/link_phone_playback.dart';
-import 'package:mornye/services/link/features/link_phone_features.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/link_client_api.dart';
 import 'package:mornye/services/music_player_service.dart';
 import 'package:mornye/services/playback_notification.dart';
 import 'package:mornye/services/player_widget_service.dart';
 import 'package:mornye/screens/now_playing_screen.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/android_tv.dart';
 import 'package:mornye/utils/local_library_scan_prefs.dart';
 import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart'
-    show restoreDesktopSidebar;
-import 'package:mornye/widgets/desktop/desktop_inspector.dart'
-    show bindDesktopFullScreenLyrics;
-import 'package:mornye/widgets/desktop/desktop_window.dart'
-    show listenDesktopWindowFullScreen;
 
 final _log = AppLogger('Main');
 _StartupBenchmark? _startupBenchmark;
@@ -93,9 +75,6 @@ void main() {
       final dynamicColors = DynamicColors.request();
       // Awaited before runApp, which reports a failure once.
       final orientation = _initializeOrientation()..ignore();
-      // Desktop: log files and the unclean-exit marker, before the error
-      // hooks below start writing to them.
-      await DesktopDiagnostics.initialize();
       LicenseRegistry.addLicense(() async* {
         yield LicenseEntryWithLineBreaks(
           const [AppInfo.appName],
@@ -126,7 +105,6 @@ void main() {
         yield LicenseEntryWithLineBreaks(const [
           'FFmpeg',
         ], await rootBundle.loadString('assets/licenses/ffmpeg.txt'));
-        // FFmpegKit (mobile) and the Linux and Windows FFmpeg builds.
         yield LicenseEntryWithLineBreaks(const [
           'FFmpeg',
           'FFmpegKit',
@@ -173,7 +151,6 @@ void main() {
         safValidation = _startSafTreeValidation(bootstrapSettings);
       }
       musicPlayerRuntime.configure(bootstrapSettings);
-      if (isDesktopPlatform) restoreDesktopSidebar(prefs);
       final bootstrapTheme = loadBootstrapThemeSettings(prefs);
       final initialSafAccessLost = await _detectInitialSafAccessLoss(
         safValidation,
@@ -205,21 +182,6 @@ void main() {
             ),
             initialThemeSettingsProvider.overrideWithValue(bootstrapTheme),
             initialDynamicColorsProvider.overrideWithValue(dynamicColors),
-            // While the paired desktop plays in the phone's place, the
-            // player screens show and drive it; on the desktop, the phone
-            // it follows.
-            activeRemotePlaybackProvider.overrideWith(
-              (ref) =>
-                  ref.watch(linkRemotePlaybackProvider) ??
-                  ref.watch(linkFollowedPhonePlaybackProvider),
-            ),
-            // Also while songs transfer, so the computer can still ask for
-            // this phone's files and hear how a transfer stands.
-            linkKeepConnectedProvider.overrideWith(
-              (ref) =>
-                  ref.watch(linkRemotePlaybackProvider) != null ||
-                  ref.watch(linkPhoneTransfersActiveProvider),
-            ),
           ],
           child: EagerInitialization(
             child: MornyeApp(
@@ -232,7 +194,7 @@ void main() {
       // Waits until startup settles, then analyzes how songs sound for
       // Autoplay. Media browsers that start without the app shell skip it.
       musicPlayerRuntime.startSongAnalysis();
-      if (Platform.isAndroid || Platform.isIOS) {
+      if (Platform.isAndroid) {
         unawaited(
           PlayerWidgetService.instance.initialize((command) async {
             await restorePersistedPlaybackSession();
@@ -375,15 +337,11 @@ Future<void> _startBackgroundPlayback() async {
   }
 }
 
-/// Resolves Android TV, then the orientation, alongside the other startup
-/// calls.
+/// Orientation on startup. MainActivity.onCreate already asks phones for
+/// portrait and lets tablets follow the device, as the request below would,
+/// and the router observer repeats it on the first page.
 Future<void> _initializeOrientation() async {
-  await initializeAndroidTv();
-  // MainActivity.onCreate already asks phones for portrait and lets tablets
-  // follow the device, as the request below would, and the router observer
-  // repeats it on the first page. TV gets fixed landscape there and the user
-  // landscape here.
-  if (Platform.isAndroid && !isAndroidTv) return;
+  if (Platform.isAndroid) return;
   await setAppOrientation();
 }
 
@@ -468,11 +426,10 @@ Future<_RuntimeProfile> _resolveRuntimeProfile(SharedPreferences prefs) async {
 
   try {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final isArm32Only = androidInfo.supported64BitAbis.isEmpty;
     final isLowRamDevice =
         androidInfo.isLowRamDevice || androidInfo.physicalRamSize <= 2500;
 
-    final profile = (isArm32Only || isLowRamDevice)
+    final profile = isLowRamDevice
         ? const _RuntimeProfile.low()
         : androidInfo.physicalRamSize >= 6000
         ? const _RuntimeProfile.high()
@@ -561,10 +518,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
   bool _autoScanTriggeredOnLaunch = false;
   StreamSubscription<void>? _verificationNotificationSubscription;
   StreamSubscription<void>? _extensionAuthCallbackSubscription;
-  DesktopDeepLinks? _desktopDeepLinks;
-  DesktopLibraryWatcher? _desktopLibraryWatcher;
-  ProviderSubscription<bool>? _desktopLibraryWatchSub;
-  ProviderSubscription<List<LocalLibrarySource>>? _desktopLibrarySourcesSub;
 
   @override
   void initState() {
@@ -581,13 +534,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
             (_) => unawaited(_completeExtensionCallback()),
           );
       // After the callback subscription, so a launch URL is not missed.
-      if (isDesktopPlatform) {
-        _desktopDeepLinks = DesktopDeepLinks()..start();
-        listenDesktopWindowFullScreen();
-        bindDesktopFullScreenLyrics();
-        // Starts the Mornye Link server when the owner turned it on.
-        ref.read(linkDesktopHostProvider);
-      }
       _initializeAppServices();
       _initializeExtensions();
       _initializeDeferredProviders();
@@ -603,9 +549,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
     _localLibraryWarmupTimer?.cancel();
     _verificationNotificationSubscription?.cancel();
     _extensionAuthCallbackSubscription?.cancel();
-    unawaited(_desktopDeepLinks?.dispose());
-    _desktopLibraryWatchSub?.close();
-    _stopDesktopLibraryWatcher();
     NotificationService().verificationNotifications.setHandler(null);
     super.dispose();
   }
@@ -686,47 +629,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
         }
       },
     );
-
-    if (isDesktopPlatform) {
-      _desktopLibraryWatchSub = ref.listenManual<bool>(
-        settingsProvider.select(_desktopLibraryWatchEnabled),
-        (_, _) => _updateDesktopLibraryWatcher(),
-      );
-    }
-  }
-
-  /// Desktop watches library folders unless automatic scans are off.
-  static bool _desktopLibraryWatchEnabled(AppSettings settings) =>
-      settings.localLibraryEnabled && settings.localLibraryAutoScan != 'off';
-
-  /// Starts or stops the desktop folder watcher. Starts only once the
-  /// library provider is warm, so watching never delays startup.
-  void _updateDesktopLibraryWatcher() {
-    if (!isDesktopPlatform || !mounted) return;
-    if (!_desktopLibraryWatchEnabled(ref.read(settingsProvider)) ||
-        !ref.exists(localLibraryProvider)) {
-      _stopDesktopLibraryWatcher();
-      return;
-    }
-    if (_desktopLibraryWatcher != null) return;
-    final watcher = _desktopLibraryWatcher = DesktopLibraryWatcher(
-      scanSource: (sourceId) => ref
-          .read(localLibraryProvider.notifier)
-          .startSourceScan(sourceId, notify: false, waitForCurrentScan: true),
-      isScanning: () => ref.read(localLibraryProvider).isScanning,
-    );
-    _desktopLibrarySourcesSub = ref.listenManual<List<LocalLibrarySource>>(
-      localLibraryProvider.select((state) => state.sources),
-      (_, sources) => unawaited(watcher.updateSources(sources)),
-      fireImmediately: true,
-    );
-  }
-
-  void _stopDesktopLibraryWatcher() {
-    _desktopLibrarySourcesSub?.close();
-    _desktopLibrarySourcesSub = null;
-    unawaited(_desktopLibraryWatcher?.dispose());
-    _desktopLibraryWatcher = null;
   }
 
   Timer _scheduleProviderWarmup(Duration delay, VoidCallback action) {
@@ -747,7 +649,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
           return;
         }
         ref.read(localLibraryProvider);
-        _updateDesktopLibraryWatcher();
         if (!_autoScanTriggeredOnLaunch) {
           _autoScanTriggeredOnLaunch = true;
           Future.delayed(const Duration(milliseconds: 500), () {

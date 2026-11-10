@@ -399,7 +399,6 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
   }
 
   /// Renders the spectrogram with its axes and legend, then asks where to
-  /// save it: the save panel on desktop, the system file picker on mobile.
   Future<void> _saveSpectrogram() async {
     final data = _data;
     final shown = _spectrogramImage;

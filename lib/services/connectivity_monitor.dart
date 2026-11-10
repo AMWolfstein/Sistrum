@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mornye/utils/logger.dart';
 
 final _log = AppLogger('ConnectivityMonitor');
 
-/// Windows can reject the Network List Manager's event registration. Flutter
 /// reports that EventChannel activation failure globally, outside a stream's
 /// onError handler. Query connectivity there without opening the event channel.
 class ConnectivityMonitor {
@@ -16,7 +14,7 @@ class ConnectivityMonitor {
     this.pollInterval = const Duration(seconds: 2),
   }) : assert(pollInterval > Duration.zero),
        _connectivity = connectivity ?? Connectivity(),
-       _usePolling = usePolling ?? Platform.isWindows;
+       _usePolling = usePolling ?? false;
 
   static final ConnectivityMonitor instance = ConnectivityMonitor();
 

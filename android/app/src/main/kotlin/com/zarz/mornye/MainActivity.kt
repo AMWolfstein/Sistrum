@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
@@ -77,7 +75,6 @@ class MainActivity: FlutterFragmentActivity() {
     internal var concertCalendarChannel: MethodChannel? = null
     internal val coreBackend: CoreBackend by lazy { createCoreBackend(applicationContext) }
     private val nativeBackendMethods = setOf(
-        "isAndroidTv",
         "getAndroidSdkVersion",
         "setScreenAwake",
         "isCharging",
@@ -148,8 +145,6 @@ class MainActivity: FlutterFragmentActivity() {
         "startBackgroundWork",
         "updateBackgroundWork",
         "stopBackgroundWork",
-        "startLinkConnectionService",
-        "stopLinkConnectionService",
         "startNativeDownloadWorker",
         "appendNativeDownloadWorkerRequests",
         "finishNativeDownloadWorkerPreparation",
@@ -352,7 +347,7 @@ class MainActivity: FlutterFragmentActivity() {
 
         fun abandon() {
             try { writer.close() } catch (_: Exception) {}
-            try { file.delete() } catch (_: Exception) {}
+            file.deleteBestEffort()
         }
     }
 
@@ -378,6 +373,13 @@ class MainActivity: FlutterFragmentActivity() {
                             file.name.startsWith("ms_"))
                     if (stale) file.delete()
                 }
+                // Files opened from other apps are copied into open_audio/<id>/. A day
+                // is long enough for the open session; a queue restored after that may
+                // need the file to be opened again.
+                val openCutoff = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
+                File(cacheDir, "open_audio").listFiles()?.forEach { dir ->
+                    if (dir.isDirectory && dir.lastModified() < openCutoff) dir.deleteRecursively()
+                }
             } catch (_: Exception) {}
         }
     }
@@ -387,7 +389,6 @@ class MainActivity: FlutterFragmentActivity() {
         // Phones start in portrait and tablets follow the device until
         // setAppOrientation in app_orientation.dart applies its own rule.
         requestedOrientation = when {
-            isTelevisionDevice() -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             resources.configuration.smallestScreenWidthDp >= 600 ->
                 ActivityInfo.SCREEN_ORIENTATION_FULL_USER
             else -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -401,13 +402,8 @@ class MainActivity: FlutterFragmentActivity() {
         PlayerWidgetBridge.handleIntent(intent)
     }
 
-    private fun isTelevisionDevice(): Boolean =
-        resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_TELEVISION ||
-            packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
-            packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION)
-
     override fun onStop() {
-        keyboardDismissalPending = !isTelevisionDevice()
+        keyboardDismissalPending = true
         super.onStop()
     }
 
@@ -523,7 +519,6 @@ class MainActivity: FlutterFragmentActivity() {
                         return@launch
                     }
                     when (call.method) {
-                        "isAndroidTv" -> result.success(isTelevisionDevice())
                         "getAndroidSdkVersion" -> result.success(Build.VERSION.SDK_INT)
                         "processPendingExtensionCallbacks" -> {
                             processPendingExtensionCallbacks()
@@ -588,18 +583,6 @@ class MainActivity: FlutterFragmentActivity() {
                             result.success(DownloadService.isServiceRunning())
                         }
                         "startBackgroundWork" -> handleStartBackgroundWork(call, result)
-                        "startLinkConnectionService" -> {
-                            result.success(
-                                LinkConnectionService.start(
-                                    this@MainActivity,
-                                    call.argument<String>("name") ?: "Mornye",
-                                ),
-                            )
-                        }
-                        "stopLinkConnectionService" -> {
-                            LinkConnectionService.stop(this@MainActivity)
-                            result.success(null)
-                        }
                         "updateBackgroundWork" -> handleUpdateBackgroundWork(call, result)
                         "stopBackgroundWork" -> {
                             BackgroundWorkService.stop(call.argument<String>("kind") ?: "")

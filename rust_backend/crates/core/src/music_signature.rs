@@ -245,7 +245,6 @@ impl Generator {
         }
     }
 
-    /// Windows the latest 2048 samples, oldest first, into a power spectrum.
     fn transform(&mut self) {
         for i in 0..WINDOW {
             self.re[i] = self.samples[(self.sample_cursor + i) % WINDOW] * self.window[i];

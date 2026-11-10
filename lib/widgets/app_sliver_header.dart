@@ -69,18 +69,15 @@ class AppSliverHeader extends StatelessWidget {
     final tokens = context.tokens;
     final colorScheme = Theme.of(context).colorScheme;
     final topPadding = normalizedHeaderTopPadding(context);
-    // A page at the root of a nested navigator, such as the desktop settings
     // detail pane, has nothing to go back to.
     final showLeading =
         _showLeading && (leading != null || !_isNestedNavigatorRoot(context));
-    // Short landscape windows give the large title less headroom so content
     // starts higher. Portrait phones, even small ones, keep the full header.
     final screenSize = MediaQuery.sizeOf(context);
     final shortened =
         screenSize.height < screenSize.width && screenSize.height < 720
         ? tokens.headerExpandedHeight - 24
         : tokens.headerExpandedHeight;
-    // A back button needs the full phone header: the shorter desktop and
     // landscape headers left the large title touching it.
     final expandedHeight = showLeading
         ? math.max(shortened, AppTokens.standard.headerExpandedHeight)
@@ -134,7 +131,6 @@ class AppSliverHeader extends StatelessWidget {
         builder: (context, constraints) {
           // SliverAppBar adds the platform's actual top safe-area inset to its
           // extents. Deriving the collapse ratio from our requested heights
-          // left notched iPhones looking almost fully expanded even after the
           // toolbar had collapsed, so the large title occupied the back
           // button's space. Read the resolved sliver geometry instead.
           final settings = context

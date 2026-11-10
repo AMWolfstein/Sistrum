@@ -18,7 +18,6 @@ class MornyePlayerSlider extends StatelessWidget {
     this.inset = horizontalInset,
   });
 
-  /// The track thickness; the desktop capsule uses a hairline.
   final double trackHeight;
 
   /// The touch band around the track.

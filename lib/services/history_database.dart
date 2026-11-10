@@ -1,21 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
 import 'package:mornye/services/history_maintenance.dart';
 import 'package:mornye/services/history_row_mapper.dart';
 import 'package:mornye/services/history_schema.dart';
 import 'package:mornye/utils/isrc_utils.dart' as isrc;
-import 'package:mornye/utils/ios_container_paths.dart';
 import 'package:mornye/utils/logger.dart';
 import 'package:mornye/utils/path_match_keys.dart';
 
 final _log = AppLogger('HistoryDatabase');
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-String? _currentContainerPath;
 
 class HistoryLookupRequest {
   final String spotifyId;
@@ -125,15 +120,6 @@ class HistoryDatabase {
           _searchFtsAvailable = await HistorySchema.create(db, version);
         },
         onUpgrade: HistorySchema.upgrade,
-        onOpen: (db) async {
-          if (Platform.isWindows) {
-            await sqlite.repairWindowsPathKeysOnOpen(
-              db,
-              'history',
-              'history_path_keys',
-            );
-          }
-        },
       );
       // onCreate normally initializes this derived index. Retry once after
       // opening an existing database in case an earlier setup was
@@ -184,51 +170,6 @@ class HistoryDatabase {
 
   void _putPathKeysInBatch(Batch batch, String id, String? filePath) =>
       sqlite.putPathKeysInBatch(batch, 'history_path_keys', id, filePath);
-
-  Future<void> _initContainerPath() async {
-    if (!Platform.isIOS || _currentContainerPath != null) return;
-
-    try {
-      final docDir = await getApplicationDocumentsDirectory();
-      _currentContainerPath = docDir.parent.path;
-      _log.d('iOS container path: $_currentContainerPath');
-    } catch (e) {
-      _log.w('Failed to get iOS container path: $e');
-    }
-  }
-
-  String _normalizeIosPath(String? filePath) {
-    if (filePath == null || filePath.isEmpty) return filePath ?? '';
-    if (!Platform.isIOS || _currentContainerPath == null) return filePath;
-
-    return rebaseIosSandboxPath(filePath, '$_currentContainerPath/Documents');
-  }
-
-  Future<bool> migrateIosContainerPaths({bool force = false}) async {
-    if (!Platform.isIOS) return false;
-
-    await _initContainerPath();
-    if (_currentContainerPath == null) return false;
-
-    try {
-      final updatedCount = await migrateIosHistoryPaths(
-        await database,
-        await _prefs,
-        containerPath: _currentContainerPath!,
-        force: force,
-      );
-      if (updatedCount == null) {
-        _log.d('iOS container path unchanged, skipping migration');
-        return false;
-      }
-      _log.i('iOS path migration complete: $updatedCount paths updated');
-      return updatedCount > 0;
-    } catch (e, stack) {
-      _log.e('iOS path migration failed: $e', e, stack);
-      if (force) rethrow;
-      return false;
-    }
-  }
 
   Future<bool> migrateFromSharedPreferences() async {
     final prefs = await _prefs;
@@ -282,10 +223,7 @@ class HistoryDatabase {
   }
 
   Map<String, dynamic> _dbRowToJson(Map<String, dynamic> row) =>
-      HistoryRowMapper.dbRowToJson(
-        row,
-        _normalizeIosPath(row['file_path'] as String?),
-      );
+      HistoryRowMapper.dbRowToJson(row, row['file_path'] as String? ?? '');
 
   Future<void> upsert(Map<String, dynamic> json) async {
     final db = await database;
@@ -585,7 +523,7 @@ class HistoryDatabase {
         final resultIndex = chunkStart + localIndex;
         results[resultIndex] ??= {
           'id': row['id'],
-          'filePath': _normalizeIosPath(row['file_path'] as String?),
+          'filePath': row['file_path'] as String? ?? '',
         };
       }
     }
@@ -704,8 +642,8 @@ class HistoryDatabase {
         'saf_file_name',
         'downloaded_at',
       ],
-      // A double-quoted "" is an identifier in SQLite; builds without the
-      // legacy fallback (DQS), as on Windows, reject it.
+      // A double-quoted "" is an identifier in SQLite, so the empty string
+      // is written with single quotes.
       where: "file_path IS NOT NULL AND file_path != ''",
       orderBy: 'sort_added DESC, id DESC',
       limit: limit,

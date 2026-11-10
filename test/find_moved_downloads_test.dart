@@ -82,10 +82,6 @@ class _Notifier extends DownloadHistoryNotifier {
 }
 
 /// [DownloadFileRecovery] follows only `/` paths and Android SAF folders, so
-/// a file moved between drive-letter folders is not recovered on Windows.
-final String? _movedFilesSkip = Platform.isWindows
-    ? 'Moved files are only recovered on / paths and SAF folders'
-    : null;
 
 DownloadHistoryItem _download(String id, String path) => DownloadHistoryItem(
   id: id,
@@ -164,7 +160,7 @@ void main() {
     expect(history.rows.keys, {'moved', 'present', 'gone', 'elsewhere'});
     expect(history.rows['gone']!.filePath, gone);
     expect(history.rows['elsewhere']!.filePath, elsewhere);
-  }, skip: _movedFilesSkip);
+  });
 
   test('relinks a download converted next to its old file', () async {
     final original = p.join(newFolder, 'Artist', 'Album', '01 - Song.flac');

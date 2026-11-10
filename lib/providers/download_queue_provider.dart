@@ -29,7 +29,6 @@ import 'package:mornye/services/download_metadata_embedding.dart';
 import 'package:mornye/services/download_saf_file_replacer.dart';
 import 'package:mornye/services/download_connectivity_policy.dart';
 import 'package:mornye/services/connectivity_monitor.dart';
-import 'package:mornye/services/download_keep_awake.dart';
 import 'package:mornye/services/download_scheduler.dart';
 import 'package:mornye/services/download_retry_backoff.dart';
 import 'package:mornye/services/source_deletion_events.dart';
@@ -50,8 +49,6 @@ import 'package:mornye/services/album_replaygain_readiness.dart';
 import 'package:mornye/services/notification_service.dart';
 import 'package:mornye/services/verification_notification.dart';
 import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/desktop_folders.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/utils/saf_display_path.dart';
 import 'package:mornye/utils/string_utils.dart';
@@ -184,8 +181,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   bool _queueStorageReady = true;
   bool? _startupPausedOverride;
   bool _foregroundResumeScheduled = false;
-  bool _iosBackgroundExecutionExpired = false;
-  StreamSubscription<List<String>>? _iosBackgroundExpirationSubscription;
   final Set<String> _ensuredDirs = {};
   final Map<String, Future<void>> _qualityVariantFileLocks = {};
   Future<String>? _appFolderStorageFallback;
@@ -239,16 +234,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         _removeDeletedFile(source);
       }),
     );
-    if (Platform.isIOS) {
-      _iosBackgroundExpirationSubscription ??=
-          PlatformBridge.iosBackgroundDownloadExpirationEvents().listen(
-            _handleIosBackgroundDownloadExpiration,
-          );
-      ref.onDispose(() {
-        _iosBackgroundExpirationSubscription?.cancel();
-        _iosBackgroundExpirationSubscription = null;
-      });
-    }
     ref.listen<AppSettings>(settingsProvider, (previous, next) {
       updateSettings(next);
       if (previous?.downloadNetworkMode != next.downloadNetworkMode) {
@@ -346,12 +331,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   /// Restarts a queue that was deliberately left pending because Android did
   /// not allow a foreground service to be launched while the app was hidden.
   void resumePendingDownloadsOnForeground() {
-    if (Platform.isIOS && _iosBackgroundExecutionExpired) {
-      _iosBackgroundExecutionExpired = false;
-      if (state.isPaused) {
-        state = state.copyWith(isPaused: false);
-      }
-    }
     if (_foregroundResumeScheduled ||
         state.isProcessing ||
         state.isPaused ||
@@ -372,62 +351,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   Future<void> handleVerificationNotificationTap(
     VerificationNotification target,
   ) => _handleVerificationNotificationTap(target);
-
-  void _handleIosBackgroundDownloadExpiration(List<String> nativeItemIds) {
-    if (!Platform.isIOS) return;
-    final cancelledItemIds = nativeItemIds.toSet();
-    final requeueItemIds = cancelledItemIds.where((id) {
-      final item = state.lookup.byItemId[id];
-      return item != null && item.status != DownloadStatus.completed;
-    }).toSet();
-    if (!state.isProcessing && requeueItemIds.isEmpty) return;
-
-    final alreadyForeground =
-        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
-    _log.w(
-      'iOS background execution time expired; safely deferring active downloads until foreground',
-    );
-    _iosBackgroundExecutionExpired = true;
-    if (state.isProcessing && !state.isPaused) {
-      pauseQueue(
-        persistAcrossRestarts: false,
-        nativeCancelledItemIds: cancelledItemIds,
-      );
-    }
-
-    if (requeueItemIds.isNotEmpty) {
-      final updatedItems = state.items
-          .map((item) {
-            if (!requeueItemIds.contains(item.id)) {
-              return item;
-            }
-            return item.resetToQueued();
-          })
-          .toList(growable: false);
-      if (state.isProcessing) {
-        _pausePendingItemIds.addAll(requeueItemIds);
-      }
-      state = state.copyWith(
-        items: updatedItems,
-        isPaused: true,
-        currentDownload: null,
-      );
-    } else if (!state.isProcessing) {
-      state = state.copyWith(isPaused: true, currentDownload: null);
-    }
-    unawaited(
-      flushQueuePersistence().catchError((Object error) {
-        _log.e('Failed to flush expired iOS queue: $error');
-      }),
-    );
-    // The native expiration callback cancels the download synchronously before this
-    // asynchronous event reaches Dart. If foregrounding won that race, still
-    // requeue the cancelled item, then immediately let the running queue loop
-    // continue instead of misclassifying it as a skipped download.
-    if (alreadyForeground) {
-      resumePendingDownloadsOnForeground();
-    }
-  }
 
   Future<void> _loadQueueFromStorage() async {
     if (_isLoaded || !ref.mounted) return;
@@ -1200,7 +1123,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         _pausePendingItemIds.addAll(activeIds);
         for (final id in activeIds) {
           if (nativeWorkerActive || nativeCancelledItemIds.contains(id)) {
-            // The native worker or iOS expiry already cancelled this attempt.
             // A second cancel can arrive after it unwinds and leave a flag
             // that aborts the resumed download before it starts.
             _verificationWaitCoordinator.cancelItem(id);
@@ -1625,10 +1547,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       try {
         if (Platform.isAndroid) {
           await PlatformBridge.stopDownloadService();
-        } else if (Platform.isIOS) {
-          await PlatformBridge.endBackgroundDownloadTask();
         }
-        await downloadKeepAwake.end();
       } catch (cleanupError, cleanupStack) {
         _log.e(
           'Failed to release download execution window: $cleanupError',
@@ -1670,7 +1589,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       updateSettings(settings);
       isSafMode = _isSafMode(settings);
     }
-    IosSecurityScopedAccess? iosDownloadBookmarkAccess;
 
     // Validate SAF before handing the batch to either queue implementation.
     // Never silently redirect a user-selected SAF destination into private app
@@ -1786,50 +1704,10 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       }
     }
 
-    if (Platform.isIOS && _totalQueuedAtStart > 0) {
-      await PlatformBridge.beginBackgroundDownloadTask();
-    }
-
-    // Desktop: keep the computer from idle sleeping until the queue stops.
-    if (_totalQueuedAtStart > 0) await downloadKeepAwake.begin();
 
     if (!isSafMode && state.outputDir.isEmpty) {
       _log.d('Output dir empty, initializing...');
       await _initOutputDir();
-    }
-
-    // iOS: Validate that outputDir is writable (not iCloud Drive which native code
-    // can't access), unless a bookmark makes this app-Documents path-shape
-    // check irrelevant (see shouldValidateIosOutputDir).
-    if (!networkOnlyQueue &&
-        shouldValidateIosOutputDir(
-          isIOS: Platform.isIOS,
-          isSafMode: isSafMode,
-          outputDir: state.outputDir,
-          downloadDirectoryBookmark: settings.downloadDirectoryBookmark,
-        )) {
-      final isICloudPath =
-          state.outputDir.contains('Mobile Documents') ||
-          state.outputDir.contains('CloudDocs') ||
-          state.outputDir.contains('com~apple~CloudDocs');
-      if (isICloudPath) {
-        _log.w(
-          'iOS: iCloud Drive path detected, falling back to app Documents folder',
-        );
-        _log.w('Native backend cannot access this iCloud Drive path');
-        final musicDir = await _ensureDefaultDocumentsOutputDir();
-        state = state.copyWith(outputDir: musicDir.path);
-        ref.read(settingsProvider.notifier).setDownloadDirectory(musicDir.path);
-      } else if (!isValidIosWritablePath(state.outputDir)) {
-        _log.w(
-          'iOS: Invalid output path detected (container root?), falling back to app Documents folder',
-        );
-        _log.w('Original path: ${state.outputDir}');
-        final correctedPath = await validateOrFixIosPath(state.outputDir);
-        _log.i('Corrected path: $correctedPath');
-        state = state.copyWith(outputDir: correctedPath);
-        ref.read(settingsProvider.notifier).setDownloadDirectory(correctedPath);
-      }
     }
 
     if (!isSafMode && state.outputDir.isEmpty) {
@@ -1840,41 +1718,10 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
 
     _log.d('Download storage mode: ${isSafMode ? 'SAF' : 'filesystem'}');
 
-    if (!isSafMode &&
-        !networkOnlyQueue &&
-        Platform.isIOS &&
-        settings.downloadDirectoryBookmark.isNotEmpty) {
-      iosDownloadBookmarkAccess =
-          await PlatformBridge.startAccessingIosBookmark(
-            settings.downloadDirectoryBookmark,
-          );
-      final resolvedPath = iosDownloadBookmarkAccess?.path;
-      if (resolvedPath != null && resolvedPath.isNotEmpty) {
-        if (resolvedPath != state.outputDir) {
-          _log.i('Resolved iOS download bookmark path: $resolvedPath');
-          state = state.copyWith(outputDir: resolvedPath);
-        }
-      } else {
-        _log.e('Failed to access iOS download folder bookmark');
-        _log.w(
-          'The saved download folder may have been moved, deleted, or its access grant lost',
-        );
-        failQueuedDownloads(error: downloadFolderAccessLostErrorMessage);
-        state = state.copyWith(isProcessing: false);
-        await PlatformBridge.endBackgroundDownloadTask();
-        return;
-      }
-    }
-
     try {
       await _runQueueLoop();
     } finally {
-      if (iosDownloadBookmarkAccess != null) {
-        await PlatformBridge.stopAccessingIosBookmark(
-          iosDownloadBookmarkAccess,
-        );
-        iosDownloadBookmarkAccess = null;
-      }
+      
     }
     final stoppedWhilePaused = state.isPaused;
     final keepConnectivityMonitoring =
@@ -1895,11 +1742,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       }
     }
 
-    if (Platform.isIOS) {
-      await PlatformBridge.endBackgroundDownloadTask();
-    }
-
-    await downloadKeepAwake.end();
 
     if (stoppedWhilePaused && _downloadCount > 0) {
       try {
@@ -1952,7 +1794,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     } else {
       _log.i('Queue processing finished');
     }
-    // All per-item futures have completed at this point. Remove any iOS
     // expiration guards that arrived after an individual worker's finally
     // block, otherwise the safely requeued item would be filtered forever on
     // the next queue run.

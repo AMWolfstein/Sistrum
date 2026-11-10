@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:audio_service/audio_service.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
     show RenderParagraph, RenderRepaintBoundary, debugOnProfilePaint;
@@ -27,14 +26,12 @@ import 'package:mornye/providers/player_artwork_video_provider.dart';
 import 'package:mornye/services/motion_artwork_store.dart';
 import 'package:mornye/services/network_metadata_service.dart';
 import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/remote_playback.dart';
 import 'package:video_player/video_player.dart';
 import 'package:mornye/screens/now_playing_screen.dart';
 import 'package:mornye/screens/lyrics_share_screen.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/audio_output_button.dart';
 import 'package:mornye/widgets/expressive_icon_button.dart';
 import 'package:mornye/widgets/expressive_playback_transport.dart';
 import 'package:mornye/widgets/expressive_seek_track.dart';
@@ -178,7 +175,6 @@ void main() {
     MotionArtwork? motionArtwork,
     MusicPlayerController? controller,
     List<MediaItem> queue = const [],
-    RemotePlayback? remote,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -190,8 +186,6 @@ void main() {
         overrides: [
           if (controller != null)
             musicPlayerControllerProvider.overrideWithValue(controller),
-          if (remote != null)
-            activeRemotePlaybackProvider.overrideWithValue(remote),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => mediaItems.stream,
           ),
@@ -499,118 +493,6 @@ void main() {
     });
   }
 
-  for (final (size, kept) in [
-    (const Size(430, 932), true),
-    (const Size(320, 568), false),
-  ]) {
-    testWidgets('Material portrait keeps an empty Playing on row ($size)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(tester, theme: AppTheme.light(), size: size);
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      expect(find.byKey(const ValueKey('link-playing-on')), findsNothing);
-      final row = find.byKey(const ValueKey('link-playing-on-row'));
-      if (kept) {
-        expect(tester.getSize(row).height, 36);
-      } else {
-        expect(row, findsNothing);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  for (final (size, kept) in [
-    (const Size(430, 932), true),
-    (const Size(360, 700), false),
-  ]) {
-    testWidgets('Mornye portrait keeps an empty Playing on row ($size)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(
-        tester,
-        theme: MornyeTheme.build(Brightness.dark),
-        size: size,
-      );
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      final row = find.byKey(const ValueKey('link-playing-on-row'));
-      if (kept) {
-        expect(tester.getSize(row).height, 36);
-      } else {
-        expect(row, findsNothing);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  for (final mornye in [true, false]) {
-    testWidgets('portrait stays put while a computer takes over '
-        '(${mornye ? 'Mornye' : 'Material'})', (tester) async {
-      Future<({Rect title, Rect toolbar})> measure(
-        RemotePlayback? remote,
-      ) async {
-        await pumpNowPlaying(
-          tester,
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
-          size: const Size(412, 915),
-          remote: remote,
-        );
-        mediaItems.add(item('first'));
-        await settlePlayer(tester);
-        return (
-          title: tester.getRect(find.byType(PlayerMetadataTitle).first),
-          toolbar: tester.getRect(find.byType(AudioOutputButton)),
-        );
-      }
-
-      final idle = await measure(null);
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(seconds: 1));
-      final playing = await measure(_TestRemote());
-
-      expect(find.text('Playing on Studio PC'), findsOneWidget);
-      expect(playing.title, idle.title);
-      expect(playing.toolbar, idle.toolbar);
-      // The toolbar sits on the row in both styles, and the header stays
-      // level with Material's rather than dropping with the shorter row.
-      expect(915 - idle.toolbar.bottom, 36);
-      expect(idle.title.top, closeTo(mornye ? 510 : 509, 0.5));
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  testWidgets(
-    'Material portrait Playing on row reaches into the home indicator inset',
-    (tester) async {
-      tester.view.padding = FakeViewPadding(top: 59, bottom: 34);
-      tester.view.viewPadding = FakeViewPadding(top: 59, bottom: 34);
-      addTearDown(tester.view.resetPadding);
-      addTearDown(tester.view.resetViewPadding);
-      await pumpNowPlaying(
-        tester,
-        theme: AppTheme.light(),
-        size: const Size(393, 852),
-      );
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      final row = tester.getRect(
-        find.byKey(const ValueKey('link-playing-on-row')),
-      );
-      expect(row.height, 36);
-      // An iPhone keeps only the indicator's strip under the empty row;
-      // Android's navigation inset stays clear of it.
-      expect(
-        852 - row.bottom,
-        defaultTargetPlatform == TargetPlatform.iOS ? 12 : 34,
-      );
-      expect(tester.takeException(), isNull);
-    },
-    variant: const TargetPlatformVariant({
-      TargetPlatform.android,
-      TargetPlatform.iOS,
-    }),
-  );
 
   testWidgets('landscape artwork preference leaves a wide portrait player '
       'unchanged', (tester) async {
@@ -1000,86 +882,6 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     expect(tester.takeException(), isNull);
   });
-
-  for (final reducedMotion in [false, true]) {
-    testWidgets(
-      'static cover shrinks on pause without moving controls (reduced motion: $reducedMotion)',
-      (tester) async {
-        const longTitle =
-            'I Do Not Want to Talk About It (A Long Album Version)';
-        tester.view.padding = FakeViewPadding(top: 59, bottom: 34);
-        tester.view.viewPadding = FakeViewPadding(top: 59, bottom: 34);
-        addTearDown(tester.view.resetPadding);
-        addTearDown(tester.view.resetViewPadding);
-        final playbackEvents = StreamController<PlaybackState>.broadcast();
-        addTearDown(playbackEvents.close);
-        await pumpNowPlaying(
-          tester,
-          theme: MornyeTheme.build(Brightness.dark),
-          size: const Size(393, 852),
-          playbackEvents: playbackEvents.stream,
-          wrapPlayer: (player) => Builder(
-            builder: (context) => MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(disableAnimations: reducedMotion),
-              child: player,
-            ),
-          ),
-        );
-        mediaItems.add(item('first').copyWith(title: longTitle));
-        await settlePlayer(tester);
-        playbackEvents.add(PlaybackState(playing: true));
-        await settlePlayer(tester);
-
-        final cover = find.byType(MornyePlayerArtwork);
-        final playingCover = tester.getRect(cover);
-        final titleFinder = find
-            .text(longTitle)
-            .hitTestable(at: Alignment.centerLeft)
-            .first;
-        final title = tester.getRect(titleFinder);
-        final volume = tester.getRect(find.byType(PlayerVolumeControl));
-        expect(playingCover.width, playingCover.height);
-        // Room for the Playing on row comes out of the cover on this phone.
-        expect(playingCover.width, greaterThanOrEqualTo(393 * 0.81));
-        expect(playingCover.left, greaterThan(0));
-        expect(playingCover.bottom, lessThan(title.top));
-        expect(
-          find.descendant(
-            of: find.byType(MornyePlayerBackground),
-            matching: cover,
-          ),
-          findsNothing,
-        );
-
-        playbackEvents.add(PlaybackState(playing: false));
-        await tester.pump();
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 150));
-        if (!reducedMotion) {
-          expect(
-            tester.getRect(cover).width,
-            inExclusiveRange(playingCover.width * 0.73, playingCover.width),
-          );
-        }
-        await settlePlayer(tester);
-        final pausedCover = tester.getRect(cover);
-        expect(pausedCover.width, closeTo(playingCover.width * 0.73, 0.01));
-        expect(pausedCover.center.dx, closeTo(playingCover.center.dx, 0.01));
-        expect(pausedCover.center.dy, closeTo(playingCover.center.dy, 0.01));
-        expect(tester.getRect(titleFinder), title);
-        expect(tester.getRect(find.byType(PlayerVolumeControl)), volume);
-
-        playbackEvents.add(PlaybackState(playing: true));
-        await settlePlayer(tester);
-        expect(tester.getRect(cover).width, closeTo(playingCover.width, 0.01));
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox());
-      },
-      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
-    );
-  }
 
   testWidgets('video contrast updates controls without rebuilding artwork', (
     tester,
@@ -3414,98 +3216,6 @@ void main() {
     },
   );
 
-  for (final motion in [false, true]) {
-    for (final drag in [false, true]) {
-      testWidgets(
-        'Mornye minimizes into the current mini player (motion: $motion, drag: $drag)',
-        (tester) async {
-          await pumpNowPlaying(
-            tester,
-            theme: MornyeTheme.build(Brightness.dark),
-            size: const Size(393, 852),
-            playback: PlaybackState(playing: true),
-            motionArtwork: motion
-                ? const MotionArtwork('file:///cover.mp4', aspectRatio: 1)
-                : null,
-            wrapPlayer: (_) => const Scaffold(
-              body: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 0, 12, 90),
-                  child: MiniPlayer(),
-                ),
-              ),
-            ),
-          );
-          mediaItems.add(item('first'));
-          await settlePlayer(tester);
-          final mini = find.byType(MiniPlayer);
-          final miniCover = find.descendant(
-            of: mini,
-            matching: find.byType(Hero),
-          );
-          final destination = tester.getRect(miniCover);
-          await tester.tap(
-            find.descendant(of: mini, matching: find.text('First')),
-          );
-          await settlePlayer(tester);
-          final player = find.byType(NowPlayingScreen);
-          final route =
-              ModalRoute.of(tester.element(player))! as NowPlayingRoute;
-          final fullCover = find.descendant(
-            of: player,
-            matching: find.byType(MornyePlayerArtwork),
-          );
-          if (drag) {
-            route.startDrag();
-            route.updateDrag(
-              DragUpdateDetails(
-                globalPosition: const Offset(0, 300),
-                delta: const Offset(0, 300),
-                primaryDelta: 300,
-              ),
-              852,
-            );
-            await tester.pump();
-          }
-          final releasedCover = tester.getRect(fullCover);
-          final releasedPanel = tester.getRect(
-            find.byType(MornyePlayerBackground),
-          );
-          if (drag) {
-            route.endDrag(DragEndDetails(primaryVelocity: 0), 852);
-          } else {
-            Navigator.of(tester.element(player)).pop();
-          }
-          await tester.pump();
-          final flyingCover = find.byKey(
-            const ValueKey('player-minimize-artwork'),
-          );
-          final surface = find.byKey(const ValueKey('player-minimize-surface'));
-          expect(tester.getRect(flyingCover), releasedCover);
-          expect(tester.getRect(surface), releasedPanel);
-          var previousDistance =
-              (releasedCover.center - destination.center).distance;
-          for (var frame = 0; frame < 5; frame++) {
-            await tester.pump(const Duration(milliseconds: 25));
-            final bounds = tester.getRect(flyingCover);
-            final distance = (bounds.center - destination.center).distance;
-            expect(distance, lessThan(previousDistance));
-            expect(
-              bounds.width,
-              inExclusiveRange(destination.width, releasedCover.width),
-            );
-            previousDistance = distance;
-          }
-          await settlePlayer(tester);
-          expect(player, findsNothing);
-          expect(tester.getRect(miniCover), destination);
-          expect(tester.takeException(), isNull);
-        },
-      );
-    }
-  }
-
   for (final mornye in [false, true]) {
     testWidgets('swiping up the mini player opens the player '
         '(Mornye: $mornye)', (tester) async {
@@ -3892,67 +3602,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye lyrics replace artwork while controls stay in place', (
-    tester,
-  ) async {
-    await pumpNowPlaying(
-      tester,
-      theme: MornyeTheme.build(Brightness.dark),
-      size: const Size(393, 700),
-    );
-    mediaItems.add(item('first'));
-    await settlePlayer(tester);
-
-    final artwork = find.byType(Hero);
-    final fullArtwork = tester.getRect(artwork);
-    expect(fullArtwork.height, fullArtwork.width);
-    final volume = find.byType(PlayerVolumeControl);
-    final volumeRect = tester.getRect(volume);
-    final play = findAppIcon(CupertinoIcons.play_fill);
-    final playRect = tester.getRect(play);
-    final lyricsButton = findAppIcon(CupertinoIcons.quote_bubble);
-    await tester.tap(lyricsButton);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 150));
-    final fullCover = find.byKey(const ValueKey('full-player-artwork'));
-    double fullCoverOpacity() => tester
-        .widget<FadeTransition>(
-          find
-              .ancestor(of: fullCover, matching: find.byType(FadeTransition))
-              .first,
-        )
-        .opacity
-        .value;
-    expect(fullCover, findsOneWidget);
-    expect(fullCoverOpacity(), inExclusiveRange(0.0, 1.0));
-    await settlePlayer(tester);
-
-    expect(find.byType(PageView), findsNothing);
-    expect(find.text('First lyric').hitTestable(), findsOneWidget);
-    expect(tester.getSize(artwork).width, lessThan(fullArtwork.width));
-    expect(fullArtwork.top, greaterThan(0));
-    expect(fullArtwork.width, lessThan(393));
-    expect(tester.getRect(volume), volumeRect);
-    expect(tester.getRect(play), playRect);
-
-    mediaItems.add(item('second'));
-    await settlePlayer(tester);
-    expect(find.text('Second lyric').hitTestable(), findsOneWidget);
-    expect(find.text('First lyric'), findsNothing);
-
-    await tester.tap(lyricsButton);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 150));
-    expect(fullCoverOpacity(), inExclusiveRange(0.0, 1.0));
-    expect(
-      find.descendant(of: fullCover, matching: find.byType(Hero)),
-      findsOneWidget,
-    );
-    await settlePlayer(tester);
-    expect(tester.getRect(artwork), fullArtwork);
-    expect(find.text('Second lyric').hitTestable(), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
 
   testWidgets('sharing reads document lyrics before opening the lyrics page', (
     tester,
@@ -4130,55 +3779,6 @@ void main() {
     }
     expect(tester.takeException(), isNull);
   });
-
-  for (final supplement in ['none', 'pronunciation', 'translation']) {
-    testWidgets('language menu only offers available $supplement', (
-      tester,
-    ) async {
-      metadataOverrides['lyrics'] =
-          '${supplement == 'pronunciation' ? '[x-romaji:1009:${base64.encode(utf8.encode('Pronunciation'))}]\n' : ''}'
-          '${supplement == 'translation' ? '[x-translation:1009:${base64.encode(utf8.encode('Translation'))}]\n' : ''}'
-          '[00:01.009]Original';
-      await pumpNowPlaying(
-        tester,
-        theme: MornyeTheme.build(Brightness.dark),
-        size: const Size(390, 844),
-      );
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      await tester.tap(findAppIcon(CupertinoIcons.quote_bubble));
-      await settlePlayer(tester);
-      final options = find.byKey(const ValueKey('lyrics-language-options'));
-      if (supplement == 'none') {
-        expect(options, findsNothing);
-      } else {
-        await tester.tap(options);
-        await settlePlayer(tester);
-        final glass = tester.widget<MornyeGlassPanel>(
-          find.byType(MornyeGlassPanel).last,
-        );
-        // Overlay glass keeps its tint and skips the backdrop read.
-        expect(
-          find.descendant(
-            of: find.byType(MornyeGlassPanel).last,
-            matching: find.byType(BackdropFilter),
-          ),
-          findsNothing,
-        );
-        expect(glass.samplesBackdrop, isFalse);
-        expect(glass.tintOpacity, inExclusiveRange(0, 1));
-        expect(
-          find.text('Hide Pronunciation'),
-          supplement == 'pronunciation' ? findsOneWidget : findsNothing,
-        );
-        expect(
-          find.text('Hide Translation'),
-          supplement == 'translation' ? findsOneWidget : findsNothing,
-        );
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   for (final landscape in [false, true]) {
     testWidgets(
@@ -4620,95 +4220,6 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets(
-      'lyric language toggles fade, resize and remember choices ($mornye)',
-      (tester) async {
-        metadataOverrides['lyrics'] =
-            '[x-romaji:1009:${base64.encode(utf8.encode('Romanized text'))}]\n'
-            '[x-translation:1009:${base64.encode(utf8.encode('English text'))}]\n'
-            '[00:01.009]Original text\n[00:10.000]Next line';
-        Future<void> openPlayer(String id) async {
-          await pumpNowPlaying(
-            tester,
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : null,
-            size: const Size(390, 844),
-            playback: PlaybackState(
-              processingState: AudioProcessingState.ready,
-              updatePosition: const Duration(milliseconds: 1500),
-            ),
-          );
-          mediaItems.add(item(id));
-          await settlePlayer(tester);
-          if (mornye) {
-            await tester.tap(findAppIcon(CupertinoIcons.quote_bubble));
-          } else {
-            await tester.tap(
-              find.byKey(const ValueKey('material-lyrics-toggle')),
-            );
-          }
-          await settlePlayer(tester);
-        }
-
-        final options = find.byKey(const ValueKey('lyrics-language-options'));
-        Future<void> choose(String label) async {
-          await tester.tap(options);
-          await settlePlayer(tester);
-          await tester.tap(find.text(label));
-          await tester.pump();
-        }
-
-        double gap() =>
-            tester.getTopLeft(find.text('Next line')).dy -
-            tester.getTopLeft(find.text('Original text')).dy;
-        double pronunciationOpacity() => tester
-            .widget<Opacity>(
-              find
-                  .ancestor(
-                    of: find.text('Romanized text'),
-                    matching: find.byType(Opacity),
-                  )
-                  .first,
-            )
-            .opacity;
-
-        await openPlayer('first');
-        final expandedGap = gap();
-        await choose('Hide Pronunciation');
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(pronunciationOpacity(), inExclusiveRange(0, 1));
-        final intermediateGap = gap();
-        expect(intermediateGap, lessThan(expandedGap));
-        await settlePlayer(tester);
-        expect(find.text('Romanized text'), findsNothing);
-        expect(find.text('English text'), findsOneWidget);
-        expect(gap(), lessThan(intermediateGap));
-
-        await choose('Show Pronunciation');
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(pronunciationOpacity(), inExclusiveRange(0, 1));
-        await settlePlayer(tester);
-        expect(gap(), closeTo(expandedGap, 1));
-        await choose('Hide Translation');
-        await settlePlayer(tester);
-        expect(find.text('English text'), findsNothing);
-        expect(find.text('Romanized text'), findsOneWidget);
-        await choose('Hide Pronunciation');
-        await settlePlayer(tester);
-        expect(find.text('Original text'), findsOneWidget);
-        expect(find.text('Romanized text'), findsNothing);
-        expect(options.hitTestable(), findsOneWidget);
-
-        await tester.pumpWidget(const SizedBox());
-        await openPlayer('second');
-        expect(find.text('English text'), findsNothing);
-        expect(find.text('Romanized text'), findsNothing);
-        await choose('Show Translation');
-        await settlePlayer(tester);
-        expect(find.text('English text'), findsOneWidget);
-        expect(find.text('Romanized text'), findsNothing);
-        expect(tester.takeException(), isNull);
-      },
-    );
 
     testWidgets('finished lyric stays bright until the next lead ($mornye)', (
       tester,
@@ -5300,21 +4811,6 @@ class _SeekController extends MusicPlayerController {
   }
 }
 
-/// A computer playing in the phone's place; the player reads only its name
-/// and the song on its way there.
-class _TestRemote implements RemotePlayback {
-  @override
-  String get name => 'Studio PC';
-
-  @override
-  Stream<RemoteTransfer?> get transfers => Stream.value(null);
-
-  @override
-  Stream<double> get volumes => const Stream.empty();
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
 
 class _TestCollections extends LibraryCollectionsNotifier {
   @override

@@ -123,7 +123,7 @@ void main() {
       'platform': Platform.operatingSystem,
       'completed_cases': cases.length,
       'note':
-          'Five alternating scan/indexed pairs after warmup: 100 actual scheduler admissions of three items including immutable status/index updates. Both variants maintain current indexes. Setup, async work/drain and rendering excluded. Separate full-index-build and progress-only costs compared to retained pre-index baseline. iOS debug correctness only.',
+          'Five alternating scan/indexed pairs after warmup: 100 actual scheduler admissions of three items including immutable status/index updates. Both variants maintain current indexes. Setup, async work/drain and rendering excluded. Separate full-index-build and progress-only costs compared to retained pre-index baseline. Debug correctness only.',
       'cases': cases,
     };
   });

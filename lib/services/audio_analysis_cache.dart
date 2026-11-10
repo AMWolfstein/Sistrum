@@ -25,7 +25,7 @@ abstract final class AudioAnalysisDiskCache {
       }
       await for (final entity in dir.list()) {
         if (entity is! File) continue;
-        final name = entity.path.replaceAll('\\', '/').split('/').last;
+        final name = entity.path.split('/').last;
         final isCombined = name == '$key.png';
         final isChannel = name.startsWith('${key}_ch') && name.endsWith('.png');
         if (isCombined || isChannel) {

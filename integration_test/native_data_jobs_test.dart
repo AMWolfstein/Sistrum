@@ -22,7 +22,6 @@ import 'package:mornye/theme/cover_palette.dart';
 import 'package:mornye/utils/lyrics_parser.dart';
 import 'package:mornye/widgets/audio_analysis_widget.dart';
 
-// Run on a real Android/iOS host. These tests intentionally use the actual
 // channel and native workers; missing bindings must fail, never use a fallback.
 Future<Map<String, dynamic>> _job(
   String operation,
@@ -633,7 +632,7 @@ void main() {
         'history_path': history.path,
         'source_id': 'test-source',
         'expected_source_path': media.path,
-        'platform': Platform.isAndroid ? 'android' : 'ios',
+        'platform': Platform.isAndroid ? 'android' : 'other',
       };
       final firstRow = <String, dynamic>{
         'id': 'first',
@@ -788,7 +787,7 @@ void main() {
       ).writeAsString('${jsonEncode(track)}\n');
       final common = {
         'history_path': database.path,
-        'platform': Platform.isAndroid ? 'android' : 'ios',
+        'platform': Platform.isAndroid ? 'android' : 'other',
       };
       expect(
         (await _job('backup_history_import', {

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +25,6 @@ import 'package:mornye/widgets/track_card.dart';
 import 'package:mornye/widgets/selection_action_button.dart';
 import 'package:mornye/widgets/destructive_selection_button.dart';
 import 'package:mornye/widgets/selection_bottom_bar.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 import 'support/app_icon_finder.dart';
 
@@ -260,13 +258,7 @@ Widget _selectionApp({
 Future<void> _selectAllTracks(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.ensureVisible(find.text('First'));
-  if (isDesktopPlatform) {
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
-    await tester.tap(find.text('First'));
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
-  } else {
-    await tester.longPress(find.text('First'));
-  }
+  await tester.longPress(find.text('First'));
   await tester.pumpAndSettle();
   tester
       .widget<SelectionBottomBar>(find.byType(SelectionBottomBar))
@@ -309,81 +301,7 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   for (final mornye in [false, true]) {
-    for (final desktop in [false, true]) {
-      for (final next in <bool?>[null, true, false]) {
-        testWidgets(
-          'playlist selection plays or enqueues in order ($mornye, $desktop, $next)',
-          (tester) async {
-            debugDesktopPlatformOverride = desktop;
-            addTearDown(() => debugDesktopPlatformOverride = null);
-            tester.view.physicalSize = desktop
-                ? const Size(1000, 900)
-                : const Size(360, 780);
-            tester.view.devicePixelRatio = 1;
-            addTearDown(tester.view.reset);
-            final player = _Player();
-            final playback = _Playback();
-            await tester.pumpWidget(
-              _selectionApp(mornye: mornye, player: player, playback: playback),
-            );
-            await _selectAllTracks(tester);
-            final action = find.widgetWithText(
-              SelectionActionButton,
-              next == null
-                  ? 'Play'
-                  : next
-                  ? 'Play next'
-                  : 'Add to queue',
-            );
-            await tester.ensureVisible(action);
-            await tester.tap(action);
-            await tester.pumpAndSettle();
 
-            expect(player.queue.map((item) => item.title), [
-              'First',
-              'Selected',
-              'Last',
-            ]);
-            expect(player.insertedNext, next);
-            if (next == null) expect(player.index, 0);
-            expect(find.byType(SelectionBottomBar), findsNothing);
-            expect(tester.takeException(), isNull);
-          },
-        );
-      }
-    }
-
-    testWidgets('playlist desktop menu acts on its clicked track ($mornye)', (
-      tester,
-    ) async {
-      debugDesktopPlatformOverride = true;
-      addTearDown(() => debugDesktopPlatformOverride = null);
-      tester.view.physicalSize = const Size(1000, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final player = _Player();
-      await tester.pumpWidget(
-        _selectionApp(mornye: mornye, player: player, playback: _Playback()),
-      );
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('First'));
-      final gesture = await tester.startGesture(
-        tester.getCenter(find.text('First')),
-        kind: PointerDeviceKind.mouse,
-        buttons: kSecondaryButton,
-      );
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(find.text('Add to queue'), findsOneWidget);
-      expect(find.text('Delete 1 track'), findsOneWidget);
-      expect(find.text('Remove from playlist (1)'), findsOneWidget);
-      await tester.tap(find.text('Play next'));
-      await tester.pumpAndSettle();
-      expect(player.queue.map((item) => item.title), ['First']);
-      expect(player.insertedNext, isTrue);
-      expect(find.byType(SelectionBottomBar), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
 
     testWidgets(
       'playlist file deletion confirms and cleans both indexes ($mornye)',

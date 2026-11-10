@@ -1,4 +1,8 @@
 import 'dart:math';
+import 'package:mornye/providers/settings_provider.dart';
+import 'package:mornye/screens/track_metadata_screen.dart';
+import 'package:mornye/widgets/app_icon_button.dart';
+import 'package:mornye/widgets/local_library_artwork_builder.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +15,7 @@ import 'package:mornye/models/unified_library_item.dart';
 import 'package:mornye/providers/library_directory_provider.dart';
 import 'package:mornye/providers/music_player_provider.dart';
 import 'package:mornye/providers/playback_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/screens/library_directory_screen.dart';
-import 'package:mornye/screens/track_metadata_screen.dart';
 import 'package:mornye/services/batch_track_actions.dart';
 import 'package:mornye/services/library_directory_index.dart';
 import 'package:mornye/services/local_track_redownload_service.dart';
@@ -21,33 +23,22 @@ import 'package:mornye/services/playable_media.dart';
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/file_access.dart';
 import 'package:mornye/utils/nav_bar_inset.dart';
 import 'package:mornye/widgets/album_detail_header.dart';
 import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
 import 'package:mornye/widgets/app_loading_indicator.dart';
 import 'package:mornye/widgets/app_refresh_indicator.dart';
 import 'package:mornye/widgets/app_sliver_header.dart';
 import 'package:mornye/widgets/app_snack_bar.dart';
 import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/desktop/desktop_selection.dart';
-import 'package:mornye/widgets/desktop/detail_header.dart';
-import 'package:mornye/widgets/desktop/hover_play_button.dart';
-import 'package:mornye/widgets/desktop/library_track_menu.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
 import 'package:mornye/widgets/error_card.dart';
 import 'package:mornye/widgets/expressive_button.dart';
 import 'package:mornye/widgets/library_selection_playback_actions.dart';
 import 'package:mornye/widgets/network_offline_actions.dart';
 import 'package:mornye/widgets/library_track_selection_bar.dart';
-import 'package:mornye/widgets/local_library_artwork_builder.dart';
-import 'package:mornye/widgets/playlist_picker_sheet.dart';
 import 'package:mornye/widgets/selection_bottom_bar.dart';
-import 'package:mornye/widgets/sliver_layout_info_builder.dart';
 import 'package:mornye/widgets/track_card.dart';
 
 /// One Library folder: its path and counts, Play and Shuffle over every
@@ -56,7 +47,6 @@ import 'package:mornye/widgets/track_card.dart';
 ///
 /// Songs keep the Library's actions: long-press selection with the Library
 /// selection bar on phones, the song table with click selection and the
-/// right-click menu on desktop. Desktop also opens a folder under the album
 /// pages' header and shows the folders inside it as a grid of covers.
 class LibraryDirectoryView extends ConsumerStatefulWidget {
   const LibraryDirectoryView({
@@ -86,18 +76,9 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   /// The folder's own songs as last built, for the selection and the bar.
   List<UnifiedLibraryItem> _items = const [];
 
-  /// The ids and the desktop table rows of the last song list, kept while
-  /// the list (and for the rows the quality label mode) stays the same, so
-  /// a click does not walk every song again.
+  /// The ids of the last song list, kept so a click does not walk every song
+  /// again.
   (List<UnifiedLibraryItem>, Set<String>)? _itemIds;
-  (
-    List<UnifiedLibraryItem>,
-    String,
-    List<TrackTableRow>,
-    Map<String, UnifiedLibraryItem>,
-  )?
-  _table;
-
   bool _starting = false;
 
   @override
@@ -211,11 +192,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     onComplete: _finishSelectionAction,
   );
 
-  PlaybackRowKey _playbackKey(UnifiedLibraryItem item) => (
-    id: item.historyItem?.id ?? item.localItem?.id ?? item.id,
-    path: item.filePath,
-  );
-
   PlayableMedia _media(UnifiedLibraryItem item) => item.localItem != null
       ? playableFromLocal(item.localItem!)
       : playableFromHistory(item.historyItem!);
@@ -281,109 +257,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     }
   }
 
-  /// Adds every song under [folder] to a playlist the user picks.
-  Future<void> _addFolderToPlaylist(LibraryDirectory folder) async {
-    try {
-      final items = await ref.read(libraryDirectoryItemsLoaderProvider)(
-        folder.allTracks,
-      );
-      if (!mounted || items.isEmpty) return;
-      await showAddTracksToPlaylistSheet(
-        Navigator.of(context, rootNavigator: true).context,
-        ref,
-        [for (final item in items) item.toTrack()],
-      );
-    } catch (error) {
-      if (mounted) showCannotOpenFileSnackBar(context, error);
-    }
-  }
-
   void _openFolder(LibraryDirectory folder) {
     pushPage<void>(
       context,
       (_) => LibraryDirectoryScreen(folderKey: folder.key),
-    );
-  }
-
-  Future<void> _openDetails(UnifiedLibraryItem item) {
-    final local = [for (final item in _items) ?item.localItem];
-    final downloads = [for (final item in _items) ?item.historyItem];
-    // The details pager steps through one kind of record.
-    final localOnly = local.length == _items.length;
-    final downloadsOnly = downloads.length == _items.length;
-    return pushPage<void>(
-      context,
-      (_) => TrackMetadataScreen(
-        item: item.historyItem,
-        localItem: item.localItem,
-        localNavigationItems: localOnly ? local : null,
-        historyNavigationItems: downloadsOnly ? downloads : null,
-        navigationIndex: localOnly || downloadsOnly
-            ? _items.indexWhere((entry) => entry.id == item.id)
-            : null,
-      ),
-    );
-  }
-
-  Future<void> _showFolderMenu(LibraryDirectory folder, Offset position) async {
-    final items = await ref.read(libraryDirectoryItemsLoaderProvider)(
-      folder.allTracks,
-    );
-    if (!mounted) return;
-    final l10n = context.l10n;
-    final groups = libraryTrackMenuGroups(
-      context,
-      ref,
-      items: items,
-      onPlay: () => _play(items),
-    );
-    if (groups.isNotEmpty) {
-      groups.first.insert(
-        1,
-        ContextMenuAction(
-          icon: Icons.shuffle,
-          label: l10n.actionShuffle,
-          onSelected: () => _play(items, shuffle: true),
-        ),
-      );
-    }
-    await showContextMenu(
-      context,
-      position: position,
-      groups: [
-        [
-          ContextMenuAction(
-            icon: Icons.folder_open_outlined,
-            label: l10n.desktopMenuOpen,
-            onSelected: () => _openFolder(folder),
-          ),
-        ],
-        ...groups,
-      ],
-    );
-  }
-
-  Future<bool> _showSongMenu(UnifiedLibraryItem item, Offset position) {
-    final items = _selectedItems;
-    return showContextMenu(
-      context,
-      position: position,
-      groups: libraryTrackMenuGroups(
-        context,
-        ref,
-        items: items,
-        onPlay: () => _play(_items, start: item),
-        onOpenDetails: () => _openDetails(item),
-        onDone: exitSelectionMode,
-        onReEnrich: () => _reEnrich(items),
-        onConvert: () => showBatchConvertSheet(
-          context,
-          ref,
-          items,
-          onExitSelectionMode: _finishSelectionAction,
-        ),
-        onDelete: () => _delete(items),
-      ),
     );
   }
 
@@ -407,16 +284,9 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     // A folder that lost its songs keeps no selectable rows.
     _items = const [];
     if (folder == null || folder.trackCount == 0) pruneSelection(const {});
-    // A folder opened on desktop takes the album pages' header.
-    final detailHeader =
-        isDesktopPlatform &&
-        widget.showHeader &&
-        key != null &&
-        folder != null &&
-        folder.trackCount > 0;
     final List<Widget> body;
     if (folder != null && folder.trackCount > 0) {
-      body = _buildFolder(context, folder, summary: !detailHeader);
+      body = _buildFolder(context, folder, summary: true);
     } else if (index == null && indexValue.hasError) {
       body = [
         SliverFillRemaining(
@@ -464,60 +334,36 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       key: PageStorageKey('library-folder:${key ?? ''}'),
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        if (detailHeader)
-          ..._desktopHeader(context, folder)
-        else if (widget.showHeader)
-          AppSliverHeader.page(title: title),
+        if (widget.showHeader) AppSliverHeader.page(title: title),
         ...body,
         // Same reserve as the Library list, so the last rows can scroll
-        // clear of the selection bar; desktop pages scroll under the
         // floating player.
         if (showsSelectionBar)
-          const SliverToBoxAdapter(child: SizedBox(height: 100))
-        else if (isDesktopPlatform)
-          const SliverToBoxAdapter(
-            child: SizedBox(height: desktopDetailBottomInset),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         const NavBarSliverSpacer(),
       ],
     );
-    final items = _items;
     return PopScope(
       canPop: !isSelectionMode,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && isSelectionMode) exitSelectionMode();
       },
-      child: DesktopListScope(
-        onSelectAll: items.isEmpty
-            ? null
-            : () => selectAll(items.map((item) => item.id)),
-        onClearSelection: isSelectionMode ? exitSelectionMode : null,
-        onDelete: isSelectionMode ? () => _delete(_selectedItems) : null,
-        onActivate: () {
-          final anchor = items
-              .where((item) => item.id == selectionAnchorId)
-              .firstOrNull;
-          if (anchor != null) _play(items, start: anchor);
+      child: AppRefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(libraryDirectoryIndexProvider);
+          await ref.read(libraryDirectoryIndexProvider.future);
         },
-        child: AppRefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(libraryDirectoryIndexProvider);
-            await ref.read(libraryDirectoryIndexProvider.future);
-          },
-          child: scrollView,
-        ),
+        child: scrollView,
       ),
     );
   }
 
-  /// Play, Shuffle and, on desktop, Add to Playlist over every song under
   /// [folder].
   Widget _playActions(LibraryDirectory folder) => AlbumPlayActions(
     playLabel: context.l10n.tooltipPlay,
     shuffleTooltip: context.l10n.actionShuffle,
     onPlay: () => _playFolder(folder),
     onShuffle: () => _playFolder(folder, shuffle: true),
-    onAddToPlaylist: () => _addFolderToPlaylist(folder),
     onDownload: !folder.key.startsWith('network://')
         ? null
         : () async {
@@ -528,41 +374,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           },
   );
 
-  /// The album pages' desktop header: the folder's cover, name and path,
-  /// its counts and the folder-wide actions.
-  List<Widget> _desktopHeader(BuildContext context, LibraryDirectory folder) =>
-      desktopDetailHeaderSlivers(
-        context,
-        title: folder.name,
-        artwork: (context, size) =>
-            _FolderArtwork(folder: folder, size: size, radius: 0),
-        paletteSource: folder.cover,
-        // A volume's top folder is already named by its path.
-        subtitle: folder.name == folder.path
-            ? null
-            // Built inside the header, so Material reads its artwork scheme.
-            : Builder(
-                builder: (header) => Text(
-                  folder.path,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(header).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(header).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-        meta: HeaderMetaRow(
-          items: [
-            if (folder.folders.isNotEmpty)
-              HeaderMetaItem(
-                context.l10n.libraryFolderCount(folder.folders.length),
-              ),
-            HeaderMetaItem(context.l10n.queueTrackCount(folder.trackCount)),
-          ],
-        ),
-        actions: _playActions(folder),
-      );
-
   List<Widget> _buildFolder(
     BuildContext context,
     LibraryDirectory folder, {
@@ -570,10 +381,8 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   }) {
     final tokens = context.tokens;
     final mornye = context.isMornye;
-    final desktop = isDesktopPlatform;
     final inset = wideListInset(context);
-    // Desktop lines up with the detail header's artwork.
-    final gutter = (mornye || desktop ? 20.0 : tokens.gapLg) + inset;
+    final gutter = (mornye ? 20.0 : tokens.gapLg) + inset;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final songsValue = folder.tracks.isEmpty
@@ -604,23 +413,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
         ),
       ],
     );
-    // Desktop names the folders and the songs when a folder holds both.
-    final sectionTitles =
-        desktop && folder.folders.isNotEmpty && folder.tracks.isNotEmpty;
-    Widget sectionTitle(String text) => SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsetsDirectional.fromSTEB(
-          gutter,
-          tokens.gapLg,
-          gutter,
-          tokens.gapMd,
-        ),
-        child: Text(
-          text,
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
     return [
       if (summary)
         SliverToBoxAdapter(
@@ -631,35 +423,23 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
               gutter,
               tokens.gapMd,
             ),
-            // Desktop keeps the actions beside the path, as a toolbar.
-            child: desktop
-                ? Row(
-                    children: [
-                      Expanded(child: details),
-                      SizedBox(width: tokens.gapLg),
-                      _playActions(folder),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      details,
-                      SizedBox(height: tokens.gapMd),
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: _playActions(folder),
-                        ),
-                      ),
-                    ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                details,
+                SizedBox(height: tokens.gapMd),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: _playActions(folder),
                   ),
+                ),
+              ],
+            ),
           ),
         ),
-      if (sectionTitles) sectionTitle(context.l10n.libraryFolders),
-      if (folder.folders.isNotEmpty && desktop)
-        _folderGrid(folder, gutter)
-      else if (folder.folders.isNotEmpty)
+      if (folder.folders.isNotEmpty)
         SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: inset),
           sliver: SliverList.builder(
@@ -672,9 +452,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
             ),
           ),
         ),
-      if (sectionTitles)
-        sectionTitle(context.l10n.searchSongs)
-      else if (folder.folders.isNotEmpty && folder.tracks.isNotEmpty)
+      if (folder.folders.isNotEmpty && folder.tracks.isNotEmpty)
         SliverToBoxAdapter(child: SizedBox(height: tokens.gapMd)),
       if (songsValue == null)
         const SliverToBoxAdapter(child: SizedBox.shrink())
@@ -694,8 +472,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
         SliverToBoxAdapter(
           child: TrackListSkeleton(itemCount: min(folder.tracks.length, 8)),
         )
-      else if (isDesktopPlatform)
-        _songTable(context, items)
       else
         SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: inset),
@@ -712,115 +488,28 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     ];
   }
 
-  /// Desktop shows folders as a grid of covers like the album grids: Play
-  /// on hover, the folder menu on right click.
-  Widget _folderGrid(LibraryDirectory parent, double gutter) {
-    final spacing = context.isMornye ? 20.0 : 12.0;
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: gutter),
-      sliver: SliverLayoutInfoBuilder(
-        select: (constraints) => constraints.crossAxisExtent,
-        builder: (context, crossAxisExtent) {
-          // Cells of up to 180, as in the Library album grid.
-          final columns = max(2, (crossAxisExtent / (180 + spacing)).ceil());
-          final width = (crossAxisExtent - spacing * (columns - 1)) / columns;
-          final textHeight =
-              MediaQuery.textScalerOf(context).scale(16) * 3.2 + 24;
-          return SliverGrid.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              crossAxisSpacing: spacing,
-              mainAxisSpacing: 16,
-              mainAxisExtent: width + textHeight,
-            ),
-            itemCount: parent.folders.length,
-            itemBuilder: (context, index) => KeyedSubtree(
-              key: ValueKey('folder:${parent.folders[index].key}'),
-              child: _folderTile(parent.folders[index], width),
-            ),
-          );
-        },
-      ),
-    );
-  }
+  PlaybackRowKey _playbackKey(UnifiedLibraryItem item) => (
+    id: item.historyItem?.id ?? item.localItem?.id ?? item.id,
+    path: item.filePath,
+  );
 
-  Widget _folderTile(LibraryDirectory folder, double size) {
-    final mornye = context.isMornye;
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      child: DesktopContextMenuRegion(
-        onContextMenu: (position) => _showFolderMenu(folder, position),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _openFolder(folder),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox.square(
-                dimension: size,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    _FolderArtwork(
-                      folder: folder,
-                      size: size,
-                      radius: mornye ? 8 : 12,
-                    ),
-                    DesktopHoverPlayButton(
-                      tooltip: context.l10n.tooltipPlay,
-                      onPlay: () => _playFolder(folder),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                folder.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: mornye
-                    ? const TextStyle(fontSize: 16)
-                    : textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-              ),
-              Text(
-                _summary(folder),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: mornye
-                    ? TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurfaceVariant,
-                      )
-                    : textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-              ),
-            ],
-          ),
-        ),
+  Future<void> _openDetails(UnifiedLibraryItem item) {
+    final local = [for (final item in _items) ?item.localItem];
+    final downloads = [for (final item in _items) ?item.historyItem];
+    // The details pager steps through one kind of record.
+    final localOnly = local.length == _items.length;
+    final downloadsOnly = downloads.length == _items.length;
+    return pushPage<void>(
+      context,
+      (_) => TrackMetadataScreen(
+        item: item.historyItem,
+        localItem: item.localItem,
+        localNavigationItems: localOnly ? local : null,
+        historyNavigationItems: downloadsOnly ? downloads : null,
+        navigationIndex: localOnly || downloadsOnly
+            ? _items.indexWhere((entry) => entry.id == item.id)
+            : null,
       ),
-    );
-  }
-
-  Widget _folderRow(LibraryDirectory parent, LibraryDirectory folder) {
-    return TrackCard(
-      style: context.isMornye ? TrackCardStyle.flat : TrackCardStyle.filled,
-      leading: _FolderArtwork(folder: folder),
-      leadingArtwork: folder.cover != null,
-      // Top-level entries of several volumes read as their paths.
-      title: parent.key.isEmpty ? folder.path : folder.name,
-      subtitle: Text(
-        _summary(folder),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: const AppIcon.adaptive(Icons.chevron_right),
-      onTap: isSelectionMode ? null : () => _openFolder(folder),
-      onContextMenu: (position) => _showFolderMenu(folder, position),
     );
   }
 
@@ -874,10 +563,25 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           onLongPress: isSelectionMode
               ? () => toggleSelection(item.id)
               : () => enterSelectionMode(item.id),
-          onContextMenu: (position) =>
-              showSelectionMenu(item.id, () => _showSongMenu(item, position)),
         );
       },
+    );
+  }
+
+  Widget _folderRow(LibraryDirectory parent, LibraryDirectory folder) {
+    return TrackCard(
+      style: context.isMornye ? TrackCardStyle.flat : TrackCardStyle.filled,
+      leading: _FolderArtwork(folder: folder),
+      leadingArtwork: folder.cover != null,
+      // Top-level entries of several volumes read as their paths.
+      title: parent.key.isEmpty ? folder.path : folder.name,
+      subtitle: Text(
+        _summary(folder),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: const AppIcon.adaptive(Icons.chevron_right),
+      onTap: isSelectionMode ? null : () => _openFolder(folder),
     );
   }
 
@@ -888,87 +592,20 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     _itemIds = (items, ids);
     return ids;
   }
-
-  (List<TrackTableRow>, Map<String, UnifiedLibraryItem>) _tableRows(
-    List<UnifiedLibraryItem> items,
-    String qualityMode,
-  ) {
-    final cached = _table;
-    if (cached != null &&
-        identical(cached.$1, items) &&
-        cached.$2 == qualityMode) {
-      return (cached.$3, cached.$4);
-    }
-    final rows = [
-      for (final item in items)
-        TrackTableRow(
-          id: item.id,
-          title: item.trackName,
-          artist: item.artistName,
-          album: item.albumName,
-          quality: item.qualityForMode(qualityMode),
-          duration: switch (item.historyItem?.duration ??
-              item.localItem?.duration) {
-            final seconds? when seconds > 0 => Duration(seconds: seconds),
-            _ => null,
-          },
-          leading: _SongArtwork(item: item, size: 32),
-          playback: mediaItemPlaybackUiProvider(_playbackKey(item)),
-        ),
-    ];
-    final byId = {for (final item in items) item.id: item};
-    _table = (items, qualityMode, rows, byId);
-    return (rows, byId);
-  }
-
-  Widget _songTable(BuildContext context, List<UnifiedLibraryItem> items) {
-    final qualityMode = ref.watch(
-      settingsProvider.select((s) => s.libraryQualityLabelMode),
-    );
-    final (rows, byId) = _tableRows(items, qualityMode);
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
-      sliver: SliverTrackTable(
-        rows: rows,
-        uniformRowHeight: true,
-        columns: const [
-          TrackTableColumn.title,
-          TrackTableColumn.artist,
-          TrackTableColumn.album,
-          TrackTableColumn.quality,
-          TrackTableColumn.duration,
-        ],
-        selectedIds: selectedIds,
-        onSelect: applyDesktopClick,
-        onActivate: (id) {
-          final item = byId[id];
-          if (item != null) _play(items, start: item);
-        },
-        onContextMenu: (id, position) {
-          final item = byId[id];
-          if (item == null) return;
-          showSelectionMenu(id, () => _showSongMenu(item, position));
-        },
-      ),
-    );
-  }
 }
 
 /// The cover of the folder's first song, or a folder glyph for a folder
 /// whose songs have none or that only holds folders.
 class _FolderArtwork extends StatelessWidget {
-  const _FolderArtwork({required this.folder, this.size, this.radius = 8});
+  const _FolderArtwork({required this.folder});
 
   final LibraryDirectory folder;
-
-  /// The list cover size when null.
-  final double? size;
-  final double radius;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final size = this.size ?? context.tokens.coverList;
+    final size = context.tokens.coverList;
+    const radius = 8.0;
     Widget glyph(BuildContext context) => ColoredBox(
       color: colorScheme.secondaryContainer,
       child: Center(

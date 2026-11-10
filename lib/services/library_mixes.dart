@@ -527,10 +527,6 @@ String? libraryGenreFamilyLabel(String key) {
   return null;
 }
 
-/// The genre families a tag such as `Hip-Hop/Rap; R&B` names, in tag
-/// order: `hiphop` and `rnb` here. A part outside the known families keeps
-/// its own family, `tag:` and its normalized words.
-List<String> libraryGenreFamilies(String? tag) => _familiesOf(tag, null);
 
 List<String> _familiesOf(String? tag, Map<String, String>? labels) {
   final protected = (tag ?? '')

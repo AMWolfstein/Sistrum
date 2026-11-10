@@ -660,22 +660,6 @@
       ]
     },
     {
-      "input": "C:\\Music\\Hello.flac",
-      "expected": [
-        "C:/Music/Hello",
-        "C:/Music/Hello.flac",
-        "C:\\Music\\Hello",
-        "C:\\Music\\Hello.flac",
-        "c:/Music/Hello",
-        "c:/Music/Hello.flac",
-        "c:/music/hello",
-        "c:/music/hello.flac",
-        "c:\\music\\hello",
-        "c:\\music\\hello.flac",
-        "windows-file:C:/Music/Hello.flac"
-      ]
-    },
-    {
       "input": "file:///music/a%20b.flac",
       "expected": [
         "/music/a b",

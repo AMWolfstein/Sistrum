@@ -1,109 +1,5 @@
 {
-  "extensionsUnsecuredStorage": "Use unsecured extension storage",
-  "extensionsUnsecuredStorageDescription": "Run extensions without a Linux keyring. The key is saved locally, so anyone with access to your app files can read extension credentials. Off uses the system keyring.",
-  "extensionsStorageKeyringRequired": "Existing extension data needs its original key. Unlock the system keyring once, then enable unsecured storage again. Your data has been preserved.",
-  "extensionsStorageKeyConflict": "The local and system keyring keys differ. Storage was not changed and both keys were preserved.",
-  "extensionsStorageKeyringUnavailable": "The system keyring is unavailable or locked. Start or unlock it before switching to secure storage. Your local key has been preserved.",
-  "linkFileActionOn": "{action} on {name}",
-  "@linkFileActionOn": {
-    "description": "File operation on a named linked computer",
-    "placeholders": {
-      "action": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkFileActionsDescription": "Changes apply to music files on {name}. Accepted work continues if this phone disconnects.",
-  "@linkFileActionsDescription": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkFileDeleteConfirm": "Delete {count} {count, plural, =1{music file} other{music files}} from {name}? This removes the files from that computer's storage.",
-  "@linkFileDeleteConfirm": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkFileJobs": "File changes",
-  "@linkFileJobs": {
-    "description": "Title of the list of edits, conversions and deletions the phone started on the linked computer's music files"
-  },
-  "linkFileJobsSubtitle": "Edits, conversions and deletions on {name}",
-  "@linkFileJobsSubtitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkFileJobsEmpty": "No file changes yet",
-  "linkFileJobsEmptyMessage": "Edits, conversions and deletions you start on the computer's songs from this phone appear here.",
-  "linkDesktopFileJobsSubtitle": "Changes requested from your phones",
-  "linkDesktopFileJobsEmptyMessage": "Edits, conversions and deletions requested from your phones appear here.",
-  "linkFileJobRequestedBy": "From {name}",
-  "@linkFileJobRequestedBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkFileJobsView": "View",
-  "@linkFileJobsView": {
-    "description": "Snackbar action that opens the file changes list to see which songs failed"
-  },
-  "linkFileJobsUnsupported": "Update Mornye on your computer to manage its music files from this phone.",
-  "linkFileSelectionOneDevice": "Select songs from one linked computer at a time (up to 100 songs).",
-  "linkFileJobProgress": "{finished} of {total} {total, plural, =1{song} other{songs}}",
-  "@linkFileJobProgress": {
-    "placeholders": {
-      "finished": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "linkFileJobFailedCount": "{count} failed",
-  "@linkFileJobFailedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkFileJobFinished": "{action} finished on {name}",
-  "@linkFileJobFinished": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkFileDeleting": "Deleting...",
   "linkFileReading": "Reading tags...",
-  "linkFileSavingCover": "Saving cover art...",
-  "linkFileCancelHint": "Stop after the current song",
-  "linkFileJobCancelled": "Stopped",
-  "linkFileJobQueued": "Queued",
-  "linkFileJobCompleted": "Finished",
-  "linkFileChanged": "The file changed since the preview. Preview it again before saving.",
-  "linkFileOperationFailed": "The operation could not be completed. Check the computer's logs for details.",
   "trackBpm": "BPM",
   "trackMood": "분위기",
   "subsonicAddToLibrary": "서버를 라이브러리에 추가",
@@ -296,20 +192,6 @@
   "dapExclusive": "DAP hi-res (AAudio 전용)",
   "dapExclusiveDescription": "FLAC/WAV PCM 파일을 트랙의 원본 샘플레이트와 정밀도 그대로 재생하려면 Oboe/AAudio를 사용합니다. Android 8.1 이상과 호환되는 하드웨어가 필요합니다. 전용 접근 가능 여부를 확인하며, 지원되지 않는 형식은 일반 재생 방식으로 처리됩니다. DSD는 다이렉트 USB 드라이버가 필요합니다. 이 설정은 다음 트랙부터 적용됩니다",
   "dapExclusiveUnavailable": "이 트랙과 현재 출력에서는 AAudio 전용 접근을 사용할 수 없습니다. 일반 재생 방식으로 전환합니다. USB DAC을 사용하는 경우 다이렉트 USB 드라이버를 사용해 보세요",
-  "exclusiveOutputWindows": "WASAPI exclusive mode",
-  "exclusiveOutputMacos": "Exclusive access (hog mode)",
-  "exclusiveOutputLinux": "Direct ALSA output",
-  "exclusiveOutputDescriptionWindows": "Bypass the Windows mixer so the output follows each track's sample rate and bit depth. Other apps cannot play sound while Mornye holds the device. AutoMix and previews are off in this mode. For bit-perfect output, keep the volume at 100% with the equalizer and normalization off.",
-  "exclusiveOutputDescriptionMacos": "Hold the output device for Mornye alone and switch it to each track's sample rate and bit depth, so Core Audio does not resample. Other apps cannot play sound while Mornye holds the device. AutoMix and previews are off in this mode. For bit-perfect output, keep the volume at 100% with the equalizer and normalization off.",
-  "exclusiveOutputDescriptionLinux": "Play straight to an ALSA hardware device, bypassing PipeWire or PulseAudio, so the output follows each track's sample rate and bit depth. The device must be free: the sound server releases an idle card after a few seconds, or set its profile to Off. AutoMix and previews are off in this mode.",
-  "exclusiveOutputPending": "Takes the device when a track plays.",
-  "exclusiveOutputActive": "Playing in exclusive mode.",
-  "exclusiveOutputUnavailableWindows": "The device refused exclusive access, so this track plays through the Windows mixer. Close other apps using the device, or allow exclusive control in the device's Windows sound properties.",
-  "exclusiveOutputUnavailableMacos": "Another app holds the output device, so this track plays through the system mixer.",
-  "exclusiveOutputUnavailableLinux": "The ALSA device is busy, usually held by the sound server, so this track plays through it. Set the card's profile to Off in the sound settings, or choose another device.",
-  "exclusiveOutputDevice": "Output device",
-  "exclusiveOutputDeviceFirst": "First sound card",
-  "exclusiveOutputNoDevices": "No ALSA playback devices found",
   "usbDirect": "다이렉트 USB 드라이버",
   "usbDirectDescription": "FLAC/WAV, DSF/DFF 및 WavPack DSD를 재생하려면 독점 USB 오디오를 사용하며, Android의 USB 권한이 필요합니다. 네이티브 DSD는 인식된 호환 DAC이 필요합니다. 그 외의 PCM 형식은 일반 재생 방식을 사용합니다. 이 설정은 다음 트랙부터 적용됩니다",
   "usbDsdOverPcm": "DSD over PCM (DoP)",
@@ -379,18 +261,6 @@
   "homeRecent": "최근 기록",
   "@homeRecent": {
     "description": "Section header for recent searches"
-  },
-  "searchRecentlySearched": "최근 검색어",
-  "@searchRecentlySearched": {
-    "description": "Section header for recent searches on the desktop Search page"
-  },
-  "searchLibraryPrompt": "내 라이브러리 검색",
-  "@searchLibraryPrompt": {
-    "description": "Shown on the desktop Search page when the Library scope has no search words yet"
-  },
-  "searchBrowse": "탐색",
-  "@searchBrowse": {
-    "description": "Section header for home feed tiles on the desktop Search page"
   },
   "historyFilterAll": "모두",
   "@historyFilterAll": {
@@ -841,57 +711,30 @@
     "description": "Section for special thanks"
   },
   "aboutLinks": "링크",
-  "@aboutLinks": {
-    "description": "Section for external links"
-  },
   "aboutMobileSource": "모바일 소스 코드",
-  "@aboutMobileSource": {
-    "description": "Link to mobile GitHub repo"
-  },
   "aboutLyricsWebsite": "가사 웹사이트",
-  "@aboutLyricsWebsite": {
-    "description": "Link to the Zarz-LRC website for searching and saving word-timed lyrics"
-  },
   "aboutServiceStatus": "서비스 상태",
-  "@aboutServiceStatus": {
-    "description": "Link to the status page of the Mornye online services"
-  },
   "aboutReportIssue": "문제 신고",
-  "@aboutReportIssue": {
-    "description": "Link to report bugs"
-  },
   "aboutReportIssueSubtitle": "발생하는 모든 문제를 신고해 주세요",
   "@aboutReportIssueSubtitle": {
     "description": "Subtitle for report issue"
   },
   "aboutFeatureRequest": "기능 요청",
-  "@aboutFeatureRequest": {
-    "description": "Link to suggest features"
-  },
   "aboutFeatureRequestSubtitle": "앱의 새 기능을 제안해 주세요",
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
   "aboutTelegramChannel": "텔레그램 채널",
-  "@aboutTelegramChannel": {
-    "description": "Link to Telegram channel"
-  },
   "aboutTelegramChannelSubtitle": "공지 및 업데이트 안내",
   "@aboutTelegramChannelSubtitle": {
     "description": "Subtitle for Telegram channel"
   },
   "aboutTelegramChat": "텔레그램 그룹",
-  "@aboutTelegramChat": {
-    "description": "Link to Telegram chat group"
-  },
   "aboutTelegramChatSubtitle": "다른 이용자와 소통",
   "@aboutTelegramChatSubtitle": {
     "description": "Subtitle for Telegram chat"
   },
   "aboutSocial": "소셜 네트워크",
-  "@aboutSocial": {
-    "description": "Section for social links"
-  },
   "aboutApp": "앱 정보",
   "@aboutApp": {
     "description": "Section for app info"
@@ -1025,34 +868,6 @@
   "@setupDownloadLocationTitle": {
     "description": "Download location dialog title"
   },
-  "setupDownloadLocationIosMessage": "iOS에서는 다운로드된 파일이 앱의 문서 폴더에 저장됩니다. 파일 앱을 통해 해당 파일에 접근할 수 있습니다",
-  "@setupDownloadLocationIosMessage": {
-    "description": "iOS-specific folder info"
-  },
-  "setupAppDocumentsFolder": "앱 문서 폴더",
-  "@setupAppDocumentsFolder": {
-    "description": "iOS documents folder option"
-  },
-  "setupAppDocumentsFolderSubtitle": "권장 사항 - 파일 앱을 통해 접근 가능",
-  "@setupAppDocumentsFolderSubtitle": {
-    "description": "Subtitle for documents folder"
-  },
-  "setupChooseFromFiles": "파일 탐색기에서 선택",
-  "@setupChooseFromFiles": {
-    "description": "iOS file picker option"
-  },
-  "setupChooseFromFilesSubtitle": "iCloud 또는 다른 위치를 선택하세요",
-  "@setupChooseFromFilesSubtitle": {
-    "description": "Subtitle for file picker"
-  },
-  "setupIosEmptyFolderWarning": "iOS 제한 사항: 빈 폴더는 선택할 수 없습니다. 파일이 하나 이상 있는 폴더를 선택하세요",
-  "@setupIosEmptyFolderWarning": {
-    "description": "iOS folder selection warning"
-  },
-  "setupIcloudNotSupported": "iCloud Drive는 지원되지 않습니다. 앱의 문서 폴더를 사용해 주세요",
-  "@setupIcloudNotSupported": {
-    "description": "Error when user selects iCloud Drive on iOS"
-  },
   "setupDownloadInFlac": "무손실 및 Hi-Res 음질으로 음악을 다운로드하세요",
   "@setupDownloadInFlac": {
     "description": "App tagline in setup"
@@ -1105,7 +920,7 @@
   "@setupNearbyEnable": {
     "description": "Setup step title and button for the Android Nearby devices permission; Nearby devices is the Android permission name"
   },
-  "setupNearbyDescription": "Mornye Link uses it to find your computer on the same network, and network storage needs it to reach a server at home.",
+  "setupNearbyDescription": "Network storage needs it to reach a server at home.",
   "@setupNearbyDescription": {
     "description": "Setup step explaining why Android's Nearby devices permission is needed"
   },
@@ -1117,12 +932,12 @@
   "@permissionNearbyDevices": {
     "description": "Nearby devices permission type label; use Android's name for this permission"
   },
-  "whatsNewLinkNearbyAllow": "주변 기기 허용",
-  "@whatsNewLinkNearbyAllow": {
+  "whatsNewNearbyAllow": "주변 기기 허용",
+  "@whatsNewNearbyAllow": {
     "description": "Main button on the Nearby devices page of the What's New tour that asks for Android's Nearby devices permission"
   },
-  "whatsNewLinkNearbyGranted": "주변 기기가 허용됨",
-  "@whatsNewLinkNearbyGranted": {
+  "whatsNewNearbyGranted": "주변 기기가 허용됨",
+  "@whatsNewNearbyGranted": {
     "description": "Shown on the Nearby devices page of the What's New tour after the Nearby devices permission is granted"
   },
   "whatsNewNearbyTitle": "주변 기기",
@@ -1132,14 +947,6 @@
   "whatsNewNearbyDesc": "Android now asks before an app can reach other devices on your network. Mornye needs this for:",
   "@whatsNewNearbyDesc": {
     "description": "Description on the Nearby devices page of the What's New tour, followed by a list of uses"
-  },
-  "whatsNewNearbyLinkTitle": "Finding your computer",
-  "@whatsNewNearbyLinkTitle": {
-    "description": "Use of the Nearby devices permission: Mornye Link finds the computer"
-  },
-  "whatsNewNearbyLinkBody": "Mornye Link looks for your computer on the same Wi-Fi and stays connected to it.",
-  "@whatsNewNearbyLinkBody": {
-    "description": "Explains how Mornye Link uses the Nearby devices permission"
   },
   "whatsNewNearbyStorageTitle": "Network storage",
   "@whatsNewNearbyStorageTitle": {
@@ -1157,7 +964,7 @@
   "@whatsNewNearbyPrivateBody": {
     "description": "Explains that the Nearby devices permission is not used for location"
   },
-  "whatsNewNearbyRefused": "Not allowed. Mornye Link and network storage stay off until you allow Nearby devices for Mornye in Android settings.",
+  "whatsNewNearbyRefused": "Not allowed. Network storage stays off until you allow Nearby devices for Mornye in Android settings.",
   "@whatsNewNearbyRefused": {
     "description": "Shown on the Nearby devices page of the What's New tour after the permission is refused"
   },
@@ -1338,9 +1145,6 @@
     "description": "Track option and sheet title listing streaming platforms where the track can be opened"
   },
   "trackOpenOnNoLinks": "이 트랙에 대한 플랫폼 링크를 찾을 수 없습니다",
-  "@trackOpenOnNoLinks": {
-    "description": "Shown in the Open on sheet when song.link returns no links"
-  },
   "libraryReviewDuplicates": "중복된 트랙 보기",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1804,26 +1608,6 @@
   "updateViewRelease": "릴리스 보기",
   "@updateViewRelease": {
     "description": "Update button - open the release page when this install cannot update itself (deb, Flatpak, no matching package)"
-  },
-  "updateStartingInstaller": "설치 프로그램을 시작하는 중...",
-  "@updateStartingInstaller": {
-    "description": "Update status on Windows - the downloaded installer is starting and the app will close"
-  },
-  "updateMacInstallHint": "디스크 이미지가 Finder에서 열려 있습니다. Mornye를 종료한 다음, 디스크 이미지에서 Mornye를 응용 프로그램으로 드래그하여 이전 복사본을 대체하세요",
-  "@updateMacInstallHint": {
-    "description": "Update instructions on macOS after the downloaded disk image opens"
-  },
-  "updateQuitApp": "Mornye 종료",
-  "@updateQuitApp": {
-    "description": "Update button on macOS - quit the app so the new version can replace it"
-  },
-  "updateReadyToRestart": "업데이트가 설치되었습니다. 사용하려면 Mornye를 다시 시작하세요",
-  "@updateReadyToRestart": {
-    "description": "Update status on Linux after the AppImage was replaced"
-  },
-  "updateRestartNow": "지금 다시 시작",
-  "@updateRestartNow": {
-    "description": "Update button on Linux - restart the app after the AppImage was replaced"
   },
   "providerPriorityTitle": "제공자 우선순위",
   "@providerPriorityTitle": {
@@ -2600,10 +2384,6 @@
   "downloadAutoConvertFormat": "출력 형식",
   "@downloadAutoConvertFormat": {
     "description": "Automatic conversion output format setting"
-  },
-  "downloadAutoConvertFormatSubtitle": "새로 완료된 다운로드에 사용되는 손실 압축 형식을 선택하세요",
-  "@downloadAutoConvertFormatSubtitle": {
-    "description": "Automatic conversion format picker explanation"
   },
   "downloadAutoConvertBitrate": "출력 음질",
   "@downloadAutoConvertBitrate": {
@@ -3559,14 +3339,6 @@
     }
   },
   "whatsNewIntroDesc": "Our biggest update yet. Here's a quick look at what's new.",
-  "whatsNewLinkTitle": "Mornye Link",
-  "whatsNewLinkDesc": "Pair your phone and computer on the same network. Mornye Link is in beta.",
-  "whatsNewLinkPlayTitle": "Play across devices",
-  "whatsNewLinkPlayBody": "Browse your computer's library on your phone, control what it plays, and hand playback over without losing your place.",
-  "whatsNewLinkTransferTitle": "Move songs both ways",
-  "whatsNewLinkTransferBody": "Send songs to your computer or save them to your phone, right from the song menu.",
-  "whatsNewLinkSyncTitle": "Stay in sync",
-  "whatsNewLinkSyncBody": "Collections and listening history stay the same on paired devices.",
   "whatsNewHomeTitle": "A Home that learns",
   "whatsNewHomeDesc": "Mixes and autoplay now follow how you actually listen.",
   "whatsNewHomeMixesTitle": "Mixes from your Library",
@@ -3585,8 +3357,6 @@
   "whatsNewPlayerTimingBody": "Move synced lyrics earlier or later when they drift from the song.",
   "whatsNewPlayerAutoTitle": "Android Auto",
   "whatsNewPlayerAutoBody": "Browse and play your Library from your car's screen.",
-  "whatsNewPlayerExclusiveTitle": "Exclusive output",
-  "whatsNewPlayerExclusiveBody": "Send audio straight to your output device without the system mixer.",
   "whatsNewLibraryTitle": "Library and search",
   "whatsNewLibraryDesc": "New ways to find and organize your music.",
   "whatsNewLibraryFoldersTitle": "Browse by folder",
@@ -4928,9 +4698,6 @@
     "description": "Error shown on downloads that failed because the persisted Android SAF folder grant is no longer valid"
   },
   "downloadErrorFolderAccessLost": "다운로드 폴더 접근 권한이 없습니다. 설정에서 다운로드 폴더를 다시 설정하세요",
-  "@downloadErrorFolderAccessLost": {
-    "description": "Error shown on downloads that failed because the iOS download folder bookmark could not be opened"
-  },
   "downloadFilenameDescription": "'{artist}', '{title}', '{album}', '{track}', '{year}', '{date}', '{disc}'를 자리표시자로 사용하세요",
   "@downloadFilenameDescription": {
     "description": "Description shown in filename format editor"
@@ -6695,9 +6462,6 @@
     }
   },
   "extensionOauthConnectHint": "Spotify에 연결을 탭하여 이 필드를 채우세요",
-  "@extensionOauthConnectHint": {
-    "description": "Hint for an OAuth login link field before connecting Spotify"
-  },
   "extensionLastChecked": "마지막 확인 시간: {time}",
   "@extensionLastChecked": {
     "description": "Timestamp for the latest extension service health check",
@@ -6825,10 +6589,6 @@
   "@permissionNotification": {
     "description": "Notification permission type label"
   },
-  "errorInvalidFolderSelected": "잘못된 폴더가 선택됨",
-  "@errorInvalidFolderSelected": {
-    "description": "Error when the selected folder is invalid"
-  },
   "storeAnyVersion": "모든",
   "@storeAnyVersion": {
     "description": "Store detail value when any app version is accepted"
@@ -6895,20 +6655,13 @@
     "description": "Title and tooltip for finding the current collection in other services"
   },
   "shareSheetNoExtensions": "호환되는 다른 서비스가 없음",
-  "@shareSheetNoExtensions": {
-    "description": "Empty state when no extensions can be searched for cross-service links"
-  },
   "shareSheetNotFound": "찾을 수 없음",
   "@shareSheetNotFound": {
     "description": "Cross-service share sheet row subtitle when a service has no match"
   },
   "shareSheetCopyLink": "링크 복사",
-  "@shareSheetCopyLink": {
-    "description": "Tooltip for copying a cross-service link"
-  },
   "shareSheetLinkCopied": "{service} 링크가 복사됨",
   "@shareSheetLinkCopied": {
-    "description": "Snackbar after copying a cross-service link",
     "placeholders": {
       "service": {}
     }
@@ -7068,10 +6821,6 @@
   "nowPlayingNoLyricsOnline": "온라인에서 가사를 찾을 수 없습니다",
   "@nowPlayingNoLyricsOnline": {
     "description": "Empty state after an online lyrics search for the playing track found nothing"
-  },
-  "nowPlayingTranslateLyrics": "가사 번역",
-  "@nowPlayingTranslateLyrics": {
-    "description": "Player lyrics menu action that translates the current lyrics with the user's AI provider"
   },
   "nowPlayingCancelTranslation": "번역 취소",
   "@nowPlayingCancelTranslation": {
@@ -7375,283 +7124,8 @@
   "@nowPlayingNoMetadata": {
     "description": "Empty state when track metadata cannot be loaded"
   },
-  "linkDevicesTitle": "Devices",
-  "@linkDevicesTitle": {
-    "description": "Mornye Link: title and button tooltip of the phone sheet that controls the paired desktop app"
-  },
-  "linkConnectionConnected": "연결됨",
-  "@linkConnectionConnected": {
-    "description": "Mornye Link: the phone is connected to the paired desktop"
-  },
-  "linkConnectionConnecting": "연결하는 중",
-  "@linkConnectionConnecting": {
-    "description": "Mornye Link: the phone is connecting to the paired desktop"
-  },
-  "linkConnectionDisconnected": "연결되지 않음",
-  "@linkConnectionDisconnected": {
-    "description": "Mornye Link: the paired desktop cannot be reached"
-  },
-  "linkThisPhone": "이 휴대폰",
-  "@linkThisPhone": {
-    "description": "Mornye Link: the phone's own row in the Devices sheet; choosing it plays music here again"
-  },
-  "linkPlayingOn": "{name}에서 재생 중",
-  "@linkPlayingOn": {
-    "description": "Mornye Link: shown in the player while the paired desktop plays in the phone's place",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopDownloads": "{name}에서 다운로드",
-  "@linkDesktopDownloads": {
-    "description": "Mornye Link: heading of the paired desktop's download queue",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkHandoffStarted": "{name}에서 재생 중",
-  "@linkHandoffStarted": {
-    "description": "Mornye Link: the paired desktop took over the phone's queue",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkHandoffSending": "이 노래를 '{name}'에게 전송 중...",
-  "@linkHandoffSending": {
-    "description": "Mornye Link: the phone uploads the current song, which the paired desktop lacks, before it plays there",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkHandoffMissing": "{name}에서 재생 중입니다. 찾을 수 없음: {titles}",
-  "@linkHandoffMissing": {
-    "description": "Mornye Link: the paired desktop took over the phone's queue but lacks some tracks, listed by title",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "titles": {
-        "type": "String"
-      }
-    }
-  },
-  "linkHandoffNotFound": "'{name}'에는 이러한 트랙이 없습니다",
-  "@linkHandoffNotFound": {
-    "description": "Mornye Link: the paired desktop has none of the tracks in the phone's queue",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkHandoffNothingPlaying": "이 휴대폰에서 재생 중인 음악이 없습니다",
-  "@linkHandoffNothingPlaying": {
-    "description": "Mornye Link: Play on desktop needs a track playing on the phone"
-  },
-  "linkContinueSkipped": "이 휴대폰에 없음: {titles}",
-  "@linkContinueSkipped": {
-    "description": "Mornye Link: tracks of the desktop queue the phone could not play, listed by title",
-    "placeholders": {
-      "titles": {
-        "type": "String"
-      }
-    }
-  },
-  "linkContinueNotFound": "이 휴대폰에는 이러한 트랙이 없음",
-  "@linkContinueNotFound": {
-    "description": "Mornye Link: the phone has none of the tracks of the desktop queue"
-  },
-  "linkRequestFailed": "{name}에 연결할 수 없음",
-  "@linkRequestFailed": {
-    "description": "Mornye Link: a request to the paired desktop failed",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDownloadOnDesktop": "{name}에서 다운로드",
-  "@linkDownloadOnDesktop": {
-    "description": "Mornye Link: queues a track, album or link for download in the paired desktop app",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDownloadQueuedOnDesktop": "{count, plural, =1{Queued 1 track on {name}} other{Queued {count} tracks on {name}}}",
-  "@linkDownloadQueuedOnDesktop": {
-    "description": "Mornye Link: the paired desktop queued downloads",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkOpenOnDesktop": "{name}에서 열기",
-  "@linkOpenOnDesktop": {
-    "description": "Mornye Link: opens a shared link in the paired desktop app",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkOpenedOnDesktop": "{name}에서 열림",
-  "@linkOpenedOnDesktop": {
-    "description": "Mornye Link: the paired desktop opened the link",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkSendToDesktop": "Send to {name}",
-  "@linkSendToDesktop": {
-    "description": "Mornye Link: action on a shared link that offers to open or download it on the paired desktop",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkSaveToPhone": "Save to this phone",
-  "@linkSaveToPhone": {
-    "description": "Mornye Link: downloads songs of the paired desktop's library into the phone's download folder"
-  },
-  "linkSavingToPhone": "Saving to this phone",
-  "@linkSavingToPhone": {
-    "description": "Mornye Link: title of the progress dialog while desktop songs are saved to the phone"
-  },
-  "linkSavedToPhone": "{count, plural, =1{Saved 1 song to this phone} other{Saved {count} songs to this phone}}",
-  "@linkSavedToPhone": {
-    "description": "Mornye Link: desktop songs were saved to the phone",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkSaveToPhoneFailed": "{count, plural, =1{1 song could not be saved} other{{count} songs could not be saved}}",
-  "@linkSaveToPhoneFailed": {
-    "description": "Mornye Link: some desktop songs could not be saved to the phone",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "linkSaveToPhoneCancelled": "Saving stopped",
-  "@linkSaveToPhoneCancelled": {
-    "description": "Mornye Link: the listener cancelled saving desktop songs to the phone"
-  },
-  "linkTransferPhoneReceiving": "{count, plural, =1{Saving {title} from {name}} other{Saving {count} songs from {name}}}",
-  "@linkTransferPhoneReceiving": {
-    "description": "Mornye Link: snackbar and notification when the phone starts copying songs from the paired computer into its download folder; title is the song's title when there is one song",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferPhoneOffered": "{count, plural, =1{{name} is sending {title} to this phone} other{{name} is sending {count} songs to this phone}}",
-  "@linkTransferPhoneOffered": {
-    "description": "Mornye Link: snackbar when the paired computer starts sending songs to the phone; title is the song's title when there is one song",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferPhoneView": "View",
-  "@linkTransferPhoneView": {
-    "description": "Mornye Link: snackbar action that opens the list of song transfers"
-  },
-  "linkTransferPhoneWith": "Transfer with {name}",
-  "@linkTransferPhoneWith": {
-    "description": "Mornye Link: tooltip and sheet title of a playlist's button that sends its songs to the paired computer or saves the computer's songs to the phone",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferPhoneNothing": "None of these songs are on {name}",
-  "@linkTransferPhoneNothing": {
-    "description": "Mornye Link: Save to this phone found none of the chosen songs in the paired computer's library",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkSendSending": "{count, plural, =1{Sending {title} to {name}} other{Sending {count} songs to {name}}}",
-  "@linkSendSending": {
-    "description": "Mornye Link: snackbar and notification when the phone starts copying its own songs to the paired computer; title is the song's title when there is one song",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkSendNothing": "None of these songs can be sent to {name}",
-  "@linkSendNothing": {
-    "description": "Mornye Link: none of the chosen songs is a file on this phone in a format the paired computer takes",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDownloadStatusQueued": "Waiting",
-  "@linkDownloadStatusQueued": {
-    "description": "Mornye Link: a download on the paired desktop has not started"
-  },
-  "linkDownloadStatusDownloading": "Downloading",
-  "@linkDownloadStatusDownloading": {
-    "description": "Mornye Link: a download on the paired desktop is running"
-  },
-  "linkDownloadStatusDone": "Done",
-  "@linkDownloadStatusDone": {
-    "description": "Mornye Link: a download on the paired desktop finished"
-  },
-  "linkDownloadStatusFailed": "실패",
-  "@linkDownloadStatusFailed": {
-    "description": "Mornye Link: a download on the paired desktop failed"
-  },
   "announcementUnableToOpenLink": "링크를 열 수 없습니다. 다시 시도해 주세요",
-  "@announcementUnableToOpenLink": {
-    "description": "Snackbar shown when an announcement CTA link cannot be opened"
-  },
   "trackConvertLosslessOutputWithCap": "{quality} 제한이 있는 무손실 출력",
   "@trackConvertLosslessOutputWithCap": {
     "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
@@ -8114,10 +7588,6 @@
   "@compactPlayerDescription": {
     "description": "Subtitle of the compact player setting"
   },
-  "playerCoverStyleDefault": "기본값",
-  "@playerCoverStyleDefault": {
-    "description": "Cover art style: artwork card above the controls"
-  },
   "playerCoverStyleCard": "카드",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -8150,8 +7620,6 @@
   "@musicHapticsStrength": {
     "description": "Slider for how strongly the phone vibrates with music haptics"
   },
-  "autoMixOn": "AutoMix 켜기",
-  "autoMixOff": "AutoMix 끄기",
   "autoplayOn": "자동재생 켜기",
   "autoplayOff": "자동재생 끄기",
   "autoplayFromLibrary": "라이브러리에서 자동재생",
@@ -8268,9 +7736,6 @@
     "description": "Rotating Home prompt under the greeting"
   },
   "homeTaglineLink": "링크가 있으신가요? 검색창에 넣어주세요",
-  "@homeTaglineLink": {
-    "description": "Rotating Home prompt explaining that links can be pasted into search"
-  },
   "homeTaglineDiscover": "다음으로 좋아하는 앨범을 찾아보세요",
   "@homeTaglineDiscover": {
     "description": "Rotating Home prompt under the greeting"
@@ -8288,9 +7753,6 @@
     "description": "Home section header for the most played tracks of the last four weeks"
   },
   "homeShortcuts": "바로가기",
-  "@homeShortcuts": {
-    "description": "Home section header for quick links to player tools"
-  },
   "homeMixesForYou": "Mixes for you",
   "@homeMixesForYou": {
     "description": "Home section header for daily mixes made from the user's own Library songs"
@@ -8732,18 +8194,6 @@
   "motionArtworkDescription": "메타데이터 제공자에서 제공하는 앨범 커버의 반복 재생 동영상입니다. 비활성화하면 정지 이미지를 사용하여 배터리 소모를 줄일 수 있습니다",
   "libraryLoading": "라이브러리를 불러오는 중…",
   "libraryLoadFailed": "라이브러리를 불러올 수 없습니다. 저장된 폴더와 트랙 목록을 다시 불러오려면 다시 시도하세요",
-  "discordPresenceDescription": "내부 플레이어에서 재생한 음악의 제목, 아티스트, 앨범 및 재생 진행 상황을 Discord 프로필에 공유합니다. 로컬 오디오 파일과 앨범 아트워크는 절대 업로드되지 않습니다. 재생을 일시 정지하거나 중지하면 공유 정보가 삭제됩니다",
-  "discordPresenceDisabled": "비활성화됨",
-  "discordPresenceLink": "Discord 계정 연결",
-  "discordPresenceConnecting": "Discord에 연결하는 중…",
-  "discordPresenceReady": "음악 재생 준비",
-  "discordPresenceActive": "현재 트랙을 공유하는 중",
-  "discordPresenceUnavailable": "Discord를 사용할 수 없습니다. 재생 중 다시 연결을 시도하고 있습니다",
-  "discordPresenceBuildUnavailable": "이 빌드에서는 Discord SDK를 사용할 수 없습니다",
-  "discordPresenceAndroidHelp": "이 휴대폰에 Discord를 설치하고 로그인하세요. Discord에서 활동 공유를 허용하세요. 외부 플레이어는 지원되지 않습니다",
-  "discordPresenceIosHelp": "Discord를 통해 계정을 연결하고 활동 공유를 허용하세요. 인증에 실패하면 다시 연결하려면 탭하세요.",
-  "discordPresenceDesktopHelp": "이 컴퓨터에서 Discord 데스크톱 앱을 실행하고 로그인된 상태로 유지하세요. 또한 Discord에서 활동 공유를 허용하세요",
-  "discordPresenceDisconnect": "계정 연결 해제 및 삭제",
   "autoMixSettingsTitle": "믹스 전환",
   "autoMixAutomaticDuration": "자동 지속 시간",
   "autoMixDuration": "믹스 지속 시간",
@@ -8879,15 +8329,6 @@
   "audioInfoLocationLocal": "기기 저장소",
   "audioInfoLocationShared": "공유된 폴더",
   "audioInfoLocationNetwork": "네트워크 저장소",
-  "audioInfoLocationLink": "{device} via Mornye Link",
-  "@audioInfoLocationLink": {
-    "description": "Audio info location of a song played from a paired computer or phone over Mornye Link; device is that device's name",
-    "placeholders": {
-      "device": {
-        "type": "String"
-      }
-    }
-  },
   "audioInfoPcmRate": "비압축 데이터 전송률",
   "audioInfoFrequencyRange": "주파수 범위",
   "audioInfoFrequencyRangeValue": "최대 {frequency} (나이퀴스트)",
@@ -9032,1005 +8473,13 @@
   "@optionsEmbeddedCoverSizeOriginal": {
     "description": "Option that preserves the provider artwork at its original resolution"
   },
-  "desktopShortcutTooltip": "{action} ({shortcut})",
-  "@desktopShortcutTooltip": {
-    "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
-    "placeholders": {
-      "action": {
-        "type": "String"
-      },
-      "shortcut": {
-        "type": "String"
-      }
-    }
-  },
-  "desktopPlayerIdle": "지금 재생 중",
-  "@desktopPlayerIdle": {
-    "description": "Desktop player bar text when no track is loaded"
-  },
-  "desktopVolumeUp": "볼륨 올리기",
-  "desktopVolumeDown": "볼륨 낮추기",
-  "desktopTableSortedAscending": "{column}, 오름차순 정렬",
-  "@desktopTableSortedAscending": {
-    "description": "Screen reader label of a song table column header that sorts the table A to Z",
-    "placeholders": {
-      "column": {
-        "type": "String"
-      }
-    }
-  },
-  "desktopTableSortedDescending": "{column}, 내림차순 정렬",
-  "@desktopTableSortedDescending": {
-    "description": "Screen reader label of a song table column header that sorts the table Z to A",
-    "placeholders": {
-      "column": {
-        "type": "String"
-      }
-    }
-  },
-  "desktopMenuOpen": "열기",
-  "@desktopMenuOpen": {
+  "menuOpen": "열기",
+  "@menuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
   },
-  "desktopMenuShowDetails": "세부 정보 표시",
-  "@desktopMenuShowDetails": {
+  "menuShowDetails": "세부 정보 표시",
+  "@menuShowDetails": {
     "description": "Context menu item that opens a track's metadata page"
-  },
-  "desktopDropToImport": "드롭하여 라이브러리에 추가",
-  "@desktopDropToImport": {
-    "description": "Overlay shown while music files or folders are dragged over the desktop window"
-  },
-  "desktopDropImported": "라이브러리에 {count} 개의 {count, plural, =1{폴더} other{폴더}} 추가하는 중",
-  "@desktopDropImported": {
-    "description": "Snackbar after dropping music onto the desktop window; the folders are scanned into the library",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "desktopDropNothingToImport": "음악 파일이나 폴더를 드롭하여 라이브러리에 추가하세요",
-  "@desktopDropNothingToImport": {
-    "description": "Snackbar when the dropped items contain no folders or audio files"
-  },
-  "desktopAllPlaylists": "모든 재생목록",
-  "@desktopAllPlaylists": {
-    "description": "Desktop sidebar row that opens the list of every playlist"
-  },
-  "desktopMenuSettings": "설정…",
-  "@desktopMenuSettings": {
-    "description": "macOS app menu item that opens Settings"
-  },
-  "desktopMenuFile": "파일",
-  "desktopMenuEdit": "편집",
-  "desktopMenuView": "보기",
-  "desktopWindowMode": "창 모드",
-  "desktopWindowed": "창 모드",
-  "desktopWindowFullscreen": "전체 화면",
-  "desktopWindowBorderless": "테두리 없음",
-  "desktopExitFullscreen": "전체 화면 종료",
-  "desktopMinimizeWindow": "창 최소화",
-  "desktopZoomWindow": "창 최소화 및 복원",
-  "desktopWindowModeUnavailable": "창 모드를 변경할 수 없습니다. 현재 진행 중인 창 전환이 완료된 후 다시 시도하세요",
-  "desktopMenuControls": "컨트롤",
-  "desktopMenuWindow": "창",
-  "desktopMenuHelp": "도움말",
-  "desktopMenuPlayPause": "재생/일시정지",
-  "desktopMenuMiniPlayer": "미니 플레이어",
-  "@desktopMenuMiniPlayer": {
-    "description": "Window menu item, player bar button and Keyboard Shortcuts row that shrink the window into a small player floating above other windows"
-  },
-  "desktopMiniPlayerExpand": "전체 화면 창 보기",
-  "@desktopMiniPlayerExpand": {
-    "description": "Mini player button that returns the window to its full size"
-  },
-  "desktopMenuRefresh": "새로고침",
-  "@desktopMenuRefresh": {
-    "description": "View menu item and Keyboard Shortcuts row that reloads the page on screen (Home, Repo, statistics)"
-  },
-  "desktopMenuProjectPage": "프로젝트 페이지",
-  "@desktopMenuProjectPage": {
-    "description": "Help menu item that opens the app's source repository"
-  },
-  "desktopDownloadsShowAll": "모두 보기",
-  "@desktopDownloadsShowAll": {
-    "description": "Button in the desktop downloads popover that opens the full download queue"
-  },
-  "desktopDownloadsQueued": "기다리는 중",
-  "@desktopDownloadsQueued": {
-    "description": "Status of a download in the desktop downloads popover that has not started yet"
-  },
-  "desktopDownloadsCancel": "다운로드를 취소하시겠습니까",
-  "@desktopDownloadsCancel": {
-    "description": "Tooltip of the button that cancels one download in the desktop downloads popover"
-  },
-  "linkDesktopSettingsTitle": "Mornye on your phone",
-  "@linkDesktopSettingsTitle": {
-    "description": "Desktop Settings page that shares this computer's library with the Mornye phone app over the local network"
-  },
-  "linkDesktopSettingsSubtitle": "Stream your library and control playback from your phone",
-  "@linkDesktopSettingsSubtitle": {
-    "description": "Subtitle of the Mornye on your phone entry in desktop Settings"
-  },
-  "linkDesktopEnableTitle": "Share with Mornye on your phone",
-  "@linkDesktopEnableTitle": {
-    "description": "Switch that turns on the local server phones connect to"
-  },
-  "linkDesktopEnableSubtitle": "Your phone can browse, play and download through this computer on your local network",
-  "@linkDesktopEnableSubtitle": {
-    "description": "Subtitle of the switch that shares the library with phones, while it is off"
-  },
-  "linkDesktopStatusStarting": "Starting",
-  "@linkDesktopStatusStarting": {
-    "description": "Status of the phone link server while it starts"
-  },
-  "linkDesktopStatusRunning": "On, {count, plural, =0{no phone connected} =1{1 phone connected} other{{count} phones connected}}",
-  "@linkDesktopStatusRunning": {
-    "description": "Status of the phone link server while it runs, with the number of connected phones",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkDesktopStatusFailed": "Could not start: {error}",
-  "@linkDesktopStatusFailed": {
-    "description": "Status of the phone link server when it failed to start",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopFirewallHint": "Your computer may ask whether Mornye can accept incoming network connections. Allow it so your phone can connect.",
-  "@linkDesktopFirewallHint": {
-    "description": "Hint shown while the phone link server is on, about the operating system firewall prompt"
-  },
-  "linkDesktopSectionComputer": "This computer",
-  "@linkDesktopSectionComputer": {
-    "description": "Section of the phone link settings about this computer's name and address"
-  },
-  "linkDesktopDeviceName": "Name",
-  "@linkDesktopDeviceName": {
-    "description": "Row and field label for the name phones see for this computer"
-  },
-  "linkDesktopDeviceNameHint": "Phones show this name when they find this computer",
-  "@linkDesktopDeviceNameHint": {
-    "description": "Helper text of the field that renames this computer for phones"
-  },
-  "linkDesktopAddress": "Address",
-  "@linkDesktopAddress": {
-    "description": "Row that shows the network addresses phones and Subsonic apps connect to"
-  },
-  "linkDesktopSecurityCode": "Security code",
-  "@linkDesktopSecurityCode": {
-    "description": "Row that shows the short certificate fingerprint phones compare while pairing"
-  },
-  "linkDesktopSecurityCodeHint": "Your phone shows the same code when it pairs",
-  "@linkDesktopSecurityCodeHint": {
-    "description": "Subtitle explaining the security code row"
-  },
-  "linkDesktopCatalogSongs": "{count, plural, =1{1 song shared} other{{count} songs shared}}",
-  "@linkDesktopCatalogSongs": {
-    "description": "How many Library songs phones can see",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkDesktopSectionPhones": "Phones",
-  "@linkDesktopSectionPhones": {
-    "description": "Section of the phone link settings that lists paired phones"
-  },
-  "linkDesktopPairPhone": "Pair a phone",
-  "@linkDesktopPairPhone": {
-    "description": "Row and dialog title that shows a code to pair a phone with this computer"
-  },
-  "linkDesktopPairPhoneSubtitle": "Show a code to enter on your phone",
-  "@linkDesktopPairPhoneSubtitle": {
-    "description": "Subtitle of the Pair a phone row"
-  },
-  "linkDesktopNoDevices": "No phones paired yet",
-  "@linkDesktopNoDevices": {
-    "description": "Shown in the paired phones list when it is empty"
-  },
-  "linkDesktopDeviceConnected": "Connected",
-  "@linkDesktopDeviceConnected": {
-    "description": "Status of a paired phone that is connected now"
-  },
-  "linkDesktopDeviceLastSeen": "Last seen {date}",
-  "@linkDesktopDeviceLastSeen": {
-    "description": "Status of a paired phone that is not connected",
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopDeviceNeverSeen": "Not connected yet",
-  "@linkDesktopDeviceNeverSeen": {
-    "description": "Status of a paired device that never connected"
-  },
-  "linkDesktopSubsonicApp": "Subsonic app",
-  "@linkDesktopSubsonicApp": {
-    "description": "Label of a paired device that is a third-party Subsonic app"
-  },
-  "linkDesktopRevoke": "Remove",
-  "@linkDesktopRevoke": {
-    "description": "Tooltip and confirm button that removes a paired phone or Subsonic app"
-  },
-  "linkDesktopRevokeTitle": "Remove {name}?",
-  "@linkDesktopRevokeTitle": {
-    "description": "Title of the dialog that confirms removing a paired device",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopRevokeMessage": "It has to pair again before it can connect to this computer.",
-  "@linkDesktopRevokeMessage": {
-    "description": "Message of the dialog that confirms removing a paired device"
-  },
-  "linkDesktopRevoked": "{name} removed",
-  "@linkDesktopRevoked": {
-    "description": "Snackbar after removing a paired device",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopSectionOtherApps": "Other apps",
-  "@linkDesktopSectionOtherApps": {
-    "description": "Section of the phone link settings for third-party Subsonic apps"
-  },
-  "linkDesktopAddSubsonicApp": "Add another Subsonic app",
-  "@linkDesktopAddSubsonicApp": {
-    "description": "Row and dialog title that creates a key for a third-party Subsonic app"
-  },
-  "linkDesktopAddSubsonicAppSubtitle": "Create a key for a Subsonic player on another device",
-  "@linkDesktopAddSubsonicAppSubtitle": {
-    "description": "Subtitle of the Add another Subsonic app row"
-  },
-  "linkDesktopAppName": "App name",
-  "@linkDesktopAppName": {
-    "description": "Field label for the name of a third-party Subsonic app"
-  },
-  "linkDesktopCreateKey": "Create key",
-  "@linkDesktopCreateKey": {
-    "description": "Button that creates a key for a third-party Subsonic app"
-  },
-  "linkDesktopAppKeyTitle": "Connect {name}",
-  "@linkDesktopAppKeyTitle": {
-    "description": "Title of the dialog that shows the details for a new Subsonic app key",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopAppKeyMessage": "Enter these details in the app. The key is shown only now.",
-  "@linkDesktopAppKeyMessage": {
-    "description": "Message of the dialog that shows a new Subsonic app key"
-  },
-  "linkDesktopServerAddress": "Server address",
-  "@linkDesktopServerAddress": {
-    "description": "Label of the server address a Subsonic app connects to"
-  },
-  "linkDesktopUsername": "Username",
-  "@linkDesktopUsername": {
-    "description": "Label of the username a Subsonic app uses"
-  },
-  "linkDesktopApiKey": "Password or API key",
-  "@linkDesktopApiKey": {
-    "description": "Label of the key a Subsonic app uses as its password or API key"
-  },
-  "linkDesktopCopy": "Copy {label}",
-  "@linkDesktopCopy": {
-    "description": "Tooltip of a copy button next to a value",
-    "placeholders": {
-      "label": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopPairInstructions": "Open Mornye on your phone, choose this computer and enter this code.",
-  "@linkDesktopPairInstructions": {
-    "description": "Instructions in the pairing dialog above the code"
-  },
-  "linkDesktopPairCheckCode": "Check that your phone shows security code {code}.",
-  "@linkDesktopPairCheckCode": {
-    "description": "Line in the pairing dialog asking to compare the short certificate fingerprint",
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopPairExpires": "The code expires in {time}",
-  "@linkDesktopPairExpires": {
-    "description": "Countdown in the pairing dialog, as minutes and seconds",
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopPaired": "Paired with {name}",
-  "@linkDesktopPaired": {
-    "description": "Snackbar after a phone paired",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopPairExpired": "The code expired. Pair again to get a new one.",
-  "@linkDesktopPairExpired": {
-    "description": "Snackbar when the pairing code expired"
-  },
-  "linkDesktopPairAttempts": "Too many wrong codes. Pair again to get a new one.",
-  "@linkDesktopPairAttempts": {
-    "description": "Snackbar when pairing ended after too many wrong codes"
-  },
-  "linkDesktopPairFailed": "Could not start pairing",
-  "@linkDesktopPairFailed": {
-    "description": "Snackbar when the pairing code could not be created"
-  },
-  "linkDesktopDevicesTitle": "Phones",
-  "@linkDesktopDevicesTitle": {
-    "description": "Tooltip of the player bar button and title of its popover that list connected phones"
-  },
-  "linkDesktopPhoneNothingPlaying": "Nothing playing",
-  "@linkDesktopPhoneNothingPlaying": {
-    "description": "Shown for a connected phone that plays nothing"
-  },
-  "linkDesktopContinueOnPhone": "Continue on phone",
-  "@linkDesktopContinueOnPhone": {
-    "description": "Button that moves the desktop queue and position to a phone and pauses the desktop"
-  },
-  "linkDesktopOpenOnPhone": "Open a link on phone",
-  "@linkDesktopOpenOnPhone": {
-    "description": "Button that sends a link to a phone to open"
-  },
-  "linkDesktopOpenLinkTitle": "Open a link on {name}",
-  "@linkDesktopOpenLinkTitle": {
-    "description": "Title of the dialog that sends a link to a phone",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopOpenLinkLabel": "Link",
-  "@linkDesktopOpenLinkLabel": {
-    "description": "Field label for the link to open on a phone"
-  },
-  "linkDesktopOpen": "Open",
-  "@linkDesktopOpen": {
-    "description": "Button that sends the link to the phone"
-  },
-  "linkDesktopSentToPhone": "Sent to {name}",
-  "@linkDesktopSentToPhone": {
-    "description": "Snackbar after something was sent to a phone",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkDesktopNotDelivered": "The phone did not receive it",
-  "@linkDesktopNotDelivered": {
-    "description": "Snackbar when a message could not reach a phone"
-  },
-  "linkDesktopNothingToContinue": "Nothing is playing on this computer",
-  "@linkDesktopNothingToContinue": {
-    "description": "Snackbar when Continue on phone is used without a current song"
-  },
-  "linkTransferDesktopSendTo": "Send to {name}",
-  "@linkTransferDesktopSendTo": {
-    "description": "Mornye Link desktop: song menu action that copies this computer's songs to the connected phone {name}",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferDesktopSaveHere": "Save to this computer",
-  "@linkTransferDesktopSaveHere": {
-    "description": "Mornye Link desktop: song menu action that copies a connected phone's songs into this computer's download folder"
-  },
-  "linkTransferDesktopSendingSong": "Sending \"{title}\" to {name}",
-  "@linkTransferDesktopSendingSong": {
-    "description": "Mornye Link desktop: snackbar when one song starts copying to the phone {name}",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferDesktopSendingSongs": "{count, plural, =1{Sending 1 song to {name}} other{Sending {count} songs to {name}}}",
-  "@linkTransferDesktopSendingSongs": {
-    "description": "Mornye Link desktop: snackbar when songs start copying to the phone {name}",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferDesktopReceivingSong": "Receiving \"{title}\" from {name}",
-  "@linkTransferDesktopReceivingSong": {
-    "description": "Mornye Link desktop: snackbar when one song of the phone {name} starts copying to this computer",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferDesktopReceivingSongs": "{count, plural, =1{Receiving 1 song from {name}} other{Receiving {count} songs from {name}}}",
-  "@linkTransferDesktopReceivingSongs": {
-    "description": "Mornye Link desktop: snackbar when songs of the phone {name} start copying to this computer",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransferDesktopView": "View",
-  "@linkTransferDesktopView": {
-    "description": "Mornye Link desktop: snackbar action that opens the list of song transfers"
-  },
-  "linkTransferDesktopNothingToSend": "None of these songs can be sent right now",
-  "@linkTransferDesktopNothingToSend": {
-    "description": "Mornye Link desktop: snackbar when Send to phone finds no song file on this computer to send"
-  },
-  "linkTransferDesktopNothingToSave": "None of these songs can be saved right now",
-  "@linkTransferDesktopNothingToSave": {
-    "description": "Mornye Link desktop: snackbar when Save to this computer finds no song of a connected phone"
-  },
-  "desktopScrollBack": "뒤로 스크롤",
-  "@desktopScrollBack": {
-    "description": "Tooltip of the desktop button that scrolls a horizontal shelf of albums or artists back"
-  },
-  "desktopScrollForward": "앞으로 스크롤",
-  "@desktopScrollForward": {
-    "description": "Tooltip of the desktop button that scrolls a horizontal shelf of albums or artists forward"
-  },
-  "settingsKeyboardShortcuts": "키보드 단축기",
-  "@settingsKeyboardShortcuts": {
-    "description": "Desktop Settings page that lists the app's keyboard shortcuts"
-  },
-  "settingsKeyboardShortcutsSubtitle": "재생, 탐색 및 패널용 키",
-  "@settingsKeyboardShortcutsSubtitle": {
-    "description": "Subtitle of the Keyboard Shortcuts entry in desktop Settings"
-  },
-  "desktopShortcutsNavigation": "탐색",
-  "@desktopShortcutsNavigation": {
-    "description": "Keyboard Shortcuts section for moving between pages"
-  },
-  "desktopShortcutDismiss": "대화 상자 또는 페이지 닫기",
-  "@desktopShortcutDismiss": {
-    "description": "Keyboard Shortcuts row for Escape, which leaves a text field or closes the top dialog or page"
-  },
-  "desktopShortcutToggleSidebar": "사이드바 표시 또는 숨기기",
-  "@desktopShortcutToggleSidebar": {
-    "description": "Keyboard Shortcuts row for the shortcut that collapses or expands the desktop sidebar"
-  },
-  "linkSettingsTitle": "Mornye on your computer",
-  "@linkSettingsTitle": {
-    "description": "Phone Settings entry that pairs the phone with the Mornye desktop app on the local network"
-  },
-  "linkSettingsSubtitle": "Play and control your computer's library",
-  "@linkSettingsSubtitle": {
-    "description": "Subtitle of the Mornye on your computer entry in phone Settings"
-  },
-  "linkPageTitle": "Computers",
-  "@linkPageTitle": {
-    "description": "Title of the page listing computers running Mornye that the phone can pair with; kept short for the large title"
-  },
-  "linkPageDescription": "Pair with Mornye on your computer to play its library on this phone and control what it plays. Both devices need to be on the same network.",
-  "@linkPageDescription": {
-    "description": "Introduction at the top of the computers page"
-  },
-  "linkPairedSection": "Paired computers",
-  "@linkPairedSection": {
-    "description": "Section header for computers this phone is paired with"
-  },
-  "linkPhoneSection": "This phone",
-  "@linkPhoneSection": {
-    "description": "Section header for what this phone shares with and how it follows its paired computer"
-  },
-  "linkShareSongsTitle": "Show songs on the computer",
-  "@linkShareSongsTitle": {
-    "description": "Switch title: this phone's songs appear in the paired computer's Library"
-  },
-  "linkShareSongsSubtitle": "Songs on this phone appear in the computer's Library and play there while this phone is connected",
-  "@linkShareSongsSubtitle": {
-    "description": "Switch subtitle for showing this phone's songs on the computer"
-  },
-  "linkFollowDesktopTitle": "Follow the computer's playback",
-  "@linkFollowDesktopTitle": {
-    "description": "Switch title: the phone's player shows the computer when the computer starts playing"
-  },
-  "linkFollowDesktopSubtitle": "When the computer starts playing, this phone shows and controls it",
-  "@linkFollowDesktopSubtitle": {
-    "description": "Switch subtitle for following the computer's playback"
-  },
-  "linkNearbySection": "On this network",
-  "@linkNearbySection": {
-    "description": "Section header for computers running Mornye found on the local network"
-  },
-  "linkSearching": "Looking for computers...",
-  "@linkSearching": {
-    "description": "Row shown while the phone searches the local network for computers"
-  },
-  "linkNoneFoundTitle": "No computers found",
-  "@linkNoneFoundTitle": {
-    "description": "Row shown when the phone is not searching and found no computer"
-  },
-  "linkNoneFound": "Open Mornye on your computer and turn on Share with Mornye on your phone in its settings.",
-  "@linkNoneFound": {
-    "description": "Hint under the search row when no computer was found yet; Share with Mornye on your phone is the name of the desktop setting"
-  },
-  "linkAddManually": "Add by address",
-  "@linkAddManually": {
-    "description": "Button and dialog title for pairing with a computer by typing its address and port"
-  },
-  "linkManualHost": "Computer address",
-  "@linkManualHost": {
-    "description": "Field label for the computer's IP address or host name"
-  },
-  "linkManualPort": "Port",
-  "@linkManualPort": {
-    "description": "Field label for the network port of the Mornye desktop server"
-  },
-  "linkManualMessage": "Mornye on your computer shows its address and port where you turn on sharing.",
-  "@linkManualMessage": {
-    "description": "Explains where to find the address and port to type"
-  },
-  "linkContinue": "Continue",
-  "@linkContinue": {
-    "description": "Dialog action that continues to the PIN step after typing an address"
-  },
-  "linkStateConnected": "Connected",
-  "@linkStateConnected": {
-    "description": "Status of the paired computer that is connected"
-  },
-  "linkStateConnecting": "Connecting...",
-  "@linkStateConnecting": {
-    "description": "Status of the paired computer while the phone connects to it"
-  },
-  "linkStateDisconnected": "Not connected",
-  "@linkStateDisconnected": {
-    "description": "Status of the paired computer when it cannot be reached"
-  },
-  "linkStateInactive": "Tap to use this computer",
-  "@linkStateInactive": {
-    "description": "Status of a paired computer other than the one in use; tapping it makes it the one in use"
-  },
-  "linkActive": "In use",
-  "@linkActive": {
-    "description": "Label next to the paired computer the phone currently uses, shown when several are paired"
-  },
-  "linkForget": "Forget",
-  "@linkForget": {
-    "description": "Action that unpairs a computer from this phone"
-  },
-  "linkForgetTitle": "Forget {name}?",
-  "@linkForgetTitle": {
-    "description": "Title of the dialog confirming that a paired computer is forgotten",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkForgetMessage": "This phone stops connecting to it. You can pair again later.",
-  "@linkForgetMessage": {
-    "description": "Explanation in the forget computer dialog"
-  },
-  "linkForgetRemoveLibrary": "Also remove its music from Library",
-  "@linkForgetRemoveLibrary": {
-    "description": "Switch in the forget computer dialog that also removes the computer's network connection and Library source"
-  },
-  "linkPinTitle": "Pair with {name}",
-  "@linkPinTitle": {
-    "description": "Title of the dialog asking for the pairing PIN",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkPinMessage": "Enter the 6-digit PIN shown on your computer.",
-  "@linkPinMessage": {
-    "description": "Instruction in the pairing PIN dialog"
-  },
-  "linkPinField": "PIN",
-  "@linkPinField": {
-    "description": "Label of the pairing PIN field"
-  },
-  "linkPinCode": "Your computer shows the code {code} next to the PIN. Pair only if it matches.",
-  "@linkPinCode": {
-    "description": "Security check in the PIN dialog; the placeholder is 8 hexadecimal characters of the computer's certificate fingerprint, grouped as 'ab12 cd34'",
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "linkPinNotOpen": "Pairing is not open yet. Start pairing in Mornye on your computer to show a PIN.",
-  "@linkPinNotOpen": {
-    "description": "Note in the PIN dialog when the computer reports that no pairing window is open"
-  },
-  "linkPair": "Pair",
-  "@linkPair": {
-    "description": "Action that sends the PIN to pair with the computer"
-  },
-  "linkPaired": "Paired with {name}. Its music is being added to Library.",
-  "@linkPaired": {
-    "description": "Message after pairing succeeded",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkPairAgain": "Pair again",
-  "@linkPairAgain": {
-    "description": "Action that repeats pairing with a computer that no longer accepts this phone"
-  },
-  "linkTransfersTitle": "Transfers",
-  "@linkTransfersTitle": {
-    "description": "Mornye Link: title of the list of songs copied between this device and a linked phone or computer, and of the rows that open it"
-  },
-  "linkTransfersInProgress": "In progress",
-  "@linkTransfersInProgress": {
-    "description": "Section of the Transfers list for transfers that are running or waiting their turn"
-  },
-  "linkTransfersFinished": "Finished",
-  "@linkTransfersFinished": {
-    "description": "Section of the Transfers list for transfers that stopped: done, stopped by someone or failed"
-  },
-  "linkTransfersClearFinished": "Clear finished",
-  "@linkTransfersClearFinished": {
-    "description": "Action that removes the finished transfers from the Transfers list; the copied songs stay"
-  },
-  "linkTransfersEmptyTitle": "No transfers yet",
-  "@linkTransfersEmptyTitle": {
-    "description": "Title of the empty Transfers list, also the status of the row that opens it while there is none"
-  },
-  "linkTransfersEmptyMessage": "Send or save songs from a song's menu, an album or a selection.",
-  "@linkTransfersEmptyMessage": {
-    "description": "Hint under the empty Transfers list naming where a transfer starts (the Send to and Save to this device actions)"
-  },
-  "linkTransfersSending": "Sending {count, plural, =1{1 song} other{{count} songs}} to {name}",
-  "@linkTransfersSending": {
-    "description": "Title of a running or waiting transfer that copies this device's songs to a linked device",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersReceiving": "Receiving {count, plural, =1{1 song} other{{count} songs}} from {name}",
-  "@linkTransfersReceiving": {
-    "description": "Title of a running or waiting transfer that copies a linked device's songs to this device",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersSendingSong": "Sending {title} to {name}",
-  "@linkTransfersSendingSong": {
-    "description": "Title of a running or waiting transfer of one song from this device; the placeholder is the song's title",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersReceivingSong": "Receiving {title} from {name}",
-  "@linkTransfersReceivingSong": {
-    "description": "Title of a running or waiting transfer of one song to this device; the placeholder is the song's title",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersSongsTo": "{count, plural, =1{1 song} other{{count} songs}} to {name}",
-  "@linkTransfersSongsTo": {
-    "description": "Title of a finished transfer from this device to a linked one; its outcome shows below",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersSongsFrom": "{count, plural, =1{1 song} other{{count} songs}} from {name}",
-  "@linkTransfersSongsFrom": {
-    "description": "Title of a finished transfer from a linked device to this one; its outcome shows below",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersSongTo": "{title} to {name}",
-  "@linkTransfersSongTo": {
-    "description": "Title of a finished transfer of one song from this device; the placeholder is the song's title",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersSongFrom": "{title} from {name}",
-  "@linkTransfersSongFrom": {
-    "description": "Title of a finished transfer of one song to this device; the placeholder is the song's title",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersPosition": "{position} of {total}",
-  "@linkTransfersPosition": {
-    "description": "Which song of a running transfer is being copied, for example '3 of 12'",
-    "placeholders": {
-      "position": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersPercent": "{percent}%",
-  "@linkTransfersPercent": {
-    "description": "How much of a transfer or song has been copied, as a percentage",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersWaiting": "Waiting",
-  "@linkTransfersWaiting": {
-    "description": "Status of a transfer or song that waits for the ones before it"
-  },
-  "linkTransfersSavedCount": "{count, plural, other{{count} saved}}",
-  "@linkTransfersSavedCount": {
-    "description": "Outcome of a finished transfer: how many songs were copied",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersAlreadyThereCount": "{count, plural, other{{count} already there}}",
-  "@linkTransfersAlreadyThereCount": {
-    "description": "Outcome of a finished transfer: how many songs the receiving device already had, so they were not copied again",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersFailedCount": "{count, plural, other{{count} failed}}",
-  "@linkTransfersFailedCount": {
-    "description": "Outcome of a finished transfer: how many songs could not be copied",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersStopped": "{done, plural, =0{Stopped} other{Stopped after {done} of {total}}}",
-  "@linkTransfersStopped": {
-    "description": "Outcome of a transfer someone stopped, with how many of its songs were finished",
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersReasonDisconnected": "Connection lost",
-  "@linkTransfersReasonDisconnected": {
-    "description": "Why a transfer failed: the devices lost their connection"
-  },
-  "linkTransfersReasonNoFolder": "Choose a download folder first",
-  "@linkTransfersReasonNoFolder": {
-    "description": "Why a transfer to this device failed: no download folder is set"
-  },
-  "linkTransfersReasonNoFolderPeer": "{name} has no download folder",
-  "@linkTransfersReasonNoFolderPeer": {
-    "description": "Why a transfer to the linked device failed: that device has no download folder set",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkTransfersReasonBusy": "Busy, try again later",
-  "@linkTransfersReasonBusy": {
-    "description": "Why a transfer failed: the receiving device could not take it now"
-  },
-  "linkTransfersReasonError": "Something went wrong",
-  "@linkTransfersReasonError": {
-    "description": "Why a transfer failed, when there is no more specific reason"
-  },
-  "linkTransfersSongSaved": "Saved",
-  "@linkTransfersSongSaved": {
-    "description": "State of one song in a transfer: it was copied"
-  },
-  "linkTransfersSongAlreadyThere": "Already there",
-  "@linkTransfersSongAlreadyThere": {
-    "description": "State of one song in a transfer: the receiving device already had it"
-  },
-  "linkTransfersSongFailed": "Failed",
-  "@linkTransfersSongFailed": {
-    "description": "State of one song in a transfer: it could not be copied"
-  },
-  "linkTransfersSongCopying": "Copying",
-  "@linkTransfersSongCopying": {
-    "description": "State of the song a transfer copies right now"
-  },
-  "linkTransfersSongNotCopied": "Not copied",
-  "@linkTransfersSongNotCopied": {
-    "description": "State of a song a stopped or failed transfer did not reach"
-  },
-  "linkTransfersStop": "Stop transfer",
-  "@linkTransfersStop": {
-    "description": "Tooltip of the button that stops a running or waiting transfer; songs already copied stay"
-  },
-  "linkTransfersActiveCount": "{count, plural, =1{1 transfer} other{{count} transfers}}",
-  "@linkTransfersActiveCount": {
-    "description": "Status of the row that opens the Transfers list while several transfers run, followed by their progress",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkTransfersFinishedCount": "{count, plural, =1{1 transfer finished} other{{count} transfers finished}}",
-  "@linkTransfersFinishedCount": {
-    "description": "Status of the row that opens the Transfers list when none runs: how many finished since the app opened",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "linkErrorBadPin": "That PIN is not right. Check the PIN on your computer and try again.",
-  "@linkErrorBadPin": {
-    "description": "Pairing error when the PIN is wrong"
-  },
-  "linkErrorPairingClosed": "Pairing is not open on your computer. Start pairing there, then try again.",
-  "@linkErrorPairingClosed": {
-    "description": "Pairing error when the computer has no pairing window open"
-  },
-  "linkErrorTooManyAttempts": "Too many attempts. Wait a moment, then try again.",
-  "@linkErrorTooManyAttempts": {
-    "description": "Pairing error when the computer rate limits pairing attempts"
-  },
-  "linkErrorCertificateTitle": "Computer not verified",
-  "@linkErrorCertificateTitle": {
-    "description": "Title of the warning shown when the computer's certificate does not match what it reported"
-  },
-  "linkErrorCertificate": "The computer's security certificate does not match what it reported. Someone on this network may be intercepting the connection, so pairing stopped.",
-  "@linkErrorCertificate": {
-    "description": "Warning shown when the certificate seen during the connection differs from the computer's reported fingerprint"
-  },
-  "linkErrorIncompatible": "This computer runs a Mornye version that cannot pair with this phone. Update Mornye on both devices.",
-  "@linkErrorIncompatible": {
-    "description": "Pairing error when the computer is not a compatible Mornye desktop"
-  },
-  "linkErrorUnreachable": "The computer could not be reached. Check that Mornye is open on it and that both devices are on the same network.",
-  "@linkErrorUnreachable": {
-    "description": "Pairing error when the computer cannot be reached"
-  },
-  "linkErrorTimeout": "The computer did not answer in time. Try again.",
-  "@linkErrorTimeout": {
-    "description": "Pairing error when the computer does not answer"
-  },
-  "linkErrorInvalidAddress": "Enter a valid address and port, such as 192.168.1.20 and 47710.",
-  "@linkErrorInvalidAddress": {
-    "description": "Error for an address or port that cannot be used"
-  },
-  "linkErrorFailed": "Pairing failed. Try again.",
-  "@linkErrorFailed": {
-    "description": "Generic pairing error"
-  },
-  "linkLocalNetworkTitle": "Local network access needed",
-  "@linkLocalNetworkTitle": {
-    "description": "Title of the notice shown when the phone is not allowed to use the local network"
-  },
-  "linkLocalNetworkMessage": "Mornye needs local network access to find your computer and connect to it.",
-  "@linkLocalNetworkMessage": {
-    "description": "Explains why local network access is needed"
-  },
-  "linkLocalNetworkAllow": "Allow access",
-  "@linkLocalNetworkAllow": {
-    "description": "Button that asks for local network access again"
-  },
-  "linkWifiOffTitle": "Not on Wi-Fi",
-  "@linkWifiOffTitle": {
-    "description": "Title of the notice shown when the phone is not connected to Wi-Fi or Ethernet"
-  },
-  "linkWifiOffMessage": "Connect this phone to the same Wi-Fi network as your computer.",
-  "@linkWifiOffMessage": {
-    "description": "Explains that the phone must join the computer's Wi-Fi network"
-  },
-  "linkIssueUnauthorized": "{name} no longer accepts this phone. Pair again to reconnect.",
-  "@linkIssueUnauthorized": {
-    "description": "Notice when the paired computer refuses the phone's key",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkIssueCertificate": "{name} presented a different security certificate. Pair again only if you reinstalled or reset Mornye on that computer.",
-  "@linkIssueCertificate": {
-    "description": "Warning when a paired computer's certificate changed",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "linkIssueIncompatible": "Update Mornye on this phone and on {name} to connect.",
-  "@linkIssueIncompatible": {
-    "description": "Notice when the paired computer speaks another protocol version",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
   },
   "playlistEditOrder": "Edit order",
   "@playlistEditOrder": {
@@ -10040,13 +8489,9 @@
   "@playlistEditOrderDescription": {
     "description": "Explanation at the top of the playlist reorder page"
   },
-  "playlistEditOrderSaved": "Playlist order saved",
   "collectionOrderSaved": "Song order saved",
   "collectionOrderChanged": "This collection changed while editing. Please reorder it again.",
   "collectionOrderSaveFailed": "Could not save the song order. Try again.",
-  "@playlistEditOrderSaved": {
-    "description": "Snackbar after saving a new playlist track order"
-  },
   "playlistCreateEmpty": "Empty playlist",
   "@playlistCreateEmpty": {
     "description": "Create playlist option that starts with no tracks"
@@ -10097,7 +8542,6 @@
   },
   "playlistImportResult": "Imported {count, plural, =1{1 track} other{{count} tracks}} into {name}, {matched} matched to files on this device",
   "@playlistImportResult": {
-    "description": "Snackbar after importing a playlist file; matched counts tracks linked to a local file",
     "placeholders": {
       "count": {
         "type": "int"
@@ -10420,5 +8864,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "autoMixOn": "AutoMix 켜기",
+  "autoMixOff": "AutoMix 끄기"
 }

@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 const String kThemeModeKey = 'theme_mode';
 const String kUseDynamicColorKey = 'use_dynamic_color';
@@ -43,12 +41,8 @@ MornyeAccent mornyeAccentFromString(String? value) =>
       orElse: () => MornyeAccent.blue,
     );
 
-/// Style used until the person picks one: Mornye on macOS, Material on
-/// Windows, Linux and mobile.
-AppThemeStyle defaultAppThemeStyle() =>
-    isDesktopPlatform && defaultTargetPlatform == TargetPlatform.macOS
-    ? AppThemeStyle.mornye
-    : AppThemeStyle.material;
+/// Style used until the person picks one: Material on Android.
+AppThemeStyle defaultAppThemeStyle() => AppThemeStyle.material;
 
 AppThemeStyle themeStyleFromString(String? value) => AppThemeStyle.values
     .firstWhere((style) => style.name == value, orElse: defaultAppThemeStyle);

@@ -1,8 +1,8 @@
 {
   "missions": {},
-  "next_completion": 3,
+  "next_completion": 4,
   "next_mission": 1,
-  "next_tor": 3,
+  "next_tor": 4,
   "tasks": {
     "TOR001": {
       "completion": 1,
@@ -35,6 +35,22 @@
       "record": ".specify/quick-tasks/TOR002.md",
       "status": "complete",
       "title": "Apply Mornye glass performance commit e02860c6"
+    },
+    "TOR003": {
+      "completion": 3,
+      "evidence": {
+        "checks": "validate PASS; workflow unittest 38 OK; cherry-pick matches a5574536 for 1310 paths (only .gitignore keeps Sistrum .work/ block); original commit message kept; independent read-only review round 1 PASS",
+        "result": "PASS",
+        "reviewer": "task-reviewer-subagent",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "d33cf3bbb741432cbc0e61106ea67657",
+      "record": ".specify/quick-tasks/TOR003.md",
+      "status": "complete",
+      "title": "Apply Mornye arm64-only Android commit a5574536"
     }
   },
   "version": 1

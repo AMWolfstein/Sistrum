@@ -3,12 +3,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:mornye/constants/app_info.dart';
 import 'package:mornye/l10n/app_localizations.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/services/verification_notification.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/string_utils.dart';
 
 class NotificationService {
@@ -25,7 +23,6 @@ class NotificationService {
   bool _isInitialized = false;
   Future<void>? _initialization;
   final verificationNotifications = VerificationNotificationRouter();
-  bool _notificationPermissionRequested = false;
   AppLocalizations? _l10n;
 
   /// Call this from the widget tree (e.g. didChangeDependencies) whenever the
@@ -43,16 +40,15 @@ class NotificationService {
 
   static const String libraryScanWorkKind = 'library_scan';
   static const String updateDownloadWorkKind = 'app_update';
-  int _linkTransferSequence = 0;
 
   // Kinds whose progress the Android foreground-service notification shows,
   // replacing the plugin's progress notification so only one is visible.
   final Set<String> _serviceNotificationKinds = {};
 
   /// Keeps user-started work running when the screen turns off (Android
-  /// foreground service, iOS background task). Pair with [endBackgroundWork].
+  /// foreground service). Pair with [endBackgroundWork].
   Future<void> beginBackgroundWork(String kind, {required String title}) async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (!Platform.isAndroid) return;
     try {
       final started = await PlatformBridge.startBackgroundWork(
         kind,
@@ -65,7 +61,7 @@ class NotificationService {
   }
 
   Future<void> endBackgroundWork(String kind) async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (!Platform.isAndroid) return;
     _serviceNotificationKinds.remove(kind);
     try {
       await PlatformBridge.stopBackgroundWork(kind);
@@ -78,25 +74,6 @@ class NotificationService {
     libraryScanWorkKind,
     title: _l10n?.notifScanningLibrary ?? 'Scanning local library',
   );
-
-  /// Each upload owns its lease, so finishing one cannot stop another.
-  Future<Future<void> Function()> acquireLinkTransferWork(
-    String desktopName,
-  ) async {
-    final kind = 'link_transfer_${_linkTransferSequence++}';
-    await beginBackgroundWork(
-      kind,
-      title:
-          _l10n?.linkHandoffSending(desktopName) ??
-          'Sending this song to $desktopName...',
-    );
-    var released = false;
-    return () async {
-      if (released) return;
-      released = true;
-      await endBackgroundWork(kind);
-    };
-  }
 
   Future<void> beginUpdateDownloadWork({required String version}) =>
       beginBackgroundWork(
@@ -143,16 +120,7 @@ class NotificationService {
   static const String libraryChannelDescription =
       'Shows local library scan progress';
 
-  /// Windows toast identity. Keep both values stable: Windows ties the
-  /// notification settings and activation callback to them.
-  static const String windowsAppUserModelId = 'com.zarz.mornye';
-  static const String windowsNotificationGuid =
-      '1a458cb1-f396-4430-8ee3-23d66b56e12f';
 
-  /// Desktop windows already show live progress, and desktop notification
-  /// servers pop a new banner for each update, so only results are posted.
-  bool get _showsProgressNotifications => !isDesktopPlatform;
-  bool? _macOSPermissionGranted;
 
   Future<void> initialize() {
     if (_isInitialized) return Future.value();
@@ -166,26 +134,9 @@ class NotificationService {
     const androidSettings = AndroidInitializationSettings(
       '@drawable/ic_notification_mornye',
     );
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
-    const linuxSettings = LinuxInitializationSettings(
-      defaultActionName: 'Open',
-    );
-    const windowsSettings = WindowsInitializationSettings(
-      appName: AppInfo.appName,
-      appUserModelId: windowsAppUserModelId,
-      guid: windowsNotificationGuid,
-    );
 
     const initSettings = InitializationSettings(
       android: androidSettings,
-      iOS: iosSettings,
-      macOS: iosSettings,
-      linux: linuxSettings,
-      windows: windowsSettings,
     );
 
     await _notifications.initialize(
@@ -194,9 +145,8 @@ class NotificationService {
         verificationNotifications.receive(response.payload);
       },
     );
-    // Linux delivers launch responses through initialize's callback and does
-    // not implement the separate launch-details query.
-    if (defaultTargetPlatform != TargetPlatform.linux) {
+    // Android delivers the launch tap through a separate launch-details query.
+    if (defaultTargetPlatform == TargetPlatform.android) {
       final launch = await _notifications.getNotificationAppLaunchDetails();
       if (launch?.didNotificationLaunchApp == true) {
         verificationNotifications.receive(
@@ -247,32 +197,6 @@ class NotificationService {
     _isInitialized = true;
   }
 
-  Future<bool> _ensureNotificationPermission() async {
-    if (isDesktopPlatform && Platform.isMacOS) {
-      return _macOSPermissionGranted ??=
-          await _notifications
-              .resolvePlatformSpecificImplementation<
-                MacOSFlutterLocalNotificationsPlugin
-              >()
-              ?.requestPermissions(alert: true, badge: true, sound: true) ??
-          false;
-    }
-    if (!Platform.isIOS) return true;
-
-    final status = await Permission.notification.status;
-    if (status.isGranted || status.isProvisional) return true;
-
-    if (_notificationPermissionRequested ||
-        status.isPermanentlyDenied ||
-        status.isRestricted) {
-      return false;
-    }
-
-    _notificationPermissionRequested = true;
-    final requested = await Permission.notification.request();
-    return requested.isGranted || requested.isProvisional;
-  }
-
   Future<void> _showSafely({
     required int id,
     required String title,
@@ -280,31 +204,13 @@ class NotificationService {
     required NotificationDetails details,
     String? payload,
   }) async {
-    if (!await _ensureNotificationPermission()) return;
-
-    try {
-      await _notifications.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: details,
-        payload: payload,
-      );
-    } on PlatformException catch (e) {
-      final isNotificationsNotAllowed =
-          Platform.isIOS &&
-          (e.code == 'Error 1' ||
-              (e.message?.contains('UNErrorDomain error 1') ?? false) ||
-              e.toString().contains('UNErrorDomain error 1'));
-
-      if (isNotificationsNotAllowed) {
-        debugPrint(
-          'iOS notifications not allowed; skipping local notification',
-        );
-        return;
-      }
-      rethrow;
-    }
+    await _notifications.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: details,
+      payload: payload,
+    );
   }
 
   /// Builds [NotificationDetails]. A non-null [progress] switches to the
@@ -354,16 +260,6 @@ class NotificationService {
         onlyAlertOnce: inProgress,
         icon: '@drawable/ic_notification_mornye',
       ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: !inProgress,
-        presentBadge: presentBadge,
-        presentSound: presentSound,
-      ),
-      macOS: DarwinNotificationDetails(
-        presentAlert: !inProgress,
-        presentBadge: presentBadge,
-        presentSound: presentSound,
-      ),
     );
   }
 
@@ -373,7 +269,6 @@ class NotificationService {
     required int progress,
     required int total,
   }) async {
-    if (!_showsProgressNotifications) return;
     if (!_isInitialized) await initialize();
 
     final percentage = total > 0 ? (progress * 100 ~/ total) : 0;
@@ -391,7 +286,6 @@ class NotificationService {
     required String trackName,
     required String artistName,
   }) async {
-    if (!_showsProgressNotifications) return;
     if (!_isInitialized) await initialize();
 
     await _showSafely(
@@ -530,7 +424,6 @@ class NotificationService {
     required int totalFiles,
     String? currentFile,
   }) async {
-    if (!_showsProgressNotifications) return;
     if (!_isInitialized) await initialize();
 
     // Network scans read tags while discovering folders, so their total is
@@ -644,7 +537,6 @@ class NotificationService {
     required int received,
     required int total,
   }) async {
-    if (!_showsProgressNotifications) return;
     if (!_isInitialized) await initialize();
 
     final percentage = total > 0 ? (received * 100 ~/ total) : 0;

@@ -19,7 +19,6 @@ import 'package:mornye/services/history_database.dart';
 import 'package:mornye/services/library_database.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_search_field.dart';
 import 'package:mornye/widgets/library_directory_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -132,11 +131,9 @@ void main() {
     });
     addTearDown(() => messenger.setMockMethodCallHandler(sqlite, null));
   });
-  tearDown(() => debugDesktopPlatformOverride = null);
 
   Future<void> pumpLibrary(
     WidgetTester tester, {
-    bool desktop = false,
     bool mornye = false,
     bool reduceMotion = false,
     List<DateTime>? dates,
@@ -144,7 +141,6 @@ void main() {
     bool withQueueItem = true,
   }) async {
     final preferences = await SharedPreferences.getInstance();
-    debugDesktopPlatformOverride = desktop;
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -222,16 +218,15 @@ void main() {
       )
       .hitTestable();
 
-  for (final desktop in [false, true]) {
+  {
     for (final trackCount in <int?>[null, 0, 143]) {
       testWidgets(
         'Material opens Playlists without downloaded or local songs '
-        '(desktop: $desktop, playlist tracks: $trackCount)',
+        '(playlist tracks: $trackCount)',
         (tester) async {
           final now = DateTime(2026);
           await pumpLibrary(
             tester,
-            desktop: desktop,
             dates: const [],
             withQueueItem: false,
             playlists: [
@@ -294,14 +289,15 @@ void main() {
           expect(tester.takeException(), isNull);
         },
         variant: TargetPlatformVariant({
-          desktop ? TargetPlatform.windows : TargetPlatform.android,
+          TargetPlatform.android,
         }),
       );
     }
 
-    testWidgets('Material joins sort, filter and view in one connected group '
-        '(desktop: $desktop)', (tester) async {
-      await pumpLibrary(tester, desktop: desktop);
+    testWidgets('Material joins sort, filter and view in one connected group', (
+      tester,
+    ) async {
+      await pumpLibrary(tester);
       final l10n = l10nOf(tester);
 
       final groups = find.byType(M3EButtonGroup);
@@ -320,7 +316,7 @@ void main() {
       expect(group.selectedIndex, isNull);
 
       // A compact visual that keeps the 48dp touch target.
-      expect(tester.getSize(groups).height, desktop ? 40 : 44);
+      expect(tester.getSize(groups).height, 44);
       final sort = toolButton(null, label: l10n.libraryFilterSortLatest);
       expect(sort, findsOneWidget);
       final above = tester.getRect(sort).topCenter - const Offset(0, 1);
@@ -331,31 +327,11 @@ void main() {
     });
   }
 
-  testWidgets('the desktop sort menu opens below the sort button', (
-    tester,
-  ) async {
-    await pumpLibrary(tester, desktop: true);
-    final l10n = l10nOf(tester);
-    final sort = toolButton(null, label: l10n.libraryFilterSortLatest);
-    final sortRect = tester.getRect(sort);
-
-    await tester.tap(sort);
-    for (var i = 0; i < 10; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
-
-    final oldest = find.text(l10n.libraryFilterSortOldest);
-    expect(oldest, findsOneWidget);
-    // The menu shifts left to stay inside the window, so only its top is
-    // tied to the button.
-    expect(tester.getRect(oldest).top, greaterThanOrEqualTo(sortRect.bottom));
-  });
-
-  for (final desktop in [false, true]) {
+{
     for (final mornye in [false, true]) {
       testWidgets('title sort survives a fresh Library and settings scope '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        await pumpLibrary(tester, desktop: desktop, mornye: mornye);
+          '(Mornye: $mornye)', (tester) async {
+        await pumpLibrary(tester, mornye: mornye);
         final l10n = l10nOf(tester);
         await tester.tap(
           find
@@ -383,7 +359,7 @@ void main() {
         expect(loadBootstrapSettings(preferences).historySortMode, 'a-z');
         await tester.pumpWidget(const SizedBox.shrink());
         queries.clear();
-        await pumpLibrary(tester, desktop: desktop, mornye: mornye);
+        await pumpLibrary(tester, mornye: mornye);
         final container = ProviderScope.containerOf(
           tester.element(find.byType(QueueTab)),
         );
@@ -403,8 +379,8 @@ void main() {
       });
 
       testWidgets('size sort applies from the Library menu '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        await pumpLibrary(tester, desktop: desktop, mornye: mornye);
+          '(Mornye: $mornye)', (tester) async {
+        await pumpLibrary(tester, mornye: mornye);
         final l10n = l10nOf(tester);
         // The search field scrolls with the page over its plain background.
         expect(

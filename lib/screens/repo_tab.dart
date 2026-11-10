@@ -17,7 +17,6 @@ import 'package:mornye/widgets/settings_group.dart';
 import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/screens/repo/extension_details_screen.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/nav_bar_inset.dart';
 import 'package:mornye/providers/runtime_profile_provider.dart';
 import 'package:mornye/theme/mornye_theme.dart';
@@ -98,12 +97,8 @@ class _RepoTabState extends ConsumerState<RepoTab> {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     // Controls share the centered column of the extension list on tablets.
-    // Desktop fills the pane with a grid instead, with the same edges as the
     // other tabs.
     final edge = 16 + wideListInset(context);
-    final desktopColumns = isDesktopPlatform
-        ? _desktopGridColumns(MediaQuery.sizeOf(context).width - edge * 2)
-        : 1;
 
     return Scaffold(
       body: AppRefreshIndicator(
@@ -205,14 +200,7 @@ class _RepoTabState extends ConsumerState<RepoTab> {
                   ),
                 ),
 
-                if (desktopColumns > 1)
-                  _desktopExtensionGrid(
-                    filteredExtensions,
-                    columns: desktopColumns,
-                    edge: edge,
-                    downloadingId: downloadingId,
-                  )
-                else if (context.isMornye)
+                if (context.isMornye)
                   SliverToBoxAdapter(
                     child: ExtensionRepoCard(
                       margin: EdgeInsets.symmetric(
@@ -262,64 +250,6 @@ class _RepoTabState extends ConsumerState<RepoTab> {
             ],
             const NavBarSliverSpacer(),
           ],
-        ),
-      ),
-    );
-  }
-
-  /// Columns of the desktop store grid for [width] of content: one per
-  /// 360dp, up to four.
-  static int _desktopGridColumns(double width) =>
-      ((width + _desktopGridGap) / (360 + _desktopGridGap)).floor().clamp(1, 4);
-
-  static const double _desktopGridGap = 12;
-
-  /// Desktop extensions as a grid of tiles that fills the pane.
-  Widget _desktopExtensionGrid(
-    List<RepoExtension> extensions, {
-    required int columns,
-    required double edge,
-    required String? downloadingId,
-  }) {
-    Widget tile(RepoExtension ext) {
-      final item = _ExtensionItem(
-        extension: ext,
-        showDivider: false,
-        isDownloading: downloadingId == ext.id,
-        onInstall: () => _installExtension(ext),
-        onUpdate: () => _updateExtension(ext),
-        onTap: () => _showExtensionDetails(ext),
-      );
-      return context.isMornye
-          ? ExtensionRepoCard(margin: EdgeInsets.zero, child: item)
-          : SettingsGroup(
-              connected: true,
-              margin: EdgeInsets.zero,
-              children: [item],
-            );
-    }
-
-    final rows = (extensions.length / columns).ceil();
-    return SliverPadding(
-      key: const ValueKey('store-desktop-grid'),
-      padding: EdgeInsets.fromLTRB(edge, 4, edge, 0),
-      sliver: SliverList.builder(
-        itemCount: rows,
-        itemBuilder: (context, row) => Padding(
-          padding: const EdgeInsets.only(bottom: _desktopGridGap),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var column = 0; column < columns; column++) ...[
-                if (column > 0) const SizedBox(width: _desktopGridGap),
-                Expanded(
-                  child: row * columns + column < extensions.length
-                      ? tile(extensions[row * columns + column])
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ],
-          ),
         ),
       ),
     );
@@ -674,7 +604,6 @@ class _RepoTabState extends ConsumerState<RepoTab> {
 }
 
 /// Category filters scroll sideways on phones. A mouse cannot swipe a clipped
-/// row, so desktop windows wrap every category onto view.
 class _CategoryChipRow extends StatelessWidget {
   const _CategoryChipRow({required this.edge, required this.children});
 
@@ -684,12 +613,6 @@ class _CategoryChipRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = EdgeInsets.symmetric(horizontal: edge, vertical: 8);
-    if (isDesktopPlatform) {
-      return Padding(
-        padding: padding,
-        child: Wrap(spacing: 8, runSpacing: 8, children: children),
-      );
-    }
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: padding,

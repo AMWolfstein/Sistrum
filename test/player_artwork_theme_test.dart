@@ -17,9 +17,6 @@ import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
 import 'package:mornye/theme/player_artwork_theme.dart';
 import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/desktop/desktop_downloads_button.dart';
-import 'package:mornye/widgets/desktop/desktop_player_bar.dart';
-import 'package:mornye/widgets/expressive_playback_transport.dart';
 import 'package:mornye/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -246,41 +243,6 @@ void main() {
       ),
     );
 
-    testWidgets('the Material player bar takes the cover scheme', (
-      tester,
-    ) async {
-      palette.cached[_coverA] = cover;
-      await tester.pumpWidget(
-        app(
-          const Scaffold(bottomNavigationBar: DesktopPlayerBar()),
-          mornye: false,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final bar = find.byType(DesktopPlayerBar);
-      // Resting chrome keeps its container tier, now from the cover.
-      final surface = tester.widget<Material>(
-        find.descendant(of: bar, matching: find.byType(Material)).first,
-      );
-      expect(surface.color, cover.surfaceContainer);
-      expect(Theme.of(tester.element(find.text('Song'))).colorScheme, cover);
-      final transport = tester.widget<ExpressivePlaybackTransport>(
-        find.descendant(
-          of: bar,
-          matching: find.byType(ExpressivePlaybackTransport),
-        ),
-      );
-      expect(transport.colorScheme, cover);
-      expect(transport.dense, isTrue);
-      // Downloads are app chrome hosted in the bar.
-      expect(
-        Theme.of(
-          tester.element(find.byType(DesktopDownloadsButton)),
-        ).colorScheme,
-        AppTheme.light().colorScheme,
-      );
-    });
 
     testWidgets('the Material mini player takes the cover scheme', (
       tester,
@@ -334,7 +296,6 @@ void main() {
     });
 
     for (final (name, home) in [
-      ('player bar', const Scaffold(bottomNavigationBar: DesktopPlayerBar())),
       ('mini player', const Scaffold(bottomNavigationBar: MiniPlayer())),
     ]) {
       testWidgets('the Mornye $name keeps its own theme', (tester) async {

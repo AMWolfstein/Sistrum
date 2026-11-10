@@ -17,8 +17,6 @@ import 'package:mornye/controllers/extension_auth_launcher.dart';
 import 'package:mornye/screens/artist_screen.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/detail_header.dart';
 import 'package:mornye/utils/string_utils.dart';
 import 'package:mornye/utils/editorial_notes.dart';
 import 'package:mornye/screens/playlist_screen.dart';
@@ -66,40 +64,7 @@ class _LoadingOrErrorScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      if (context.isMornye && collectionHeader && !isDesktopPlatform) {
-        return MornyeArtistSurface(
-          imageSource: coverUrl,
-          neutralActions: true,
-          child: Builder(
-            builder: (context) => Scaffold(
-              extendBodyBehindAppBar: true,
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                leadingWidth: 68,
-                leading: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 12),
-                  child: HeaderCircleButton(
-                    icon: Icons.arrow_back,
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).backButtonTooltip,
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ),
-              body: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: loadingBody,
-              ),
-            ),
-          ),
-        );
-      }
-      // Desktop shows its compact header in both styles.
-      if ((isDesktopPlatform || !context.isMornye) && collectionHeader) {
+      if ((!context.isMornye) && collectionHeader) {
         // The real header with the title and cover already known; only the
         // rows that wait for the tracks are skeletons.
         final cover = coverUrl;
@@ -232,37 +197,6 @@ class _ArtistLoadingScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mornye keeps its full-pane hero on desktop too.
-    if (isDesktopPlatform && !context.isMornye) {
-      final url = coverUrl;
-      return Scaffold(
-        body: CustomScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          slivers: [
-            ...desktopDetailHeaderSlivers(
-              context,
-              title: artistName,
-              circularArtwork: true,
-              artwork: (context, size) => url != null && url.isNotEmpty
-                  ? CachedCoverImage(imageUrl: url, fit: BoxFit.cover)
-                  : ShimmerLoading(
-                      child: SkeletonBox(
-                        width: size,
-                        height: size,
-                        borderRadius: 0,
-                      ),
-                    ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
-              sliver: const SliverToBoxAdapter(
-                child: ArtistScreenSkeleton(showCoverHeader: false),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
     if (context.isMornye) {
       return MornyeArtistSurface(
         imageSource: coverUrl,
@@ -278,7 +212,7 @@ class _ArtistLoadingScaffold extends StatelessWidget {
                           imageUrl: coverUrl!,
                           fit: BoxFit.cover,
                           alignment: Alignment.topCenter,
-                          memCacheWidth: isDesktopPlatform ? 1600 : 800,
+                          memCacheWidth: 800,
                         )
                       : const ShimmerLoading(
                           child: SkeletonBox(

@@ -1,7 +1,6 @@
-"""Check mobile build revisions without building the native applications."""
+"""Check Android build revision defines without compiling the application."""
 
 import base64
-import json
 import os
 import shutil
 import subprocess
@@ -18,7 +17,9 @@ class FlutterGitCommitTest(unittest.TestCase):
         scripts = self.project / "scripts"
         scripts.mkdir()
         self.script = scripts / "flutter_git_commit.sh"
-        shutil.copyfile(Path(__file__).with_name(self.script.name), self.script)
+        source = Path(__file__).with_name(self.script.name)
+        self.assertTrue(source.is_file(), f"Android Gradle helper missing: {source.name}")
+        shutil.copyfile(source, self.script)
         tools = self.project / "tools"
         tools.mkdir()
         git = tools / "git"
@@ -68,42 +69,6 @@ class FlutterGitCommitTest(unittest.TestCase):
     def test_non_revision_git_output_is_ignored(self):
         self.env["BUILD_TEST_COMMIT"] = "invalid revision"
         self.assertEqual(self.defines(), "")
-
-    def test_ios_build_phase_exports_revision_to_flutter(self):
-        project_file = (
-            Path(__file__).resolve().parent.parent
-            / "ios/Runner.xcodeproj/project.pbxproj"
-        )
-        phase = next(
-            line.strip() for line in project_file.read_text().splitlines()
-            if "shellScript =" in line and "flutter_git_commit.sh" in line
-        )
-        command = json.loads(phase.removeprefix("shellScript = ").removesuffix(";"))
-        flutter_root = self.project / "flutter"
-        backend = flutter_root / "packages/flutter_tools/bin/xcode_backend.sh"
-        backend.parent.mkdir(parents=True)
-        backend.write_text(
-            '#!/bin/sh\n[ "$1" = build ] || exit 1\n'
-            'printf "%s\\n" "$DART_DEFINES"\n'
-        )
-        (self.project / "ios").mkdir()
-        self.env.update(
-            SRCROOT=str(self.project / "ios"), FLUTTER_ROOT=str(flutter_root),
-        )
-        for revision in (None, "87654321"):
-            with self.subTest(revision=revision):
-                existing = self.encode("FEATURE=true")
-                expected = existing + "," + self.encode("GIT_COMMIT=1234abcd")
-                if revision is not None:
-                    existing += "," + self.encode("GIT_COMMIT=" + revision)
-                    expected = existing
-                self.env["DART_DEFINES"] = existing
-                result = subprocess.run(
-                    ["/bin/sh", "-c", command], env=self.env, text=True, capture_output=True,
-                )
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual(result.stdout.strip(), expected)
-
 
 if __name__ == "__main__":
     unittest.main()

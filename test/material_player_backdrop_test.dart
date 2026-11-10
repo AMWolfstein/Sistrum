@@ -183,9 +183,11 @@ Future<void> _waitForImages(WidgetTester tester) async {
 }
 
 /// What drawing the cover directly instead of through an 8-bit offscreen
-/// copy may change: rounding, by at most one level in a channel. With an
-/// opaque cover only a few channels are left where the offscreen's origin
-/// rounded a sample differently; a translucent cover blends every pixel.
+/// copy may change: rounding. With an opaque cover the offscreen copy rounds
+/// once, so a channel moves by at most one level and only a few channels are
+/// left where the offscreen's origin rounded a sample differently. A
+/// translucent cover blends every pixel and is rounded twice (the copy, then
+/// the blend), so a channel may move by two levels, but only rarely.
 void _expectRounding(
   Uint8List band,
   Uint8List whole, {
@@ -193,9 +195,15 @@ void _expectRounding(
   String? reason,
 }) {
   final difference = _difference(band, whole);
-  expect(difference.max, lessThanOrEqualTo(1), reason: reason);
+  expect(difference.max, lessThanOrEqualTo(opaque ? 1 : 2), reason: reason);
   if (opaque) {
     expect(difference.count, lessThan(band.length ~/ 5000), reason: reason);
+  } else {
+    var twoLevels = 0;
+    for (var i = 0; i < band.length; i++) {
+      if ((band[i] - whole[i]).abs() > 1) twoLevels++;
+    }
+    expect(twoLevels, lessThan(band.length ~/ 1000), reason: reason);
   }
 }
 

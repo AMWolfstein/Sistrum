@@ -14,7 +14,6 @@ void main() {
   testWidgets('Material opens on a far line taller than the estimate', (
     tester,
   ) async {
-    // A narrow desktop panel: each line wraps and carries a romanization,
     // several times the estimated row height.
     tester.view.physicalSize = const Size(340, 800);
     tester.view.devicePixelRatio = 1;

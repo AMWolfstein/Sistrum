@@ -7,7 +7,6 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/services/library_database.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/duplicate_review_sheet.dart';
 
 import 'support/fixed_settings.dart';
@@ -18,10 +17,8 @@ class _Library extends LocalLibraryNotifier {
 }
 
 void main() {
-  for (final platform in [TargetPlatform.windows, TargetPlatform.linux]) {
+  for (final platform in [TargetPlatform.android]) {
     testWidgets('duplicate query can retry on $platform', (tester) async {
-      debugDesktopPlatformOverride = true;
-      addTearDown(() => debugDesktopPlatformOverride = null);
       final previousDebugPrint = debugPrint;
       final logs = <String>[];
       debugPrint = (message, {wrapWidth}) {
@@ -66,8 +63,6 @@ void main() {
         testWidgets(
           'duplicate rows with percent paths render on $platform ($mornye, $brightness)',
           (tester) async {
-            debugDesktopPlatformOverride = true;
-            addTearDown(() => debugDesktopPlatformOverride = null);
             tester.view.physicalSize = const Size(1280, 720);
             tester.view.devicePixelRatio = 1;
             addTearDown(tester.view.reset);
@@ -147,10 +142,7 @@ List<IsrcDuplicateGroup> _groups(TargetPlatform platform, {int count = 10}) => [
             source: 'local',
             trackName: 'Track $group',
             artistName: 'Artist',
-            filePath: platform == TargetPlatform.windows
-                ? r'C:\Music\Albums\Artist\100% Hits'
-                      '\\$copy\\Track $group.flac'
-                : '/music/Albums/Artist/100% Hits/$copy/Track $group.flac',
+            filePath: '/music/Albums/Artist/100% Hits/$copy/Track $group.flac',
             bitDepth: 16,
             sampleRate: 44100,
             format: 'flac',

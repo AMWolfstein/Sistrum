@@ -139,14 +139,8 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
     await _db.migrateLegacySource(
       path: path,
       displayName: _displayNameForPath(path),
-      bookmark: settings.localLibraryBookmark.trim().isEmpty
-          ? null
-          : settings.localLibraryBookmark,
       isRemovable: _looksLikeRemovablePath(path),
-      available: await _isPathAvailable(
-        path,
-        bookmark: settings.localLibraryBookmark,
-      ),
+      available: await _isPathAvailable(path),
       lastScannedAt: legacyLastScannedAt,
     );
   }
@@ -164,9 +158,7 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
       } catch (_) {}
       return 'Music';
     }
-    final normalized = path
-        .replaceAll('\\', '/')
-        .replaceAll(RegExp(r'/+$'), '');
+    final normalized = path.replaceAll(RegExp(r'/+$'), '');
     final name = normalized.split('/').last;
     return name.isEmpty ? path : name;
   }
@@ -180,34 +172,25 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
         return false;
       }
     }
-    final normalized = path.replaceAll('\\', '/').toLowerCase();
+    final normalized = path.toLowerCase();
     return normalized.startsWith('/storage/') &&
         !normalized.startsWith('/storage/emulated/');
   }
 
-  Future<bool> _isPathAvailable(String path, {String? bookmark}) async {
-    return await _probePathAvailability(path, bookmark: bookmark) ?? true;
+  Future<bool> _isPathAvailable(String path) async {
+    return await _probePathAvailability(path) ?? true;
   }
 
-  Future<bool?> _probePathAvailability(String path, {String? bookmark}) async {
+  Future<bool?> _probePathAvailability(String path) async {
     // Network outages are transient. Keep the indexed collection visible;
     // opening/scanning a source reports connectivity errors without dropping it.
     if (path.startsWith('network://')) return true;
     try {
       if (_availabilityProbe != null) {
-        return await _availabilityProbe(path, bookmark: bookmark);
+        return await _availabilityProbe(path);
       }
       if (Platform.isAndroid && isContentUri(path)) {
         return await PlatformBridge.probeSafTreeReadAccess(path);
-      }
-      if (Platform.isIOS && bookmark != null && bookmark.trim().isNotEmpty) {
-        final access = await PlatformBridge.startAccessingIosBookmark(bookmark);
-        if (access == null) return false;
-        try {
-          return await Directory(access.path).exists();
-        } finally {
-          await PlatformBridge.stopAccessingIosBookmark(access);
-        }
       }
       return await Directory(path).exists();
     } catch (error) {
@@ -233,10 +216,7 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
       final sources = await _db.getSources();
       var inconclusive = false;
       for (final source in sources) {
-        final available = await _probePathAvailability(
-          source.path,
-          bookmark: source.bookmark,
-        );
+        final available = await _probePathAvailability(source.path);
         if (!ref.mounted ||
             sourceVersion != _sourceVersion ||
             requestVersion != _availabilityRequestVersion) {

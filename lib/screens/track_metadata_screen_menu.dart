@@ -14,37 +14,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
     final showPlayer = ref.read(playerUiEnabledProvider);
     final localItem = _localLibraryItem;
     final downloadItem = _downloadItem;
-    final linkTransfers = linkTransfersAvailable(ref);
-    final desktopSongs = localItem == null || !linkTransfers
-        ? const <LinkOfflineSong>[]
-        : linkDesktopSongsOf(ref, [localItem]);
-    final linkClient = ref.read(linkPhoneClientProvider);
-    final remoteItem = localItem == null
-        ? null
-        : UnifiedLibraryItem.fromLocalLibrary(localItem);
-    final remoteFile =
-        _fileExists &&
-        remoteItem != null &&
-        linkClient != null &&
-        linkDesktopSongId(remoteItem.filePath, linkClient.server) != null;
-    final container = ProviderScope.containerOf(screenContext, listen: false);
-    // The computer's copy offers the file actions of a song on this phone,
-    // in the same places and words; the dialogs name the computer.
-    _MetadataOption remote(LinkLibraryAction action) => _MetadataOption(
-      icon: linkLibraryActionIcon(action),
-      label: linkLibraryActionLabel(screenContext, action),
-      destructive: action == LinkLibraryAction.delete,
-      onTap: () =>
-          runLinkLibraryAction(screenContext, container, [remoteItem!], action),
-    );
-    final phoneSongs = !linkTransfers || !_fileExists
-        ? const <UnifiedLibraryItem>[]
-        : linkPhoneSongItemsOf([
-            if (localItem != null)
-              UnifiedLibraryItem.fromLocalLibrary(localItem)
-            else if (downloadItem != null)
-              UnifiedLibraryItem.fromDownloadHistory(downloadItem),
-          ]);
     final uploadItems = [
       if (_fileExists && !_isNetworkItem)
         if (localItem != null)
@@ -53,7 +22,7 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           UnifiedLibraryItem.fromDownloadHistory(downloadItem),
     ];
     return <_MetadataOption>[
-      if (canSaveNetworkOfflineSource(cleanFilePath) && desktopSongs.isEmpty)
+      if (canSaveNetworkOfflineSource(cleanFilePath))
         _MetadataOption(
           icon: Icons.download_for_offline_outlined,
           label: l10n.offlineSave,
@@ -75,18 +44,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           icon: Icons.queue_music,
           label: l10n.trackAddToQueue,
           onTap: () => _enqueueThis(ref, playNext: false),
-        ),
-      if (desktopSongs.isNotEmpty)
-        _MetadataOption(
-          icon: Icons.phone_android,
-          label: l10n.linkSaveToPhone,
-          onTap: () => linkSaveSongsToPhone(screenContext, ref, desktopSongs),
-        ),
-      if (phoneSongs.isNotEmpty && linkClient != null)
-        _MetadataOption(
-          icon: Icons.computer,
-          label: l10n.linkSendToDesktop(linkDesktopName(linkClient)),
-          onTap: () => linkSendSongsToDesktop(screenContext, ref, phoneSongs),
         ),
       if (networkUploadOffered(
         ref.read(networkUploadConnectionsProvider).value,
@@ -125,20 +82,14 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           icon: Icons.edit_outlined,
           label: l10n.trackEditMetadata,
           onTap: () => _showEditMetadataSheet(screenContext, ref, colorScheme),
-        )
-      else if (remoteFile)
-        remote(LinkLibraryAction.editMetadata),
-      if (remoteFile)
-        remote(LinkLibraryAction.saveCover)
-      else if (!_isNetworkItem && (_coverUrl != null || _fileExists))
+        ),
+      if (!_isNetworkItem && (_coverUrl != null || _fileExists))
         _MetadataOption(
           icon: Icons.image_outlined,
           label: l10n.trackSaveCoverArt,
           onTap: _saveCoverArt,
         ),
-      if (remoteFile)
-        remote(LinkLibraryAction.saveLyrics)
-      else if (!_isNetworkItem && (_fileExists || !_isLocalItem))
+      if (!_isNetworkItem && (_fileExists || !_isLocalItem))
         _MetadataOption(
           icon: Icons.lyrics_outlined,
           label: l10n.trackSaveLyrics,
@@ -149,33 +100,25 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           icon: Icons.travel_explore,
           label: l10n.trackReEnrich,
           onTap: _reEnrichMetadata,
-        )
-      else if (remoteFile)
-        remote(LinkLibraryAction.reEnrich),
+        ),
       if (canEditFile && _isConvertibleFormat)
         _MetadataOption(
           icon: Icons.swap_horiz,
           label: l10n.trackConvertFormat,
           onTap: () => _showConvertSheet(screenContext),
-        )
-      else if (remoteFile)
-        remote(LinkLibraryAction.convert),
+        ),
       if (canEditFile && !_isCueFile)
         _MetadataOption(
           icon: Icons.graphic_eq,
           label: l10n.trackReplayGain,
           onTap: () => _updateReplayGain(),
-        )
-      else if (remoteFile)
-        remote(LinkLibraryAction.replayGain),
+        ),
       if (canEditFile && !_isCueFile)
         _MetadataOption(
           icon: Icons.remove_circle_outline,
           label: l10n.trackRemoveReplayGain,
           onTap: () => _removeReplayGain(),
-        )
-      else if (remoteFile)
-        remote(LinkLibraryAction.removeReplayGain),
+        ),
       if (canEditFile && _isCueFile)
         _MetadataOption(
           icon: Icons.call_split,
@@ -209,9 +152,7 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
             UnifiedLibraryItem.fromDownloadHistory(downloadItem!),
           ]),
         ),
-      if (remoteFile)
-        remote(LinkLibraryAction.delete)
-      else if (_canDeleteFile)
+      if (_canDeleteFile)
         _MetadataOption(
           icon: Icons.delete_outline,
           label: downloadItem?.originFilePath != null
@@ -231,10 +172,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
     ColorScheme colorScheme, {
     Rect? anchor,
   }) {
-    if (isDesktopPlatform && !screenContext.isMornye) {
-      _showDesktopOptionsMenu(screenContext, ref, colorScheme, anchor: anchor);
-      return;
-    }
     Widget buildMenu(BuildContext sheetContext) {
       final l10n = sheetContext.l10n;
       final options = _menuOptions(screenContext, ref, colorScheme, l10n);
@@ -383,44 +320,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
       useRootNavigator: true,
       isScrollControlled: true,
       builder: buildMenu,
-    );
-  }
-
-  /// Material desktop opens the items as a menu anchored under the More
-  /// button, like the Library's right-click menus, instead of a phone sheet.
-  void _showDesktopOptionsMenu(
-    BuildContext screenContext,
-    WidgetRef ref,
-    ColorScheme colorScheme, {
-    Rect? anchor,
-  }) {
-    final options = _menuOptions(
-      screenContext,
-      ref,
-      colorScheme,
-      screenContext.l10n,
-    );
-    final groups = <List<ContextMenuAction>>[];
-    for (final option in options) {
-      if (groups.isEmpty || option.dividerAbove || option.destructive) {
-        groups.add([]);
-      }
-      groups.last.add(
-        ContextMenuAction(
-          icon: option.icon,
-          label: option.label,
-          destructive: option.destructive,
-          onSelected: option.onTap,
-        ),
-      );
-    }
-    showContextMenu(
-      screenContext,
-      position:
-          anchor?.bottomLeft ??
-          contextMenuOriginOf(screenContext) ??
-          MediaQuery.sizeOf(screenContext).center(Offset.zero),
-      groups: groups,
     );
   }
 

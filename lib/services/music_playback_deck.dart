@@ -4,19 +4,11 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/logger.dart';
 import 'package:mornye/services/playback_deck.dart';
 import 'package:mornye/services/playback_equalizer.dart';
 
 final _log = AppLogger('AudioOutput');
-
-/// [url] marked for the Darwin audioplayers fork as a file still arriving.
-/// The fork then prepares it without indexing its timing first, which would
-/// read to the end of a file still being written and time out (see
-/// third_party/audioplayers_darwin/MORNYE_PATCHES.md).
-@visibleForTesting
-String darwinArrivingUrl(String url) => '$url#mornye-arriving';
 
 /// Only verified native playback reports active. File metadata alone never does.
 final usbAudioStatus = ValueNotifier<UsbAudioStatus>(const UsbAudioStatus());
@@ -151,7 +143,6 @@ PlaybackDeckState _deckState(PlayerState state) => switch (state) {
   PlayerState.disposed => PlaybackDeckState.disposed,
 };
 
-/// The audioplayers deck (Android, iOS, macOS), with Android's native USB
 /// path. Each prepare owns a token so delayed native events cannot affect a
 /// new song.
 class AudioplayersPlaybackDeck implements PlaybackDeck {
@@ -160,17 +151,8 @@ class AudioplayersPlaybackDeck implements PlaybackDeck {
     bool? nativeAvailable,
     bool? equalizerAvailable,
   }) : _ordinary = AudioPlayer(playerId: playerId),
-       // The Darwin fork's tap is shared source, so macOS has it as well.
-       // isDesktopPlatform keeps host-run tests on the mobile default.
-       _equalizerAvailable =
-           equalizerAvailable ??
-           (Platform.isAndroid ||
-               Platform.isIOS ||
-               (isDesktopPlatform && Platform.isMacOS)),
-       _platformChainsPlayers =
-           Platform.isAndroid ||
-           Platform.isIOS ||
-           (isDesktopPlatform && Platform.isMacOS),
+       _equalizerAvailable = equalizerAvailable ?? Platform.isAndroid,
+       _platformChainsPlayers = Platform.isAndroid,
        _nativeAvailable = nativeAvailable ?? Platform.isAndroid {
     playbackEqualizer.addListener(_equalizerChanged);
     playbackOutputVolume.addListener(_outputVolumeChanged);
@@ -228,14 +210,7 @@ class AudioplayersPlaybackDeck implements PlaybackDeck {
     if (_disposed || _equalizerDisposed) return;
     final settings = playbackEqualizer.value;
     if (!_equalizerAvailable) {
-      // Windows and Linux get the equalizer with their own deck. Until then
       // the editor must not claim it is active.
-      if (isDesktopPlatform) {
-        reportEqualizerError(
-          _ordinary.playerId,
-          settings.enabled ? 'Equalizer is not available on this system' : null,
-        );
-      }
       return;
     }
     if (!settings.enabled && !_equalizerSent) {
@@ -338,8 +313,7 @@ class AudioplayersPlaybackDeck implements PlaybackDeck {
   @override
   Future<void> configureOutput() async {
     await _ordinary.setReleaseMode(ReleaseMode.stop);
-    // audioplayers has no audio context outside Android and iOS.
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid) {
       await _ordinary.setAudioContext(_musicAudioContext);
     }
   }
@@ -372,11 +346,7 @@ class AudioplayersPlaybackDeck implements PlaybackDeck {
     _routeLost = false;
     _nativeStarted = false;
     await _setOrdinarySource(
-      UrlSource(
-        arriving && (Platform.isMacOS || Platform.isIOS)
-            ? darwinArrivingUrl(url)
-            : url,
-      ),
+      UrlSource(url),
     );
   }
 
@@ -668,7 +638,6 @@ class AudioplayersPlaybackDeck implements PlaybackDeck {
   @override
   Future<bool> setNextDeck(PlaybackDeck? next) async {
     // The forks chain their own players: Android with
-    // MediaPlayer.setNextMediaPlayer, Darwin from the end notification.
     if (_direct || !_chainsPlayers) return false;
     final player = next is AudioplayersPlaybackDeck && !next._direct
         ? next._ordinary

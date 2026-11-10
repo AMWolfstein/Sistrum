@@ -59,7 +59,6 @@ class AppSettings {
   final String downloadDirectory;
   final String networkDownloadFolder;
   final String networkDownloadLabel;
-  final String downloadDirectoryBookmark;
   final String storageMode; // 'app' or 'saf'
   final String downloadTreeUri; // SAF persistable tree URI
   final bool autoFallback;
@@ -102,22 +101,12 @@ class AppSettings {
     echo: autoMixEcho,
     lowPass: autoMixLowPass,
   );
-  final bool discordRichPresenceEnabled;
   final bool usbBitPerfect;
   final bool usbDirect;
   final bool usbDsdOverPcm;
   final bool usbAllowFixedVolume;
   final bool dapExclusive;
 
-  /// Desktop: take the output device for the music player alone, bypassing
-  /// the system mixer (WASAPI exclusive on Windows, hog mode on macOS, an
-  /// ALSA `hw:` device on Linux). AutoMix and previews stay off while it is
-  /// on.
-  final bool exclusiveOutput;
-
-  /// Linux: the ALSA device [exclusiveOutput] opens, as an mpv device name
-  /// (`alsa/hw:CARD=…,DEV=…`). Empty picks the first card.
-  final String exclusiveOutputDevice;
   final bool autoplay;
   final bool autoplayPersonalization;
 
@@ -218,8 +207,6 @@ class AppSettings {
 
   final bool localLibraryEnabled;
   final String localLibraryPath;
-  final String
-  localLibraryBookmark; // Base64-encoded iOS security-scoped bookmark
   final bool localLibraryShowDuplicates;
   final String
   localLibraryAutoScan; // Auto-scan mode: 'off', 'on_open', 'daily', 'weekly'
@@ -288,7 +275,6 @@ class AppSettings {
     this.downloadDirectory = '',
     this.networkDownloadFolder = '',
     this.networkDownloadLabel = '',
-    this.downloadDirectoryBookmark = '',
     this.storageMode = 'app',
     this.downloadTreeUri = '',
     this.autoFallback = true,
@@ -311,14 +297,11 @@ class AppSettings {
     this.autoMixPitch = 0,
     this.autoMixEcho = false,
     this.autoMixLowPass = false,
-    this.discordRichPresenceEnabled = false,
     this.usbBitPerfect = false,
     this.usbDirect = false,
     this.usbDsdOverPcm = false,
     this.usbAllowFixedVolume = false,
     this.dapExclusive = false,
-    this.exclusiveOutput = false,
-    this.exclusiveOutputDevice = '',
     this.autoplay = false,
     this.autoplayPersonalization = true,
     this.songAnalysis = false,
@@ -381,7 +364,6 @@ class AppSettings {
     this.concurrentDownloads = 1,
     this.localLibraryEnabled = false,
     this.localLibraryPath = '',
-    this.localLibraryBookmark = '',
     this.localLibraryShowDuplicates = true,
     this.localLibraryAutoScan = 'off',
     this.hasCompletedTutorial = false,
@@ -441,7 +423,6 @@ class AppSettings {
     String? downloadDirectory,
     String? networkDownloadFolder,
     String? networkDownloadLabel,
-    String? downloadDirectoryBookmark,
     String? storageMode,
     String? downloadTreeUri,
     bool? autoFallback,
@@ -464,14 +445,11 @@ class AppSettings {
     double? autoMixPitch,
     bool? autoMixEcho,
     bool? autoMixLowPass,
-    bool? discordRichPresenceEnabled,
     bool? usbBitPerfect,
     bool? usbDirect,
     bool? usbDsdOverPcm,
     bool? usbAllowFixedVolume,
     bool? dapExclusive,
-    bool? exclusiveOutput,
-    String? exclusiveOutputDevice,
     bool? autoplay,
     bool? autoplayPersonalization,
     bool? songAnalysis,
@@ -537,7 +515,6 @@ class AppSettings {
     int? concurrentDownloads,
     bool? localLibraryEnabled,
     String? localLibraryPath,
-    String? localLibraryBookmark,
     bool? localLibraryShowDuplicates,
     String? localLibraryAutoScan,
     bool? hasCompletedTutorial,
@@ -573,8 +550,6 @@ class AppSettings {
       networkDownloadFolder:
           networkDownloadFolder ?? this.networkDownloadFolder,
       networkDownloadLabel: networkDownloadLabel ?? this.networkDownloadLabel,
-      downloadDirectoryBookmark:
-          downloadDirectoryBookmark ?? this.downloadDirectoryBookmark,
       storageMode: storageMode ?? this.storageMode,
       downloadTreeUri: downloadTreeUri ?? this.downloadTreeUri,
       autoFallback: autoFallback ?? this.autoFallback,
@@ -602,16 +577,11 @@ class AppSettings {
       autoMixPitch: autoMixPitch ?? this.autoMixPitch,
       autoMixEcho: autoMixEcho ?? this.autoMixEcho,
       autoMixLowPass: autoMixLowPass ?? this.autoMixLowPass,
-      discordRichPresenceEnabled:
-          discordRichPresenceEnabled ?? this.discordRichPresenceEnabled,
       usbBitPerfect: usbBitPerfect ?? this.usbBitPerfect,
       usbDirect: usbDirect ?? this.usbDirect,
       usbDsdOverPcm: usbDsdOverPcm ?? this.usbDsdOverPcm,
       usbAllowFixedVolume: usbAllowFixedVolume ?? this.usbAllowFixedVolume,
       dapExclusive: dapExclusive ?? this.dapExclusive,
-      exclusiveOutput: exclusiveOutput ?? this.exclusiveOutput,
-      exclusiveOutputDevice:
-          exclusiveOutputDevice ?? this.exclusiveOutputDevice,
       autoplay: autoplay ?? this.autoplay,
       autoplayPersonalization:
           autoplayPersonalization ?? this.autoplayPersonalization,
@@ -700,7 +670,6 @@ class AppSettings {
       concurrentDownloads: concurrentDownloads ?? this.concurrentDownloads,
       localLibraryEnabled: localLibraryEnabled ?? this.localLibraryEnabled,
       localLibraryPath: localLibraryPath ?? this.localLibraryPath,
-      localLibraryBookmark: localLibraryBookmark ?? this.localLibraryBookmark,
       localLibraryShowDuplicates:
           localLibraryShowDuplicates ?? this.localLibraryShowDuplicates,
       localLibraryAutoScan: localLibraryAutoScan ?? this.localLibraryAutoScan,

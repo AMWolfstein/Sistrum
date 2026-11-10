@@ -5,7 +5,6 @@ import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/screens/network_storage_screen.dart';
 import 'package:mornye/services/network_storage_service.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_action_button.dart';
 import 'package:mornye/widgets/settings_group.dart';
 
@@ -33,30 +32,17 @@ class _Server extends NetworkStorageService {
 }
 
 void main() {
-  for (final platform in [
-    TargetPlatform.android,
-    TargetPlatform.iOS,
-    TargetPlatform.macOS,
-    TargetPlatform.windows,
-    TargetPlatform.linux,
-  ]) {
+  for (final platform in [TargetPlatform.android]) {
     for (final mornye in [false, true]) {
       for (final largeText in [false, true]) {
-        final mobile =
-            platform == TargetPlatform.android ||
-            platform == TargetPlatform.iOS;
         testWidgets(
           'Subsonic form and browsing on $platform Mornye=$mornye largeText=$largeText',
           (tester) async {
-            tester.view.physicalSize = mobile
-                ? const Size(360, 800)
-                : const Size(1200, 900);
+            tester.view.physicalSize = const Size(360, 800);
             tester.view.devicePixelRatio = 1;
             addTearDown(tester.view.resetPhysicalSize);
             addTearDown(tester.view.resetDevicePixelRatio);
             final service = _Server();
-            debugDesktopPlatformOverride = !mobile;
-            addTearDown(() => debugDesktopPlatformOverride = null);
             addTearDown(service.dispose);
             final theme =
                 (mornye

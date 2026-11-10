@@ -6,7 +6,6 @@ typedef NativeCacheJobRunner =
       String? requestId,
     });
 
-/// Returns null on the desktop adapter. Mobile filesystem work uses the
 /// existing cancellable native worker without changing the public FFI API.
 Future<Map<String, dynamic>?> runNativeCacheMaintenance(
   Map<String, dynamic> request, {

@@ -14,10 +14,8 @@ import 'package:mornye/services/playback_equalizer.dart';
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/material_expressive.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_alert_dialog.dart';
 import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_choice_chip.dart';
 import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/app_menu_button.dart';
 import 'package:mornye/widgets/app_slider.dart';
@@ -135,7 +133,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                 AppSheetOption(
                   title: Text(preset.name),
                   selected: preset == selected,
-                  // iOS lists mark the choice with a trailing checkmark.
                   leading: mornye
                       ? null
                       : preset == selected
@@ -248,7 +245,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
         slivers: [
           AppSliverHeader.page(title: l10n.equalizerTitle),
           if (mornye) ...[
-            // iOS order: the master switch, its footnote, then the response.
             section(
               SettingsGroup(
                 children: [
@@ -314,7 +310,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
             section(
               _PresetBar(
                 busy: _busy,
-                onApply: notifier.applyPreset,
                 onSave: _savePreset,
                 onReset: _reset,
                 onAction: (action) => switch (action) {
@@ -460,7 +455,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
             ),
           ),
           if (mornye) ...[
-            // iOS keeps a destructive command in its own group at the end.
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
             section(
               SettingsGroup(

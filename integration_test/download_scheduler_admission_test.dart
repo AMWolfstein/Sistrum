@@ -73,7 +73,7 @@ void main() {
       'paired_legacy_current': true,
       'completed_cases': cases.length,
       'note':
-          'Original and current DownloadScheduler with a lazy status filter over immutable queue items. Five alternating pairs after warming both: 100 admissions including synchronous start callbacks; queue creation and asynchronous work/drain excluded. Item checks include predicate instrumentation. CPU only, not network speed, persistence or rendered frames. iOS debug correctness only.',
+          'Original and current DownloadScheduler with a lazy status filter over immutable queue items. Five alternating pairs after warming both: 100 admissions including synchronous start callbacks; queue creation and asynchronous work/drain excluded. Item checks include predicate instrumentation. CPU only, not network speed, persistence or rendered frames. Debug correctness only.',
       'cases': cases,
     };
   });

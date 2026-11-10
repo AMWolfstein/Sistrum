@@ -21,7 +21,6 @@ class MotionArtwork {
   final double? aspectRatio;
 }
 
-/// Durable, album-scoped artwork. Relative filenames survive iOS reinstalls
 /// that relocate the app container; temporary cache cleanup does not remove it.
 class MotionArtworkStore {
   MotionArtworkStore({

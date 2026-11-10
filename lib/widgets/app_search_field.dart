@@ -29,7 +29,6 @@ class AppSearchField extends StatelessWidget {
     this.compact = false,
   });
 
-  /// The height of a [compact] Mornye desktop toolbar field.
   static const compactHeight = 36.0;
 
   final TextEditingController controller;
@@ -47,7 +46,6 @@ class AppSearchField extends StatelessWidget {
   /// the plain page background.
   final bool samplesBackdrop;
 
-  /// A pointer-sized field for a desktop toolbar.
   final bool compact;
 
   @override

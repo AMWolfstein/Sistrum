@@ -4,11 +4,6 @@
 *.sh text eol=lf
 gradlew text eol=lf
 
-# Windows scripts
-*.bat text eol=crlf
-*.cmd text eol=crlf
-*.ps1 text eol=crlf
-
 # Empty TSV fields and trailing lyric whitespace are intentional test data.
 android/app/src/test/resources/lyrics_usability_cases.tsv whitespace=-blank-at-eol
 
@@ -19,8 +14,6 @@ third_party/audio_service/** linguist-vendored
 third_party/audio_service/CHANGELOG.md whitespace=-blank-at-eol
 third_party/audio_service/README.md whitespace=-blank-at-eol
 third_party/audio_service/android/src/main/java/com/ryanheise/audioservice/AudioServicePlugin.java whitespace=-blank-at-eol
-third_party/audio_service/darwin/audio_service/Sources/audio_service/AudioServicePlugin.m whitespace=-blank-at-eol
-third_party/audio_service/darwin/audio_service.podspec whitespace=-blank-at-eof
 # Preserve the original whitespace in upstream license and policy documents.
 rust_backend/vendor/rustix-1.1.5/LICENSE-Apache-2.0_WITH_LLVM-exception whitespace=-blank-at-eof
 rust_backend/vendor/rustix-1.1.5/ORG_CODE_OF_CONDUCT.md whitespace=-blank-at-eol

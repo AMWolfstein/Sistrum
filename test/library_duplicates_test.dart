@@ -15,7 +15,7 @@ void main() {
     await LibrarySchema.create(db, LibrarySchema.version);
     await db.execute("ATTACH DATABASE ':memory:' AS history_db");
     await db.execute('''CREATE TABLE history_db.history (
-      id TEXT PRIMARY KEY, track_name TEXT, artist_name TEXT, album_name TEXT,
+      origin_file_path TEXT, id TEXT PRIMARY KEY, track_name TEXT, artist_name TEXT, album_name TEXT,
       file_path TEXT, isrc TEXT, bit_depth INTEGER, sample_rate INTEGER,
       bitrate INTEGER, format TEXT
     )''');

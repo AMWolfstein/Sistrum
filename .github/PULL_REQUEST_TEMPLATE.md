@@ -23,7 +23,7 @@
 - [ ] `flutter analyze`
 - [ ] `flutter test`
 - [ ] `bash scripts/check_rust_backend.sh`
-- [ ] Android or iOS native checks
+- [ ] Android native checks
 - [ ] Manual reproduction or device test
 
 Validation notes:

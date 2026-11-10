@@ -5,17 +5,15 @@
 [![License](https://img.shields.io/badge/license-LGPL--3.0-blue)](LICENSE)
 [![Discord](https://img.shields.io/discord/1387108888452665427?logo=discord&logoColor=white&label=discord)](https://discord.gg/8NVwykjA)
 
-Run FFmpeg and FFprobe commands from Dart on Android, iOS, macOS, Windows and Linux.
+Run FFmpeg and FFprobe commands from Dart on Android. This vendored copy is Android only.
 
 This is a maintained fork of [FFmpegKit](https://github.com/arthenica/ffmpeg-kit/tree/main/flutter/flutter), which is no longer developed upstream, updated for the Android V2 embedding and current Flutter releases. `ffmpeg_kit_flutter_new_audio` is the **Audio** variant: a build focused on audio codecs. See [Choosing a package](#choosing-a-package) for the alternatives.
 
 ## Features
 
 - FFmpeg 8.1.2 and FFprobe, with per-session logs, statistics and completion callbacks.
-- One Dart API for Android, iOS, macOS, Windows (x86_64) and Linux (x86_64).
-- Prebuilt native libraries for every platform, so nothing is compiled during your build.
+- Prebuilt native Android libraries, so nothing is compiled during your build.
 - Android Storage Access Framework (SAF) URIs can be used directly as inputs and outputs.
-- iOS and macOS integrate through Swift Package Manager (Flutter 3.24 or later) or CocoaPods, using checksum-pinned XCFrameworks.
 
 ## Installation
 
@@ -62,7 +60,7 @@ The plugin is published as eight packages that share the same Dart API and diffe
 
 ## Enabled libraries
 
-The table lists the system and external libraries enabled in each package's Android, iOS and macOS builds. The Windows and Linux bundles are built against MSYS2 and system packages respectively; the Windows bundle lists every DLL it contains in `LICENSES/NOTICE.txt`.
+The table lists the system and external libraries enabled in each package's Android build.
 
 <table>
 <thead>
@@ -94,25 +92,6 @@ The table lists the system and external libraries enabled in each package's Andr
 <td align="center"><sup>android system libraries</sup></td>
 <td align="center" colspan=8><sup>zlib</sup><br><sup>MediaCodec</sup></td>
 </tr>
-<tr>
-<td align="center"><sup>ios system libraries</sup></td>
-<td align="center" colspan=8><sup>bzip2</sup><br><sup>AudioToolbox</sup><br><sup>AVFoundation</sup><br><sup>iconv</sup><br><sup>zlib</sup></td>
-</tr>
-<tr>
-<td align="center"><sup>ios VideoToolbox</sup></td>
-<td align="center"><sup>VideoToolbox</sup></td>
-<td align="center"><sup>VideoToolbox</sup></td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center">-</td>
-<td align="center"><sup>VideoToolbox</sup></td>
-<td align="center"><sup>VideoToolbox</sup></td>
-</tr>
-<tr>
-<td align="center"><sup>macos system libraries</sup></td>
-<td align="center" colspan=8><sup>bzip2</sup><br><sup>AudioToolbox</sup><br><sup>AVFoundation</sup><br><sup>Core Image</sup><br><sup>iconv</sup><br><sup>OpenCL</sup><br><sup>OpenGL</sup><br><sup>VideoToolbox</sup><br><sup>zlib</sup></td>
-</tr>
 </tbody>
 </table>
 
@@ -121,25 +100,6 @@ The table lists the system and external libraries enabled in each package's Andr
 | Platform | Minimum version | Architectures |
 |---|---|---|
 | Android | API 24 | `arm-v7a`, `arm-v7a-neon`, `arm64-v8a`, `x86`, `x86_64` |
-| iOS | 14.0 | `arm64` (device); `arm64`, `x86_64` (simulator), shipped as `.xcframework` |
-| macOS | 10.15 | `arm64`, `x86_64` |
-| Windows | 10 | `x86_64` |
-| Linux | - | `x86_64` |
-
-### Windows
-
-Prebuilt FFmpeg 8.1.2 libraries are downloaded into your application's build directory the first time you build. To build against a locally built bundle instead, set `FFMPEGKIT_LOCAL_DIR` (as an environment variable or a CMake cache variable) to the bundle directory before running `flutter run` or `flutter build windows`.
-
-The bundle's license notices are installed next to your executable in `licenses/ffmpeg_kit_flutter_new_audio/`. See [License](#license).
-
-### Linux
-
-Prebuilt FFmpeg 8.1.2 libraries are downloaded at build time in the same way as on Windows, and `FFMPEGKIT_LOCAL_DIR` works the same way. In addition to Flutter's standard Linux prerequisites (`clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`), the plugin requires `libjson-glib-dev`:
-
-```bash
-sudo apt-get install libjson-glib-dev   # Debian, Ubuntu
-sudo dnf install json-glib-devel        # Fedora
-```
 
 ## Usage
 
@@ -253,7 +213,7 @@ FFmpegKitConfig.setFontDirectoryList(["/system/fonts", "/System/Library/Fonts", 
 
 The plugin is licensed under LGPL 3.0. This package contains no GPL components. If you need `x264`, `x265`, `xvidcore` or `vid.stab`, use the matching `-gpl` package.
 
-FFmpeg and the bundled third-party libraries keep their own licenses. On Windows, the prebuilt bundle includes a `LICENSES/` directory with the FFmpeg and FFmpegKit license texts, and a `NOTICE.txt` that lists every bundled DLL with its license, version and a link to its exact source. The plugin installs it into `licenses/ffmpeg_kit_flutter_new_audio/` next to your executable; ship that directory with your application.
+FFmpeg and the bundled third-party libraries keep their own licenses.
 
 ## Support
 

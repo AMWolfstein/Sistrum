@@ -1,76 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 
 /// Transport state reported by a [PlaybackDeck].
 enum PlaybackDeckState { stopped, playing, paused, completed, disposed }
 
-/// The engine behind `PlaybackDependencies.createDeck`.
-enum PlaybackEngine {
-  /// audioplayers: Android, iOS and macOS, where the forks carry the
-  /// equalizer tap and Android's USB output.
-  audioplayers,
-
-  /// libmpv through media_kit: Windows and Linux.
-  mediaKit,
-}
-
-/// Forces [playbackEngine], for tests that drive one engine on any host.
-@visibleForTesting
-PlaybackEngine? debugPlaybackEngineOverride;
-
-PlaybackEngine get playbackEngine {
-  final override = debugPlaybackEngineOverride;
-  if (override != null) return override;
-  if (!isDesktopPlatform) return PlaybackEngine.audioplayers;
-  return switch (defaultTargetPlatform) {
-    TargetPlatform.windows || TargetPlatform.linux => PlaybackEngine.mediaKit,
-    _ => PlaybackEngine.audioplayers,
-  };
-}
-
 /// In-app output gain from 0 to 1 for platforms where the app must not change
-/// the system volume (desktop). Every deck multiplies the gain it is given
 /// (normalization, AutoMix fades) by this value. Mobile keeps it at 1.
 final playbackOutputVolume = ValueNotifier<double>(1);
-
-/// [playbackOutputVolume] as a stream: the current value, then each change.
-Stream<double> playbackOutputVolumeChanges() =>
-    Stream<double>.multi((listener) {
-      void changed() => listener.add(playbackOutputVolume.value);
-      playbackOutputVolume.addListener(changed);
-      changed();
-      listener.onCancel = () => playbackOutputVolume.removeListener(changed);
-    });
-
-/// Desktop exclusive output, from the `exclusiveOutput` setting, always
-/// through libmpv: WASAPI exclusive on Windows, Core Audio hog mode on macOS
-/// (see `ExclusiveOutputDeck`), an ALSA `hw:` device on Linux. AutoMix and
-/// previews stay off while it is on, so only the main player opens the
-/// device.
-final playbackExclusiveOutput = ValueNotifier<bool>(false);
-
-/// Linux: the ALSA device [playbackExclusiveOutput] opens, as an mpv device
-/// name. Empty until one is known; the output stays shared meanwhile.
-final playbackExclusiveDevice = ValueNotifier<String>('');
-
-/// Whether [playbackExclusiveOutput] took the device for the current track.
-enum ExclusiveOutputStatus {
-  /// Off, or no track has opened the output since it was turned on.
-  pending,
-
-  /// The current track plays in exclusive mode.
-  active,
-
-  /// The device refused exclusive access (another app holds it, or exclusive
-  /// control is disallowed); the track plays through the system mixer.
-  unavailable,
-}
-
-final playbackExclusiveStatus = ValueNotifier<ExclusiveOutputStatus>(
-  ExclusiveOutputStatus.pending,
-);
 
 /// A deck that can append a source to its existing output without opening a
 /// second device. The start callback replaces the ordinary completion handoff.

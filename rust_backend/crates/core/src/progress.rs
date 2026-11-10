@@ -419,13 +419,6 @@ fn rounded_speed(value: f64) -> i64 {
     if value >= 9_223_372_036_854_775_808.0 {
         return i64::MIN;
     }
-    #[cfg(target_arch = "arm")]
-    if value >= 18_446_744_073_709_551_616.0 || !value.is_finite() {
-        // Go ARM32's int64 conversion delegates out-of-range values to _d2v.
-        return (u64::from(value as u32) << 32) as i64;
-    } else if value >= 9_223_372_036_854_775_808.0 {
-        return value as u64 as i64;
-    }
     value as i64
 }
 

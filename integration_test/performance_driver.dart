@@ -6,8 +6,6 @@ import 'package:integration_test/integration_test_driver.dart';
 /// Run on dedicated emulators without user data. A signing mismatch can make
 /// `flutter drive` uninstall an existing app during installation, even with
 /// --keep-app-running. That flag only prevents uninstalling when the run ends.
-/// Use --profile on Android and macOS, and --debug on iOS simulators.
-/// Keep the macOS window visible: hiding or fully covering it can suspend
 /// animation clocks and frame delivery, invalidating active measurements.
 /// MORNYE_PERFORMANCE_REPORT selects the host JSON output;
 /// screenshots are PNGs beside that report. The aggregate target is

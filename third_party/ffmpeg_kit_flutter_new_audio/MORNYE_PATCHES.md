@@ -1,7 +1,8 @@
 # Local FFmpegKit patch
 
 Based on ffmpeg_kit_flutter_new_audio 2.5.7 (license retained in LICENSE).
-The upstream `example` app is not copied.
+The upstream `example` app and the non-Android platform sources (`ios/`,
+`macos/`, `windows/`, `linux/`) are not copied; this copy is Android only.
 
 The root `pubspec.yaml` overrides the package with this copy
 (`dependency_overrides: ffmpeg_kit_flutter_new_audio: path:
@@ -10,47 +11,6 @@ third_party/ffmpeg_kit_flutter_new_audio`), next to the pinned
 folder's `pubspec.yaml` (2.5.7, unchanged).
 
 ## Patches
-
-### Windows: omit the unused in-process plugin
-
-The Windows plugin loads `libffmpegkit.dll` at engine registration, even
-when Dart never calls it. The native library starts a callback thread,
-but the plugin destructor calls `FreeLibrary` without stopping that thread
-or waiting for its detached execution workers. Unloading the library and
-its MinGW runtime while those threads are alive is unsafe. A reported
-5.3.0 crash names `libwinpthread-1.dll_unloaded` with an access violation;
-without a crash dump, that report cannot establish which caller unloaded it.
-
-This fork no longer declares a Windows native plugin. Flutter therefore
-does not register, link or bundle it and its FFmpegKit DLL dependencies.
-Mornye already routes desktop conversion, probing, analysis and cancellation
-through `FFmpegExecution` to the standalone `ffmpeg.exe` and `ffprobe.exe`
-processes. The package's pure Dart argument parser and media information
-models remain available. Mobile plugins and Windows libmpv playback are
-unchanged. The Windows upstream source is retained for reference.
-
-Validation: regenerate plugins with `flutter pub get --offline`, then run
-`flutter test --no-pub test/ffmpeg_desktop_test.dart --timeout 120s`.
-The tests exercise desktop routing without an FFmpegKit method channel,
-including a real WAV-to-FLAC conversion and probe when host tools exist.
-A Windows build and shutdown test are still required to validate the
-native application; host tests cannot reproduce the reported crash.
-
-### Linux architectures without a bundle
-
-Upstream publishes Linux bundles for x86_64 only, and `linux/CMakeLists.txt`
-stopped the build with a fatal error on any other architecture, so the app
-could not be built for Linux arm64 at all.
-
-On an architecture without a bundle, and with no `FFMPEGKIT_LOCAL_DIR`, the
-plugin is now built without `libffmpegkit.so` and a CMake warning says so.
-The plugin already loads the library with `dlopen()` and answers every call
-with an error when it is missing. Mornye desktop never calls FFmpegKit's
-native layer: it runs the bundled `ffmpeg` and `ffprobe` executables
-(`lib/services/ffmpeg_desktop.dart` in the app) and uses only the package's
-Dart code (argument parsing and the media information model).
-
-x86_64 builds and builds with `FFMPEGKIT_LOCAL_DIR` keep upstream behavior.
 
 ### Android: FFmpegKit loads on first use, off the main thread
 

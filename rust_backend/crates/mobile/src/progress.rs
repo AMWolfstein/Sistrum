@@ -50,10 +50,6 @@ impl DownloadState {
         self.inner.cancel_many(&item_ids).map_err(Into::into)
     }
 
-    pub fn cancel_active_downloads(&self) -> Result<Vec<String>, CancellationError> {
-        self.inner.cancel_active().map_err(Into::into)
-    }
-
     pub fn reset_download_cancel(&self, item_id: String) -> Result<(), CancellationError> {
         self.inner
             .cancellation

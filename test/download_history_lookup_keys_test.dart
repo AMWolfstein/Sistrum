@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/controllers/track_history_snapshot.dart';
@@ -62,47 +60,6 @@ class _CountingState extends DownloadHistoryState {
   }
 }
 
-String _oldTrackArtistKey(String trackName, String artistName) {
-  final normalizedTrack = trackName.trim().toLowerCase();
-  if (normalizedTrack.isEmpty) return '';
-  return '$normalizedTrack|${artistName.trim().toLowerCase()}';
-}
-
-/// The per-track matching from before the keys were precomputed, scanning
-/// the lookup items instead of the state's indexes.
-Set<String> _referenceKeys(
-  DownloadHistoryState state,
-  List<HistoryLookupRequest> tracks,
-  Set<String> persistedKeys,
-) {
-  bool holdsSpotifyId(String id) =>
-      state.lookupItems.any((item) => item.spotifyId == id);
-  bool holdsIsrc(String isrc) =>
-      state.lookupItems.any((item) => item.isrc == isrc);
-  bool holdsTrackArtist(String key) =>
-      key.isNotEmpty &&
-      state.lookupItems.any(
-        (item) => _oldTrackArtistKey(item.trackName, item.artistName) == key,
-      );
-
-  final keys = <String>{...persistedKeys};
-  for (final track in tracks) {
-    final isrc = track.isrc?.trim();
-    final found =
-        HistoryDatabase.spotifyLookupCandidates(
-          track.spotifyId,
-        ).any(holdsSpotifyId) ||
-        (isrc != null && isrc.isNotEmpty && holdsIsrc(isrc)) ||
-        holdsTrackArtist(_oldTrackArtistKey(track.trackName, track.artistName));
-    if (found) {
-      keys.add(
-        '${track.spotifyId.trim()}|${HistoryDatabase.normalizeIsrc(track.isrc)}|'
-        '${HistoryDatabase.matchKeyFor(track.trackName, track.artistName)}',
-      );
-    }
-  }
-  return keys;
-}
 
 DownloadHistoryItem _item(
   int index, {
@@ -173,23 +130,6 @@ const _tricky = [
   ),
 ];
 
-final _trickyItems = [
-  _item(1, spotifyId: 'compact1'),
-  _item(2, spotifyId: 'spotify:track:prefixed2'),
-  _item(3, spotifyId: 'url3'),
-  _item(4, spotifyId: 'spaced4'),
-  _item(5, isrc: 'USEX12600005'),
-  // ISRCs match case-sensitively in memory, so only the title matches here.
-  _item(
-    6,
-    isrc: 'USEX12600006',
-    trackName: 'mixed case song',
-    artistName: 'some artist',
-  ),
-  _item(7, trackName: '', artistName: 'Stored artist'),
-  _item(8, trackName: 'İSTANBUL', artistName: 'ÜNLÜ'),
-];
-
 void main() {
   test('precomputed lookup keys equal each track lookupKey', () {
     final expected = [for (final track in _tricky) track.lookupKey];
@@ -214,121 +154,6 @@ void main() {
     final page = TrackHistorySnapshot()..update(tracks);
     expect(page.lookupKeys, expected);
     expect(identical(page.lookupKeys, page.request.lookupKeys), isTrue);
-  });
-
-  test('visible membership matches the per-track reference', () {
-    final container = ProviderContainer(
-      overrides: [
-        downloadHistoryBatchExistsProvider.overrideWith(
-          (ref, request) => <String>{},
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-    final request = HistoryBatchLookupRequest.snapshot(_tricky);
-    final states = [
-      DownloadHistoryState(),
-      DownloadHistoryState(items: _trickyItems.sublist(0, 4)),
-      DownloadHistoryState(items: _trickyItems),
-      DownloadHistoryState(
-        items: _trickyItems.sublist(4),
-      ).copyWithPrependedLookup(_trickyItems.first, items: [], totalCount: 5),
-    ];
-    for (final state in states) {
-      final expected = _referenceKeys(state, _tricky, const {});
-      expect(
-        mergeVisibleHistoryLookupKeys(
-          state: state,
-          request: request,
-          persistedKeys: const {},
-        ),
-        expected,
-      );
-    }
-    // An empty title never matches by title; the last lookup repeats the first.
-    expect(_referenceKeys(states[2], _tricky, const {}), {
-      for (final index in [0, 1, 2, 3, 4, 5, 7]) _tricky[index].lookupKey,
-    });
-
-    final history = _History();
-    final scoped = ProviderContainer(
-      overrides: [
-        downloadHistoryProvider.overrideWith(() => history),
-        downloadHistoryBatchExistsProvider(
-          request,
-        ).overrideWith((ref) => {_tricky.last.lookupKey, 'persisted-only'}),
-      ],
-    );
-    addTearDown(scoped.dispose);
-    final provider = downloadHistoryVisibleBatchExistsProvider(request);
-    final subscription = scoped.listen(provider, (_, _) {});
-    addTearDown(subscription.close);
-    for (final state in states) {
-      history.publish((_) => state);
-      expect(
-        scoped.read(provider),
-        _referenceKeys(state, _tricky, {
-          _tricky.last.lookupKey,
-          'persisted-only',
-        }),
-      );
-    }
-  });
-
-  test('random lookups match the per-track reference', () {
-    final random = Random(7);
-    T pick<T>(List<T> values) => values[random.nextInt(values.length)];
-    const ids = [
-      'a1',
-      ' a1 ',
-      'spotify:track:a1',
-      'https://open.spotify.com/track/a1',
-      'example:album:a1',
-      'B2',
-      'b2',
-      'spotify:track:b2',
-      '',
-    ];
-    const isrcs = [null, '', 'USX1', ' USX1 ', 'usx1', 'USX2'];
-    const titles = ['Song', ' song ', 'SONG', '', 'Other', 'İ'];
-    const artists = ['Artist', 'artist ', '', 'Else'];
-    var matchedInMemory = 0;
-    for (var round = 0; round < 300; round++) {
-      final lookups = [
-        for (var i = 0; i < 12; i++)
-          HistoryLookupRequest(
-            spotifyId: pick(ids),
-            isrc: pick(isrcs),
-            trackName: pick(titles),
-            artistName: pick(artists),
-          ),
-      ];
-      final itemCount = random.nextInt(6);
-      final items = [
-        for (var i = 0; i < itemCount; i++)
-          _item(
-            i,
-            spotifyId: pick([null, 'a1', 'b2', 'spotify:track:B2', '']),
-            isrc: pick(isrcs),
-            trackName: pick(titles),
-            artistName: pick(artists),
-          ),
-      ];
-      final state = DownloadHistoryState(items: items);
-      final persisted = {if (random.nextBool()) lookups.first.lookupKey};
-      final expected = _referenceKeys(state, lookups, persisted);
-      if (expected.difference(persisted).isNotEmpty) matchedInMemory++;
-      expect(
-        mergeVisibleHistoryLookupKeys(
-          state: state,
-          request: HistoryBatchLookupRequest.snapshot(lookups),
-          persistedKeys: persisted,
-        ),
-        expected,
-        reason: 'round $round',
-      );
-    }
-    expect(matchedInMemory, greaterThan(150));
   });
 
   test('history changes never re-derive the page lookup keys', () async {

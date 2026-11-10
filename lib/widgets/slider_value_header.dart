@@ -5,7 +5,6 @@ import 'package:mornye/theme/mornye_theme.dart';
 /// The title row above a settings slider, with the slider's current value.
 ///
 /// Material shows the value with its unit in a tonal pill at the trailing
-/// end, so it reads without touching the slider. Mornye shows it as iOS
 /// detail text in the secondary label color.
 class SliderValueHeader extends StatelessWidget {
   const SliderValueHeader({

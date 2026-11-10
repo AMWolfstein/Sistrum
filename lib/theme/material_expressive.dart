@@ -22,7 +22,6 @@ class MaterialExpressiveScope extends StatelessWidget {
 
   /// Keeps [child] from taking keyboard focus as it mounts. `M3EButtonGroup`
   /// autofocuses its first segment, which would take Space from playback on
-  /// desktop.
   final bool skipAutofocus;
   static final _themes = Expando<material_ui.ThemeData>();
   static final _expressiveThemes = Expando<M3EThemeData>();

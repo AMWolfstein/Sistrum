@@ -13,36 +13,6 @@ void main() {
         .setMockMethodCallHandler(backendChannel, null);
   });
 
-  test(
-    'iOS folder picker distinguishes cancellation from invalid replies',
-    () async {
-      final messenger =
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-      messenger.setMockMethodCallHandler(backendChannel, (_) async => null);
-      expect(await PlatformBridge.pickIosDirectory(), isNull);
-
-      for (final reply in [
-        <String, String>{},
-        {'path': '/external/Music'},
-        {'path': 'relative/Music', 'bookmark': 'grant'},
-        {'path': '/external/Music', 'bookmark': '   '},
-      ]) {
-        messenger.setMockMethodCallHandler(backendChannel, (_) async => reply);
-        await expectLater(
-          PlatformBridge.pickIosDirectory(),
-          throwsA(isA<FormatException>()),
-        );
-      }
-
-      messenger.setMockMethodCallHandler(backendChannel, (call) async {
-        expect(call.method, 'pickIosDirectory');
-        return {'path': '/external/Music', 'bookmark': 'grant'};
-      });
-      final selected = await PlatformBridge.pickIosDirectory();
-      expect(selected?.path, '/external/Music');
-      expect(selected?.bookmark, 'grant');
-    },
-  );
 
   test('complete metadata forwards descriptor format hint', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -224,24 +194,4 @@ void main() {
     expect(results.single['relative_dir'], 'Artist/Album');
   });
 
-  test('iOS bookmark access releases the matching native lease', () async {
-    final calls = <MethodCall>[];
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(backendChannel, (call) async {
-          calls.add(call);
-          if (call.method == 'startAccessingIosBookmark') {
-            return {'path': '/music', 'token': 'lease-1'};
-          }
-          if (call.method == 'stopAccessingIosBookmark') return null;
-          fail('Unexpected method: ${call.method}');
-        });
-
-    final access = await PlatformBridge.startAccessingIosBookmark('bookmark');
-    expect(access?.path, '/music');
-    expect(access?.token, 'lease-1');
-    await PlatformBridge.stopAccessingIosBookmark(access!);
-
-    expect(calls[1].method, 'stopAccessingIosBookmark');
-    expect(calls[1].arguments, {'token': 'lease-1'});
-  });
 }

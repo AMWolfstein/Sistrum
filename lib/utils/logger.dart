@@ -136,7 +136,6 @@ class LogBuffer extends ChangeNotifier {
   static bool _loggingEnabled = false;
 
   /// Receives every entry the buffer keeps, already redacted and filtered.
-  /// Desktop writes these to rotating log files.
   static void Function(LogEntry entry)? fileSink;
 
   static bool get loggingEnabled => _loggingEnabled;
@@ -333,37 +332,6 @@ class LogBuffer extends ChangeNotifier {
         buffer.writeln('Product: ${android.product}');
         buffer.writeln('Supported ABIs: ${android.supportedAbis.join(', ')}');
         buffer.writeln('Is Physical Device: ${android.isPhysicalDevice}');
-      } else if (Platform.isIOS) {
-        final ios = await deviceInfo.iosInfo;
-        buffer.writeln('Platform: iOS');
-        buffer.writeln('Device: ${ios.utsname.machine}');
-        buffer.writeln('Model: ${ios.model}');
-        buffer.writeln('System Name: ${ios.systemName}');
-        buffer.writeln('System Version: ${ios.systemVersion}');
-        buffer.writeln('Device Name: ${ios.name}');
-        buffer.writeln('Is Physical Device: ${ios.isPhysicalDevice}');
-      } else if (Platform.isMacOS) {
-        final macos = await deviceInfo.macOsInfo;
-        buffer.writeln('Platform: macOS');
-        buffer.writeln('Model: ${macos.model}');
-        buffer.writeln(
-          'OS Version: ${macos.osRelease} (Kernel ${macos.kernelVersion})',
-        );
-        buffer.writeln('Architecture: ${macos.arch}');
-        buffer.writeln('Memory: ${macos.memorySize ~/ (1024 * 1024)} MB');
-      } else if (Platform.isWindows) {
-        final windows = await deviceInfo.windowsInfo;
-        buffer.writeln('Platform: Windows');
-        buffer.writeln('Product: ${windows.productName}');
-        buffer.writeln(
-          'Version: ${windows.displayVersion} (Build ${windows.buildNumber})',
-        );
-        buffer.writeln('Memory: ${windows.systemMemoryInMegabytes} MB');
-      } else if (Platform.isLinux) {
-        final linux = await deviceInfo.linuxInfo;
-        buffer.writeln('Platform: Linux');
-        buffer.writeln('Distribution: ${linux.prettyName}');
-        buffer.writeln('Kernel: ${Platform.operatingSystemVersion}');
       }
     } catch (e) {
       buffer.writeln('Failed to get device info: $e');

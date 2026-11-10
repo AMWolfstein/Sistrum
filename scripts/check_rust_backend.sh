@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check the production Rust workspace that routes the app on Android and iOS.
+# Check the production Rust workspace that backs the Android arm64 app.
 
 set -euo pipefail
 

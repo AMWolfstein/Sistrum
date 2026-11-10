@@ -88,7 +88,7 @@ retried; existing completed music is never deleted.
 Network destinations currently use the shared Flutter queue even when Native
 Download Worker is enabled, because the autonomous worker cannot yet perform
 the network publication handoff. Keep the app open until upload finishes; this
-does not promise transfers after force-stop or indefinite iOS background time.
+does not promise transfers after force-stop.
 Track ReplayGain is supported; later album-wide ReplayGain rewriting across
 already-published tracks is not. Failed uploads occupy staging space until
 retried or removed.
@@ -123,9 +123,7 @@ the network destination for new provider downloads or synchronize later edits.
 Remote metadata editing, separate sidecar lyric files,
 AutoMix and direct USB/DAP bit-perfect output are not part of this browser.
 Normal playback uses the platform audio decoder, so codec support follows the
-device. On iOS and macOS, formats AVPlayer cannot open (APE, WavPack, DSD and
-others) are converted with FFmpeg to a temporary lossless copy first; a song
-that still cannot play is named in a notice and skipped.
+device.
 
 Songs already in the local Library can be uploaded to a writable SMB or WebDAV
 connection from the track menu, the Library selection and album headers. Files
@@ -141,7 +139,7 @@ Samba fixture with encryption mandatory:
 `python3 scripts/smb3_fixture_server.py --port 1446 --writable` and
 `TEST_SMB_UPLOAD=1 TEST_SMB_PORT=1446 TEST_SMB_LIBRARY=<host-library> flutter test test/network_smb_upload_test.dart`.
 It validates upload, non-overwriting publication and retry reconciliation in
-existing folders. This host's unprivileged macOS Samba creates new directories
+existing folders. The test host's unprivileged Samba created new directories
 with mode 000 even with its own smbclient; nested folder creation is covered by
 the WebDAV fixture, not claimed as a successful SMB host-device check.
 
@@ -173,7 +171,6 @@ on a second port, passed to the test as `TEST_SMB_GUEST_PORT`.
 
 Android emulator transport validation:
 `flutter test integration_test/network_smb_test.dart -d emulator-5554 --dart-define=SMB_TEST_URL=smb://10.0.2.2:1445/MUSIC/`.
-For the iOS simulator, use `127.0.0.1` instead of `10.0.2.2`.
 
 The transport was validated against an isolated Samba 4.25 server with mandatory
 signing for SMB 2.0.2/2.1 and mandatory encryption for SMB 3.0/3.0.2/3.1.1.

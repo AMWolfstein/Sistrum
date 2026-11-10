@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/providers/download_queue_provider.dart';
 import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/services/audio_analysis_cache.dart';
 import 'package:mornye/services/cache_maintenance_service.dart';
 import 'package:mornye/services/cover_cache_manager.dart';
@@ -260,12 +259,9 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
       final orphanedDownloads = await ref
           .read(downloadHistoryProvider.notifier)
           .cleanupOrphanedDownloads();
-      final iosBookmark = ref.read(settingsProvider).localLibraryBookmark;
       final missingLibraryEntries = await ref
           .read(localLibraryProvider.notifier)
-          .cleanupMissingFiles(
-            iosBookmark: iosBookmark.isNotEmpty ? iosBookmark : null,
-          );
+          .cleanupMissingFiles();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

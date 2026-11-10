@@ -433,34 +433,9 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
         ),
       ),
     );
-    return DesktopContextMenuRegion(
-      onContextMenu:
-          onContextMenu ??
-          (position) => _showOpenMenu(context, position, onTap),
-      child: card,
-    );
+    return card;
   }
 
-  /// The desktop menu of a folder that offers nothing beyond opening it.
-  void _showOpenMenu(
-    BuildContext context,
-    Offset position,
-    VoidCallback onOpen,
-  ) => showContextMenu(
-    context,
-    position: position,
-    groups: [
-      [
-        ContextMenuAction(
-          icon: Icons.open_in_new,
-          label: context.l10n.desktopMenuOpen,
-          onSelected: onOpen,
-        ),
-      ],
-    ],
-  );
-
-  /// The desktop menu of a playlist: open, rename, and delete. Deleting a
   /// playlist outside the selection deletes only that playlist.
   void _showPlaylistMenu(
     BuildContext context,
@@ -476,7 +451,7 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
         [
           ContextMenuAction(
             icon: Icons.open_in_new,
-            label: l10n.desktopMenuOpen,
+            label: l10n.menuOpen,
             onSelected: () => _openPlaylistById(playlist.id),
           ),
           ContextMenuAction(
@@ -545,19 +520,14 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
           ),
         );
 
-    return DesktopContextMenuRegion(
-      onContextMenu:
-          onContextMenu ??
-          (position) => _showOpenMenu(context, position, onTap),
-      child: _buildCollectionGridCell(
-        context: context,
-        colorScheme: colorScheme,
-        cover: cover,
-        title: title,
-        count: count,
-        onTap: onTap,
-        onLongPress: onLongPress,
-      ),
+    return _buildCollectionGridCell(
+      context: context,
+      colorScheme: colorScheme,
+      cover: cover,
+      title: title,
+      count: count,
+      onTap: onTap,
+      onLongPress: onLongPress,
     );
   }
 

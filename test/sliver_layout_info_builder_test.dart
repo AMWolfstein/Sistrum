@@ -236,7 +236,6 @@ void main() {
                   artwork: const ColoredBox(color: Colors.orange),
                   actions: const [],
                   showTitle: false,
-                  showTitleListenable: showTitle,
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 2000)),
               ],

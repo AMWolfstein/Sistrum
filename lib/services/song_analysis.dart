@@ -12,7 +12,6 @@ import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/services/playable_media.dart';
 import 'package:mornye/services/song_analysis_store.dart';
 import 'package:mornye/services/song_feature_analyzer.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/file_access.dart' show isContentUri;
 import 'package:mornye/utils/logger.dart';
 
@@ -108,7 +107,6 @@ class SongAnalysis {
 
   static SongAnalysisSweep _defaultSweep() {
     if (Platform.isAndroid) return SongAnalysisSweep.whileCharging;
-    if (isDesktopPlatform) return SongAnalysisSweep.always;
     return SongAnalysisSweep.never;
   }
 

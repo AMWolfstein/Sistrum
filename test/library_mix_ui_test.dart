@@ -16,8 +16,6 @@ import 'package:mornye/screens/library_mix_screen.dart';
 import 'package:mornye/services/library_mixes.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
 import 'package:mornye/widgets/library_mix_cover.dart';
 import 'package:mornye/widgets/library_track_selection_bar.dart';
 import 'package:mornye/widgets/mornye_mix_banner.dart';
@@ -52,64 +50,52 @@ final _mix = LibraryMixView(
 );
 
 void main() {
-  for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      testWidgets('Home lists the mixes and opens one '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        debugDesktopPlatformOverride = desktop;
-        addTearDown(() => debugDesktopPlatformOverride = null);
-        tester.view.physicalSize = desktop
-            ? const Size(1280, 800)
-            : const Size(430, 932);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        await _pumpHome(tester, mornye: mornye, mixes: [_mix]);
+  for (final mornye in [false, true]) {
+    testWidgets('Home lists the mixes and opens one '
+        '(Mornye: $mornye)', (tester) async {
+      tester.view.physicalSize = const Size(430, 932);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await _pumpHome(tester, mornye: mornye, mixes: [_mix]);
 
-        final title = find.text('Hip-Hop Mix');
-        await tester.scrollUntilVisible(
-          title,
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
-        // Rows take taps again once the scroll comes to rest.
-        await tester.pump(const Duration(seconds: 1));
-        expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
-        if (mornye) {
-          expect(find.text('Top Picks for You'), findsOneWidget);
-          expect(find.text('Made for You'), findsOneWidget);
-          expect(find.byType(MornyeMixBanner), findsOneWidget);
-          expect(find.text('Mixes for you'), findsNothing);
-          // Music's Home has no tools.
-          expect(find.text('Shortcuts', skipOffstage: false), findsNothing);
-        } else {
-          expect(find.text('Mixes for you'), findsOneWidget);
-          expect(find.byType(LibraryMixCover), findsOneWidget);
-          expect(find.byType(MornyeMixBanner), findsNothing);
-        }
+      final title = find.text('Hip-Hop Mix');
+      await tester.scrollUntilVisible(
+        title,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      // Rows take taps again once the scroll comes to rest.
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
+      if (mornye) {
+        expect(find.text('Top Picks for You'), findsOneWidget);
+        expect(find.text('Made for You'), findsOneWidget);
+        expect(find.byType(MornyeMixBanner), findsOneWidget);
+        expect(find.text('Mixes for you'), findsNothing);
+        // Music's Home has no tools.
+        expect(find.text('Shortcuts', skipOffstage: false), findsNothing);
+      } else {
+        expect(find.text('Mixes for you'), findsOneWidget);
+        expect(find.byType(LibraryMixCover), findsOneWidget);
+        expect(find.byType(MornyeMixBanner), findsNothing);
+      }
 
-        await tester.tap(title);
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 600));
-        expect(find.byType(LibraryMixScreen), findsOneWidget);
-        expect(find.text('Hip-Hop Mix'), findsWidgets);
-        expect(find.textContaining('Made from your Library'), findsOneWidget);
-        expect(find.text('Song 0'), findsOneWidget);
-        if (desktop) {
-          expect(find.byType(SliverTrackTable), findsOneWidget);
-        } else {
-          expect(find.byType(TrackCard), findsWidgets);
-          expect(find.byTooltip('Save as playlist'), findsOneWidget);
-        }
-        expect(tester.takeException(), isNull);
-      });
-    }
+      await tester.tap(title);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.byType(LibraryMixScreen), findsOneWidget);
+      expect(find.text('Hip-Hop Mix'), findsWidgets);
+      expect(find.textContaining('Made from your Library'), findsOneWidget);
+      expect(find.text('Song 0'), findsOneWidget);
+      expect(find.byType(TrackCard), findsWidgets);
+      expect(find.byTooltip('Save as playlist'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   }
 
   for (final mornye in [false, true]) {
     testWidgets('a long press on a phone row selects songs for the Library '
         'actions (Mornye: $mornye)', (tester) async {
-      debugDesktopPlatformOverride = false;
-      addTearDown(() => debugDesktopPlatformOverride = null);
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

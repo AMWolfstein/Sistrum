@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/app_alert_dialog.dart';
 import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/app_icon.dart';
@@ -502,70 +500,6 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('desktop groups line up with page-wide cards ($style)', (
-      tester,
-    ) async {
-      debugDesktopPlatformOverride = true;
-      addTearDown(() => debugDesktopPlatformOverride = null);
-      // A laptop's full screen, and a window past the desktop reading width.
-      for (final (width, edge) in [
-        (1100.0, 16.0),
-        (2400.0, mornye ? 416.0 : 576.0),
-      ]) {
-        tester.view.physicalSize = Size(width, 900);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: _theme(mornye),
-              home: Scaffold(
-                body: Builder(
-                  builder: (context) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16 + wideListInset(context),
-                        ),
-                        child: const SizedBox(
-                          key: ValueKey('card'),
-                          width: double.infinity,
-                          height: 40,
-                        ),
-                      ),
-                      const SettingsGroup(
-                        key: ValueKey('group'),
-                        children: [SettingsItem(title: 'Page')],
-                      ),
-                      // A sheet-sized box keeps the plain edge.
-                      const SizedBox(
-                        width: 560,
-                        child: SettingsGroup(
-                          children: [SettingsItem(title: 'Sheet')],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-        final card = tester.getRect(find.byKey(const ValueKey('card')));
-        Rect row(String title) => tester.getRect(
-          find.ancestor(
-            of: find.text(title),
-            matching: find.byType(SettingsItem),
-          ),
-        );
-        expect(card.left, edge);
-        expect(row('Page').left, card.left);
-        expect(row('Page').right, card.right);
-        expect(row('Sheet').left, 16);
-      }
-      expect(tester.takeException(), isNull);
-    });
   }
 
   testWidgets('Mornye glass groups skip the backdrop pass', (tester) async {

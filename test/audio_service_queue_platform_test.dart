@@ -418,25 +418,6 @@ void main() {
     );
   });
 
-  for (final target in [
-    TargetPlatform.iOS,
-    TargetPlatform.macOS,
-    TargetPlatform.windows,
-    TargetPlatform.linux,
-    TargetPlatform.fuchsia,
-  ]) {
-    test('${target.name} receives no queue', () async {
-      debugDefaultTargetPlatformOverride = target;
-      handler.queue.add(_songs(1000));
-      handler.mediaItem.add(_queue('current').single);
-      handler.queue.add(_songs(10));
-      await pumpEventQueue();
-
-      expect(platform.queues, isEmpty);
-      expect(platform.log, ['item current']);
-    });
-  }
-
   test('a burst during a send sends only the newest queue next', () async {
     platform.holdQueue = true;
     handler.queue.add(_queue('q1'));

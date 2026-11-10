@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mornye/utils/android_tv.dart';
 
 /// Ends the mobile IME session on backgrounding without waiting for a frame.
 /// Keeping a focused editor across backgrounding can leave its old keyboard
@@ -36,9 +35,7 @@ class _AndroidKeyboardLifecycleState extends State<AndroidKeyboardLifecycle>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (kIsWeb ||
-        defaultTargetPlatform != TargetPlatform.android ||
-        isAndroidTv) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return;
     }
     if (state == AppLifecycleState.resumed) {

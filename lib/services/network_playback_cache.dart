@@ -390,7 +390,6 @@ class NetworkPlaybackCache {
   }
 
   /// Removes [entry] from the index. A file the player still holds open on
-  /// Windows stays until the next start.
   Future<void> _drop(String source, _Entry entry) async {
     if (identical(_entries[source], entry)) _entries.remove(source);
     _save();

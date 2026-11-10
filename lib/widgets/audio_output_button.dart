@@ -14,8 +14,6 @@ import 'package:mornye/widgets/expressive_icon_button.dart';
 enum _OutputChoice { system, cast, disconnect }
 
 /// One sheet for both kinds of output: the system's routes (Android's
-/// output switcher, or AirPlay and Bluetooth on iOS) and Google Cast, which
-/// opens Google's device dialog on Android and the app's list on iOS.
 class AudioOutputButton extends StatefulWidget {
   const AudioOutputButton({
     super.key,
@@ -47,7 +45,6 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
 
   CastOutput get _output => widget.output ?? CastOutput.instance;
 
-  bool get _ios => defaultTargetPlatform == TargetPlatform.iOS;
 
   Future<void> _showPicker() async {
     if (_opening) return;
@@ -66,14 +63,8 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AppSheetOption(
-                title: Text(
-                  _ios
-                      ? context.l10n.audioOutputAirPlay
-                      : context.l10n.audioOutputSystem,
-                ),
-                leading: Icon(
-                  _ios ? Icons.airplay : Icons.speaker_group_outlined,
-                ),
+                title: Text(context.l10n.audioOutputSystem),
+                leading: const Icon(Icons.speaker_group_outlined),
                 onTap: () => Navigator.pop(context, _OutputChoice.system),
               ),
               AppSheetOption(
@@ -139,7 +130,7 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
   Widget build(BuildContext context) {
     if (kIsWeb) return const SizedBox.shrink();
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS => ListenableBuilder(
+      TargetPlatform.android => ListenableBuilder(
         listenable: _output,
         builder: (context, _) => _button(context),
       ),
@@ -150,8 +141,6 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
   Widget _button(BuildContext context) {
     final icon = _output.connected
         ? Icons.cast_connected
-        : _ios
-        ? Icons.airplay
         : Icons.speaker_group_outlined;
     if (widget.backgroundColor case final background?) {
       return ExpressiveIconButton(

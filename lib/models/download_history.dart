@@ -55,8 +55,7 @@ class DownloadHistoryItem {
   /// File copies retain their scanned Library identity for playlists/likes.
   /// The legacy spotifyId column also stores foreign ids from other sources.
   bool get _offlineLibraryFile =>
-      originFilePath != null &&
-      const {'Network offline', 'Mornye Link'}.contains(service);
+      originFilePath != null && const {'Network offline'}.contains(service);
   String get collectionTrackId => _offlineLibraryFile ? spotifyId ?? id : id;
   String get collectionTrackSource => _offlineLibraryFile ? 'local' : service;
 

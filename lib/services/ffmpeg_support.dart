@@ -2,34 +2,21 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ffmpeg_kit_flutter_new_audio/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_new_audio/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter_new_audio/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_new_audio/media_information.dart';
 import 'package:ffmpeg_kit_flutter_new_audio/return_code.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/ffmpeg_desktop.dart';
 import 'package:mornye/services/ffmpeg_metadata_input.dart';
 import 'package:mornye/services/ffmpeg_models.dart';
 import 'package:mornye/services/ffmpeg_probe.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/logger.dart';
-
-export 'package:mornye/services/ffmpeg_desktop.dart'
-    show FFmpegUnavailableException;
 
 final _log = AppLogger('FFmpeg');
 
 /// Shared native execution boundary; feature modules supply their own commands.
-/// Mobile runs FFmpegKit in process; desktop runs the bundled `ffmpeg` and
-/// `ffprobe` executables through [DesktopFFmpegRunner].
+/// Runs FFmpegKit in process.
 abstract final class FFmpegExecution {
   static Future<FFmpegResult> command(String command) async {
-    if (isDesktopPlatform) {
-      // FFmpegKit's own quoting rules, so commands behave as on mobile.
-      return DesktopFFmpegRunner.shared.run(
-        FFmpegKitConfig.parseArguments(command),
-      );
-    }
     try {
       final session = await FFmpegKit.execute(command);
       final code = await session.getReturnCode();
@@ -67,7 +54,6 @@ abstract final class FFmpegExecution {
   }
 
   static Future<FFmpegResult> _executeArguments(List<String> arguments) async {
-    if (isDesktopPlatform) return DesktopFFmpegRunner.shared.run(arguments);
     try {
       final session = await FFmpegKit.executeWithArguments(arguments);
       final code = await session.getReturnCode();
@@ -83,11 +69,10 @@ abstract final class FFmpegExecution {
   }
 
   /// Starts a cancellable session; [cancel] takes its id. Throws when the
-  /// session cannot start, including [FFmpegUnavailableException] on desktop.
+  /// session cannot start.
   static Future<({int id, Future<FFmpegSessionResult> completed})> start(
     List<String> arguments,
   ) async {
-    if (isDesktopPlatform) return DesktopFFmpegRunner.shared.start(arguments);
     final completed = Completer<FFmpegSessionResult>();
     final session = await FFmpegKit.executeWithArgumentsAsync(arguments, (
       session,
@@ -115,14 +100,10 @@ abstract final class FFmpegExecution {
     return (id: id, completed: completed.future);
   }
 
-  static Future<void> cancel(int id) => isDesktopPlatform
-      ? DesktopFFmpegRunner.shared.cancel(id)
-      : FFmpegKit.cancel(id);
+  static Future<void> cancel(int id) => FFmpegKit.cancel(id);
 
   /// FFprobe media information, or null when the file cannot be probed.
-  /// Throws [FFmpegUnavailableException] when desktop ffprobe is missing.
   static Future<MediaInformation?> mediaInformation(String path) async {
-    if (isDesktopPlatform) return DesktopFFmpegRunner.shared.probe(path);
     return (await FFprobeKit.getMediaInformation(path)).getMediaInformation();
   }
 
@@ -158,9 +139,7 @@ abstract final class FFmpegOutput {
   static bool samePath(String first, String second) {
     final firstPath = File(first).absolute.path;
     final secondPath = File(second).absolute.path;
-    return Platform.isWindows
-        ? firstPath.toLowerCase() == secondPath.toLowerCase()
-        : firstPath == secondPath;
+    return firstPath == secondPath;
   }
 
   // Exclusive creation keeps simultaneous conversions from choosing one name.

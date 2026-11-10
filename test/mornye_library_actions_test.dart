@@ -239,7 +239,7 @@ void main() {
     },
   );
 
-  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+  for (final platform in [TargetPlatform.android]) {
     testWidgets('Metadata menu scroll reaches the last action ($platform)', (
       tester,
     ) async {

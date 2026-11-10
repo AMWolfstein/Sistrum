@@ -1,5 +1,4 @@
 //! Google Cast for the app: the media server receivers stream from, and a
-//! sender for platforms without Google's Cast SDK (iOS and desktop).
 
 mod discovery;
 pub mod media;

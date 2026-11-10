@@ -2,7 +2,6 @@ import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/link_source_names.dart';
 import 'package:mornye/services/network_storage_service.dart';
 
 final _sourceNameProvider = FutureProvider.family<String?, String>((
@@ -38,10 +37,7 @@ class PlaybackSourceLabel extends ConsumerWidget {
     var label = context.l10n.offlinePlayingLocal;
     if (!local) {
       final host = Uri.tryParse(network)?.host ?? '';
-      final name =
-          ref.watch(linkSourceNamesProvider)[host] ??
-          ref.watch(_sourceNameProvider(host)).value ??
-          host;
+      final name = ref.watch(_sourceNameProvider(host)).value ?? host;
       label = context.l10n.offlineStreaming(name);
     }
     return Padding(

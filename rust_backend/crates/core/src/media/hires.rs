@@ -246,7 +246,6 @@ pub fn check_file(
         ..HiResCheckResult::default()
     };
 
-    // Use complete windows only. Zero-padding a segment boundary introduces
     // an artificial broadband transient and can hide a real spectral cutoff.
     let mut n_fft = options.n_fft as usize;
     while n_fft > 256 && n_fft as u64 > window_frames {

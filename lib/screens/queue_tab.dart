@@ -4,6 +4,7 @@ import 'package:mornye/widgets/open_audio_button.dart';
 import 'package:flutter/foundation.dart'
     show ValueListenable, listEquals, setEquals;
 import 'package:flutter/material.dart';
+import 'package:mornye/widgets/album_play.dart';
 import 'package:mornye/widgets/app_alert_dialog.dart';
 import 'package:mornye/widgets/app_choice_chip.dart';
 import 'package:mornye/widgets/app_content_card.dart';
@@ -47,7 +48,6 @@ import 'package:material_3_expressive/material_3_expressive.dart'
         M3EButtonStyle;
 import 'package:mornye/providers/library_browse_provider.dart';
 import 'package:mornye/providers/library_counts_provider.dart';
-import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/widgets/app_shape.dart';
 import 'package:mornye/widgets/library_fast_scroller.dart';
 import 'package:mornye/widgets/player_artwork.dart';
@@ -96,12 +96,7 @@ import 'package:mornye/widgets/animation_utils.dart';
 import 'package:mornye/widgets/selection_bottom_bar.dart';
 import 'package:mornye/widgets/smoothed_progress.dart';
 import 'package:mornye/widgets/two_finger_pinch_listener.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/desktop/desktop_selection.dart';
-import 'package:mornye/widgets/desktop/hover_play_button.dart';
-import 'package:mornye/widgets/desktop/library_track_menu.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
+import 'package:mornye/widgets/track_lists/context_menu.dart';
 
 part 'queue_tab_helpers.dart';
 part 'queue_tab_widgets.dart';
@@ -133,11 +128,10 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   final LibraryFileAvailabilityCache _fileExistsCache =
       LibraryFileAvailabilityCache();
   late final CompletionBridgePlayableProbeCache _completionBridgePlayableProbe;
-  // Desktop windows are much wider than a phone, so covers start larger
   // there; pinching (or a trackpad pinch) resizes within the range.
-  static double get _libraryGridMinExtent => isDesktopPlatform ? 140 : 92;
-  static double get _libraryGridDefaultExtent => isDesktopPlatform ? 180 : 126;
-  static double get _libraryGridMaxExtent => isDesktopPlatform ? 260 : 190;
+  static double get _libraryGridMinExtent => 92;
+  static double get _libraryGridDefaultExtent => 126;
+  static double get _libraryGridMaxExtent => 190;
   bool _embeddedCoverRefreshScheduled = false;
   // Version counter to trigger targeted cover image rebuilds
   // without rebuilding the entire widget tree via setState.
@@ -158,7 +152,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
   /// A right-click selected a song for its menu only. The selection toolbar
   /// stays hidden until the menu and its chosen action have run.
-  bool _contextMenuSelection = false;
 
   bool _isPlaylistSelectionMode = false;
   final Set<String> _selectedPlaylistIds = {};
@@ -237,7 +230,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
   /// Per mode, what the page derives from its loaded songs: their ids, the
   /// songs without the pinned download rows, their navigation lists and the
-  /// desktop table rows. Each is kept while its inputs stay the same, so a
   /// click or a resize does not walk every loaded song.
   final Map<String, _LoadedSongs> _loadedSongsByMode = {};
   final Map<
@@ -245,7 +237,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     (List<UnifiedLibraryItem>, List<DownloadHistoryItem>, _LibraryNavigation)
   >
   _navigationByMode = {};
-  final Map<String, _LibrarySongTableRows> _songTableByMode = {};
 
   final QueueLibraryPager<
     LibraryCountsRequest,
@@ -583,7 +574,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
         slivers: [
           AppSliverHeader.page(title: context.l10n.libraryDownloads),
           _buildQueueHeaderSliver(context, colors),
-          // The rows share the header's centered column on wide windows.
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
             sliver: SliverList.builder(
@@ -1028,31 +1018,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
         ],
       ),
     );
-    return DesktopListScope(
-      onSelectAll: selectionItems.isEmpty
-          ? null
-          : () {
-              _applyDesktopClick(
-                selectionItems.first.id,
-                DesktopClick.replace,
-                const [],
-              );
-              _selectAll(selectionItems);
-            },
-      onClearSelection: _isPlaylistSelectionMode
-          ? _exitPlaylistSelectionMode
-          : _isSelectionMode
-          ? _exitSelectionMode
-          : null,
-      onDelete: _isSelectionMode ? () => _deleteSelected(selectionItems) : null,
-      onActivate: () {
-        final anchor = selectionItems
-            .where((item) => item.id == _selectionAnchorId)
-            .firstOrNull;
-        if (anchor != null) _playLibraryItem(anchor, selectionItems);
-      },
-      child: page,
-    );
+    return page;
   }
 
   Widget _buildQueueHeaderSliver(

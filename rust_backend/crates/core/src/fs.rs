@@ -66,6 +66,13 @@ pub fn write_atomic(
     let mut file = tempfile::Builder::new()
         .prefix(prefix)
         .tempfile_in(directory)?;
+    // The staged file starts as 0600. An existing target keeps its mode.
+    #[cfg(unix)]
+    if let Ok(metadata) = std::fs::metadata(path) {
+        use std::os::unix::fs::PermissionsExt;
+        file.as_file()
+            .set_permissions(std::fs::Permissions::from_mode(metadata.permissions().mode()))?;
+    }
     write(file.as_file_mut())?;
     file.as_file().sync_all()?;
     check()?;
@@ -82,15 +89,12 @@ pub fn write_atomic(
 /// equivalent or nothing.
 pub trait OpenOptionsPortableExt {
     /// Refuse to follow a final-component link and never block on a FIFO or
-    /// device. Unix: `O_NOFOLLOW | O_NONBLOCK`. Windows:
-    /// `FILE_FLAG_OPEN_REPARSE_POINT`, so a symlink, junction or mount point
-    /// opens as itself and fails the caller's regular-file check. Replaces
-    /// earlier custom flags.
+    /// device. Unix: `O_NOFOLLOW | O_NONBLOCK`, so a symlink opens as itself
+    /// and fails the caller's regular-file check.
     fn nofollow_nonblock(&mut self) -> &mut Self;
-    /// Unix: `O_NONBLOCK`, replacing earlier custom flags. No-op elsewhere.
+    /// Unix: `O_NONBLOCK`. No-op elsewhere.
     fn nonblock(&mut self) -> &mut Self;
-    /// Unix: the creation mode. No-op elsewhere; Windows files inherit the
-    /// ACL of their parent directory.
+    /// Unix: the creation mode. No-op elsewhere.
     fn unix_mode(&mut self, mode: u32) -> &mut Self;
 }
 
@@ -102,12 +106,6 @@ impl OpenOptionsPortableExt for std::fs::OpenOptions {
             self.custom_flags(
                 (rustix::fs::OFlags::NOFOLLOW | rustix::fs::OFlags::NONBLOCK).bits() as i32,
             );
-        }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::OpenOptionsExt;
-            use windows_sys::Win32::Storage::FileSystem::FILE_FLAG_OPEN_REPARSE_POINT;
-            self.custom_flags(FILE_FLAG_OPEN_REPARSE_POINT);
         }
         self
     }
@@ -127,16 +125,13 @@ impl OpenOptionsPortableExt for std::fs::OpenOptions {
             use std::os::unix::fs::OpenOptionsExt;
             self.mode(mode);
         }
-        #[cfg(not(unix))]
-        let _ = mode;
         self
     }
 }
 
 /// Portable spelling of [`std::os::unix::fs::DirBuilderExt::mode`].
 pub trait DirBuilderPortableExt {
-    /// Unix: the creation mode. No-op elsewhere; Windows directories inherit
-    /// the ACL of their parent directory.
+    /// Unix: the creation mode. No-op elsewhere.
     fn unix_mode(&mut self, mode: u32) -> &mut Self;
 }
 
@@ -147,8 +142,6 @@ impl DirBuilderPortableExt for std::fs::DirBuilder {
             use std::os::unix::fs::DirBuilderExt;
             self.mode(mode);
         }
-        #[cfg(not(unix))]
-        let _ = mode;
         self
     }
 }
@@ -249,6 +242,24 @@ mod tests {
         let name = file.path().file_name().unwrap().to_string_lossy();
         assert!(name.starts_with(DEFAULT_TEMP_PREFIX), "{name}");
         assert_eq!(name.len(), DEFAULT_TEMP_PREFIX.len() + 6);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn write_atomic_keeps_the_mode_of_an_existing_target() {
+        use std::os::unix::fs::PermissionsExt;
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("value.json");
+        std::fs::write(&path, b"old").unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
+        write_atomic(directory.path(), &path, ".mornye-", |file| {
+            use std::io::Write;
+            file.write_all(b"new")
+        }, || Ok(()), false)
+        .unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), b"new");
+        let mode = std::fs::metadata(&path).unwrap().permissions().mode() & 0o777;
+        assert_eq!(mode, 0o644);
     }
 
     #[test]

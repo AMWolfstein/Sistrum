@@ -19,8 +19,8 @@ import org.junit.BeforeClass
 import org.junit.Test
 
 /** Exercises the actual generated Kotlin ABI against the host Rust library.
- * Set MORNYE_NATIVE_HOST_LIBRARY to the host dylib/so and optionally
- * MORNYE_JNA_HOST_DIRECTORY to desktop JNA's native dispatch directory.
+ * Set MORNYE_NATIVE_HOST_LIBRARY to the host so and optionally
+ * MORNYE_JNA_HOST_DIRECTORY to JNA's native dispatch directory.
  * Ordinary Android-only checkouts skip these host ABI tests.
  */
 class NativeDataJobsTest {

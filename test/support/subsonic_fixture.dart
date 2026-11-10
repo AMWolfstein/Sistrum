@@ -47,7 +47,6 @@ class SubsonicFixture {
   List<int>? audio;
   List<int>? cover;
 
-  /// The OpenSubsonic `type` of every response (`mornye` for a desktop).
   String? type;
 
   /// Sent with the cover; a request naming it in If-None-Match gets 304.

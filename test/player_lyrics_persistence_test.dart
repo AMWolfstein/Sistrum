@@ -31,8 +31,6 @@ void main() {
     '/music/song.m4a',
     '/music/song.opus',
     '/music/song.ogg',
-    r'C:\Music\song.flac',
-    r'\\nas\Music\song.mp3',
     'content://example.documents/document/song.mp3',
   ]) {
     test(

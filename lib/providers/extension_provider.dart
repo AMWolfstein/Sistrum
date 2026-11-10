@@ -9,7 +9,6 @@ import 'package:mornye/models/extension.dart';
 import 'package:mornye/models/settings.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/services/extension_storage_service.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/logger.dart';
 import 'package:mornye/providers/settings_provider.dart';
 
@@ -47,8 +46,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
     ref.listen<AppSettings>(settingsProvider, (previous, next) {
       if (state.isInitialized &&
           (previous?.downloadDirectory != next.downloadDirectory ||
-              previous?.downloadDirectoryBookmark !=
-                  next.downloadDirectoryBookmark ||
               previous?.storageMode != next.storageMode)) {
         unawaited(_syncDownloadDirectory(next));
       }
@@ -73,7 +70,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
           final candidate = settings.downloadDirectory.trim();
           final path =
               settings.storageMode == 'app' &&
-                  settings.downloadDirectoryBookmark.isEmpty &&
                   candidate.startsWith('/') &&
                   await Directory(candidate).exists()
               ? candidate
@@ -181,9 +177,7 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       final allowedDirectories = <String>[];
       // External scopes are acquired by the file/download operation. Missing
       // output folders are resolved by the queue and must not prevent startup.
-      if (snapshot.storageMode == 'app' &&
-          snapshot.downloadDirectoryBookmark.isEmpty &&
-          outputDirectory.startsWith('/')) {
+      if (snapshot.storageMode == 'app' && outputDirectory.startsWith('/')) {
         final directory = Directory(outputDirectory);
         if (await directory.exists()) {
           allowedDirectories.add(directory.path);
@@ -211,10 +205,9 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       }
       await loadProviderPriority();
       await loadMetadataProviderPriority();
-      if (Platform.isAndroid || isDesktopPlatform) {
+      if (Platform.isAndroid) {
         // Exchange a cold-start browser callback before restored downloads can
         // bootstrap a replacement challenge and invalidate its original state.
-        // Desktop queues a launch URL in the backend before this point.
         await PlatformBridge.processPendingExtensionCallbacks();
       }
       state = state.copyWith(
@@ -743,10 +736,7 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
         .map((e) => e.id.toLowerCase())
         .toSet();
 
-    var installedCount = 0;
-    var alreadyPresent = 0;
     var failed = 0;
-    final failedIds = <String>[];
 
     for (final item in items) {
       final id = item['id'] as String?;
@@ -757,7 +747,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       if (!present) {
         if (destDir == null) {
           failed++;
-          failedIds.add(id);
           continue;
         }
         try {
@@ -767,19 +756,14 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
           );
           final ok = await installExtension(path);
           if (ok) {
-            installedCount++;
             present = true;
           } else {
             failed++;
-            failedIds.add(id);
           }
         } catch (e) {
           _log.w('Restore: failed to install extension $id: $e');
           failed++;
-          failedIds.add(id);
         }
-      } else {
-        alreadyPresent++;
       }
 
       if (!present) continue;
@@ -808,12 +792,7 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
     // be applied in full instead of defaults winning.
     await restoreProviderPriorityBackup(data);
 
-    return ExtensionRestoreResult(
-      installed: installedCount,
-      alreadyPresent: alreadyPresent,
-      failed: failed,
-      failedIds: failedIds,
-    );
+    return ExtensionRestoreResult(failed: failed);
   }
 }
 

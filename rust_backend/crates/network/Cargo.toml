@@ -24,14 +24,10 @@ cookie.workspace = true
 url.workspace = true
 serde.workspace = true
 
+rustls-native-certs.workspace = true
+
 [dev-dependencies]
 serde_json.workspace = true
-
-[target.'cfg(target_vendor = "apple")'.dependencies]
-rustls-platform-verifier.workspace = true
-
-[target.'cfg(not(target_vendor = "apple"))'.dependencies]
-rustls-native-certs.workspace = true
 
 [lints]
 workspace = true

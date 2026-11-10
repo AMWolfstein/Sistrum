@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mornye/models/settings.dart';
 import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/music_player_service.dart';
 
 import 'support/preference_blob_fixture.dart';
 
@@ -139,70 +138,6 @@ void main() {
       expect(AutoplayPreferenceModel.decode(saved).observations, 1);
     },
   );
-  test('bounded 384-candidate ranking stress and snapshot isolation', () {
-    final model = AutoplayPreferenceModel();
-    for (var i = 0; i < 60; i++) {
-      model.learn(_jazz, previous: _rock, at: _at, reward: 1);
-    }
-    final snapshot = model.snapshot();
-    final before = snapshot.preference(_jazz, previous: _rock, at: _at);
-    for (var i = 0; i < 20; i++) {
-      model.learn(_jazz, previous: _rock, at: _at, reward: 0);
-    }
-    expect(snapshot.preference(_jazz, previous: _rock, at: _at), before);
-    final candidates = List.generate(
-      384,
-      (i) => PlayableMedia(
-        id: '$i',
-        source: '/$i.flac',
-        title: 'Track $i',
-        artist: 'Artist ${i % 24}',
-        album: 'Album ${i % 50}',
-        genre: i.isEven ? 'Jazz' : 'Rock',
-        duration: const Duration(seconds: 180),
-      ),
-    );
-    const seed = PlayableMedia(
-      id: 'seed',
-      source: '/seed.flac',
-      title: 'Seed',
-      artist: 'Seed',
-    );
-    final durations = <int>[];
-    for (var i = 0; i < 40; i++) {
-      final clock = Stopwatch()..start();
-      final selected = selectAutoplayTracks(
-        seed: seed,
-        candidates: candidates,
-        upcoming: [],
-        recent: [],
-        dismissedSources: {},
-        random: Random(i),
-        preferenceAdjustment: (track) => snapshot.rankAdjustment(
-          AutoplayLearningTrack(
-            source: track.source,
-            title: track.title,
-            artist: track.artist,
-            album: track.album,
-            genre: track.genre ?? '',
-            duration: track.duration,
-          ),
-          previous: _rock,
-          at: _at,
-        ),
-      );
-      clock.stop();
-      expect(selected, hasLength(6));
-      expect(selected.map((track) => track.source).toSet(), hasLength(6));
-      if (i >= 10) durations.add(clock.elapsedMicroseconds);
-    }
-    durations.sort();
-    debugPrint(
-      'Autoplay host ranking: 384 candidates, median '
-      '${durations[durations.length ~/ 2]} us, p95 '
-      '${durations[(durations.length * .95).floor()]} us; model parameters 65536 bytes.',
-    );
-  });
   test('cold start is neutral and personalization is on independently', () {
     final model = AutoplayPreferenceModel();
     expect(model.preference(_rock, at: _at), 0.5);
@@ -287,63 +222,6 @@ void main() {
       lessThan(model.preference(song('Other', 0), previous: heard, at: _at)),
     );
   });
-
-  test(
-    'learned rank changes recommendations but preserves queue exclusions',
-    () {
-      final model = AutoplayPreferenceModel();
-      for (var i = 0; i < 100; i++) {
-        model.learn(_jazz, previous: _rock, at: _at, reward: 1);
-        model.learn(_rock, previous: _rock, at: _at, reward: 0);
-      }
-      const seed = PlayableMedia(
-        id: 'seed',
-        source: '/seed',
-        title: 'Seed',
-        artist: 'Seed',
-        genre: 'Rock',
-      );
-      const rock = PlayableMedia(
-        id: 'rock',
-        source: '/rock.flac',
-        title: 'Rock',
-        artist: 'Rock Artist',
-        genre: 'Rock',
-      );
-      const jazz = PlayableMedia(
-        id: 'jazz',
-        source: '/jazz.flac',
-        title: 'Jazz',
-        artist: 'Jazz Artist',
-        genre: 'Jazz',
-      );
-      List<PlayableMedia> rank({
-        bool personalized = false,
-        Set<String> dismissed = const {},
-      }) => selectAutoplayTracks(
-        seed: seed,
-        candidates: [rock, jazz, jazz, seed],
-        upcoming: [],
-        recent: [],
-        dismissedSources: dismissed,
-        random: Random(1),
-        preferenceAdjustment: personalized
-            ? (track) => model.rankAdjustment(
-                track.id == 'rock' ? _rock : _jazz,
-                previous: _rock,
-                at: _at,
-              )
-            : null,
-      );
-      expect(rank().first.id, 'rock');
-      expect(rank(personalized: true).first.id, 'jazz');
-      expect(rank(personalized: true), hasLength(2));
-      expect(
-        rank(personalized: true, dismissed: {'/jazz.flac'}).single.id,
-        'rock',
-      );
-    },
-  );
 
   test(
     'snapshot is bounded, stable, contains no metadata, rejects bad input',

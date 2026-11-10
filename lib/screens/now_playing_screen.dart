@@ -28,12 +28,7 @@ import 'package:mornye/widgets/app_icon.dart';
 import 'package:mornye/widgets/app_icon_button.dart';
 import 'package:mornye/widgets/expressive_icon_button.dart';
 import 'package:mornye/widgets/audio_output_button.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart'
-    show DesktopCommand, desktopTooltip;
-import 'package:mornye/widgets/desktop/desktop_inspector.dart';
-import 'package:mornye/widgets/link/link_actions.dart';
 import 'package:mornye/widgets/network_offline_actions.dart';
-import 'package:mornye/widgets/link/link_devices_sheet.dart';
 import 'package:mornye/widgets/lyrics_options_button.dart';
 import 'package:mornye/widgets/lyrics_screen_awake.dart';
 import 'package:mornye/widgets/player_artwork.dart';
@@ -56,22 +51,6 @@ import 'package:mornye/widgets/mornye_player_artwork.dart';
 import 'package:mornye/providers/player_motion_artwork_provider.dart';
 
 export 'package:mornye/routes/now_playing_route.dart';
-
-/// Portrait's "Playing on" row, kept while empty.
-const _playingOnRowHeight = 36.0;
-
-/// Screens shorter than this keep Mornye's volume row clear by leaving the
-/// empty row out; its cover and controls need the height.
-const _mornyePlayingOnMinScreenHeight = 720.0;
-
-/// What Mornye holds back above its volume row, so the toolbar reaches
-/// Material's height while the track header stays level with Material's.
-const _mornyeControlsHeadroom = 20.0;
-
-/// How much of an iPhone's home indicator inset stays under that row. The
-/// indicator sits in the screen's bottom 13pt, and the label's text ends 8pt
-/// above the row's bottom, so it still clears the indicator.
-const _homeIndicatorBelowRow = 12.0;
 
 /// AppBar wrapper that fades with the route transition (see contentOpacity
 /// in [_NowPlayingScreenState.build]).
@@ -103,7 +82,6 @@ class NowPlayingScreen extends ConsumerStatefulWidget {
     super.key,
     this.metadataControllerFactory,
     this.initialPage = 0,
-    this.embedded = false,
   });
 
   final PlayerMetadataController Function()? metadataControllerFactory;
@@ -111,11 +89,6 @@ class NowPlayingScreen extends ConsumerStatefulWidget {
   /// The page shown first: 0 is the player, 1 the lyrics and 2 Up Next
   /// (Mornye only).
   final int initialPage;
-
-  /// Shown in the desktop content pane rather than as a route. Minimizing
-  /// returns to the content, and lyrics and Up Next open in the desktop
-  /// inspector beside the player instead of replacing it.
-  final bool embedded;
 
   @override
   ConsumerState<NowPlayingScreen> createState() => _NowPlayingScreenState();
@@ -159,7 +132,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   void initState() {
     super.initState();
     _lyricsTranslation = ref.read(lyricsTranslationProvider.notifier);
-    if (widget.embedded) desktopInspectorPanel.addListener(_onInspectorChanged);
     _mediaItemSub = ref.listenManual<AsyncValue<MediaItem?>>(
       currentMediaItemProvider,
       (previous, next) {
@@ -216,50 +188,18 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     _scheduleLyricsControlsHide();
   }
 
-  void _onInspectorChanged() {
-    if (mounted) setState(() {});
-  }
+  /// Whether the lyrics (1) or Up Next (2) toggle shows as selected.
+  bool _showsPage(int page) => _currentPage == page;
 
-  /// Whether the lyrics (1) or Up Next (2) toggle shows as selected. The
-  /// embedded player shows them in the desktop inspector instead.
-  bool _showsPage(int page) => widget.embedded
-      ? desktopInspectorPanel.value ==
-            (page == 1
-                ? DesktopInspectorPanel.lyrics
-                : DesktopInspectorPanel.upNext)
-      : _currentPage == page;
-
-  /// Opens lyrics (1) or Up Next (2) in the desktop inspector when embedded.
-  /// Returns false when the player should switch pages itself.
-  bool _toggleInspector(int page) {
-    if (!widget.embedded) return false;
-    if (page == 1 || page == 2) {
-      toggleDesktopInspector(
-        page == 1 ? DesktopInspectorPanel.lyrics : DesktopInspectorPanel.upNext,
-      );
-    }
-    return true;
-  }
-
-  String _minimizeTooltip(BuildContext context) => desktopTooltip(
-    context,
-    context.l10n.nowPlayingMinimize,
-    DesktopCommand.dismiss,
-  );
+  String _minimizeTooltip(BuildContext context) =>
+      context.l10n.nowPlayingMinimize;
 
   void _minimize() {
-    if (widget.embedded) {
-      desktopNowPlayingOpen.value = false;
-    } else {
-      unawaited(Navigator.of(context).maybePop());
-    }
+    unawaited(Navigator.of(context).maybePop());
   }
 
   @override
   void dispose() {
-    if (widget.embedded) {
-      desktopInspectorPanel.removeListener(_onInspectorChanged);
-    }
     _artworkRoute?.readArtwork = null;
     _lyricsIdleTimer?.cancel();
     _mediaItemSub?.close();
@@ -375,18 +315,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         materialBackdrop &&
         MediaQuery.orientationOf(context) == Orientation.portrait;
     final overCover = materialFullScreen && _currentPage != 1;
-    // Portrait keeps the "Playing on" row while empty, so the controls stay
-    // put when a computer takes over playback. On an iPhone the row reaches
-    // into the home indicator's inset rather than stacking a second empty
-    // band on top of it.
-    final reservesPlayingOnRow =
-        MediaQuery.orientationOf(context) == Orientation.portrait &&
-        screen.height >= (mornye ? _mornyePlayingOnMinScreenHeight : 640);
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final homeIndicatorBelowRow =
-        reservesPlayingOnRow && Theme.of(context).platform == TargetPlatform.iOS
-        ? bottomInset.clamp(0.0, _homeIndicatorBelowRow)
-        : null;
     if (!fullBleed && _artworkForeground.value.isNotEmpty) {
       _artworkForeground.value = {};
     }
@@ -458,18 +386,13 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
             CurveTween(curve: const Interval(0.4, 1.0, curve: Curves.easeOut)),
           );
 
-    // The embedded desktop player keeps a toolbar for its minimize button,
-    // which a route reaches by swiping down instead.
     final double? mornyeToolbarHeight = !mornye
         ? null
-        : widget.embedded
-        ? 48
         : MediaQuery.orientationOf(context) == Orientation.landscape
         ? 0
         : 36;
     final materialLandscapeArtwork =
         !mornye &&
-        !widget.embedded &&
         MediaQuery.orientationOf(context) == Orientation.landscape &&
         ref.watch(settingsProvider.select((s) => s.landscapeLyricsArtwork));
     final player = Scaffold(
@@ -492,8 +415,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
           toolbarHeight: mornyeToolbarHeight ?? kToolbarHeight,
           automaticallyImplyLeading: false,
           title: mornye
-              ? MediaQuery.orientationOf(context) == Orientation.landscape ||
-                        widget.embedded
+              ? MediaQuery.orientationOf(context) == Orientation.landscape
                     ? null
                     : IconButton(
                         tooltip: context.l10n.nowPlayingMinimize,
@@ -515,7 +437,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                       : null,
                 ),
           centerTitle: true,
-          leading: mornye && !widget.embedded
+          leading: mornye
               ? null
               : AppIconButton(
                   key: const ValueKey('now-playing-minimize'),
@@ -527,7 +449,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
           actions: mornye
               ? null
               : [
-                  LinkDevicesButton(color: overCover ? Colors.white : null),
                   AppIconButton(
                     tooltip: context.l10n.nowPlayingUpNext,
                     color: overCover ? Colors.white : null,
@@ -554,7 +475,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         opacity: contentOpacity,
         child: SafeArea(
           top: !materialLandscapeArtwork,
-          bottom: homeIndicatorBelowRow == null,
           child: Column(
             children: [
               if (materialLandscapeArtwork) ...[
@@ -577,13 +497,9 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                           page: _currentPage,
                           motionArtwork: artwork(),
                           artworkAspectRatio: artworkRatio,
-                          controlsHeadroom: reservesPlayingOnRow
-                              ? _mornyeControlsHeadroom
-                              : 0,
                           insetArtwork: !fullBleed,
                           artworkTopInset:
-                              MediaQuery.paddingOf(context).top +
-                              (widget.embedded ? mornyeToolbarHeight! : 36),
+                              MediaQuery.paddingOf(context).top + 36,
                           artworkKeys: (
                             header: _artworkHeaderKey,
                             controls: _artworkControlsKey,
@@ -675,8 +591,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                               ),
                               // The row spreads its buttons apart, so the
                               // Devices entry only takes a slot when paired.
-                              if (ref.watch(linkPhoneClientProvider) != null)
-                                const LinkDevicesButton(color: Colors.white),
                               IconButton(
                                 tooltip: context.l10n.nowPlayingUpNext,
                                 color: Colors.white,
@@ -729,35 +643,11 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                             ],
                           ),
                         ),
-                      // Landscape has no row to spare; the toolbar's devices
-                      // button shows the device there. Short phones' lyrics
-                      // keep the room an empty row would take.
-                      if (MediaQuery.orientationOf(context) ==
-                          Orientation.portrait) ...[
-                        if (!reservesPlayingOnRow) ...[
-                          LinkPlayingOnLabel(
-                            color: mornye ? Colors.white : null,
-                          ),
-                          const SizedBox(height: 8),
-                        ] else
-                          SizedBox(
-                            key: const ValueKey('link-playing-on-row'),
-                            height: _playingOnRowHeight,
-                            child: Center(
-                              child: LinkPlayingOnLabel(
-                                color: mornye ? Colors.white : null,
-                                height: _playingOnRowHeight,
-                              ),
-                            ),
-                          ),
-                      ],
                     ],
                   ),
                 ),
                 collapse: true,
               ),
-              if (homeIndicatorBelowRow != null)
-                SizedBox(height: homeIndicatorBelowRow),
             ],
           ),
         ),
@@ -844,7 +734,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   );
 
   void _toggleMaterialLyrics() {
-    if (_toggleInspector(1)) return;
     setState(() {
       _currentPage = _currentPage == 1 ? 0 : 1;
       _lyricsControlsHidden = false;
@@ -865,7 +754,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   }
 
   void _setMornyePage(int page) {
-    if (_toggleInspector(page)) return;
     setState(() {
       _currentPage = page;
       _lyricsControlsHidden = false;
@@ -885,13 +773,11 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   /// Lyrics fill the column, so idle controls can hide: Mornye in portrait
   /// (its landscape player hides its own actions), and Material's portrait
   /// column or its landscape artwork beside lyrics, which shows no transport
-  /// either, like Mornye's. Two plain panes keep the transport beside the
-  /// lyrics, and the desktop opens lyrics in the inspector.
+  /// either, like Mornye's.
   bool get _lyricsAutoHideLayout => context.isMornye
       ? !_landscape
-      : !widget.embedded &&
-            (MediaQuery.orientationOf(context) == Orientation.portrait ||
-                ref.read(settingsProvider).landscapeLyricsArtwork);
+      : MediaQuery.orientationOf(context) == Orientation.portrait ||
+            ref.read(settingsProvider).landscapeLyricsArtwork;
 
   bool get _canAutoHideLyricsControls =>
       _lyricsAutoHideLayout &&
@@ -1123,17 +1009,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
             ).formatTimeOfDay(TimeOfDay.fromDateTime(sleepTimerEndsAt)),
           );
     final volumeShown = ref.read(settingsProvider).playerShowVolume;
-    final linkClient = ref.read(linkPhoneClientProvider);
-    final transfer = await linkTransferSongsOfPlaying(
-      ref,
-      mediaId: mediaItem.id,
-      source: source,
-    );
     if (!mounted || !context.mounted) return;
-    final sendToDesktop = transfer.phone.isEmpty || linkClient == null
-        ? null
-        : linkDesktopName(linkClient);
-    final saveToPhone = transfer.desktop.isNotEmpty;
     final action = context.isMornye
         ? await showMornyeContextMenu<String>(
             context: context,
@@ -1144,8 +1020,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
               mediaItem: mediaItem,
               sleepTimerSubtitle: sleepTimerSubtitle,
               volumeShown: volumeShown,
-              sendToDesktop: sendToDesktop,
-              saveToPhone: saveToPhone,
             ),
           )
         : await showAppBottomSheet<String>(
@@ -1174,19 +1048,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                     title: sheetContext.l10n.lyricsShareTitle,
                     onTap: () => Navigator.of(sheetContext).pop('shareLyrics'),
                   ),
-                  if (sendToDesktop != null)
-                    SettingsItem(
-                      icon: Icons.computer,
-                      title: sheetContext.l10n.linkSendToDesktop(sendToDesktop),
-                      onTap: () => Navigator.of(sheetContext).pop('linkSend'),
-                    ),
-                  if (saveToPhone)
-                    SettingsItem(
-                      icon: Icons.phone_android,
-                      title: sheetContext.l10n.linkSaveToPhone,
-                      onTap: () => Navigator.of(sheetContext).pop('linkSave'),
-                    ),
-                  if (!saveToPhone && canSaveNetworkOfflineSource(source))
+                  if (canSaveNetworkOfflineSource(source))
                     SettingsItem(
                       icon: Icons.download_for_offline_outlined,
                       title: sheetContext.l10n.offlineSave,
@@ -1260,12 +1122,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         break;
       case 'shareLyrics':
         await _shareLyrics();
-        break;
-      case 'linkSend':
-        await linkSendSongsToDesktop(context, ref, transfer.phone);
-        break;
-      case 'linkSave':
-        linkSaveSongsToPhone(context, ref, transfer.desktop);
         break;
       case 'networkOffline':
         await savePlayingNetworkOffline(context, ref, mediaItem);
@@ -1361,7 +1217,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   /// Opens Up Next. The Material sheet captures the theme of [context], the
   /// player's artwork scope.
   void _showQueueSheet(BuildContext context, ColorScheme colorScheme) {
-    if (_toggleInspector(2)) return;
     if (context.isMornye) {
       _setMornyePage(2);
       return;

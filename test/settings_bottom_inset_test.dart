@@ -6,7 +6,6 @@ import 'package:mornye/providers/settings_provider.dart';
 import 'package:mornye/screens/settings/files_settings_page.dart';
 import 'package:mornye/theme/app_theme.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/widgets/settings_group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,8 +17,6 @@ void main() {
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({});
-      debugDesktopPlatformOverride = true;
-      addTearDown(() => debugDesktopPlatformOverride = null);
       tester.view.physicalSize = const Size(1200, 700);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

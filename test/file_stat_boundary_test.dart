@@ -55,9 +55,25 @@ void main() {
         (result as FileAccessUnavailable).error,
         isA<FileSystemException>(),
       );
-    }, skip: Platform.isWindows);
+    });
 
     test('permission denied is unavailable instead of deleted', () async {
+      if (_isRoot) {
+        // Root bypasses permission bits, so the denial is injected at the
+        // same point the OS would raise it.
+        final result = await checkFileAccess(
+          '/restricted/track.flac',
+          readStat: (path) async => throw FileSystemException(
+            'Permission denied',
+            path,
+            const OSError('Permission denied', 13),
+          ),
+        );
+        expect(result, isA<FileAccessUnavailable>());
+        final error = (result as FileAccessUnavailable).error;
+        expect((error as FileSystemException).osError?.errorCode, 13);
+        return;
+      }
       final directory = await Directory(
         '${temporary.path}/restricted',
       ).create();
@@ -80,7 +96,7 @@ void main() {
       } finally {
         await Process.run('chmod', ['700', directory.path]);
       }
-    }, skip: Platform.isWindows);
+    });
   });
 
   test(
@@ -144,3 +160,6 @@ void main() {
     );
   }
 }
+
+final bool _isRoot =
+    Process.runSync('id', ['-u']).stdout.toString().trim() == '0';

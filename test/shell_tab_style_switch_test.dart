@@ -7,12 +7,10 @@ void main() {
     int index, {
     required bool fromMornye,
     required bool showStore,
-    bool desktop = true,
   }) => shellIndexOfTab(
     shellTabAt(index, mornye: fromMornye, showStore: showStore),
     mornye: !fromMornye,
     showStore: showStore,
-    desktop: desktop,
   );
 
   for (final showStore in [false, true]) {
@@ -21,16 +19,12 @@ void main() {
       () {
         final materialSettings = showStore ? 3 : 2;
         final mornyeSearch = showStore ? 3 : 2;
-        final mornyeSettings = showStore ? 4 : 3;
 
-        // Material Settings stays Settings instead of becoming Search.
+        // Mornye has no Settings destination (Settings opens as a page), so
+        // Material's Settings has no Mornye destination to land on.
         expect(
           switched(materialSettings, fromMornye: false, showStore: showStore),
-          mornyeSettings,
-        );
-        expect(
-          switched(mornyeSettings, fromMornye: true, showStore: showStore),
-          materialSettings,
+          isNull,
         );
         // Mornye's Search lands on Material's Home, where Material searches.
         expect(
@@ -45,12 +39,7 @@ void main() {
         }
         // Mornye phones have no Settings destination.
         expect(
-          switched(
-            materialSettings,
-            fromMornye: false,
-            showStore: showStore,
-            desktop: false,
-          ),
+          switched(materialSettings, fromMornye: false, showStore: showStore),
           isNull,
         );
       },

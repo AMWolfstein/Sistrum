@@ -1,248 +1,10 @@
 import 'dart:io';
 
 import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mornye/services/network_storage_service.dart';
 import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/ios_container_paths.dart';
 import 'package:mornye/utils/mime_utils.dart';
-
-/// Whether the queue should run its iOS output-directory path-shape check
-/// (which can replace [outputDir] with the default Documents folder when the
-/// path looks like iCloud Drive or an invalid container path).
-///
-/// A security-scoped bookmark is the source of truth for a folder picked
-/// from Files: its persisted path may legitimately contain substrings that
-/// look like iCloud Drive, or fail the structural writable-path check, even
-/// though the bookmark itself grants real write access. Running the
-/// path-shape check anyway would reset - and via setDownloadDirectory,
-/// permanently drop - a perfectly valid bookmarked folder. When a bookmark
-/// is present, the queue's later bookmark-resolution step is authoritative
-/// instead.
-bool shouldValidateIosOutputDir({
-  required bool isIOS,
-  required bool isSafMode,
-  required String outputDir,
-  required String downloadDirectoryBookmark,
-}) {
-  return isIOS &&
-      !isSafMode &&
-      outputDir.isNotEmpty &&
-      downloadDirectoryBookmark.isEmpty;
-}
-
-/// Regular expression to detect iOS app container paths.
-/// Matches paths like /var/mobile/Containers/Data/Application/{UUID}
-/// or /private/var/mobile/Containers/Data/Application/{UUID}
-final _iosContainerRootPattern = RegExp(
-  r'^(/private)?/var/mobile/Containers/Data/Application/[A-F0-9\-]+/?$',
-  caseSensitive: false,
-);
-final _iosContainerPathWithoutLeadingSlashPattern = RegExp(
-  r'^(private/)?var/mobile/Containers/Data/Application/[A-F0-9\-]+/.+',
-  caseSensitive: false,
-);
-final _iosLegacyRelativeDocumentsPattern = RegExp(
-  r'^Data/Application/[A-F0-9\-]+/Documents(?:/(.*))?$',
-  caseSensitive: false,
-);
-final _iosNestedLegacyDocumentsPattern = RegExp(
-  r'/Documents/Data/Application/[A-F0-9\-]+/Documents(?:/(.*))?$',
-  caseSensitive: false,
-);
-
-String _normalizeRecoveredIosSuffix(String suffix) {
-  final trimmed = suffix.trim();
-  if (trimmed.isEmpty) return '';
-  return trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
-}
-
-String _joinRecoveredIosPath(String documentsPath, String suffix) {
-  final normalizedSuffix = _normalizeRecoveredIosSuffix(suffix);
-  if (normalizedSuffix.isEmpty) return documentsPath;
-  return '$documentsPath/$normalizedSuffix';
-}
-
-/// Checks if a path is a valid writable directory on iOS.
-/// Returns false if:
-/// - The path is the app container root (not writable)
-/// - The path is an iCloud Drive path (not accessible by the backend)
-/// - The path is outside the app sandbox
-bool isValidIosWritablePath(String path) {
-  if (!Platform.isIOS) return true;
-  if (path.isEmpty) return false;
-  if (!path.startsWith('/')) return false;
-
-  if (_iosContainerRootPattern.hasMatch(path)) {
-    return false;
-  }
-
-  if (path.contains('Mobile Documents') ||
-      path.contains('CloudDocs') ||
-      path.contains('com~apple~CloudDocs')) {
-    return false;
-  }
-
-  if (_iosNestedLegacyDocumentsPattern.hasMatch(path)) {
-    return false;
-  }
-
-  final containerPattern = RegExp(
-    r'/var/mobile/Containers/Data/Application/[A-F0-9\-]+',
-    caseSensitive: false,
-  );
-  final match = containerPattern.firstMatch(path);
-  if (match != null) {
-    final remainingPath = path.substring(match.end);
-    if (remainingPath.isEmpty || remainingPath == '/') {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/// Validates and potentially corrects an iOS path.
-/// Returns a valid Documents subdirectory path if the input is invalid.
-Future<String> validateOrFixIosPath(
-  String path, {
-  String subfolder = 'Mornye',
-}) async {
-  if (!Platform.isIOS) return path;
-
-  final docDir = await getApplicationDocumentsDirectory();
-  final trimmed = rebaseIosSandboxPath(path.trim(), docDir.path);
-
-  final nestedLegacyMatch = _iosNestedLegacyDocumentsPattern.firstMatch(
-    trimmed,
-  );
-  if (nestedLegacyMatch != null) {
-    return _joinRecoveredIosPath(docDir.path, nestedLegacyMatch.group(1) ?? '');
-  }
-
-  if (isValidIosWritablePath(trimmed)) {
-    return trimmed;
-  }
-
-  final candidates = <String>[];
-
-  if (trimmed.isNotEmpty) {
-    candidates.add(trimmed);
-  }
-
-  if (_iosContainerPathWithoutLeadingSlashPattern.hasMatch(trimmed)) {
-    candidates.add('/$trimmed');
-  }
-
-  final legacyRelativeMatch = _iosLegacyRelativeDocumentsPattern.firstMatch(
-    trimmed,
-  );
-  if (legacyRelativeMatch != null) {
-    candidates.add(
-      _joinRecoveredIosPath(docDir.path, legacyRelativeMatch.group(1) ?? ''),
-    );
-  }
-
-  if (!trimmed.startsWith('/')) {
-    final documentsMarker = 'Documents/';
-    final index = trimmed.indexOf(documentsMarker);
-    if (index >= 0) {
-      final suffix = trimmed.substring(index + documentsMarker.length).trim();
-      candidates.add(_joinRecoveredIosPath(docDir.path, suffix));
-    }
-  }
-
-  for (final candidate in candidates) {
-    if (isValidIosWritablePath(candidate)) {
-      return candidate;
-    }
-  }
-
-  final musicDir = Directory('${docDir.path}/$subfolder');
-  if (!await musicDir.exists()) {
-    await musicDir.create(recursive: true);
-  }
-  return musicDir.path;
-}
-
-/// Detailed result for iOS path validation
-class IosPathValidationResult {
-  final bool isValid;
-  final String? errorReason;
-
-  const IosPathValidationResult({required this.isValid, this.errorReason});
-}
-
-/// Validates an iOS path and returns detailed information about the result.
-/// A bookmark supplied by the native picker grants access independently of
-/// the folder's path shape. Actual access is checked when resolving that grant.
-IosPathValidationResult validateIosPath(String path, {String bookmark = ''}) {
-  if (path.isEmpty) {
-    return const IosPathValidationResult(
-      isValid: false,
-      errorReason: 'Path is empty',
-    );
-  }
-
-  if (!path.startsWith('/')) {
-    return const IosPathValidationResult(
-      isValid: false,
-      errorReason:
-          'Invalid path format. Please choose a local folder from Files.',
-    );
-  }
-
-  if (bookmark.trim().isNotEmpty) {
-    return const IosPathValidationResult(isValid: true);
-  }
-
-  if (_iosContainerRootPattern.hasMatch(path)) {
-    return const IosPathValidationResult(
-      isValid: false,
-      errorReason:
-          'Cannot write to app container root. Please choose a subfolder like Documents.',
-    );
-  }
-
-  if (path.contains('Mobile Documents') ||
-      path.contains('CloudDocs') ||
-      path.contains('com~apple~CloudDocs')) {
-    return const IosPathValidationResult(
-      isValid: false,
-      errorReason:
-          'iCloud Drive is not supported. Please choose a local folder.',
-    );
-  }
-
-  if (_iosNestedLegacyDocumentsPattern.hasMatch(path)) {
-    return const IosPathValidationResult(
-      isValid: false,
-      errorReason:
-          'Invalid iOS app folder path. Please choose App Documents or another local folder.',
-    );
-  }
-
-  final containerPattern = RegExp(
-    r'/var/mobile/Containers/Data/Application/[A-F0-9\-]+',
-    caseSensitive: false,
-  );
-  final match = containerPattern.firstMatch(path);
-  if (match != null) {
-    final remainingPath = path.substring(match.end);
-    if (remainingPath.isEmpty || remainingPath == '/') {
-      return const IosPathValidationResult(
-        isValid: false,
-        errorReason:
-            'Cannot write to app container root. Please use the default folder or choose a different location.',
-      );
-    }
-  }
-
-  return const IosPathValidationResult(isValid: true);
-}
 
 class FileAccessStat {
   final int? size;
@@ -303,7 +65,6 @@ Future<bool> fileExists(String? path) async {
   if (isContentUri(realPath)) {
     // A phone's content URI can arrive with synced statistics; a computer has
     // no way to open one.
-    if (isDesktopPlatform) return false;
     return PlatformBridge.safExists(realPath);
   }
   return File(realPath).exists();
@@ -351,7 +112,7 @@ Future<Map<String, bool?>> fileExistenceByPath(List<String> paths) async {
           }
         } on FileSystemException catch (error) {
           final code = error.osError?.errorCode;
-          final absent = code == 2 || code == (Platform.isWindows ? 3 : 20);
+          final absent = code == 2 || code == (20);
           results[path] = absent ? false : null;
         } catch (_) {
           results[path] = null;
@@ -433,7 +194,7 @@ Future<FileAccessStat?> fileStat(String? path) async {
       return FileAccessStat(size: await File(realPath).length());
     } on FileSystemException catch (error) {
       final code = error.osError?.errorCode;
-      if (code == 2 || code == (Platform.isWindows ? 3 : 20)) return null;
+      if (code == 2 || code == (20)) return null;
       rethrow;
     }
   }
@@ -448,14 +209,6 @@ Future<void> openFile(String path) async {
   final realPath = path;
   if (isContentUri(realPath)) {
     await PlatformBridge.openContentUri(realPath, mimeType: '');
-    return;
-  }
-  if (isDesktopPlatform) {
-    // open_filex has no desktop implementation; the OS opens file URIs with
-    // the user's default application.
-    if (!await launchUrl(Uri.file(realPath))) {
-      throw Exception('No application can open $realPath');
-    }
     return;
   }
   final mimeType = audioMimeTypeForPath(realPath);

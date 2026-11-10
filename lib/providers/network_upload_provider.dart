@@ -6,7 +6,7 @@ import 'package:mornye/models/unified_library_item.dart';
 import 'package:mornye/providers/local_library_provider.dart';
 import 'package:mornye/providers/network_offline_provider.dart';
 import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
+import 'package:mornye/services/offline_saver.dart';
 import 'package:mornye/services/network_library_upload.dart';
 import 'package:mornye/services/network_storage_service.dart';
 import 'package:mornye/services/notification_service.dart';
@@ -24,17 +24,17 @@ final networkUploadConnectionsProvider =
     });
 
 final networkUploadProvider =
-    NotifierProvider<NetworkUploadNotifier, LinkOfflineProgress?>(
+    NotifierProvider<NetworkUploadNotifier, OfflineProgress?>(
       NetworkUploadNotifier.new,
     );
 
 /// One upload at a time, shared by both themes and every Library entry
 /// point, like Save offline. Leaving a screen keeps it running.
-class NetworkUploadNotifier extends Notifier<LinkOfflineProgress?> {
-  LinkOfflineCancel? _cancel;
+class NetworkUploadNotifier extends Notifier<OfflineProgress?> {
+  OfflineCancel? _cancel;
 
   @override
-  LinkOfflineProgress? build() {
+  OfflineProgress? build() {
     ref.onDispose(() => _cancel?.cancel());
     return null;
   }
@@ -48,12 +48,12 @@ class NetworkUploadNotifier extends Notifier<LinkOfflineProgress?> {
     if (_cancel != null) return null;
     final songs = networkUploadSongs(items);
     if (songs.isEmpty) return null;
-    final cancel = LinkOfflineCancel();
+    final cancel = OfflineCancel();
     _cancel = cancel;
     final storage = ref.read(networkOfflineStorageProvider);
     final notices = NotificationService();
     final l10n = appLocalizationsFor(ref.read(settingsProvider).locale);
-    state = LinkOfflineProgress(done: 0, total: songs.length, title: '');
+    state = OfflineProgress(done: 0, total: songs.length, title: '');
     var lastProgressAt = DateTime.fromMillisecondsSinceEpoch(0);
     try {
       await notices.beginBackgroundWork(

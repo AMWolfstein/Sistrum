@@ -242,7 +242,7 @@ private fun Context.readMetadataFromUri(
             if (tempPath == null) null else try {
                 read(tempPath, displayName)
             } finally {
-                try { File(tempPath).delete() } catch (_: Exception) {}
+                File(tempPath).deleteBestEffort()
             }
         },
         accept = acceptRead,

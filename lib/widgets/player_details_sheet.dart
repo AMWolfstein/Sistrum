@@ -5,7 +5,6 @@ import 'package:mornye/l10n/l10n.dart';
 import 'package:mornye/theme/app_motion.dart';
 import 'package:mornye/theme/app_tokens.dart';
 import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
 import 'package:mornye/utils/isrc_utils.dart';
 import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'package:mornye/widgets/mornye_player_details_sheet.dart';
@@ -32,7 +31,6 @@ Future<void> showPlayerDetailsSheet(
       );
   if (!context.isMornye) {
     // The shared sheet supplies the handle, shape and header on phones, and
-    // opens as a desktop dialog.
     final item = mediaItem;
     final subtitle = [
       item?.title,
@@ -46,19 +44,6 @@ Future<void> showPlayerDetailsSheet(
     );
   }
   // The Mornye details draw their own glass, handle and header.
-  if (isDesktopPlatform) {
-    return showAppSheetDialog<void>(
-      context: context,
-      isScrollControlled: true,
-      mornyeGlass: false,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 1,
-        minChildSize: 1,
-        builder: (context, scrollController) => details(scrollController),
-      ),
-    );
-  }
   return showModalBottomSheet<void>(
     context: context,
     sheetAnimationStyle: AppMotion.surfaceEntrance(context),

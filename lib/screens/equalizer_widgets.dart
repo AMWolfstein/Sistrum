@@ -1,6 +1,5 @@
 part of 'equalizer_screen.dart';
 
-/// iOS section footer: secondary text under the group it explains.
 class _Footnote extends StatelessWidget {
   const _Footnote(this.text);
 
@@ -24,7 +23,6 @@ class _Footnote extends StatelessWidget {
   );
 }
 
-/// iOS "value" cell detail: the current choice in secondary text before the
 /// disclosure chevron.
 class _DetailValue extends StatelessWidget {
   const _DetailValue(this.value);
@@ -54,7 +52,6 @@ class _DetailValue extends StatelessWidget {
   }
 }
 
-/// iOS action cell: tinted text that runs a command instead of navigating.
 class _ActionRow extends StatelessWidget {
   const _ActionRow({
     required this.label,
@@ -240,59 +237,27 @@ class _EqualizerOverview extends ConsumerWidget {
 class _PresetBar extends ConsumerWidget {
   const _PresetBar({
     required this.busy,
-    required this.onApply,
     required this.onSave,
     required this.onReset,
     required this.onAction,
   });
 
   final bool busy;
-  final ValueChanged<EqualizerPreset> onApply;
   final VoidCallback onSave;
   final VoidCallback onReset;
   final ValueChanged<_PresetAction> onAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final custom = ref.watch(
-      equalizerProvider.select((state) => state.presets),
-    );
-    final presets = [...EqualizerPreset.builtIn, ...custom];
-    final selected = ref.watch(_selectedEqualizerPresetProvider);
     final l10n = context.l10n;
     final tokens = context.tokens;
     return LayoutBuilder(
       builder: (context, constraints) {
         final inset = settingsHorizontalInset(context, constraints.maxWidth);
-        final chips = [
-          for (final preset in presets)
-            AppChoiceChip(
-              label: Text(preset.name),
-              selected: preset == selected,
-              singleChoice: true,
-              onSelected: (_) => onApply(preset),
-            ),
-        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // A mouse cannot swipe a clipped row, so desktop windows wrap
             // every preset onto view.
-            if (isDesktopPlatform)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: inset),
-                child: Wrap(
-                  spacing: tokens.gapSm,
-                  runSpacing: tokens.gapSm,
-                  children: chips,
-                ),
-              )
-            else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: inset),
-                child: Row(spacing: tokens.gapSm, children: chips),
-              ),
             SizedBox(height: tokens.gapMd),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: inset),
@@ -558,7 +523,6 @@ class _BandFader extends StatelessWidget {
             height: 32,
             child: Center(
               child: Material(
-                // iOS shows the gain as plain tinted text, Material as a badge.
                 color: active && !mornye
                     ? colors.secondaryContainer
                     : Colors.transparent,
@@ -735,7 +699,6 @@ class _SliderTile extends ConsumerWidget {
             title: title,
             subtitle: subtitle,
             value: _format(value),
-            // Mornye rows, like iOS Settings, carry no leading glyphs.
             leading: icon == null || mornye
                 ? null
                 : AppIcon.adaptive(

@@ -72,7 +72,6 @@ class _LibraryDatabase implements LibraryDatabase {
   Future<void> migrateLegacySource({
     required String path,
     required String displayName,
-    String? bookmark,
     String? volumeId,
     bool isRemovable = false,
     bool available = true,
@@ -155,15 +154,12 @@ void main() {
         trackCount: 2,
       ),
     ]);
-    probe = (path, {bookmark}) => Directory(path).exists();
+    probe = (path) => Directory(path).exists();
     container = ProviderContainer(
       overrides: [
         settingsProvider.overrideWith(_Settings.new),
         localLibraryProvider.overrideWith(
-          () => library = _Library(
-            database,
-            (path, {bookmark}) => probe(path, bookmark: bookmark),
-          ),
+          () => library = _Library(database, (path) => probe(path)),
         ),
       ],
     );
@@ -358,7 +354,7 @@ void main() {
     await _waitFor(() => !container.read(localLibraryProvider).isLoading);
     final version = container.read(localLibraryProvider).loadedIndexVersion;
     final indexReads = database.indexReads;
-    probe = (path, {bookmark}) async => false;
+    probe = (path) async => false;
     await library.refreshSourceAvailability();
     expect(
       container.read(localLibraryProvider).sources.single.available,
@@ -370,7 +366,7 @@ void main() {
       version + 1,
     );
 
-    probe = (path, {bookmark}) async => true;
+    probe = (path) async => true;
     await Future.wait([
       library.refreshSourceAvailability(),
       library.refreshSourceAvailability(scanReconnected: true),
@@ -393,7 +389,7 @@ void main() {
       await _waitFor(() => !container.read(localLibraryProvider).isLoading);
       final indexReads = database.indexReads;
       final version = container.read(localLibraryProvider).loadedIndexVersion;
-      probe = (path, {bookmark}) async => null;
+      probe = (path) async => null;
       await library.refreshSourceAvailability();
       expect(
         container.read(localLibraryProvider).sources.single.available,
@@ -409,7 +405,7 @@ void main() {
     await _waitFor(() => !container.read(localLibraryProvider).isLoading);
     final pending = Completer<bool?>();
     var probes = 0;
-    probe = (path, {bookmark}) =>
+    probe = (path) =>
         ++probes == 1 ? pending.future : Future<bool?>.value(true);
     final indexReads = database.indexReads;
     final refresh = library.refreshSourceAvailability();
@@ -431,7 +427,7 @@ void main() {
         await _waitFor(() => !container.read(localLibraryProvider).isLoading);
         final pending = Completer<bool?>();
         var probes = 0;
-        probe = (path, {bookmark}) =>
+        probe = (path) =>
             ++probes == 1 ? pending.future : Future<bool?>.value(true);
         final refresh = library.refreshSourceAvailability();
         await _waitFor(() => probes == 1);
@@ -466,7 +462,7 @@ void main() {
     await _waitFor(() => !container.read(localLibraryProvider).isLoading);
     final pending = Completer<LocalLibraryLookupIndex>();
     database.index = () => pending.future;
-    probe = (path, {bookmark}) async => false;
+    probe = (path) async => false;
     final indexReads = database.indexReads;
     final refresh = library.refreshSourceAvailability();
     await _waitFor(() => database.indexReads > indexReads);

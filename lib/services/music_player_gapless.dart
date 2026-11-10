@@ -34,10 +34,8 @@ class _MusicGapless {
     final settings = handler._settings;
     return settings.gaplessPlayback &&
         !handler._cast.active &&
-        (!settings.autoMix || playbackExclusiveOutput.value) &&
+        !settings.autoMix &&
         !settings.usbBitPerfect &&
-        // Exclusive devices must be fed by their existing output instance.
-        (!playbackExclusiveOutput.value || _canQueue) &&
         !handler._player.isDirect &&
         !handler._disposed &&
         handler._sourceReady &&
@@ -127,12 +125,11 @@ class _MusicGapless {
         }
         if (!_current(generation)) return;
       }
-      final path = lease?.path ?? await handler._formats.resolve(next);
+      final path = lease?.path ?? await handler._resolveSource(next);
       if (path == null || !_current(generation)) return;
       final isCopy =
           (next.isContentUri && lease == null) ||
-          handler._sourceCache.ownsPath(path) ||
-          handler._formats.owns(path);
+          handler._sourceCache.ownsPath(path);
       if (isCopy) _pins.add(path);
       final volume = await handler._normalizationVolumeFor(
         path,

@@ -7,7 +7,7 @@ import 'package:mornye/models/download_history.dart';
 import 'package:mornye/models/library_database_models.dart';
 import 'package:mornye/models/settings.dart';
 import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
+import 'package:mornye/services/offline_saver.dart';
 import 'package:mornye/services/network_offline_saver.dart';
 import 'package:mornye/services/network_storage_service.dart';
 
@@ -143,20 +143,20 @@ void main() {
         final source = NetworkStorageService.source('nas', path);
         final rows = <DownloadHistoryItem>[];
         final transport = NetworkOfflineTransport(storage: storage);
-        final saver = LinkOfflineSaver(
+        final saver = OfflineSaver(
           serverId: 'network',
           idPrefix: 'offline',
           serviceName: 'Network offline',
           openTransport: () => transport,
           prepareSong: transport.prepare,
-          destination: LinkDownloadFolderDestination(
+          destination: DownloadFolderDestination(
             AppSettings(downloadDirectory: root.path),
           ),
           record: (item) async => rows.add(item),
           temporaryDirectory: () async => staged,
         );
         final result = await saver.save([
-          LinkOfflineSong(item: song(source), songId: source),
+          OfflineSong(item: song(source), songId: source),
         ]);
         expect(result.saved, 1);
         expect(result.failed, 0);
@@ -206,7 +206,7 @@ void main() {
       addTearDown(transport.close);
       final source = NetworkStorageService.source('nas', '');
       final prepared = await transport.prepare(
-        LinkOfflineSong(item: song(source), songId: source),
+        OfflineSong(item: song(source), songId: source),
       );
       expect(prepared.fileName, 'Original Song.flac');
       expect(prepared.relativeDir, '');
@@ -294,21 +294,21 @@ void main() {
         ),
       );
       final transport = NetworkOfflineTransport(storage: storage);
-      final cancel = LinkOfflineCancel();
+      final cancel = OfflineCancel();
       final source = NetworkStorageService.source('nas', 'a.flac');
       final recorded = <DownloadHistoryItem>[];
       final saved =
-          LinkOfflineSaver(
+          OfflineSaver(
             serverId: 'network',
             openTransport: () => transport,
             prepareSong: transport.prepare,
-            destination: LinkDownloadFolderDestination(
+            destination: DownloadFolderDestination(
               AppSettings(downloadDirectory: '${temp.path}/downloads'),
             ),
             record: (item) async => recorded.add(item),
             temporaryDirectory: () async => staged,
           ).save([
-            LinkOfflineSong(item: song(source), songId: source),
+            OfflineSong(item: song(source), songId: source),
           ], cancel: cancel);
       await started.future;
       cancel.cancel();

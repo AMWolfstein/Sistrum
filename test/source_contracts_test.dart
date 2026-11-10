@@ -1,4 +1,4 @@
-// These tests read production files across Dart, Kotlin and Swift by path and
+// These tests read production files across Dart and Kotlin by path and
 // pin literal source text on purpose. When a refactor moves code, update the
 // path or the assertion here in the same commit; never delete the check.
 
@@ -24,63 +24,6 @@ void main() {
     });
   });
 
-  group('iOS background download lifecycle', () {
-    final appDelegateSource = File(
-      'ios/Runner/AppDelegate.swift',
-    ).readAsStringSync();
-    final queueProviderSource = File(
-      'lib/providers/download_queue_provider.dart',
-    ).readAsStringSync();
-
-    test('acquires background time before starting long-running work', () {
-      final beginCase = RegExp(
-        r'case "beginBackgroundDownloadTask":[\s\S]*?result\(nil\)',
-      ).firstMatch(appDelegateSource);
-      expect(beginCase, isNotNull);
-      expect(
-        beginCase!.group(0)!.indexOf('beginBackgroundDownloadTask()'),
-        lessThan(beginCase.group(0)!.indexOf('result(nil)')),
-      );
-    });
-
-    test('expiration safely defers and foreground resumes the queue', () {
-      expect(appDelegateSource, contains('iosBackgroundDownloadExpired'));
-      final expirationHandler = RegExp(
-        r'if self\?\.downloadsActive == true \{[\s\S]*?\n\s*\}',
-      ).firstMatch(appDelegateSource);
-      expect(expirationHandler, isNotNull);
-      expect(
-        expirationHandler!.group(0)!,
-        contains('self?.coreBackend.cancelActiveDownloads()'),
-      );
-      expect(
-        expirationHandler
-            .group(0)!
-            .indexOf('self?.coreBackend.cancelActiveDownloads()'),
-        lessThan(
-          expirationHandler.group(0)!.indexOf('iosBackgroundDownloadExpired'),
-        ),
-      );
-      expect(
-        RegExp(
-          r'pauseQueue\(\s*persistAcrossRestarts:\s*false,\s*'
-          r'nativeCancelledItemIds:\s*cancelledItemIds,\s*\)',
-        ).hasMatch(queueProviderSource),
-        true,
-      );
-      expect(queueProviderSource, contains('_iosBackgroundExecutionExpired'));
-      expect(queueProviderSource, contains('final requeueItemIds ='));
-      expect(
-        queueProviderSource,
-        contains('if (!state.isProcessing && requeueItemIds.isEmpty) return;'),
-      );
-      expect(queueProviderSource, contains('if (alreadyForeground) {'));
-      expect(
-        queueProviderSource,
-        contains('resumePendingDownloadsOnForeground();'),
-      );
-    });
-  });
 
   group('native worker contracts', () {
     final finalizerSource = File(
