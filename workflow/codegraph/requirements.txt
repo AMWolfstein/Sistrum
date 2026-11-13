@@ -1,0 +1,4 @@
+# Standalone parse-only Bash/resource dependencies.
+tree-sitter==0.25.2
+tree-sitter-bash==0.25.1
+tomli==2.2.1; python_version < "3.11"

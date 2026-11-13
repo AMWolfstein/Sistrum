@@ -1,0 +1,19 @@
+// Analysis output only; no permanent app configuration or source changes.
+gradle.afterProject { project ->
+    if (project.path == ':app' && project.plugins.hasPlugin('com.android.application')) {
+        def reportPath = System.getProperty('mornye.audit.report')
+        if (!reportPath) throw new GradleException('Missing mornye.audit.report')
+        project.android.lint {
+            abortOnError = false
+            checkAllWarnings = true
+            checkDependencies = false
+            checkTestSources = true
+            xmlReport = true
+            xmlOutput = new File(reportPath)
+            absolutePaths = true
+            htmlReport = false
+            textReport = false
+        }
+        println("MORNYE_AUDIT_LINT checkTestSources=${project.android.lint.checkTestSources}")
+    }
+}

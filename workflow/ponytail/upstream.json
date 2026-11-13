@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/DietrichGebert/ponytail",
+  "commit": "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846",
+  "package_version": "5.3.3",
+  "installation": "Agent-neutral project-local skills + root AGENTS.md instruction integration",
+  "default_mode": "full",
+  "scope": "Every repository modification, including small/doc/config edits and Spec Kit work",
+  "unmodified_upstream_files": [
+    ".agents/skills/ponytail/SKILL.md",
+    ".agents/skills/ponytail-review/SKILL.md",
+    "workflow/ponytail/LICENSE"
+  ],
+  "local_policy": "AGENTS.md and .specify/project-policy.md",
+  "not_installed": [
+    "Agent-specific instruction files or global configuration",
+    "Editor/CLI lifecycle hooks",
+    "UI/session collection integrations",
+    "npm application dependencies",
+    "Other Ponytail command skills"
+  ]
+}
