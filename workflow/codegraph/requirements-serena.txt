@@ -1,0 +1,3 @@
+# Optional semantic verifier, separate from application dependencies.
+serena-agent==2.1.0
+mcp==2.2.0

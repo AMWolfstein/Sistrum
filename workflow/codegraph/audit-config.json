@@ -1,0 +1,488 @@
+{
+  "languages": {
+    "dart": {
+      "extensions": [
+        ".dart"
+      ],
+      "tests": [
+        "test/*",
+        "integration_test/*"
+      ]
+    },
+    "rust": {
+      "extensions": [
+        ".rs"
+      ],
+      "tests": [
+        "*/tests/*",
+        "tests/*"
+      ]
+    },
+    "kotlin": {
+      "extensions": [
+        ".kt"
+      ],
+      "tests": [
+        "*/src/test/*",
+        "*/src/androidTest/*"
+      ]
+    },
+    "python": {
+      "extensions": [
+        ".py"
+      ],
+      "tests": [
+        "*/test_*.py",
+        "*/tests/*"
+      ]
+    },
+    "shell": {
+      "extensions": [
+        ".sh",
+        ".bash"
+      ],
+      "tests": []
+    },
+    "cpp": {
+      "extensions": [
+        ".cpp",
+        ".cc",
+        ".c",
+        ".h",
+        ".hpp",
+        ".cxx"
+      ],
+      "tests": [
+        "tests/*",
+        "*/tests/*",
+        "*_test.cpp",
+        "test_*.cpp"
+      ]
+    },
+    "java": {
+      "extensions": [
+        ".java"
+      ],
+      "tests": [
+        "*/src/test/*",
+        "*/src/androidTest/*"
+      ]
+    }
+  },
+  "protected": [
+    "third_party/*",
+    "rust_backend/vendor/*",
+    "rust_backend/target/*",
+    "*.g.dart",
+    "*.freezed.dart",
+    "lib/l10n/app_localizations*.dart"
+  ],
+  "categories": {
+    "dead-code": {
+      "dart": [
+        "unused_import",
+        "unused_shown_name",
+        "duplicate_import",
+        "unnecessary_import",
+        "unused_element",
+        "unused_element_parameter",
+        "unused_field",
+        "unused_local_variable",
+        "unused_catch_clause",
+        "unused_catch_stack",
+        "unused_label",
+        "unreachable_from_main",
+        "dead_code",
+        "dead_code_catch_following_catch",
+        "dead_code_on_catch_subtype"
+      ],
+      "rust": [
+        "dead_code",
+        "unused_imports",
+        "unused_variables",
+        "unused_mut",
+        "unused_assignments",
+        "unused_macros",
+        "unreachable_code",
+        "unreachable_patterns"
+      ],
+      "kotlin": [
+        "ObsoleteSdkInt",
+        "UnusedResources",
+        "UnusedIds"
+      ],
+      "java": [
+        "ObsoleteSdkInt",
+        "UnusedResources",
+        "UnusedIds"
+      ],
+      "cpp": [
+        "clang-diagnostic-unused-*",
+        "clang-diagnostic-unreachable-code*",
+        "clang-analyzer-deadcode.*",
+        "misc-unused-*"
+      ],
+      "python": [
+        "F401",
+        "F811",
+        "F841",
+        "F822",
+        "F823"
+      ],
+      "shell": [
+        "SC2034",
+        "SC2317"
+      ]
+    },
+    "optimization": {
+      "dart": [
+        "prefer_collection_literals",
+        "prefer_spread_collections"
+      ],
+      "rust": [
+        "clippy::useless_vec",
+        "clippy::slow_vector_initialization",
+        "clippy::manual_memcpy",
+        "clippy::vec_init_then_push"
+      ],
+      "kotlin": [
+        "DrawAllocation",
+        "UseSparseArrays",
+        "UseValueOf"
+      ],
+      "java": [
+        "DrawAllocation",
+        "UseSparseArrays",
+        "UseValueOf"
+      ],
+      "cpp": [
+        "performance-*"
+      ]
+    },
+    "simplifier": {
+      "dart": [
+        "unnecessary_new",
+        "unnecessary_this",
+        "unnecessary_lambdas",
+        "unnecessary_null_checks",
+        "unnecessary_parenthesis",
+        "unnecessary_null_in_if_null_operators",
+        "unnecessary_to_list_in_spreads",
+        "prefer_if_null_operators",
+        "prefer_null_aware_operators",
+        "prefer_is_empty",
+        "prefer_is_not_empty"
+      ],
+      "rust": [
+        "clippy::needless_borrow",
+        "clippy::redundant_closure",
+        "clippy::collapsible_if",
+        "clippy::let_and_return",
+        "clippy::needless_return",
+        "clippy::unnecessary_lazy_evaluations",
+        "clippy::manual_unwrap_or_default",
+        "clippy::unnecessary_map_or"
+      ],
+      "kotlin": [
+        "ObsoleteSdkInt",
+        "UseKtx",
+        "ReplaceStringBuilder"
+      ],
+      "java": [
+        "ObsoleteSdkInt",
+        "UseKtx",
+        "ReplaceStringBuilder"
+      ],
+      "cpp": [
+        "readability-redundant-*",
+        "readability-container-size-empty",
+        "modernize-use-nullptr",
+        "modernize-use-equals-default"
+      ],
+      "python": [
+        "SIM*",
+        "C4*",
+        "PIE*"
+      ],
+      "shell": [
+        "SC2001",
+        "SC2002",
+        "SC2015",
+        "SC2162",
+        "SC2181"
+      ]
+    },
+    "bugs": {
+      "dart": [
+        "unnecessary_null_comparison",
+        "unnecessary_null_aware_assignments",
+        "null_check_on_nullable_type_parameter",
+        "invalid_null_aware_operator",
+        "unchecked_use_of_nullable_value",
+        "body_might_complete_normally_catch_error",
+        "avoid_catches_without_on_clauses",
+        "close_sinks",
+        "cancel_subscriptions",
+        "unawaited_futures"
+      ],
+      "rust": [
+        "unused_must_use",
+        "irrefutable_let_patterns",
+        "dropping_copy_types",
+        "forget_non_drop",
+        "unused_variables"
+      ],
+      "kotlin": [
+        "NewApi",
+        "Recycle",
+        "StaticFieldLeak",
+        "HandlerLeak",
+        "MissingSuperCall",
+        "WrongConstant",
+        "CommitPrefEdits",
+        "ApplySharedPref",
+        "ObsoleteSdkInt"
+      ],
+      "java": [
+        "NewApi",
+        "Recycle",
+        "StaticFieldLeak",
+        "HandlerLeak",
+        "MissingSuperCall",
+        "WrongConstant",
+        "CommitPrefEdits",
+        "ApplySharedPref",
+        "ObsoleteSdkInt"
+      ],
+      "cpp": [
+        "clang-analyzer-core.*",
+        "clang-analyzer-unix.*",
+        "clang-analyzer-cplusplus.*",
+        "clang-analyzer-optin.*"
+      ],
+      "python": [
+        "E722",
+        "B006",
+        "B008",
+        "B904"
+      ],
+      "shell": [
+        "SC2086",
+        "SC2181",
+        "SC2317"
+      ]
+    },
+    "concurrency": {
+      "dart": [
+        "cancel_subscriptions",
+        "close_sinks",
+        "unawaited_futures",
+        "discarded_futures"
+      ],
+      "rust": [
+        "clippy::await_holding_lock",
+        "clippy::await_holding_refcell_ref",
+        "clippy::mutex_atomic",
+        "clippy::arc_with_non_send_sync"
+      ],
+      "kotlin": [
+        "StaticFieldLeak",
+        "HandlerLeak",
+        "WrongThread",
+        "BlockingMethodInNonBlockingContext"
+      ],
+      "java": [
+        "StaticFieldLeak",
+        "HandlerLeak",
+        "WrongThread"
+      ],
+      "cpp": [
+        "clang-analyzer-concurrency.*"
+      ]
+    },
+    "performance": {
+      "dart": [
+        "avoid_unnecessary_containers",
+        "prefer_const_constructors",
+        "sized_box_for_whitespace",
+        "use_colored_box",
+        "avoid_slow_async_io",
+        "avoid_function_literals_in_foreach_calls"
+      ],
+      "rust": [
+        "clippy::useless_vec",
+        "clippy::slow_vector_initialization",
+        "clippy::manual_memcpy",
+        "clippy::vec_init_then_push",
+        "clippy::needless_collect"
+      ],
+      "kotlin": [
+        "DrawAllocation",
+        "UseSparseArrays",
+        "UseCompoundDrawables",
+        "Overdraw"
+      ],
+      "java": [
+        "DrawAllocation",
+        "UseSparseArrays",
+        "UseCompoundDrawables",
+        "Overdraw"
+      ],
+      "cpp": [
+        "performance-*",
+        "readability-container-size-empty"
+      ],
+      "python": [
+        "PERF*"
+      ]
+    },
+    "security": {
+      "dart": [
+        "avoid_web_libraries_in_flutter",
+        "unsafe_html"
+      ],
+      "kotlin": [
+        "SetJavaScriptEnabled",
+        "ExportedContentProvider",
+        "ExportedReceiver",
+        "ExportedService",
+        "TrustAllX509TrustManager",
+        "BadHostnameVerifier",
+        "HardcodedDebugMode"
+      ],
+      "java": [
+        "SetJavaScriptEnabled",
+        "ExportedContentProvider",
+        "ExportedReceiver",
+        "ExportedService",
+        "TrustAllX509TrustManager",
+        "BadHostnameVerifier",
+        "HardcodedDebugMode"
+      ],
+      "cpp": [
+        "cert-*",
+        "security-*"
+      ],
+      "python": [
+        "S*"
+      ],
+      "shell": [
+        "SC2086"
+      ]
+    }
+  },
+  "tools": {
+    "dart": {
+      "run": [
+        "dart",
+        "analyze",
+        "--format=machine"
+      ],
+      "parser": "dart-machine",
+      "cwd": ".",
+      "timeout": 1800
+    },
+    "rust": {
+      "run": [
+        "cargo",
+        "+1.99.1",
+        "check",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--message-format=json"
+      ],
+      "parser": "cargo-json",
+      "cwd": "rust_backend",
+      "timeout": 2400
+    },
+    "kotlin": {
+      "runner": "android-lint",
+      "cwd": "android",
+      "variant": "Debug",
+      "timeout": 1800,
+      "source_roots": [
+        "android/app/src/main/",
+        "android/app/src/debug/",
+        "android/app/src/test/",
+        "android/app/src/androidTest/",
+        "android/app/src/testDebug/",
+        "android/app/src/androidTestDebug/",
+        "android/app/src/rust/kotlin/"
+      ]
+    },
+    "cpp": {
+      "runner": "clang-tidy",
+      "timeout": 300,
+      "database_globs": [
+        "android/app/.cxx/Debug/*/arm64-v8a/compile_commands.json",
+        "build/.cxx/debug/*/arm64-v8a/compile_commands.json"
+      ]
+    },
+    "java": {
+      "runner": "android-lint",
+      "cwd": "android",
+      "variant": "Debug",
+      "timeout": 1800,
+      "source_roots": [
+        "android/app/src/main/",
+        "android/app/src/debug/",
+        "android/app/src/test/",
+        "android/app/src/androidTest/",
+        "android/app/src/testDebug/",
+        "android/app/src/androidTestDebug/",
+        "android/app/src/rust/kotlin/"
+      ]
+    },
+    "python": {
+      "run": [
+        "ruff",
+        "check",
+        "--output-format=json",
+        "--no-cache",
+        "--quiet",
+        "."
+      ],
+      "parser": "ruff-json",
+      "cwd": ".",
+      "timeout": 900,
+      "findings_exit_codes": [
+        0,
+        1
+      ]
+    },
+    "shell": {
+      "run": [
+        "shellcheck",
+        "--format=json1",
+        "--severity=style"
+      ],
+      "parser": "shellcheck-json",
+      "cwd": ".",
+      "append_files": true,
+      "timeout": 600,
+      "findings_exit_codes": [
+        0,
+        1
+      ]
+    }
+  },
+  "notes": [
+    "Curated diagnostic allowlists, not exhaustive proof of dead code or performance gains.",
+    "Optimization hints require measurement; simplifications require behavior verification.",
+    "Generated/vendored paths are protected. Android Lint covers configured app variant/source roots, not general unused public declarations. C++ uses only the selected compilation database/configuration; missing TU/header commands remain gaps.",
+    "Dart allowlists list lints this project enables (flutter_lints plus analysis_options.yaml); a code that is not enabled never appears, so enable the lint before relying on its category. Gradle Kotlin DSL (.kts) is not analyzed. Python uses ruff, shell uses shellcheck; their remaining checks stay unclassified."
+  ],
+  "coverage": {
+    "dart": {
+      "lcov": "coverage/lcov.info",
+      "cwd": ".",
+      "produce": "flutter test --coverage"
+    },
+    "rust": {
+      "lcov": "rust_backend/target/lcov.info",
+      "cwd": "rust_backend",
+      "produce": "cargo llvm-cov --workspace --locked --lcov --output-path target/lcov.info (from rust_backend, channel from rust-toolchain.toml, optional cargo-llvm-cov required)"
+    }
+  }
+}

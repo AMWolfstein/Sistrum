@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "workflows": {
+    "speckit": {
+      "name": "Full SDD Cycle",
+      "version": "1.0.1",
+      "description": "Runs specify \u2192 plan \u2192 tasks \u2192 implement with repository task/review policy",
+      "source": "bundled",
+      "installed_at": "2026-11-12T09:44:30.463596+00:00",
+      "updated_at": "2026-11-12T09:44:30.463601+00:00"
+    }
+  }
+}

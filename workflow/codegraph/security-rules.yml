@@ -1,0 +1,38 @@
+# Local Semgrep rules used by `code_tools.py security`.
+# Only these patterns run; nothing is fetched from the Semgrep registry.
+rules:
+  - id: sistrum.python-subprocess-shell
+    languages: [python]
+    severity: WARNING
+    message: subprocess call with shell=True; verify the command is not built from untrusted input.
+    patterns:
+      - pattern: subprocess.$FUNC(..., shell=True, ...)
+
+  - id: sistrum.python-eval
+    languages: [python]
+    severity: ERROR
+    message: eval/exec on dynamic input; verify the source is trusted.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+
+  - id: sistrum.js-dynamic-eval
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Dynamic eval/Function constructor; verify the input is trusted.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: sistrum.hardcoded-credential
+    languages: [generic]
+    severity: WARNING
+    message: Possible hardcoded credential; confirm it is a placeholder and rotate real values.
+    patterns:
+      - pattern-regex: '(?i)\b(password|passwd|secret|api[_-]?key|token)\b\s*[:=]\s*["''][^"'']{8,}["'']'
+
+  - id: sistrum.dart-insecure-http
+    languages: [dart]
+    severity: WARNING
+    message: Plain HTTP URL; confirm the endpoint cannot carry credentials or private data.
+    pattern-regex: 'http://[A-Za-z0-9.-]+'
