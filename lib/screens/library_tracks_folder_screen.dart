@@ -675,7 +675,7 @@ class _LibraryTracksFolderScreenState
       var sourcePath = picked.path;
       if (sourcePath == null || sourcePath.isEmpty) {
         materializedDir = await Directory.systemTemp.createTemp(
-          'mornye_playlist_cover_',
+          'sistrum_playlist_cover_',
         );
         final pickedExtension = p.extension(picked.name);
         final materializedFile = File(

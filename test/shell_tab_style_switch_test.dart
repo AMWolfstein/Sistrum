@@ -18,7 +18,7 @@ void main() {
       'switching styles keeps the tab, not the index (store: $showStore)',
       () {
         final materialSettings = showStore ? 3 : 2;
-        final mornyeSearch = showStore ? 3 : 2;
+        final sistrumSearch = showStore ? 3 : 2;
 
         // Mornye has no Settings destination (Settings opens as a page), so
         // Material's Settings has no Mornye destination to land on.
@@ -28,7 +28,7 @@ void main() {
         );
         // Mornye's Search lands on Material's Home, where Material searches.
         expect(
-          switched(mornyeSearch, fromMornye: true, showStore: showStore),
+          switched(sistrumSearch, fromMornye: true, showStore: showStore),
           0,
         );
         for (final index in [0, 1, if (showStore) 2]) {

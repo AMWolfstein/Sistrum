@@ -125,10 +125,10 @@ The reported bit depth is the negotiated output format.
 Decoder sample/seek tests can run without building an APK:
 
 ```sh
-cmake -S android/app/src/main/cpp -B /tmp/mornye-flac-tests \
-  -DMORNYE_AUDIO_HOST_TESTS=ON
-cmake --build /tmp/mornye-flac-tests
-ctest --test-dir /tmp/mornye-flac-tests --output-on-failure
+cmake -S android/app/src/main/cpp -B /tmp/sistrum-flac-tests \
+  -DSISTRUM_AUDIO_HOST_TESTS=ON
+cmake --build /tmp/sistrum-flac-tests
+ctest --test-dir /tmp/sistrum-flac-tests --output-on-failure
 ```
 
 USB identity/format facts were checked against

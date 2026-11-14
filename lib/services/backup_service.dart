@@ -494,7 +494,7 @@ class BackupService {
     Directory temporary,
   ) async {
     await temporary.create(recursive: true);
-    final staging = await temporary.createTemp('mornye_legacy_backup_');
+    final staging = await temporary.createTemp('sistrum_legacy_backup_');
     try {
       final historyPath = p.join(staging.path, 'history.ndjson');
       final metadataPath = p.join(staging.path, 'metadata.json');
@@ -643,7 +643,7 @@ class BackupService {
       extractionDir = await Directory(
         p.join(
           temporaryDirectory.path,
-          'mornye_restore_${DateTime.now().microsecondsSinceEpoch}',
+          'sistrum_restore_${DateTime.now().microsecondsSinceEpoch}',
         ),
       ).create(recursive: true);
       String? historyPath;

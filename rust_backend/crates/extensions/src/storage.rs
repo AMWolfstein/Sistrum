@@ -437,7 +437,7 @@ pub(crate) fn atomic_write(path: &Path, data: &[u8]) -> Result<(), StorageError>
     sistrum_core::fs::write_atomic(
         directory,
         path,
-        ".mornye-",
+        ".sistrum-",
         |file| file.write_all(data),
         || Ok(()),
         true,

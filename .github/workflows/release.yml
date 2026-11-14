@@ -142,7 +142,7 @@ jobs:
       - name: Build release APKs
         env:
           # The APK is re-signed with the release keystore in the next step.
-          MORNYE_ALLOW_DEBUG_SIGNING: "1"
+          SISTRUM_ALLOW_DEBUG_SIGNING: "1"
         run: |
           bash scripts/build_android.sh --target lib/main.dart
           ls -la build/app/outputs/flutter-apk/

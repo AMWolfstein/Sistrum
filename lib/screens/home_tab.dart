@@ -976,7 +976,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
       alignToContent: true,
       contentInset: homeContentInset(context),
       title: widget.mode == HomeTabMode.search
-          ? context.l10n.mornyeSearch
+          ? context.l10n.sistrumSearch
           : greeting ?? context.l10n.homeTitle,
       actions: context.isMornye && _showsHome
           ? const [HomeProfileButton()]

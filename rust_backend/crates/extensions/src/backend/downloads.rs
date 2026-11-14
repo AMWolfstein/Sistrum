@@ -643,7 +643,7 @@ impl Backend {
         // Reclaim only that namespace after a process restart, including when
         // a complete file already exists but its finalizer still needs to run.
         let staging_prefix = format!(
-            ".mornye-download-{}-",
+            ".sistrum-download-{}-",
             crate::binary::encode(
                 &Sha256::digest(output.display().to_lowercase().as_bytes()),
                 "hex"

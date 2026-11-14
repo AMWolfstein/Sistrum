@@ -13,16 +13,16 @@ import androidx.mediarouter.app.MediaRouteDynamicChooserDialog
 import androidx.mediarouter.app.MediaRouteDynamicControllerDialog
 
 /** Flutter's Activity theme lacks the opaque AppCompat colors MediaRouter requires. */
-internal object MornyeCastDialogs : MediaRouteDialogFactory() {
-    override fun onCreateChooserDialogFragment() = MornyeCastChooserFragment()
-    override fun onCreateControllerDialogFragment() = MornyeCastControllerFragment()
+internal object SistrumCastDialogs : MediaRouteDialogFactory() {
+    override fun onCreateChooserDialogFragment() = SistrumCastChooserFragment()
+    override fun onCreateControllerDialogFragment() = SistrumCastControllerFragment()
 }
 
 private fun castDialogContext(context: Context): Context =
     ContextThemeWrapper(context, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
 
 @Keep
-class MornyeCastChooserFragment : MediaRouteChooserDialogFragment() {
+class SistrumCastChooserFragment : MediaRouteChooserDialogFragment() {
     override fun onCreateChooserDialog(context: Context, savedInstanceState: Bundle?): MediaRouteChooserDialog =
         MediaRouteChooserDialog(castDialogContext(context))
 
@@ -31,7 +31,7 @@ class MornyeCastChooserFragment : MediaRouteChooserDialogFragment() {
 }
 
 @Keep
-class MornyeCastControllerFragment : MediaRouteControllerDialogFragment() {
+class SistrumCastControllerFragment : MediaRouteControllerDialogFragment() {
     override fun onCreateControllerDialog(context: Context, savedInstanceState: Bundle?): MediaRouteControllerDialog =
         MediaRouteControllerDialog(castDialogContext(context))
 

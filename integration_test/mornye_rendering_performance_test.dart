@@ -25,7 +25,7 @@ import 'performance_probe.dart';
 
 void main() {
   final binding = PerformanceTestBinding.ensureInitialized();
-  const focused = bool.fromEnvironment('MORNYE_GLASS_FOCUS');
+  const focused = bool.fromEnvironment('SISTRUM_GLASS_FOCUS');
   {
     testWidgets('Sistrum real rendering at fixed Clear glass', (tester) async {
       final probe = PerformanceProbe(
@@ -174,7 +174,7 @@ class _Fixture {
 
   static Future<_Fixture> create() async {
     final temp = await getTemporaryDirectory();
-    final directory = await temp.createTemp('mornye-benchmark-art-');
+    final directory = await temp.createTemp('sistrum-benchmark-art-');
     final covers = <Uint8List>[];
     for (var index = 0; index < 24; index++) {
       final recorder = ui.PictureRecorder();

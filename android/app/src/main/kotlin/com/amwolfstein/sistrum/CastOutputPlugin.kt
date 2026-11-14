@@ -101,7 +101,7 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
                     initialize()
                     val button = MediaRouteButton(ContextThemeWrapper(
                         host, androidx.appcompat.R.style.Theme_AppCompat_DayNight))
-                    button.dialogFactory = MornyeCastDialogs
+                    button.dialogFactory = SistrumCastDialogs
                     CastButtonFactory.setUpMediaRouteButton(host, button)
                     // MediaRouteButton refuses to show a dialog until attached to a window.
                     val root = host.window.decorView as ViewGroup

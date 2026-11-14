@@ -19,19 +19,19 @@ import org.junit.BeforeClass
 import org.junit.Test
 
 /** Exercises the actual generated Kotlin ABI against the host Rust library.
- * Set MORNYE_NATIVE_HOST_LIBRARY to the host so and optionally
- * MORNYE_JNA_HOST_DIRECTORY to JNA's native dispatch directory.
+ * Set SISTRUM_NATIVE_HOST_LIBRARY to the host so and optionally
+ * SISTRUM_JNA_HOST_DIRECTORY to JNA's native dispatch directory.
  * Ordinary Android-only checkouts skip these host ABI tests.
  */
 class NativeDataJobsTest {
     companion object {
         @BeforeClass @JvmStatic
         fun configureHostLibrary() {
-            val library = System.getenv("MORNYE_NATIVE_HOST_LIBRARY")
+            val library = System.getenv("SISTRUM_NATIVE_HOST_LIBRARY")
             assumeTrue("Build the Rust host library for ABI tests", !library.isNullOrBlank())
             require(File(library!!).isFile) { "Native host library does not exist" }
             System.setProperty("uniffi.component.sistrum_mobile.libraryOverride", library)
-            System.getenv("MORNYE_JNA_HOST_DIRECTORY")?.let {
+            System.getenv("SISTRUM_JNA_HOST_DIRECTORY")?.let {
                 System.setProperty("jna.boot.library.path", it)
             }
         }

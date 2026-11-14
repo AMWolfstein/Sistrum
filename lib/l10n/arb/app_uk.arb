@@ -7343,7 +7343,7 @@
   "@metadataCopyField": {
     "description": "Metadata menu action that copies the selected key and value"
   },
-  "mornyeSearch": "Пошук",
+  "sistrumSearch": "Пошук",
   "mornyeContinuePlaying": "Продовжити відтворювання",
   "metadataCopyAll": "Копіювати всі метадані",
   "@metadataCopyAll": {
@@ -7357,13 +7357,13 @@
   "@optionsEmbeddedCoverSizeDescription": {
     "description": "Description shown in the embedded cover size picker"
   },
-  "mornyeFavorite": "Обране",
-  "mornyeGoToArtist": "Перейти до виконавця",
-  "@mornyeFavorite": {
+  "sistrumFavorite": "Обране",
+  "sistrumGoToArtist": "Перейти до виконавця",
+  "@sistrumFavorite": {
     "description": "Compact context menu action that adds a track to Loved"
   },
-  "mornyeFavorited": "Додано до обраного",
-  "@mornyeFavorited": {
+  "sistrumFavorited": "Додано до обраного",
+  "@sistrumFavorited": {
     "description": "Selected state of the compact favorite action"
   },
   "autoMixDescription": "Поєднуйте композиції за допомогою синхронізації ритму та зміни темпу зі збереженням висоти тону. Використовує плавний перехід crossfade, якщо синхронізація ритму неможлива.",

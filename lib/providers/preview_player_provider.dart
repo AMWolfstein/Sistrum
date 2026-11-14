@@ -11,9 +11,9 @@ final _log = AppLogger('PreviewPlayer');
 
 /// Extensions that require the `deferredPreview` runtime feature can defer a
 /// preview lookup until it plays, with a link such as
-/// `mornye-preview:<extension id>/<track id>` (both segments URI-encoded).
+/// `sistrum-preview:<extension id>/<track id>` (both segments URI-encoded).
 /// The extension's `resolvePreview({id})` returns the URL.
-const deferredPreviewScheme = 'mornye-preview';
+const deferredPreviewScheme = 'sistrum-preview';
 
 Future<String> _playablePreviewUrl(String url) async {
   final link = Uri.tryParse(url);

@@ -142,7 +142,7 @@ Future<void> navigateToArtistCredits(
       : await showAppBottomSheet<_ArtistTapTarget>(
           context: context,
           useRootNavigator: true,
-          title: context.l10n.mornyeGoToArtist,
+          title: context.l10n.sistrumGoToArtist,
           maxHeightFactor: 0.6,
           builder: (context) => ListView(
             shrinkWrap: true,

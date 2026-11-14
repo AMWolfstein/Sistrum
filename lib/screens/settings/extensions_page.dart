@@ -276,7 +276,7 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
         }
 
         materializedDir ??= await Directory.systemTemp.createTemp(
-          'mornye_extension_import_',
+          'sistrum_extension_import_',
         );
         final safeName = p.basename(selectedFile.name);
         final materializedFile = File(

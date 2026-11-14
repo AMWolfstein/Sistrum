@@ -514,7 +514,7 @@ impl FilePath {
             let mut nonce = [0; 16];
             getrandom::fill(&mut nonce).map_err(|error| io::Error::other(error.to_string()))?;
             let name = format!(
-                ".mornye-{}.partial",
+                ".sistrum-{}.partial",
                 crate::binary::encode(&nonce, "hex").expect("hex encoding")
             );
             #[cfg(unix)]

@@ -9,7 +9,7 @@ import com.google.android.gms.cast.framework.SessionProvider
 import com.google.android.gms.cast.framework.media.CastMediaOptions
 
 @Keep
-class MornyeCastOptionsProvider : OptionsProvider {
+class SistrumCastOptionsProvider : OptionsProvider {
     override fun getCastOptions(context: Context): CastOptions = CastOptions.Builder()
         .setReceiverApplicationId(CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID)
         // Mornye's audio_service session keeps the queue and notification controls.

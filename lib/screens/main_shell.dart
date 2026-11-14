@@ -863,7 +863,7 @@ class _MainShellState extends ConsumerState<MainShell>
       if (context.isMornye)
         NavigationDestination(
           icon: const Icon(CupertinoIcons.search),
-          label: l10n.mornyeSearch,
+          label: l10n.sistrumSearch,
         ),
     ];
   }

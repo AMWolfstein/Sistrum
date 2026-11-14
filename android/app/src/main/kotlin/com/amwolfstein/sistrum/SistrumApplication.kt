@@ -3,7 +3,7 @@ package com.amwolfstein.sistrum
 import android.app.Application
 import com.ryanheise.audioservice.AudioServicePlugin
 
-class MornyeApplication : Application() {
+class SistrumApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         AppCrashReporter.initialize(this)

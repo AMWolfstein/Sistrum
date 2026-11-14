@@ -1035,8 +1035,8 @@ mod tests {
         let setting = |name: &str, default: u32| {
             std::env::var(name).map_or(default, |value| value.parse().unwrap())
         };
-        let albums = setting("MORNYE_BENCH_ALBUMS", 100);
-        let tracks = setting("MORNYE_BENCH_TRACKS", 10);
+        let albums = setting("SISTRUM_BENCH_ALBUMS", 100);
+        let tracks = setting("SISTRUM_BENCH_TRACKS", 10);
         let root = tempfile::tempdir().unwrap();
         // The thumbnail cache is process-wide; fresh pictures keep runs apart.
         let seed = std::time::SystemTime::now()

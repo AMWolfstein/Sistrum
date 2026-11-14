@@ -179,7 +179,7 @@ abstract final class FFmpegOutput {
     if (samePath(requested, inputPath) && deleteOriginal) {
       return FFmpegOutputPlan(
         workingPath: await reserve(
-          '${file.parent.path}${Platform.pathSeparator}.$base.mornye-${DateTime.now().microsecondsSinceEpoch}$ext',
+          '${file.parent.path}${Platform.pathSeparator}.$base.sistrum-${DateTime.now().microsecondsSinceEpoch}$ext',
         ),
         finalPath: inputPath,
       );
@@ -271,7 +271,7 @@ abstract final class FFmpegOutput {
         return false;
       }
       staging = await reserve(
-        '$targetPath.mornye-staging-${DateTime.now().microsecondsSinceEpoch}',
+        '$targetPath.sistrum-staging-${DateTime.now().microsecondsSinceEpoch}',
       );
       await temp.copy(staging);
       return await finalize(

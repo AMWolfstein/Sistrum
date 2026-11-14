@@ -232,7 +232,7 @@ pub(super) fn read(request: &Value, check: Check<'_>) -> Result<Value, String> {
     }
     let temporary = output_path(request, "temporary_directory")?;
     let staging = tempfile::Builder::new()
-        .prefix("mornye_restore_")
+        .prefix("sistrum_restore_")
         .tempdir_in(temporary)
         .map_err(|e| err("create backup staging", e))?;
     let metadata_path = staging.path().join("metadata.json");

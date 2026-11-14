@@ -25,7 +25,7 @@ export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,max-page-size=16384"
 cd "$PROJECT_DIR/rust_backend"
 cargo rustc --locked --release -p sistrum-extensions --example android_statx_smoke \
   --target "$target" -- -C link-arg=-Wl,--wrap=dlsym
-remote="/data/local/tmp/mornye-statx-smoke-$$"
+remote="/data/local/tmp/sistrum-statx-smoke-$$"
 trap 'adb shell rm -f "$remote" >/dev/null 2>&1 || true' EXIT
 adb push "target/$target/release/examples/android_statx_smoke" "$remote"
 adb shell chmod 700 "$remote"

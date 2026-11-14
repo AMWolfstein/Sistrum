@@ -7036,7 +7036,7 @@
   "@metadataCopyField": {
     "description": "Metadata menu action that copies the selected key and value"
   },
-  "mornyeSearch": "Telusuri",
+  "sistrumSearch": "Telusuri",
   "mornyeContinuePlaying": "Lanjut Memutar",
   "metadataCopyAll": "Salin semua metadata",
   "@metadataCopyAll": {
@@ -7050,13 +7050,13 @@
   "@optionsEmbeddedCoverSizeDescription": {
     "description": "Description shown in the embedded cover size picker"
   },
-  "mornyeFavorite": "Favorit",
-  "mornyeGoToArtist": "Buka Artis",
-  "@mornyeFavorite": {
+  "sistrumFavorite": "Favorit",
+  "sistrumGoToArtist": "Buka Artis",
+  "@sistrumFavorite": {
     "description": "Compact context menu action that adds a track to Loved"
   },
-  "mornyeFavorited": "Terfavorit",
-  "@mornyeFavorited": {
+  "sistrumFavorited": "Terfavorit",
+  "@sistrumFavorited": {
     "description": "Selected state of the compact favorite action"
   },
   "autoMixDescription": "Padukan musik dengan pencocokan bit dan penyesuaian tempo. Menggunakan crossfade bila beat tidak dapat dicocokkan.",

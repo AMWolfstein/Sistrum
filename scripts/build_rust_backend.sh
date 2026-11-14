@@ -14,9 +14,9 @@ case "$PLATFORM" in
 esac
 
 if [[ "$PLATFORM" == "android" ]]; then
-  ANDROID_ABIS_RAW="${MORNYE_RUST_ANDROID_ABIS-arm64-v8a}"
+  ANDROID_ABIS_RAW="${SISTRUM_RUST_ANDROID_ABIS-arm64-v8a}"
   if [[ "$ANDROID_ABIS_RAW" != "arm64-v8a" ]]; then
-    echo "Error: MORNYE_RUST_ANDROID_ABIS must be arm64-v8a (the only supported ABI)." >&2
+    echo "Error: SISTRUM_RUST_ANDROID_ABIS must be arm64-v8a (the only supported ABI)." >&2
     exit 1
   fi
 fi

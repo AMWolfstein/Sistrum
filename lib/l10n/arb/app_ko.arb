@@ -7343,7 +7343,7 @@
   "@metadataCopyField": {
     "description": "Metadata menu action that copies the selected key and value"
   },
-  "mornyeSearch": "검색",
+  "sistrumSearch": "검색",
   "mornyeContinuePlaying": "계속 재생",
   "metadataCopyAll": "모든 메타데이터 복사",
   "@metadataCopyAll": {
@@ -7357,13 +7357,13 @@
   "@optionsEmbeddedCoverSizeDescription": {
     "description": "Description shown in the embedded cover size picker"
   },
-  "mornyeFavorite": "즐겨찾기",
-  "mornyeGoToArtist": "아티스트로 이동",
-  "@mornyeFavorite": {
+  "sistrumFavorite": "즐겨찾기",
+  "sistrumGoToArtist": "아티스트로 이동",
+  "@sistrumFavorite": {
     "description": "Compact context menu action that adds a track to Loved"
   },
-  "mornyeFavorited": "즐겨추가에 추가됨",
-  "@mornyeFavorited": {
+  "sistrumFavorited": "즐겨추가에 추가됨",
+  "@sistrumFavorited": {
     "description": "Selected state of the compact favorite action"
   },
   "autoMixDescription": "곡을 비트에 맞춰 믹싱하고, 음정은 유지한 채 템포를 조절합니다. 비트를 맞출 수 없는 경우에는 크로스페이드를 사용합니다",

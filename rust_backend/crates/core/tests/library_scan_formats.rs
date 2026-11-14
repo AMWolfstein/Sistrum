@@ -292,7 +292,7 @@ fn opus_r128_is_additional_to_the_decoder_header_gain() {
     let details =
         read_file_metadata(&mut Cursor::new(&data), "Tagged.opus", "", &|| Ok(())).unwrap();
     // The decoder already applies the -6 dB header gain. Normalization applies
-    // only the additional -6 dB at Mornye's -18 LUFS reference.
+    // only the additional -6 dB at Sistrum's -18 LUFS reference.
     assert_eq!(details["replaygain_track_gain"], "-6.00 dB");
     let mut rewritten = Vec::new();
     rewrite_audio_tags(

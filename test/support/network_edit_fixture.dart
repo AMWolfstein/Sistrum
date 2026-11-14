@@ -56,7 +56,7 @@ class NetworkEditFixture {
   }
 
   bool _publish(String from, String to) =>
-      from.startsWith('.mornye-edit-') && to == 'song.flac';
+      from.startsWith('.sistrum-edit-') && to == 'song.flac';
 
   void move(String from, String to) {
     methods.add('MOVE $from $to');

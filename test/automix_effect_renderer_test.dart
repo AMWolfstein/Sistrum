@@ -73,7 +73,7 @@ void main() {
   test(
     'real filters change pitch, attenuate highs, and generate delayed echoes',
     () async {
-      final ffmpeg = Platform.environment['MORNYE_TEST_FFMPEG'] ?? 'ffmpeg';
+      final ffmpeg = Platform.environment['SISTRUM_TEST_FFMPEG'] ?? 'ffmpeg';
       final ProcessResult probe;
       try {
         probe = await Process.run(ffmpeg, ['-version']);

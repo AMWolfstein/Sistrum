@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 15,
+  "next_completion": 16,
   "next_mission": 3,
-  "next_tor": 8,
+  "next_tor": 9,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -282,6 +282,22 @@
       "record": "specs/002-rebrand-sistrum/tasks.md",
       "status": "complete",
       "title": "Remove leftover iOS, desktop, arm32 and TV references from docs and metadata"
+    },
+    "M002-TOR008": {
+      "completion": 15,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test +4413 ~10 all passed exit 0 after review fixes; cargo check --locked --workspace exit 0; cargo test --locked --workspace passed earlier in T008 (not re-run after the TOR008 Rust prefix renames: cargo check only); review round 1 NEEDS_FIXES (temp prefixes, preview scheme, wake-lock tags, widget labels, comments) fixed; round 2 NEEDS_FIXES (M3U prefix) fixed; round 3 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 3
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": "M002",
+      "nonce": "3e8403e6312f425db2442797ded8a5f8",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "complete",
+      "title": "Rename the remaining non-theme mornye names to sistrum"
     },
     "TOR001": {
       "completion": 1,

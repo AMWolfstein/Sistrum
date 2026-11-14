@@ -127,7 +127,7 @@ same commit. Never delete these checks.
 | `ffmpeg` and `ffprobe` on `PATH` | `ffmpeg_opus_metadata_test.dart` | The round-trip cases are skipped |
 | `python3` | Suites using `SqliteProcessDatabase` | Those suites fail |
 
-`MORNYE_TEST_FFMPEG` selects another FFmpeg binary for
+`SISTRUM_TEST_FFMPEG` selects another FFmpeg binary for
 `automix_effect_renderer_test.dart`. The CI workflow
 (`.github/workflows/ci.yml`) installs `ffmpeg` before running the tests, so
 these cases are not skipped there.

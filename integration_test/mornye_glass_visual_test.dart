@@ -70,7 +70,7 @@ void main() {
       artUri: cover.uri,
     );
     final poses = <String, Object?>{};
-    const flatBackdrop = bool.fromEnvironment('MORNYE_GLASS_FLAT_BACKDROP');
+    const flatBackdrop = bool.fromEnvironment('SISTRUM_GLASS_FLAT_BACKDROP');
     Future<void> wait(int milliseconds) async {
       await tester.runAsync(
         () => Future<void>.delayed(Duration(milliseconds: milliseconds)),

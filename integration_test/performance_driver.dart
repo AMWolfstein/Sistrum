@@ -7,14 +7,14 @@ import 'package:integration_test/integration_test_driver.dart';
 /// `flutter drive` uninstall an existing app during installation, even with
 /// --keep-app-running. That flag only prevents uninstalling when the run ends.
 /// animation clocks and frame delivery, invalidating active measurements.
-/// MORNYE_PERFORMANCE_REPORT selects the host JSON output;
+/// SISTRUM_PERFORMANCE_REPORT selects the host JSON output;
 /// screenshots are PNGs beside that report. The aggregate target is
 /// integration_test/mornye_performance_test.dart.
 Future<void> main() => integrationDriver(
   responseDataCallback: (data) async {
     final output = File(
-      Platform.environment['MORNYE_PERFORMANCE_REPORT'] ??
-          '/tmp/mornye-performance.json',
+      Platform.environment['SISTRUM_PERFORMANCE_REPORT'] ??
+          '/tmp/sistrum-performance.json',
     );
     await output.parent.create(recursive: true);
     final screenshots = data?['screenshots'];

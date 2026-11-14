@@ -43,7 +43,7 @@ pub(crate) fn execute(
             write_atomic(
                 parent,
                 Path::new(path),
-                ".mornye-m3u-",
+                ".sistrum-m3u-",
                 |staging| {
                     let mut file = BufWriter::with_capacity(64 * 1024, staging);
                     file.write_all(b"#EXTM3U\n")?;

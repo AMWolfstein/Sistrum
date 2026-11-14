@@ -283,7 +283,7 @@ extension NetworkStorageUpload on NetworkStorageService {
       throw StateError('Network destination already contains a different file');
     }
     final token = sha256.convert(utf8.encode(transferId)).toString();
-    final temporary = '$parent.mornye-$token.part';
+    final temporary = '$parent.sistrum-$token.part';
     if (c.protocol == NetworkProtocol.webdav) {
       try {
         await _uploadCommand(
@@ -367,7 +367,7 @@ extension NetworkStorageUpload on NetworkStorageService {
       'network-write-probe-',
     );
     final path =
-        '${location.path}.mornye-probe-${NetworkStorageService.newId()}';
+        '${location.path}.sistrum-probe-${NetworkStorageService.newId()}';
     try {
       final file = await File('${temporary.path}/probe').writeAsBytes([0]);
       if (location.connection.protocol == NetworkProtocol.webdav) {

@@ -28,7 +28,7 @@ class MornyePlayerNavigationMenu extends StatelessWidget {
             if ((mediaItem.artist ?? '').trim().isNotEmpty)
               MornyeMenuAction(
                 icon: CupertinoIcons.mic,
-                label: context.l10n.mornyeGoToArtist,
+                label: context.l10n.sistrumGoToArtist,
                 subtitle: mediaItem.artist,
                 onPressed: () => Navigator.of(context).pop('artist'),
               ),
@@ -78,7 +78,7 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
           _action(
             context,
             'favorite',
-            loved ? context.l10n.mornyeFavorited : context.l10n.mornyeFavorite,
+            loved ? context.l10n.sistrumFavorited : context.l10n.sistrumFavorite,
             CupertinoIcons.star_fill,
             selected: loved,
           ),
@@ -111,7 +111,7 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
               _action(
                 context,
                 'artist',
-                context.l10n.mornyeGoToArtist,
+                context.l10n.sistrumGoToArtist,
                 CupertinoIcons.mic,
                 subtitle: mediaItem.artist,
               ),

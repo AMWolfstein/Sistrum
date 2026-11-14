@@ -41,7 +41,7 @@ public class AudioServiceLifecycleTest {
     public void playbackLeaseRenewsAcrossTimeoutsAndStopsAfterRelease() {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         PowerManager power = (PowerManager) instrumentation.getTargetContext().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mornye:lease-test");
+        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sistrum:lease-test");
         PlaybackWakeLock lease = new PlaybackWakeLock(lock, new Handler(Looper.getMainLooper()), 1000, 100);
         try {
             instrumentation.runOnMainSync(lease::acquire);
@@ -63,7 +63,7 @@ public class AudioServiceLifecycleTest {
     public void abandonedPlaybackLeaseExpiresWithoutRenewal() {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         PowerManager power = (PowerManager) instrumentation.getTargetContext().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mornye:lease-expiry-test");
+        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sistrum:lease-expiry-test");
         Handler handler = new Handler(Looper.getMainLooper());
         PlaybackWakeLock lease = new PlaybackWakeLock(lock, handler, 500, 100);
         try {

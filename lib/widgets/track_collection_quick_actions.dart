@@ -130,7 +130,7 @@ class _TrackOptionsSheet extends ConsumerWidget {
           ),
           MornyeMenuAction(
             icon: CupertinoIcons.star_fill,
-            label: isLoved ? l10n.mornyeFavorited : l10n.mornyeFavorite,
+            label: isLoved ? l10n.sistrumFavorited : l10n.sistrumFavorite,
             selected: isLoved,
             onPressed: () => _toggleCollection(context, ref, wishlist: false),
           ),

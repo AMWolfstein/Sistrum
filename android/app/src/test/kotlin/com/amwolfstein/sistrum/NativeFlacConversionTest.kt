@@ -104,9 +104,9 @@ class NativeFlacConversionTest {
 
     @Test
     fun hostFlacInMp4RemuxAndFallbackPreserveDecodedPcmAndArtwork() {
-        val ffmpeg = System.getenv("MORNYE_TEST_FFMPEG").orEmpty()
+        val ffmpeg = System.getenv("SISTRUM_TEST_FFMPEG").orEmpty()
         assumeTrue(
-            "Set MORNYE_TEST_FFMPEG for host media fixtures",
+            "Set SISTRUM_TEST_FFMPEG for host media fixtures",
             File(ffmpeg).isFile && File(ffmpeg).canExecute(),
         )
         fun execute(arguments: Array<String>): Pair<Boolean, String> {

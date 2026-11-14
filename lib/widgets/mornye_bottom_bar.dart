@@ -323,7 +323,7 @@ class _MornyeBottomBarState extends ConsumerState<MornyeBottomBar>
                             ),
                             tooltip: leading
                                 ? destinations[leadingIndex].label
-                                : context.l10n.mornyeSearch,
+                                : context.l10n.sistrumSearch,
                             iconSize: 25,
                             constraints: BoxConstraints.tightFor(
                               width: size,

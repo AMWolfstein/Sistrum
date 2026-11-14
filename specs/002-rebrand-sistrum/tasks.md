@@ -301,6 +301,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
 
 ## Final cumulative review
 
+- [x] M002-TOR008 Rename the remaining non-theme mornye names to sistrum
 - [ ] M002-T007 [FINAL] Cumulative review
   - Start: refresh the map and inspect coverage.
   - Acceptance: every FR and SC in spec.md holds on the cumulative diff from

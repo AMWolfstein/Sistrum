@@ -67,7 +67,7 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
         ),
       _MetadataOption(
         icon: Icons.person_outline,
-        label: l10n.mornyeGoToArtist,
+        label: l10n.sistrumGoToArtist,
         onTap: () =>
             navigateToArtistCredits(screenContext, artistNames: artistName),
       ),

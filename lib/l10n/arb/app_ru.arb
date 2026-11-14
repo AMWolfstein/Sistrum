@@ -7343,7 +7343,7 @@
   "@metadataCopyField": {
     "description": "Metadata menu action that copies the selected key and value"
   },
-  "mornyeSearch": "Поиск",
+  "sistrumSearch": "Поиск",
   "mornyeContinuePlaying": "Продолжить воспроизведение",
   "metadataCopyAll": "Скопировать все метаданные",
   "@metadataCopyAll": {
@@ -7357,13 +7357,13 @@
   "@optionsEmbeddedCoverSizeDescription": {
     "description": "Description shown in the embedded cover size picker"
   },
-  "mornyeFavorite": "В избранное",
-  "mornyeGoToArtist": "Перейти к исполнителю",
-  "@mornyeFavorite": {
+  "sistrumFavorite": "В избранное",
+  "sistrumGoToArtist": "Перейти к исполнителю",
+  "@sistrumFavorite": {
     "description": "Compact context menu action that adds a track to Loved"
   },
-  "mornyeFavorited": "Избранное",
-  "@mornyeFavorited": {
+  "sistrumFavorited": "Избранное",
+  "@sistrumFavorited": {
     "description": "Selected state of the compact favorite action"
   },
   "autoMixDescription": "Плавный переход с подгонкой темпа и сохранением тональности. При невозможности синхронизации битов применяется кроссфейд.",

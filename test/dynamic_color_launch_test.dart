@@ -83,7 +83,7 @@ class _Launch {
         child: DynamicColorWrapper(
           builder: (light, dark, mode) {
             themeBuilds++;
-            // As MornyeApp animates theme changes.
+            // As SistrumApp animates theme changes.
             return MaterialApp(
               theme: light,
               darkTheme: dark,

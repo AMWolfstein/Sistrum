@@ -163,7 +163,7 @@ void main() {
           jsonEncode({...original, 'title': 'Other editor'}),
         );
         nas.beforeMove = (from, to) {
-          if (from == 'song.flac' && to.startsWith('.mornye-original-')) {
+          if (from == 'song.flac' && to.startsWith('.sistrum-original-')) {
             nas.files[from] = external;
           }
         };

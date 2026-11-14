@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the Android arm64 release APK for Mornye.
+# Build the Android arm64 release APK for Sistrum.
 
 set -euo pipefail
 
@@ -17,18 +17,18 @@ for argument in "$@"; do
   esac
 done
 
-if [[ -n "${MORNYE_RUST_ANDROID_ABIS-}" && "${MORNYE_RUST_ANDROID_ABIS}" != "arm64-v8a" ]]; then
-  echo "Error: MORNYE_RUST_ANDROID_ABIS must be arm64-v8a (the only supported ABI)." >&2
+if [[ -n "${SISTRUM_RUST_ANDROID_ABIS-}" && "${SISTRUM_RUST_ANDROID_ABIS}" != "arm64-v8a" ]]; then
+  echo "Error: SISTRUM_RUST_ANDROID_ABIS must be arm64-v8a (the only supported ABI)." >&2
   exit 1
 fi
-export MORNYE_RUST_ANDROID_ABIS="arm64-v8a"
+export SISTRUM_RUST_ANDROID_ABIS="arm64-v8a"
 
 # Without android/key.properties the release build is signed with the debug key.
 # That is only allowed when the caller says so (CI, or a release job that
 # re-signs the APK with its own keystore).
-if [[ ! -f "$PROJECT_DIR/android/key.properties" && "${MORNYE_ALLOW_DEBUG_SIGNING:-}" != "1" ]]; then
+if [[ ! -f "$PROJECT_DIR/android/key.properties" && "${SISTRUM_ALLOW_DEBUG_SIGNING:-}" != "1" ]]; then
   echo "Error: no android/key.properties, so the APK would be signed with the debug key." >&2
-  echo "Add key.properties, or set MORNYE_ALLOW_DEBUG_SIGNING=1 for CI tests or a job that re-signs the APK." >&2
+  echo "Add key.properties, or set SISTRUM_ALLOW_DEBUG_SIGNING=1 for CI tests or a job that re-signs the APK." >&2
   exit 1
 fi
 

@@ -183,7 +183,7 @@ void main() {
             initialDynamicColorsProvider.overrideWithValue(dynamicColors),
           ],
           child: EagerInitialization(
-            child: MornyeApp(
+            child: SistrumApp(
               disableOverscrollEffects: runtimeProfile.disableOverscrollEffects,
             ),
           ),

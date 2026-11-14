@@ -66,7 +66,7 @@ void main() {
 
   group('deferred preview links', () {
     const backend = MethodChannel('com.amwolfstein.sistrum/backend');
-    const link = 'mornye-preview:example-provider/track%2F1';
+    const link = 'sistrum-preview:example-provider/track%2F1';
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     tearDown(() => messenger.setMockMethodCallHandler(backend, null));

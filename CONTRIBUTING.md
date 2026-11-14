@@ -87,7 +87,7 @@ bash scripts/build_android.sh
 The script uses the Flutter version in `.fvmrc`, always targets
 `android-arm64`, and audits the APK's Rust backend. It signs with
 `android/key.properties`; without that file it stops, unless
-`MORNYE_ALLOW_DEBUG_SIGNING=1` allows the debug key (CI, or a job that
+`SISTRUM_ALLOW_DEBUG_SIGNING=1` allows the debug key (CI, or a job that
 re-signs the APK). Android Gradle builds the Rust native artifacts
 automatically.
 
@@ -159,9 +159,9 @@ not repeated here: [android/README.md](android/README.md) (native channel
 contract), [rust_backend/README.md](rust_backend/README.md) (crate map),
 [test/README.md](test/README.md),
 [integration_test/README.md](integration_test/README.md),
-[lib/theme/README.md](lib/theme/README.md), and the `MORNYE_PATCHES.md` file
+[lib/theme/README.md](lib/theme/README.md), and the `SISTRUM_PATCHES.md` file
 in each `third_party/` fork, for example
-[audio_service](third_party/audio_service/MORNYE_PATCHES.md).
+[audio_service](third_party/audio_service/SISTRUM_PATCHES.md).
 
 ## Codebase Map
 
@@ -175,7 +175,7 @@ ones.
 
 | Folder | What belongs there | Imports today |
 | --- | --- | --- |
-| `main.dart`, `app.dart` | Startup, `ProviderScope`, `MornyeApp`, and the `GoRouter` (`/`, `/setup`, `/tutorial`) | Any folder |
+| `main.dart`, `app.dart` | Startup, `ProviderScope`, `SistrumApp`, and the `GoRouter` (`/`, `/setup`, `/tutorial`) | Any folder |
 | `screens/` | Routes and tab roots; large screens split into `<screen>_*.dart` files; settings pages in `screens/settings/` | Any folder |
 | `widgets/` | Reusable widgets and design-system components | Any folder except `screens/`; exceptions: `library_search_results.dart`, `artist_concerts_button.dart`, `mini_player.dart` |
 | `controllers/` | UI logic shared by screens and widgets: selection mixins, batch actions, the metadata editor | controllers, widgets, providers, services, models, utils, theme, l10n; `clickable_metadata.dart` also imports `screens/` |
@@ -509,7 +509,7 @@ fvm flutter test
 ```
 
 Some Dart tests render audio and need `ffmpeg` and `ffprobe` on `PATH`. Set
-`MORNYE_TEST_FFMPEG` to an `ffmpeg` binary to override the path used by the
+`SISTRUM_TEST_FFMPEG` to an `ffmpeg` binary to override the path used by the
 automix renderer test; the other ffmpeg tests read `PATH` directly.
 
 Performance drive runs need a dedicated emulator and `--profile`. See the header of

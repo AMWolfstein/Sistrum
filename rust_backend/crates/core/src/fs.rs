@@ -252,7 +252,7 @@ mod tests {
         let path = directory.path().join("value.json");
         std::fs::write(&path, b"old").unwrap();
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
-        write_atomic(directory.path(), &path, ".mornye-", |file| {
+        write_atomic(directory.path(), &path, ".sistrum-", |file| {
             use std::io::Write;
             file.write_all(b"new")
         }, || Ok(()), false)
@@ -273,11 +273,11 @@ mod tests {
         write_atomic(
             directory.path(),
             &path,
-            ".mornye-",
+            ".sistrum-",
             |file| {
                 let staged = names(directory.path());
                 assert_eq!(staged.len(), 2, "{staged:?}");
-                assert!(staged[0].starts_with(".mornye-"), "{staged:?}");
+                assert!(staged[0].starts_with(".sistrum-"), "{staged:?}");
                 order.borrow_mut().push("write");
                 file.write_all(b"new")
             },

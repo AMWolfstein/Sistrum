@@ -7343,7 +7343,7 @@
   "@metadataCopyField": {
     "description": "Metadata menu action that copies the selected key and value"
   },
-  "mornyeSearch": "Buscar",
+  "sistrumSearch": "Buscar",
   "mornyeContinuePlaying": "Seguir escuchando",
   "metadataCopyAll": "Copy all metadata",
   "@metadataCopyAll": {
@@ -7357,13 +7357,13 @@
   "@optionsEmbeddedCoverSizeDescription": {
     "description": "Description shown in the embedded cover size picker"
   },
-  "mornyeFavorite": "Favorito",
-  "mornyeGoToArtist": "Ir a Artista",
-  "@mornyeFavorite": {
+  "sistrumFavorite": "Favorito",
+  "sistrumGoToArtist": "Ir a Artista",
+  "@sistrumFavorite": {
     "description": "Compact context menu action that adds a track to Loved"
   },
-  "mornyeFavorited": "Agregado a favoritos",
-  "@mornyeFavorited": {
+  "sistrumFavorited": "Agregado a favoritos",
+  "@sistrumFavorited": {
     "description": "Selected state of the compact favorite action"
   },
   "autoMixDescription": "Mezcla canciones con sincronización de ritmos y ajuste de tempo que conserva el tono. Utiliza fundido cruzado cuando no es posible sincronizar los ritmos.",

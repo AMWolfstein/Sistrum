@@ -153,7 +153,7 @@ class _OrientationFadeState extends State<_OrientationFade>
   }
 }
 
-/// The [MaterialApp.builder] of [MornyeApp]: the app-wide layers around the
+/// The [MaterialApp.builder] of [SistrumApp]: the app-wide layers around the
 /// router's [child].
 @visibleForTesting
 Widget buildAppContent(
@@ -195,10 +195,10 @@ class _AppMediaQuery extends StatelessWidget {
   }
 }
 
-class MornyeApp extends ConsumerWidget {
+class SistrumApp extends ConsumerWidget {
   final bool disableOverscrollEffects;
 
-  const MornyeApp({super.key, this.disableOverscrollEffects = false});
+  const SistrumApp({super.key, this.disableOverscrollEffects = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
