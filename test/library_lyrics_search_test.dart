@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_lyrics_search.dart';
+import 'package:sistrum/services/library_lyrics_search.dart';
 
 import 'support/library_native_fixture.dart';
 import 'support/sqlite_process_database.dart';

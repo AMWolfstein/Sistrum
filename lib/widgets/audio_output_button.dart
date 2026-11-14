@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/cast_device_picker.dart';
-import 'package:mornye/widgets/expressive_icon_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/cast_device_picker.dart';
+import 'package:sistrum/widgets/expressive_icon_button.dart';
 
 enum _OutputChoice { system, cast, disconnect }
 

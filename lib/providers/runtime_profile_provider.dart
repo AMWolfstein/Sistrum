@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/settings_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
 
 /// True on low-end hardware (low-RAM, resolved at startup in
 /// main.dart via a ProviderScope override). UI uses it to skip expensive

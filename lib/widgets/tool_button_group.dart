@@ -8,8 +8,8 @@ import 'package:material_3_expressive/material_3_expressive.dart'
         M3EButtonGroupType,
         M3EButtonSize,
         M3EButtonStyle;
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/material_expressive.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/material_expressive.dart';
 
 /// One tool in a [ToolButtonGroup].
 class ToolButton {

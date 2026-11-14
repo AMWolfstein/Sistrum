@@ -5,9 +5,9 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/download_request_payload.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/utils/audio_format_utils.dart';
+import 'package:sistrum/services/download_request_payload.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/utils/audio_format_utils.dart';
 
 void main() {
   group('app state database migrations', () {

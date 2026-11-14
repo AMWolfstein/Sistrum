@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/lastfm/lastfm_api.dart';
-import 'package:mornye/services/lastfm/lastfm_service.dart';
+import 'package:sistrum/services/lastfm/lastfm_api.dart';
+import 'package:sistrum/services/lastfm/lastfm_service.dart';
 
 import 'support/lastfm_fakes.dart';
 

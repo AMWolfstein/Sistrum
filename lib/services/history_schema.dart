@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/history_row_mapper.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/history_row_mapper.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('HistoryDatabase');
 

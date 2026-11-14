@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/lastfm/lastfm_service.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/lastfm/lastfm_service.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 class LastfmSettings extends StatefulWidget {
   const LastfmSettings({super.key, required this.service});

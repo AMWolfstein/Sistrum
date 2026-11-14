@@ -6,7 +6,7 @@
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/widgets.dart';
-import 'package:mornye/l10n/app_localizations.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
 
 /// List of locales that meet the translation threshold.
 /// Only these languages will be available in the app.

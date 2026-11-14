@@ -1,9 +1,9 @@
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/library_database.dart';
 
 /// The download or Library record of the file a media item plays: by its
 /// source path, then by its media id, then by title and artist with the same

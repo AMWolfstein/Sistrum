@@ -3,21 +3,21 @@ import 'dart:math' as math;
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/clickable_metadata.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/routes/now_playing_route.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/utils/playback_seek_preview.dart';
-import 'package:mornye/widgets/player_artwork.dart';
-import 'package:mornye/widgets/player_compact_bar.dart';
-import 'package:mornye/widgets/player_gesture_regions.dart';
-import 'package:mornye/widgets/player_lyrics_controls.dart';
-import 'package:mornye/widgets/player_metadata_title.dart';
-import 'package:mornye/widgets/playback_source_label.dart';
-import 'package:mornye/widgets/player_playback_controls.dart';
-import 'package:mornye/widgets/player_volume_control.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/routes/now_playing_route.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
+import 'package:sistrum/widgets/player_compact_bar.dart';
+import 'package:sistrum/widgets/player_gesture_regions.dart';
+import 'package:sistrum/widgets/player_lyrics_controls.dart';
+import 'package:sistrum/widgets/player_metadata_title.dart';
+import 'package:sistrum/widgets/playback_source_label.dart';
+import 'package:sistrum/widgets/player_playback_controls.dart';
+import 'package:sistrum/widgets/player_volume_control.dart';
 
 class MaterialPlayerLayout extends StatelessWidget {
   const MaterialPlayerLayout({

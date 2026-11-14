@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/library_reorganizer.dart';
+import 'package:sistrum/services/library_reorganizer.dart';
 
 LibraryReorganizationMove _move(
   String root, {

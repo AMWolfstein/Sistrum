@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/services/download_album_metadata.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/services/download_album_metadata.dart';
 
 void main() {
   const solo = Track(

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 import 'support/music_player_automix_harness.dart';
 

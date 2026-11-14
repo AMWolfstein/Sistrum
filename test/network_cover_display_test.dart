@@ -5,9 +5,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 // The shared cover store keeps a warm-up started in an earlier test's zone,
 // so the test reading it lives in this file of its own.

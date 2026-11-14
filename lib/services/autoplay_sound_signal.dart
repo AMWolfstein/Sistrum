@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:mornye/services/autoplay_signal.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/song_features.dart';
+import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/song_features.dart';
 
 /// How songs sound, from their analyzed features. A candidate that sounds
 /// like the latest songs of the session scores up to [maxScore]; each pick

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   test('AI translation defaults to Fast and remembers either mode', () {

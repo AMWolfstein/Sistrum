@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/lyrics_timeline.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_timeline.dart';
 
 Set<int> _active(List<LyricLine> lines, Duration position, int currentIndex) =>
     LyricTimelineIndex(lines).activeIndices(position, currentIndex);

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/album_track_order.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/providers/playback_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
 
 /// Plays a downloaded album from its first track, in disc and track order.
 Future<void> playDownloadedAlbum(

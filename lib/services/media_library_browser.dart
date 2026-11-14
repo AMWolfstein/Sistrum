@@ -4,18 +4,18 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/album_track_order.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/track_file_resolver.dart';
-import 'package:mornye/utils/file_access.dart' show isCueVirtualPath;
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/track_file_resolver.dart';
+import 'package:sistrum/utils/file_access.dart' show isCueVirtualPath;
 import 'package:path/path.dart' as p;
 
 /// The songs a media browser item plays, the one to start at, and whether

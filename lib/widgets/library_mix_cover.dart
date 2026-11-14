@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/sqlite_helpers.dart' show normalizeLookupText;
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/local_library_artwork_builder.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 
 /// A Library song's own artwork, available offline first: a scanned
 /// thumbnail or the cover embedded in the file, then a download's online

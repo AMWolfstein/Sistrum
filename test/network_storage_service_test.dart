@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/network_storage_error.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_error.dart';
 
 NetworkConnection connection(
   String url, {

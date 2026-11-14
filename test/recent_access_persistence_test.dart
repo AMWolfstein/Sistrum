@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/recent_access_provider.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/providers/recent_access_provider.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/utils/logger.dart';
 
 RecentAccessItem _artist(String id, {String? name}) => RecentAccessItem(
   id: id,

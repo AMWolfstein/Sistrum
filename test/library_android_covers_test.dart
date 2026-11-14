@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_android_covers.dart';
-import 'package:mornye/services/library_cleanup.dart';
+import 'package:sistrum/services/library_android_covers.dart';
+import 'package:sistrum/services/library_cleanup.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;

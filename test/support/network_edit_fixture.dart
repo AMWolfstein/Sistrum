@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dart_smb2/dart_smb2.dart';
-import 'package:mornye/services/network_smb_client.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_smb_client.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 /// The two writable NAS transports, sharing a tiny in-memory filesystem.
 class NetworkEditFixture {

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/sqlite_long_text.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/sqlite_long_text.dart';
+import 'package:sistrum/utils/logger.dart';
 
 var _snapshotSequence = 0;
 const _coverReferences =

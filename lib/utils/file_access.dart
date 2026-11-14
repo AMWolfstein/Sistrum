@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:open_filex/open_filex.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/mime_utils.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/mime_utils.dart';
 
 class FileAccessStat {
   final int? size;

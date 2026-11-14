@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/player_motion_artwork_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/motion_artwork_store.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/player_motion_artwork_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/motion_artwork_store.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

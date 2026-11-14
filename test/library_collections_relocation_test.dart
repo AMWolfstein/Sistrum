@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/library_collections_database.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/library_collections_database.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

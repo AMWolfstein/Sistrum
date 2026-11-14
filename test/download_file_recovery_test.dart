@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/history_database.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/history_database.dart';
 
 const oldTree = 'content://example/tree/xxx';
 const newTree = 'content://example/tree/yyy';

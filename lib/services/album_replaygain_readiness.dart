@@ -1,5 +1,5 @@
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
 
 String albumReplayGainKey(Track track) {
   if (track.albumId != null && track.albumId!.isNotEmpty) {

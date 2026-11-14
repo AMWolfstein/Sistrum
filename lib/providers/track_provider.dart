@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/artist_concert.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/utils/editorial_notes.dart';
-import 'package:mornye/controllers/extension_auth_launcher.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/artist_concert.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/utils/editorial_notes.dart';
+import 'package:sistrum/controllers/extension_auth_launcher.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
 
 final _log = AppLogger('TrackProvider');
 const _extensionInitRetryTimeout = Duration(seconds: 30);

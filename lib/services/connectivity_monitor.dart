@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('ConnectivityMonitor');
 

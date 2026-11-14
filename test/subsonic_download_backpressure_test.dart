@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 import 'support/subsonic_fixture.dart';
 

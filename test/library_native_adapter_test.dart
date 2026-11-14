@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_native_adapter.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/sqlite_native_snapshot.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_native_adapter.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/sqlite_native_snapshot.dart';
 
 import 'support/library_native_fixture.dart';
 import 'support/sqlite_process_database.dart';

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/lyrics_provider_picker.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/lyrics_provider_picker.dart';
 
 class _NoExtensions extends ExtensionNotifier {
   @override

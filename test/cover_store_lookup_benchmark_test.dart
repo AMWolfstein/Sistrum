@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_store.dart';
+import 'package:sistrum/services/cover_store.dart';
 import 'package:path/path.dart' as p;
 
 void main() {

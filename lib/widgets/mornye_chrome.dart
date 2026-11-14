@@ -3,14 +3,14 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/mornye_glass_press.dart';
-import 'package:mornye/widgets/mornye_selection_pill.dart';
-import 'package:mornye/widgets/mornye_glass_lens_fade.dart';
-import 'package:mornye/widgets/mornye_liquid_backdrop.dart';
-import 'package:mornye/widgets/mornye_squircle_border.dart';
-import 'package:mornye/widgets/animation_utils.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_glass_press.dart';
+import 'package:sistrum/widgets/mornye_selection_pill.dart';
+import 'package:sistrum/widgets/mornye_glass_lens_fade.dart';
+import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
+import 'package:sistrum/widgets/mornye_squircle_border.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
 
 class MornyeSegmentedControl extends ConsumerWidget {
   const MornyeSegmentedControl({

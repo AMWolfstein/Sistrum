@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/app_crash_provider.dart';
-import 'package:mornye/screens/settings/log_screen.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/app_crash_provider.dart';
+import 'package:sistrum/screens/settings/log_screen.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'performance_probe.dart';

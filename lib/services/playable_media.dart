@@ -1,13 +1,13 @@
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/music_player_runtime.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/utils/file_access.dart' show isContentUri;
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/utils/file_access.dart' show isContentUri;
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 class PlayableMedia {
   final String id;

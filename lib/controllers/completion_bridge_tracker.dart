@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/providers/download_queue_state.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/providers/download_queue_state.dart';
 
 /// Just-completed queue items that the Library keeps showing until their
 /// History row lands in the paged Library query.

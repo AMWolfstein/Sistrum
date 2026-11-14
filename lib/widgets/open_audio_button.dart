@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/open_audio_controller.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/track_lists/context_menu.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
+import 'package:sistrum/controllers/open_audio_controller.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/track_lists/context_menu.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
 
 Future<void> pickOpenAudio(
   BuildContext context,

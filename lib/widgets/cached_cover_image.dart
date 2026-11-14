@@ -6,9 +6,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/utils/image_cache_utils.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/utils/image_cache_utils.dart';
 
 class CachedCoverImage extends StatelessWidget {
   static const int _defaultMinCacheExtent = 64;

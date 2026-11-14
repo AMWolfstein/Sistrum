@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/audio_quality_badges.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
 
 /// File metadata can arrive after playback starts without rebuilding the layout.
 class PlayerMetadataTitle extends StatelessWidget {

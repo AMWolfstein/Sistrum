@@ -2,17 +2,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/playlist_sources.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/error_card.dart';
-import 'package:mornye/widgets/playlist_picker_sheet.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/playlist_sources.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/error_card.dart';
+import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 
 final _log = AppLogger('CreatePlaylist');
 

@@ -1,5 +1,5 @@
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/saf_display_path.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/saf_display_path.dart';
 
 /// One Library song as the folder index reads it: its record and file.
 class LibraryDirectoryEntry {

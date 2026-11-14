@@ -5,11 +5,11 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 class _SessionStore implements AppStateDatabase {
   @override

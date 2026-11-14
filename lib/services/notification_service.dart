@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/verification_notification.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/verification_notification.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();

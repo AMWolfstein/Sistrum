@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/offline_saver.dart';
-import 'package:mornye/services/network_library_upload.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/offline_saver.dart';
+import 'package:sistrum/services/network_library_upload.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 UnifiedLibraryItem local(
   String path, {

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/download_service_picker.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/view_queue_snackbar_action.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/download_service_picker.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
 
 /// Shared single-track "add to queue" flow for detail screens: shows the
 /// quality/service picker when the user opted into it, otherwise resolves

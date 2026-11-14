@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_playback_cache.dart';
-import 'package:mornye/services/source_deletion_events.dart';
+import 'package:sistrum/services/network_playback_cache.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:path/path.dart' as p;
 
 const _a = 'network://nas/Album/01.flac';

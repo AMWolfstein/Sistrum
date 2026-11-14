@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:mornye/services/ffmpeg_metadata.dart';
-import 'package:mornye/services/ffmpeg_probe.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/ffmpeg_metadata.dart';
+import 'package:sistrum/services/ffmpeg_probe.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
 
 typedef MetadataCoverDetails = ({int width, int height, int bytes});
 

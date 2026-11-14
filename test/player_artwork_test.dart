@@ -4,8 +4,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 void main() {
   testWidgets('player rotation shares a short-side artwork decode size', (

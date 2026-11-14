@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/artist_utils.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/artist_utils.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _log = AppLogger('ListeningStatistics');

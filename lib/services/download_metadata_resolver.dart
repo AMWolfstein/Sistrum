@@ -1,11 +1,11 @@
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/services/download_album_metadata.dart';
-import 'package:mornye/services/download_track_metadata.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/services/download_album_metadata.dart';
+import 'package:sistrum/services/download_track_metadata.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 class DownloadMetadataLookup {
   final Track track;

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
 
 /// Keeps a scanned thumbnail when available, recovering missing artwork from
 /// the audio through the same bounded extraction cache used by the player.

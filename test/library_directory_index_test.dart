@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_directory_index.dart';
+import 'package:sistrum/services/library_directory_index.dart';
 
 LibraryDirectoryEntry _entry(
   String id,

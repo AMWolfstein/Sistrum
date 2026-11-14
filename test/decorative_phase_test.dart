@@ -3,9 +3,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
-import 'package:mornye/widgets/expressive_seek_track.dart';
-import 'package:mornye/widgets/now_playing_indicator.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/expressive_seek_track.dart';
+import 'package:sistrum/widgets/now_playing_indicator.dart';
 
 const _vsync = Duration(microseconds: 8333);
 

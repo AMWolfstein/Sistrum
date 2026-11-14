@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/app_text_field.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/app_text_field.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 class MetadataSeparatorSettingsPage extends ConsumerWidget {
   const MetadataSeparatorSettingsPage({super.key});

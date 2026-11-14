@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   test('artist credits deduplicate names without dropping a final X', () {

@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/lastfm/lastfm_api.dart';
-import 'package:mornye/services/lastfm/lastfm_listening.dart';
-import 'package:mornye/services/lastfm/lastfm_store.dart';
+import 'package:sistrum/services/lastfm/lastfm_api.dart';
+import 'package:sistrum/services/lastfm/lastfm_listening.dart';
+import 'package:sistrum/services/lastfm/lastfm_store.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum LastfmProblem {

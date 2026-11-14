@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/services/player_lyrics_persistence.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/services/player_lyrics_persistence.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 final _log = AppLogger('PlayerMetadata');
 

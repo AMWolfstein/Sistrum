@@ -7,9 +7,9 @@ import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
 import 'package:path/path.dart' as p;
 
 List<int> _jpeg(int version) => [

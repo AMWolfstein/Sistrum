@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/screens/settings/appearance_settings_page.dart';
-import 'package:mornye/theme/dynamic_color_wrapper.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/screens/settings/appearance_settings_page.dart';
+import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
 
 void main() {
   test(

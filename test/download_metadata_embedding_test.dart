@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/download_metadata_embedding.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/download_metadata_embedding.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 class EmbeddingHarness {
   final events = <String>[];

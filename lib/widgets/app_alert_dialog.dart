@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
 
 /// Dialog presentation follows the selected design, including on Android.
 Future<T?> showAppDialog<T>({

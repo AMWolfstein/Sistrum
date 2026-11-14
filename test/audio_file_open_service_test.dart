@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_file_open_service.dart';
+import 'package:sistrum/services/audio_file_open_service.dart';
 import 'package:path/path.dart' as p;
 
 void main() {

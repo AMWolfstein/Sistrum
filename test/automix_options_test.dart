@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/automix_analysis.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/automix_analysis.dart';
 
 void main() {
   test(

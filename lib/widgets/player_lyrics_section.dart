@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/lyrics_translation_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/playback_seek_preview.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/lyrics_editor_sheet.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
-import 'package:mornye/widgets/lyrics_text_scale.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/lyrics_translation_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
+import 'package:sistrum/widgets/lyrics_text_scale.dart';
 
 class PlayerLyricsSection extends ConsumerWidget {
   const PlayerLyricsSection({

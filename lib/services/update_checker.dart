@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/preference_blob_store.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/preference_blob_store.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('UpdateChecker');
 

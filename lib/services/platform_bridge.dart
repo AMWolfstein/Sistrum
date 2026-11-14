@@ -6,12 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/services/backend/backend_channel.dart';
-import 'package:mornye/services/download_request_payload.dart';
-import 'package:mornye/utils/audio_format_utils.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/hash_utils.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/backend/backend_channel.dart';
+import 'package:sistrum/services/download_request_payload.dart';
+import 'package:sistrum/utils/audio_format_utils.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/hash_utils.dart';
+import 'package:sistrum/utils/logger.dart';
 
 part 'platform_bridge/bridge_codec.dart';
 part 'platform_bridge/bridge_events.dart';

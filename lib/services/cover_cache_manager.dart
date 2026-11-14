@@ -7,10 +7,10 @@ import 'package:flutter_cache_manager/file.dart' as cache_file;
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/cache_maintenance_service.dart';
-import 'package:mornye/services/cover_cache_info_repository.dart';
-import 'package:mornye/utils/cache_byte_budget.dart';
-import 'package:mornye/utils/periodic_async_task.dart';
+import 'package:sistrum/services/cache_maintenance_service.dart';
+import 'package:sistrum/services/cover_cache_info_repository.dart';
+import 'package:sistrum/utils/cache_byte_budget.dart';
+import 'package:sistrum/utils/periodic_async_task.dart';
 
 /// Persistent cache manager for album/track cover images.
 ///

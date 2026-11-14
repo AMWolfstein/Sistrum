@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/library_shadow_sql.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/services/library_shadow_sql.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 import 'package:sqflite/sqflite.dart';
 
-export 'package:mornye/services/library_shadow_sql.dart';
+export 'package:sistrum/services/library_shadow_sql.dart';
 
 final _log = AppLogger('AppSqlite');
 

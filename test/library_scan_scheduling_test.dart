@@ -8,14 +8,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/local_library_scan_prefs.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/local_library_scan_prefs.dart';
 
 class _Settings extends SettingsNotifier {
   @override

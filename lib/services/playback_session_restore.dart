@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show AudioServiceRepeatMode;
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/music_player_runtime.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/file_access.dart' as files;
-import 'package:mornye/utils/playback_artwork.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/file_access.dart' as files;
+import 'package:sistrum/utils/playback_artwork.dart';
 
 final _log = AppLogger('MusicPlayer');
 

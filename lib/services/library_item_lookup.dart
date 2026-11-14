@@ -1,8 +1,8 @@
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
 
 /// The Library song each of [tracks] (a playlist's) plays from, matched as
 /// playing them matches (`resolveTrackFiles`): a scanned Library row first

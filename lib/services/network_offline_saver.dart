@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/offline_saver.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/folder_path_template.dart';
+import 'package:sistrum/services/offline_saver.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 String networkOfflineHistoryId(String origin) =>
     'offline_${sha256.convert(utf8.encode('network/$origin'))}';

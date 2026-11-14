@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/cover_download_service.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/cover_download_service.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
 
 /// Adds the app-wide long-press-to-save behavior to a remote cover image.
 ///

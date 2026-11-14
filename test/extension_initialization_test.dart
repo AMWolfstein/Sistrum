@@ -7,12 +7,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/repo_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/extension_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/repo_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/extension_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 class _DelayedSettingsNotifier extends SettingsNotifier {
   final _ready = Completer<void>();

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/native_log_source.dart';
+import 'package:sistrum/services/native_log_source.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

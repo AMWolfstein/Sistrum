@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
 class HistoryMaintenanceUpdate {
   const HistoryMaintenanceUpdate({

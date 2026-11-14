@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/library_search_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_lyrics_search.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/services/source_metadata_events.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/library_search_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_lyrics_search.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
 
 final FutureProvider<LibraryLyricsSearchStore>
 libraryLyricsSearchStoreProvider = FutureProvider<LibraryLyricsSearchStore>((

@@ -2,11 +2,11 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/widgets/player_queue_artwork.dart';
-import 'package:mornye/widgets/player_queue_dismissible.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/widgets/player_queue_artwork.dart';
+import 'package:sistrum/widgets/player_queue_dismissible.dart';
 
 /// Upcoming tracks share the player's artwork backdrop and transport controls.
 class MornyePlayerQueue extends ConsumerWidget {

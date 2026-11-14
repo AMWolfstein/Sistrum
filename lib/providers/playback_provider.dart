@@ -1,17 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/track_file_resolver.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/track_file_resolver.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('PlaybackProvider');
 

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/lyrics_language_guess.dart';
+import 'package:sistrum/services/lyrics_language_guess.dart';
 
 const _english = [
   'I walk the empty streets when the night is falling down',

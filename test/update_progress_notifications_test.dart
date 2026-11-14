@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/update_progress_notifications.dart';
+import 'package:sistrum/services/update_progress_notifications.dart';
 
 void main() {
   test(

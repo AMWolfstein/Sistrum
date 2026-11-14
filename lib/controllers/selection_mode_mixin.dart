@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 /// Shared multi-select state for list screens: enter/exit selection mode,
 /// toggle individual items, select all, and prune ids that fell out of the

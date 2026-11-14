@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/history_maintenance.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/history_maintenance.dart';
 
 class _ReloadDatabase implements HistoryDatabase {
   _ReloadDatabase(this.rows);

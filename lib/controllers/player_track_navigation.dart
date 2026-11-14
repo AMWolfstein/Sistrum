@@ -1,12 +1,12 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/clickable_metadata.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/screens/downloaded_album_screen.dart';
-import 'package:mornye/screens/local_album_screen.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('PlayerTrackNavigation');
 

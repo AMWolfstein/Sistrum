@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
 
 /// The cache audio_service loads web covers through, or null for its default.
 /// sessions hand its path to other programs that read it later, and the cover

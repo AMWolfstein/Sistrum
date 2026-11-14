@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/utils/service_track_link.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/utils/service_track_link.dart';
 
 // Service names here are the app's fixed link formats, not extension ids.
 Track _track(String id, {String? source, String? deezerId}) => Track(

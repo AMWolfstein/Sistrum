@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

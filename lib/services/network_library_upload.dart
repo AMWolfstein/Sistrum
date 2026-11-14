@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/offline_saver.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart'
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/folder_path_template.dart';
+import 'package:sistrum/services/offline_saver.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart'
     show deleteFileQuietly, isContentUri, isCueVirtualPath;
 
 /// Whether [item] is a file on this device that can be copied to network

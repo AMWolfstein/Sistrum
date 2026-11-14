@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/file_access_check.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/file_access_check.dart';
+import 'package:sistrum/services/music_player_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/music_player_automix_harness.dart';

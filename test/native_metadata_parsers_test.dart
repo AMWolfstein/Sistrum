@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/csv_import_service.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/csv_import_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

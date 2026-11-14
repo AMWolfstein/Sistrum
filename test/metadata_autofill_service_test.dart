@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/metadata_autofill_service.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/metadata_autofill_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

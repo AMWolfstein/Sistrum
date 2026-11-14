@@ -1,7 +1,7 @@
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 final _log = AppLogger('DownloadAlbumMetadata');
 

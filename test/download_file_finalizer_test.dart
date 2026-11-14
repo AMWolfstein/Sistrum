@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_result.dart';
-import 'package:mornye/services/download_file_finalizer.dart';
-import 'package:mornye/services/download_saf_file_replacer.dart';
-import 'package:mornye/services/ffmpeg_probe.dart';
+import 'package:sistrum/models/download_result.dart';
+import 'package:sistrum/services/download_file_finalizer.dart';
+import 'package:sistrum/services/download_saf_file_replacer.dart';
+import 'package:sistrum/services/ffmpeg_probe.dart';
 
 void main() {
   late Directory directory;

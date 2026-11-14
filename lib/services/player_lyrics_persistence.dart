@@ -1,7 +1,7 @@
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/metadata_cover_resources.dart';
-import 'package:mornye/services/metadata_persistence_service.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/metadata_persistence_service.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 /// Writes to the owning source, never to a resolved playback cache or stream.
 Future<void> persistPlayerLyrics(String source, String lyrics) async {

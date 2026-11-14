@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/lastfm/lastfm_service.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/lastfm_settings.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/lastfm/lastfm_service.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/lastfm_settings.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 import 'support/lastfm_fakes.dart';
 

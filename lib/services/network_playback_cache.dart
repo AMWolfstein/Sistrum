@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/network_offline_saver.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/network_offline_saver.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('NetworkPlaybackCache');
 

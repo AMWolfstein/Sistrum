@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('AudioRoute');
 

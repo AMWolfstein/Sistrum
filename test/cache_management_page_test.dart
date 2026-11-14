@@ -5,15 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/settings/cache_management_page.dart';
-import 'package:mornye/services/explore_cache_store.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/settings/cache_management_page.dart';
+import 'package:sistrum/services/explore_cache_store.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 const _pathProvider = MethodChannel('plugins.flutter.io/path_provider');
 

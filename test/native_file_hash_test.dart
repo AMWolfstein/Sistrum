@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/native_file_hash.dart';
+import 'package:sistrum/services/native_file_hash.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/preview_player_provider.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/preview_player_provider.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

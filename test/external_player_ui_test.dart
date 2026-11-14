@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/music_player_runtime.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
 
 class _Settings extends SettingsNotifier {
   @override

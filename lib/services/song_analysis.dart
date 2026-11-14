@@ -3,17 +3,17 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter/foundation.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/automix_status.dart';
-import 'package:mornye/services/autoplay_signal.dart';
-import 'package:mornye/services/autoplay_sound_signal.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/song_analysis_store.dart';
-import 'package:mornye/services/song_feature_analyzer.dart';
-import 'package:mornye/utils/file_access.dart' show isContentUri;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/automix_status.dart';
+import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/autoplay_sound_signal.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/song_analysis_store.dart';
+import 'package:sistrum/services/song_feature_analyzer.dart';
+import 'package:sistrum/utils/file_access.dart' show isContentUri;
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('SongAnalysis');
 

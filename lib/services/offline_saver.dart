@@ -5,14 +5,14 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/cover_download_service.dart';
-import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart' show deleteFile;
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/cover_download_service.dart';
+import 'package:sistrum/services/folder_path_template.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart' show deleteFile;
 
 /// A Library original from network storage, which this device can save.
 class OfflineSong {

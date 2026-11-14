@@ -5,14 +5,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/extension_storage_service.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/providers/settings_provider.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/extension_storage_service.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/providers/settings_provider.dart';
 
-export 'package:mornye/models/extension.dart';
+export 'package:sistrum/models/extension.dart';
 
 part 'extension_provider_priority.dart';
 

@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_analysis_cache.dart';
+import 'package:sistrum/services/audio_analysis_cache.dart';
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();

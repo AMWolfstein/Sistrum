@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/settings/app_settings_page.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/app_settings_page.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
 
 class _Settings extends SettingsNotifier {
   @override

@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/automix_analysis.dart';
-import 'package:mornye/services/ffmpeg_support.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/automix_analysis.dart';
+import 'package:sistrum/services/ffmpeg_support.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// raw PCM is deleted immediately and is never added to the user's library.
 class AutoMixAnalyzer {

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/library_shadow_sql.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/lyrics_metadata_helper.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/library_shadow_sql.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/lyrics_metadata_helper.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 
 typedef LibraryLyricsReader = Future<String> Function(String path);
 

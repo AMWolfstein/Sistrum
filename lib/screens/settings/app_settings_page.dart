@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
 
 class AppSettingsPage extends ConsumerWidget {
   const AppSettingsPage({super.key});

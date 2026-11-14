@@ -4,9 +4,9 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/playback_session_writer.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/playback_session_writer.dart';
 
 class _Database extends Fake implements AppStateDatabase {
   Map<String, dynamic>? row;

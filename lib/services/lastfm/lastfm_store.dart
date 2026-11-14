@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mornye/services/lastfm/lastfm_api.dart';
-import 'package:mornye/services/lastfm/lastfm_listening.dart';
-import 'package:mornye/services/secure_storage_options.dart';
+import 'package:sistrum/services/lastfm/lastfm_api.dart';
+import 'package:sistrum/services/lastfm/lastfm_listening.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LastfmScrobble {

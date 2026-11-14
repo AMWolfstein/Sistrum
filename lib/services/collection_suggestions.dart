@@ -1,5 +1,5 @@
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/models/track.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/models/track.dart';
 
 /// Songs suggested under an album, single or playlist and how they were
 /// found.

@@ -12,15 +12,15 @@ import 'package:material_3_expressive/material_3_expressive.dart'
         Morph,
         MorphToPathExtension,
         RoundedPolygonToPathExtension;
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_shape.dart';
-import 'package:mornye/widgets/expressive_button.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_shape.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
 
 /// The highlights of [AppInfo.whatsNewRelease] on phones and tablets, shown
 /// once after an update and again from About.

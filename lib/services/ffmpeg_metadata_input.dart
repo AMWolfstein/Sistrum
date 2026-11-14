@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('FFmpeg');
 

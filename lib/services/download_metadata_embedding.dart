@@ -2,20 +2,20 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/services/download_metadata_resolver.dart';
-import 'package:mornye/services/ffmpeg_metadata.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
-import 'package:mornye/services/ffmpeg_replaygain.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/replaygain_service.dart';
-import 'package:mornye/utils/artist_utils.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_metadata_helper.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/services/download_metadata_resolver.dart';
+import 'package:sistrum/services/ffmpeg_metadata.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/ffmpeg_replaygain.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/replaygain_service.dart';
+import 'package:sistrum/utils/artist_utils.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_metadata_helper.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 class _DownloadCover {
   _DownloadCover(this.path);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/widgets/destructive_selection_button.dart';
-import 'package:mornye/widgets/selection_action_button.dart';
-import 'package:mornye/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/widgets/destructive_selection_button.dart';
+import 'package:sistrum/widgets/selection_action_button.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 /// Shared Library toolbar for playlist/queue actions and audio file operations.
 /// FLAC upgrade applies only to eligible local selections.

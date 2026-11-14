@@ -1,18 +1,18 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/utils/playback_seek_preview.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/audio_quality_badges.dart';
-import 'package:mornye/widgets/expressive_icon_button.dart';
-import 'package:mornye/widgets/expressive_playback_transport.dart';
-import 'package:mornye/widgets/playback_seek_slider.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
+import 'package:sistrum/widgets/expressive_icon_button.dart';
+import 'package:sistrum/widgets/expressive_playback_transport.dart';
+import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 /// Material's compact player: idle lyrics shrink the full player to this
 /// smaller one (title, timeline and transport, with the times beside the

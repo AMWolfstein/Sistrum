@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/repo_provider.dart';
-import 'package:mornye/screens/repo_tab.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/extension_row.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/repo_provider.dart';
+import 'package:sistrum/screens/repo_tab.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/extension_row.dart';
 
 class _LoadingRepo extends RepoNotifier {
   @override

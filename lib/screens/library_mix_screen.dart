@@ -1,33 +1,33 @@
 import 'dart:math';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/collapsing_header_scroll_mixin.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/controllers/selection_mode_mixin.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/library_database_models.dart'
+import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/controllers/selection_mode_mixin.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/library_database_models.dart'
     show LocalLibraryItem;
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/library_mixes_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/batch_track_actions.dart';
-import 'package:mornye/services/library_mixes.dart';
-import 'package:mornye/services/local_track_redownload_service.dart';
-import 'package:mornye/services/playable_media.dart' show PlayableMedia;
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/theme/cover_palette.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/collection_scaffold.dart';
-import 'package:mornye/widgets/library_mix_cover.dart';
-import 'package:mornye/widgets/library_selection_playback_actions.dart';
-import 'package:mornye/widgets/library_track_selection_bar.dart';
-import 'package:mornye/widgets/mornye_artist_header.dart';
-import 'package:mornye/widgets/playlist_picker_sheet.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_mixes_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/batch_track_actions.dart';
+import 'package:sistrum/services/library_mixes.dart';
+import 'package:sistrum/services/local_track_redownload_service.dart';
+import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/theme/cover_palette.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/collection_scaffold.dart';
+import 'package:sistrum/widgets/library_mix_cover.dart';
+import 'package:sistrum/widgets/library_selection_playback_actions.dart';
+import 'package:sistrum/widgets/library_track_selection_bar.dart';
+import 'package:sistrum/widgets/mornye_artist_header.dart';
+import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 
 /// A mix's name: what it gathers, such as "Hip-Hop Mix".
 String libraryMixTitle(AppLocalizations l10n, LibraryMix mix) =>

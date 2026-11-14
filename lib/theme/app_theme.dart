@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/theme/app_tokens.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/theme/app_tokens.dart';
 
 class AppTheme {
   static const Color defaultSeedColor = Color(kDefaultSeedColor);

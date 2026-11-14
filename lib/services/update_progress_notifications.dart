@@ -1,4 +1,4 @@
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// Serializes update progress writes while retaining only the latest value.
 class UpdateProgressNotifications {

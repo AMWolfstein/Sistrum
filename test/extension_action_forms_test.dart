@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/controllers/extension_action_forms.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/controllers/extension_action_forms.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
 
 import 'support/fixed_settings.dart';
 

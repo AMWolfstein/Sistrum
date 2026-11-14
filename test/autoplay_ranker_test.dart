@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_ranker.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 final _start = DateTime(2026, 10, 1, 8);

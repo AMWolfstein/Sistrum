@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/system_volume_service.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/system_volume_service.dart';
 import 'package:volume_controller/volume_controller.dart';
 
 final usbVolumeProvider = StreamProvider.autoDispose<UsbVolumeState?>((ref) {

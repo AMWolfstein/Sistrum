@@ -3,8 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 /// The one place that decides how Mornye glass renders. Glass is fixed at the
 /// Clear end of the retired Glass Quality slider, so every surface reads the

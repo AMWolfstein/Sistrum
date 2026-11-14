@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/local_library_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
 
 class _ScanningLibrary extends LocalLibraryNotifier {
   _ScanningLibrary({this.finalizing = false});

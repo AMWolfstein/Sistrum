@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/backend/method_channel_backend.dart';
+import 'package:sistrum/services/backend/method_channel_backend.dart';
 
 /// Handles a host to Dart call, like [MethodChannel.setMethodCallHandler].
 typedef BackendCallHandler = Future<dynamic> Function(MethodCall call);

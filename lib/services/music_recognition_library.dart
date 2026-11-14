@@ -1,4 +1,4 @@
-import 'package:mornye/models/recognized_song.dart';
+import 'package:sistrum/models/recognized_song.dart';
 
 /// A playable file in Mornye for a recognized song.
 class RecognitionLibraryMatch {

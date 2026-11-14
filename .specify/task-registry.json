@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 5,
+  "next_completion": 6,
   "next_mission": 3,
   "next_tor": 5,
   "tasks": {
@@ -104,13 +104,19 @@
       "title": "Move the Android identity to com.amwolfstein.sistrum"
     },
     "M002-T002": {
-      "completion": null,
+      "completion": 5,
+      "evidence": {
+        "checks": "flutter analyze: no issues; flutter test full suite: +4478 ~10 all passed, exit 0; package:mornye/ outside specs/.specify/history: 0; review: diff is only the package-prefix substitution plus pubspec name",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "58357dd71ba048edac93b6fb14613aba",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Rename the Dart package to sistrum"
     },
     "M002-T003": {

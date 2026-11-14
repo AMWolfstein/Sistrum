@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/models/track.dart';
+import 'package:sistrum/models/track.dart';
 
 enum LibraryTracksFolderMode { wishlist, loved, playlist }
 

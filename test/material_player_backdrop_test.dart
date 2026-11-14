@@ -9,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
     show PictureLayer, RenderRepaintBoundary, ShaderMaskLayer;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/routes/now_playing_route.dart';
-import 'package:mornye/widgets/material_player_backdrop.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/routes/now_playing_route.dart';
+import 'package:sistrum/widgets/material_player_backdrop.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 const _key = ValueKey('backdrop');
 final _cached = find.byWidgetPredicate(

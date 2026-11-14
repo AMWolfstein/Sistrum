@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 part 'settings.g.dart';
 

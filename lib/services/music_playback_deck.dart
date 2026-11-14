@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
 
 final _log = AppLogger('AudioOutput');
 

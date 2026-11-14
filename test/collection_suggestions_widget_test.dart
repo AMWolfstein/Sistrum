@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/collection_suggestions_provider.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/collection_suggestions.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/collection_suggestions_section.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/collection_suggestions_provider.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/collection_suggestions.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/collection_suggestions_section.dart';
 
 import 'support/fixed_settings.dart';
 

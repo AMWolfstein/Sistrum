@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/widgets/mornye_liquid_backdrop.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
 
 void main() {
   test('liquid glass uses the fixed Clear blur', () {

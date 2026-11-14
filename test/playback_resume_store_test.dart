@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/playback_resume_store.dart';
+import 'package:sistrum/services/playback_resume_store.dart';
 
 import 'support/sqlite_process_database.dart';
 

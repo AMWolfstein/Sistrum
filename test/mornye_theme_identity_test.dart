@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/theme/dynamic_color_wrapper.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 class _ThemeReader extends StatelessWidget {
   const _ThemeReader(this.builds);

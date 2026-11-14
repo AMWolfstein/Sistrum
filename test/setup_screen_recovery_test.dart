@@ -7,10 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/setup_screen.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/setup_screen.dart';
 
 class _Settings extends SettingsNotifier {
   @override

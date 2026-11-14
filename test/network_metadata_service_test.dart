@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_certificate.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/network_metadata_service.dart';
+import 'package:sistrum/services/network_certificate.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
 
 import 'support/subsonic_fixture.dart';
 

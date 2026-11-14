@@ -3,8 +3,8 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 /// The queue a session write stores: its songs in play order and, while
 /// shuffled, each song's place in the order before shuffling (play order

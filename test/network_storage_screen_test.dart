@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/screens/network_storage_screen.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/network_certificate.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_action_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/screens/network_storage_screen.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/network_certificate.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
 
 void main() {
   testWidgets('playing a folder passes its cover image as a reference', (

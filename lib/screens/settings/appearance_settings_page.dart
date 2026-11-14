@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/constants/language_choices.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/custom_font_setting.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/constants/language_choices.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/custom_font_setting.dart';
 
 part 'appearance_settings_page_widgets.dart';
 

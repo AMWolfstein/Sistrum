@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/audio_metadata_mapper.dart';
-import 'package:mornye/services/download_request_payload.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/audio_metadata_mapper.dart';
+import 'package:sistrum/services/download_request_payload.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   test(

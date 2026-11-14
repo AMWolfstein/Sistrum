@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/mornye_artist_header.dart';
-import 'package:mornye/widgets/sliver_layout_info_builder.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/mornye_artist_header.dart';
+import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
 /// A short header, then [sliver], in a scroll view taller than the content
 /// above it so dragging changes the sliver's scroll offset every frame.

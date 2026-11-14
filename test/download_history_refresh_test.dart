@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/history_database.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/history_database.dart';
 
 /// Rows newest first, as `getAll` orders them.
 class _StoredHistory implements HistoryDatabase {

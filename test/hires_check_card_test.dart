@@ -8,11 +8,11 @@ import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/hires_check_card.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/hires_check_card.dart';
 
 const _limitedResult = <String, dynamic>{
   'supported': true,

@@ -4,10 +4,10 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/hires_check_service.dart';
-import 'package:mornye/services/network_audio_analysis_input.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/hires_check_service.dart';
+import 'package:sistrum/services/network_audio_analysis_input.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

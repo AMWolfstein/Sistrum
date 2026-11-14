@@ -4,9 +4,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_taste.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_taste.dart';
+import 'package:sistrum/services/music_player_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 final _start = DateTime(2026, 10, 1, 8);

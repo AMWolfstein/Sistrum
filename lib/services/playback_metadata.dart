@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 /// Bounded display tags. Transport and filesystem fields never belong here.
 Map<String, dynamic> playbackDisplayMetadata(Object? value) {

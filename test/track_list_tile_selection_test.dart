@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/screens/album_screen.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/selection_bottom_bar.dart';
-import 'package:mornye/widgets/track_detail_actions.dart';
-import 'package:mornye/widgets/track_list_tile.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/screens/album_screen.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/widgets/track_detail_actions.dart';
+import 'package:sistrum/widgets/track_list_tile.dart';
 
 void main() {
   test('explicit batch selection forces one provider and quality picker', () {

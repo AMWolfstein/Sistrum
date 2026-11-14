@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/services/playback_notification.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/services/playback_notification.dart';
 
 /// Kept alive by the app shell so notification favorites share the exact
 /// Library identity and refresh when the same track is starred inside the app.

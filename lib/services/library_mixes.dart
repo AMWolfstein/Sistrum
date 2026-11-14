@@ -1,15 +1,15 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_signal.dart';
-import 'package:mornye/services/listening_statistics.dart' show listeningDay;
-import 'package:mornye/services/music_player_service.dart'
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/listening_statistics.dart' show listeningDay;
+import 'package:sistrum/services/music_player_service.dart'
     show rankAutoplayTracks;
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/sqlite_helpers.dart' show normalizeLookupText;
-import 'package:mornye/utils/artist_utils.dart' show splitArtistTagValues;
-import 'package:mornye/utils/file_access.dart'
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
+import 'package:sistrum/utils/artist_utils.dart' show splitArtistTagValues;
+import 'package:sistrum/utils/file_access.dart'
     show isContentUri, stripCueTrackSuffix;
 
 /// A Library with fewer playable songs than this gets no mixes.

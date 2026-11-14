@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

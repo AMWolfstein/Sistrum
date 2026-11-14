@@ -1,4 +1,4 @@
-import 'package:mornye/l10n/app_localizations.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
 
 const List<String> audioConversionTargetFormats = [
   'ALAC',

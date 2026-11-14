@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 MediaItem _item(
   String id, {

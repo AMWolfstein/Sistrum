@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
-import 'package:mornye/services/ffmpeg_replaygain.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/ffmpeg_replaygain.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// ReplayGain scanning and tag removal for existing audio files.
 ///

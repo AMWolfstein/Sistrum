@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
 
 Map<String, dynamic> _line(
   int id,

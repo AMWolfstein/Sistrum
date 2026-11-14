@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/mime_utils.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/mime_utils.dart';
 
 final _log = AppLogger('LibraryReorganizer');
 

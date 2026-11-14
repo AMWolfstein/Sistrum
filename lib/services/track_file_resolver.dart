@@ -1,9 +1,9 @@
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 /// The file each of [tracks] plays from, or null when it has none: a scanned
 /// Library file first when [includeLocal] (Local Library is on), then a

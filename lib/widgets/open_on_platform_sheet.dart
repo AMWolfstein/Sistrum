@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Bottom sheet listing every streaming platform song.link resolves for a

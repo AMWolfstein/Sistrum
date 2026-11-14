@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 /// Plays the queue on a Cast receiver. Songs reach it through the native
 /// media server (`serve`, `register`), which exposes only the registered

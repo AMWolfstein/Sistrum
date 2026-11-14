@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/download_queue_codec.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/download_queue_codec.dart';
 
 DownloadItem _item(
   int index, {

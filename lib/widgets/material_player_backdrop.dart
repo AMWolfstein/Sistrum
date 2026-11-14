@@ -4,9 +4,9 @@ import 'dart:ui' as ui;
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:mornye/routes/now_playing_route.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/routes/now_playing_route.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 /// Full-screen cover style for the Material player: the cover fills the top
 /// of the page edge to edge, then fades into a blurred copy of itself.

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/ffmpeg_conversion.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
+import 'package:sistrum/services/ffmpeg_conversion.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
 
 void main() {
   late Directory directory;

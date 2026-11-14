@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/services.dart';
-import 'package:mornye/models/recognized_song.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/recognized_song.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 

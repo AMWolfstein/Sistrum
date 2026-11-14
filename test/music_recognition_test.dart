@@ -4,14 +4,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/recognized_song.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/music_recognition_provider.dart';
-import 'package:mornye/screens/music_recognition_screen.dart';
-import 'package:mornye/services/music_recognition.dart';
-import 'package:mornye/services/music_recognition_library.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/recognized_song.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/music_recognition_provider.dart';
+import 'package:sistrum/screens/music_recognition_screen.dart';
+import 'package:sistrum/services/music_recognition.dart';
+import 'package:sistrum/services/music_recognition_library.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 RecognizedSong song({

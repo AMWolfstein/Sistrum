@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/theme/app_tokens.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/theme/app_tokens.dart';
 
 /// Mornye's own accent, surface and motion tokens; keep this palette
 /// independent of wallpaper colors.

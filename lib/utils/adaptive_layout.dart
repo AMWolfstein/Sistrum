@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Keeps touch-first tablets on the bottom navigation used by phones. A rail
 const double navigationRailBreakpoint = 1440;

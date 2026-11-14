@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/lyric_blur.dart';
+import 'package:sistrum/widgets/lyric_blur.dart';
 
 const _devicePixelRatio = 3.0;
 

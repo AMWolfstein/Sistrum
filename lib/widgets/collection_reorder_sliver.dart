@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show CustomSemanticsAction;
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/library_collections.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 /// Editing has its own drag gestures, leaving normal track selection intact.
 class CollectionReorderSliver extends StatefulWidget {

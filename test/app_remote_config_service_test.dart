@@ -6,11 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/screens/settings/donate_page.dart';
-import 'package:mornye/services/app_remote_config_service.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/screens/settings/donate_page.dart';
+import 'package:sistrum/services/app_remote_config_service.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
 
 class _TrackedClient extends MockClient {
   _TrackedClient(super.handler);

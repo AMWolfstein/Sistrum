@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/settings/download_fallback_extensions_page.dart';
-import 'package:mornye/screens/settings/extensions_page.dart';
-import 'package:mornye/screens/settings/metadata_provider_priority_page.dart';
-import 'package:mornye/screens/settings/provider_priority_page.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/download_fallback_extensions_page.dart';
+import 'package:sistrum/screens/settings/extensions_page.dart';
+import 'package:sistrum/screens/settings/metadata_provider_priority_page.dart';
+import 'package:sistrum/screens/settings/provider_priority_page.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 import 'support/fixed_settings.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
 
 LocalLibraryItem _item({
   String? albumArtist,

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'
     show CupertinoButton, CupertinoDynamicColor, kCupertinoModalBarrierColor;
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/theme/mornye_icons.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
 
 /// The drag handle shown at the top of every modal sheet.
 ///

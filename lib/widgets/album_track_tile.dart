@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 /// Album-style track row: track number, title/subtitle, and a trailing play
 /// button that's hidden once selection mode is active.

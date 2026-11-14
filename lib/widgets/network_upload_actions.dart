@@ -2,18 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/network_offline_provider.dart';
-import 'package:mornye/providers/network_upload_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/network_storage_screen.dart';
-import 'package:mornye/services/network_library_upload.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/network_offline_provider.dart';
+import 'package:sistrum/providers/network_upload_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/network_storage_screen.dart';
+import 'package:sistrum/services/network_library_upload.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
 
 /// Whether "Upload to network storage" applies to [items]: some are files on
 /// this device and a saved connection accepts uploads. [connections] is the

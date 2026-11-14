@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_ingestion_store.dart';
+import 'package:sistrum/services/library_ingestion_store.dart';
 
 import 'support/library_native_fixture.dart';
 import 'support/sqlite_process_database.dart';

@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/services/history_maintenance.dart';
-import 'package:mornye/services/history_row_mapper.dart';
-import 'package:mornye/services/history_schema.dart';
-import 'package:mornye/utils/isrc_utils.dart' as isrc;
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/services/history_maintenance.dart';
+import 'package:sistrum/services/history_row_mapper.dart';
+import 'package:sistrum/services/history_schema.dart';
+import 'package:sistrum/utils/isrc_utils.dart' as isrc;
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 
 final _log = AppLogger('HistoryDatabase');
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();

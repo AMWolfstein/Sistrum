@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/track_lists/context_menu.dart';
-import 'package:mornye/widgets/mornye_artist_header.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/track_lists/context_menu.dart';
+import 'package:sistrum/widgets/mornye_artist_header.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
 
 void main() {
   Future<void> pumpHeader(

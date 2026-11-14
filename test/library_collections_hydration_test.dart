@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_collections.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_collections_hydration.dart';
+import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_collections_hydration.dart';
 
 Map<String, dynamic> trackRow(int index) => {
   'track_key': 'example:$index',

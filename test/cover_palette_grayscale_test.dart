@@ -4,9 +4,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_color_utilities/hct/hct.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/cover_palette.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/cover_palette.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 double _chroma(Color color) => Hct.fromInt(color.toARGB32()).chroma;
 

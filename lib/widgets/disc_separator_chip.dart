@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 /// "Disc N" chip with a trailing hairline, shown between disc groups in
 /// album track lists.

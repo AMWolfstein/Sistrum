@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:mornye/services/ffmpeg_metadata.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/lyrics_metadata_helper.dart';
+import 'package:sistrum/services/ffmpeg_metadata.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/lyrics_metadata_helper.dart';
 
 bool _hasValue(String? value) => value != null && value.trim().isNotEmpty;
 

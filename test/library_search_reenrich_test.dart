@@ -5,17 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/library_search_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/library_search_results.dart';
-import 'package:mornye/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_search_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/library_search_results.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 import 'support/re_enrich_settings.dart';
 

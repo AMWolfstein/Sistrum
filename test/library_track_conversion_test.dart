@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/batch_track_actions.dart';
-import 'package:mornye/utils/audio_conversion_utils.dart';
+import 'package:sistrum/controllers/batch_track_actions.dart';
+import 'package:sistrum/utils/audio_conversion_utils.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

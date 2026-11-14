@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 
 /// Review physical copies, not index rows. History remains intact when a NAS
 /// source is disabled, but must not suggest deleting its replacement SAF copy.

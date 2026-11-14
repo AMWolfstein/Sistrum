@@ -1,5 +1,5 @@
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 /// covers the calendar year so far.

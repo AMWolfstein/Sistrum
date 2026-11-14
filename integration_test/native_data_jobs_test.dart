@@ -10,17 +10,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:material_color_utilities/quantize/quantizer_celebi.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/services/automix_analysis.dart';
-import 'package:mornye/services/backup_service.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/id3v23_lyrics.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/theme/cover_palette.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/audio_analysis_widget.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/services/automix_analysis.dart';
+import 'package:sistrum/services/backup_service.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/id3v23_lyrics.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/theme/cover_palette.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/widgets/audio_analysis_widget.dart';
 
 // channel and native workers; missing bindings must fail, never use a fallback.
 Future<Map<String, dynamic>> _job(

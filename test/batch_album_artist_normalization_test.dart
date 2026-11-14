@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
 
 Track albumTrack({
   required String id,

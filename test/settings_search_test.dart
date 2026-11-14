@@ -7,14 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/screens/settings/about_page.dart';
-import 'package:mornye/screens/settings/settings_tab.dart';
-import 'package:mornye/services/app_remote_config_service.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/screens/settings/about_page.dart';
+import 'package:sistrum/screens/settings/settings_tab.dart';
+import 'package:sistrum/services/app_remote_config_service.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 void main() {
   setUp(() {

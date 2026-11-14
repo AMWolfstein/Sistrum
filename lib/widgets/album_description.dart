@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/editorial_notes.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/editorial_notes.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
 
 /// A short editorial preview below the album controls, with a full reading sheet.
 class AlbumDescription extends StatelessWidget {

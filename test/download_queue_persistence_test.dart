@@ -6,11 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/download_queue_persistence.dart';
-import 'package:mornye/utils/chunked_list.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/download_queue_persistence.dart';
+import 'package:sistrum/utils/chunked_list.dart';
 
 DownloadItem _item(
   String id, {

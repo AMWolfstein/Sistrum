@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/utils/editorial_notes.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/utils/editorial_notes.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
 
 /// The artist's newest album, with a short note and a download action.
 ///

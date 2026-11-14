@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/discard_changes_dialog.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/discard_changes_dialog.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 // The legacy builders below are the hand-written dialogs and sheets the
 // shared helpers replaced, kept here to prove the helpers build the same UI.

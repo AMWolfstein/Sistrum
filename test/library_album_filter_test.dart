@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
 const _artists = ['Aurora Lane', 'Night Shift', 'Paper Moons'];
 const _formats = ['flac', 'm4a', 'mp3'];

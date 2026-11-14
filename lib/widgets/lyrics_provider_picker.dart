@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/lyrics_provider_names.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/lyrics_provider_names.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 typedef LyricsProviderLoader = Future<List<String>> Function();
 typedef LyricsProviderFetcher =

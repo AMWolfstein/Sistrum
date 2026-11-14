@@ -5,10 +5,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
 
 const _text = 'AAAA BBBB';
 const _lyrics = ParsedLyrics(

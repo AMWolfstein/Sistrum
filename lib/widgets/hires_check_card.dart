@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/hires_check_service.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/network_audio_analysis_input.dart';
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/expressive_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/hires_check_service.dart';
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/network_audio_analysis_input.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
 
 /// On-demand sampled spectrum and bit-depth analysis for one FLAC/WAV file.
 class HiResCheckCard extends StatefulWidget {

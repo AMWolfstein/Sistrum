@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/player_lyrics_persistence.dart';
+import 'package:sistrum/services/player_lyrics_persistence.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

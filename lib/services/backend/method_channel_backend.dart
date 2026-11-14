@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/backend/backend_channel.dart';
+import 'package:sistrum/services/backend/backend_channel.dart';
 
 class MethodChannelBackend extends BackendChannel {
   const MethodChannelBackend(this.channel);

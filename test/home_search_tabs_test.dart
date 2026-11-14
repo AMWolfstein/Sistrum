@@ -3,26 +3,26 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/explore_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/recent_access_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/screens/home_tab.dart';
-import 'package:mornye/services/music_player_service.dart'
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/explore_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/recent_access_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/screens/home_tab.dart';
+import 'package:sistrum/services/music_player_service.dart'
     show PlayableMedia, PlaybackResumePreview;
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/app_search_field.dart';
-import 'package:mornye/widgets/lazy_tab_view.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/mornye_context_menu.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/app_search_field.dart';
+import 'package:sistrum/widgets/lazy_tab_view.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_context_menu.dart';
 
 void main() {
   {

@@ -1,6 +1,6 @@
-import 'package:mornye/utils/hash_utils.dart';
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/utils/hash_utils.dart';
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 /// Audio format/quality helpers shared by the download queue and history
 /// providers.

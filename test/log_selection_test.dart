@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/settings/log_screen.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/settings/log_screen.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/logger.dart';
 
 import 'support/app_icon_finder.dart';
 

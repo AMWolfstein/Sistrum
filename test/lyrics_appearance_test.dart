@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/lyric_blur.dart';
-import 'package:mornye/widgets/lyrics_size_setting.dart';
-import 'package:mornye/widgets/lyrics_text_scale.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/lyric_blur.dart';
+import 'package:sistrum/widgets/lyrics_size_setting.dart';
+import 'package:sistrum/widgets/lyrics_text_scale.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 /// End-to-start swipe that removes a track row over a delete background.
 ///

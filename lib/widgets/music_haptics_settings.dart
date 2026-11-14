@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/slider_value_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/slider_value_header.dart';
 
 /// Sensitivity and strength sliders shown under the music haptics switch.
 class MusicHapticsSettings extends ConsumerStatefulWidget {

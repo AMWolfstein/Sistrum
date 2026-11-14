@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/local_track_redownload_service.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/local_track_redownload_service.dart';
 
 LocalLibraryItem item(String id) => LocalLibraryItem(
   id: id,

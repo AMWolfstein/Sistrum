@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/utils/audio_quality_badge_policy.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/utils/audio_quality_badge_policy.dart';
 
 void main() {
   test(

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/download_request_payload.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/download_request_payload.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   group('DownloadRequestPayload', () {

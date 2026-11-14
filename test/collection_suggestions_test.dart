@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/collection_suggestions.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/collection_suggestions.dart';
 
 Track _track(
   String name,

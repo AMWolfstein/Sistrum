@@ -1,18 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/screens/artist_screen.dart';
-import 'package:mornye/screens/weekly_releases_screen.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_shape.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/screens/artist_screen.dart';
+import 'package:sistrum/screens/weekly_releases_screen.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_shape.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
 
 class FavoriteArtistsScreen extends ConsumerWidget {
   const FavoriteArtistsScreen({super.key});

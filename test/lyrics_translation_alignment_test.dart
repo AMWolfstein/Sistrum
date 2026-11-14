@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/lyrics_timeline.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_timeline.dart';
 
 LyricLine _line({int offset = 0}) => LyricLine(
   time: Duration(seconds: offset),

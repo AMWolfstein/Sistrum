@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/artist_concert.dart';
-import 'package:mornye/screens/artist_concerts_screen.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/artist_concerts_button.dart';
-import 'package:mornye/widgets/mornye_artist_header.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/artist_concert.dart';
+import 'package:sistrum/screens/artist_concerts_screen.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/artist_concerts_button.dart';
+import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 Map<String, dynamic> event({
   String id = 'event-1',

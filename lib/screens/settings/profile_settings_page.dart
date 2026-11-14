@@ -3,17 +3,17 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/user_profile_provider.dart';
-import 'package:mornye/services/user_profile_store.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/profile_avatar.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/user_profile_provider.dart';
+import 'package:sistrum/services/user_profile_store.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/profile_avatar.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 class ProfileSettingsPage extends ConsumerStatefulWidget {
   const ProfileSettingsPage({super.key, required this.profile});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/mornye_glass_lens_fade.dart';
+import 'package:sistrum/widgets/mornye_glass_lens_fade.dart';
 
 void main() {
   test('the lens stays on until 55% of the collapse and is off from 95%', () {

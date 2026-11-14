@@ -4,16 +4,16 @@ import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/lyrics_language_guess.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_languages.dart';
-import 'package:mornye/services/secure_storage_options.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_language_guess.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_languages.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 final _log = AppLogger('LyricsTranslation');
 

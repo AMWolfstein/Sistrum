@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/services/library_database.dart';
 
 /// The filters a Library count is taken under. Equal requests share one
 /// count, so the Library badges, Home and the Home mixes read the unfiltered

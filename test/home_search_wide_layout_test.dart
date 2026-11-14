@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
 
 import 'support/search_results_fixture.dart';
 

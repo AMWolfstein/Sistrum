@@ -1,8 +1,8 @@
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 class LocalTrackRedownloadResolution {
   final Track? match;

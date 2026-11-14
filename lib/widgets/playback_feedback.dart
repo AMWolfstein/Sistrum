@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/music_player_runtime.dart' show UnplayableSong;
-import 'package:mornye/widgets/app_snack_bar.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/music_player_runtime.dart' show UnplayableSong;
+import 'package:sistrum/widgets/app_snack_bar.dart';
 
 /// Receives transient playback feedback across all foreground app routes.
 class PlaybackFeedback extends ConsumerStatefulWidget {

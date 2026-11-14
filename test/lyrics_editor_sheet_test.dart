@@ -5,13 +5,13 @@ import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/lyrics_editor_sheet.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
 
 class _Player implements MusicPlayerController {
   final seeks = <Duration>[];

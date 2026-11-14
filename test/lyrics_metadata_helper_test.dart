@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/lyrics_metadata_helper.dart';
+import 'package:sistrum/utils/lyrics_metadata_helper.dart';
 
 import 'support/lyrics_usability_benchmark.dart';
 

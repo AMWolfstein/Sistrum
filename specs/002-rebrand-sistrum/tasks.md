@@ -53,7 +53,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     returns nothing.
   - Dependencies: planning commit.
 
-- [ ] M002-T002 Rename the Dart package to sistrum
+- [x] M002-T002 Rename the Dart package to sistrum
   - Start: refresh the map.
   - Acceptance: FR-010. `pubspec.yaml` `name: sistrum`; every `package:mornye/`
     import in `lib`, `test`, `integration_test` and tools becomes

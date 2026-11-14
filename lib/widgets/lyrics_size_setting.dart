@@ -2,14 +2,14 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/lyrics_text_scale.dart';
-import 'package:mornye/widgets/slider_value_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/lyrics_text_scale.dart';
+import 'package:sistrum/widgets/slider_value_header.dart';
 
 class LyricsSizeSetting extends ConsumerWidget {
   const LyricsSizeSetting({super.key});

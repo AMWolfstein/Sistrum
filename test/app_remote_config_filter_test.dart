@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/app_remote_config_service.dart';
+import 'package:sistrum/services/app_remote_config_service.dart';
 
 void main() {
   group('AppRemoteConfig', () {

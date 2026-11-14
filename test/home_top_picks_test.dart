@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/explore_provider.dart';
-import 'package:mornye/providers/home_top_picks_provider.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/explore_provider.dart';
+import 'package:sistrum/providers/home_top_picks_provider.dart';
 
 ExploreItem _item(
   String id, {

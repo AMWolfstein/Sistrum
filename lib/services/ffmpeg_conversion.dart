@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/audio_metadata_mapper.dart';
-import 'package:mornye/services/ffmpeg_metadata.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
-import 'package:mornye/services/ffmpeg_probe.dart';
-import 'package:mornye/services/ffmpeg_support.dart';
-import 'package:mornye/utils/artist_utils.dart';
-import 'package:mornye/utils/audio_conversion_utils.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/audio_metadata_mapper.dart';
+import 'package:sistrum/services/ffmpeg_metadata.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/ffmpeg_probe.dart';
+import 'package:sistrum/services/ffmpeg_support.dart';
+import 'package:sistrum/utils/artist_utils.dart';
+import 'package:sistrum/utils/audio_conversion_utils.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('FFmpeg');
 

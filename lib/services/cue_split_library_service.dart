@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/ffmpeg_models.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/models/ffmpeg_models.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/file_access.dart';
 
 /// Publishes a complete split and its visibility rule in one transaction.
 /// Original rows stay indexed for playlists and can return if outputs disappear.

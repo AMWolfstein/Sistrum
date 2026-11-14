@@ -1,4 +1,4 @@
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 /// A relevance signal one autoplay refill uses beside the songs' metadata,
 /// such as how songs sound or what the listener plays them with. Ranking may
