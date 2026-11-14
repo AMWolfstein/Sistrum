@@ -1,9 +1,86 @@
 {
-  "missions": {},
+  "missions": {
+    "M001": {
+      "next_task": 7,
+      "nonce": "c99ce6057597445fa5a45648acb27e5d",
+      "path": "specs/001-remove-material-theme",
+      "title": "Remove the Material theme and Material UI"
+    }
+  },
   "next_completion": 4,
-  "next_mission": 1,
-  "next_tor": 4,
+  "next_mission": 2,
+  "next_tor": 5,
   "tasks": {
+    "M001-T001": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "2bf08403870a4da6a5ceae289ada4f31",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Make Mornye the only theme setting"
+    },
+    "M001-T002": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "07eeb67e098e4d60be5de112a8d388f0",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Collapse Material branches in shared widgets and theme"
+    },
+    "M001-T003": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "1caa59612e554f03bbbf126d17226374",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Collapse Material branches in screens and remove isMornye"
+    },
+    "M001-T004": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "bb91f6e6e77d41109cf74a5e694c4a07",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Remove Material 3 Expressive, Material UI and Material Symbols"
+    },
+    "M001-T005": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "2b43c8512b494618b55eb7a03c310190",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Delete AppTheme, move tests to Mornye and update docs"
+    },
+    "M001-T006": {
+      "completion": null,
+      "final": true,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "f2ba3f8567ad4fd9a383ce7d3acbf7d5",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Cumulative review"
+    },
+    "M001-TOR004": {
+      "completion": null,
+      "final": false,
+      "kind": "TOR",
+      "mission": "M001",
+      "nonce": "9879ade5027e4ab59bf0c87842e88f56",
+      "record": "specs/001-remove-material-theme/tasks.md",
+      "status": "reserved",
+      "title": "Remove the Android home-screen widgets"
+    },
     "TOR001": {
       "completion": 1,
       "evidence": {
