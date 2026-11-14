@@ -52,7 +52,6 @@ class DownloadService : Service() {
         private const val NOTIFICATION_ID = 1001
         private const val WIDGET_PROGRESS_INTERVAL_MS = 1000L
         private const val DOWNLOAD_RESULT_NOTIFICATION_ID = 1
-        private const val VERIFICATION_REQUIRED_NOTIFICATION_ID = 4
         private const val WAKELOCK_TAG = "Sistrum:DownloadWakeLock"
 
         const val ACTION_START = "com.amwolfstein.sistrum.action.START_DOWNLOAD"
@@ -374,7 +373,6 @@ class DownloadService : Service() {
     private val nativeWorkerPausePendingIds = mutableSetOf<String>()
     private var nativeWorkerResumePending = false
     @Volatile internal var nativeWorkerNetworkPaused = false
-    @Volatile internal var nativeWorkerVerificationPaused = false
     @Volatile private var nativeWorkerCancelRequested = false
     internal var nativeWorkerDownloadNetworkMode = "any"
     internal var nativeWorkerNetworkCallback: ConnectivityManager.NetworkCallback? = null
@@ -495,11 +493,9 @@ class DownloadService : Service() {
                     nativeWorkerResumePending = false
                     nativeWorkerPausePendingIds.clear()
                 }
-                nativeWorkerVerificationPaused = false
                 nativeWorkerPreparationComplete = true
                 nativeWorkerRequestChannel?.close()
                 cancelScheduledNativeWorkerItemsSnapshot()
-                cancelNativeVerificationNotification()
                 synchronized(nativeWorkerItems) {
                     for (item in nativeWorkerItems) {
                         if (item.status == "queued" ||
@@ -691,7 +687,6 @@ class DownloadService : Service() {
             return
         }
         nativeWorkerRunId = requestedRunId
-        cancelNativeVerificationNotification()
         // Abort the previous run's in-flight work before the shared flags are
         // reset for the new run: the coroutine cancel below cannot interrupt a
         // blocking native download by itself.
@@ -721,7 +716,6 @@ class DownloadService : Service() {
             nativeWorkerPausePendingIds.clear()
         }
         nativeWorkerNetworkPaused = false
-        nativeWorkerVerificationPaused = false
         nativeWorkerCancelRequested = false
         unregisterNativeWorkerNetworkCallback()
         val workerSettings = try {
@@ -922,11 +916,9 @@ class DownloadService : Service() {
 
     internal fun isNativeWorkerPaused(): Boolean =
         nativeWorkerPaused ||
-            nativeWorkerNetworkPaused ||
-            nativeWorkerVerificationPaused
+            nativeWorkerNetworkPaused
 
     internal fun nativeWorkerPauseMessage(): String = when {
-        nativeWorkerVerificationPaused -> "Verification required"
         nativeWorkerNetworkPaused -> "Waiting for Wi-Fi"
         else -> "Paused"
     }
@@ -1245,32 +1237,6 @@ class DownloadService : Service() {
                         )
                         delay(delaySeconds * 1000L)
                         retryCurrentRequest = true
-                    } else if (NativeWorkerPolicy.isVerificationRequired(
-                            errorType = errorType,
-                            errorMessage = errorMessage,
-                        )
-                    ) {
-                        nativeWorkerVerificationPaused = true
-                        currentStatus = "verification_required"
-                        updateNativeWorkerItem(request.itemId) {
-                            it.status = "failed"
-                            it.error = errorMessage
-                            it.resultJson = result
-                        }
-                        cancelConcurrentNativeDownloadsForPause(request.itemId)
-                        writeNativeReplayGainJournal()
-                        writeNativeWorkerSnapshot(
-                            isRunning = true,
-                            isPaused = true,
-                            currentItemId = request.itemId,
-                            message = "Verification required",
-                            lastResult = result,
-                            settingsJson = settingsJson,
-                            includeItems = true,
-                        )
-                        showNativeVerificationRequired(request, result)
-                        updateNotification(0L, 0L)
-                        retryCurrentRequest = true
                     } else {
                         updateNativeWorkerItem(request.itemId) {
                             it.status = if (errorType == "cancelled") "skipped" else "failed"
@@ -1471,8 +1437,6 @@ class DownloadService : Service() {
             nativeWorkerJob?.cancel(CancellationException("Download service stopped"))
             nativeWorkerPaused = false
             nativeWorkerNetworkPaused = false
-            nativeWorkerVerificationPaused = false
-            cancelNativeVerificationNotification()
         }
         if (cancelNativeWorker && hasNativeWorkerState()) {
             writeNativeWorkerSnapshot(
@@ -1567,7 +1531,6 @@ class DownloadService : Service() {
         lastWidgetPushAt = now
 
         val subtitle = when (currentStatus) {
-            "verification_required" -> "Verification required"
             "rate_limited" -> "Rate limited, retrying..."
             "waiting_wifi" -> "Waiting for Wi-Fi..."
             "finalizing" -> "Finalizing..."
@@ -1599,9 +1562,7 @@ class DownloadService : Service() {
             "Downloading..."
         }
 
-        val text = if (currentStatus == "verification_required") {
-            "Open the app to complete verification"
-        } else if (currentStatus == "rate_limited") {
+        val text = if (currentStatus == "rate_limited") {
             "Rate limited, retrying shortly..."
         } else if (currentStatus == "waiting_wifi") {
             "Waiting for Wi-Fi..."
@@ -1678,46 +1639,6 @@ class DownloadService : Service() {
                 "Completion notification permission denied: ${e.message}",
             )
         }
-    }
-
-    private fun showNativeVerificationRequired(request: NativeDownloadRequest, result: JSONObject) {
-        val extensionId = result.optString("service").trim().ifEmpty {
-            JSONObject(request.requestJson).optString("service").trim()
-        }
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            VERIFICATION_REQUIRED_NOTIFICATION_ID,
-            VerificationNotificationIntent.create(this, extensionId, request.itemId),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-        val builder = NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
-            .setContentTitle("Verification required")
-            .setContentText("Open the app to complete verification and resume downloads")
-            .setSmallIcon(android.R.drawable.stat_notify_error)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .setOnlyAlertOnce(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(NotificationCompat.CATEGORY_ERROR)
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            builder.setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
-        }
-
-        try {
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.notify(VERIFICATION_REQUIRED_NOTIFICATION_ID, builder.build())
-        } catch (e: SecurityException) {
-            android.util.Log.w(
-                "DownloadService",
-                "Verification notification permission denied: ${e.message}",
-            )
-        }
-    }
-
-    private fun cancelNativeVerificationNotification() {
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.cancel(VERIFICATION_REQUIRED_NOTIFICATION_ID)
     }
 
     override fun onDestroy() {

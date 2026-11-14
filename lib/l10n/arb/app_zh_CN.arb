@@ -5416,14 +5416,6 @@
       }
     }
   },
-  "notifVerificationRequiredTitle": "需要验证",
-  "@notifVerificationRequiredTitle": {
-    "description": "Notification title shown when a download needs the user to complete a verification challenge but the app is in the background"
-  },
-  "notifVerificationRequiredBody": "打开应用以完成验证并恢复下载",
-  "@notifVerificationRequiredBody": {
-    "description": "Notification body prompting the user to return to the app to solve a verification challenge"
-  },
   "notifAllDownloadsComplete": "所有下载完成",
   "@notifAllDownloadsComplete": {
     "description": "Notification title when all downloads finish successfully"
@@ -7282,51 +7274,6 @@
   "extensionVerificationBrowserInApp": "应用内",
   "@extensionVerificationBrowserInApp": {
     "description": "Chip label for in-app browser verification mode"
-  },
-  "extensionVerificationUnavailable": "{extension} 没有可用的验证页面。重试下载以请求验证。",
-  "@extensionVerificationUnavailable": {
-    "description": "Shown when the app cannot retrieve a pending verification challenge",
-    "placeholders": {
-      "extension": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionVerificationHelpTitleManual": "手动打开验证",
-  "@extensionVerificationHelpTitleManual": {
-    "description": "Dialog title when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpTitleWaiting": "验证仍在等待",
-  "@extensionVerificationHelpTitleWaiting": {
-    "description": "Dialog title when verification is taking longer than expected"
-  },
-  "extensionVerificationHelpMessageManual": "Sistrum could not open the browser automatically. Open this link in your browser, or copy it manually.",
-  "@extensionVerificationHelpMessageManual": {
-    "description": "Dialog message when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpMessageWaiting": "If the browser did not open, or verification finished but did not return to Sistrum, open this link again or copy it manually.",
-  "@extensionVerificationHelpMessageWaiting": {
-    "description": "Dialog message when verification may need manual browser help"
-  },
-  "extensionVerificationClose": "关闭",
-  "@extensionVerificationClose": {
-    "description": "Button to dismiss the extension verification help dialog"
-  },
-  "extensionVerificationCopyLink": "复制链接",
-  "@extensionVerificationCopyLink": {
-    "description": "Button to copy the extension verification URL"
-  },
-  "extensionVerificationPasteCallback": "Paste callback",
-  "@extensionVerificationPasteCallback": {
-    "description": "Button that completes extension verification from a callback URL in the clipboard"
-  },
-  "extensionVerificationLinkCopied": "验证链接已复制",
-  "@extensionVerificationLinkCopied": {
-    "description": "Snackbar after copying the extension verification URL"
-  },
-  "extensionVerificationOpenBrowser": "打开浏览器",
-  "@extensionVerificationOpenBrowser": {
-    "description": "Button to open the extension verification URL in a browser"
   },
   "settingsSearchHint": "搜索设置",
   "@settingsSearchHint": {

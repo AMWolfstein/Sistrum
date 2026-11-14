@@ -1152,51 +1152,6 @@ extension _DownloadQueueNativeWorker on DownloadQueueNotifier {
             _log.e('Could not recover native-worker storage failure: $e');
           }
           reconciledIds.add(itemId);
-          if (errorType == DownloadErrorType.verificationRequired) {
-            _log.i(
-              'Android native worker requires verification for ${current.track.name}; switching back to interactive queue',
-            );
-            // Cancelling the native worker marks every remaining batch item
-            // "skipped" on the native side. Those items did nothing wrong —
-            // remember them now and requeue them below so the batch resumes
-            // after the challenge instead of being abandoned.
-            final pendingBatchIds = <String>[];
-            for (final pendingId in contexts.keys) {
-              if (pendingId == itemId || reconciledIds.contains(pendingId)) {
-                continue;
-              }
-              final pending = _findItemById(pendingId);
-              if (pending == null) continue;
-              if (pending.status == DownloadStatus.queued ||
-                  pending.status == DownloadStatus.downloading ||
-                  pending.status == DownloadStatus.finalizing) {
-                pendingBatchIds.add(pendingId);
-              }
-            }
-            try {
-              await PlatformBridge.cancelNativeDownloadWorker();
-            } catch (e) {
-              _log.w('Failed to cancel native worker before verification: $e');
-            }
-            for (final pendingId in pendingBatchIds) {
-              reconciledIds.add(pendingId);
-              updateItemStatus(pendingId, DownloadStatus.queued, progress: 0.0);
-            }
-            if (_queueStartupPending) {
-              // This snapshot predates the browser return. Let startup finish
-              // exchanging its callback before retrying through the regular
-              // queue; opening another challenge here would race that grant
-              // and wait on our own queue-restoration barrier.
-              updateItemStatus(itemId, DownloadStatus.queued, progress: 0.0);
-              continue;
-            }
-            await _handleVerificationRequiredDownload(
-              current,
-              errorMsg,
-              _nativeWorkerVerificationService(resultMap, context),
-            );
-            continue;
-          }
           _recordFailedDownload(itemId, error: errorMsg, errorType: errorType);
         }
       }
@@ -1610,21 +1565,4 @@ extension _DownloadQueueNativeWorker on DownloadQueueNotifier {
     }
   }
 
-  String _nativeWorkerVerificationService(
-    Map<String, dynamic>? result,
-    _NativeWorkerRequestContext context,
-  ) {
-    if (result != null) {
-      for (final key in const [
-        'service',
-        'verification_service',
-        'provider',
-        'source',
-      ]) {
-        final value = result[key]?.toString().trim() ?? '';
-        if (value.isNotEmpty) return value;
-      }
-    }
-    return context.item.service;
-  }
 }

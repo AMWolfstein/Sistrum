@@ -9,11 +9,9 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/artist_concert.dart';
 import 'package:sistrum/providers/track_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
-import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -398,17 +396,11 @@ class _ExtensionAlbumScreenState extends ConsumerState<ExtensionAlbumScreen> {
     });
 
     try {
-      final result = await runExtensionOperationWithVerificationRetry(
-        extensionId: widget.extensionId,
-        browserMode: ref
-            .read(settingsProvider)
-            .extensionVerificationBrowserMode,
-        operation: () => PlatformBridge.getProviderMetadata(
+      final result = await (PlatformBridge.getProviderMetadata(
           widget.extensionId,
           'album',
           widget.albumId,
-        ),
-      );
+        ));
       if (!mounted) return;
 
       final albumInfo = result['album_info'] as Map<String, dynamic>? ?? result;
@@ -577,17 +569,11 @@ class _ExtensionPlaylistScreenState
     });
 
     try {
-      final result = await runExtensionOperationWithVerificationRetry(
-        extensionId: widget.extensionId,
-        browserMode: ref
-            .read(settingsProvider)
-            .extensionVerificationBrowserMode,
-        operation: () => PlatformBridge.getProviderMetadata(
+      final result = await (PlatformBridge.getProviderMetadata(
           widget.extensionId,
           'playlist',
           widget.playlistId,
-        ),
-      );
+        ));
       if (!mounted) return;
 
       final trackList =
@@ -716,17 +702,11 @@ class _ExtensionArtistScreenState extends ConsumerState<ExtensionArtistScreen>
     });
 
     try {
-      final result = await runExtensionOperationWithVerificationRetry(
-        extensionId: widget.extensionId,
-        browserMode: ref
-            .read(settingsProvider)
-            .extensionVerificationBrowserMode,
-        operation: () => PlatformBridge.getProviderMetadata(
+      final result = await (PlatformBridge.getProviderMetadata(
           widget.extensionId,
           'artist',
           widget.artistId,
-        ),
-      );
+        ));
       if (!mounted) return;
 
       final artistInfo =

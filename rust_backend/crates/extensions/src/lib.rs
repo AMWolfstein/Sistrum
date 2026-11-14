@@ -30,8 +30,6 @@ mod redact;
 pub mod repository;
 mod resolution;
 mod runtime;
-mod session_host;
-pub mod signed_session;
 pub mod storage;
 pub mod transfer_policy;
 mod url_host;

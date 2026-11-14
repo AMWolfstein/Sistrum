@@ -61,7 +61,6 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `setScreenAwake` | Adds or clears `FLAG_KEEP_SCREEN_ON` (`enabled`) | Lifecycle | null |
 | `getBackendImplementations` | Implementation name for `filename`, `file_metadata`, `extensions`, `downloads` | Lifecycle | map |
 | `ensureInstallMarker` | Creates the no-backup install marker; returns `marker_existed`, `marker_created`, `fresh_package_install` | Lifecycle | map |
-| `prepareRuntimeState` | Builds runtime state from `data_dir` signed sessions and hands it to the backend | Lifecycle | map `{ready}` |
 | `downloadByStrategy` | Runs one download; SAF requests go through `SafDownloadHandler`. The argument is the request JSON string | Service | JSON text |
 | `runPostProcessingV2` | Post-processing for `input` and `metadata`; content URIs use a temp copy | Metadata | JSON text |
 | `readAudioMetadata` | Audio metadata for `file_path` (SAF read through the URI) | Metadata | JSON text |
@@ -82,7 +81,7 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `pickSafTree` | Opens the folder picker (`for_setup`) and persists the grant | Picker | JSON text or null |
 | `readSetupFolderSelection` | Picker result saved for setup by `SetupFolderPickerStore` | inline | string or null |
 | `acknowledgeSetupFolderSelection` | Clears the saved result when it equals `payload` | inline | null |
-| `processPendingExtensionCallbacks` | Completes queued extension OAuth and session-grant callbacks | inline | null |
+| `processPendingExtensionCallbacks` | Completes queued extension OAuth callbacks | inline | null |
 | `safExists` | Whether the document at `uri` exists | SAF | bool |
 | `safExistsBatch` | `found`, `missing` or `unknown` per URI in `uris_json` | SAF | JSON text |
 | `isSafTreeAccessible` | Persisted read and write grant and a writable tree for `tree_uri` | SAF | bool |
@@ -126,7 +125,6 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `resumeNativeDownloadWorker` | Resumes the native queue | inline | null |
 | `cancelNativeDownloadWorker` | Cancels the native queue | inline | null |
 | `getNativeDownloadWorkerSnapshot` | Worker snapshot since `since_state_serial`, decoded off the main thread | Service | map |
-| `consumeVerificationNotification` | Returns and clears the pending verification notification payload | Lifecycle | string or null |
 | `exitApp` | Disables the back callback and calls `finishAndRemoveTask` | Lifecycle | null |
 
 ### Host-to-Dart Events
@@ -137,14 +135,9 @@ Native code calls Dart over the same channel. `PlatformBridge` handles them in
 | Method | Sent by | Payload |
 | --- | --- | --- |
 | `extensionAuthCallbackReceived` | Android | none |
-| `extensionSessionGrantCompleted` | Android | `{extension_id, success}` |
-| `extensionVerificationNotificationTapped` | Android | none |
 | `setupFolderSelectionChanged` | Android | none |
 | `libraryScanError` | Android | `{path, operation, message}` |
 | `libraryStorageChanged` | Android | `{action}` (media mount and unmount broadcasts) |
-
-Session-grant events raised before the channel exists are queued and sent
-when the engine is configured.
 
 ## The `__json_file` Spill
 
@@ -195,7 +188,7 @@ Both services are declared with `foregroundServiceType="dataSync"` in
 | --- | --- | --- |
 | File | `android/app/src/main/kotlin/com/amwolfstein/sistrum/DownloadService.kt` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/BackgroundWorkService.kt` |
 | Channels | `download_channel` (progress), `download_alerts_v1` (alerts) | `background_work` |
-| Notification IDs | 1001 (foreground), 1 (result), 4 (verification required) | 1002 |
+| Notification IDs | 1001 (foreground), 1 (result) | 1002 |
 | Wake lock tag | `Sistrum:DownloadWakeLock` | `Sistrum:BackgroundWorkWakeLock` |
 | Wake lock timing | 30 min timeout, renewed on progress updates once 15 min have passed | 30 min timeout, re-acquired by a 15 min timer |
 | Started by | `startDownloadService`, `startNativeDownloadWorker` (intent actions `com.amwolfstein.sistrum.action.*`) | `startBackgroundWork` for a `kind` (Dart uses `library_scan` and `app_update`) |

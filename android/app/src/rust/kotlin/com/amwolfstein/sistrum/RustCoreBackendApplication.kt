@@ -41,18 +41,6 @@ internal fun RustCoreBackend.dispatchApplication(method: String, arguments: Any?
                 }
             }
         }
-        "prepareRuntimeState" -> synchronized(this) {
-            val directory = File(string("data_dir"))
-            require(directory.isAbsolute) { "Extension data directory must be absolute" }
-            val data = directory.canonicalPath
-            check(manager == null || identity?.second == data) {
-                "Runtime state directory does not match the initialized owner"
-            }
-            val raw = string("runtime_state")
-            manager?.environment()?.use { it.setRuntimeState(raw) }
-            runtimeState = data to raw
-            return null
-        }
         "initExtensionSystem" -> {
             initializeOwner(args)
             return null
@@ -267,10 +255,6 @@ internal fun RustCoreBackend.dispatchApplication(method: String, arguments: Any?
             null,
         )
         "getEnabledLyricsProviders" -> current.getEnabledLyricsProvidersJson()
-        "completeExtensionSessionGrant" -> {
-            completeSessionGrant(current, string("extension_id"), string("grant"))
-            true
-        }
         "getAllDownloadProgress" -> current.withDownloadState { state -> state.allProgress() }
         "cleanupConnections" -> current.environment().use { it.cleanupConnections(); null }
         "resetDownloadCancels", "cancelDownloads" -> {

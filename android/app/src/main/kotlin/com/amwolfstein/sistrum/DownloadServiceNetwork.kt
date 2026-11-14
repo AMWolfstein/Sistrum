@@ -118,19 +118,11 @@ internal fun DownloadService.refreshNativeWorkerNetworkPause() {
     if (nativeWorkerJob?.isActive != true) return
 
     if (shouldPause) {
-        currentStatus = if (nativeWorkerVerificationPaused) {
-            "verification_required"
-        } else {
-            "waiting_wifi"
-        }
+        currentStatus = "waiting_wifi"
         cancelActiveNativeItemForPause()
         updateNotification(0L, 0L)
     } else {
-        currentStatus = if (nativeWorkerVerificationPaused) {
-            "verification_required"
-        } else {
-            "preparing"
-        }
+        currentStatus = "preparing"
         updateNotification(0L, 0L)
     }
     writeNativeWorkerSnapshotAsync(

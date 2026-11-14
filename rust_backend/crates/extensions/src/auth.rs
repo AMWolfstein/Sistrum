@@ -270,14 +270,6 @@ impl AuthRegistry {
         state.pending.get(id).cloned()
     }
 
-    pub(crate) fn has_fresh_challenge(&self, id: &str) -> bool {
-        self.pending(id).is_some_and(|request| {
-            request.extension_id == id
-                && !request.auth_url.trim().is_empty()
-                && (0..PENDING_TTL).contains(&(self.now() - request.created_at))
-        })
-    }
-
     pub fn resolve_callback(&self, nonce: &str, consume: bool) -> Result<String, String> {
         let nonce = nonce.trim();
         if nonce.is_empty() {
@@ -485,26 +477,4 @@ mod tests {
         }
     }
 
-    #[test]
-    fn verification_requires_own_nonempty_challenge_between_zero_and_180_seconds_old() {
-        for (age, url, expected) in [
-            (-1, "https://example.test/verify", false),
-            (0, "https://example.test/verify", true),
-            (179, "https://example.test/verify", true),
-            (180, "https://example.test/verify", false),
-            (0, " \n", false),
-        ] {
-            let auth = AuthRegistry::with_clock(Arc::new(Clock));
-            auth.register_pending(PendingAuthRequest {
-                extension_id: "example.auth".into(),
-                auth_url: url.into(),
-                callback_url: "mornye://callback".into(),
-                state: "state".into(),
-                created_at: (1000 - age) * SECOND,
-            })
-            .unwrap();
-            assert_eq!(auth.has_fresh_challenge("example.auth"), expected);
-            assert!(!auth.has_fresh_challenge("example.other"));
-        }
-    }
 }

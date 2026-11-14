@@ -3,7 +3,7 @@
     <!--
       Sistrum provides an explicit, schema-aware Backup & Restore
       feature. Platform backup must not copy device-bound SAF grants, paths,
-      queues, extension credentials, or signed sessions to another install.
+      queues, or extension credentials to another install.
     -->
     <cloud-backup>
         <exclude domain="root" path="." />

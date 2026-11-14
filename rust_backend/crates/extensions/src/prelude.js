@@ -324,19 +324,6 @@
             clearCookies() { return host.clearCookies(); }
         };
         globalThis.fetch = function () { return dispatch(arguments, "GET", true, true); };
-        if (host.sessionEnabled) {
-            function invokeSession(method, args) { return JSON.parse(host.sessionCall(method, JSON.stringify(args))); }
-            globalThis.session = {
-                status() { return invokeSession("status", []); },
-                clear() { return invokeSession("clear", []); },
-                completeGrant(grant) { return invokeSession("completeGrant", arguments.length ? [goString(grant)] : []); },
-                signedFetch(method, path, body, headers) {
-                    if (arguments.length < 2) return invokeSession("signedFetch", []);
-                    try { return invokeSession("signedFetch", [goString(method), goString(path), bodyString(body, false), requestHeaders(headers)]); }
-                    catch (error) { return {ok: false, error: goString(error)}; }
-                }
-            };
-        }
         if (host.authEnabled) {
             function invokeAuth(method, args, expiresIsFloat = false) {
                 const result = JSON.parse(host.authCall(method, JSON.stringify(args), expiresIsFloat));
@@ -742,8 +729,6 @@
             let callback;
             if (extension !== undefined && (action ? extension : true) && typeof extension[method] === "function") {
                 callback = () => extension[method].apply(extension, args);
-            } else if (action && method === "completeGrant" && typeof session !== "undefined" && session && typeof session.completeGrant === "function") {
-                callback = () => session.completeGrant();
             }
             if (!callback) return action ? {success:false, error:"Action function not found: " + method} : {success:true, message:"no " + method + " function"};
             try {

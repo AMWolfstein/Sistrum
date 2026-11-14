@@ -16,7 +16,6 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
-import 'package:sistrum/providers/download_verification_retry_guard.dart';
 import 'package:sistrum/providers/download_queue_state.dart';
 import 'package:sistrum/providers/download_queue_policy.dart';
 import 'package:sistrum/services/download_queue_persistence.dart';
@@ -47,7 +46,6 @@ import 'package:sistrum/services/hires_check_service.dart';
 import 'package:sistrum/services/replaygain_service.dart';
 import 'package:sistrum/services/album_replaygain_readiness.dart';
 import 'package:sistrum/services/notification_service.dart';
-import 'package:sistrum/services/verification_notification.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/saf_display_path.dart';
@@ -56,7 +54,6 @@ import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/int_utils.dart';
 import 'package:sistrum/utils/path_match_keys.dart';
-import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/utils/download_error_type.dart';
 import 'package:sistrum/utils/lyrics_metadata_helper.dart';
 import 'package:sistrum/utils/progress_stream_poller.dart';
@@ -83,8 +80,8 @@ export 'package:sistrum/services/library_reorganizer.dart'
 
 part 'download_queue_provider_paths.dart';
 part 'download_queue_provider_progress.dart';
-part 'download_queue_provider_verification.dart';
 part 'download_queue_provider_connectivity.dart';
+part 'download_queue_provider_rate_limit.dart';
 part 'download_queue_provider_native_worker.dart';
 part 'download_queue_provider_finalization.dart';
 part 'download_queue_provider_replaygain.dart';
@@ -212,13 +209,11 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   final Map<String, Future<void>> _nativeCancelRequests = {};
   final Map<String, Future<void>> _activeDownloadAttempts = {};
   final Set<String> _retryingItemIds = {};
-  final DownloadVerificationRetryGuard _verificationRetryGuard =
-      DownloadVerificationRetryGuard();
-  final DownloadVerificationWaitCoordinator _verificationWaitCoordinator =
-      DownloadVerificationWaitCoordinator();
   final DownloadRetryBackoff _rateLimitBackoff = DownloadRetryBackoff();
   final Set<String> _rateLimitRetriedItemIds = {};
   String? _activeNativeWorkerRunId;
+  bool get _isProviderMounted => ref.mounted;
+
   bool get _hasActiveAndroidNativeWorker =>
       Platform.isAndroid && _activeNativeWorkerRunId?.isNotEmpty == true;
 
@@ -243,7 +238,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
 
     ref.onDispose(() {
       if (!_queueRestored.isCompleted) _queueRestored.complete();
-      _verificationWaitCoordinator.cancelAll();
       _rateLimitBackoff.cancelAll();
       _progressPoller.stop();
       _connectivitySub?.cancel();
@@ -347,10 +341,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       }
     });
   }
-
-  Future<void> handleVerificationNotificationTap(
-    VerificationNotification target,
-  ) => _handleVerificationNotificationTap(target);
 
   Future<void> _loadQueueFromStorage() async {
     if (_isLoaded || !ref.mounted) return;
@@ -957,7 +947,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   }
 
   void _requestNativeCancel(String id) {
-    _verificationWaitCoordinator.cancelItem(id);
     _rateLimitBackoff.cancelItem(id);
     final previous = _nativeCancelRequests[id] ?? Future<void>.value();
     final request = previous
@@ -1073,7 +1062,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       _pausePendingItemIds.addAll(activeIds);
       _locallyCancelledItemIds.addAll(activeIds);
       for (final id in activeIds) {
-        _verificationWaitCoordinator.cancelItem(id);
         _rateLimitBackoff.cancelItem(id);
       }
       unawaited(PlatformBridge.cancelDownloads(activeIds));
@@ -1125,7 +1113,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           if (nativeWorkerActive || nativeCancelledItemIds.contains(id)) {
             // A second cancel can arrive after it unwinds and leave a flag
             // that aborts the resumed download before it starts.
-            _verificationWaitCoordinator.cancelItem(id);
             _rateLimitBackoff.cancelItem(id);
           } else {
             _requestNativeCancel(id);
@@ -1219,7 +1206,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       return;
     }
     _locallyCancelledItemIds.remove(id);
-    _verificationRetryGuard.clearItem(id);
     _rateLimitRetriedItemIds.remove(id);
 
     // Purge stale ReplayGain entry for this track so a re-scan doesn't
@@ -1299,7 +1285,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
               item.status != DownloadStatus.skipped) {
             return item;
           }
-          _verificationRetryGuard.clearItem(item.id);
           _rateLimitRetriedItemIds.remove(item.id);
           return item.resetToQueued().copyWith(
             error: null,
@@ -1493,9 +1478,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
 
   DownloadErrorType _downloadErrorTypeFromMessage(String errorMsg) {
     final lowerMsg = errorMsg.toLowerCase();
-    if (isExtensionVerificationRequired(errorMsg)) {
-      return DownloadErrorType.verificationRequired;
-    }
     if (errorMsg.contains('429') ||
         lowerMsg.contains('rate limit') ||
         lowerMsg.contains('too many requests')) {
@@ -1842,7 +1824,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       final remainingIds = state.items.map((item) => item.id).toSet();
       _locallyCancelledItemIds.removeWhere((id) => !remainingIds.contains(id));
       _pausePendingItemIds.removeWhere((id) => !remainingIds.contains(id));
-      _verificationRetryGuard.retainItems(remainingIds);
       _rateLimitRetriedItemIds.removeWhere((id) => !remainingIds.contains(id));
     }
   }

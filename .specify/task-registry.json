@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 13,
+  "next_completion": 14,
   "next_mission": 3,
   "next_tor": 8,
   "tasks": {
@@ -214,13 +214,19 @@
       "title": "Remove the Zarz-LRC lyrics provider"
     },
     "M002-T010": {
-      "completion": null,
+      "completion": 13,
+      "evidence": {
+        "checks": "cargo check --locked --workspace exit 0; cargo test --locked -p sistrum-extensions passed before the Dart and Android edits; flutter analyze no issues; full flutter test +4413 ~10 all passed exit 0; Gradle Kotlin compile not run (unavailable); grep for signed-session names outside specs: only the refusal message, test fixtures and T009 zarz links; review round 1 NEEDS_FIXES (install-ID log mismatch, unused imports) fixed; round 2 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "666e1485c91d46ec97436f8e24fd8933",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove signed extension sessions and the api.zarz.moe rules"
     },
     "M002-TOR005": {

@@ -3,7 +3,6 @@
 use super::Backend;
 use crate::files::{StagedFile, SyncBatch};
 use cap_std::fs::OpenOptions;
-use sistrum_core::app_version::AppVersion;
 use sistrum_core::cover::{MAX_DOWNLOAD_BYTES, resize};
 use sistrum_core::tags::{CoverArt, extract_cover};
 use sistrum_network::{
@@ -71,15 +70,13 @@ struct Flight {
 
 pub(super) struct Cover {
     network: Arc<NetworkSession>,
-    version: AppVersion,
     cache: Mutex<Cache>,
 }
 
 impl Cover {
-    pub fn new(network: &Arc<NetworkService>, version: AppVersion) -> Self {
+    pub fn new(network: &Arc<NetworkService>) -> Self {
         Self {
             network: network.native_media_session(Duration::from_secs(60)),
-            version,
             cache: Mutex::default(),
         }
     }
@@ -185,13 +182,9 @@ impl Cover {
     }
 
     fn fetch(&self, url: &str, check: &Check<'_>) -> Outcome {
-        let parsed = UrlParts::parse(url)
+        UrlParts::parse(url)
             .ok_or_else(|| "failed to create request: invalid URL".to_owned())?;
-        let user_agent = if parsed.hostname.eq_ignore_ascii_case("api.zarz.moe") {
-            self.version.user_agent()
-        } else {
-            random_user_agent()
-        };
+        let user_agent = random_user_agent();
         let mut response = self
             .network
             .open_response_stream(
@@ -770,7 +763,7 @@ pub(super) mod tests {
     }
 
     fn cover() -> Cover {
-        Cover::new(&NetworkService::new().unwrap(), "1".into())
+        Cover::new(&NetworkService::new().unwrap())
     }
 
     fn backend(directory: &Path) -> Backend {

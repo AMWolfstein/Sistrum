@@ -6,7 +6,7 @@ import kotlinx.coroutines.sync.withLock
 
 /** Process-owned inbox: Activity recreation must not discard browser results. */
 internal class ExtensionAuthCallbacks {
-    data class Callback(val state: String, val code: String, val sessionGrant: Boolean)
+    data class Callback(val state: String, val code: String)
 
     private val pending = linkedSetOf<Callback>()
     private val processing = Mutex()
@@ -14,13 +14,11 @@ internal class ExtensionAuthCallbacks {
     fun offer(uri: Uri): Boolean {
         if (!uri.scheme.equals("mornye", ignoreCase = true)) return false
         val host = uri.host.orEmpty().lowercase(java.util.Locale.US)
-        val grant = host == "session-grant"
-        if (!grant && host != "callback" && host != "spotify-callback") return false
+        if (host != "callback" && host != "spotify-callback") return false
         val state = uri.getQueryParameter("state")?.trim().orEmpty()
-        val code = (if (grant) uri.getQueryParameter("grant") ?: uri.getQueryParameter("code")
-            else uri.getQueryParameter("code"))?.trim().orEmpty()
+        val code = uri.getQueryParameter("code")?.trim().orEmpty()
         if (state.isEmpty() || code.isEmpty() || state.length > 4096 || code.length > 16384) return false
-        synchronized(pending) { pending.add(Callback(state, code, grant)) }
+        synchronized(pending) { pending.add(Callback(state, code)) }
         return true
     }
 

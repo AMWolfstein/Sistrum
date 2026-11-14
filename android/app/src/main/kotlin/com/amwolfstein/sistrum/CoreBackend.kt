@@ -164,13 +164,7 @@ internal fun withCoreFFmpegExecution(
 internal interface CoreBackend {
     val implementation: String
     fun invokeApplication(method: String, arguments: Any?): Any?
-    fun setRuntimeState(dataDirectory: String, payload: String) {
-        invokeApplication(
-            "prepareRuntimeState",
-            mapOf("data_dir" to dataDirectory, "runtime_state" to payload),
-        )
-    }
-    fun completeAuthCallback(state: String, code: String, sessionGrant: Boolean, onResolved: (String) -> Unit)
+    fun completeAuthCallback(state: String, code: String, onResolved: (String) -> Unit)
     fun downloadByStrategy(requestJson: String): String =
         withCoreFFmpegExecution(openExtensionExecution()) { it.download(requestJson) }
     fun openDownloadProgress(): CoreDownloadProgress

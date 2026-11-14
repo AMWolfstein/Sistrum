@@ -2,7 +2,7 @@
 
 use super::*;
 use sistrum_core::cancellation::RequestLease;
-use sistrum_core::matching::{lowercase, uppercase};
+use sistrum_core::matching::uppercase;
 use serde::Deserialize;
 use std::collections::BTreeSet;
 
@@ -211,7 +211,6 @@ impl ExtensionManager {
         let limit = search_limit(limit);
         let mut tracks = Vec::new();
         let mut seen = BTreeSet::new();
-        let mut verification = None;
         // Keep the same cancellation acquisition alive between providers.
         let lease = if request_lease.is_some() {
             request_lease
@@ -245,11 +244,6 @@ impl ExtensionManager {
                     let _ = self.environment.log_buffer().backend(&format!(
                         "[MetadataSearch] Search error from {id}: {failure}"
                     ));
-                    if verification.is_none() && requires_verification(&failure.0) {
-                        verification = Some(error(format!(
-                            "verification_required: extension '{id}' needs verification: {failure}"
-                        )));
-                    }
                     continue;
                 }
             };
@@ -264,35 +258,12 @@ impl ExtensionManager {
                 }
             }
         }
-        if tracks.is_empty()
-            && let Some(failure) = verification
-        {
-            return Err(failure);
-        }
         Ok(tracks.into())
     }
 }
 
 fn search_limit(limit: isize) -> usize {
     if limit <= 0 { 20 } else { limit as usize }
-}
-
-fn requires_verification(message: &str) -> bool {
-    let message = lowercase(message);
-    if ["isp blocking", "try using vpn", "change dns", "cancel"]
-        .iter()
-        .any(|part| message.contains(part))
-    {
-        return false;
-    }
-    [
-        "verification_required",
-        "session is not authenticated",
-        "signed session is not authenticated",
-        "signed session expired",
-    ]
-    .iter()
-    .any(|part| message.contains(part))
 }
 
 fn dedup_key(track: &Value) -> String {

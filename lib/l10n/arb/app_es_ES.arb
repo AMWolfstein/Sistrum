@@ -5416,14 +5416,6 @@
       }
     }
   },
-  "notifVerificationRequiredTitle": "Se requiere verificación",
-  "@notifVerificationRequiredTitle": {
-    "description": "Notification title shown when a download needs the user to complete a verification challenge but the app is in the background"
-  },
-  "notifVerificationRequiredBody": "Abre la aplicación para completar la verificación y reanudar las descargas",
-  "@notifVerificationRequiredBody": {
-    "description": "Notification body prompting the user to return to the app to solve a verification challenge"
-  },
   "notifAllDownloadsComplete": "Todas las descargas completadas",
   "@notifAllDownloadsComplete": {
     "description": "Notification title when all downloads finish successfully"
@@ -7282,51 +7274,6 @@
   "extensionVerificationBrowserInApp": "Dentro de la aplicación",
   "@extensionVerificationBrowserInApp": {
     "description": "Chip label for in-app browser verification mode"
-  },
-  "extensionVerificationUnavailable": "No hay ninguna página de verificación disponible para {extension}. Vuelve a intentar la descarga para solicitar un nuevo código de verificación.",
-  "@extensionVerificationUnavailable": {
-    "description": "Shown when the app cannot retrieve a pending verification challenge",
-    "placeholders": {
-      "extension": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionVerificationHelpTitleManual": "Abrir la verificación manualmente",
-  "@extensionVerificationHelpTitleManual": {
-    "description": "Dialog title when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpTitleWaiting": "La verificación sigue pendiente",
-  "@extensionVerificationHelpTitleWaiting": {
-    "description": "Dialog title when verification is taking longer than expected"
-  },
-  "extensionVerificationHelpMessageManual": "Sistrum no pudo abrir el navegador automáticamente. Abre este enlace en tu navegador o cópialo manualmente.",
-  "@extensionVerificationHelpMessageManual": {
-    "description": "Dialog message when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpMessageWaiting": "Si el navegador no se abrió, o si la verificación terminó pero no regresaste a Sistrum, abre este enlace de nuevo o cópialo manualmente.",
-  "@extensionVerificationHelpMessageWaiting": {
-    "description": "Dialog message when verification may need manual browser help"
-  },
-  "extensionVerificationClose": "Cerrar",
-  "@extensionVerificationClose": {
-    "description": "Button to dismiss the extension verification help dialog"
-  },
-  "extensionVerificationCopyLink": "Copiar enlace",
-  "@extensionVerificationCopyLink": {
-    "description": "Button to copy the extension verification URL"
-  },
-  "extensionVerificationPasteCallback": "Pegar callback",
-  "@extensionVerificationPasteCallback": {
-    "description": "Button that completes extension verification from a callback URL in the clipboard"
-  },
-  "extensionVerificationLinkCopied": "Se copió el enlace de verificación",
-  "@extensionVerificationLinkCopied": {
-    "description": "Snackbar after copying the extension verification URL"
-  },
-  "extensionVerificationOpenBrowser": "Abrir el navegador",
-  "@extensionVerificationOpenBrowser": {
-    "description": "Button to open the extension verification URL in a browser"
   },
   "settingsSearchHint": "Configuración de búsqueda",
   "@settingsSearchHint": {

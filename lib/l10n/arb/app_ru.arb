@@ -5416,14 +5416,6 @@
       }
     }
   },
-  "notifVerificationRequiredTitle": "Требуется верификация",
-  "@notifVerificationRequiredTitle": {
-    "description": "Notification title shown when a download needs the user to complete a verification challenge but the app is in the background"
-  },
-  "notifVerificationRequiredBody": "Откройте приложение, чтобы завершить проверку и возобновить загрузку",
-  "@notifVerificationRequiredBody": {
-    "description": "Notification body prompting the user to return to the app to solve a verification challenge"
-  },
   "notifAllDownloadsComplete": "Все загрузки завершены",
   "@notifAllDownloadsComplete": {
     "description": "Notification title when all downloads finish successfully"
@@ -7282,51 +7274,6 @@
   "extensionVerificationBrowserInApp": "В приложении",
   "@extensionVerificationBrowserInApp": {
     "description": "Chip label for in-app browser verification mode"
-  },
-  "extensionVerificationUnavailable": "Для {extension} нет доступной страницы подтверждения. Повторите загрузку, чтобы запросить новую задачу.",
-  "@extensionVerificationUnavailable": {
-    "description": "Shown when the app cannot retrieve a pending verification challenge",
-    "placeholders": {
-      "extension": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionVerificationHelpTitleManual": "Открыть верификацию вручную",
-  "@extensionVerificationHelpTitleManual": {
-    "description": "Dialog title when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpTitleWaiting": "Ожидание верификации",
-  "@extensionVerificationHelpTitleWaiting": {
-    "description": "Dialog title when verification is taking longer than expected"
-  },
-  "extensionVerificationHelpMessageManual": "Sistrum не смог автоматически открыть браузер. Откройте эту ссылку в браузере или скопируйте её вручную.",
-  "@extensionVerificationHelpMessageManual": {
-    "description": "Dialog message when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpMessageWaiting": "Если окно браузера не открылось либо проверка завершилась, но приложение Sistrum не открылось автоматически, перейдите по ссылке повторно или скопируйте её вручную.",
-  "@extensionVerificationHelpMessageWaiting": {
-    "description": "Dialog message when verification may need manual browser help"
-  },
-  "extensionVerificationClose": "Закрыть",
-  "@extensionVerificationClose": {
-    "description": "Button to dismiss the extension verification help dialog"
-  },
-  "extensionVerificationCopyLink": "Копировать",
-  "@extensionVerificationCopyLink": {
-    "description": "Button to copy the extension verification URL"
-  },
-  "extensionVerificationPasteCallback": "Paste callback",
-  "@extensionVerificationPasteCallback": {
-    "description": "Button that completes extension verification from a callback URL in the clipboard"
-  },
-  "extensionVerificationLinkCopied": "Ссылка на верификацию скопирована",
-  "@extensionVerificationLinkCopied": {
-    "description": "Snackbar after copying the extension verification URL"
-  },
-  "extensionVerificationOpenBrowser": "Открыть браузер",
-  "@extensionVerificationOpenBrowser": {
-    "description": "Button to open the extension verification URL in a browser"
   },
   "settingsSearchHint": "Найти настройки",
   "@settingsSearchHint": {

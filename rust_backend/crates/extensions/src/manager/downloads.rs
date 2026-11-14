@@ -92,54 +92,6 @@ impl ExtensionManager {
         Ok(entry.manifest.account_download_enabled(&settings))
     }
 
-    pub(crate) fn preflight_download(
-        &self,
-        id: &str,
-        lease: Arc<RequestLease>,
-    ) -> Result<bool, ManagerError> {
-        self.preflight_session(id, lease, true)
-    }
-
-    pub(crate) fn preflight_auth(
-        &self,
-        id: &str,
-        lease: Arc<RequestLease>,
-    ) -> Result<bool, ManagerError> {
-        self.preflight_session(id, lease, false)
-    }
-
-    fn preflight_session(
-        &self,
-        id: &str,
-        lease: Arc<RequestLease>,
-        download_only: bool,
-    ) -> Result<bool, ManagerError> {
-        let Ok(entry) = self.get(id) else {
-            self.check()?;
-            return Ok(false);
-        };
-        if !entry.status.read().expect("extension status lock").enabled
-            || (download_only && !entry.manifest.has_type("download_provider"))
-            || entry.manifest.signed_session.is_none()
-        {
-            return Ok(false);
-        }
-        if self.account_download_enabled(id)? {
-            return Ok(false);
-        }
-        let runtime = {
-            let mut engine = self.download_engine(&entry, Some(&lease))?;
-            if !self.current(&entry) || !entry.status.read().expect("extension status lock").enabled
-            {
-                return Err(error("extension is disabled or no longer installed"));
-            }
-            self.ready_with_lease(&entry, &mut engine, true, Some(lease.clone()))?
-        };
-        runtime
-            .preflight_signed_session(Some(lease), 30_000)
-            .map_err(|failure| error(failure.to_string()))
-    }
-
     pub(super) fn download_engine<'a>(
         &self,
         entry: &'a Installed,
@@ -300,9 +252,6 @@ impl ExtensionManager {
         {
             options["preparedContext"] = context.into();
         }
-        // This marker belongs to one VM and one invocation, never to a previous
-        // download that returned its worker to the idle pool.
-        borrowed.runtime.take_verification_url();
         let response = borrowed.runtime.call_download_provider(
             &json!([
                 request.track_id,
@@ -341,18 +290,6 @@ impl ExtensionManager {
             return Ok(failure("not_implemented", "download returned null"));
         }
         normalize_decryption(&mut value);
-        if value["success"] != true
-            && !borrowed.runtime.take_verification_url().is_empty()
-            && !value["error_type"]
-                .as_str()
-                .unwrap_or("")
-                .eq_ignore_ascii_case("verification_required")
-        {
-            value["error_type"] = "verification_required".into();
-            if value["error_message"].as_str().unwrap_or("").is_empty() {
-                value["error_message"] = "Verification required".into();
-            }
-        }
         Ok(value.to_string())
     }
 }
@@ -461,8 +398,6 @@ mod tests {
         fs::write(source.join("manifest.json"), json!({"name":"example.account","version":"1",
             "description":"Generic account mode fixture","type":["download_provider"],
             "permissions":{"storage":true,"network":["accounts.example.test"]},
-            "signedSession":{"namespace":"example-account","baseUrl":"https://accounts.example.test","appVersion":"1","platform":"extension",
-                "endpoints":{"bootstrap":"/bootstrap","challenge":"/challenge","exchange":"/exchange","refresh":"/refresh"}},
             "capabilities":{"accountDownloadMode":{"setting":"accountMode","value":"personal"}}}).to_string()).unwrap();
         fs::write(
             source.join("index.js"),
@@ -479,19 +414,6 @@ mod tests {
             )
             .unwrap();
         assert!(manager.account_download_enabled("example.account").unwrap());
-        // No signed-session service is contacted in personal account mode.
-        let lease = Arc::new(
-            manager
-                .environment
-                .download_state()
-                .acquire("test-account")
-                .unwrap(),
-        );
-        assert!(
-            !manager
-                .preflight_download("example.account", lease)
-                .unwrap()
-        );
         manager
             .update_settings(
                 "example.account",

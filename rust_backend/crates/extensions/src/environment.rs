@@ -5,7 +5,6 @@ mod index;
 use crate::auth::{AuthRegistry, ExtensionAuth, PendingAuthRequest};
 use crate::manifest::{ExtensionManifest, ManifestError};
 use crate::runtime::LoadMode;
-use crate::signed_session::SignedRegistry;
 use crate::storage::{
     ExtensionStore, StorageError, StorageMasterKey, StoreKind, valid_extension_id,
 };
@@ -29,9 +28,7 @@ use std::time::Duration;
 pub(crate) static SUPPORTED_RUNTIME_FEATURES: LazyLock<BTreeMap<String, isize>> =
     LazyLock::new(|| {
         [
-            ("signedSession", 3),
             ("sessionRefresh", 1),
-            ("sessionGrant", 1),
             ("globalAction", 1),
             ("webviewAuth", 1),
             ("downloadSegments", 1),
@@ -87,7 +84,6 @@ pub struct ExtensionEnvironment {
     app_version: AppVersion,
     network: Arc<NetworkService>,
     auth: Arc<AuthRegistry>,
-    sessions: Arc<SignedRegistry>,
     files: Arc<crate::files::FileRegistry>,
     isrc: Arc<sistrum_core::isrc::IndexCache>,
     closed: Arc<AtomicBool>,
@@ -137,7 +133,6 @@ impl ExtensionEnvironment {
             crate::files::clean(&std::path::absolute(data_directory).map_err(StorageError::from)?);
         let data_directory = fs::canonicalize(data_directory).map_err(StorageError::from)?;
         let auth = Arc::new(AuthRegistry::persistent(&data_directory, &master_key));
-        let sessions = SignedRegistry::new(&data_directory, Arc::clone(&auth));
         Ok(Self {
             logs: Arc::new(crate::logging::LogBuffer::default()),
             ffmpeg: Arc::new(crate::ffmpeg::CommandRegistry::default()),
@@ -154,7 +149,6 @@ impl ExtensionEnvironment {
             app_version: app_version.into(),
             network,
             auth,
-            sessions,
             files: Arc::new(crate::files::FileRegistry::default()),
             isrc: Arc::new(sistrum_core::isrc::IndexCache::default()),
             closed: Arc::new(AtomicBool::new(false)),
@@ -396,16 +390,6 @@ impl ExtensionEnvironment {
                     self.app_version.clone(),
                 ))
             }),
-            auth_registry: Some(Arc::clone(&self.auth)),
-            session: manifest
-                .signed_session
-                .clone()
-                .map(|config| {
-                    self.sessions
-                        .session(&manifest.name, config, Arc::clone(&network))
-                })
-                .transpose()
-                .map_err(EnvironmentError::Auth)?,
             network: Some(network),
             app_version: self.app_version.clone(),
             parent_closed: Some(Arc::clone(&self.closed)),
@@ -440,7 +424,6 @@ impl ExtensionEnvironment {
         self.ffmpeg.shutdown();
         self.downloads.shutdown();
         self.auth.shutdown();
-        self.sessions.shutdown();
         let _shutdown = self.shutdown_lock.lock().expect("extension shutdown lock");
         let runtimes = {
             let mut state = self.state.lock().expect("extension environment lock");
@@ -557,7 +540,6 @@ impl ExtensionEnvironment {
             store.close();
         }
         self.auth.clear(id);
-        self.sessions.forget_extension(id);
         let path = self.data_directory.join(id);
         match fs::symlink_metadata(&path) {
             Ok(metadata) if metadata.is_dir() => {
@@ -591,20 +573,6 @@ impl ExtensionEnvironment {
 
     pub fn download_state(&self) -> Arc<sistrum_core::downloads::DownloadState> {
         Arc::clone(&self.downloads)
-    }
-
-    pub fn set_runtime_state(&self, raw: &str) -> Result<(), EnvironmentError> {
-        let _operation = self.enter()?;
-        self.sessions
-            .set_runtime_state(raw)
-            .map_err(EnvironmentError::Auth)
-    }
-
-    pub fn set_session_grant(&self, id: &str, grant: &str) -> Result<(), EnvironmentError> {
-        let _operation = self.enter()?;
-        self.sessions
-            .set_grant(id, grant)
-            .map_err(EnvironmentError::Auth)
     }
 
     pub fn pending_auth(&self, id: &str) -> Result<Option<PendingAuthRequest>, EnvironmentError> {

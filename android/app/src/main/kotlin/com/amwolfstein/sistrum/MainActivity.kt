@@ -80,7 +80,6 @@ class MainActivity: FlutterFragmentActivity() {
         "isCharging",
         "getBackendImplementations",
         "ensureInstallMarker",
-        "prepareRuntimeState",
         "downloadByStrategy",
         "runPostProcessingV2",
         "readAudioMetadata",
@@ -153,12 +152,9 @@ class MainActivity: FlutterFragmentActivity() {
         "resumeNativeDownloadWorker",
         "cancelNativeDownloadWorker",
         "getNativeDownloadWorkerSnapshot",
-        "consumeVerificationNotification",
         "exitApp",
     )
     private var libraryStorageReceiver: BroadcastReceiver? = null
-    internal val pendingSessionGrantEvents = mutableListOf<Map<String, Any>>()
-    internal var pendingVerificationNotification: String? = null
     internal val setupFolderPickerStore by lazy {
         SetupFolderPickerStore(getSharedPreferences("setup_folder_picker", Context.MODE_PRIVATE))
     }
@@ -397,7 +393,6 @@ class MainActivity: FlutterFragmentActivity() {
         // delegate looks it up by cached id (see getCachedEngineId above).
         AudioServicePlugin.getFlutterEngine(this)
         super.onCreate(savedInstanceState)
-        handleVerificationNotificationIntent(intent)
         handleExtensionOAuthIntent(intent)
         PlayerWidgetBridge.handleIntent(intent)
     }
@@ -428,7 +423,6 @@ class MainActivity: FlutterFragmentActivity() {
         AudioOpenBridge.consume(this, intent)
         super.onNewIntent(intent)
         setIntent(intent)
-        handleVerificationNotificationIntent(intent)
         handleExtensionOAuthIntent(intent)
         PlayerWidgetBridge.handleIntent(intent)
     }
@@ -504,13 +498,6 @@ class MainActivity: FlutterFragmentActivity() {
         val channel = MethodChannel(messenger, CHANNEL)
         backendChannel = channel
         registerLibraryStorageReceiver()
-        if (pendingSessionGrantEvents.isNotEmpty()) {
-            val events = pendingSessionGrantEvents.toList()
-            pendingSessionGrantEvents.clear()
-            for (event in events) {
-                channel.invokeMethod("extensionSessionGrantCompleted", event)
-            }
-        }
 
         channel.setMethodCallHandler { call, result ->
             scope.launch {
@@ -526,9 +513,7 @@ class MainActivity: FlutterFragmentActivity() {
                         }
                         "setScreenAwake" -> handleSetScreenAwake(call, result)
                         "isCharging" -> handleIsCharging(call, result)
-                        "consumeVerificationNotification" -> handleConsumeVerificationNotification(call, result)
                         "ensureInstallMarker" -> handleEnsureInstallMarker(call, result)
-                        "prepareRuntimeState" -> handlePrepareRuntimeState(call, result, selectedBackend)
                         "exitApp" -> handleExitApp(call, result)
                         "downloadByStrategy" -> handleDownloadByStrategy(call, result)
                         "getBackendImplementations" -> handleGetBackendImplementations(call, result)

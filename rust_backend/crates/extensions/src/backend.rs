@@ -152,11 +152,8 @@ impl Backend {
             .set_persistence_path(&environment.data_directory().join(".lyrics_cache.json"))
             .map_err(|error| ManagerError(error.to_string()))?;
         environment.attach_lyrics(&lyrics);
-        let cover = cover::Cover::new(&network, environment.shared_app_version());
-        let health = Arc::new(health::Health::new(
-            &network,
-            environment.shared_app_version(),
-        ));
+        let cover = cover::Cover::new(&network);
+        let health = Arc::new(health::Health::new(&network));
         Ok(Self {
             manager,
             lyrics,
@@ -198,14 +195,6 @@ impl Backend {
         {
             return serde_json::to_string(&pending).map_err(|error| error.to_string());
         }
-        // A missing or expired challenge may require network preflight. Reuse
-        // cancellable provider work so owner shutdown interrupts that request.
-        self.metadata_provider_work(&|| self.check(), |lease| {
-            self.manager
-                .preflight_auth(id, lease)
-                .map(|_| "null".into())
-        })
-        .map_err(|error| error.to_string())?;
         environment
             .pending_auth(id)
             .map_err(|error| error.to_string())?

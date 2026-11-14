@@ -74,7 +74,6 @@ internal object RustCoreBackend : CoreBackend {
     internal var allowPrivateNetwork = false
     internal var allowHttpFallback = false
     internal var fallbackProviders: List<String>? = null
-    internal var runtimeState: Pair<String, String>? = null
     internal val directoryScopes = mutableMapOf<String, AutoCloseable>()
     private var libraryCoverScope: AutoCloseable? = null
     @Volatile private var libraryCoverDirectory: File? = null
@@ -201,10 +200,6 @@ internal object RustCoreBackend : CoreBackend {
             manager!!.environment().use { it.setAllowedDownloadDirectories(allowedDirectories.distinct()) }
             return
         }
-        val preparedRuntime = runtimeState
-        require(preparedRuntime == null || preparedRuntime.first == data) {
-            "Runtime state directory does not match the initialized owner"
-        }
         val created = ExtensionManager.withLyricsSettings(
             sources,
             data,
@@ -220,7 +215,6 @@ internal object RustCoreBackend : CoreBackend {
                 environment.setAllowPrivateNetwork(allowPrivateNetwork)
                 environment.setNetworkCompatibilityOptions(allowHttpFallback, false)
                 environment.logBuffer().use { it.setEnabled(loggingEnabled) }
-                preparedRuntime?.let { environment.setRuntimeState(it.second) }
             }
             created.setFallbackProviders(fallbackProviders)
         } catch (error: Exception) {
@@ -255,7 +249,6 @@ internal object RustCoreBackend : CoreBackend {
         libraryCoverScope = null
         libraryCoverDirectory = null
         identity = null
-        runtimeState = null
     }
 
     override fun fileMetadataImplementation(path: String): String = "rust"
@@ -553,23 +546,14 @@ internal object RustCoreBackend : CoreBackend {
         current.withDownloadState { state -> state.resetDownloadCancel(itemId) }
     }
 
-    override fun completeAuthCallback(state: String, code: String, sessionGrant: Boolean, onResolved: (String) -> Unit) {
+    override fun completeAuthCallback(state: String, code: String, onResolved: (String) -> Unit) {
         val current = owner()
         current.environment().use { environment ->
-            val id = if (sessionGrant) environment.resolveCallbackState(state) else environment.consumeCallbackState(state)
+            val id = environment.consumeCallbackState(state)
             onResolved(id)
-            if (sessionGrant) {
-                completeSessionGrant(current, id, code)
-            } else {
-                environment.setAuthCode(id, code)
-                current.invokeAction(id, "completeSpotifyLogin")
-            }
+            environment.setAuthCode(id, code)
+            current.invokeAction(id, "completeSpotifyLogin")
         }
-    }
-
-    internal fun completeSessionGrant(current: ExtensionManager, id: String, grant: String) {
-        current.environment().use { it.setSessionGrant(id, grant) }
-        requireSuccessfulExtensionAction(id, "completeGrant", current.invokeAction(id, "completeGrant"))
     }
 
     override fun invokeApplication(method: String, arguments: Any?): Any? = dispatchApplication(method, arguments)

@@ -175,34 +175,7 @@ impl Backend {
                 .and_then(|()| lease.check_active().map_err(|error| error.to_string()))
         };
         let key = preparation_key(&request);
-        let session_provider = if request.service.trim().is_empty() {
-            request.source.trim()
-        } else {
-            request.service.trim()
-        }
-        .to_owned();
-        let preflight = self.preflight_download(&session_provider, lease.clone());
         check()?;
-        match preflight {
-            Ok(true) => {
-                self.cache_prepared(&key, &request, false);
-                return Ok(failure(
-                    &session_provider,
-                    "Verification required before download",
-                    "verification_required",
-                    0,
-                ));
-            }
-            Err(error) => {
-                return Ok(failure(
-                    &session_provider,
-                    &format!("Could not start verification for {session_provider}: {error}"),
-                    "",
-                    0,
-                ));
-            }
-            Ok(false) => {}
-        }
         let prepared = self.take_prepared(&key, &mut request);
         if !request.item_id.is_empty() {
             let _ = self
@@ -307,11 +280,7 @@ impl Backend {
                     .clone()
                     .unwrap_or_else(|| json!({"available":true}))
             } else {
-                let available = self.preflight_download(&id, lease.clone()).map_err(|error| error.to_string())
-                    .and_then(|verification| {
-                        if verification { Err(format!("verification_required: extension '{id}' needs signed-session verification")) }
-                        else { self.download_availability(&id, &request, lease.clone()) }
-                    });
+                let available = self.download_availability(&id, &request, lease.clone());
                 check()?;
                 match available {
                     Ok(value) => value,
@@ -319,15 +288,6 @@ impl Backend {
                         let response = failure(&id, &error, "", 0);
                         if account_mode {
                             return Ok(response);
-                        }
-                        if response["error_type"] == "verification_required" {
-                            self.cache_prepared(&key, &request, true);
-                            return Ok(failure(
-                                &id,
-                                &format!("Download failed: {error}"),
-                                "verification_required",
-                                0,
-                            ));
                         }
                         last = Some(response);
                         continue;

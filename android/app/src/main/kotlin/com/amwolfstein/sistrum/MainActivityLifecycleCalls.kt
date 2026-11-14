@@ -24,12 +24,6 @@ internal fun MainActivity.handleIsCharging(call: MethodCall, result: MethodChann
     result.success((battery?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0) != 0)
 }
 
-internal fun MainActivity.handleConsumeVerificationNotification(call: MethodCall, result: MethodChannel.Result) {
-    val payload = pendingVerificationNotification
-    pendingVerificationNotification = null
-    result.success(payload)
-}
-
 internal suspend fun MainActivity.handleEnsureInstallMarker(call: MethodCall, result: MethodChannel.Result) {
     val installState = withContext(Dispatchers.IO) {
         ensureInstallMarker()
@@ -41,23 +35,6 @@ internal suspend fun MainActivity.handleEnsureInstallMarker(call: MethodCall, re
  * [selectedBackend] is the backend configureFlutterEngine selected before
  * registering the channel; the call writes the runtime state into it.
  */
-internal suspend fun MainActivity.handlePrepareRuntimeState(
-    call: MethodCall,
-    result: MethodChannel.Result,
-    selectedBackend: CoreBackend,
-) {
-    val dataDir = call.argument<String>("data_dir") ?: ""
-    val runtimeState = withContext(Dispatchers.IO) {
-        require(dataDir.isNotBlank()) {
-            "Extension data directory is required"
-        }
-        val payload = prepareRuntimeState(dataDir)
-        selectedBackend.setRuntimeState(dataDir, payload)
-        mapOf("ready" to true)
-    }
-    result.success(runtimeState)
-}
-
 internal fun MainActivity.handleExitApp(call: MethodCall, result: MethodChannel.Result) {
     flutterBackCallback?.isEnabled = false
     finishAndRemoveTask()

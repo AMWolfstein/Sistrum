@@ -118,43 +118,8 @@ extension _EditMetadataSheetAutoFill on _EditMetadataSheetState {
     required bool usesAutomaticProvider,
     required Extension? selectedProvider,
     required ExtensionState extensionState,
-    bool allowVerificationRetry = true,
   }) async {
-    try {
-      return await _autofill.search(query, provider: selectedProvider);
-    } catch (error) {
-      if (!allowVerificationRetry || !isExtensionVerificationRequired(error)) {
-        rethrow;
-      }
-
-      final extensionId = usesAutomaticProvider
-          ? extensionIdFromVerificationError(
-              error,
-              extensionState.extensions.map((extension) => extension.id),
-            )
-          : selectedProvider?.id;
-      if (extensionId == null || extensionId.isEmpty) rethrow;
-
-      _log.i(
-        'Metadata autofill requires verification; waiting for $extensionId',
-      );
-      final verified = await openVerificationAndAwaitGrant(
-        extensionId,
-        browserMode: ProviderScope.containerOf(
-          context,
-          listen: false,
-        ).read(settingsProvider).extensionVerificationBrowserMode,
-      );
-      if (!verified || !mounted) rethrow;
-
-      return _searchAutoFillCandidates(
-        query: query,
-        usesAutomaticProvider: usesAutomaticProvider,
-        selectedProvider: selectedProvider,
-        extensionState: extensionState,
-        allowVerificationRetry: false,
-      );
-    }
+    return _autofill.search(query, provider: selectedProvider);
   }
 
   Future<Map<String, dynamic>?> _showAutoFillCandidatePicker({

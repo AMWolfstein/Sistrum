@@ -316,21 +316,7 @@
             const callback = globalThis[method];
             return typeof callback === "function" ? apply(callback, globalThis, args) : null;
         }
-        try { return invoke(method, args); }
-        catch (error) {
-            const id = method === "enrichTrack" ? null : host.providerPendingVerification();
-            if (!empty(id) && !empty(error)) {
-                let message;
-                try {
-                    const value = typeof error === "object" || typeof error === "function" ? error.message : error;
-                    if (!empty(value)) message = trim(goString(value));
-                } catch (_) {}
-                if (message === "VERIFY_REQUIRED") {
-                    throw "verification_required: extension '" + id + "' needs signed-session verification: " + goString(error);
-                }
-            }
-            throw error;
-        }
+        return invoke(method, args);
     }
     return {
         invoke: invokeVerified,

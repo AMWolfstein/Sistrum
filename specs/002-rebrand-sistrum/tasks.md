@@ -189,7 +189,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     shows only the copyright credits and the T009/T010 sites (removed later); `python3 workflow/work.py validate` passes.
   - Dependencies: M002-T005.
 
-- [ ] M002-T010 Remove signed extension sessions and the api.zarz.moe rules
+- [x] M002-T010 Remove signed extension sessions and the api.zarz.moe rules
   - Request: owner, 2026-11-14: remove `SPOTIFLAC-HMAC-V1` and its server
     (FR-015).
   - Start: refresh the map; query `SignedSessionClient`,

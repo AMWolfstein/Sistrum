@@ -6,7 +6,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/services/verification_notification.dart';
 import 'package:sistrum/utils/string_utils.dart';
 
 class NotificationService {
@@ -22,7 +21,6 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications;
   bool _isInitialized = false;
   Future<void>? _initialization;
-  final verificationNotifications = VerificationNotificationRouter();
   AppLocalizations? _l10n;
 
   /// Call this from the widget tree (e.g. didChangeDependencies) whenever the
@@ -107,7 +105,6 @@ class NotificationService {
   static const int downloadProgressId = 1;
   static const int updateDownloadId = 2;
   static const int libraryScanId = 3;
-  static const int verificationRequiredId = 4;
   static const String channelId = 'download_progress';
   static const String channelName = 'Download Progress';
   static const String channelDescription = 'Shows download progress for tracks';
@@ -141,19 +138,8 @@ class NotificationService {
 
     await _notifications.initialize(
       settings: initSettings,
-      onDidReceiveNotificationResponse: (response) {
-        verificationNotifications.receive(response.payload);
-      },
+      onDidReceiveNotificationResponse: (_) {},
     );
-    // Android delivers the launch tap through a separate launch-details query.
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      final launch = await _notifications.getNotificationAppLaunchDetails();
-      if (launch?.didNotificationLaunchApp == true) {
-        verificationNotifications.receive(
-          launch?.notificationResponse?.payload,
-        );
-      }
-    }
 
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       final androidImpl = _notifications
@@ -360,40 +346,6 @@ class NotificationService {
         presentSound: true,
       ),
     );
-  }
-
-  Future<void> showVerificationRequired({
-    required String extensionId,
-    required String itemId,
-  }) async {
-    if (!_isInitialized) await initialize();
-    unawaited(HapticFeedback.mediumImpact());
-
-    final title =
-        _l10n?.notifVerificationRequiredTitle ?? 'Verification required';
-    final body =
-        _l10n?.notifVerificationRequiredBody ??
-        'Open the app to complete verification and resume downloads';
-
-    await _showSafely(
-      id: verificationRequiredId,
-      title: title,
-      body: body,
-      payload: VerificationNotification(
-        extensionId: extensionId,
-        itemId: itemId,
-        tapId: 'dart:${DateTime.now().microsecondsSinceEpoch}',
-      ).encode(),
-      details: _details(
-        playSound: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
-  }
-
-  Future<void> cancelVerificationRequired() async {
-    await _notifications.cancel(id: verificationRequiredId);
   }
 
   Future<void> showQueueCanceled({required int canceledCount}) async {

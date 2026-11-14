@@ -5416,14 +5416,6 @@
       }
     }
   },
-  "notifVerificationRequiredTitle": "인증 필요",
-  "@notifVerificationRequiredTitle": {
-    "description": "Notification title shown when a download needs the user to complete a verification challenge but the app is in the background"
-  },
-  "notifVerificationRequiredBody": "앱을 실행하여 인증을 완료하고 다운로드를 재개하세요",
-  "@notifVerificationRequiredBody": {
-    "description": "Notification body prompting the user to return to the app to solve a verification challenge"
-  },
   "notifAllDownloadsComplete": "모든 다운로드 완료",
   "@notifAllDownloadsComplete": {
     "description": "Notification title when all downloads finish successfully"
@@ -7282,51 +7274,6 @@
   "extensionVerificationBrowserInApp": "내부",
   "@extensionVerificationBrowserInApp": {
     "description": "Chip label for in-app browser verification mode"
-  },
-  "extensionVerificationUnavailable": "'{extension}'에 대한 인증 페이지를 사용할 수 없습니다. 새 인증을 요청하려면 다운로드를 다시 시도하세요",
-  "@extensionVerificationUnavailable": {
-    "description": "Shown when the app cannot retrieve a pending verification challenge",
-    "placeholders": {
-      "extension": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionVerificationHelpTitleManual": "수동으로 인증 열기",
-  "@extensionVerificationHelpTitleManual": {
-    "description": "Dialog title when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpTitleWaiting": "아직 인증을 기다리는 중",
-  "@extensionVerificationHelpTitleWaiting": {
-    "description": "Dialog title when verification is taking longer than expected"
-  },
-  "extensionVerificationHelpMessageManual": "Sistrum에서 브라우저를 자동으로 열지 못하였습니다. 아래 링크를 브라우저에서 열거나 직접 복사하세요",
-  "@extensionVerificationHelpMessageManual": {
-    "description": "Dialog message when automatic browser launch for verification fails"
-  },
-  "extensionVerificationHelpMessageWaiting": "브라우저가 열리지 않거나 인증을 완료한 후에도 Sistrum로 돌아가지 않는다면, 아래 링크를 다시 열거나 직접 복사하세요",
-  "@extensionVerificationHelpMessageWaiting": {
-    "description": "Dialog message when verification may need manual browser help"
-  },
-  "extensionVerificationClose": "닫기",
-  "@extensionVerificationClose": {
-    "description": "Button to dismiss the extension verification help dialog"
-  },
-  "extensionVerificationCopyLink": "링크 복사",
-  "@extensionVerificationCopyLink": {
-    "description": "Button to copy the extension verification URL"
-  },
-  "extensionVerificationPasteCallback": "콜백 붙혀넣게",
-  "@extensionVerificationPasteCallback": {
-    "description": "Button that completes extension verification from a callback URL in the clipboard"
-  },
-  "extensionVerificationLinkCopied": "인증 링크가 복사됨",
-  "@extensionVerificationLinkCopied": {
-    "description": "Snackbar after copying the extension verification URL"
-  },
-  "extensionVerificationOpenBrowser": "브라우저 열기",
-  "@extensionVerificationOpenBrowser": {
-    "description": "Button to open the extension verification URL in a browser"
   },
   "settingsSearchHint": "설정 검색",
   "@settingsSearchHint": {

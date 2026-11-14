@@ -47,8 +47,6 @@ pub struct ExtensionServices {
     pub transfer_policy: crate::transfer_policy::DownloadTransferPolicy,
     pub network: Option<Arc<sistrum_network::NetworkSession>>,
     pub auth: Option<Arc<crate::auth::ExtensionAuth>>,
-    pub(crate) auth_registry: Option<Arc<crate::auth::AuthRegistry>>,
-    pub session: Option<Arc<crate::signed_session::SignedSessionClient>>,
     pub app_version: sistrum_core::app_version::AppVersion,
     pub(crate) parent_closed: Option<Arc<AtomicBool>>,
     pub(crate) startup_lease: Option<Arc<RequestLease>>,
@@ -76,8 +74,6 @@ impl Default for ExtensionServices {
             transfer_policy: crate::transfer_policy::DownloadTransferPolicy::default(),
             network: None,
             auth: None,
-            auth_registry: None,
-            session: None,
             app_version: Default::default(),
             parent_closed: None,
             startup_lease: None,
@@ -212,7 +208,6 @@ pub struct ExtensionRuntime {
     control: Arc<Control>,
     worker: Mutex<Option<JoinHandle<()>>>,
     limits: RuntimeLimits,
-    session: Option<Arc<crate::signed_session::SignedSessionClient>>,
     network: Option<Arc<sistrum_network::NetworkSession>>,
     native_calls: Mutex<usize>,
     native_idle: Condvar,
@@ -272,7 +267,6 @@ impl ExtensionRuntime {
         let worker_limits = limits.clone();
         let source = Arc::clone(&compiled_source.source);
         let settings = settings_json.to_owned();
-        let session = services.session.clone();
         let network = services.network.clone();
         let downloads = Arc::clone(&services.downloads);
         let lyrics_node = services.lyrics_node.clone();
@@ -308,7 +302,6 @@ impl ExtensionRuntime {
             control,
             worker: Mutex::new(Some(worker)),
             limits,
-            session,
             network,
             native_calls: Mutex::new(0),
             native_idle: Condvar::new(),
@@ -574,49 +567,6 @@ impl ExtensionRuntime {
         result.recv().unwrap_or(Err(ExtensionError::Closed))
     }
 
-    /// Session preflight touches thread-safe hosts without occupying the VM.
-    pub fn preflight_signed_session(
-        &self,
-        lease: Option<Arc<RequestLease>>,
-        timeout_ms: u64,
-    ) -> Result<bool, ExtensionError> {
-        let mut pending = self
-            .native_calls
-            .lock()
-            .expect("extension native calls lock");
-        if self.control.is_closed() {
-            return Err(ExtensionError::Closed);
-        }
-        *pending += 1;
-        drop(pending);
-        let _operation = NativeOperation(self);
-        let deadline = Instant::now() + self.limits.timeout(timeout_ms);
-        let check = || {
-            if self.control.is_closed() {
-                return Err(ExtensionError::Closed);
-            }
-            if let Some(lease) = &lease {
-                lease.check_active().map_err(ExtensionError::Cancelled)?;
-            }
-            if Instant::now() >= deadline {
-                return Err(ExtensionError::Timeout);
-            }
-            Ok(())
-        };
-        check()?;
-        let result = self.session.as_ref().map_or(Ok(false), |session| {
-            session.preflight(|| check().map_err(|error| error.to_string()))
-        });
-        check()?;
-        result.map_err(ExtensionError::Script)
-    }
-
-    pub fn take_verification_url(&self) -> String {
-        self.session
-            .as_ref()
-            .map_or_else(String::new, |session| session.take_verification_url())
-    }
-
     /// Terminal, idempotent interruption, including queued work. Does not run JS.
     /// A manager should call the extension's cleanup hook before orderly shutdown.
     pub fn shutdown(&self) {
@@ -635,19 +585,6 @@ impl ExtensionRuntime {
                 .wait(pending)
                 .expect("extension native calls idle");
         }
-    }
-}
-
-struct NativeOperation<'a>(&'a ExtensionRuntime);
-impl Drop for NativeOperation<'_> {
-    fn drop(&mut self) {
-        let mut pending = self
-            .0
-            .native_calls
-            .lock()
-            .expect("extension native calls lock");
-        *pending -= 1;
-        self.0.native_idle.notify_all();
     }
 }
 

@@ -213,34 +213,6 @@ manifest_struct!(HealthCheck {
     required: bool => "required",
 });
 
-manifest_struct!(SignedSessionEndpoints {
-    #[serde(skip_serializing_if = "String::is_empty")]
-    bootstrap: String => "bootstrap",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    challenge: String => "challenge",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    exchange: String => "exchange",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    refresh: String => "refresh",
-});
-
-manifest_struct!(SignedSession {
-    namespace: String => "namespace", base_url: String => "baseUrl",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    app_version: String => "appVersion",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    platform: String => "platform",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    callback_url: String => "callbackUrl",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    scheme_label: String => "schemeLabel",
-    #[serde(skip_serializing_if = "String::is_empty")]
-    header_prefix: String => "headerPrefix",
-    #[serde(skip_serializing_if = "is_zero")]
-    time_window_seconds: isize => "timeWindowSeconds",
-    endpoints: SignedSessionEndpoints => "endpoints",
-});
-
 manifest_struct!(ExtensionManifest {
     name: String => "name", display_name: String => "displayName",
     version: String => "version", description: String => "description",
@@ -274,8 +246,6 @@ manifest_struct!(ExtensionManifest {
     post_processing: Option<PostProcessing> => "postProcessing",
     #[serde(skip_serializing_if = "Vec::is_empty")]
     service_health: Vec<HealthCheck> => "serviceHealth",
-    #[serde(skip_serializing_if = "Option::is_none")]
-    signed_session: Option<SignedSession> => "signedSession",
     #[serde(skip_serializing_if = "Vec::is_empty")]
     required_runtime_features: Vec<String> => "requiredRuntimeFeatures",
     #[serde(skip_serializing_if = "Map::is_empty")]
@@ -349,7 +319,14 @@ fn extension_quality_kind(option: &QualityOption, manifest: Option<&ExtensionMan
 
 impl ExtensionManifest {
     pub fn parse(json: &str) -> Result<Self, ManifestError> {
-        let manifest: Self = serde_json::from_str(json)?;
+        let raw: Value = serde_json::from_str(json)?;
+        if raw.get("signedSession").is_some() {
+            return Err(invalid(
+                "signedSession",
+                "signed sessions are no longer supported; remove the field from the manifest",
+            ));
+        }
+        let manifest: Self = serde_json::from_value(raw)?;
         manifest.validate()?;
         Ok(manifest)
     }
@@ -425,33 +402,6 @@ impl ExtensionManifest {
             };
             if let Some((field, message)) = failure {
                 return Err(invalid(format!("serviceHealth[{index}].{field}"), message));
-            }
-        }
-        if let Some(session) = &self.signed_session {
-            if !self.permissions.storage {
-                return Err(invalid(
-                    "permissions.storage",
-                    "signedSession requires storage permission",
-                ));
-            }
-            if session.namespace.trim().is_empty() {
-                return Err(invalid("signedSession.namespace", "namespace is required"));
-            }
-            let base = session.base_url.trim();
-            if base.is_empty() {
-                return Err(invalid("signedSession.baseUrl", "baseUrl is required"));
-            }
-            if !base.to_lowercase().starts_with("https://") {
-                return Err(invalid("signedSession.baseUrl", "baseUrl must use https"));
-            }
-            let parsed = UrlParts::parse(base)
-                .filter(|url| !url.hostname.is_empty())
-                .ok_or_else(|| invalid("signedSession.baseUrl", "baseUrl is invalid"))?;
-            if !self.is_domain_allowed(&parsed.hostname) {
-                return Err(invalid(
-                    "signedSession.baseUrl",
-                    "baseUrl host must be listed in permissions.network",
-                ));
             }
         }
         if self.has_capability("rawFfmpeg") && !self.permissions.file {
@@ -639,8 +589,7 @@ mod tests {
         ExtensionManifest::parse(
             &serde_json::json!({
                 "name":"generic-media","version":"1.0.0","description":"Generic fixture",
-                "type":["download_provider"],"permissions":{"storage":true,"network":network},
-                "signedSession":{"namespace":"generic","baseUrl":"https://accounts.example.test"}
+                "type":["download_provider"],"permissions":{"storage":true,"network":network}
             })
             .to_string(),
         )
@@ -653,6 +602,5 @@ mod tests {
         assert!(any.is_domain_allowed("192.168.178.20"));
         let scoped = manifest(serde_json::json!(["*.example.test"])).unwrap();
         assert!(!scoped.is_domain_allowed("example.org"));
-        assert!(manifest(serde_json::json!(["example.org"])).is_err());
     }
 }

@@ -14,7 +14,6 @@ import 'package:sistrum/utils/hash_utils.dart';
 import 'package:sistrum/utils/logger.dart';
 
 part 'platform_bridge/bridge_codec.dart';
-part 'platform_bridge/bridge_events.dart';
 part 'platform_bridge/bridge_library_scan.dart';
 part 'platform_bridge/bridge_lookup_cache.dart';
 part 'platform_bridge/bridge_native_worker.dart';
@@ -190,12 +189,7 @@ class PlatformBridge {
   static Future<void>? _lookupCachePersistInFlight;
   static bool _lookupCachePersistDirty = false;
   static int _extensionRequestSequence = 0;
-  static final StreamController<ExtensionSessionGrantEvent>
-  _extensionSessionGrantEvents =
-      StreamController<ExtensionSessionGrantEvent>.broadcast();
   static final StreamController<void> _libraryStorageEvents =
-      StreamController<void>.broadcast();
-  static final StreamController<void> _verificationNotificationEvents =
       StreamController<void>.broadcast();
   static final StreamController<void> _setupFolderSelectionEvents =
       StreamController<void>.broadcast();
@@ -212,13 +206,7 @@ class PlatformBridge {
     return controller.stream;
   }
 
-  static Stream<ExtensionSessionGrantEvent> extensionSessionGrantEvents() =>
-      _events(_extensionSessionGrantEvents);
-
   static Stream<void> libraryStorageEvents() => _events(_libraryStorageEvents);
-
-  static Stream<void> verificationNotificationEvents() =>
-      _events(_verificationNotificationEvents);
 
   static Stream<void> setupFolderSelectionEvents() =>
       _events(_setupFolderSelectionEvents);
@@ -228,9 +216,6 @@ class PlatformBridge {
 
   static Future<void> processPendingExtensionCallbacks() =>
       _channel.invokeMethod<void>('processPendingExtensionCallbacks');
-
-  static Future<String?> consumeVerificationNotification() =>
-      _channel.invokeMethod<String>('consumeVerificationNotification');
 
   // method, and the session and device list as events.
 
@@ -254,25 +239,8 @@ class PlatformBridge {
             AppLogger('LocalLibrary').e('$operation [$path]: $message');
           }
           return null;
-        case 'extensionSessionGrantCompleted':
-          final args = call.arguments;
-          if (args is Map) {
-            final extensionId = args['extension_id']?.toString().trim() ?? '';
-            if (extensionId.isNotEmpty) {
-              _extensionSessionGrantEvents.add(
-                ExtensionSessionGrantEvent(
-                  extensionId: extensionId,
-                  success: args['success'] != false,
-                ),
-              );
-            }
-          }
-          return null;
         case 'libraryStorageChanged':
           _libraryStorageEvents.add(null);
-          return null;
-        case 'extensionVerificationNotificationTapped':
-          _verificationNotificationEvents.add(null);
           return null;
         default:
           return null;
@@ -305,11 +273,6 @@ class PlatformBridge {
     if (!Platform.isAndroid) return const InstallationState.unsupported();
     final result = await _invokeMap('ensureInstallMarker');
     return InstallationState.fromMap(result);
-  }
-
-  static Future<void> prepareRuntimeState(String dataDir) async {
-    if (!Platform.isAndroid) return;
-    await _invokeMap('prepareRuntimeState', {'data_dir': dataDir});
   }
 
   static Future<Map<String, dynamic>> _cachedInvoke(
@@ -1856,50 +1819,6 @@ class PlatformBridge {
   ) => _invokeDecoded(_decodeNullableMapResult, 'getExtensionPendingAuth', {
     'extension_id': extensionId,
   });
-
-  static final Map<String, Future<bool>> _extensionSessionGrantCompletions =
-      <String, Future<bool>>{};
-
-  static Future<bool> completeExtensionSessionGrant(
-    String extensionId,
-    String grant,
-  ) {
-    final normalizedExtensionId = extensionId.trim();
-    final key = normalizedExtensionId.toLowerCase();
-    final activeCompletion = _extensionSessionGrantCompletions[key];
-    if (activeCompletion != null) {
-      _log.d(
-        'Joining active completeExtensionSessionGrant: $normalizedExtensionId',
-      );
-      return activeCompletion;
-    }
-
-    late final Future<bool> completion;
-    completion = _completeExtensionSessionGrant(normalizedExtensionId, grant)
-        .whenComplete(() {
-          if (identical(_extensionSessionGrantCompletions[key], completion)) {
-            _extensionSessionGrantCompletions.remove(key);
-          }
-        });
-    _extensionSessionGrantCompletions[key] = completion;
-    return completion;
-  }
-
-  static Future<bool> _completeExtensionSessionGrant(
-    String extensionId,
-    String grant,
-  ) async {
-    _log.d('completeExtensionSessionGrant: $extensionId');
-    final result = await _channel.invokeMethod(
-      'completeExtensionSessionGrant',
-      {'extension_id': extensionId, 'grant': grant},
-    );
-    final success = result != false;
-    _extensionSessionGrantEvents.add(
-      ExtensionSessionGrantEvent(extensionId: extensionId, success: success),
-    );
-    return success;
-  }
 
   static Future<List<Map<String, dynamic>>> customSearchWithExtension(
     String extensionId,

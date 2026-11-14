@@ -58,7 +58,6 @@ pub(crate) fn register<'js>(
     crate::ffmpeg_host::register(ctx, &host, Arc::clone(&control), services)?;
     crate::download_host::register(ctx, &host, Arc::clone(&control), services)?;
     crate::network_host::register(ctx, &host, Arc::clone(&control), services)?;
-    crate::session_host::register(ctx, &host, Arc::clone(&control), services)?;
     host.set("authEnabled", services.auth.is_some())?;
     if let Some(auth) = &services.auth {
         let auth = Arc::clone(auth);

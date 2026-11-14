@@ -283,9 +283,6 @@ impl ExtensionManager {
                 arguments[1] = json!({});
             }
         }
-        if method == "checkAvailability" {
-            runtime.take_verification_url();
-        }
         let response = runtime
             .call_provider_operation(
                 method,
@@ -299,11 +296,6 @@ impl ExtensionManager {
                     "{method} timeout: extension took too long to respond"
                 )),
                 ExtensionError::Cancelled(cause) => error(cause.to_string()),
-                _ if method == "checkAvailability"
-                    && !runtime.take_verification_url().is_empty() =>
-                {
-                    cause("checkAvailability failed", verification_error(id))
-                }
                 other => cause(&format!("{method} failed"), other),
             })?;
         let mut response: Value =
@@ -327,13 +319,8 @@ impl ExtensionManager {
             return Err(error(format!("failed to parse {kind}: {message}")));
         }
         let mut value = response["value"].take();
-        if method == "checkAvailability" && (value.is_null() || value["available"] != true) {
-            if !runtime.take_verification_url().is_empty() {
-                return Err(verification_error(id));
-            }
-            if value.is_null() {
-                return Ok(json!({"available":false,"reason":"not implemented"}));
-            }
+        if method == "checkAvailability" && value.is_null() {
+            return Ok(json!({"available":false,"reason":"not implemented"}));
         }
         if value.is_null() {
             return if method == "customSearch" || method == "getRelatedTracks" {
@@ -408,12 +395,6 @@ impl ExtensionManager {
         }
         Ok(value)
     }
-}
-
-fn verification_error(id: &str) -> ManagerError {
-    error(format!(
-        "verification_required: extension '{id}' needs signed-session verification"
-    ))
 }
 
 fn stamp(value: &mut Value, id: &str) {

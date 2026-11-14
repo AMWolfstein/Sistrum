@@ -1783,14 +1783,6 @@ class _DownloadRun {
     final errorType =
         backendErrorType ?? n._downloadErrorTypeFromMessage(errorMsg);
 
-    if (errorType == DownloadErrorType.verificationRequired) {
-      await n._handleVerificationRequiredDownload(
-        item,
-        errorMsg,
-        failure.service,
-      );
-      return false;
-    }
     if (errorType == DownloadErrorType.rateLimit &&
         await n._handleRateLimitedDownload(item, errorMsg)) {
       return false;
@@ -1861,10 +1853,6 @@ class _DownloadRun {
       errorType = n._downloadErrorTypeFromMessage(errorMsg);
     }
 
-    if (errorType == DownloadErrorType.verificationRequired) {
-      await n._handleVerificationRequiredDownload(item, errorMsg, item.service);
-      return;
-    }
     if (errorType == DownloadErrorType.rateLimit &&
         await n._handleRateLimitedDownload(item, errorMsg)) {
       return;

@@ -16,16 +16,6 @@ pub(crate) fn register<'js>(
         "managedConsole",
         services.load_mode != crate::runtime::LoadMode::Initialize,
     )?;
-    let auth = services.auth_registry.clone();
-    let provider_id = services.extension_id.clone();
-    host.set(
-        "providerPendingVerification",
-        Function::new(ctx.clone(), move || {
-            auth.as_ref()
-                .filter(|auth| auth.has_fresh_challenge(&provider_id))
-                .map(|_| provider_id.clone())
-        })?,
-    )?;
     let progress = Arc::clone(&services.downloads.progress);
     let progress_control = Arc::clone(&control);
     host.set(

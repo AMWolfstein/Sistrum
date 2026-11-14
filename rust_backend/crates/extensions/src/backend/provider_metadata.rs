@@ -257,15 +257,6 @@ impl Backend {
         })
     }
 
-    pub(super) fn metadata_provider_work(
-        &self,
-        check: &Check<'_>,
-        work: impl FnOnce(Arc<RequestLease>) -> Result<String, ManagerError> + Send,
-    ) -> Result<Value, ResolverError> {
-        let result = self.metadata_provider_work_result(check, work)?;
-        serde_json::from_str(&result).map_err(|error| ResolverError::Failed(error.to_string()))
-    }
-
     pub(super) fn metadata_provider_work_result<T: Send>(
         &self,
         check: &Check<'_>,
@@ -553,9 +544,9 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let backend = backend(root.path());
         let result = backend
-            .metadata_provider_work(&|| Ok(()), |_| Ok(r#"{"immediate":true}"#.into()))
+            .metadata_provider_work_result(&|| Ok(()), |_| Ok(r#"{"immediate":true}"#.to_owned()))
             .unwrap();
-        assert_eq!(result["immediate"], true);
+        assert_eq!(serde_json::from_str::<Value>(&result).unwrap()["immediate"], true);
     }
 
     #[test]
@@ -568,15 +559,16 @@ mod tests {
         let worker_started = Arc::clone(&started);
         let worker_release = Arc::clone(&release);
         let worker = thread::spawn(move || {
-            worker_backend.metadata_provider_work(&|| Ok(()), move |_| {
+            worker_backend.metadata_provider_work_result(&|| Ok(()), move |_| {
                 worker_started.wait();
                 worker_release.wait();
-                Ok(r#"{"delayed":true}"#.into())
+                Ok(r#"{"delayed":true}"#.to_owned())
             })
         });
         started.wait();
         release.wait();
-        assert_eq!(worker.join().unwrap().unwrap()["delayed"], true);
+        let delayed = worker.join().unwrap().unwrap();
+        assert_eq!(serde_json::from_str::<Value>(&delayed).unwrap()["delayed"], true);
     }
 
     #[test]
@@ -584,7 +576,7 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let backend = backend(root.path());
         let result = backend
-            .metadata_provider_work(&|| Ok(()), |_| -> Result<String, ManagerError> {
+            .metadata_provider_work_result(&|| Ok(()), |_| -> Result<String, ManagerError> {
                 panic!("metadata worker failed")
             });
         assert_eq!(
@@ -601,7 +593,7 @@ mod tests {
         let joined = Arc::new(AtomicBool::new(false));
         let worker_started = Arc::clone(&started);
         let worker_joined = Arc::clone(&joined);
-        let result = backend.metadata_provider_work(
+        let result = backend.metadata_provider_work_result(
             &|| {
                 if started.load(Ordering::Acquire) {
                     Err("cancelled by test".into())
@@ -620,7 +612,7 @@ mod tests {
                     std::thread::sleep(Duration::from_millis(1));
                 }
                 worker_joined.store(true, Ordering::Release);
-                Ok("{}".into())
+                Ok::<String, ManagerError>("{}".into())
             },
         );
         assert_eq!(

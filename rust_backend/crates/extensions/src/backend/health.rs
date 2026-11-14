@@ -3,7 +3,6 @@
 use super::Backend;
 use crate::manager::ExtensionManager;
 use crate::manifest::{ExtensionManifest, HealthCheck};
-use sistrum_core::app_version::AppVersion;
 use sistrum_network::{
     HttpRequest, NetworkService, policy::NetworkPermissions, policy::private_literal_or_local,
     url::UrlParts,
@@ -68,16 +67,14 @@ struct State {
 
 pub(super) struct Health {
     network: Arc<NetworkService>,
-    version: AppVersion,
     state: Mutex<State>,
     closed: AtomicBool,
 }
 
 impl Health {
-    pub fn new(network: &Arc<NetworkService>, version: AppVersion) -> Self {
+    pub fn new(network: &Arc<NetworkService>) -> Self {
         Self {
             network: network.clone(),
-            version,
             state: Mutex::default(),
             closed: AtomicBool::new(false),
         }
@@ -304,14 +301,7 @@ impl Health {
                 body: String::new(),
                 headers: BTreeMap::from([("Accept".into(), "application/json".into())]),
                 default_json: false,
-                user_agent: if parsed
-                    .as_ref()
-                    .is_some_and(|url| url.hostname.eq_ignore_ascii_case("api.zarz.moe"))
-                {
-                    self.version.user_agent()
-                } else {
-                    crate::utility_host::random_user_agent()
-                },
+                user_agent: crate::utility_host::random_user_agent(),
             },
             network_check,
         );

@@ -233,21 +233,6 @@ impl ExtensionEnvironment {
         }))
     }
 
-    pub fn set_runtime_state(&self, raw: String) -> Result<(), JsExtensionError> {
-        self.inner.set_runtime_state(&raw).map_err(Into::into)
-    }
-
-    pub fn set_session_grant(
-        &self,
-        extension_id: String,
-        grant: String,
-    ) -> Result<(), JsExtensionError> {
-        let grant = zeroize::Zeroizing::new(grant);
-        self.inner
-            .set_session_grant(&extension_id, &grant)
-            .map_err(Into::into)
-    }
-
     pub fn resolve_callback_state(&self, state: String) -> Result<String, JsExtensionError> {
         self.inner
             .resolve_callback_state(&state, false)

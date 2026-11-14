@@ -183,13 +183,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
           allowedDirectories.add(directory.path);
         }
       }
-      if (Platform.isAndroid) {
-        try {
-          await PlatformBridge.prepareRuntimeState(dataDir);
-        } catch (e) {
-          _log.w('Runtime state restore unavailable: $e');
-        }
-      }
       await PlatformBridge.initExtensionSystem(
         extensionsDir,
         dataDir,

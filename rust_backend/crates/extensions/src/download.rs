@@ -45,15 +45,6 @@ pub(crate) fn native_error_response(message: &str) -> serde_json::Value {
         ),
         ("cancelled", &["cancel"][..]),
         (
-            "verification_required",
-            &[
-                "verification_required",
-                "session is not authenticated",
-                "signed session is not authenticated",
-                "signed session expired",
-            ][..],
-        ),
-        (
             "provider_reauth_required",
             &["byoa_provider_reauth_required", "reauth_provider"][..],
         ),

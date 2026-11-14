@@ -7,7 +7,6 @@ import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/utils/editorial_notes.dart';
-import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 
@@ -457,7 +456,6 @@ class TrackNotifier extends Notifier<TrackState> {
     String query, {
     Map<String, dynamic>? options,
     String? selectedFilter,
-    bool allowVerificationRetry = true,
   }) async {
     final requestId = ++_currentRequestId;
     final currentFilter = selectedFilter ?? state.selectedSearchFilter;
@@ -508,38 +506,6 @@ class TrackNotifier extends Notifier<TrackState> {
     } catch (e, stackTrace) {
       if (!_isRequestValid(requestId)) return;
       _log.e('Custom search failed: $e', e, stackTrace);
-      if (allowVerificationRetry && isExtensionVerificationRequired(e)) {
-        _log.i(
-          'Custom search requires verification; waiting for $extensionId grant',
-        );
-        state = TrackState(
-          isLoading: true,
-          hasSearchText: state.hasSearchText,
-          isShowingRecentAccess: state.isShowingRecentAccess,
-          searchExtensionId: extensionId,
-          selectedSearchFilter: currentFilter,
-        );
-        final verified = await openVerificationAndAwaitGrant(
-          extensionId,
-          browserMode: ref
-              .read(settingsProvider)
-              .extensionVerificationBrowserMode,
-        );
-        if (!_isRequestValid(requestId)) return;
-        if (verified) {
-          _log.i(
-            'Verification complete for $extensionId; retrying custom search',
-          );
-          await customSearch(
-            extensionId,
-            query,
-            options: options,
-            selectedFilter: currentFilter,
-            allowVerificationRetry: false,
-          );
-          return;
-        }
-      }
       state = TrackState(
         isLoading: false,
         error: e.toString(),

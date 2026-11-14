@@ -14,7 +14,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/app.dart';
 import 'package:sistrum/constants/app_info.dart';
-import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
@@ -516,7 +515,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
   Timer? _localLibraryWarmupTimer;
   bool _localLibraryWarmupScheduled = false;
   bool _autoScanTriggeredOnLaunch = false;
-  StreamSubscription<void>? _verificationNotificationSubscription;
   StreamSubscription<void>? _extensionAuthCallbackSubscription;
 
   @override
@@ -525,10 +523,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _verificationNotificationSubscription =
-          PlatformBridge.verificationNotificationEvents().listen(
-            (_) => unawaited(_consumeVerificationNotification()),
-          );
       _extensionAuthCallbackSubscription =
           PlatformBridge.extensionAuthCallbackEvents().listen(
             (_) => unawaited(_completeExtensionCallback()),
@@ -547,16 +541,13 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
     _localLibraryEnabledSub?.close();
     _downloadHistoryWarmupTimer?.cancel();
     _localLibraryWarmupTimer?.cancel();
-    _verificationNotificationSubscription?.cancel();
     _extensionAuthCallbackSubscription?.cancel();
-    NotificationService().verificationNotifications.setHandler(null);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      unawaited(_consumeVerificationNotification());
       CoverCacheManager.scheduleMaintenance();
       // Native downloads can finish while Flutter is suspended. Refresh the
       // persisted history even when no queued item remains to reconcile.
@@ -726,34 +717,8 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
         ref.read(settingsProvider),
       );
       if (!mounted) return;
-      NotificationService().verificationNotifications.setHandler((
-        target,
-      ) async {
-        if (!mounted) return;
-        try {
-          await ref
-              .read(downloadQueueProvider.notifier)
-              .handleVerificationNotificationTap(target);
-        } catch (error) {
-          _log.w('Could not open verification notification: $error');
-          if (mounted) showExtensionVerificationUnavailable(target.extensionId);
-        }
-      });
-      await _consumeVerificationNotification();
     } catch (e) {
       debugPrint('Failed to initialize extensions: $e');
-    }
-  }
-
-  Future<void> _consumeVerificationNotification() async {
-    if (!mounted || !Platform.isAndroid) return;
-    try {
-      final payload = await PlatformBridge.consumeVerificationNotification();
-      if (mounted) {
-        NotificationService().verificationNotifications.receive(payload);
-      }
-    } catch (error) {
-      _log.w('Could not read pending verification notification: $error');
     }
   }
 
@@ -762,7 +727,7 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
       await ref.read(extensionProvider.notifier).ensureInitialized();
       await PlatformBridge.processPendingExtensionCallbacks();
     } catch (error) {
-      _log.w('Could not complete extension verification: $error');
+      _log.w('Could not complete extension callback: $error');
     }
   }
 
