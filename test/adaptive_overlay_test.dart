@@ -40,7 +40,7 @@ void main() {
       final theme = mornye
           ? MornyeTheme.build(brightness)
           : ThemeData(brightness: brightness);
-      final variant = 'Mornye: $mornye, $brightness';
+      final variant = 'Sistrum: $mornye, $brightness';
 
       testWidgets('choice rows preserve adaptive appearance ($variant)', (
         tester,
@@ -564,7 +564,7 @@ void main() {
       });
     }
 
-    testWidgets('announcement keeps explicit dismissal (Mornye: $mornye)', (
+    testWidgets('announcement keeps explicit dismissal (Sistrum: $mornye)', (
       tester,
     ) async {
       var dismissals = 0;

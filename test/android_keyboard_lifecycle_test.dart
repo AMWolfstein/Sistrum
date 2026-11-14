@@ -33,7 +33,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'background ends editing without losing text, Mornye: $mornye',
+      'background ends editing without losing text, Sistrum: $mornye',
       (tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
         final focus = FocusNode();

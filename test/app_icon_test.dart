@@ -61,7 +61,7 @@ void main() {
     expect(filled.opticalSize, 20);
   });
 
-  testWidgets('Mornye keeps the original glyph or its Cupertino mapping', (
+  testWidgets('Sistrum keeps the original glyph or its Cupertino mapping', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -104,7 +104,7 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('AppIconButton keeps IconButton for dense, Mornye and reduced '
+  testWidgets('AppIconButton keeps IconButton for dense, Sistrum and reduced '
       'motion layouts', (tester) async {
     Widget button({EdgeInsets? padding}) => AppIconButton(
       tooltip: 'Close',

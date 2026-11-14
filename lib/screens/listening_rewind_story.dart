@@ -214,7 +214,7 @@ class _RewindStoryState extends State<_RewindStory>
       return await captureBoundaryToPngFile(
         _captureKey,
         pixelRatio: pixelRatio,
-        fileName: 'mornye_rewind.png',
+        fileName: 'sistrum_rewind.png',
       );
     } finally {
       if (mounted) setState(() => _capturing = false);

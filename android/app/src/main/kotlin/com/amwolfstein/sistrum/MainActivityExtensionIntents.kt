@@ -35,13 +35,13 @@ internal suspend fun MainActivity.processPendingExtensionCallbacks() {
                     callbackExtensionId = it
                 }
             }
-            android.util.Log.i("Mornye", "Extension callback completed")
+            android.util.Log.i("Sistrum", "Extension callback completed")
             if (callback.sessionGrant) {
                 notifySessionGrantCompleted(callbackExtensionId, true)
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            android.util.Log.w("Mornye", "Extension callback failed (${e.javaClass.simpleName})")
+            android.util.Log.w("Sistrum", "Extension callback failed (${e.javaClass.simpleName})")
             if (callback.sessionGrant && callbackExtensionId.isNotEmpty()) {
                 notifySessionGrantCompleted(callbackExtensionId, false)
             }

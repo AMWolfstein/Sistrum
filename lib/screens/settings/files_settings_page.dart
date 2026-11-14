@@ -137,7 +137,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                   icon: Icons.folder_outlined,
                   title: context.l10n.downloadDirectory,
                   subtitle: settings.downloadDirectory.isEmpty
-                      ? ('Download/Mornye')
+                      ? ('Download/Sistrum')
                       : settings.downloadDirectory,
                   onTap: () => _pickDirectory(context, ref),
                   showDivider: false,
@@ -482,7 +482,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
   }
 
   Future<String> _getDefaultAndroidDirectory() async {
-    const directDownloadPath = '/storage/emulated/0/Download/Mornye';
+    const directDownloadPath = '/storage/emulated/0/Download/Sistrum';
     try {
       final downloadDir = Directory(directDownloadPath);
       if (!await downloadDir.exists()) {
@@ -494,7 +494,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {
         final downloadDir = Directory(
-          '${externalDir.parent.parent.parent.parent.path}/Download/Mornye',
+          '${externalDir.parent.parent.parent.parent.path}/Download/Sistrum',
         );
         if (!await downloadDir.exists()) {
           await downloadDir.create(recursive: true);
@@ -503,7 +503,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
       }
     } catch (_) {}
     final appDir = await getApplicationDocumentsDirectory();
-    final fallbackDir = Directory('${appDir.path}/Mornye');
+    final fallbackDir = Directory('${appDir.path}/Sistrum');
     if (!await fallbackDir.exists()) await fallbackDir.create(recursive: true);
     return fallbackDir.path;
   }
@@ -677,31 +677,31 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 'none',
                 context.l10n.folderOrganizationNone,
                 context.l10n.folderOrganizationNoneSubtitle,
-                'Mornye/Track.flac',
+                'Sistrum/Track.flac',
               ),
               (
                 'playlist',
                 context.l10n.folderOrganizationByPlaylist,
                 context.l10n.folderOrganizationByPlaylistSubtitle,
-                'Mornye/Playlist Name/Track.flac',
+                'Sistrum/Playlist Name/Track.flac',
               ),
               (
                 'artist',
                 context.l10n.folderOrganizationByArtist,
                 context.l10n.folderOrganizationByArtistSubtitle,
-                'Mornye/Artist Name/Track.flac',
+                'Sistrum/Artist Name/Track.flac',
               ),
               (
                 'album',
                 context.l10n.folderOrganizationByAlbum,
                 context.l10n.folderOrganizationByAlbumSubtitle,
-                'Mornye/Album Name/Track.flac',
+                'Sistrum/Album Name/Track.flac',
               ),
               (
                 'artist_album',
                 context.l10n.folderOrganizationByArtistAlbum,
                 context.l10n.folderOrganizationByArtistAlbumSubtitle,
-                'Mornye/Artist/Album/Track.flac',
+                'Sistrum/Artist/Album/Track.flac',
               ),
               (
                 'custom',

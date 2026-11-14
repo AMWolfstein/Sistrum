@@ -108,7 +108,7 @@ void main() {
     });
   });
 
-  test('Mornye type does not change', () {
+  test('Sistrum type does not change', () {
     for (final brightness in Brightness.values) {
       for (final style in _roles(
         MornyeTheme.build(brightness).textTheme,

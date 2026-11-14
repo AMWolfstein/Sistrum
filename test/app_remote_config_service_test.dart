@@ -109,7 +109,7 @@ void main() {
       final service = AppRemoteConfigService(
         client: MockClient((request) async {
           expect(request.headers['Accept'], 'application/json');
-          expect(request.headers['User-Agent'], startsWith('Mornye/'));
+          expect(request.headers['User-Agent'], startsWith('Sistrum/'));
           return http.Response(
             jsonEncode({
               'donate': {'monthly_goal': _monthlyGoalPayload()},

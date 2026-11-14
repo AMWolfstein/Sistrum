@@ -71,7 +71,7 @@ void main() {
     for (final reducedMotion in [false, true]) {
       for (final milliseconds in [200, 650]) {
         testWidgets('short final word completes its lift clock '
-            '(Mornye: $mornye, reduced: $reducedMotion, ms: $milliseconds)', (
+            '(Sistrum: $mornye, reduced: $reducedMotion, ms: $milliseconds)', (
           tester,
         ) async {
           final playback = StreamController<PlaybackState>.broadcast();
@@ -335,7 +335,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'sung words rise in both styles, glow only in Mornye ($mornye)',
+      'sung words rise in both styles, glow only in Sistrum ($mornye)',
       (tester) async {
         final playback = StreamController<PlaybackState>.broadcast();
         final preview = ValueNotifier<Duration?>(null);

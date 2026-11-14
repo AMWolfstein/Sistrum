@@ -28,7 +28,7 @@ void main() {
   {
     for (final mornye in [false, true]) {
       testWidgets('Home keeps Resume without a player '
-          '(Mornye: $mornye)', (tester) async {
+          '(Sistrum: $mornye)', (tester) async {
         tester.platformDispatcher.accessibilityFeaturesTestValue =
             const FakeAccessibilityFeatures(disableAnimations: true);
         addTearDown(
@@ -80,7 +80,7 @@ void main() {
   }
 
   for (final result in ['nothing played', 'load error']) {
-    testWidgets('Mornye Home holds the card until Recently Played settles '
+    testWidgets('Sistrum Home holds the card until Recently Played settles '
         '($result)', (tester) async {
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
@@ -169,7 +169,7 @@ void main() {
   {
     for (final mornye in [false, true]) {
       testWidgets('Home keeps its feed layout through slow startup '
-          '(Mornye: $mornye)', (tester) async {
+          '(Sistrum: $mornye)', (tester) async {
         tester.view.physicalSize = const Size(430, 932);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
@@ -241,7 +241,7 @@ void main() {
       ])
         (mornye, result),
   ]) {
-    testWidgets('Home leaves startup loading after $result (Mornye=$mornye)', (
+    testWidgets('Home leaves startup loading after $result (Sistrum=$mornye)', (
       tester,
     ) async {
       final extensions = _StartupExtensions();
@@ -285,7 +285,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'Home with its feed disabled skips startup loading (Mornye=$mornye)',
+      'Home with its feed disabled skips startup loading (Sistrum=$mornye)',
       (tester) async {
         await _pumpStartupHome(
           tester,
@@ -780,7 +780,7 @@ void main() {
 
 
   for (final withSearchExtension in [false, true]) {
-    testWidgets('Mornye Home without a feed still shows local playback '
+    testWidgets('Sistrum Home without a feed still shows local playback '
         '(search extension: $withSearchExtension)', (tester) async {
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;

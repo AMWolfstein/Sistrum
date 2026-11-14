@@ -121,7 +121,7 @@ internal suspend fun MainActivity.handleEditFileMetadata(call: MethodCall, resul
                 coreBackend.editFileMetadata(filePath, metadataJson)
             }
         } catch (e: Exception) {
-            android.util.Log.e("Mornye", "editFileMetadata failed: ${e.message}", e)
+            android.util.Log.e("Sistrum", "editFileMetadata failed: ${e.message}", e)
             """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
         }
     }
@@ -135,7 +135,7 @@ internal suspend fun MainActivity.handleWriteM4AFreeformTags(call: MethodCall, r
         try {
             coreBackend.writeM4aFreeformTags(filePath, metadataJson)
         } catch (e: Exception) {
-            android.util.Log.e("Mornye", "writeM4AFreeformTags failed: ${e.message}", e)
+            android.util.Log.e("Sistrum", "writeM4AFreeformTags failed: ${e.message}", e)
             """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
         }
     }
@@ -149,7 +149,7 @@ internal suspend fun MainActivity.handleEnsureAC4Config(call: MethodCall, result
         try {
             coreBackend.ensureAc4Config(filePath, sourcePath)
         } catch (e: Exception) {
-            android.util.Log.e("Mornye", "ensureAC4Config failed: ${e.message}", e)
+            android.util.Log.e("Sistrum", "ensureAC4Config failed: ${e.message}", e)
             """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
         }
     }
@@ -164,7 +164,7 @@ internal suspend fun MainActivity.handleWriteAC4Metadata(call: MethodCall, resul
         try {
             coreBackend.writeAc4Metadata(filePath, metadataJson, coverPath)
         } catch (e: Exception) {
-            android.util.Log.e("Mornye", "writeAC4Metadata failed: ${e.message}", e)
+            android.util.Log.e("Sistrum", "writeAC4Metadata failed: ${e.message}", e)
             """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
         }
     }

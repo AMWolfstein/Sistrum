@@ -88,7 +88,7 @@ void main() {
     );
   });
 
-  testWidgets('Mornye shows the value as detail text', (tester) async {
+  testWidgets('Sistrum shows the value as detail text', (tester) async {
     await pump(
       tester,
       const SliderValueHeader(title: 'Strength', value: '40%'),
@@ -121,7 +121,7 @@ void main() {
     },
   );
 
-  testWidgets('Mornye settings sliders keep their inline labels', (
+  testWidgets('Sistrum settings sliders keep their inline labels', (
     tester,
   ) async {
     await pump(

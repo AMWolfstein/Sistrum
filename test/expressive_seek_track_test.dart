@@ -205,7 +205,7 @@ void main() {
     }
   });
 
-  testWidgets('Mornye keeps its continuous track without a wave or handle', (
+  testWidgets('Sistrum keeps its continuous track without a wave or handle', (
     tester,
   ) async {
     await tester.pumpWidget(_host(mornye: true));

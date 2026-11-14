@@ -281,7 +281,7 @@ void main() {
 
   for (final liquid in [false, true]) {
     testWidgets(
-      'Mornye mini player prepares the motion cover only with liquid glass '
+      'Sistrum mini player prepares the motion cover only with liquid glass '
       '(liquid: $liquid)',
       (tester) async {
         final prepared = <String>[];
@@ -332,7 +332,7 @@ void main() {
   }
 
   for (final liquid in [false, true]) {
-    testWidgets('Mornye mini player rests title and artist after two passes '
+    testWidgets('Sistrum mini player rests title and artist after two passes '
         '(liquid: $liquid)', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -406,7 +406,7 @@ void main() {
   for (final mornye in [false, true]) {
     for (final compact in [false, true]) {
       testWidgets(
-        'mini player scrolls title and artist (Mornye: $mornye, compact: $compact)',
+        'mini player scrolls title and artist (Sistrum: $mornye, compact: $compact)',
         (tester) async {
           await tester.pumpWidget(
             ProviderScope(

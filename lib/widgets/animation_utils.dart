@@ -1038,7 +1038,7 @@ class HomeSearchSkeleton extends StatelessWidget {
         ),
       );
     });
-    // Material uses the result groups' own container tier; Mornye's glass
+    // Material uses the result groups' own container tier; Sistrum's glass
     // results keep a faint neutral wash.
     final groupColor = mornye
         ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)

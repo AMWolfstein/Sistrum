@@ -87,7 +87,7 @@
   "@networkErrorPermission": {
     "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
   },
-  "networkErrorLocalPermission": "Akses jaringan lokal tak diizinkan. Izinkan Perangkat di sekitar untuk Mornye di Setelan Android, lalu coba lagi.",
+  "networkErrorLocalPermission": "Akses jaringan lokal tak diizinkan. Izinkan Perangkat di sekitar untuk Sistrum di Setelan Android, lalu coba lagi.",
   "@networkErrorLocalPermission": {
     "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
   },
@@ -196,7 +196,7 @@
   "usbBitPerfectDescription": "Pertahankan kualitas audio di perangkat output yang didukung. Pilih Direct USB atau AAudio Exclusive di bawah; juga, output USB Android butuh Android 14+. Berlaku di lagu selanjutnya, tanpa AutoMix & normalisasi. Mungkin Anda tidak dapat mengatur volume.",
   "usbHardwareVolume": "Volume hardware DAC",
   "usbVolumeWarningTitle": "Periksa volume Anda",
-  "usbVolumeWarning": "Memutar dengan Direct USB akan membuat suara lebih keras dari biasanya, dan tombol volume mungkin tidak akan berfungsi. Pelankan volume DAC atau amplifier Anda sebelum mendengar. Bila mendukung, Mornye mengatur volume DAC pada -40dB saat terhubung; tapi ini tidak menjamin suara akan berada di batas aman.",
+  "usbVolumeWarning": "Memutar dengan Direct USB akan membuat suara lebih keras dari biasanya, dan tombol volume mungkin tidak akan berfungsi. Pelankan volume DAC atau amplifier Anda sebelum mendengar. Bila mendukung, Sistrum mengatur volume DAC pada -40dB saat terhubung; tapi ini tidak menjamin suara akan berada di batas aman.",
   "usbVolumeAccept": "Saya paham",
   "usbVolumeUnavailable": "Pemutaran dijeda karena kontrol volume pada hardware DAC tidak dapat diverifikasi. Turunkan volume DAC atau Amplifier, lalu hidupkan volume output tetap bila dibutuhkan lalu putar lagi.",
   "usbFixedVolume": "Izinkan volume tetap output USB",
@@ -223,7 +223,7 @@
   "cacheMotionArtworkDesc": "Video album yang didownload. Menghapusnya tidak akan menghapus file musik dan cover biasa.",
   "nowPlayingVolume": "Volume",
   "@nowPlayingVolume": {
-    "description": "System volume control label in the Mornye player"
+    "description": "System volume control label in the Sistrum player"
   },
   "appearanceStyle": "Gaya Aplikasi",
   "appearanceAccentRed": "Merah (default)",
@@ -234,7 +234,7 @@
   "appearanceAccentPurple": "Ungu",
   "appearanceAccentPink": "Merah muda",
   "appearanceGlassOutlines": "Garis tepi kaca",
-  "appearanceGlassOutlinesSubtitle": "Tampilkan garis dekoratif di tepi kaca Mornye. Mematikannya tetap mempertahankan blur dan pembiasan.",
+  "appearanceGlassOutlinesSubtitle": "Tampilkan garis dekoratif di tepi kaca Sistrum. Mematikannya tetap mempertahankan blur dan pembiasan.",
   "appearanceUseSystemFont": "Gunakan font sistem",
   "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
   "@appearanceStyle": {
@@ -242,7 +242,7 @@
   },
   "@@locale": "id",
   "@@last_modified": "2026-04-28",
-  "appName": "Mornye",
+  "appName": "Sistrum",
   "@appName": {
     "description": "App name - DO NOT TRANSLATE"
   },
@@ -677,22 +677,6 @@
   "@aboutTitle": {
     "description": "About page title"
   },
-  "aboutContributors": "Kontributor",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Sang developer utama",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "Artist berbakat yang membuat logo indah untuk aplikasi kami!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "Penerjemah",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
   "aboutSpecialThanks": "Terima Kasih Khusus",
   "@aboutSpecialThanks": {
     "description": "Section for special thanks"
@@ -711,17 +695,6 @@
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
-  "aboutTelegramChannel": "Channel Telegram",
-  "aboutTelegramChannelSubtitle": "Pengumuman dan update",
-  "@aboutTelegramChannelSubtitle": {
-    "description": "Subtitle for Telegram channel"
-  },
-  "aboutTelegramChat": "Komunitas Telegram",
-  "aboutTelegramChatSubtitle": "Chat dengan pengguna lain",
-  "@aboutTelegramChatSubtitle": {
-    "description": "Subtitle for Telegram chat"
-  },
-  "aboutSocial": "Media Sosial",
   "aboutApp": "Aplikasi",
   "@aboutApp": {
     "description": "Section for app info"
@@ -729,14 +702,6 @@
   "aboutVersion": "Versi",
   "@aboutVersion": {
     "description": "Version info label"
-  },
-  "aboutBinimumDesc": "Pembuat API QQDL & HiFi. Proyeknya membantu membuat dukungan download lossless.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "Pembuat proyek HiFi asli. Sebuah fondasi untuk integrasi sumber lossless.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
   },
   "aboutUnituneDesc": "Resolver link musik open-source oleh Flaze, untuk melakukan match link cadangan cross-platform.",
   "@aboutUnituneDesc": {
@@ -750,7 +715,7 @@
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
   },
-  "aboutAppDescription": "Telusuri metadata musik, kelola ekstensi, dan atur Koleksimu.",
+  "aboutAppDescription": "Pemutar musik offline dengan beberapa fitur online",
   "@aboutAppDescription": {
     "description": "App description in header card"
   },
@@ -867,7 +832,7 @@
   "@setupStorageRequired": {
     "description": "Title when storage permission needed"
   },
-  "setupStorageDescription": "Mornye butuh akses penyimpanan untuk menyimpan hasil download.",
+  "setupStorageDescription": "Sistrum butuh akses penyimpanan untuk menyimpan hasil download.",
   "@setupStorageDescription": {
     "description": "Explanation for storage permission"
   },
@@ -910,12 +875,12 @@
   "whatsNewNearbyAllow": "Izinkan perangkat di sekitar",
   "whatsNewNearbyGranted": "Perangkat di sekitar diizinkan",
   "whatsNewNearbyTitle": "Perangkat di sekitar",
-  "whatsNewNearbyDesc": "Android kini meminta izin sebelum aplikasi bisa menjangkau perangkat lain di jaringanmu. Mornye memerlukannya untuk:",
+  "whatsNewNearbyDesc": "Android kini meminta izin sebelum aplikasi bisa menjangkau perangkat lain di jaringanmu. Sistrum memerlukannya untuk:",
   "whatsNewNearbyStorageTitle": "Penyimpanan jaringan",
   "whatsNewNearbyStorageBody": "Putar musik dari NAS atau server di rumah lewat SMB atau WebDAV.",
   "whatsNewNearbyPrivateTitle": "Hanya perangkatmu sendiri",
-  "whatsNewNearbyPrivateBody": "Mornye memakainya hanya untuk menjangkau perangkat di jaringanmu, tidak pernah untuk mengetahui lokasimu.",
-  "whatsNewNearbyRefused": "Tidak diizinkan. penyimpanan jaringan tidak aktif sampai kamu mengizinkan Perangkat di sekitar untuk Mornye di pengaturan Android.",
+  "whatsNewNearbyPrivateBody": "Sistrum memakainya hanya untuk menjangkau perangkat di jaringanmu, tidak pernah untuk mengetahui lokasimu.",
+  "whatsNewNearbyRefused": "Tidak diizinkan. penyimpanan jaringan tidak aktif sampai kamu mengizinkan Perangkat di sekitar untuk Sistrum di pengaturan Android.",
   "setupNext": "Lanjut",
   "@setupNext": {
     "description": "Next button text"
@@ -2829,7 +2794,7 @@
   "@libraryRemoveFolder": {
     "description": "Action to remove one indexed library source"
   },
-  "libraryRemoveFolderMessage": "Hapus folder ini dan lagu di dalamnya dari Mornye? File audio di perangkat tidak akan dihapus.",
+  "libraryRemoveFolderMessage": "Hapus folder ini dan lagu di dalamnya dari Sistrum? File audio di perangkat tidak akan dihapus.",
   "@libraryRemoveFolderMessage": {
     "description": "Confirmation shown before removing a library source"
   },
@@ -3019,13 +2984,13 @@
   "@libraryStorageAccessRequired": {
     "description": "Dialog title for storage permission"
   },
-  "libraryStorageAccessMessage": "Mornye butuh akses penyimpanan untuk memindai Koleksi musik Anda. Mohon berikan perizinan di Setelan.",
+  "libraryStorageAccessMessage": "Sistrum butuh akses penyimpanan untuk memindai Koleksi musik Anda. Mohon berikan perizinan di Setelan.",
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
   "librarySourceDownloaded": "Didownload",
   "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Mornye"
+    "description": "Badge for tracks downloaded via Sistrum"
   },
   "librarySourceLocal": "Lokal",
   "@librarySourceLocal": {
@@ -3161,11 +3126,11 @@
       }
     }
   },
-  "tutorialWelcomeTitle": "Selamat datang di Mornye!",
+  "tutorialWelcomeTitle": "Selamat datang di Sistrum!",
   "@tutorialWelcomeTitle": {
     "description": "Tutorial welcome page title"
   },
-  "tutorialWelcomeDesc": "Pelajari cara menemukan musik dengan ekstensi, pilih kualitas yang kamu mau, dan atur downloadnya di Mornye.",
+  "tutorialWelcomeDesc": "Pelajari cara menemukan musik dengan ekstensi, pilih kualitas yang kamu mau, dan atur downloadnya di Sistrum.",
   "@tutorialWelcomeDesc": {
     "description": "Tutorial welcome page description"
   },
@@ -3261,7 +3226,7 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Mornye {version} sudah hadir",
+  "whatsNewIntroTitle": "Sistrum {version} sudah hadir",
   "whatsNewIntroDesc": "Pembaruan terbesar kami sejauh ini. Ini sekilas yang baru.",
   "whatsNewHomeTitle": "Beranda yang belajar",
   "whatsNewHomeDesc": "Mix dan autoplay kini mengikuti caramu mendengarkan.",
@@ -3270,7 +3235,7 @@
   "whatsNewHomeAutoplayTitle": "Autoplay lebih pintar",
   "whatsNewHomeAutoplayBody": "Autoplay mengikuti sesi mendengarmu dan belajar dari favorit, playlist, dan lagu yang kamu ulang.",
   "whatsNewHomeAnalysisTitle": "Analisis lagu",
-  "whatsNewHomeAnalysisBody": "Mornye bisa menganalisis karakter suara lagumu untuk pilihan yang lebih pas. Fitur ini mati sampai kamu menyalakannya di Setelan.",
+  "whatsNewHomeAnalysisBody": "Sistrum bisa menganalisis karakter suara lagumu untuk pilihan yang lebih pas. Fitur ini mati sampai kamu menyalakannya di Setelan.",
   "whatsNewPlayerTitle": "Pemutar dan lirik",
   "whatsNewPlayerDesc": "Pemutaran lebih mulus, dan lirik dalam bahasa apa pun.",
   "whatsNewPlayerGaplessTitle": "Pemutaran tanpa jeda",
@@ -4336,7 +4301,7 @@
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
   },
-  "safMigrationMessage1": "Mornye kini menggunakan Android Storage Access (SAF) untuk mendownload. Ini memperbaiki eror \"izin ditolak\" di Android 10+.",
+  "safMigrationMessage1": "Sistrum kini menggunakan Android Storage Access (SAF) untuk mendownload. Ini memperbaiki eror \"izin ditolak\" di Android 10+.",
   "@safMigrationMessage1": {
     "description": "First paragraph of SAF migration dialog"
   },
@@ -4416,7 +4381,7 @@
   "@backupRestoreFailed": {
     "description": "Snackbar when restore fails"
   },
-  "backupInvalidFile": "File ini bukan cadangan Mornye yang valid",
+  "backupInvalidFile": "File ini bukan cadangan Sistrum yang valid",
   "@backupInvalidFile": {
     "description": "Snackbar when the chosen file is not a valid backup"
   },
@@ -4600,9 +4565,9 @@
     "description": "Subtitle shown in the download location picker sheet"
   },
   "storageAutomaticFolder": "Folder bawaan",
-  "storageAutomaticDownloadFolder": "Menyimpan di folder Download/Mornye, atau di data aplikasi",
+  "storageAutomaticDownloadFolder": "Menyimpan di folder Download/Sistrum, atau di data aplikasi",
   "storageSafRecommended": "Pilih folder (Disarankan)",
-  "storageDownloadFolderHint": "Begitu pemilih folder Android terbuka, buka folder Download dan pilih Mornye. Jika belum ada, buat folder baru, lalu ketuk Gunakan folder ini untuk memberi akses.",
+  "storageDownloadFolderHint": "Begitu pemilih folder Android terbuka, buka folder Download dan pilih Sistrum. Jika belum ada, buat folder baru, lalu ketuk Gunakan folder ini untuk memberi akses.",
   "downloadFolderAccessLostTitle": "Akses folder download hilang",
   "@downloadFolderAccessLostTitle": {
     "description": "Title of the warning banner shown in Files settings when the saved SAF folder grant is no longer valid"
@@ -5612,7 +5577,7 @@
       }
     }
   },
-  "notifDownloadingUpdate": "Mendownload Mornye v{version}",
+  "notifDownloadingUpdate": "Mendownload Sistrum v{version}",
   "@notifDownloadingUpdate": {
     "description": "Notification title while downloading an app update",
     "placeholders": {
@@ -5640,7 +5605,7 @@
   "@notifUpdateReady": {
     "description": "Notification title when app update download is complete"
   },
-  "notifUpdateReadyBody": "Mornye v{version} didownload. Ketuk untuk instal.",
+  "notifUpdateReadyBody": "Sistrum v{version} didownload. Ketuk untuk instal.",
   "@notifUpdateReadyBody": {
     "description": "Notification body when app update is ready to install",
     "placeholders": {
@@ -6405,7 +6370,7 @@
   "@extensionCustomUrlHandlingSubtitle": {
     "description": "Extension detail subtitle for custom URL handling"
   },
-  "extensionCustomUrlHandlingShareHint": "Bagikan link dari situs ini ke Mornye dan ekstensi ini akan menanganinya.",
+  "extensionCustomUrlHandlingShareHint": "Bagikan link dari situs ini ke Sistrum dan ekstensi ini akan menanganinya.",
   "@extensionCustomUrlHandlingShareHint": {
     "description": "Extension detail hint explaining share-to-app URL handling"
   },
@@ -6604,7 +6569,7 @@
   "@libraryBuiltInPreviewPlayer": {
     "description": "Setting option to use the built-in preview player"
   },
-  "libraryBuiltInPreviewPlayerSubtitle": "Putar musik langsung di Mornye",
+  "libraryBuiltInPreviewPlayerSubtitle": "Putar musik langsung di Sistrum",
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
@@ -7087,11 +7052,11 @@
   "@extensionVerificationHelpTitleWaiting": {
     "description": "Dialog title when verification is taking longer than expected"
   },
-  "extensionVerificationHelpMessageManual": "Mornye tidak dapat membuka browser secara otomatis. Buka link ini di browser Anda, atau salin manual.",
+  "extensionVerificationHelpMessageManual": "Sistrum tidak dapat membuka browser secara otomatis. Buka link ini di browser Anda, atau salin manual.",
   "@extensionVerificationHelpMessageManual": {
     "description": "Dialog message when automatic browser launch for verification fails"
   },
-  "extensionVerificationHelpMessageWaiting": "Jika browser tidak terbuka, atau verifikasi berhasil tapi tidak langsung kembali ke Mornye, buka link ini lagu atau salin manual.",
+  "extensionVerificationHelpMessageWaiting": "Jika browser tidak terbuka, atau verifikasi berhasil tapi tidak langsung kembali ke Sistrum, buka link ini lagu atau salin manual.",
   "@extensionVerificationHelpMessageWaiting": {
     "description": "Dialog message when verification may need manual browser help"
   },
@@ -7239,7 +7204,7 @@
   "@playerCoverStyleFullScreen": {
     "description": "Cover art style: artwork fills the top of the player"
   },
-  "playerCoverStyleFullScreenDescription": "Artwork memenuhi bagian atas player lalu memudar menjadi blur. Artwork bergerak di Mornye selalu layar penuh",
+  "playerCoverStyleFullScreenDescription": "Artwork memenuhi bagian atas player lalu memudar menjadi blur. Artwork bergerak di Sistrum selalu layar penuh",
   "@playerCoverStyleFullScreenDescription": {
     "description": "Subtitle of the full screen cover art style"
   },
@@ -7658,7 +7623,7 @@
   "equalizerPresetName": "Nama preset",
   "equalizerImport": "Impor preset",
   "equalizerExport": "Bagikan preset",
-  "equalizerImportInvalid": "Pilih preset equalizer Mornye yang valid (JSON, maksimal 64 KB).",
+  "equalizerImportInvalid": "Pilih preset equalizer Sistrum yang valid (JSON, maksimal 64 KB).",
   "equalizerSaved": "Preset disimpan",
   "equalizerResetTitle": "Reset equalizer?",
   "equalizerResetDescription": "Kembalikan kurva datar serta pengaturan nada dan dinamika bawaan. Preset tersimpan tetap disimpan.",
@@ -7766,7 +7731,7 @@
   "audioInfoOff": "Nonaktif",
   "audioInfoBypassed": "Dilewati oleh output langsung",
   "audioInfoPlayer": "Pemutar",
-  "audioInfoPlayerValue": "Pemutar bawaan Mornye",
+  "audioInfoPlayerValue": "Pemutar bawaan Sistrum",
   "audioInfoSignalPath": "Jalur sinyal",
   "audioInfoPathSystem": "Mixer sistem",
   "audioInfoPathDirect": "USB langsung, melewati mixer sistem",
@@ -7802,7 +7767,7 @@
   "audioInfoBluetoothFormat": "Format codec Bluetooth",
   "audioInfoAndroidNotReported": "Tidak dilaporkan oleh Android",
   "audioInfoBluetoothUnavailable": "Tidak tersedia untuk aplikasi ini",
-  "audioInfoBluetoothUnavailableHint": "Android dapat menampilkan codec aktif di pengaturan Bluetooth tanpa menyediakan informasinya ke Mornye. Codec ini terpisah dari format file lagu.",
+  "audioInfoBluetoothUnavailableHint": "Android dapat menampilkan codec aktif di pengaturan Bluetooth tanpa menyediakan informasinya ke Sistrum. Codec ini terpisah dari format file lagu.",
   "audioAnalysisFileBitrate": "Bitrate file rata-rata",
   "audioAnalysisFileBitrateHint": "Termasuk tag dan overhead container. Nilainya dapat berbeda dari bitrate stream audio dan bukan bitrate Bluetooth.",
   "audioInfoSystemDefaultRate": "Sample rate default sistem",
@@ -7897,7 +7862,7 @@
   "lastfmDisconnect": "Putuskan Last.fm",
   "lastfmConnectionError": "Last.fm tidak dapat dihubungi. Scrobble yang tersimpan akan dikirim ulang secara otomatis.",
   "lastfmStorageError": "Pengaturan Last.fm tidak dapat disimpan. Periksa akses penyimpanan aman perangkat ini lalu coba lagi.",
-  "lastfmAuthorizationPending": "Akses belum disetujui. Selesaikan izin Mornye di browser.",
+  "lastfmAuthorizationPending": "Akses belum disetujui. Selesaikan izin Sistrum di browser.",
   "lastfmAuthorizationExpired": "Permintaan koneksi ini kedaluwarsa. Hubungkan kembali untuk melanjutkan.",
   "lastfmReauthenticate": "Koneksi Last.fm Anda kedaluwarsa. Hubungkan kembali untuk melanjutkan scrobbling.",
   "lastfmUnavailable": "Last.fm tidak tersedia pada build ini.",

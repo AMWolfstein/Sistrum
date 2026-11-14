@@ -272,7 +272,7 @@ void main() {
     return frames;
   }
 
-  testWidgets('Mornye timestamps advance between native position reports', (
+  testWidgets('Sistrum timestamps advance between native position reports', (
     tester,
   ) async {
     final states = StreamController<PlaybackState>();
@@ -657,7 +657,7 @@ void main() {
   });
 
   for (final page in ['player', 'lyrics', 'queue']) {
-    testWidgets('cover swipe changes the track in the Mornye $page', (
+    testWidgets('cover swipe changes the track in the Sistrum $page', (
       tester,
     ) async {
       final queue = [item('first'), item('second')];
@@ -938,7 +938,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('Mornye lyrics keep wrapped, first and last lines at upper focus', (
+  testWidgets('Sistrum lyrics keep wrapped, first and last lines at upper focus', (
     tester,
   ) async {
     final lyrics = List.generate(100, (index) {
@@ -992,7 +992,7 @@ void main() {
   });
 
   for (final width in [393.0, 768.0]) {
-    testWidgets('Mornye lyrics fit the timeline without rewrapping ($width)', (
+    testWidgets('Sistrum lyrics fit the timeline without rewrapping ($width)', (
       tester,
     ) async {
       const original =
@@ -1287,7 +1287,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye landscape has no top handle or reserved toolbar height', (
+  testWidgets('Sistrum landscape has no top handle or reserved toolbar height', (
     tester,
   ) async {
     await pumpNowPlaying(
@@ -1593,7 +1593,7 @@ void main() {
   for (final mornye in [false, true]) {
     for (final landscape in [false, true]) {
       testWidgets('automatic fullscreen lyrics follows the saved option '
-          '(Mornye: $mornye, landscape: $landscape)', (tester) async {
+          '(Sistrum: $mornye, landscape: $landscape)', (tester) async {
         metadataOverrides['lyrics'] = List.generate(
           20,
           (index) => '[00:${index.toString().padLeft(2, '0')}.00]Line $index',
@@ -1848,7 +1848,7 @@ void main() {
     },
   );
 
-  testWidgets('Mornye player background does not reveal the page below', (
+  testWidgets('Sistrum player background does not reveal the page below', (
     tester,
   ) async {
     final background = ValueNotifier<Color>(Colors.white);
@@ -1898,7 +1898,7 @@ void main() {
   });
 
   testWidgets(
-    'Mornye player menu floats above its button and retains dark colors',
+    'Sistrum player menu floats above its button and retains dark colors',
     (tester) async {
       await pumpNowPlaying(
         tester,
@@ -1949,7 +1949,7 @@ void main() {
   );
 
   testWidgets(
-    'Mornye title opens artist and album destinations with subtitles',
+    'Sistrum title opens artist and album destinations with subtitles',
     (tester) async {
       await pumpNowPlaying(
         tester,
@@ -2029,7 +2029,7 @@ void main() {
   });
 
   testWidgets(
-    'Mornye Details keeps long values readable and Done visible while scrolling',
+    'Sistrum Details keeps long values readable and Done visible while scrolling',
     (tester) async {
       final rights = List.filled(10, 'A long copyright value').join(' ');
       metadataOverrides = {
@@ -2095,7 +2095,7 @@ void main() {
   );
 
   testWidgets(
-    'Mornye star shares Library favorites across tracks and compact headers',
+    'Sistrum star shares Library favorites across tracks and compact headers',
     (tester) async {
       await pumpNowPlaying(
         tester,
@@ -2335,7 +2335,7 @@ void main() {
     });
   }
 
-  testWidgets('Mornye lyrics stay blurred until playback starts', (
+  testWidgets('Sistrum lyrics stay blurred until playback starts', (
     tester,
   ) async {
     final playback = StreamController<PlaybackState>();
@@ -2423,7 +2423,7 @@ void main() {
   });
 
   testWidgets(
-    'Mornye lyrics keep the active line sharp with bold leading-aligned text',
+    'Sistrum lyrics keep the active line sharp with bold leading-aligned text',
     (tester) async {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await pumpNowPlaying(
@@ -2469,7 +2469,7 @@ void main() {
   );
 
   testWidgets(
-    'Mornye queue replaces artwork while volume and playback stay in place',
+    'Sistrum queue replaces artwork while volume and playback stay in place',
     (tester) async {
       await pumpNowPlaying(
         tester,
@@ -2811,7 +2811,7 @@ void main() {
     });
   }
 
-  testWidgets('Mornye player renders Apple-style transport controls', (
+  testWidgets('Sistrum player renders Apple-style transport controls', (
     tester,
   ) async {
     await pumpNowPlaying(tester, theme: MornyeTheme.build(Brightness.light));
@@ -2834,7 +2834,7 @@ void main() {
     expect(tester.state(nextButton), same(nextState));
   });
 
-  testWidgets('Mornye elapsed and remaining times roll on the same second', (
+  testWidgets('Sistrum elapsed and remaining times roll on the same second', (
     tester,
   ) async {
     final playbackEvents = StreamController<PlaybackState>();
@@ -2922,7 +2922,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye position ticks and lyric control fades stay local', (
+  testWidgets('Sistrum position ticks and lyric control fades stay local', (
     tester,
   ) async {
     metadataOverrides['lyrics'] = List.generate(
@@ -3000,7 +3000,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye volume stays above the bottom actions on a phone', (
+  testWidgets('Sistrum volume stays above the bottom actions on a phone', (
     tester,
   ) async {
     await pumpNowPlaying(
@@ -3032,7 +3032,7 @@ void main() {
   });
 
   testWidgets(
-    'Mornye landscape opens the player and reveals hidden lyric actions on a bottom tap',
+    'Sistrum landscape opens the player and reveals hidden lyric actions on a bottom tap',
     (tester) async {
       await pumpNowPlaying(
         tester,
@@ -3144,7 +3144,7 @@ void main() {
   );
 
   testWidgets(
-    'Mornye motion cover stays attached throughout opening and closing',
+    'Sistrum motion cover stays attached throughout opening and closing',
     (tester) async {
       tester.view.padding = FakeViewPadding(top: 59, bottom: 34);
       tester.view.viewPadding = FakeViewPadding(top: 59, bottom: 34);
@@ -3218,7 +3218,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets('swiping up the mini player opens the player '
-        '(Mornye: $mornye)', (tester) async {
+        '(Sistrum: $mornye)', (tester) async {
       await pumpNowPlaying(
         tester,
         theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
@@ -3888,7 +3888,7 @@ void main() {
 
     for (final ttml in [false, true]) {
       testWidgets(
-        'backing vocals stay smaller under the lead with independent timing (Mornye: $mornye, TTML: $ttml)',
+        'backing vocals stay smaller under the lead with independent timing (Sistrum: $mornye, TTML: $ttml)',
         (tester) async {
           metadataOverrides['lyrics'] = ttml
               ? '''
@@ -4718,7 +4718,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye player menu hides the volume in both orientations', (
+  testWidgets('Sistrum player menu hides the volume in both orientations', (
     tester,
   ) async {
     await pumpNowPlaying(

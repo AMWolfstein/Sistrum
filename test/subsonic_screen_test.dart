@@ -36,7 +36,7 @@ void main() {
     for (final mornye in [false, true]) {
       for (final largeText in [false, true]) {
         testWidgets(
-          'Subsonic form and browsing on $platform Mornye=$mornye largeText=$largeText',
+          'Subsonic form and browsing on $platform Sistrum=$mornye largeText=$largeText',
           (tester) async {
             tester.view.physicalSize = const Size(360, 800);
             tester.view.devicePixelRatio = 1;

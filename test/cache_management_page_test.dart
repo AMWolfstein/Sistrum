@@ -54,7 +54,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets('cache rows show sizes and confirm before clearing '
-        '(Mornye: $mornye)', (tester) async {
+        '(Sistrum: $mornye)', (tester) async {
       tester.view.physicalSize = const Size(430, 2400);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

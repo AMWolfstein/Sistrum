@@ -52,7 +52,7 @@ final _mix = LibraryMixView(
 void main() {
   for (final mornye in [false, true]) {
     testWidgets('Home lists the mixes and opens one '
-        '(Mornye: $mornye)', (tester) async {
+        '(Sistrum: $mornye)', (tester) async {
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -95,7 +95,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets('a long press on a phone row selects songs for the Library '
-        'actions (Mornye: $mornye)', (tester) async {
+        'actions (Sistrum: $mornye)', (tester) async {
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

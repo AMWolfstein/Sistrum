@@ -425,7 +425,7 @@ void main() {
     expect(calls, 3);
   });
 
-  testWidgets('Mornye keeps Cupertino actions and its own surfaces', (
+  testWidgets('Sistrum keeps Cupertino actions and its own surfaces', (
     tester,
   ) async {
     await tester.pumpWidget(

@@ -34,9 +34,9 @@ impl AppVersion {
     pub fn user_agent(&self) -> String {
         let version = self.get();
         if version.is_empty() {
-            "Mornye".into()
+            "Sistrum".into()
         } else {
-            format!("Mornye/{version}")
+            format!("Sistrum/{version}")
         }
     }
 
@@ -88,14 +88,14 @@ mod tests {
                         version.set(value).unwrap();
                         assert!(matches!(
                             version.user_agent().as_str(),
-                            "Mornye" | "Mornye/first version" | "Mornye/second version"
+                            "Sistrum" | "Sistrum/first version" | "Sistrum/second version"
                         ));
                     }
                 });
             }
         });
         version.set("").unwrap();
-        assert_eq!(retained.user_agent(), "Mornye");
+        assert_eq!(retained.user_agent(), "Sistrum");
         version.close();
         assert!(retained.set("new").is_err());
         assert_eq!(retained.get(), "");

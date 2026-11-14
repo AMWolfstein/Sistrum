@@ -197,7 +197,7 @@ void main() {
       .firstWhere((widget) => widget.heightFactor == 1)
       .widthFactor!;
 
-  testWidgets('Mornye blurs each slide cover once while it zooms and swipes', (
+  testWidgets('Sistrum blurs each slide cover once while it zooms and swipes', (
     tester,
   ) async {
     await open(tester, mornye: true);

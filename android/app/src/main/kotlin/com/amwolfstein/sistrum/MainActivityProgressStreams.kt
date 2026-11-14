@@ -97,7 +97,7 @@ private fun MainActivity.startDownloadProgressStream(sink: EventChannel.EventSin
                     lastDownloadProgressSeq = 0L
                     lastDownloadProgressPayload = null
                     android.util.Log.w(
-                        "Mornye",
+                        "Sistrum",
                         "Download progress stream poll failed: ${e.message}",
                     )
                     delay(250L)
@@ -133,7 +133,7 @@ private fun MainActivity.startLibraryScanProgressStream(sink: EventChannel.Event
             sink.success(parseJsonPayload(initialPayload))
         } catch (e: Exception) {
             android.util.Log.w(
-                "Mornye",
+                "Sistrum",
                 "Library scan progress initial poll failed: ${e.message}",
             )
         }
@@ -149,7 +149,7 @@ private fun MainActivity.startLibraryScanProgressStream(sink: EventChannel.Event
                 }
             } catch (e: Exception) {
                 android.util.Log.w(
-                    "Mornye",
+                    "Sistrum",
                     "Library scan progress stream poll failed: ${e.message}",
                 )
             }

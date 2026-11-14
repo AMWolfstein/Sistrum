@@ -75,27 +75,27 @@ internal fun shouldDisableImpeller(): Boolean {
     // Reported Impeller crashes in SaveLayer, Vulkan submission and GLES snapshots.
     // Keep these workarounds scoped to the reported device and Android version.
     if (hasKnownImpellerRasterCrash(Build.VERSION.SDK_INT, manufacturer, model)) {
-        android.util.Log.i("Mornye", "Using Skia for a known Impeller raster crash on $model")
+        android.util.Log.i("Sistrum", "Using Skia for a known Impeller raster crash on $model")
         return true
     }
 
     for (problematicManufacturer in PROBLEMATIC_MANUFACTURERS) {
         if (manufacturer.contains(problematicManufacturer)) {
-            android.util.Log.i("Mornye", "Matched problematic manufacturer: $problematicManufacturer")
+            android.util.Log.i("Sistrum", "Matched problematic manufacturer: $problematicManufacturer")
             return true
         }
     }
 
     for (problematicModel in PROBLEMATIC_MODELS) {
         if (model.contains(problematicModel) || device.contains(problematicModel)) {
-            android.util.Log.i("Mornye", "Matched problematic model: $problematicModel")
+            android.util.Log.i("Sistrum", "Matched problematic model: $problematicModel")
             return true
         }
     }
 
     for (chipset in PROBLEMATIC_CHIPSETS) {
         if (hardware.contains(chipset) || board.contains(chipset)) {
-            android.util.Log.i("Mornye", "Matched problematic chipset: $chipset")
+            android.util.Log.i("Sistrum", "Matched problematic chipset: $chipset")
             return true
         }
     }
@@ -105,13 +105,13 @@ internal fun shouldDisableImpeller(): Boolean {
 
         for (pattern in PROBLEMATIC_GPU_PATTERNS) {
             if (gpuRenderer.contains(pattern)) {
-                android.util.Log.i("Mornye", "Matched problematic GPU on old Android: $pattern")
+                android.util.Log.i("Sistrum", "Matched problematic GPU on old Android: $pattern")
                 return true
             }
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            android.util.Log.i("Mornye", "Android < 8.0, using Skia for safety")
+            android.util.Log.i("Sistrum", "Android < 8.0, using Skia for safety")
             return true
         }
     }
@@ -119,7 +119,7 @@ internal fun shouldDisableImpeller(): Boolean {
     val gpuRenderer = getGpuRenderer().lowercase(Locale.ROOT)
     for (pattern in PROBLEMATIC_GPU_PATTERNS) {
         if (gpuRenderer.contains(pattern)) {
-            android.util.Log.i("Mornye", "Matched problematic GPU: $pattern")
+            android.util.Log.i("Sistrum", "Matched problematic GPU: $pattern")
             return true
         }
     }

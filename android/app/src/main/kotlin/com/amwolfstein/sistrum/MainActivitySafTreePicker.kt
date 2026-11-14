@@ -30,12 +30,12 @@ internal fun MainActivity.launchSafTreePicker(call: MethodCall, result: MethodCh
     setupFolderPickerStore.begin(call.argument<Boolean>("for_setup") == true)
     MainActivity.pendingSafTreeResult = result
     try {
-        android.util.Log.i("Mornye", "Launching SAF picker via $resolver")
+        android.util.Log.i("Sistrum", "Launching SAF picker via $resolver")
         safTreeLauncher.launch(intent)
     } catch (e: Exception) {
         MainActivity.pendingSafTreeResult = null
         setupFolderPickerStore.complete(null)
-        android.util.Log.e("Mornye", "Failed to launch SAF picker: ${e.message}", e)
+        android.util.Log.e("Sistrum", "Failed to launch SAF picker: ${e.message}", e)
         result.error(
             "saf_launch_failed",
             e.message ?: "Failed to launch folder picker",
@@ -56,7 +56,7 @@ internal fun MainActivity.handleSafTreeResult(activityResult: ActivityResult) {
                 backendChannel?.invokeMethod("setupFolderSelectionChanged", null)
             }
         } catch (e: Exception) {
-            android.util.Log.e("Mornye", "Could not retain setup folder selection", e)
+            android.util.Log.e("Sistrum", "Could not retain setup folder selection", e)
             result?.error("saf_save_failed", "Could not save selected folder", null)
             return
         }
@@ -79,7 +79,7 @@ internal fun MainActivity.handleSafTreeResult(activityResult: ActivityResult) {
     try {
         contentResolver.takePersistableUriPermission(uri, takeFlags)
     } catch (e: Exception) {
-        android.util.Log.w("Mornye", "Failed to persist SAF permission: ${e.message}")
+        android.util.Log.w("Sistrum", "Failed to persist SAF permission: ${e.message}")
     }
 
     val payload = JSONObject()
@@ -134,7 +134,7 @@ private fun MainActivity.resolveSafDisplayPath(treeUri: Uri): String {
 
         return if (subPath.isEmpty()) prefix else "$prefix/$subPath"
     } catch (e: Exception) {
-        android.util.Log.w("Mornye", "Failed to resolve SAF display path: ${e.message}")
+        android.util.Log.w("Sistrum", "Failed to resolve SAF display path: ${e.message}")
         return treeUri.toString()
     }
 }

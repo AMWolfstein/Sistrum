@@ -101,7 +101,7 @@ void main() {
   });
 
   testWidgets(
-    'custom typography survives Mornye local surface reconstruction',
+    'custom typography survives Sistrum local surface reconstruction',
     (tester) async {
       final theme = MornyeTheme.build(
         Brightness.dark,

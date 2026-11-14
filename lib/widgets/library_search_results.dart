@@ -34,7 +34,7 @@ import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 
-/// Slivers shared by Material's Library and Mornye's Library/Songs screens.
+/// Slivers shared by Material's Library and Sistrum's Library/Songs screens.
 /// Only the current query's provider families are watched; late results from
 /// an earlier query cannot replace what the user is currently searching for.
 class LibrarySearchResults extends ConsumerStatefulWidget {

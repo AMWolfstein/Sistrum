@@ -156,7 +156,7 @@ void main() {
   ]) {
     for (final mornye in [false, true]) {
       testWidgets('$page title flip leaves the page unbuilt in '
-          'Mornye=$mornye', (tester) async {
+          'Sistrum=$mornye', (tester) async {
         tester.view.physicalSize = const Size(430, 1000);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);

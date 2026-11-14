@@ -74,7 +74,7 @@
   "@networkErrorPermission": {
     "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
   },
-  "networkErrorLocalPermission": "Không cho phép truy cập mạng cục bộ. Hãy bật thiết bị lân cận cho Mornye trong phần cài đặt ứng dụng Android, sau đó thử lại.",
+  "networkErrorLocalPermission": "Không cho phép truy cập mạng cục bộ. Hãy bật thiết bị lân cận cho Sistrum trong phần cài đặt ứng dụng Android, sau đó thử lại.",
   "@networkErrorLocalPermission": {
     "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
   },
@@ -177,13 +177,13 @@
   "extensionAccountInvalidNumber": "Vui lòng nhập một số hợp lệ.",
   "settingsPlaybackSubtitle": "Trình phát, âm lượng, AutoMix và đầu ra âm thanh",
   "sectionPlayer": "Trình phát nhạc",
-  "sectionVolumeAndTransitions": "Trình phát tích hợp SpotiFLAC",
+  "sectionVolumeAndTransitions": "Âm lượng và chuyển tiếp",
   "sectionAudioOutput": "Đầu ra âm thanh",
   "usbBitPerfect": "Âm thanh Hi-Res và Bit-perfect",
   "usbBitPerfectDescription": "Giữ nguyên độ chính xác gốc của nguồn nhạc trên các đầu ra tương thích. Hãy chọn Direct USB hoặc AAudio độc quyền bên dưới; nếu không, đầu ra USB chuẩn của Android yêu cầu Android 14 trở lên. Áp dụng từ bài tiếp theo, không dùng AutoMix hay chuẩn hóa âm lượng. Phím âm lượng hệ thống có thể không điều chỉnh được Direct USB.",
   "usbHardwareVolume": "Âm lượng phần cứng DAC",
   "usbVolumeWarningTitle": "Kiểm tra âm lượng nghe của bạn",
-  "usbVolumeWarning": "Âm thanh truyền trực tiếp qua USB có thể lớn hơn nhiều so với trình phát thông thường, các nút âm lượng trên điện thoại có thể không điều chỉnh được mức âm thanh này. Hãy giảm âm lượng trên DAC hoặc bộ khuếch đại ​​trước khi bắt đầu. Khi tương thíc, SpotiFLAC sẽ tự động thiết lập mức âm lượng của DAC về tối đa là −40 dB ngay khi kết nối; tuy nhiên, điều này không đảm bảo mức âm lượng sẽ an toàn cho mọi loại thiết bị, bộ khuếch đại hoặc tai nghe.",
+  "usbVolumeWarning": "Âm thanh truyền trực tiếp qua USB có thể lớn hơn nhiều so với trình phát thông thường, các nút âm lượng trên điện thoại có thể không điều chỉnh được mức âm thanh này. Hãy giảm âm lượng trên DAC hoặc bộ khuếch đại ​​trước khi bắt đầu. Khi tương thíc, Sistrum sẽ tự động thiết lập mức âm lượng của DAC về tối đa là −40 dB ngay khi kết nối; tuy nhiên, điều này không đảm bảo mức âm lượng sẽ an toàn cho mọi loại thiết bị, bộ khuếch đại hoặc tai nghe.",
   "usbVolumeAccept": "Tôi đã hiểu",
   "usbVolumeUnavailable": "Đã tạm dừng phát vì DAC này không có bộ chỉnh âm lượng phần cứng được xác nhận. Hãy giảm âm lượng trên DAC hoặc ampli trước, sau đó bật đầu ra âm lượng cố định nếu cần rồi chọn phát lại bài hát.",
   "usbFixedVolume": "Cho phép đầu ra USB âm lượng cố định",
@@ -207,7 +207,7 @@
   "cacheMotionArtworkDesc": "Video ảnh bìa động của album được lưu kèm khi tải nhạc. Nếu xóa chúng, các tệp nhạc và ảnh bìa tĩnh của bạn vẫn được giữ nguyên.",
   "nowPlayingVolume": "Âm lượng",
   "@nowPlayingVolume": {
-    "description": "System volume control label in the Mornye player"
+    "description": "System volume control label in the Sistrum player"
   },
   "appearanceStyle": "Phong cách giao diện",
   "appearanceAccentRed": "Đỏ (mặc định)",
@@ -218,7 +218,7 @@
   "appearanceAccentPurple": "Tím",
   "appearanceAccentPink": "Hồng",
   "appearanceGlassOutlines": "Viền hiệu ứng kính",
-  "appearanceGlassOutlinesSubtitle": "Hiển thị đường viền trang trí quanh các khung kính của Mornye. Khi tắt, hiệu ứng làm mờ và khúc xạ vẫn được giữ nguyên.",
+  "appearanceGlassOutlinesSubtitle": "Hiển thị đường viền trang trí quanh các khung kính của Sistrum. Khi tắt, hiệu ứng làm mờ và khúc xạ vẫn được giữ nguyên.",
   "appearanceUseSystemFont": "Dùng phông chữ hệ thống",
   "appearanceUseSystemFontSubtitle": "Sử dụng kiểu chữ mặc định của thiết bị cho toàn bộ văn bản trong ứng dụng.",
   "@appearanceStyle": {
@@ -226,7 +226,7 @@
   },
   "@@locale": "vi",
   "@@last_modified": "2026-04-28",
-  "appName": "Mornye",
+  "appName": "Sistrum",
   "@appName": {
     "description": "App name - DO NOT TRANSLATE"
   },
@@ -690,22 +690,6 @@
   "@aboutTitle": {
     "description": "About page title"
   },
-  "aboutContributors": "Người đóng góp",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Nhà phát triển bản di động",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "Họa sĩ tài năng đã thiết kế logo tuyệt đẹp cho ứng dụng!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "Đội ngũ biên dịch",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
   "aboutSpecialThanks": "Lời cảm ơn đặc biệt",
   "@aboutSpecialThanks": {
     "description": "Section for special thanks"
@@ -724,17 +708,6 @@
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
-  "aboutTelegramChannel": "Kênh Telegram",
-  "aboutTelegramChannelSubtitle": "Thông báo và cập nhật mới",
-  "@aboutTelegramChannelSubtitle": {
-    "description": "Subtitle for Telegram channel"
-  },
-  "aboutTelegramChat": "Cộng đồng Telegram",
-  "aboutTelegramChatSubtitle": "Trò chuyện cùng cộng đồng người dùng",
-  "@aboutTelegramChatSubtitle": {
-    "description": "Subtitle for Telegram chat"
-  },
-  "aboutSocial": "Mạng xã hội",
   "aboutApp": "Ứng dụng",
   "@aboutApp": {
     "description": "Section for app info"
@@ -742,14 +715,6 @@
   "aboutVersion": "Phiên bản",
   "@aboutVersion": {
     "description": "Version info label"
-  },
-  "aboutBinimumDesc": "Tác giả của QQDL & HiFi API — dự án góp phần định hình tính năng tải nhạc Lossless.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "Tác giả dự án HiFi nguyên bản — nền tảng cho việc tích hợp các nguồn nhạc Lossless.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
   },
   "aboutUnituneDesc": "Trình phân giải liên kết nhạc mã nguồn mở của Flaze, dùng để đối chiếu dự phòng đa nền tảng.",
   "@aboutUnituneDesc": {
@@ -763,7 +728,7 @@
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
   },
-  "aboutAppDescription": "Tra cứu metadata âm nhạc, quản lý tiện ích mở rộng và sắp xếp thư viện của bạn.",
+  "aboutAppDescription": "Trình phát nhạc ngoại tuyến với một số tính năng trực tuyến",
   "@aboutAppDescription": {
     "description": "App description in header card"
   },
@@ -880,7 +845,7 @@
   "@setupStorageRequired": {
     "description": "Title when storage permission needed"
   },
-  "setupStorageDescription": "Mornye cần quyền truy cập bộ nhớ để lưu các tệp nhạc đã tải về.",
+  "setupStorageDescription": "Sistrum cần quyền truy cập bộ nhớ để lưu các tệp nhạc đã tải về.",
   "@setupStorageDescription": {
     "description": "Explanation for storage permission"
   },
@@ -944,7 +909,7 @@
   "@whatsNewNearbyTitle": {
     "description": "Title of the What's New page that asks for Android's Nearby devices permission; use Android's name for this permission"
   },
-  "whatsNewNearbyDesc": "Android sẽ hỏi trước khi cho phép một ứng dụng truy cập các thiết bị khác trong mạng của bạn. Mornye cần quyền này để:",
+  "whatsNewNearbyDesc": "Android sẽ hỏi trước khi cho phép một ứng dụng truy cập các thiết bị khác trong mạng của bạn. Sistrum cần quyền này để:",
   "@whatsNewNearbyDesc": {
     "description": "Description on the Nearby devices page of the What's New tour, followed by a list of uses"
   },
@@ -960,11 +925,11 @@
   "@whatsNewNearbyPrivateTitle": {
     "description": "Reassurance on the Nearby devices page of the What's New tour"
   },
-  "whatsNewNearbyPrivateBody": "Mornye chỉ dùng tính năng này để kết nối với các thiết bị trên mạng của bạn, chứ không bao giờ để tìm vị trí của bạn.",
+  "whatsNewNearbyPrivateBody": "Sistrum chỉ dùng tính năng này để kết nối với các thiết bị trên mạng của bạn, chứ không bao giờ để tìm vị trí của bạn.",
   "@whatsNewNearbyPrivateBody": {
     "description": "Explains that the Nearby devices permission is not used for location"
   },
-  "whatsNewNearbyRefused": "Không được phép. tính năng lưu trữ mạng vẫn tắt cho đến khi bạn cho phép thiết bị lân cận cho Mornye trong cài đặt Android.",
+  "whatsNewNearbyRefused": "Không được phép. tính năng lưu trữ mạng vẫn tắt cho đến khi bạn cho phép thiết bị lân cận cho Sistrum trong cài đặt Android.",
   "@whatsNewNearbyRefused": {
     "description": "Shown on the Nearby devices page of the What's New tour after the permission is refused"
   },
@@ -2881,7 +2846,7 @@
   "@libraryRemoveFolder": {
     "description": "Action to remove one indexed library source"
   },
-  "libraryRemoveFolderMessage": "Xóa thư mục này và các bài hát đã lập chỉ mục khỏi Mornye? Các tệp âm thanh trong bộ nhớ sẽ không bị xóa.",
+  "libraryRemoveFolderMessage": "Xóa thư mục này và các bài hát đã lập chỉ mục khỏi Sistrum? Các tệp âm thanh trong bộ nhớ sẽ không bị xóa.",
   "@libraryRemoveFolderMessage": {
     "description": "Confirmation shown before removing a library source"
   },
@@ -3071,13 +3036,13 @@
   "@libraryStorageAccessRequired": {
     "description": "Dialog title for storage permission"
   },
-  "libraryStorageAccessMessage": "Mornye cần quyền truy cập bộ nhớ để quét thư viện nhạc của bạn. Vui lòng cấp quyền trong phần cài đặt.",
+  "libraryStorageAccessMessage": "Sistrum cần quyền truy cập bộ nhớ để quét thư viện nhạc của bạn. Vui lòng cấp quyền trong phần cài đặt.",
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
   "librarySourceDownloaded": "Đã tải xuống",
   "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Mornye"
+    "description": "Badge for tracks downloaded via Sistrum"
   },
   "librarySourceLocal": "Trên máy",
   "@librarySourceLocal": {
@@ -3229,11 +3194,11 @@
       }
     }
   },
-  "tutorialWelcomeTitle": "Chào mừng bạn đến với Mornye!",
+  "tutorialWelcomeTitle": "Chào mừng bạn đến với Sistrum!",
   "@tutorialWelcomeTitle": {
     "description": "Tutorial welcome page title"
   },
-  "tutorialWelcomeDesc": "Tìm hiểu cách tìm nhạc bằng các tiện ích mở rộng, chọn chất lượng mong muốn và quản lý tải xuống trong Mornye.",
+  "tutorialWelcomeDesc": "Tìm hiểu cách tìm nhạc bằng các tiện ích mở rộng, chọn chất lượng mong muốn và quản lý tải xuống trong Sistrum.",
   "@tutorialWelcomeDesc": {
     "description": "Tutorial welcome page description"
   },
@@ -3329,7 +3294,7 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Mornye phiên bản {version} đã có",
+  "whatsNewIntroTitle": "Sistrum phiên bản {version} đã có",
   "@whatsNewIntroTitle": {
     "description": "First page of the tour shown once after updating; version is like 5.3",
     "placeholders": {
@@ -3346,7 +3311,7 @@
   "whatsNewHomeAutoplayTitle": "Tự động phát thông minh hơn",
   "whatsNewHomeAutoplayBody": "Tính năng tự động phát bám sát phiên nghe nhạc của bạn và học hỏi từ các bài hát yêu thích, danh sách phát cũng như các lượt phát lại.",
   "whatsNewHomeAnalysisTitle": "Phân tích bài hát",
-  "whatsNewHomeAnalysisBody": "Mornye có thể phân tích âm thanh của các bài hát để đưa ra lựa chọn phù hợp hơn. Tính năng này sẽ tắt cho đến khi bạn bật nó trong phần Cài đặt.",
+  "whatsNewHomeAnalysisBody": "Sistrum có thể phân tích âm thanh của các bài hát để đưa ra lựa chọn phù hợp hơn. Tính năng này sẽ tắt cho đến khi bạn bật nó trong phần Cài đặt.",
   "whatsNewPlayerTitle": "Trình phát và lời bài hát",
   "whatsNewPlayerDesc": "Phát nhạc mượt mà hơn và hiển thị lời bài hát bằng bất kỳ ngôn ngữ nào.",
   "whatsNewPlayerGaplessTitle": "Phát liền mạch",
@@ -4414,7 +4379,7 @@
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
   },
-  "safMigrationMessage1": "Mornye hiện sử dụng Android Storage Access Framework (SAF) cho các lượt tải xuống. Điều này giúp khắc phục lỗi \"permission denied\" trên Android 10 trở lên.",
+  "safMigrationMessage1": "Sistrum hiện sử dụng Android Storage Access Framework (SAF) cho các lượt tải xuống. Điều này giúp khắc phục lỗi \"permission denied\" trên Android 10 trở lên.",
   "@safMigrationMessage1": {
     "description": "First paragraph of SAF migration dialog"
   },
@@ -4494,7 +4459,7 @@
   "@backupRestoreFailed": {
     "description": "Snackbar when restore fails"
   },
-  "backupInvalidFile": "Tệp này không phải là bản sao lưu Mornye hợp lệ",
+  "backupInvalidFile": "Tệp này không phải là bản sao lưu Sistrum hợp lệ",
   "@backupInvalidFile": {
     "description": "Snackbar when the chosen file is not a valid backup"
   },
@@ -4678,9 +4643,9 @@
     "description": "Subtitle shown in the download location picker sheet"
   },
   "storageAutomaticFolder": "Thư mục tự động",
-  "storageAutomaticDownloadFolder": "Sử dụng thư mục Download/Mornye khi có quyền ghi, nếu không sẽ dùng bộ nhớ của ứng dụng",
+  "storageAutomaticDownloadFolder": "Sử dụng thư mục Download/Sistrum khi có quyền ghi, nếu không sẽ dùng bộ nhớ của ứng dụng",
   "storageSafRecommended": "Tự chọn thư mục (Khuyên dùng)",
-  "storageDownloadFolderHint": "Trong trình chọn thư mục của Android, hãy mở thư mục Download và chọn Mornye. Nếu chưa có, hãy tạo mới bằng nút \"Thư mục mới\", sau đó nhấn \"Dùng thư mục này\" để cấp quyền truy cập.",
+  "storageDownloadFolderHint": "Trong trình chọn thư mục của Android, hãy mở thư mục Download và chọn Sistrum. Nếu chưa có, hãy tạo mới bằng nút \"Thư mục mới\", sau đó nhấn \"Dùng thư mục này\" để cấp quyền truy cập.",
   "downloadFolderAccessLostTitle": "Mất quyền truy cập thư mục tải xuống",
   "@downloadFolderAccessLostTitle": {
     "description": "Title of the warning banner shown in Files settings when the saved SAF folder grant is no longer valid"
@@ -5690,7 +5655,7 @@
       }
     }
   },
-  "notifDownloadingUpdate": "Đang tải xuống Mornye v{version}",
+  "notifDownloadingUpdate": "Đang tải xuống Sistrum v{version}",
   "@notifDownloadingUpdate": {
     "description": "Notification title while downloading an app update",
     "placeholders": {
@@ -5718,7 +5683,7 @@
   "@notifUpdateReady": {
     "description": "Notification title when app update download is complete"
   },
-  "notifUpdateReadyBody": "Đã tải xuống Mornye v{version}. Nhấn để cài đặt.",
+  "notifUpdateReadyBody": "Đã tải xuống Sistrum v{version}. Nhấn để cài đặt.",
   "@notifUpdateReadyBody": {
     "description": "Notification body when app update is ready to install",
     "placeholders": {
@@ -6483,7 +6448,7 @@
   "@extensionCustomUrlHandlingSubtitle": {
     "description": "Extension detail subtitle for custom URL handling"
   },
-  "extensionCustomUrlHandlingShareHint": "Chia sẻ liên kết từ các trang này tới Mornye và tiện ích mở rộng này sẽ xử lý chúng.",
+  "extensionCustomUrlHandlingShareHint": "Chia sẻ liên kết từ các trang này tới Sistrum và tiện ích mở rộng này sẽ xử lý chúng.",
   "@extensionCustomUrlHandlingShareHint": {
     "description": "Extension detail hint explaining share-to-app URL handling"
   },
@@ -6682,7 +6647,7 @@
   "@libraryBuiltInPreviewPlayer": {
     "description": "Setting option to use the built-in preview player"
   },
-  "libraryBuiltInPreviewPlayerSubtitle": "Phát nhạc của bạn ngay trong Mornye",
+  "libraryBuiltInPreviewPlayerSubtitle": "Phát nhạc của bạn ngay trong Sistrum",
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
@@ -7440,11 +7405,11 @@
   "@extensionVerificationHelpTitleWaiting": {
     "description": "Dialog title when verification is taking longer than expected"
   },
-  "extensionVerificationHelpMessageManual": "Mornye không thể tự động mở trình duyệt. Hãy mở liên kết này trong trình duyệt của bạn hoặc sao chép thủ công.",
+  "extensionVerificationHelpMessageManual": "Sistrum không thể tự động mở trình duyệt. Hãy mở liên kết này trong trình duyệt của bạn hoặc sao chép thủ công.",
   "@extensionVerificationHelpMessageManual": {
     "description": "Dialog message when automatic browser launch for verification fails"
   },
-  "extensionVerificationHelpMessageWaiting": "Nếu trình duyệt không mở hoặc quá trình xác minh đã xong nhưng không tự quay lại Mornye, hãy mở lại liên kết này hoặc sao chép thủ công.",
+  "extensionVerificationHelpMessageWaiting": "Nếu trình duyệt không mở hoặc quá trình xác minh đã xong nhưng không tự quay lại Sistrum, hãy mở lại liên kết này hoặc sao chép thủ công.",
   "@extensionVerificationHelpMessageWaiting": {
     "description": "Dialog message when verification may need manual browser help"
   },
@@ -7600,7 +7565,7 @@
   "@playerCoverStyleFullScreen": {
     "description": "Cover art style: artwork fills the top of the player"
   },
-  "playerCoverStyleFullScreenDescription": "Ảnh bìa tràn phần trên trình phát và chuyển mờ dần xuống dưới. Ảnh bìa động luôn hiển thị toàn màn hình trong Mornye",
+  "playerCoverStyleFullScreenDescription": "Ảnh bìa tràn phần trên trình phát và chuyển mờ dần xuống dưới. Ảnh bìa động luôn hiển thị toàn màn hình trong Sistrum",
   "@playerCoverStyleFullScreenDescription": {
     "description": "Subtitle of the full screen cover art style"
   },
@@ -8249,7 +8214,7 @@
   "equalizerPresetName": "Tên cấu hình",
   "equalizerImport": "Nhập cấu hình",
   "equalizerExport": "Chia sẻ cấu hình",
-  "equalizerImportInvalid": "Chọn một tệp cấu hình bộ chỉnh âm Mornye hợp lệ (JSON, tối đa 64 KB).",
+  "equalizerImportInvalid": "Chọn một tệp cấu hình bộ chỉnh âm Sistrum hợp lệ (JSON, tối đa 64 KB).",
   "equalizerSaved": "Đã lưu cấu hình",
   "equalizerResetTitle": "Đặt lại Equalizer về mặc định?",
   "equalizerResetDescription": "Đặt lại đường cong Eq phẳng cùng cài đặt âm sắc và dải động mặc định. Các cấu hình bạn đã lưu vẫn được giữ nguyên.",
@@ -8357,7 +8322,7 @@
   "audioInfoOff": "Tắt",
   "audioInfoBypassed": "Đã bị bỏ qua nhờ xuất âm thanh trực tiếp",
   "audioInfoPlayer": "Trình phát nhạc",
-  "audioInfoPlayerValue": "Trình phát tích hợp của Mornye",
+  "audioInfoPlayerValue": "Trình phát tích hợp của Sistrum",
   "audioInfoSignalPath": "Chia sẻ",
   "audioInfoPathSystem": "Bộ trộn âm hệ thống",
   "audioInfoPathDirect": "Direct USB, bỏ qua bộ trộn âm hệ thống",
@@ -8418,7 +8383,7 @@
   "lyricsTextPreview": "Theo dõi từng câu hát trong bản nhạc yêu thích của bạn",
   "lyricsBlur": "Lyrics blur",
   "@lyricsBlur": {
-    "description": "Mornye setting: how strongly lyric lines around the current one are blurred"
+    "description": "Sistrum setting: how strongly lyric lines around the current one are blurred"
   },
   "lyricsBlurSubtitle": "How much the lines around the current one soften",
   "lyricsBlurOff": "Off",
@@ -8654,7 +8619,7 @@
   "@recognizePermissionTitle": {
     "description": "Title when microphone permission was denied"
   },
-  "recognizePermissionMessage": "Mornye uses the microphone only while you identify a song.",
+  "recognizePermissionMessage": "Sistrum uses the microphone only while you identify a song.",
   "@recognizePermissionMessage": {
     "description": "Explanation when microphone permission was denied"
   },
@@ -8662,11 +8627,11 @@
   "@recognizePermissionAllow": {
     "description": "Button that asks for microphone permission again"
   },
-  "recognizePlay": "Play in Mornye",
+  "recognizePlay": "Play in Sistrum",
   "@recognizePlay": {
     "description": "Button that plays the identified song from the downloads or library"
   },
-  "recognizeSearch": "Search in Mornye",
+  "recognizeSearch": "Search in Sistrum",
   "@recognizeSearch": {
     "description": "Button that searches for the identified song when it is not in the library"
   },
@@ -8724,7 +8689,7 @@
   },
   "reorganizeLibraryScanning": "Checking your files…",
   "@reorganizeLibraryScanning": {
-    "description": "Shown while Mornye works out which downloaded files need to move"
+    "description": "Shown while Sistrum works out which downloaded files need to move"
   },
   "reorganizeLibraryBusy": "Wait for active downloads to finish before reorganizing files",
   "@reorganizeLibraryBusy": {
@@ -8734,7 +8699,7 @@
   "@reorganizeLibraryNothingTitle": {
     "description": "Dialog title when every downloaded file already follows the rules"
   },
-  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Mornye did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
+  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Sistrum did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
   "@reorganizeLibraryNothingMessage": {
     "description": "Dialog message when there is nothing to move",
     "placeholders": {
@@ -8805,15 +8770,15 @@
       }
     }
   },
-  "reorganizeLibraryScanHint": "Files Mornye did not download are only included after their folder is added and scanned in Local Library.",
+  "reorganizeLibraryScanHint": "Files Sistrum did not download are only included after their folder is added and scanned in Local Library.",
   "@reorganizeLibraryScanHint": {
     "description": "Hint in the reorganize confirmation dialog about which files are covered"
   },
-  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Mornye doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
+  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Sistrum doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
   "@reorganizeLibraryKeepsPlaylistFolders": {
     "description": "Warning in the reorganize confirmation dialog when the folder rule depends on the playlist"
   },
-  "reorganizeLibraryDropsPlaylistFolders": "Mornye doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
+  "reorganizeLibraryDropsPlaylistFolders": "Sistrum doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
   "@reorganizeLibraryDropsPlaylistFolders": {
     "description": "Warning in the reorganize confirmation dialog when playlist folders are enabled"
   },

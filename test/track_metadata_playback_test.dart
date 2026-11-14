@@ -61,7 +61,7 @@ void main() {
       for (final format in ['flac', 'opus']) {
         for (final menu in [false, if (mornye) true]) {
           testWidgets('metadata Play carries $format file information '
-              '(Mornye=$mornye, local=$local, menu=$menu)', (tester) async {
+              '(Sistrum=$mornye, local=$local, menu=$menu)', (tester) async {
             await tester.binding.setSurfaceSize(const Size(393, 852));
             addTearDown(() => tester.binding.setSurfaceSize(null));
             final player = _Player();

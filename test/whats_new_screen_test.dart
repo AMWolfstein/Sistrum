@@ -239,7 +239,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final container = await openTour(tester);
 
-      expect(find.text('Mornye ${AppInfo.whatsNewRelease} is here'), findsOne);
+      expect(find.text('Sistrum ${AppInfo.whatsNewRelease} is here'), findsOne);
       expect(find.text('Skip for now'), findsOne);
       for (final title in [
         'A Home that learns',

@@ -46,7 +46,7 @@ void main() {
     );
   }
 
-  test('Mornye Search maps to its own tab', () {
+  test('Sistrum Search maps to its own tab', () {
     expect(shellTabAt(2, mornye: true, showStore: false), ShellTab.search);
   });
 }

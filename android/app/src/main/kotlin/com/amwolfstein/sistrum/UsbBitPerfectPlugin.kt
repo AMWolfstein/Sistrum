@@ -125,10 +125,10 @@ class UsbBitPerfectPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Even
 @RequiresApi(34)
 private class UsbPcmPlayback(context: Context, private val emit: (Map<String, Any>) -> Unit) {
     private val manager = context.getSystemService(AudioManager::class.java)
-    private val thread = HandlerThread("Mornye-USB-PCM").apply { start() }
+    private val thread = HandlerThread("Sistrum-USB-PCM").apply { start() }
     private val worker = Handler(thread.looper)
     private val wakeLock = context.getSystemService(PowerManager::class.java)
-        .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Mornye:UsbPcm")
+        .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sistrum:UsbPcm")
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
     private var source: UsbPcmSource? = null

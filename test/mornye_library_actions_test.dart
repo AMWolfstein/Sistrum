@@ -78,7 +78,7 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
   });
 
-  testWidgets('Mornye selection actions remain accessible on narrow screens', (
+  testWidgets('Sistrum selection actions remain accessible on narrow screens', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(320, 780));
@@ -127,7 +127,7 @@ void main() {
   });
 
   for (final brightness in Brightness.values) {
-    testWidgets('Mornye conversion preserves selected options ($brightness)', (
+    testWidgets('Sistrum conversion preserves selected options ($brightness)', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(390, 844));
@@ -167,7 +167,7 @@ void main() {
   }
 
   testWidgets(
-    'Mornye Re-enrich retains field choices and disables empty review',
+    'Sistrum Re-enrich retains field choices and disables empty review',
     (tester) async {
       await tester.binding.setSurfaceSize(const Size(390, 844));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -201,7 +201,7 @@ void main() {
   );
 
   testWidgets(
-    'Mornye ReplayGain cancellation restores selection without analysis',
+    'Sistrum ReplayGain cancellation restores selection without analysis',
     (tester) async {
       bool? confirmed;
       var exitedSelection = false;
@@ -298,7 +298,7 @@ void main() {
     });
   }
 
-  testWidgets('Mornye metadata editor keeps edited text and Save available', (
+  testWidgets('Sistrum metadata editor keeps edited text and Save available', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));

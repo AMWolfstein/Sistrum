@@ -86,6 +86,6 @@ internal suspend fun MainActivity.handleReleaseMemoryUnderPressure(call: MethodC
     withContext(Dispatchers.IO) {
         coreBackend.releaseMemoryUnderPressure()
     }
-    android.util.Log.d("Mornye", "Backend memory pressure release completed")
+    android.util.Log.d("Sistrum", "Backend memory pressure release completed")
     result.success(null)
 }

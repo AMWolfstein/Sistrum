@@ -34,7 +34,7 @@ internal fun MainActivity.ensureInstallMarker(): Map<String, Any> {
             true
         } catch (e: Exception) {
             android.util.Log.w(
-                "Mornye",
+                "Sistrum",
                 "Failed to create installation marker: ${e.message}"
             )
             false

@@ -19,7 +19,7 @@ internal fun loadSafScanCheckpoint(path: String): MutableMap<String, Long> {
             entries[uri] = modified
         }
     } catch (e: Exception) {
-        android.util.Log.w("Mornye", "SAF scan: failed reading checkpoint: ${e.message}")
+        android.util.Log.w("Sistrum", "SAF scan: failed reading checkpoint: ${e.message}")
     }
     return entries
 }
@@ -47,7 +47,7 @@ internal fun reconcileSafScanCheckpoint(
             } catch (_: Exception) {}
         }
     } catch (e: Exception) {
-        android.util.Log.w("Mornye", "SAF scan: failed reconciling checkpoint: ${e.message}")
+        android.util.Log.w("Sistrum", "SAF scan: failed reconciling checkpoint: ${e.message}")
         return loaded
     }
 
@@ -62,7 +62,7 @@ internal fun countSafScanRows(path: String): Int {
     return try {
         output.useLines(Charsets.UTF_8) { lines -> lines.count { it.isNotBlank() } }
     } catch (e: Exception) {
-        android.util.Log.w("Mornye", "SAF scan: failed counting existing rows: ${e.message}")
+        android.util.Log.w("Sistrum", "SAF scan: failed counting existing rows: ${e.message}")
         0
     }
 }
@@ -85,6 +85,6 @@ internal fun repairSafScanOutput(path: String) {
             file.setLength(0)
         }
     } catch (e: Exception) {
-        android.util.Log.w("Mornye", "SAF scan: failed repairing output: ${e.message}")
+        android.util.Log.w("Sistrum", "SAF scan: failed repairing output: ${e.message}")
     }
 }

@@ -26,9 +26,9 @@ Map<String, Object?> release(String version) => {
   'assets': [
     for (final abi in ['x86_64', 'arm64'])
       {
-        'name': 'Mornye-v$version-$abi.apk',
+        'name': 'Sistrum-v$version-$abi.apk',
         'browser_download_url':
-            'https://example.test/Mornye-v$version-$abi.apk',
+            'https://example.test/Sistrum-v$version-$abi.apk',
         'digest': 'sha256:${List.filled(64, 'a').join()}',
       },
   ],
@@ -121,9 +121,9 @@ void main() {
     final wrongAbiOnly = release('5.0.5')
       ..['assets'] = [
         {
-          'name': 'Mornye-v5.0.5-x86_64.apk',
+          'name': 'Sistrum-v5.0.5-x86_64.apk',
           'browser_download_url':
-              'https://example.test/Mornye-v5.0.5-x86_64.apk',
+              'https://example.test/Sistrum-v5.0.5-x86_64.apk',
           'digest': 'sha256:${List.filled(64, 'a').join()}',
         },
       ];
@@ -142,14 +142,14 @@ void main() {
     expect(update?.noCompatibleApk, isTrue);
   });
 
-  test('discovers Mornye release assets after the app rename', () async {
+  test('discovers Sistrum release assets after the app rename', () async {
     final renamedRelease = release('5.2.1')
       ..['assets'] = [
         for (final abi in ['x86_64', 'arm64'])
           {
-            'name': 'Mornye-5.2.1-$abi.apk',
+            'name': 'Sistrum-5.2.1-$abi.apk',
             'browser_download_url':
-                'https://example.test/Mornye-5.2.1-$abi.apk',
+                'https://example.test/Sistrum-5.2.1-$abi.apk',
             'digest': 'sha256:${List.filled(64, 'a').join()}',
           },
       ];
@@ -162,7 +162,7 @@ void main() {
     final update = await checker.checkForUpdate();
     expect(
       update?.apkDownloadUrl,
-      'https://example.test/Mornye-5.2.1-arm64.apk',
+      'https://example.test/Sistrum-5.2.1-arm64.apk',
     );
     expect(update?.apkSha256, List.filled(64, 'a').join());
   });

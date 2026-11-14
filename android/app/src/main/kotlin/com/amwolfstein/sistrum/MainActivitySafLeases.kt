@@ -25,7 +25,7 @@ internal object SafPlaybackLeases {
         val descriptor = try {
             context.contentResolver.openFileDescriptor(Uri.parse(uriStr), "r")
         } catch (e: Exception) {
-            android.util.Log.w("Mornye", "Failed to open SAF playback descriptor: ${e.message}")
+            android.util.Log.w("Sistrum", "Failed to open SAF playback descriptor: ${e.message}")
             null
         } ?: return null
 

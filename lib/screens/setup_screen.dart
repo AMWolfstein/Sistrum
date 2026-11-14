@@ -415,7 +415,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
 
   Future<String> _getDefaultDirectory() async {
     if (_platform == TargetPlatform.android) {
-      final downloadDir = Directory('/storage/emulated/0/Download/Mornye');
+      final downloadDir = Directory('/storage/emulated/0/Download/Sistrum');
       try {
         if (!await downloadDir.exists()) {
           await downloadDir.create(recursive: true);
@@ -426,7 +426,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       }
     }
     final appDir = await getApplicationDocumentsDirectory();
-    return '${appDir.path}/Mornye';
+    return '${appDir.path}/Sistrum';
   }
 
   Future<void> _completeSetup() async {

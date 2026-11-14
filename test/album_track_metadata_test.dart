@@ -113,7 +113,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     for (final discs in [1, 2]) {
-      testWidgets('online album disc groups (Mornye: $mornye, discs: $discs)', (
+      testWidgets('online album disc groups (Sistrum: $mornye, discs: $discs)', (
         tester,
       ) async {
         await tester.binding.setSurfaceSize(const Size(430, 1200));

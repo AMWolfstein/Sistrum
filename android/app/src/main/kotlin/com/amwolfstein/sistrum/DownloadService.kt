@@ -53,7 +53,7 @@ class DownloadService : Service() {
         private const val WIDGET_PROGRESS_INTERVAL_MS = 1000L
         private const val DOWNLOAD_RESULT_NOTIFICATION_ID = 1
         private const val VERIFICATION_REQUIRED_NOTIFICATION_ID = 4
-        private const val WAKELOCK_TAG = "Mornye:DownloadWakeLock"
+        private const val WAKELOCK_TAG = "Sistrum:DownloadWakeLock"
 
         const val ACTION_START = "com.amwolfstein.sistrum.action.START_DOWNLOAD"
         const val ACTION_STOP = "com.amwolfstein.sistrum.action.STOP_DOWNLOAD"
@@ -1445,7 +1445,7 @@ class DownloadService : Service() {
             // resources once for the batch, preserving caches between tracks.
             coreBackend.releaseIdleResources()
         } catch (e: Exception) {
-            android.util.Log.w("Mornye", "Failed to release idle download memory: ${e.message}")
+            android.util.Log.w("Sistrum", "Failed to release idle download memory: ${e.message}")
         }
     }
 

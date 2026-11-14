@@ -28,7 +28,7 @@ class _Settings extends SettingsNotifier {
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('native Mornye glass visual poses and attached layers', (
+  testWidgets('native Sistrum glass visual poses and attached layers', (
     tester,
   ) async {
     expect(Platform.isAndroid, isTrue);

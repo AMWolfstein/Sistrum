@@ -22,8 +22,8 @@ void main() {
   final themes = <String, ThemeData Function()>{
     'Material light': AppTheme.light,
     'Material dark': AppTheme.dark,
-    'Mornye light': () => MornyeTheme.build(Brightness.light),
-    'Mornye dark': () => MornyeTheme.build(Brightness.dark),
+    'Sistrum light': () => MornyeTheme.build(Brightness.light),
+    'Sistrum dark': () => MornyeTheme.build(Brightness.dark),
   };
 
   for (final page in pages.entries) {
@@ -36,7 +36,7 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final handle = tester.ensureSemantics();
-        final mornye = theme.key.startsWith('Mornye');
+        final mornye = theme.key.startsWith('Sistrum');
         await tester.pumpWidget(
           ProviderScope(
             child: MaterialApp(

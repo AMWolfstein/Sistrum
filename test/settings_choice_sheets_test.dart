@@ -103,7 +103,7 @@ void main() {
     ]) {
       final (row, values, icons, setting) = sheet;
       final current = setting(_settings);
-      testWidgets('${page.runtimeType} $current sheet (Mornye: $mornye)', (
+      testWidgets('${page.runtimeType} $current sheet (Sistrum: $mornye)', (
         tester,
       ) async {
         SharedPreferences.setMockInitialValues({});

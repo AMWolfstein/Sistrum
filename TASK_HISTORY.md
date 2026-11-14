@@ -8,3 +8,4 @@
 - M002-TOR005 — Rename the UniFFI Kotlin package to com.sistrum.backend
 - M002-TOR006 — Rename the Rust crates, native libraries and upstream repository links to Sistrum
 - M002-TOR007 — Remove leftover iOS, desktop, arm32 and TV references from docs and metadata
+- M002-T003 — Rename the app, version, description and copyright

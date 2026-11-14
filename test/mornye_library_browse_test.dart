@@ -35,7 +35,7 @@ LibraryBrowseEntry _album(int index) => LibraryBrowseEntry(
 
 void main() {
   testWidgets(
-    'Mornye albums filter incomplete and unknown tags without losing search',
+    'Sistrum albums filter incomplete and unknown tags without losing search',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;

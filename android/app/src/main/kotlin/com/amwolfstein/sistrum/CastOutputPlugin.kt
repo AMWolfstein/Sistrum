@@ -46,7 +46,7 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
     private var revision = 0
     private var wifiLock: WifiManager.WifiLock? = null
     private val mainThread = Handler(Looper.getMainLooper())
-    private val mediaWorker = Executors.newSingleThreadExecutor { Thread(it, "MornyeCastMedia") }
+    private val mediaWorker = Executors.newSingleThreadExecutor { Thread(it, "SistrumCastMedia") }
     private var mediaBridge: CastBridge? = null
 
     private val progress = RemoteMediaClient.ProgressListener { _, _ -> publish() }
@@ -97,7 +97,7 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
                 "state" -> result.success(snapshot())
                 "show" -> {
                     val host = activity as? FragmentActivity
-                        ?: throw IllegalStateException("Open Mornye to choose a TV")
+                        ?: throw IllegalStateException("Open Sistrum to choose a TV")
                     initialize()
                     val button = MediaRouteButton(ContextThemeWrapper(
                         host, androidx.appcompat.R.style.Theme_AppCompat_DayNight))
@@ -202,12 +202,12 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
             try {
                 val wifi = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
                 @Suppress("DEPRECATION")
-                wifiLock = wifi.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "Mornye:Cast").apply {
+                wifiLock = wifi.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "Sistrum:Cast").apply {
                     setReferenceCounted(false)
                     acquire()
                 }
             } catch (error: RuntimeException) {
-                Log.w("MornyeCast", "Could not keep Wi-Fi active for Cast", error)
+                Log.w("SistrumCast", "Could not keep Wi-Fi active for Cast", error)
             }
         }
         publish()

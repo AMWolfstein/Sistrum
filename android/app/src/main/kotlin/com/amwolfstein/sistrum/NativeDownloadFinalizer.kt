@@ -367,7 +367,7 @@ object NativeDownloadFinalizer {
                     filesWritten++
                     wroteForAlbum = true
                 } catch (e: Exception) {
-                    android.util.Log.w("Mornye", "Failed to write native album ReplayGain: ${e.message}")
+                    android.util.Log.w("Sistrum", "Failed to write native album ReplayGain: ${e.message}")
                 }
             }
             if (wroteForAlbum) albumsWritten++

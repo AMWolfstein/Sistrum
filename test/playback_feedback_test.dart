@@ -14,7 +14,7 @@ import 'package:sistrum/widgets/playback_feedback.dart';
 
 void main() {
   for (final mornye in [false, true]) {
-    testWidgets('playback errors show themed feedback (Mornye: $mornye)', (
+    testWidgets('playback errors show themed feedback (Sistrum: $mornye)', (
       tester,
     ) async {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
@@ -121,7 +121,7 @@ void main() {
       },
     );
 
-    testWidgets('muted feedback is transient and themed (Mornye: $mornye)', (
+    testWidgets('muted feedback is transient and themed (Sistrum: $mornye)', (
       tester,
     ) async {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);

@@ -126,7 +126,7 @@ void main() {
         request.uri.toString(),
         'https://openrouter.ai/api/v1/chat/completions',
       );
-      expect(request.headers['X-Title'], 'Mornye');
+      expect(request.headers['X-Title'], 'Sistrum');
       expect(request.body['temperature'], 0.2);
       expect(request.body.containsKey('response_format'), isFalse);
     });

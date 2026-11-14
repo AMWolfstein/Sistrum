@@ -316,7 +316,7 @@ class MainActivity: FlutterFragmentActivity() {
             mapOf(LARGE_JSON_RESULT_FILE_KEY to file.absolutePath)
         } catch (e: Exception) {
             android.util.Log.w(
-                "Mornye",
+                "Sistrum",
                 "Failed to spill large bridge JSON result to file: ${e.message}",
             )
             payload
@@ -434,7 +434,7 @@ class MainActivity: FlutterFragmentActivity() {
     }
 
     internal fun reportLibraryScanError(path: String, operation: String, message: String) {
-        android.util.Log.e("Mornye", "Library scan: $operation [$path]: $message")
+        android.util.Log.e("Sistrum", "Library scan: $operation [$path]: $message")
         recordSafScanFailure(path, message)
         val payload = mapOf(
             "path" to path,

@@ -502,7 +502,7 @@ void main() {
 
   }
 
-  testWidgets('Mornye glass groups skip the backdrop pass', (tester) async {
+  testWidgets('Sistrum glass groups skip the backdrop pass', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(

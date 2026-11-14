@@ -201,7 +201,7 @@ class OfflineSaver {
   final Future<bool> Function(String origin)? existsOrigin;
   final DateTime Function() _now;
 
-  static const service = 'Mornye';
+  static const service = 'Sistrum';
 
   /// The history id of [songId] (contract section 13.2): the same song
   /// saved again replaces its record.
@@ -473,7 +473,7 @@ class DownloadFolderDestination implements OfflineRollbackDestination {
       if (root.isEmpty) {
         root = p.join(
           (await getApplicationDocumentsDirectory()).path,
-          'Mornye',
+          'Sistrum',
         );
       }
       final directory = Directory(p.joinAll([root, ...relativeDir.split('/')]));

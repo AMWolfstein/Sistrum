@@ -20,7 +20,7 @@ void main() {
         },
         'donate': {
           'enabled': true,
-          'title': 'Support Mornye',
+          'title': 'Support Sistrum',
           'message': 'Help cover infrastructure.',
           'methods': [
             {
@@ -54,7 +54,7 @@ void main() {
         ),
         isTrue,
       );
-      expect(config.donate.title, 'Support Mornye');
+      expect(config.donate.title, 'Support Sistrum');
       expect(config.donate.methods, hasLength(2));
       expect(config.donate.methods.first.color, 0xFFFF5E5B);
       expect(config.donate.methods.last.isWallet, isTrue);

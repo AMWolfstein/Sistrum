@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 9,
+  "next_completion": 10,
   "next_mission": 3,
   "next_tor": 8,
   "tasks": {
@@ -120,13 +120,19 @@
       "title": "Rename the Dart package to sistrum"
     },
     "M002-T003": {
-      "completion": null,
+      "completion": 9,
+      "evidence": {
+        "checks": "flutter analyze no issues; flutter gen-l10n run; full flutter test +4478 ~10 all passed exit 0; cargo check --locked --workspace exit 0; cargo test --locked -p sistrum-core 148+6+2+13+5 passed; review round 1 NEEDS_FIXES (UA string and theme labels, lyrics test labels) fixed, round 2 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "110cacca1e50432aa3c1e9c0659d0db6",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Rename the app, version, description and copyright"
     },
     "M002-T004": {

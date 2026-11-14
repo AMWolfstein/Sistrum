@@ -74,7 +74,7 @@ class CoverDownloadService {
       var outputDirectory = settings.downloadDirectory.trim();
       if (outputDirectory.isEmpty) {
         final documents = await getApplicationDocumentsDirectory();
-        outputDirectory = p.join(documents.path, 'Mornye');
+        outputDirectory = p.join(documents.path, 'Sistrum');
       }
 
       final directory = Directory(outputDirectory);

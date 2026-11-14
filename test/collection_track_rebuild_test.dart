@@ -151,7 +151,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'Love All action keeps its add/remove feedback in Mornye=$mornye',
+      'Love All action keeps its add/remove feedback in Sistrum=$mornye',
       (tester) async {
         final collections = _Collections();
         final container = ProviderContainer(
@@ -193,7 +193,7 @@ void main() {
     );
 
     for (final album in [false, true]) {
-      testWidgets('Love All isolates the $album page in Mornye=$mornye', (
+      testWidgets('Love All isolates the $album page in Sistrum=$mornye', (
         tester,
       ) async {
         tester.view.physicalSize = const Size(430, 1000);

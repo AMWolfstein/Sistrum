@@ -9,7 +9,7 @@ void main() {
   for (final brightness in Brightness.values) {
     for (final direction in TextDirection.values) {
       testWidgets(
-        'Mornye queue swipe expands and follows $brightness $direction',
+        'Sistrum queue swipe expands and follows $brightness $direction',
         (tester) async {
           var removals = 0;
           await tester.pumpWidget(

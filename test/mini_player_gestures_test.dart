@@ -44,8 +44,8 @@ void main() {
 
   for (final configuration in [
     (name: 'Material', mornye: false, compact: false),
-    (name: 'Mornye', mornye: true, compact: false),
-    (name: 'Mornye compact', mornye: true, compact: true),
+    (name: 'Sistrum', mornye: true, compact: false),
+    (name: 'Sistrum compact', mornye: true, compact: true),
   ]) {
     Future<_Controller> pumpPlayer(
       WidgetTester tester, {

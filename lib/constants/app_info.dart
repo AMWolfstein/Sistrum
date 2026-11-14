@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 class AppInfo {
-  static const String version = '5.3.1';
-  static const String buildNumber = '167';
+  static const String version = '0.1.0';
+  static const String buildNumber = '1';
 
   /// The release whose What's New tour people see once after updating. Change
   /// it together with the tour's pages when a release earns a new one.
@@ -19,11 +19,10 @@ class AppInfo {
   static String versionLabel({bool debug = kDebugMode}) =>
       debug ? 'Internal' : version;
 
-  static const String appName = 'Mornye';
+  static const String appName = 'Sistrum';
   static const String license = 'LGPL-3.0-only';
-  static const String copyright = '© 2026 Zarz Eleutherius';
-
-  static const String mobileAuthor = 'zarzet';
+  static const String copyright = '© 2026 AMWolfstein';
+  static const String originalCredit = 'Based on Mornye © 2026 Zarz Eleutherius';
 
   static const String githubRepo = 'AMWolfstein/Sistrum';
   static const String githubUrl = 'https://github.com/$githubRepo';

@@ -295,7 +295,7 @@ internal object RustCoreBackend : CoreBackend {
                 try {
                     cover = AndroidLibraryCovers.cache(directory, cached, result.coverBytes, result.coverMime)
                 } catch (error: Exception) {
-                    android.util.Log.w("Mornye", "Could not cache document artwork", error)
+                    android.util.Log.w("Sistrum", "Could not cache document artwork", error)
                 }
             }
             cover?.let { metadata.put("coverPath", it.path) }
@@ -392,7 +392,7 @@ internal object RustCoreBackend : CoreBackend {
                 readAudioMetadataObject("/proc/self/fd/$descriptor", audioName, cacheKey).optString("coverPath", "")
             } catch (error: Exception) {
                 if (error is java.util.concurrent.CancellationException) throw error
-                android.util.Log.w("Mornye", "Could not read CUE artwork", error)
+                android.util.Log.w("Sistrum", "Could not read CUE artwork", error)
                 ""
             }
             return withLibraryDirectories(listOf(requireNotNull(cue.parent))) {

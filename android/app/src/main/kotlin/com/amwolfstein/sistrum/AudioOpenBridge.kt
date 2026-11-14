@@ -99,7 +99,7 @@ internal object AudioOpenBridge {
             input.use { source -> target.outputStream().use { source.copyTo(it) } }
         } catch (error: Exception) {
             target.delete()
-            android.util.Log.w("Mornye", "Could not import audio document", error)
+            android.util.Log.w("Sistrum", "Could not import audio document", error)
         }
         // Missing targets reach Flutter's normal cannot-open feedback as well.
         return mapOf("source" to target.path, "name" to name)

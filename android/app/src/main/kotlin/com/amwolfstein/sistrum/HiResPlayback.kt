@@ -14,10 +14,10 @@ import java.nio.ByteBuffer
 /** Exact-rate PCM via Oboe's AAudio backend. DSD never enters a PCM stream. */
 internal class HiResPlayback(context: Context, private val emit: (Map<String, Any>) -> Unit) {
     private val manager = context.getSystemService(AudioManager::class.java)
-    private val thread = HandlerThread("Mornye-AAudio", android.os.Process.THREAD_PRIORITY_AUDIO).apply { start() }
+    private val thread = HandlerThread("Sistrum-AAudio", android.os.Process.THREAD_PRIORITY_AUDIO).apply { start() }
     private val worker = Handler(thread.looper)
     private val wakeLock = context.getSystemService(PowerManager::class.java)
-        .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Mornye:AAudio")
+        .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sistrum:AAudio")
     @Volatile private var revision = 0
     private var source: UsbPcmSource? = null
     private var output = 0L

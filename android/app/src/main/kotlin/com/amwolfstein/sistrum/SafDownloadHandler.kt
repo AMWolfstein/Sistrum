@@ -261,7 +261,7 @@ object SafDownloadHandler {
                     } catch (e: Exception) {
                         document.delete()
                         android.util.Log.w(
-                            "Mornye",
+                            "Sistrum",
                             "Failed to copy extension output to SAF: ${e.message}"
                         )
                         return errorJson("Failed to copy extension output to SAF: ${e.message}")
@@ -362,7 +362,7 @@ object SafDownloadHandler {
             createdTemp.absolutePath
         } catch (e: Exception) {
             temp?.deleteBestEffort()
-            android.util.Log.w("Mornye", "Failed to copy SAF URI to temp: ${e.message}")
+            android.util.Log.w("Sistrum", "Failed to copy SAF URI to temp: ${e.message}")
             null
         }
     }
@@ -382,7 +382,7 @@ object SafDownloadHandler {
                     ?: return@withSafNameLock null
                 writeFileToSafLocked(context, targetDir, finalName, mimeType, srcPath)
             } catch (e: Exception) {
-                android.util.Log.w("Mornye", "Failed to write file to SAF: ${e.message}")
+                android.util.Log.w("Sistrum", "Failed to write file to SAF: ${e.message}")
                 null
             }
         }
@@ -627,7 +627,7 @@ object SafDownloadHandler {
             published.uri.toString()
         } catch (e: Exception) {
             stagedDocument?.delete()
-            android.util.Log.w("Mornye", "Failed to write file to SAF: ${e.message}")
+            android.util.Log.w("Sistrum", "Failed to write file to SAF: ${e.message}")
             null
         }
     }

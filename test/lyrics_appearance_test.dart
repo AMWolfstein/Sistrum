@@ -195,7 +195,7 @@ void main() {
   });
 
   for (final strength in [0.0, 0.5, 1.5]) {
-    testWidgets('Mornye lyrics blur nearby lines at strength $strength', (
+    testWidgets('Sistrum lyrics blur nearby lines at strength $strength', (
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({kLyricsBlurKey: strength});
@@ -242,7 +242,7 @@ void main() {
 
   for (final reduced in [false, true]) {
     testWidgets(
-      'Mornye subtly scales active lyrics without changing layout (reduced=$reduced)',
+      'Sistrum subtly scales active lyrics without changing layout (reduced=$reduced)',
       (tester) async {
         final preview = ValueNotifier<Duration?>(const Duration(seconds: 1));
         addTearDown(preview.dispose);

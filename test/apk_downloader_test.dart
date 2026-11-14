@@ -109,8 +109,8 @@ void main() {
       ...List.generate(64, (i) => i),
     ];
     const version = '5.0.0';
-    const url = 'https://updates.example.test/Mornye.apk';
-    final finalPath = p.join(directory.path, 'Mornye-$version.apk');
+    const url = 'https://updates.example.test/Sistrum.apk';
+    final finalPath = p.join(directory.path, 'Sistrum-$version.apk');
     final part = File('$finalPath.part');
     await part.writeAsBytes(payload.sublist(0, 12));
     await File(
@@ -200,11 +200,11 @@ void main() {
       expect(rejected, isNull);
       expect(hashes, 2);
       expect(
-        await File('${directory.path}/Mornye-mismatch.apk').exists(),
+        await File('${directory.path}/Sistrum-mismatch.apk').exists(),
         false,
       );
       expect(
-        await File('${directory.path}/Mornye-mismatch.apk.part').exists(),
+        await File('${directory.path}/Sistrum-mismatch.apk.part').exists(),
         false,
       );
     },

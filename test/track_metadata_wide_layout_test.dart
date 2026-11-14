@@ -10,7 +10,7 @@ void main() {
   for (final mornye in [false, true]) {
     for (final (width, twoColumns) in [(1400.0, true), (800.0, false)]) {
       testWidgets('metadata cards at ${width.toInt()} wide use '
-          '${twoColumns ? 'two columns' : 'one column'} (Mornye=$mornye)', (
+          '${twoColumns ? 'two columns' : 'one column'} (Sistrum=$mornye)', (
         tester,
       ) async {
         tester.view.physicalSize = Size(width, 1000);

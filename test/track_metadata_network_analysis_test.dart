@@ -38,7 +38,7 @@ void main() {
   });
   for (final mornye in [false, true]) {
     for (final protocol in NetworkProtocol.values) {
-      testWidgets('network delete capability: $protocol (Mornye=$mornye)', (
+      testWidgets('network delete capability: $protocol (Sistrum=$mornye)', (
         tester,
       ) async {
         final item = LocalLibraryItem(
@@ -101,7 +101,7 @@ void main() {
     }
     for (final format in ['flac', 'wav', 'mp3']) {
       testWidgets(
-        'network $format exposes supported analysers (Mornye=$mornye)',
+        'network $format exposes supported analysers (Sistrum=$mornye)',
         (tester) async {
           final item = LocalLibraryItem(
             id: 'network://fixture/track.$format',

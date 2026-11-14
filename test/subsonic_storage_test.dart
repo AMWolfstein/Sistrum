@@ -611,7 +611,7 @@ void main() {
   ];
 
 
-  test('a forced Mornye sync refreshes each cover once', () async {
+  test('a forced Sistrum sync refreshes each cover once', () async {
     server.type = 'mornye';
     server.library = library()..shuffle(Random(7));
     Future<void> scan({bool forceFullScan = false}) => scanner().scan(

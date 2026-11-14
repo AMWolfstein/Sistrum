@@ -314,7 +314,7 @@ internal fun Context.inspectSafFiles(requestsJson: String): String {
             }
         }
     } catch (error: Exception) {
-        android.util.Log.w("Mornye", "Batch SAF inspection failed: ${error.message}")
+        android.util.Log.w("Sistrum", "Batch SAF inspection failed: ${error.message}")
         for (request in requests) {
             resultsByKey.putIfAbsent(request.key, result(request.key, "unknown"))
         }

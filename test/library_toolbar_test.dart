@@ -330,7 +330,7 @@ void main() {
 {
     for (final mornye in [false, true]) {
       testWidgets('title sort survives a fresh Library and settings scope '
-          '(Mornye: $mornye)', (tester) async {
+          '(Sistrum: $mornye)', (tester) async {
         await pumpLibrary(tester, mornye: mornye);
         final l10n = l10nOf(tester);
         await tester.tap(
@@ -379,7 +379,7 @@ void main() {
       });
 
       testWidgets('size sort applies from the Library menu '
-          '(Mornye: $mornye)', (tester) async {
+          '(Sistrum: $mornye)', (tester) async {
         await pumpLibrary(tester, mornye: mornye);
         final l10n = l10nOf(tester);
         // The search field scrolls with the page over its plain background.
@@ -497,7 +497,7 @@ void main() {
     expect(container.read(settingsProvider).historyFilterMode, 'folders');
   });
 
-  testWidgets('Mornye keeps its filter button', (tester) async {
+  testWidgets('Sistrum keeps its filter button', (tester) async {
     await pumpLibrary(tester, mornye: true);
     final l10n = l10nOf(tester);
 

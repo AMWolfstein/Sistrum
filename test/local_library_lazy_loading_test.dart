@@ -215,7 +215,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'playlist download confirms one grouped enqueue (Mornye: $mornye)',
+      'playlist download confirms one grouped enqueue (Sistrum: $mornye)',
       (tester) async {
         tester.view.physicalSize = const Size(800, 1200);
         tester.view.devicePixelRatio = 1;
@@ -292,7 +292,7 @@ void main() {
       },
     );
 
-    testWidgets('playlist selection confirms one deletion (Mornye: $mornye)', (
+    testWidgets('playlist selection confirms one deletion (Sistrum: $mornye)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(800, 1200);

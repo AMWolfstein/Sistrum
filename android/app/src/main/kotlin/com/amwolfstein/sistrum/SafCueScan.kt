@@ -14,7 +14,7 @@ import java.util.Locale
 internal fun MainActivity.extractCueAudioFileName(cueTempPath: String): String? = try {
     File(cueTempPath).bufferedReader().use(::extractCueAudioFileName)
 } catch (e: Exception) {
-    android.util.Log.w("Mornye", "Failed to extract audio filename from CUE: ${e.message}")
+    android.util.Log.w("Sistrum", "Failed to extract audio filename from CUE: ${e.message}")
     null
 }
 

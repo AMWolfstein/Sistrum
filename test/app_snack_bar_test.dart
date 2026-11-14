@@ -110,7 +110,7 @@ void main() {
 
   for (final mornye in [true, false]) {
     testWidgets(
-      'new messages replace old ones and still dismiss (Mornye: $mornye)',
+      'new messages replace old ones and still dismiss (Sistrum: $mornye)',
       (tester) async {
         late BuildContext messageContext;
         await tester.pumpWidget(

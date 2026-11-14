@@ -271,7 +271,7 @@ impl SignedSessionClient {
                 body,
                 headers,
                 default_json: false,
-                user_agent: format!("Mornye/{}", self.config.app_version),
+                user_agent: format!("Sistrum/{}", self.config.app_version),
             },
             || self.check(check),
         )

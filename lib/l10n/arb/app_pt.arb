@@ -1,7 +1,7 @@
 {
   "@@locale": "pt",
   "@@last_modified": "2026-01-16",
-  "appName": "Mornye",
+  "appName": "Sistrum",
   "@appName": {
     "description": "App name - DO NOT TRANSLATE"
   },
@@ -239,18 +239,6 @@
   "@aboutTitle": {
     "description": "About page title"
   },
-  "aboutContributors": "Contributors",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Mobile version developer",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "The talented artist who created our beautiful app logo!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
   "aboutSpecialThanks": "Special Thanks",
   "@aboutSpecialThanks": {
     "description": "Section for special thanks"
@@ -275,15 +263,7 @@
   "@aboutVersion": {
     "description": "Version info label"
   },
-  "aboutBinimumDesc": "The creator of QQDL & HiFi API. This project helped shape lossless download support.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "The original HiFi project creator. A foundation for lossless-source integration.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
-  },
-  "aboutAppDescription": "Search music metadata, manage extensions, and organize your library.",
+  "aboutAppDescription": "Player de música offline com alguns recursos online",
   "@aboutAppDescription": {
     "description": "App description in header card"
   },
@@ -386,7 +366,7 @@
   "@setupStorageRequired": {
     "description": "Title when storage permission needed"
   },
-  "setupStorageDescription": "Mornye needs storage permission to save your downloaded music files.",
+  "setupStorageDescription": "Sistrum needs storage permission to save your downloaded music files.",
   "@setupStorageDescription": {
     "description": "Explanation for storage permission"
   },
@@ -1562,21 +1542,6 @@
   "@optionsArtistTagModeSplitVorbisSubtitle": {
     "description": "Subtitle for split Vorbis artist tag mode"
   },
-  "aboutTranslators": "Translators",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
-  "aboutTelegramChannel": "Telegram Channel",
-  "aboutTelegramChannelSubtitle": "Announcements and updates",
-  "@aboutTelegramChannelSubtitle": {
-    "description": "Subtitle for Telegram channel"
-  },
-  "aboutTelegramChat": "Telegram Community",
-  "aboutTelegramChatSubtitle": "Chat with other users",
-  "@aboutTelegramChatSubtitle": {
-    "description": "Subtitle for Telegram chat"
-  },
-  "aboutSocial": "Social",
   "artistPopular": "Popular",
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
@@ -2246,13 +2211,13 @@
   "@libraryStorageAccessRequired": {
     "description": "Dialog title for storage permission"
   },
-  "libraryStorageAccessMessage": "Mornye needs storage access to scan your music library. Please grant permission in settings.",
+  "libraryStorageAccessMessage": "Sistrum needs storage access to scan your music library. Please grant permission in settings.",
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
   "librarySourceDownloaded": "Downloaded",
   "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Mornye"
+    "description": "Badge for tracks downloaded via Sistrum"
   },
   "librarySourceLocal": "Local",
   "@librarySourceLocal": {
@@ -2380,7 +2345,7 @@
       }
     }
   },
-  "tutorialWelcomeTitle": "Boas-vindas ao Mornye!",
+  "tutorialWelcomeTitle": "Boas-vindas ao Sistrum!",
   "@tutorialWelcomeTitle": {
     "description": "Tutorial welcome page title"
   },
@@ -3262,7 +3227,7 @@
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
   },
-  "safMigrationMessage1": "Mornye now uses Android Storage Access Framework (SAF) for downloads. This fixes \"permission denied\" errors on Android 10+.",
+  "safMigrationMessage1": "Sistrum now uses Android Storage Access Framework (SAF) for downloads. This fixes \"permission denied\" errors on Android 10+.",
   "@safMigrationMessage1": {
     "description": "First paragraph of SAF migration dialog"
   },
@@ -3980,7 +3945,7 @@
   "@notifLibraryScanStopped": {
     "description": "Notification body when library scan is cancelled"
   },
-  "notifDownloadingUpdate": "Downloading Mornye v{version}",
+  "notifDownloadingUpdate": "Downloading Sistrum v{version}",
   "@notifDownloadingUpdate": {
     "description": "Notification title while downloading an app update",
     "placeholders": {
@@ -4008,7 +3973,7 @@
   "@notifUpdateReady": {
     "description": "Notification title when app update download is complete"
   },
-  "notifUpdateReadyBody": "Mornye v{version} downloaded. Tap to install.",
+  "notifUpdateReadyBody": "Sistrum v{version} downloaded. Tap to install.",
   "@notifUpdateReadyBody": {
     "description": "Notification body when app update is ready to install",
     "placeholders": {

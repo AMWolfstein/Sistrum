@@ -107,7 +107,7 @@ internal suspend fun MainActivity.handleProbeSafTreeReadAccess(call: MethodCall,
                 }
             },
             onFailure = { error ->
-                android.util.Log.w("Mornye", "SAF library read probe failed", error)
+                android.util.Log.w("Sistrum", "SAF library read probe failed", error)
             },
         )
     }
@@ -129,7 +129,7 @@ internal suspend fun MainActivity.handleIsSafTreeAccessible(call: MethodCall, re
                 doc != null && doc.exists() && doc.canWrite()
             }
         } catch (e: Exception) {
-            android.util.Log.w("Mornye", "SAF tree access check failed: ${e.message}")
+            android.util.Log.w("Sistrum", "SAF tree access check failed: ${e.message}")
             false
         }
     }

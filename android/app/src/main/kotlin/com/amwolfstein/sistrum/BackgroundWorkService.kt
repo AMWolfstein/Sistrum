@@ -29,7 +29,7 @@ class BackgroundWorkService : Service() {
 
     companion object {
         private const val CHANNEL_ID = "background_work"
-        private const val WAKELOCK_TAG = "Mornye:BackgroundWorkWakeLock"
+        private const val WAKELOCK_TAG = "Sistrum:BackgroundWorkWakeLock"
         // A late notification write from an old instance cannot replace a new
         // instance's notification, and cleanup cancels only its own id.
         private val notificationIds = AtomicInteger(0x4D570000)
@@ -110,7 +110,7 @@ class BackgroundWorkService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        notificationThread = HandlerThread("Mornye-work-notifications").apply { start() }
+        notificationThread = HandlerThread("Sistrum-work-notifications").apply { start() }
         notificationHandler = Handler(notificationThread.looper)
         notificationRefresh = CoalescingWorkRefresh(
             schedule = { task, delay ->
@@ -137,7 +137,7 @@ class BackgroundWorkService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // startForegroundService requires startForeground even when the work
         // already ended before this command arrived; refresh() then stops.
-        val current = latestWork() ?: Work("Mornye", "", -1)
+        val current = latestWork() ?: Work("Sistrum", "", -1)
         if (!inForeground) {
             val notification = buildNotification(current)
             startDataSyncForeground(notificationId, notification)

@@ -200,9 +200,9 @@ pub fn with_metadata(lyrics: &LyricsResponse, track: &str, artist: &str) -> Stri
         lyrics.source.trim()
     };
     let credit = if source_uses_proxy(source) {
-        "Mornye via Paxsenix API"
+        "Sistrum via Paxsenix API"
     } else {
-        "Mornye"
+        "Sistrum"
     };
     let mut output = format!("[ti:{track}]\n[ar:{artist}]\n[by:{credit}");
     if !source.is_empty() {
@@ -269,7 +269,7 @@ mod tests {
         ] {
             let lyrics = LyricsResponse::from_text("[00:01.00]Example", source, source);
             let saved = with_metadata(&lyrics, "Track", "Artist");
-            assert!(saved.contains("[by:Mornye (source: "));
+            assert!(saved.contains("[by:Sistrum (source: "));
             assert!(!saved.contains("Paxsenix"));
             assert_eq!(extract_source(&saved), source);
         }

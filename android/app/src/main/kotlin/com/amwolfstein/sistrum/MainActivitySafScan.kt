@@ -817,7 +817,7 @@ internal fun MainActivity.scanSafTreeIncremental(
                     }
                 }
             } catch (e: Exception) {
-                android.util.Log.w("Mornye", "SAF incremental scan: failed to resolve audio for unchanged CUE: ${e.message}")
+                android.util.Log.w("Sistrum", "SAF incremental scan: failed to resolve audio for unchanged CUE: ${e.message}")
             }
         }
 

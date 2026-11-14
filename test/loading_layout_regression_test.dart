@@ -52,7 +52,7 @@ void main() {
     }
 
     for (final mornye in [false, true]) {
-      testWidgets('store skeleton fits at $width with Mornye=$mornye', (
+      testWidgets('store skeleton fits at $width with Sistrum=$mornye', (
         tester,
       ) async {
         tester.view.physicalSize = Size(width, 1200);

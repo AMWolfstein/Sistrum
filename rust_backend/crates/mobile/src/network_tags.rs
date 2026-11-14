@@ -96,7 +96,7 @@ pub(crate) fn matches_upload(
             body: String::new(),
             headers: BTreeMap::from([("Accept-Encoding".into(), "identity".into())]),
             default_json: false,
-            user_agent: "Mornye/NetworkUploadRecovery".into(),
+            user_agent: "Sistrum/NetworkUploadRecovery".into(),
         },
         Duration::from_secs(u32::MAX.into()),
         idle,
@@ -401,7 +401,7 @@ impl<'a> RangeReader<'a> {
                 ("Accept-Encoding".into(), "identity".into()),
             ]),
             default_json: false,
-            user_agent: "Mornye/NetworkMetadata".into(),
+            user_agent: "Sistrum/NetworkMetadata".into(),
         };
         let mut stream = self
             .session

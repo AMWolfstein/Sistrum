@@ -70,7 +70,7 @@ void main() {
       }
     });
 
-    testWidgets('Mornye keeps its grouped surface', (tester) async {
+    testWidgets('Sistrum keeps its grouped surface', (tester) async {
       final theme = MornyeTheme.build(Brightness.light);
       expect(
         await _groupColor(tester, theme),
@@ -272,7 +272,7 @@ void main() {
       }
     });
 
-    testWidgets('Mornye info cards keep their soft fills', (tester) async {
+    testWidgets('Sistrum info cards keep their soft fills', (tester) async {
       final theme = MornyeTheme.build(Brightness.light);
       final scheme = theme.colorScheme;
       await tester.pumpWidget(_host(fills(), theme: theme));

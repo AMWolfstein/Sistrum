@@ -37,7 +37,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'open details refresh after an edit and deletion (Mornye=$mornye)',
+      'open details refresh after an edit and deletion (Sistrum=$mornye)',
       (tester) async {
         SharedPreferences.setMockInitialValues({});
         final messenger = tester.binding.defaultBinaryMessenger;
@@ -96,7 +96,7 @@ void main() {
 
     for (final unavailable in [false, true]) {
       testWidgets('file status distinguishes provider errors from absence '
-          '(Mornye=$mornye, unavailable=$unavailable)', (tester) async {
+          '(Sistrum=$mornye, unavailable=$unavailable)', (tester) async {
         await tester.binding.setSurfaceSize(const Size(320, 780));
         addTearDown(() => tester.binding.setSurfaceSize(null));
         final messenger = tester.binding.defaultBinaryMessenger;

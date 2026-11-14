@@ -200,7 +200,7 @@ void main() {
       expect(find.byType(NowPlayingIndicator), findsNothing);
     });
 
-    testWidgets('Mornye rows show no current-track state', (tester) async {
+    testWidgets('Sistrum rows show no current-track state', (tester) async {
       await tester.pumpWidget(_app(list(), mornye: true));
       await _pumpFor(tester);
       expect(_card(tester, 'Current song').isCurrent, isFalse);
@@ -272,7 +272,7 @@ void main() {
       ),
     ];
 
-    testWidgets('Mornye rows show no current-track state', (tester) async {
+    testWidgets('Sistrum rows show no current-track state', (tester) async {
       await tester.pumpWidget(
         _app(
           results(),

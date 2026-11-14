@@ -595,7 +595,7 @@ class MediaLibraryBrowser {
       ? null
       : (items: songs, index: Random().nextInt(songs.length), shuffle: true);
 
-  /// What a spoken request such as "play Blue on Mornye" plays: matching
+  /// What a spoken request such as "play Blue on Sistrum" plays: matching
   /// songs, else the first matching album, artist or playlist. [extras] can
   /// name the kind asked for first. An empty request shuffles the Library.
   Future<BrowserQueue?> queueForSearch(

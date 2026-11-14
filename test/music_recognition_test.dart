@@ -649,7 +649,7 @@ void main() {
         expect(find.text('Recently Identified'), findsOneWidget);
         expect(mic.stops, 1);
 
-        await tester.tap(find.text('Search in Mornye'));
+        await tester.tap(find.text('Search in Sistrum'));
         await settle(tester);
         expect(popped, ['Found Song Found Artist']);
         expect(tester.takeException(), isNull);
@@ -668,8 +668,8 @@ void main() {
         await settle(tester);
         recognizer.reply(RecognitionMatched(song(isrc: 'USX1')));
         await settle(tester);
-        expect(find.text('Play in Mornye'), findsOneWidget);
-        expect(find.text('Search in Mornye'), findsNothing);
+        expect(find.text('Play in Sistrum'), findsOneWidget);
+        expect(find.text('Search in Sistrum'), findsNothing);
       });
 
       testWidgets('shows no match, then cancel returns to idle ($name)', (

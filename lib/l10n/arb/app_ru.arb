@@ -74,7 +74,7 @@
   "@networkErrorPermission": {
     "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
   },
-  "networkErrorLocalPermission": "Local network access is not allowed. Allow Nearby devices for Mornye in Android app settings, then try again.",
+  "networkErrorLocalPermission": "Local network access is not allowed. Allow Nearby devices for Sistrum in Android app settings, then try again.",
   "@networkErrorLocalPermission": {
     "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
   },
@@ -183,7 +183,7 @@
   "usbBitPerfectDescription": "Сохранение исходной точности для поддерживаемых выходов. Ниже выберите прямой USB-выход или эксклюзивный режим AAudio; в противном случае для вывода USB требуется Android 14 или новее. Параметр применяется со следующего трека без учета AutoMix и нормализации. Системная громкость может не регулировать прямой вывод USB.",
   "usbHardwareVolume": "Аппаратная громкость ЦАПа",
   "usbVolumeWarningTitle": "Проверьте уровень громкости",
-  "usbVolumeWarning": "Прямое воспроизведение через USB-аудио может быть намного громче стандартного, а аппаратные кнопки громкости могут его не регулировать. Снизьте громкость на вашем ЦАП или усилителе до начала воспроизведения. Когда устройство поддерживается, Mornye при подключении выставляет на ЦАП уровень не выше −40 дБ, но это не гарантирует безопасную громкость на каждом усилителе или наушниках.",
+  "usbVolumeWarning": "Прямое воспроизведение через USB-аудио может быть намного громче стандартного, а аппаратные кнопки громкости могут его не регулировать. Снизьте громкость на вашем ЦАП или усилителе до начала воспроизведения. Когда устройство поддерживается, Sistrum при подключении выставляет на ЦАП уровень не выше −40 дБ, но это не гарантирует безопасную громкость на каждом усилителе или наушниках.",
   "usbVolumeAccept": "Я понимаю",
   "usbVolumeUnavailable": "Воспроизведение приостановлено, так как у данного ЦАП не обнаружено проверенного аппаратного управления громкостью. Уменьшите громкость на ЦАП или усилителе, при необходимости включите вывод с фиксированной громкостью и выберите трек заново.",
   "usbFixedVolume": "Разрешить вывод по USB с фиксированной громкостью",
@@ -207,7 +207,7 @@
   "cacheMotionArtworkDesc": "Видео из альбомов сохраняются вместе с загруженными файлами. При их удалении музыкальные файлы и статичные обложки остаются.",
   "nowPlayingVolume": "Громкость",
   "@nowPlayingVolume": {
-    "description": "System volume control label in the Mornye player"
+    "description": "System volume control label in the Sistrum player"
   },
   "appearanceStyle": "Стиль приложения",
   "appearanceAccentRed": "Красный (по умолчанию)",
@@ -218,7 +218,7 @@
   "appearanceAccentPurple": "Фиолетовый",
   "appearanceAccentPink": "Розовый",
   "appearanceGlassOutlines": "Контур стекла",
-  "appearanceGlassOutlinesSubtitle": "Show decorative edges around Mornye glass. Turning this off keeps blur and refraction.",
+  "appearanceGlassOutlinesSubtitle": "Show decorative edges around Sistrum glass. Turning this off keeps blur and refraction.",
   "appearanceUseSystemFont": "Использовать системный шрифт",
   "appearanceUseSystemFontSubtitle": "Использовать системный шрифт вашего устройства для текста приложения.",
   "@appearanceStyle": {
@@ -226,7 +226,7 @@
   },
   "@@locale": "ru",
   "@@last_modified": "2026-04-28",
-  "appName": "Mornye",
+  "appName": "Sistrum",
   "@appName": {
     "description": "App name - DO NOT TRANSLATE"
   },
@@ -690,22 +690,6 @@
   "@aboutTitle": {
     "description": "About page title"
   },
-  "aboutContributors": "Участники",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Разработчик мобильной версии",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "Талантливый художник, который создал наш красивый логотип приложения!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "Переводчики",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
   "aboutSpecialThanks": "Особая благодарность",
   "@aboutSpecialThanks": {
     "description": "Section for special thanks"
@@ -724,17 +708,6 @@
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
-  "aboutTelegramChannel": "Telegram канал",
-  "aboutTelegramChannelSubtitle": "Объявления и обновления",
-  "@aboutTelegramChannelSubtitle": {
-    "description": "Subtitle for Telegram channel"
-  },
-  "aboutTelegramChat": "Сообщество в Telegram",
-  "aboutTelegramChatSubtitle": "Чат с другими пользователями",
-  "@aboutTelegramChatSubtitle": {
-    "description": "Subtitle for Telegram chat"
-  },
-  "aboutSocial": "Соцсети",
   "aboutApp": "Приложение",
   "@aboutApp": {
     "description": "Section for app info"
@@ -742,14 +715,6 @@
   "aboutVersion": "Версия",
   "@aboutVersion": {
     "description": "Version info label"
-  },
-  "aboutBinimumDesc": "Создатель QQDL и HiFi API. Этот проект помог реализовать поддержку скачивания музыки в lossless-качестве.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "Создатель оригинального проекта HiFi. Заложил основу для интеграции lossless-источников.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
   },
   "aboutUnituneDesc": "Открытый распознаватель музыкальных ссылок от Flaze, используемый для резервного кроссплатформенного определения.",
   "@aboutUnituneDesc": {
@@ -763,7 +728,7 @@
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
   },
-  "aboutAppDescription": "Поиск метаданных, управление расширениями и организация медиатеки.",
+  "aboutAppDescription": "Офлайн-проигрыватель музыки с некоторыми онлайн-функциями",
   "@aboutAppDescription": {
     "description": "App description in header card"
   },
@@ -880,7 +845,7 @@
   "@setupStorageRequired": {
     "description": "Title when storage permission needed"
   },
-  "setupStorageDescription": "Mornye требуется разрешение на хранение для сохранения скачанных файлов.",
+  "setupStorageDescription": "Sistrum требуется разрешение на хранение для сохранения скачанных файлов.",
   "@setupStorageDescription": {
     "description": "Explanation for storage permission"
   },
@@ -944,7 +909,7 @@
   "@whatsNewNearbyTitle": {
     "description": "Title of the What's New page that asks for Android's Nearby devices permission; use Android's name for this permission"
   },
-  "whatsNewNearbyDesc": "Android now asks before an app can reach other devices on your network. Mornye needs this for:",
+  "whatsNewNearbyDesc": "Android now asks before an app can reach other devices on your network. Sistrum needs this for:",
   "@whatsNewNearbyDesc": {
     "description": "Description on the Nearby devices page of the What's New tour, followed by a list of uses"
   },
@@ -960,11 +925,11 @@
   "@whatsNewNearbyPrivateTitle": {
     "description": "Reassurance on the Nearby devices page of the What's New tour"
   },
-  "whatsNewNearbyPrivateBody": "Mornye uses it only to reach devices on your network, never to find where you are.",
+  "whatsNewNearbyPrivateBody": "Sistrum uses it only to reach devices on your network, never to find where you are.",
   "@whatsNewNearbyPrivateBody": {
     "description": "Explains that the Nearby devices permission is not used for location"
   },
-  "whatsNewNearbyRefused": "Not allowed. Network storage stays off until you allow Nearby devices for Mornye in Android settings.",
+  "whatsNewNearbyRefused": "Not allowed. Network storage stays off until you allow Nearby devices for Sistrum in Android settings.",
   "@whatsNewNearbyRefused": {
     "description": "Shown on the Nearby devices page of the What's New tour after the permission is refused"
   },
@@ -2881,7 +2846,7 @@
   "@libraryRemoveFolder": {
     "description": "Action to remove one indexed library source"
   },
-  "libraryRemoveFolderMessage": "Удалить эту папку и проиндексированные треки из Mornye? Аудио файлы на накопителе не будут удалены.",
+  "libraryRemoveFolderMessage": "Удалить эту папку и проиндексированные треки из Sistrum? Аудио файлы на накопителе не будут удалены.",
   "@libraryRemoveFolderMessage": {
     "description": "Confirmation shown before removing a library source"
   },
@@ -3071,13 +3036,13 @@
   "@libraryStorageAccessRequired": {
     "description": "Dialog title for storage permission"
   },
-  "libraryStorageAccessMessage": "Mornye требуется доступ к хранилищу для сканирования вашей медиатеки. Пожалуйста, предоставьте разрешение в настройках.",
+  "libraryStorageAccessMessage": "Sistrum требуется доступ к хранилищу для сканирования вашей медиатеки. Пожалуйста, предоставьте разрешение в настройках.",
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
   "librarySourceDownloaded": "Скачанные",
   "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Mornye"
+    "description": "Badge for tracks downloaded via Sistrum"
   },
   "librarySourceLocal": "Локальные",
   "@librarySourceLocal": {
@@ -3229,11 +3194,11 @@
       }
     }
   },
-  "tutorialWelcomeTitle": "Добро пожаловать в Mornye!",
+  "tutorialWelcomeTitle": "Добро пожаловать в Sistrum!",
   "@tutorialWelcomeTitle": {
     "description": "Tutorial welcome page title"
   },
-  "tutorialWelcomeDesc": "Узнайте, как находить музыку с помощью расширений, выбирать желаемое качество и управлять загрузками в Mornye.",
+  "tutorialWelcomeDesc": "Узнайте, как находить музыку с помощью расширений, выбирать желаемое качество и управлять загрузками в Sistrum.",
   "@tutorialWelcomeDesc": {
     "description": "Tutorial welcome page description"
   },
@@ -3329,7 +3294,7 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Mornye {version} is here",
+  "whatsNewIntroTitle": "Sistrum {version} is here",
   "@whatsNewIntroTitle": {
     "description": "First page of the tour shown once after updating; version is like 5.3",
     "placeholders": {
@@ -3346,7 +3311,7 @@
   "whatsNewHomeAutoplayTitle": "Smarter autoplay",
   "whatsNewHomeAutoplayBody": "Autoplay follows your listening session and learns from your favorites, playlists and replays.",
   "whatsNewHomeAnalysisTitle": "Song analysis",
-  "whatsNewHomeAnalysisBody": "Mornye can analyze how your songs sound for closer picks. It stays off until you turn it on in Settings.",
+  "whatsNewHomeAnalysisBody": "Sistrum can analyze how your songs sound for closer picks. It stays off until you turn it on in Settings.",
   "whatsNewPlayerTitle": "Player and lyrics",
   "whatsNewPlayerDesc": "Smoother playback, and lyrics in any language.",
   "whatsNewPlayerGaplessTitle": "Gapless playback",
@@ -4414,7 +4379,7 @@
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
   },
-  "safMigrationMessage1": "Теперь Mornye использует Android Storage Access Framework (SAF) для загрузки файлов. Это устраняет ошибки «доступ запрещен» на устройствах с Android 10 и выше.",
+  "safMigrationMessage1": "Теперь Sistrum использует Android Storage Access Framework (SAF) для загрузки файлов. Это устраняет ошибки «доступ запрещен» на устройствах с Android 10 и выше.",
   "@safMigrationMessage1": {
     "description": "First paragraph of SAF migration dialog"
   },
@@ -4494,7 +4459,7 @@
   "@backupRestoreFailed": {
     "description": "Snackbar when restore fails"
   },
-  "backupInvalidFile": "Этот файл не является резервной копией Mornye",
+  "backupInvalidFile": "Этот файл не является резервной копией Sistrum",
   "@backupInvalidFile": {
     "description": "Snackbar when the chosen file is not a valid backup"
   },
@@ -4678,9 +4643,9 @@
     "description": "Subtitle shown in the download location picker sheet"
   },
   "storageAutomaticFolder": "Автоматическая папка",
-  "storageAutomaticDownloadFolder": "Использует папку «Download/Mornye», если она доступна для записи, в противном случае используется хранилище приложения",
+  "storageAutomaticDownloadFolder": "Использует папку «Download/Sistrum», если она доступна для записи, в противном случае используется хранилище приложения",
   "storageSafRecommended": "Выбрать папку (Рекомендуется)",
-  "storageDownloadFolderHint": "В окне выбора папок Android откройте папку «Загрузки» и выберите Mornye. Если этой папки нет, создайте её, нажав «Новая папка», а затем нажмите «Использовать эту папку», чтобы предоставить доступ.",
+  "storageDownloadFolderHint": "В окне выбора папок Android откройте папку «Загрузки» и выберите Sistrum. Если этой папки нет, создайте её, нажав «Новая папка», а затем нажмите «Использовать эту папку», чтобы предоставить доступ.",
   "downloadFolderAccessLostTitle": "Доступ к папке загрузок потерян",
   "@downloadFolderAccessLostTitle": {
     "description": "Title of the warning banner shown in Files settings when the saved SAF folder grant is no longer valid"
@@ -5690,7 +5655,7 @@
       }
     }
   },
-  "notifDownloadingUpdate": "Скачивание Mornye v{version}",
+  "notifDownloadingUpdate": "Скачивание Sistrum v{version}",
   "@notifDownloadingUpdate": {
     "description": "Notification title while downloading an app update",
     "placeholders": {
@@ -5718,7 +5683,7 @@
   "@notifUpdateReady": {
     "description": "Notification title when app update download is complete"
   },
-  "notifUpdateReadyBody": "Mornye v{version} скачана. Нажмите, чтобы установить.",
+  "notifUpdateReadyBody": "Sistrum v{version} скачана. Нажмите, чтобы установить.",
   "@notifUpdateReadyBody": {
     "description": "Notification body when app update is ready to install",
     "placeholders": {
@@ -6483,7 +6448,7 @@
   "@extensionCustomUrlHandlingSubtitle": {
     "description": "Extension detail subtitle for custom URL handling"
   },
-  "extensionCustomUrlHandlingShareHint": "Отправляйте ссылки с этих сайтов в Mornye, и это расширение обработает их.",
+  "extensionCustomUrlHandlingShareHint": "Отправляйте ссылки с этих сайтов в Sistrum, и это расширение обработает их.",
   "@extensionCustomUrlHandlingShareHint": {
     "description": "Extension detail hint explaining share-to-app URL handling"
   },
@@ -6682,7 +6647,7 @@
   "@libraryBuiltInPreviewPlayer": {
     "description": "Setting option to use the built-in preview player"
   },
-  "libraryBuiltInPreviewPlayerSubtitle": "Слушайте музыку прямо в Mornye",
+  "libraryBuiltInPreviewPlayerSubtitle": "Слушайте музыку прямо в Sistrum",
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
@@ -7440,11 +7405,11 @@
   "@extensionVerificationHelpTitleWaiting": {
     "description": "Dialog title when verification is taking longer than expected"
   },
-  "extensionVerificationHelpMessageManual": "Mornye не смог автоматически открыть браузер. Откройте эту ссылку в браузере или скопируйте её вручную.",
+  "extensionVerificationHelpMessageManual": "Sistrum не смог автоматически открыть браузер. Откройте эту ссылку в браузере или скопируйте её вручную.",
   "@extensionVerificationHelpMessageManual": {
     "description": "Dialog message when automatic browser launch for verification fails"
   },
-  "extensionVerificationHelpMessageWaiting": "Если окно браузера не открылось либо проверка завершилась, но приложение Mornye не открылось автоматически, перейдите по ссылке повторно или скопируйте её вручную.",
+  "extensionVerificationHelpMessageWaiting": "Если окно браузера не открылось либо проверка завершилась, но приложение Sistrum не открылось автоматически, перейдите по ссылке повторно или скопируйте её вручную.",
   "@extensionVerificationHelpMessageWaiting": {
     "description": "Dialog message when verification may need manual browser help"
   },
@@ -7600,7 +7565,7 @@
   "@playerCoverStyleFullScreen": {
     "description": "Cover art style: artwork fills the top of the player"
   },
-  "playerCoverStyleFullScreenDescription": "Artwork fills the top of the player and fades into a blur. Motion artwork is always full screen in Mornye",
+  "playerCoverStyleFullScreenDescription": "Artwork fills the top of the player and fades into a blur. Motion artwork is always full screen in Sistrum",
   "@playerCoverStyleFullScreenDescription": {
     "description": "Subtitle of the full screen cover art style"
   },
@@ -8249,7 +8214,7 @@
   "equalizerPresetName": "Preset name",
   "equalizerImport": "Import preset",
   "equalizerExport": "Share preset",
-  "equalizerImportInvalid": "Choose a valid Mornye equalizer preset (JSON, up to 64 KB).",
+  "equalizerImportInvalid": "Choose a valid Sistrum equalizer preset (JSON, up to 64 KB).",
   "equalizerSaved": "Preset saved",
   "equalizerResetTitle": "Reset equalizer?",
   "equalizerResetDescription": "Restore a flat curve, default tone and dynamics settings. Saved presets are kept.",
@@ -8357,7 +8322,7 @@
   "audioInfoOff": "Выкл",
   "audioInfoBypassed": "Bypassed by direct output",
   "audioInfoPlayer": "Плеер",
-  "audioInfoPlayerValue": "Встроенный плеер Mornye",
+  "audioInfoPlayerValue": "Встроенный плеер Sistrum",
   "audioInfoSignalPath": "Signal path",
   "audioInfoPathSystem": "System mixer",
   "audioInfoPathDirect": "Direct USB, bypasses the system mixer",
@@ -8418,7 +8383,7 @@
   "lyricsTextPreview": "Follow every line of your favorite song",
   "lyricsBlur": "Lyrics blur",
   "@lyricsBlur": {
-    "description": "Mornye setting: how strongly lyric lines around the current one are blurred"
+    "description": "Sistrum setting: how strongly lyric lines around the current one are blurred"
   },
   "lyricsBlurSubtitle": "How much the lines around the current one soften",
   "lyricsBlurOff": "Off",
@@ -8654,7 +8619,7 @@
   "@recognizePermissionTitle": {
     "description": "Title when microphone permission was denied"
   },
-  "recognizePermissionMessage": "Mornye uses the microphone only while you identify a song.",
+  "recognizePermissionMessage": "Sistrum uses the microphone only while you identify a song.",
   "@recognizePermissionMessage": {
     "description": "Explanation when microphone permission was denied"
   },
@@ -8662,11 +8627,11 @@
   "@recognizePermissionAllow": {
     "description": "Button that asks for microphone permission again"
   },
-  "recognizePlay": "Play in Mornye",
+  "recognizePlay": "Play in Sistrum",
   "@recognizePlay": {
     "description": "Button that plays the identified song from the downloads or library"
   },
-  "recognizeSearch": "Search in Mornye",
+  "recognizeSearch": "Search in Sistrum",
   "@recognizeSearch": {
     "description": "Button that searches for the identified song when it is not in the library"
   },
@@ -8724,7 +8689,7 @@
   },
   "reorganizeLibraryScanning": "Checking your files…",
   "@reorganizeLibraryScanning": {
-    "description": "Shown while Mornye works out which downloaded files need to move"
+    "description": "Shown while Sistrum works out which downloaded files need to move"
   },
   "reorganizeLibraryBusy": "Wait for active downloads to finish before reorganizing files",
   "@reorganizeLibraryBusy": {
@@ -8734,7 +8699,7 @@
   "@reorganizeLibraryNothingTitle": {
     "description": "Dialog title when every downloaded file already follows the rules"
   },
-  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Mornye did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
+  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Sistrum did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
   "@reorganizeLibraryNothingMessage": {
     "description": "Dialog message when there is nothing to move",
     "placeholders": {
@@ -8805,15 +8770,15 @@
       }
     }
   },
-  "reorganizeLibraryScanHint": "Files Mornye did not download are only included after their folder is added and scanned in Local Library.",
+  "reorganizeLibraryScanHint": "Files Sistrum did not download are only included after their folder is added and scanned in Local Library.",
   "@reorganizeLibraryScanHint": {
     "description": "Hint in the reorganize confirmation dialog about which files are covered"
   },
-  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Mornye doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
+  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Sistrum doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
   "@reorganizeLibraryKeepsPlaylistFolders": {
     "description": "Warning in the reorganize confirmation dialog when the folder rule depends on the playlist"
   },
-  "reorganizeLibraryDropsPlaylistFolders": "Mornye doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
+  "reorganizeLibraryDropsPlaylistFolders": "Sistrum doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
   "@reorganizeLibraryDropsPlaylistFolders": {
     "description": "Warning in the reorganize confirmation dialog when playlist folders are enabled"
   },

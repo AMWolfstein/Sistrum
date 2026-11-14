@@ -64,7 +64,7 @@ final _albums = List.generate(
 void main() {
   final binding = PerformanceTestBinding.ensureInitialized();
 
-  testWidgets('Mornye production screens with deterministic 2000-track data', (
+  testWidgets('Sistrum production screens with deterministic 2000-track data', (
     tester,
   ) async {
     final probe = PerformanceProbe(binding, tester, suite: 'mornye_screens');

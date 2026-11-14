@@ -125,7 +125,7 @@ internal fun Context.copyUriToTemp(
             // which may return MediaStore URIs from SAF tree traversal
             if (isMediaStoreUri(uri)) {
                 android.util.Log.d(
-                    "Mornye",
+                    "Sistrum",
                     "SAF denied for MediaStore URI, trying MediaStore fallback: $uri",
                 )
                 val result = copyMediaStoreUriToTemp(coreBackend, uri, fallbackExt)
@@ -134,13 +134,13 @@ internal fun Context.copyUriToTemp(
                 }
             }
             android.util.Log.w(
-                "Mornye",
+                "Sistrum",
                 "SAF read denied for $uri: ${e.message}",
             )
             return null
         } catch (e: Exception) {
             android.util.Log.w(
-                "Mornye",
+                "Sistrum",
                 "Failed copying SAF uri $uri to temp: ${e.message}",
             )
             return null
@@ -163,13 +163,13 @@ internal fun Context.copyMediaStoreUriToTemp(coreBackend: CoreBackend, uri: Uri,
             } ?: return null
 
             android.util.Log.d(
-                "Mornye",
+                "Sistrum",
                 "MediaStore fallback succeeded for $uri",
             )
             return copied.absolutePath
         } catch (e: Exception) {
             android.util.Log.w(
-                "Mornye",
+                "Sistrum",
                 "MediaStore fallback also failed for $uri: ${e.message}",
             )
             return null
@@ -414,7 +414,7 @@ internal fun Context.safParentDir(childUri: Uri): DocumentFile? {
             val child = findSafChild(this, parent, name) ?: return null
             return parent.takeIf { DocumentsContract.getDocumentId(child.uri) == docId }
         } catch (e: Exception) {
-            android.util.Log.w("Mornye", "Failed to get SAF parent dir: ${e.message}")
+            android.util.Log.w("Sistrum", "Failed to get SAF parent dir: ${e.message}")
             return null
         }
     }
@@ -447,7 +447,7 @@ internal fun Context.writeSafSidecarFromPath(
         }
         return target.uri.toString()
     } catch (error: Exception) {
-        android.util.Log.w("Mornye", "Sidecar export failed: ${error.message}")
+        android.util.Log.w("Sistrum", "Sidecar export failed: ${error.message}")
         return null
     }
 }
@@ -463,7 +463,7 @@ internal fun Context.writeSafSidecarLrc(audioUri: Uri, lrcContent: String): Bool
         if (lrcContent.isBlank()) return false
         try {
             val parent = safParentDir(audioUri) ?: run {
-                android.util.Log.w("Mornye", "LRC sidecar: no SAF parent dir")
+                android.util.Log.w("Sistrum", "LRC sidecar: no SAF parent dir")
                 return false
             }
             val audioName = try {
@@ -480,17 +480,17 @@ internal fun Context.writeSafSidecarLrc(audioUri: Uri, lrcContent: String): Bool
                 "application/octet-stream",
                 lrcName
             ) ?: run {
-                android.util.Log.w("Mornye", "LRC sidecar: failed to create $lrcName")
+                android.util.Log.w("Sistrum", "LRC sidecar: failed to create $lrcName")
                 return false
             }
 
             contentResolver.openOutputStream(target.uri, "wt")?.use { output ->
                 output.write(lrcContent.toByteArray(Charsets.UTF_8))
             } ?: return false
-            android.util.Log.d("Mornye", "LRC sidecar written: $lrcName")
+            android.util.Log.d("Sistrum", "LRC sidecar written: $lrcName")
             return true
         } catch (e: Exception) {
-            android.util.Log.w("Mornye", "LRC sidecar write failed: ${e.message}")
+            android.util.Log.w("Sistrum", "LRC sidecar write failed: ${e.message}")
             return false
         }
     }

@@ -64,7 +64,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
   - Validation: common checks; `git grep -n "package:mornye/"` returns nothing.
   - Dependencies: M002-T001.
 
-- [ ] M002-T003 Rename the app, version, description and copyright
+- [x] M002-T003 Rename the app, version, description and copyright
   - Start: refresh the map; query `AppInfo`.
   - Acceptance: FR-002 to FR-006. `AppInfo.appName = 'Sistrum'`,
     `version = '0.1.0'`, `buildNumber = '1'`, copyright "© 2026 AMWolfstein" with

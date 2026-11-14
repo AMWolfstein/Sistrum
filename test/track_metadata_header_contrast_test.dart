@@ -17,7 +17,7 @@ import 'package:sistrum/widgets/mornye_metadata_row.dart';
 
 void main() {
   for (final useFileUri in [false, true]) {
-    testWidgets('Mornye metadata renders local artwork (URI=$useFileUri)', (
+    testWidgets('Sistrum metadata renders local artwork (URI=$useFileUri)', (
       tester,
     ) async {
       final cover = await tester.runAsync(() async {
@@ -81,7 +81,7 @@ void main() {
 
   for (final brightness in Brightness.values) {
     testWidgets(
-      'Mornye metadata has single-level sections and stacked values ($brightness)',
+      'Sistrum metadata has single-level sections and stacked values ($brightness)',
       (tester) async {
         await tester.binding.setSurfaceSize(const Size(320, 780));
         addTearDown(() => tester.binding.setSurfaceSize(null));

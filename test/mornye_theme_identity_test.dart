@@ -20,7 +20,7 @@ class _ThemeReader extends StatelessWidget {
 }
 
 void main() {
-  test('Mornye preferences compare by value', () {
+  test('Sistrum preferences compare by value', () {
     const a = MornyeTheme(
       chromeSurface: Color(0xff336699),
       accent: MornyeAccent.blue,

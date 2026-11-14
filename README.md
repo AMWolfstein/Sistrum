@@ -416,7 +416,7 @@ Interested in contributing? Check out the [Contributing Guide](CONTRIBUTING.md) 
 
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-disclaimer-dark.svg"><img src="assets/readme/sections/section-disclaimer-light.svg" height="32" align="top" alt=""></picture> Disclaimer
 
-Mornye is licensed under the [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE), together with the incorporated [GNU GPL v3.0 terms](COPYING). Copyright 2026 zarzet. Third-party components retain their own license notices.
+Sistrum is licensed under the [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE), together with the incorporated [GNU GPL v3.0 terms](COPYING). Copyright 2026 AMWolfstein. Based on Mornye, Copyright 2026 Zarz Eleutherius (zarzet). Third-party components retain their own license notices.
 
 This repository and its contents are provided for educational and research purposes. The software is provided "as-is" without warranty of any kind, express or implied, as stated in the license.
 

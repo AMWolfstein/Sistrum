@@ -27,7 +27,7 @@ void main() {
   final binding = PerformanceTestBinding.ensureInitialized();
   const focused = bool.fromEnvironment('MORNYE_GLASS_FOCUS');
   {
-    testWidgets('Mornye real rendering at fixed Clear glass', (tester) async {
+    testWidgets('Sistrum real rendering at fixed Clear glass', (tester) async {
       final probe = PerformanceProbe(
         binding,
         tester,
@@ -149,7 +149,7 @@ void main() {
           'tracks': 2000,
           'unique_local_covers': fixture.covers.length,
           'scope':
-              'production Mornye chrome and MiniPlayer over a fixture grid',
+              'production Sistrum chrome and MiniPlayer over a fixture grid',
         },
       );
     });
@@ -345,7 +345,7 @@ class _Fixture {
     activeTab.dispose();
     await directory.delete(recursive: true);
     debugPrint(
-      'Mornye fixture cache after cleanup: ${imageCache.currentSizeBytes} bytes',
+      'Sistrum fixture cache after cleanup: ${imageCache.currentSizeBytes} bytes',
     );
   }
 }

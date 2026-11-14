@@ -66,7 +66,7 @@ void main() {
   }
 
   testWidgets(
-    'Material uses springs; Mornye and reduced motion keep fallback',
+    'Material uses springs; Sistrum and reduced motion keep fallback',
     (tester) async {
       expect(
         (await resolve(tester, theme: AppTheme.light())).curve,

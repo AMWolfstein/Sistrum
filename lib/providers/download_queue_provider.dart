@@ -103,7 +103,7 @@ final _multiUnderscoreRegex = RegExp(r'_+');
 
 double _log10(num x) => log(x) / ln10;
 final _yearRegex = RegExp(r'^(\d{4})');
-const _defaultOutputFolderName = 'Mornye';
+const _defaultOutputFolderName = 'Sistrum';
 const _defaultAndroidDownloadSubpath = 'Download/$_defaultOutputFolderName';
 const _maxSafFilenameUtf8Bytes = 180;
 const _maxSafDirSegmentUtf8Bytes = 120;
@@ -1455,7 +1455,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       final buffer = StringBuffer();
 
       if (!fileExists) {
-        buffer.writeln('# Mornye Failed Downloads');
+        buffer.writeln('# Sistrum Failed Downloads');
         buffer.writeln('# Date: $dateStr');
         buffer.writeln('#');
         buffer.writeln('# Format: [Time] Track - Artist | URL | Error');

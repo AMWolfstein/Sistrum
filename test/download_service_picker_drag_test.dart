@@ -86,7 +86,7 @@ void main() {
     (16, true),
   ]) {
     testWidgets(
-      'picker fits $qualityCount options and dismisses (Mornye=$mornye)',
+      'picker fits $qualityCount options and dismisses (Sistrum=$mornye)',
       (tester) async {
         tester.view.physicalSize = const Size(320, 780);
         tester.view.devicePixelRatio = 1;

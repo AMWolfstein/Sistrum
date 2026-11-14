@@ -192,7 +192,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('Mornye accent updates live and survives restart ($mode)', (
+    testWidgets('Sistrum accent updates live and survives restart ($mode)', (
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({

@@ -1,7 +1,7 @@
 name: sistrum
-description: Mornye, extension-driven music metadata and downloads for mobile devices
+description: Offline music player with some online features
 publish_to: "none"
-version: 5.3.1+167
+version: 0.1.0+1
 
 environment:
   sdk: ^3.10.0

@@ -48,7 +48,7 @@ class MornyeGlassWarmup {
         _ready = true;
       },
       Priority.idle,
-      debugLabel: 'Prepare Mornye glass backdrop',
+      debugLabel: 'Prepare Sistrum glass backdrop',
     );
   }
 }
