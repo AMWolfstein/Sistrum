@@ -5,10 +5,16 @@
       "nonce": "c99ce6057597445fa5a45648acb27e5d",
       "path": "specs/001-remove-material-theme",
       "title": "Remove the Material theme and Material UI"
+    },
+    "M002": {
+      "next_task": 11,
+      "nonce": "a914f111b1d74ca082eb04d36b406178",
+      "path": "specs/002-rebrand-sistrum",
+      "title": "Rebrand Mornye to Sistrum"
     }
   },
   "next_completion": 4,
-  "next_mission": 2,
+  "next_mission": 3,
   "next_tor": 5,
   "tasks": {
     "M001-T001": {
@@ -80,6 +86,106 @@
       "record": "specs/001-remove-material-theme/tasks.md",
       "status": "reserved",
       "title": "Remove the Android home-screen widgets"
+    },
+    "M002-T001": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "e09779b3928e44b59b16a9fb92bd9198",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Move the Android identity to com.amwolfstein.sistrum"
+    },
+    "M002-T002": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "58357dd71ba048edac93b6fb14613aba",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Rename the Dart package to sistrum"
+    },
+    "M002-T003": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "110cacca1e50432aa3c1e9c0659d0db6",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Rename the app, version, description and copyright"
+    },
+    "M002-T004": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "100b195ca10646cd84fbf953b9df278a",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Point updates to AMWolfstein/Sistrum and drop upstream services"
+    },
+    "M002-T005": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "a6a11da274db459eb659756719c9f441",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Replace the icons and logos"
+    },
+    "M002-T006": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "d1ee922ae38e46258b18132caf43f510",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Update the docs, GitHub files and the M001 plan"
+    },
+    "M002-T007": {
+      "completion": null,
+      "final": true,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "e87a651d0d024e4eb9a3285623f57a42",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Cumulative review"
+    },
+    "M002-T008": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "e325b8ada5594f0b9f6414b49ea5fed1",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Rename the app-owned protocol identifiers to Sistrum"
+    },
+    "M002-T009": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "952638ea61814f878139487a6fdd5aa4",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Remove the Zarz-LRC lyrics provider"
+    },
+    "M002-T010": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "666e1485c91d46ec97436f8e24fd8933",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "reserved",
+      "title": "Remove signed extension sessions and the api.zarz.moe rules"
     },
     "TOR001": {
       "completion": 1,
