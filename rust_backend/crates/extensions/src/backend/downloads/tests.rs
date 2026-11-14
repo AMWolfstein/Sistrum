@@ -549,7 +549,7 @@ fn reenrich_cover_and_lyrics_overlap_preserve_best_effort_results_and_cancel() {
             server.url.clone(),
             network,
         );
-        let archive = directory.path().join("example.lyrics.sflx");
+        let archive = directory.path().join("example.lyrics.sistrum-ext");
         let mut writer = zip::ZipWriter::new(std::fs::File::create(&archive).unwrap());
         let manifest = json!({"name":"example.lyrics","displayName":"Example Lyrics","version":"1",
             "description":"Generic lyrics fixture","type":["lyrics_provider"],"permissions":{"network":["127.0.0.1"]}});

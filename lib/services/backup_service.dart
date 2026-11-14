@@ -157,12 +157,11 @@ class BackupBundle {
 class BackupService {
   static final _log = AppLogger('BackupService');
 
-  static const String magic = 'mornye-backup';
-  static const String _legacyMagic = 'spotiflac-backup';
+  static const String magic = 'sistrum-backup';
   // V3 permits omitted categories. Older readers reject it instead of treating
   // an omitted history as an empty history and clearing existing downloads.
   static const int formatVersion = 3;
-  static const String fileExtension = 'sflb';
+  static const String fileExtension = 'sistrum-backup';
   static const int _historyPageSize = 500;
   static const int _maxMetadataBytes = 8 << 20;
   static const int _maxHistoryBytes = 512 << 20;
@@ -191,7 +190,7 @@ class BackupService {
     final staging = await Directory(
       p.join(
         tempRoot.path,
-        'mornye_backup_${DateTime.now().microsecondsSinceEpoch}',
+        'sistrum_backup_${DateTime.now().microsecondsSinceEpoch}',
       ),
     ).create(recursive: true);
     final historyFile = File(p.join(staging.path, 'history.ndjson'));
@@ -343,7 +342,7 @@ class BackupService {
     final stamp =
         '${now.year}${two(now.month)}${two(now.day)}_'
         '${two(now.hour)}${two(now.minute)}${two(now.second)}';
-    return File(p.join(backupsDir.path, 'mornye_backup_$stamp.$fileExtension'));
+    return File(p.join(backupsDir.path, 'sistrum_backup_$stamp.$fileExtension'));
   }
 
   static Future<BackupBundle?> parseFile(
@@ -630,7 +629,7 @@ class BackupService {
       if (rootRaw is! Map) return null;
       final root = Map<String, dynamic>.from(rootRaw);
       final version = root['format_version'];
-      if ((root['magic'] != magic && root['magic'] != _legacyMagic) ||
+      if (root['magic'] != magic ||
           (version != 2 && version != formatVersion)) {
         return null;
       }
@@ -768,7 +767,7 @@ class BackupService {
     }
     if (decoded is! Map) return null;
     final root = Map<String, dynamic>.from(decoded);
-    if ((root['magic'] != magic && root['magic'] != _legacyMagic) ||
+    if (root['magic'] != magic ||
         root['data'] is! Map) {
       return null;
     }

@@ -4,7 +4,7 @@ use tempfile::TempDir;
 
 fn metadata(version: u64, data: Value) -> Vec<u8> {
     serde_json::to_vec(&json!({
-        "magic": if version == 2 { "spotiflac-backup" } else { "mornye-backup" },
+        "magic": "sistrum-backup",
         "format_version": version,
         "app_version": "5.1.0", "history_count": 1, "data": data,
     }))
@@ -13,7 +13,7 @@ fn metadata(version: u64, data: Value) -> Vec<u8> {
 
 fn fixture(entries: &[(&str, &[u8])]) -> (TempDir, Value) {
     let dir = tempfile::tempdir().unwrap();
-    let input = dir.path().join("backup.sflb");
+    let input = dir.path().join("backup.sistrum-backup");
     let mut zip = ZipWriter::new(File::create(&input).unwrap());
     for (name, bytes) in entries {
         zip.start_file(
@@ -62,7 +62,7 @@ fn native_archive_round_trip_preserves_payloads_and_selective_categories() {
             if history {
                 files.push(json!({"name": "history.ndjson", "path": root.join("history.ndjson")}));
             }
-            let output = root.join("output.sflb");
+            let output = root.join("output.sistrum-backup");
             assert_eq!(
                 write(&json!({"output_path": output, "files": files}), &|| Ok(())).unwrap()["published"],
                 true

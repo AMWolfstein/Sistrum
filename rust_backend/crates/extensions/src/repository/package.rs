@@ -1,7 +1,5 @@
 use super::{RepositoryError, cause, error, normalize_sha256};
 use sistrum_core::filename::sanitize_filename;
-use sistrum_core::matching::lowercase;
-use sistrum_network::url::UrlParts;
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::Write;
@@ -9,17 +7,11 @@ use std::path::{Path, PathBuf};
 
 const MAX_PACKAGE_BYTES: u64 = 64 << 20;
 
-pub fn destination_path(directory: &Path, id: &str, url: &str) -> Result<PathBuf, RepositoryError> {
+pub fn destination_path(directory: &Path, id: &str) -> Result<PathBuf, RepositoryError> {
     if id.trim().is_empty() {
         return Err(error("invalid extension id"));
     }
-    let path = UrlParts::parse(url)
-        .map_or_else(|| url.into(), |url| crate::host::decode_go_utf8(&url.path));
-    let suffix = if lowercase(&path).ends_with(".sflx") {
-        ".sflx"
-    } else {
-        ".mornye-ext"
-    };
+    let suffix = ".sistrum-ext";
     Ok(crate::files::clean(
         &directory.join(format!("{}{suffix}", sanitize_filename(id))),
     ))

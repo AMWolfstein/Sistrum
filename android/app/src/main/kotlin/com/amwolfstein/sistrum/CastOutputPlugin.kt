@@ -128,7 +128,7 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
                         .setContentType(requireNotNull(call.argument<String>("mime")))
                         .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                         .setMetadata(metadata)
-                        .setCustomData(JSONObject().put("mornyeToken", call.argument<Number>("token")))
+                        .setCustomData(JSONObject().put("sistrumToken", call.argument<Number>("token")))
                     call.argument<Number>("duration")?.toLong()?.takeIf { it > 0 }?.let {
                         media.setStreamDuration(it)
                     }
@@ -238,7 +238,7 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
             "deviceName" to session?.castDevice?.friendlyName,
             "host" to session?.castDevice?.inetAddress?.hostAddress,
             "volume" to session?.volume,
-            "token" to status?.mediaInfo?.customData?.optLong("mornyeToken"),
+            "token" to status?.mediaInfo?.customData?.optLong("sistrumToken"),
             "position" to (client?.approximateStreamPosition ?: 0),
             "duration" to (client?.streamDuration ?: 0),
             "state" to status?.playerState,

@@ -3706,7 +3706,7 @@ void main() {
     (tester) async {
       metadataOverrides['composer'] = 'Example Composer';
       metadataOverrides['lyrics'] =
-          '[by:SpotiFLAC-Mobile via Example Lyrics API (source: upstream)]\n[00:01]Last lyric';
+          '[by:Sistrum via Example Lyrics API (source: upstream)]\n[00:01]Last lyric';
       await pumpNowPlaying(
         tester,
         theme: MornyeTheme.build(Brightness.dark),

@@ -67,7 +67,7 @@ impl StorageMasterKey {
         let mut mac = <Hmac<Sha256> as KeyInit>::new_from_slice(self.0.as_ref())
             .expect("HMAC accepts any key length");
         // Keep the domain stable across app renames to decrypt existing snapshots.
-        mac.update(b"SpotiFLAC Mobile extension storage v2\0");
+        mac.update(b"Sistrum extension storage v1\0");
         mac.update(purpose.as_bytes());
         mac.update(&[0]);
         mac.update(extension_id.as_bytes());

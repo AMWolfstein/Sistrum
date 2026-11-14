@@ -32,7 +32,7 @@ fn io_error(message: &str, cause: impl std::fmt::Display) -> PackageError {
 
 pub fn is_package_path(path: &Path) -> bool {
     let name = lowercase(&path.to_string_lossy());
-    name.ends_with(".mornye-ext") || name.ends_with(".spotiflac-ext") || name.ends_with(".sflx")
+    name.ends_with(".sistrum-ext")
 }
 
 struct Entry {
@@ -52,7 +52,7 @@ impl ExtensionPackage {
     pub fn open(path: &Path) -> Result<Self, PackageError> {
         if !is_package_path(path) {
             return Err(error(
-                "invalid file format: please select a .mornye-ext or .sflx file",
+                "invalid file format: please select a .sistrum-ext file",
             ));
         }
         let mut input = OpenOptions::new()
@@ -343,15 +343,17 @@ mod branding_tests {
     use super::*;
 
     #[test]
-    fn current_and_legacy_package_extensions_remain_supported() {
+    fn only_sistrum_package_extensions_are_supported() {
+        for name in ["example.sistrum-ext", "example.SISTRUM-EXT"] {
+            assert!(is_package_path(Path::new(name)), "{name}");
+        }
         for name in [
             "example.mornye-ext",
             "example.spotiflac-ext",
             "example.sflx",
+            "example.zip",
         ] {
-            assert!(is_package_path(Path::new(name)), "{name}");
-            assert!(is_package_path(Path::new(&name.to_uppercase())), "{name}");
+            assert!(!is_package_path(Path::new(name)), "{name}");
         }
-        assert!(!is_package_path(Path::new("example.zip")));
     }
 }

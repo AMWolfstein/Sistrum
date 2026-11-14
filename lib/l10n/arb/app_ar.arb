@@ -1215,7 +1215,7 @@
   "@snackbarFileNotFound": {
     "description": "Snackbar - file doesn't exist"
   },
-  "snackbarSelectExtFile": "الرجاء تحديد ملف .mornye-ext",
+  "snackbarSelectExtFile": "الرجاء تحديد ملف .sistrum-ext",
   "@snackbarSelectExtFile": {
     "description": "Snackbar - wrong file type selected"
   },
@@ -2176,7 +2176,7 @@
   "@extensionsNoExtensions": {
     "description": "Empty state - no extensions"
   },
-  "extensionsNoExtensionsSubtitle": "تثبيت ملفات .mornye-ext لإضافة موفرين جدد",
+  "extensionsNoExtensionsSubtitle": "تثبيت ملفات .sistrum-ext لإضافة موفرين جدد",
   "@extensionsNoExtensionsSubtitle": {
     "description": "Empty state subtitle"
   },

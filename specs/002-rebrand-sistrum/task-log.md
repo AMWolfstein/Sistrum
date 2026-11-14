@@ -97,7 +97,7 @@ Baseline: `8cb6f4f` on `wip` (see plan.md, Repository evidence).
 - `specs/001-remove-material-theme/`: package and folder paths changed to `com/amwolfstein/sistrum` and `package:sistrum/`; `plan.md` has a note on what M002 removes (the M001 findings about the Mornye theme stay).
 - Kept on purpose: theme names in the docs (`lib/theme/README.md`, `integration_test/README.md`, "Material or the Mornye theme" lines), `MornyeApp`/`Mornye*` identifiers, the `third_party/*` patch records, `rust_backend/vendor`, the "Based on Mornye" credit and the LGPL text.
 - Left for later tasks (the acceptance grep still lists them): `zarz` in the Zarz-LRC provider and its tests (T009), `api.zarz.moe` in the extension cover and health code, the Apple lyrics provider and `test/extension_session_callback_test.dart` (T009 and T010), the About lyrics and status links (T009).
-- Checks: `flutter analyze` run; full `flutter test`: see the result line below; `python3 workflow/work.py validate` PASS.
+- Checks: `flutter analyze` run; full `flutter test`: +4450 ~10, all passed, exit 0; `python3 workflow/work.py validate` PASS.
 
 ## M002-T010 Remove signed extension sessions and the api.zarz.moe rules
 
@@ -111,3 +111,18 @@ Baseline: `8cb6f4f` on `wip` (see plan.md, Repository evidence).
 - Dart: the auth launcher keeps only the OAuth browser launch (`launchExtensionAuthUrl`); the session-callback helper, the bridge events file and the download verification subsystem (wait coordinator, retry guard, verification notification router) removed; the rate-limit handler restored into `download_queue_provider_rate_limit.dart`; the verification retry in the track provider, metadata autofill and collection screens removed; the notification service loses its verification notification; ARB strings used only by these features removed; verification-only tests deleted.
 - Left for later tasks: `api.zarz.moe` in `rust_backend/crates/providers/src/lyrics/builtin/apple.rs` and the About links to `api.zarz.moe`, `lyrics.zarz.moe` and `status.zarz.moe` (T009); `mornye://session-grant` as a test fixture in `auth.rs` (T008).
 - Checks: `cargo check --locked --workspace` exit 0; `cargo test --locked -p sistrum-extensions` 113 + 2 + 2 + 2 + 2 passed, exit 0 (before the Dart and Android edits); `flutter analyze` no issues; full `flutter test`: +4413 ~10, all passed, exit 0 (the drop from 4450 is the removed signed-session, verification and session-grant tests). Gradle/Kotlin compile not run (unavailable here).
+
+## M002-T008 Rename the app-owned protocol identifiers to Sistrum
+
+- Map refresh (first action): `code_tools.py update` OK, 1757 sources, 0 partial, 0 unindexed, 36131 symbols.
+- Extension packages: `.sistrum-ext` only. The `.mornye-ext`, `.spotiflac-ext` and `.sflx` acceptance is gone in Rust (`package.rs`, `repository/package.rs`), Dart (`extensions_page.dart`) and the 21 ARB strings; the destination helper no longer takes the download URL.
+- Sign-in callbacks: `sistrum://` in the manifest intent filters, `ExtensionAuthCallbacks.kt`, Dart and the test fixtures. The `mornye` scheme is refused.
+- User agents: `Sistrum/<version>` and `Sistrum-Extension/1.0` (`client.rs`, `prelude.js`).
+- Backups: magic `sistrum-backup` only; the `spotiflac-backup` and `mornye-backup` magic values are refused in Dart (`backup_service.dart`), Rust `archive.rs` and `legacy.rs`; file extension `sistrum-backup` (the `sflb` extension is gone); temp and file names `sistrum-backup-*`, `sistrum_backup_*`.
+- Cast custom data key `sistrumToken` on both sides (`sender.rs`, `CastOutputPlugin.kt`).
+- Extension storage HMAC label `Sistrum extension storage v1` (`storage.rs`).
+- Temp suffixes `.sistrum-ffmpeg-*` (`CoreBackend.kt`, `ffmpeg_support.dart`).
+- Equalizer preset format `sistrum-equalizer` only; `spotiflac-equalizer` and `mornye-equalizer` are refused (`equalizer_provider.dart`).
+- Lyrics test fixtures credit "Sistrum" (`native_data_jobs_test.dart`, `lyrics_metadata_helper_test.dart`).
+- Kept on purpose: theme style values (`'mornye'`), `MORNYE_*` build variables, internal temp names `mornye_legacy_backup_` (`lib/services/backup_service.dart`), `mornye_restore_` (`lib/services/backup_service.dart`, `rust_backend/crates/mobile/src/native_backup/archive.rs`) and `mornye_restore_ext` (`lib/providers/extension_provider.dart`), which are not user-visible, `mornye-dsd-` test temp names, `mornye_lyrics`/`spotiflac_lyrics` provider ids (T009), the `spotiflac_lyrics` migration (T009), the legacy migration code (spec Assumptions).
+- Checks: `cargo check --locked --workspace` exit 0; `cargo test --locked --workspace` all suites passed, exit 0; `flutter analyze` no issues; full `flutter test`: +4413 ~10, all passed, exit 0.

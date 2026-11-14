@@ -1215,7 +1215,7 @@
   "@snackbarFileNotFound": {
     "description": "Snackbar - file doesn't exist"
   },
-  "snackbarSelectExtFile": "Будь ласка, виберіть файл.mornye-ext",
+  "snackbarSelectExtFile": "Будь ласка, виберіть файл.sistrum-ext",
   "@snackbarSelectExtFile": {
     "description": "Snackbar - wrong file type selected"
   },
@@ -2176,7 +2176,7 @@
   "@extensionsNoExtensions": {
     "description": "Empty state - no extensions"
   },
-  "extensionsNoExtensionsSubtitle": "Встановіть файли.mornye-ext, щоб додати нових провайдерів",
+  "extensionsNoExtensionsSubtitle": "Встановіть файли.sistrum-ext, щоб додати нових провайдерів",
   "@extensionsNoExtensionsSubtitle": {
     "description": "Empty state subtitle"
   },

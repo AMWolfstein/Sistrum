@@ -1215,7 +1215,7 @@
   "@snackbarFileNotFound": {
     "description": "Snackbar - file doesn't exist"
   },
-  "snackbarSelectExtFile": ".mornye-ext 파일을 선택하세요",
+  "snackbarSelectExtFile": ".sistrum-ext 파일을 선택하세요",
   "@snackbarSelectExtFile": {
     "description": "Snackbar - wrong file type selected"
   },
@@ -2176,7 +2176,7 @@
   "@extensionsNoExtensions": {
     "description": "Empty state - no extensions"
   },
-  "extensionsNoExtensionsSubtitle": "새 제공자를 추가하려면 .mornye-ext 파일을 설치하세요",
+  "extensionsNoExtensionsSubtitle": "새 제공자를 추가하려면 .sistrum-ext 파일을 설치하세요",
   "@extensionsNoExtensionsSubtitle": {
     "description": "Empty state subtitle"
   },

@@ -253,9 +253,7 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
 
     final hasInvalidFile = selectedFiles.any((file) {
       final lowerName = file.name.toLowerCase();
-      return !lowerName.endsWith('.mornye-ext') &&
-          !lowerName.endsWith('.spotiflac-ext') &&
-          !lowerName.endsWith('.sflx');
+      return !lowerName.endsWith('.sistrum-ext');
     });
     if (hasInvalidFile) {
       if (mounted) {

@@ -190,10 +190,10 @@ void main() {
 
       final startup = notifier.ensureInitialized();
       final install = notifier.installExtension(
-        '/cache/example-extension.sflx',
+        '/cache/example-extension.sistrum-ext',
       );
       final upgrade = notifier.upgradeExtension(
-        '/cache/example-extension.sflx',
+        '/cache/example-extension.sistrum-ext',
       );
       final repository = container
           .read(repoProvider.notifier)
@@ -251,12 +251,12 @@ void main() {
 
     final startup = notifier.ensureInitialized();
     await notifier._started.future;
-    final install = notifier.installExtension('/cache/example-extension.sflx');
-    final batch = notifier.installExtensions(['/cache/example-b.sflx']);
+    final install = notifier.installExtension('/cache/example-extension.sistrum-ext');
+    final batch = notifier.installExtensions(['/cache/example-b.sistrum-ext']);
     final check = notifier.checkExtensionUpgrade(
-      '/cache/example-extension.sflx',
+      '/cache/example-extension.sistrum-ext',
     );
-    final upgrade = notifier.upgradeExtension('/cache/example-extension.sflx');
+    final upgrade = notifier.upgradeExtension('/cache/example-extension.sistrum-ext');
     await Future<void>.delayed(Duration.zero);
     expect(calls, isEmpty);
     notifier._ready.complete();
@@ -294,14 +294,14 @@ void main() {
         installs++;
         return {'name': 'example-extension'};
       });
-      expect(await notifier.installExtension('/cache/example.sflx'), isFalse);
+      expect(await notifier.installExtension('/cache/example.sistrum-ext'), isFalse);
       expect(installs, 0);
       expect(
         container.read(extensionProvider).error,
         contains('Native initialization failed'),
       );
       notifier._failInitialization = false;
-      expect(await notifier.installExtension('/cache/example.sflx'), isTrue);
+      expect(await notifier.installExtension('/cache/example.sistrum-ext'), isTrue);
       expect(installs, 1);
       expect(notifier._initializations, 2);
     },
@@ -566,7 +566,7 @@ void main() {
       expect(installs, 0);
 
       expect(
-        await notifier.installExtension('/cache/example-extension.sflx'),
+        await notifier.installExtension('/cache/example-extension.sistrum-ext'),
         isTrue,
       );
       expect(settings._syncAttempts, 2);

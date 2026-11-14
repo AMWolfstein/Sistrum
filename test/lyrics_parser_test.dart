@@ -178,7 +178,7 @@ ${_tag('translation', 2000, 'Second translation')}
     () {
       final lyrics = LyricsParser.parse('''
 [au:Example Writer, Another Writer]
-[by:SpotiFLAC-Mobile via Example Lyrics API (source: upstream)]
+[by:Sistrum via Example Lyrics API (source: upstream)]
 [00:01.00]First line
 [00:04.00]Last line
 ''');
@@ -199,7 +199,7 @@ ${_tag('translation', 2000, 'Second translation')}
       expect(lyrics.provider, isNull);
       expect(
         LyricsParser.parse(
-          '[by:SpotiFLAC-Mobile (source: extension:example.lyrics)]\n[00:01]Line',
+          '[by:Sistrum (source: extension:example.lyrics)]\n[00:01]Line',
         ).provider,
         'example.lyrics',
       );

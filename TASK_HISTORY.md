@@ -13,3 +13,4 @@
 - M002-T005 — Replace the icons and logos
 - M002-T006 — Update the docs, GitHub files and the M001 plan
 - M002-T010 — Remove signed extension sessions and the api.zarz.moe rules
+- M002-T008 — Rename the app-owned protocol identifiers to Sistrum

@@ -19,7 +19,7 @@ void main() {
     expect(OpenAudioFile.parse(Uri.file(path).toString())?.source, path);
     for (final input in [
       'https://example.com/song.mp3',
-      'mornye://callback',
+      'sistrum://callback',
       '--help',
       'relative.mp3',
       '/invalid\u0000.mp3',

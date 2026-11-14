@@ -803,7 +803,7 @@
     "name": "credits via API",
     "request": {
       "operation": "parse_lyrics",
-      "raw": "[by:SpotiFLAC-Mobile via Example Lyrics API (source: upstream)]\n[00:01]First line\n[00:04]Written By: Example Writer"
+      "raw": "[by:Sistrum via Example Lyrics API (source: upstream)]\n[00:01]First line\n[00:04]Written By: Example Writer"
     },
     "expected": {
       "synced": true,
@@ -831,7 +831,7 @@
     "name": "credits source fallback",
     "request": {
       "operation": "parse_lyrics",
-      "raw": "[by:SpotiFLAC-Mobile (source: extension:example.lyrics)]\n[00:01]Lyric"
+      "raw": "[by:Sistrum (source: extension:example.lyrics)]\n[00:01]Lyric"
     },
     "expected": {
       "synced": true,

@@ -220,7 +220,7 @@ pub(super) fn read(request: &Value, check: Check<'_>) -> Result<Value, String> {
     let root: Value =
         serde_json::from_slice(&metadata).map_err(|e| err("backup metadata JSON", e))?;
     let version = root["format_version"].as_u64();
-    if (root["magic"] != "mornye-backup" && root["magic"] != "spotiflac-backup")
+    if root["magic"] != "sistrum-backup"
         || !matches!(version, Some(2 | 3))
         || !root["data"].is_object()
     {

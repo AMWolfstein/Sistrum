@@ -1190,7 +1190,7 @@
   "@snackbarFileNotFound": {
     "description": "Snackbar - file doesn't exist"
   },
-  "snackbarSelectExtFile": "Harap pilih file .mornye-ext",
+  "snackbarSelectExtFile": "Harap pilih file .sistrum-ext",
   "@snackbarSelectExtFile": {
     "description": "Snackbar - wrong file type selected"
   },
@@ -2151,7 +2151,7 @@
   "@extensionsNoExtensions": {
     "description": "Empty state - no extensions"
   },
-  "extensionsNoExtensionsSubtitle": "Pasang file .mornye-ext untuk menambahkan provider baru",
+  "extensionsNoExtensionsSubtitle": "Pasang file .sistrum-ext untuk menambahkan provider baru",
   "@extensionsNoExtensionsSubtitle": {
     "description": "Empty state subtitle"
   },

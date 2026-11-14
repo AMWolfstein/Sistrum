@@ -424,7 +424,7 @@ impl ExtensionRepository {
             .find(|entry| entry.id == id)
             .ok_or_else(|| error(format!("extension {id} not found in repo")))?;
         require_https(extension.download_url(), "extension download")?;
-        let destination = destination_path(directory, id, extension.download_url())?;
+        let destination = destination_path(directory, id)?;
         let check = || self.check_generation(generation).map_err(|e| e.to_string());
         let session = self.network.native_session(DOWNLOAD_TIMEOUT);
         let headers = [
@@ -517,20 +517,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn downloaded_packages_use_current_brand_and_keep_sflx_extension() {
+    fn downloaded_packages_use_current_brand_and_extension() {
         for (url, name) in [
             (
-                "https://example.test/example.spotiflac-ext",
-                "example.mornye-ext",
+                "https://example.test/example.sistrum-ext",
+                "example.sistrum-ext",
             ),
             (
-                "https://example.test/example.mornye-ext",
-                "example.mornye-ext",
+                "https://example.test/example.sistrum-ext",
+                "example.sistrum-ext",
             ),
-            ("https://example.test/example.sflx", "example.sflx"),
+            ("https://example.test/example.sistrum-ext", "example.sistrum-ext"),
         ] {
             assert_eq!(
-                destination_path(Path::new("/extensions"), "example", url).unwrap(),
+                destination_path(Path::new("/extensions"), "example").unwrap(),
                 Path::new("/extensions").join(name)
             );
         }

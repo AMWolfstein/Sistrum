@@ -101,7 +101,7 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
               mimeType: 'application/json',
             ),
           ],
-          fileNameOverrides: ['mornye-equalizer.json'],
+          fileNameOverrides: ['sistrum-equalizer.json'],
           sharePositionOrigin: box == null
               ? null
               : box.localToGlobal(Offset.zero) & box.size,

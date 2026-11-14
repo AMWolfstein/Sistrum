@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 final _log = AppLogger('ExtensionAuthLauncher');
 
 /// Opens an extension OAuth page using the browser preference. The page
-/// returns through the mornye:// callback, which the app's URL scheme handles
+/// returns through the sistrum:// callback, which the app's URL scheme handles
 /// on Android.
 Future<bool> launchExtensionAuthUrl(Uri uri, {required String browserMode}) async {
   // The deep-link handler hands the callback to the backend.

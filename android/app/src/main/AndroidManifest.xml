@@ -129,13 +129,13 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mornye" android:host="callback" />
+                <data android:scheme="sistrum" android:host="callback" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mornye" android:host="spotify-callback" />
+                <data android:scheme="sistrum" android:host="spotify-callback" />
             </intent-filter>
         </activity>
 

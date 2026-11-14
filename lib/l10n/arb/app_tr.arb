@@ -1215,7 +1215,7 @@
   "@snackbarFileNotFound": {
     "description": "Snackbar - file doesn't exist"
   },
-  "snackbarSelectExtFile": "Lütfen .mornye-ext dosyasını seçin",
+  "snackbarSelectExtFile": "Lütfen .sistrum-ext dosyasını seçin",
   "@snackbarSelectExtFile": {
     "description": "Snackbar - wrong file type selected"
   },
@@ -2176,7 +2176,7 @@
   "@extensionsNoExtensions": {
     "description": "Empty state - no extensions"
   },
-  "extensionsNoExtensionsSubtitle": "Yeni sağlayıcılar eklemek için .mornye-ext dosyalarını yükleyin",
+  "extensionsNoExtensionsSubtitle": "Yeni sağlayıcılar eklemek için .sistrum-ext dosyalarını yükleyin",
   "@extensionsNoExtensionsSubtitle": {
     "description": "Empty state subtitle"
   },

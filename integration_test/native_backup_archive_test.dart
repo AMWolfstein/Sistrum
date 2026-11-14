@@ -179,7 +179,7 @@ void main() {
           },
         }),
       );
-      final path = '${root.path}/dart-$version.sflb';
+      final path = '${root.path}/dart-$version.sistrum-backup';
       await _dartWrite(path, [
         {'path': metadata.path, 'name': 'metadata.json', 'store': false},
         {'path': historyFile.path, 'name': 'history.ndjson', 'store': false},
@@ -306,7 +306,7 @@ void main() {
     for (var sample = 0; sample < 7; sample++) {
       for (final native in sample.isEven ? [false, true] : [true, false]) {
         final label = native ? 'native' : 'dart';
-        final path = '${root.path}/$label-$sample.sflb';
+        final path = '${root.path}/$label-$sample.sistrum-backup';
         final time = Stopwatch()..start();
         var beats = 0;
         var maximumGap = 0;

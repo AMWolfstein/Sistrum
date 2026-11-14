@@ -41,7 +41,7 @@ void main() {
   test(
     'ZIP backup pages history and streams cover files during restore',
     () async {
-      final root = await Directory.systemTemp.createTemp('mornye-backup-test-');
+      final root = await Directory.systemTemp.createTemp('sistrum-backup-test-');
       addTearDown(() async {
         if (await root.exists()) await root.delete(recursive: true);
       });
@@ -179,7 +179,7 @@ void main() {
       final root = await Directory.systemTemp.createTemp('legacy-backup-');
       addTearDown(() => root.delete(recursive: true));
       final envelope = <String, dynamic>{
-        'magic': 'mornye-backup',
+        'magic': 'sistrum-backup',
         'format_version': 1,
         'data': {
           'settings': {'theme': 'light'},
@@ -187,14 +187,14 @@ void main() {
         },
       };
       expect(BackupService.parse(jsonEncode(envelope))!.hasHistory, isTrue);
-      envelope['magic'] = 'spotiflac-backup';
+      envelope['magic'] = 'sistrum-backup';
       expect(BackupService.parse(jsonEncode(envelope))!.hasHistory, isTrue);
       envelope['format_version'] = 2;
       final metadata = utf8.encode(jsonEncode(envelope));
       final archive = Archive()
         ..addFile(ArchiveFile('metadata.json', metadata.length, metadata))
         ..addFile(ArchiveFile('history.ndjson', 0, <int>[]));
-      final file = File(p.join(root.path, 'old.sflb'));
+      final file = File(p.join(root.path, 'old.sistrum-backup'));
       await file.writeAsBytes(ZipEncoder().encode(archive));
       final bundle = (await BackupService.parseFile(
         file.path,
@@ -223,7 +223,7 @@ void main() {
       );
       final archive = Archive()
         ..addFile(ArchiveFile('metadata.json', metadata.length, metadata));
-      final file = File(p.join(root.path, 'invalid.sflb'));
+      final file = File(p.join(root.path, 'invalid.sistrum-backup'));
       await file.writeAsBytes(ZipEncoder().encode(archive));
       expect(
         await BackupService.parseFile(file.path, temporaryDirectory: root),

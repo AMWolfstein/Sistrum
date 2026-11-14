@@ -12,7 +12,7 @@ internal class ExtensionAuthCallbacks {
     private val processing = Mutex()
 
     fun offer(uri: Uri): Boolean {
-        if (!uri.scheme.equals("mornye", ignoreCase = true)) return false
+        if (!uri.scheme.equals("sistrum", ignoreCase = true)) return false
         val host = uri.host.orEmpty().lowercase(java.util.Locale.US)
         if (host != "callback" && host != "spotify-callback") return false
         val state = uri.getQueryParameter("state")?.trim().orEmpty()

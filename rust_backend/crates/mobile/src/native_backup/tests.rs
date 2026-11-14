@@ -262,7 +262,7 @@ fn legacy_split_streams_history_and_retains_category_semantics() {
     let input = fixture.dir.path().join("backup.json");
     let history = fixture.dir.path().join("legacy.ndjson");
     let metadata = fixture.dir.path().join("legacy.json");
-    let original = json!({"magic":"spotiflac-backup","format_version":1,"app_version":"5.0","data":{"settings":{"theme":"light"},"history":[track("one"),12,track("two")],"collections":{"loved":["one"]}}});
+    let original = json!({"magic":"sistrum-backup","format_version":1,"app_version":"5.0","data":{"settings":{"theme":"light"},"history":[track("one"),12,track("two")],"collections":{"loved":["one"]}}});
     fs::write(&input, original.to_string()).unwrap();
     let request = json!({"operation":"backup_split_legacy","input_path":input.to_str().unwrap(),"ndjson_path":history.to_str().unwrap(),"metadata_path":metadata.to_str().unwrap()});
     let result = execute(&request, &|| Ok(())).unwrap();
@@ -280,7 +280,7 @@ fn legacy_split_accepts_current_app_marker() {
     let input = fixture.dir.path().join("backup.json");
     let history = fixture.dir.path().join("legacy.ndjson");
     let metadata = fixture.dir.path().join("legacy.json");
-    fs::write(&input, r#"{"magic":"mornye-backup","data":{"history":[]}}"#).unwrap();
+    fs::write(&input, r#"{"magic":"sistrum-backup","data":{"history":[]}}"#).unwrap();
     let request = json!({
         "operation": "backup_split_legacy", "input_path": input,
         "ndjson_path": history, "metadata_path": metadata,
@@ -298,7 +298,7 @@ fn legacy_duplicate_history_uses_last_field_and_invalid_backup_cleans_output() {
     fs::write(
         &input,
         format!(
-            "{{\"magic\":\"spotiflac-backup\",\"data\":{{\"history\":[{}],\"history\":[]}}}}",
+            "{{\"magic\":\"sistrum-backup\",\"data\":{{\"history\":[{}],\"history\":[]}}}}",
             track("old")
         ),
     )

@@ -228,7 +228,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     returns nothing outside specs and history.
   - Dependencies: M002-T006.
 
-- [ ] M002-T008 Rename the app-owned protocol identifiers to Sistrum
+- [x] M002-T008 Rename the app-owned protocol identifiers to Sistrum
   - Request: owner, 2026-11-14: Sistrum is independent of Mornye and SpotiFLAC
     (FR-011, research R5).
   - Start: refresh the map; query `BackupService`, `CastOutputPlugin`, the

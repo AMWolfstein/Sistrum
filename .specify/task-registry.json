@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 14,
+  "next_completion": 15,
   "next_mission": 3,
   "next_tor": 8,
   "tasks": {
@@ -194,13 +194,19 @@
       "title": "Cumulative review"
     },
     "M002-T008": {
-      "completion": null,
+      "completion": 14,
+      "evidence": {
+        "checks": "cargo check --locked --workspace exit 0; cargo test --locked --workspace all suites passed exit 0; flutter analyze no issues; full flutter test +4413 ~10 all passed exit 0; equalizer and package tests re-run after review fixes; grep for old identifiers outside specs: only refusal tests, T009/T010 items and kept internal names; review round 1 NEEDS_FIXES (package test name, equalizer no-op import) fixed; round 2 NEEDS_FIXES (undocumented temp prefixes) fixed in log; round 3 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "e325b8ada5594f0b9f6414b49ea5fed1",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Rename the app-owned protocol identifiers to Sistrum"
     },
     "M002-T009": {

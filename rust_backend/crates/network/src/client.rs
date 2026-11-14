@@ -294,7 +294,7 @@ pub struct HttpRequest {
 }
 
 fn default_user_agent() -> String {
-    "Mornye-Extension/1.0".to_owned()
+    "Sistrum-Extension/1.0".to_owned()
 }
 
 #[derive(Debug)]

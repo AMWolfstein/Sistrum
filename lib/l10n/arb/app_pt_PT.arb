@@ -1215,7 +1215,7 @@
   "@snackbarFileNotFound": {
     "description": "Snackbar - file doesn't exist"
   },
-  "snackbarSelectExtFile": "Por favor, selecione um arquivo .mornye-ext",
+  "snackbarSelectExtFile": "Por favor, selecione um arquivo .sistrum-ext",
   "@snackbarSelectExtFile": {
     "description": "Snackbar - wrong file type selected"
   },
@@ -2176,7 +2176,7 @@
   "@extensionsNoExtensions": {
     "description": "Empty state - no extensions"
   },
-  "extensionsNoExtensionsSubtitle": "Instale arquivos .mornye-ext para adicionar novos provedores",
+  "extensionsNoExtensionsSubtitle": "Instale arquivos .sistrum-ext para adicionar novos provedores",
   "@extensionsNoExtensionsSubtitle": {
     "description": "Empty state subtitle"
   },

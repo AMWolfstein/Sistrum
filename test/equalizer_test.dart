@@ -147,7 +147,7 @@ void main() {
         await tester.pumpAndSettle();
         notifier.importPreset(
           jsonEncode({
-            'format': 'mornye-equalizer',
+            'format': 'sistrum-equalizer',
             'version': 1,
             'name': 'Signed zero',
             'settings': EqualizerSettings(
@@ -313,12 +313,15 @@ void main() {
     final export = notifier.exportPreset('Portable');
     expect(
       (jsonDecode(export) as Map<String, dynamic>)['format'],
-      'mornye-equalizer',
+      'sistrum-equalizer',
     );
     notifier.importPreset(export);
-    notifier.importPreset(
-      export.replaceFirst('mornye-equalizer', 'spotiflac-equalizer'),
-    );
+    for (final legacy in ['mornye-equalizer', 'spotiflac-equalizer']) {
+      expect(
+        () => notifier.importPreset(export.replaceFirst('sistrum-equalizer', legacy)),
+        throwsFormatException,
+      );
+    }
     expect(container.read(equalizerProvider).presets.map((v) => v.name), [
       'Headphones',
       'Desk',

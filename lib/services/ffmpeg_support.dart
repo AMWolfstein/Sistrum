@@ -219,7 +219,7 @@ abstract final class FFmpegOutput {
     if (plan.workingPath != plan.finalPath) {
       final source = File(inputPath);
       final backupPath =
-          '$inputPath.mornye-backup-${DateTime.now().microsecondsSinceEpoch}';
+          '$inputPath.sistrum-backup-${DateTime.now().microsecondsSinceEpoch}';
       final backup = File(backupPath);
       var backedUp = false;
       try {

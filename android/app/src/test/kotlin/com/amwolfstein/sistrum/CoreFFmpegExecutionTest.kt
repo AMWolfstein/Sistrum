@@ -434,10 +434,10 @@ class CoreFFmpegExecutionTest {
     fun firstExecutionSweepsOnlyOwnOrphanFilesAndPreservesOtherEntries() {
         val directory = createTempDirectory()
         try {
-            val prefix = ".mornye-ffmpeg-${BuildConfig.APPLICATION_ID}-"
+            val prefix = ".sistrum-ffmpeg-${BuildConfig.APPLICATION_ID}-"
             val ownOrphan = File(directory, "$prefix${UUID.randomUUID()}.flac")
                 .also { it.writeText("orphan") }
-            val foreignFile = File(directory, ".mornye-ffmpeg-foreign-${UUID.randomUUID()}.flac")
+            val foreignFile = File(directory, ".sistrum-ffmpeg-foreign-${UUID.randomUUID()}.flac")
                 .also { it.writeText("foreign") }
             val malformedFile = File(directory, "${prefix}not-a-uuid.flac")
                 .also { it.writeText("malformed") }

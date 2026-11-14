@@ -823,7 +823,7 @@ void main() {
 
       final legacy = await File('${root.path}/legacy.json').writeAsString(
         jsonEncode({
-          'magic': 'spotiflac-backup',
+          'magic': 'sistrum-backup',
           'format_version': 1,
           'app_version': '5.0.7',
           'data': {
@@ -914,11 +914,11 @@ const _lyricCases = <(String, String)>[
   ),
   (
     "credits via API",
-    "[by:SpotiFLAC-Mobile via Example Lyrics API (source: upstream)]\n[00:01]First line\n[00:04]Written By: Example Writer",
+    "[by:Sistrum via Example Lyrics API (source: upstream)]\n[00:01]First line\n[00:04]Written By: Example Writer",
   ),
   (
     "credits source fallback",
-    "[by:SpotiFLAC-Mobile (source: extension:example.lyrics)]\n[00:01]Lyric",
+    "[by:Sistrum (source: extension:example.lyrics)]\n[00:01]Lyric",
   ),
   (
     "TTML namespaced agent inheritance",

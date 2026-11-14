@@ -181,7 +181,7 @@ void main() {
 [ti:Banna Re]
 [ar:Dhvani Bhanushali]
 [al:Banna Re]
-[by:SpotiFLAC Mobile]
+[by:Sistrum]
 ''';
 
       expect(cleanLyricsForDisplay(raw), isEmpty);
