@@ -162,7 +162,7 @@ jobs:
           export KEY_PASSWORD="${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
 
           umask 077
-          signing_dir="$(mktemp -d "$RUNNER_TEMP/mornye-signing.XXXXXX")"
+          signing_dir="$(mktemp -d "$RUNNER_TEMP/sistrum-signing.XXXXXX")"
           trap 'rm -rf "$signing_dir"' EXIT
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$signing_dir/release.jks"
           apksigner="$ANDROID_HOME/build-tools/37.0.0/apksigner"
@@ -171,7 +171,7 @@ jobs:
           for target in arm64-v8a:arm64; do
             abi="${target%%:*}"
             label="${target##*:}"
-            apk="$apk_dir/Mornye-${VERSION}-${label}.apk"
+            apk="$apk_dir/Sistrum-${VERSION}-${label}.apk"
             "$apksigner" sign \
               --ks "$signing_dir/release.jks" \
               --ks-key-alias "$KEY_ALIAS" \
@@ -214,20 +214,20 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts -p 'test_check_backend_apk.py'
           apk_dir=build/app/outputs/flutter-apk
-          python3 scripts/check_backend_apk.py "$apk_dir/Mornye-${VERSION}-arm64.apk" \
+          python3 scripts/check_backend_apk.py "$apk_dir/Sistrum-${VERSION}-arm64.apk" \
             --backend rust --abis arm64-v8a
           for abi in arm64; do
             "$ANDROID_HOME/build-tools/37.0.0/zipalign" -c -P 16 4 \
-              "$apk_dir/Mornye-${VERSION}-${abi}.apk"
+              "$apk_dir/Sistrum-${VERSION}-${abi}.apk"
           done
-          (cd "$apk_dir" && sha256sum Mornye-*.apk > SHA256SUMS.txt)
+          (cd "$apk_dir" && sha256sum Sistrum-*.apk > SHA256SUMS.txt)
 
       - name: Record Android symbol provenance
         run: |
           test -s build/symbols/android/app.android-arm64.symbols
           test -s build/app/outputs/mapping/release/mapping.txt
           git rev-parse HEAD > build/symbols/android/commit.txt
-          sha256sum build/app/outputs/flutter-apk/Mornye-*.apk > build/symbols/android/apk-sha256.txt
+          sha256sum build/app/outputs/flutter-apk/Sistrum-*.apk > build/symbols/android/apk-sha256.txt
 
       - name: Retain Android debug symbols
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -245,8 +245,8 @@ jobs:
           name: android-apk
           if-no-files-found: error
           path: |
-            build/app/outputs/flutter-apk/Mornye-*.apk
-            build/app/outputs/flutter-apk/Mornye-*.apk.idsig
+            build/app/outputs/flutter-apk/Sistrum-*.apk
+            build/app/outputs/flutter-apk/Sistrum-*.apk.idsig
             build/app/outputs/flutter-apk/SHA256SUMS.txt
 
   create-release:
@@ -290,7 +290,7 @@ jobs:
           cd release
           sha256sum --check SHA256SUMS.txt
           rm -f SHA256SUMS.txt
-          sha256sum Mornye-*.apk > SHA256SUMS.txt
+          sha256sum Sistrum-*.apk > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Prepare release body
@@ -319,7 +319,7 @@ jobs:
           ### Downloads
 
           #### Android
-          - **arm64**: \`Mornye-${VERSION}-arm64.apk\` (Android, 64-bit ARM devices)
+          - **arm64**: \`Sistrum-${VERSION}-arm64.apk\` (Android, 64-bit ARM devices)
           - \`*.apk.idsig\`: V4 signatures for \`adb install --incremental\` only; normal installs do not need them
 
           \`SHA256SUMS.txt\` lists the SHA-256 of every file above.
@@ -335,109 +335,10 @@ jobs:
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ needs.get-version.outputs.version }}
-          name: Mornye ${{ needs.get-version.outputs.version }}
+          name: Sistrum ${{ needs.get-version.outputs.version }}
           body_path: /tmp/release_body.txt
           files: ./release/*
           draft: false
           prerelease: ${{ needs.get-version.outputs.is_prerelease == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  notify-telegram:
-    runs-on: ubuntu-latest
-    needs: [get-version, create-release]
-    if: ${{ !cancelled() && needs.create-release.result == 'success' && needs.get-version.outputs.is_prerelease != 'true' }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Download Android APK
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: android-apk
-          path: ./release
-
-      - name: Generate changelog with git-cliff for Telegram
-        uses: orhun/git-cliff-action@a9a95522b26fe6403f7bb24031f21fb573d0f5ff # v4.9.1
-        with:
-          config: cliff.toml
-          args: --latest --strip all
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OUTPUT: /tmp/cliff_tg.txt
-
-      - name: Convert changelog for Telegram
-        id: changelog
-        run: |
-          if [ ! -s /tmp/cliff_tg.txt ]; then
-            echo "See release notes on GitHub for details." > /tmp/changelog.txt
-          else
-            # Convert Markdown to Telegram HTML
-            CHANGELOG=$(cat /tmp/cliff_tg.txt | \
-              sed '/^## [0-9][0-9.[:alpha:]-]*$/d' | \
-              sed '/^\*\*Full Changelog\*\*/d' | \
-              sed 's/ by \[@[^]]*\](https:\/\/github\.com\/[^)]*)//g' | \
-              sed 's/ by @[A-Za-z0-9_-]\+//g' | \
-              sed 's/\[#\([0-9]*\)\]([^)]*)/#\1/g' | \
-              sed 's/\[@\([^]]*\)\]([^)]*)/@\1/g' | \
-              sed 's/&/\&amp;/g' | \
-              sed 's/</\&lt;/g' | \
-              sed 's/>/\&gt;/g' | \
-              sed 's/\*\*\([^*]*\)\*\*/<b>\1<\/b>/g' | \
-              sed 's/^### \(.*\)$/<b>\1<\/b>/g' | \
-              sed 's/^## \(.*\)$/<b>\1<\/b>/g' | \
-              sed 's/^- /• /g')
-
-            # Truncate for Telegram 4096 char limit
-            CHANGELOG=$(echo "$CHANGELOG" | head -c 2500 | sed '$d')
-            echo "$CHANGELOG" > /tmp/changelog.txt
-          fi
-
-          echo "Telegram changelog:"
-          cat /tmp/changelog.txt
-
-      - name: Send to Telegram Channel
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHANNEL_ID: '@mornyeupdates'
-          VERSION: ${{ needs.get-version.outputs.version }}
-          REPOSITORY: ${{ github.repository }}
-        run: |
-          CHANGELOG=$(cat /tmp/changelog.txt)
-
-          ARM64_APK=$(find ./release -name "*arm64*.apk" | head -1)
-
-          # Prepare message with changelog (HTML format)
-          printf '%s\n' \
-            "<b>Mornye ${VERSION} Released!</b>" \
-            "" \
-            "<b>What's New:</b>" \
-            "${CHANGELOG}" \
-            "" \
-            "<a href=\"https://github.com/${REPOSITORY}/releases/tag/${VERSION}\">View Release Notes</a>" \
-            > /tmp/telegram_message.txt
-
-          MESSAGE=$(cat /tmp/telegram_message.txt)
-
-          # Send message first (using HTML parse mode)
-          # Use --data-urlencode for proper encoding of special chars (+, &, etc.)
-          # Use || true to ensure file uploads continue even if message fails
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHANNEL_ID}" \
-            --data-urlencode "text=${MESSAGE}" \
-            --data-urlencode "parse_mode=HTML" \
-            --data-urlencode "disable_web_page_preview=true" || true
-
-          if [ -f "$ARM64_APK" ]; then
-            echo "Uploading arm64 APK to Telegram..."
-            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
-              -F chat_id="${TELEGRAM_CHANNEL_ID}" \
-              -F document=@"${ARM64_APK}" \
-              -F caption="Mornye ${VERSION} - arm64 (recommended)"
-          fi
-
-
-          echo "Telegram notification sent!"

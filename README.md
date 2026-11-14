@@ -32,21 +32,6 @@
   </a>
 </p>
 
-<p align="center">
-  <a href="https://t.me/mornyeupdates">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/badge-telegram-channel-dark.svg">
-      <img alt="Telegram channel" src="assets/readme/badges/badge-telegram-channel-light.svg" height="56">
-    </picture>
-  </a>
-  <a href="https://t.me/mornyecommunity">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/badge-telegram-community-dark.svg">
-      <img alt="Telegram community" src="assets/readme/badges/badge-telegram-community-light.svg" height="56">
-    </picture>
-  </a>
-</p>
-
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-screenshots-dark.svg"><img src="assets/readme/sections/section-screenshots-light.svg" height="32" align="top" alt=""></picture> Screenshots
 
 <picture>

@@ -7,13 +7,11 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/download_settings_page.dart';
-import 'package:sistrum/services/app_remote_config_service.dart';
 import 'package:sistrum/services/update_checker.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/material_symbols.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_announcement_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -563,46 +561,5 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
-
-    testWidgets('announcement keeps explicit dismissal (Sistrum: $mornye)', (
-      tester,
-    ) async {
-      var dismissals = 0;
-      await tester.pumpWidget(
-        _app(
-          mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-          Builder(
-            builder: (context) => Scaffold(
-              body: TextButton(
-                child: const Text('Open notice'),
-                onPressed: () => showAppAnnouncementDialog(
-                  context,
-                  announcement: const RemoteAnnouncement(
-                    id: 'notice',
-                    enabled: true,
-                    title: 'Service notice',
-                    message: 'An announcement without an external action.',
-                    dismissible: false,
-                  ),
-                  onDismiss: () => dismissals++,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('Open notice'));
-      await tester.pumpAndSettle();
-      await tester.tapAt(const Offset(5, 5));
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Service notice'), findsOneWidget);
-      expect(dismissals, 0);
-      await tester.tap(find.byTooltip('Close'));
-      await tester.pumpAndSettle();
-      expect(find.text('Service notice'), findsNothing);
-      expect(dismissals, 1);
-      expect(tester.takeException(), isNull);
-    });
   }
 }

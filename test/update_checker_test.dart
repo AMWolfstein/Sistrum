@@ -142,6 +142,27 @@ void main() {
     expect(update?.noCompatibleApk, isTrue);
   });
 
+  test('0.1.0 is offered a 1.0.0 release from AMWolfstein/Sistrum', () async {
+    final requested = <Uri>[];
+    final checker = UpdateChecker(
+      installedVersion: '0.1.0',
+      client: MockClient((request) async {
+        requested.add(request.url);
+        return http.Response(
+          jsonEncode([release('1.0.0'), release('0.1.0')]),
+          200,
+        );
+      }),
+    );
+
+    final update = await checker.checkForUpdate();
+    expect(requested.single.host, 'api.github.com');
+    expect(requested.single.path, '/repos/AMWolfstein/Sistrum/releases');
+    expect(update?.version, '1.0.0');
+    expect(update?.apkDownloadUrl, endsWith('v1.0.0-arm64.apk'));
+    expect(update?.releasesBehind, 1);
+  });
+
   test('discovers Sistrum release assets after the app rename', () async {
     final renamedRelease = release('5.2.1')
       ..['assets'] = [

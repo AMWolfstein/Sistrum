@@ -108,7 +108,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     shows only theme identifiers and T008 identifiers.
   - Dependencies: M002-T002.
 
-- [ ] M002-T004 Point updates to AMWolfstein/Sistrum and drop upstream services
+- [x] M002-T004 Point updates to AMWolfstein/Sistrum and drop upstream services
   - Start: refresh the map; query `AppRemoteConfigService`, `DonatePage`,
     `WhatsNewScreen`, `UpdateChecker`.
   - Acceptance: FR-007, FR-008. `AppInfo.githubRepo = 'AMWolfstein/Sistrum'`;

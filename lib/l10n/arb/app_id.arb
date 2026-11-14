@@ -872,15 +872,6 @@
   "setupNearbyDescription": "Penyimpanan jaringan memerlukannya untuk menjangkau server di rumah.",
   "setupNearbyGranted": "Perangkat di Sekitar Diizinkan!",
   "permissionNearbyDevices": "Perangkat di sekitar",
-  "whatsNewNearbyAllow": "Izinkan perangkat di sekitar",
-  "whatsNewNearbyGranted": "Perangkat di sekitar diizinkan",
-  "whatsNewNearbyTitle": "Perangkat di sekitar",
-  "whatsNewNearbyDesc": "Android kini meminta izin sebelum aplikasi bisa menjangkau perangkat lain di jaringanmu. Sistrum memerlukannya untuk:",
-  "whatsNewNearbyStorageTitle": "Penyimpanan jaringan",
-  "whatsNewNearbyStorageBody": "Putar musik dari NAS atau server di rumah lewat SMB atau WebDAV.",
-  "whatsNewNearbyPrivateTitle": "Hanya perangkatmu sendiri",
-  "whatsNewNearbyPrivateBody": "Sistrum memakainya hanya untuk menjangkau perangkat di jaringanmu, tidak pernah untuk mengetahui lokasimu.",
-  "whatsNewNearbyRefused": "Tidak diizinkan. penyimpanan jaringan tidak aktif sampai kamu mengizinkan Perangkat di sekitar untuk Sistrum di pengaturan Android.",
   "setupNext": "Lanjut",
   "@setupNext": {
     "description": "Next button text"
@@ -3226,48 +3217,6 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Sistrum {version} sudah hadir",
-  "whatsNewIntroDesc": "Pembaruan terbesar kami sejauh ini. Ini sekilas yang baru.",
-  "whatsNewHomeTitle": "Beranda yang belajar",
-  "whatsNewHomeDesc": "Mix dan autoplay kini mengikuti caramu mendengarkan.",
-  "whatsNewHomeMixesTitle": "Mix dari Koleksi",
-  "whatsNewHomeMixesBody": "Mix baru dari lagu milikmu sendiri, termasuk mix untuk tiap genre.",
-  "whatsNewHomeAutoplayTitle": "Autoplay lebih pintar",
-  "whatsNewHomeAutoplayBody": "Autoplay mengikuti sesi mendengarmu dan belajar dari favorit, playlist, dan lagu yang kamu ulang.",
-  "whatsNewHomeAnalysisTitle": "Analisis lagu",
-  "whatsNewHomeAnalysisBody": "Sistrum bisa menganalisis karakter suara lagumu untuk pilihan yang lebih pas. Fitur ini mati sampai kamu menyalakannya di Setelan.",
-  "whatsNewPlayerTitle": "Pemutar dan lirik",
-  "whatsNewPlayerDesc": "Pemutaran lebih mulus, dan lirik dalam bahasa apa pun.",
-  "whatsNewPlayerGaplessTitle": "Pemutaran tanpa jeda",
-  "whatsNewPlayerGaplessBody": "Album mengalir dari satu lagu ke lagu berikutnya tanpa jeda.",
-  "whatsNewPlayerTranslateTitle": "Terjemahkan lirik",
-  "whatsNewPlayerTranslateBody": "Terjemahkan atau romanisasi lirik dengan penyedia AI yang kamu atur.",
-  "whatsNewPlayerTimingTitle": "Waktu lirik",
-  "whatsNewPlayerTimingBody": "Majukan atau mundurkan lirik sinkron saat tidak pas dengan lagu.",
-  "whatsNewPlayerAutoTitle": "Android Auto",
-  "whatsNewPlayerAutoBody": "Jelajahi dan putar Koleksi dari layar mobil.",
-  "whatsNewLibraryTitle": "Koleksi dan pencarian",
-  "whatsNewLibraryDesc": "Cara baru untuk menemukan dan mengatur musikmu.",
-  "whatsNewLibraryFoldersTitle": "Jelajahi per folder",
-  "whatsNewLibraryFoldersBody": "Lihat Koleksi sesuai susunan foldernya di penyimpanan.",
-  "whatsNewLibrarySuggestionsTitle": "Saran lagu",
-  "whatsNewLibrarySuggestionsBody": "Album, single, dan playlist kini menyarankan lagu yang cocok.",
-  "whatsNewLibraryRecognizeTitle": "Kenali musik",
-  "whatsNewLibraryRecognizeBody": "Ketuk mikrofon di kolom pencarian untuk tahu lagu yang sedang diputar di sekitarmu.",
-  "whatsNewLibraryPlaylistsTitle": "Playlist lebih baik",
-  "whatsNewLibraryPlaylistsBody": "Urutkan ulang lagu, buat playlist dari folder, atau impor file playlist.",
-  "whatsNewFasterTitle": "Lebih cepat di mana-mana",
-  "whatsNewFasterDesc": "Lebih cepat dan ringan, terutama untuk koleksi besar.",
-  "whatsNewFasterLibraryTitle": "Koleksi lebih cepat",
-  "whatsNewFasterLibraryBody": "Tab dan album terbuka lebih cepat, dan scroll tetap mulus.",
-  "whatsNewFasterNetworkTitle": "Musik jaringan lebih cepat",
-  "whatsNewFasterNetworkBody": "Folder jaringan dipindai jauh lebih cepat, dan server Subsonic tersinkron dengan permintaan yang jauh lebih sedikit.",
-  "whatsNewFasterQueueTitle": "Antrean panjang tetap aman",
-  "whatsNewFasterQueueBody": "Antrean besar tersimpan cepat dan kembali setelah aplikasi dibuka ulang.",
-  "whatsNewFasterBackgroundTitle": "Lebih ringan di latar belakang",
-  "whatsNewFasterBackgroundBody": "Aplikasi terbuka lebih cepat dan bekerja lebih sedikit saat musik diputar.",
-  "whatsNewDone": "Mulai mendengarkan",
-  "whatsNewAboutTitle": "Yang baru di {version}",
   "libraryForceFullScan": "Paksa Pindai Ulang",
   "@libraryForceFullScan": {
     "description": "Button to force a complete rescan of library"
@@ -4312,14 +4261,6 @@
   "safMigrationSuccess": "Folder download diupdate ke mode SAF",
   "@safMigrationSuccess": {
     "description": "Snackbar after successfully migrating to SAF"
-  },
-  "settingsDonate": "Dukung Kami",
-  "@settingsDonate": {
-    "description": "Settings menu item - donate page"
-  },
-  "settingsDonateSubtitle": "Belikan developer kami kopi",
-  "@settingsDonateSubtitle": {
-    "description": "Subtitle for donate menu item"
   },
   "settingsBackup": "Cadangan & Pemulihan",
   "@settingsBackup": {

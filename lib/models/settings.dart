@@ -213,10 +213,6 @@ class AppSettings {
 
   final bool hasCompletedTutorial;
 
-  /// The last `AppInfo.whatsNewRelease` tour shown or skipped. New installs
-  /// mark the current one at setup, so only updates show the tour.
-  final String whatsNewSeen;
-
   final List<String> lyricsProviders;
   final bool
   lyricsIncludeTranslationNetease; // Append translated lyrics (Netease)
@@ -367,7 +363,6 @@ class AppSettings {
     this.localLibraryShowDuplicates = true,
     this.localLibraryAutoScan = 'off',
     this.hasCompletedTutorial = false,
-    this.whatsNewSeen = '',
     this.lyricsProviders = const [
       'apple_music',
       'lrcred',
@@ -518,7 +513,6 @@ class AppSettings {
     bool? localLibraryShowDuplicates,
     String? localLibraryAutoScan,
     bool? hasCompletedTutorial,
-    String? whatsNewSeen,
     List<String>? lyricsProviders,
     bool? lyricsIncludeTranslationNetease,
     bool? lyricsIncludeRomanizationNetease,
@@ -674,7 +668,6 @@ class AppSettings {
           localLibraryShowDuplicates ?? this.localLibraryShowDuplicates,
       localLibraryAutoScan: localLibraryAutoScan ?? this.localLibraryAutoScan,
       hasCompletedTutorial: hasCompletedTutorial ?? this.hasCompletedTutorial,
-      whatsNewSeen: whatsNewSeen ?? this.whatsNewSeen,
       lyricsProviders: lyricsProviders ?? this.lyricsProviders,
       lyricsIncludeTranslationNetease:
           lyricsIncludeTranslationNetease ??

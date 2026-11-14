@@ -120,26 +120,6 @@ extension _MainShellStartupPrompts on _MainShellState {
     return true;
   }
 
-  Future<void> _checkAppAnnouncement() async {
-    if (_hasCheckedAppAnnouncement) return;
-    _hasCheckedAppAnnouncement = true;
-
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final remoteConfigService = AppRemoteConfigService();
-    final announcement = await remoteConfigService.fetchActiveAnnouncement(
-      locale: locale,
-    );
-    if (announcement == null || !mounted) return;
-
-    showAppAnnouncementDialog(
-      context,
-      announcement: announcement,
-      onDismiss: () {
-        remoteConfigService.markAnnouncementDismissed(announcement.id);
-      },
-    );
-  }
-
   static const _safMigrationPromptStore = SafMigrationPromptStore();
 
   Future<void> _checkSafMigration() async {

@@ -897,42 +897,6 @@
   "@permissionNearbyDevices": {
     "description": "Nearby devices permission type label; use Android's name for this permission"
   },
-  "whatsNewNearbyAllow": "Дозволити пристрої поблизу",
-  "@whatsNewNearbyAllow": {
-    "description": "Main button on the Nearby devices page of the What's New tour that asks for Android's Nearby devices permission"
-  },
-  "whatsNewNearbyGranted": "Пристрої поблизу дозволено",
-  "@whatsNewNearbyGranted": {
-    "description": "Shown on the Nearby devices page of the What's New tour after the Nearby devices permission is granted"
-  },
-  "whatsNewNearbyTitle": "Пристрої поблизу",
-  "@whatsNewNearbyTitle": {
-    "description": "Title of the What's New page that asks for Android's Nearby devices permission; use Android's name for this permission"
-  },
-  "whatsNewNearbyDesc": "Тепер Android запитує дозвіл перед тим, як додаток зможе отримати доступ до інших пристроїв у вашій мережі. Програмі Sistrum це потрібно для:",
-  "@whatsNewNearbyDesc": {
-    "description": "Description on the Nearby devices page of the What's New tour, followed by a list of uses"
-  },
-  "whatsNewNearbyStorageTitle": "Мережеве сховище",
-  "@whatsNewNearbyStorageTitle": {
-    "description": "Use of the Nearby devices permission: SMB and WebDAV servers at home"
-  },
-  "whatsNewNearbyStorageBody": "Відтворюйте музику з NAS або домашнього сервера через SMB чи WebDAV.",
-  "@whatsNewNearbyStorageBody": {
-    "description": "Explains how network storage uses the Nearby devices permission"
-  },
-  "whatsNewNearbyPrivateTitle": "Лише власні пристрої",
-  "@whatsNewNearbyPrivateTitle": {
-    "description": "Reassurance on the Nearby devices page of the What's New tour"
-  },
-  "whatsNewNearbyPrivateBody": "Sistrum використовує цей дозвіл лише для зв’язку з пристроями у вашій мережі й ніколи не визначає ваше місцеположення.",
-  "@whatsNewNearbyPrivateBody": {
-    "description": "Explains that the Nearby devices permission is not used for location"
-  },
-  "whatsNewNearbyRefused": "Доступ заборонено. мережеве сховище залишатимуться вимкненими, доки ви не дозволите доступ до пристроїв поблизу для Sistrum в налаштуваннях Android.",
-  "@whatsNewNearbyRefused": {
-    "description": "Shown on the Nearby devices page of the What's New tour after the permission is refused"
-  },
   "setupNext": "Далі",
   "@setupNext": {
     "description": "Next button text"
@@ -3294,67 +3258,6 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Sistrum {version} вже тут",
-  "@whatsNewIntroTitle": {
-    "description": "First page of the tour shown once after updating; version is like 5.3",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "whatsNewIntroDesc": "Наше найбільше оновлення! Ось короткий огляд того, що нового.",
-  "whatsNewHomeTitle": "Головна Сторінка, що вчиться",
-  "whatsNewHomeDesc": "Мікси та автовідтворення тепер підлаштовуються під те, як ви насправді слухаєте музику.",
-  "whatsNewHomeMixesTitle": "Мікси з вашої бібліотеки",
-  "whatsNewHomeMixesBody": "Нові мікси, створені на основі ваших власних пісень, зокрема окремий мікс для кожного жанру.",
-  "whatsNewHomeAutoplayTitle": "Розумніше автовідтворення",
-  "whatsNewHomeAutoplayBody": "Автовідтворення підлаштовується під вашу поточну сесію та вчиться на основі улюблених треків, списків відтворення і повторів.",
-  "whatsNewHomeAnalysisTitle": "Аналіз пісні",
-  "whatsNewHomeAnalysisBody": "Sistrum може аналізувати звучання ваших пісень для точнішого підбору схожої музики. Функція вимкнена, поки ви не увімкнете її в Налаштуваннях.",
-  "whatsNewPlayerTitle": "Програвач і тексти пісень",
-  "whatsNewPlayerDesc": "Плавне відтворення, та тексти пісень усіма мовами.",
-  "whatsNewPlayerGaplessTitle": "Відтворення без пауз",
-  "whatsNewPlayerGaplessBody": "Пісні в альбомах відтворюються безперервно, плавно переходячи від однієї до наступної без пауз.",
-  "whatsNewPlayerTranslateTitle": "Переклад тексту пісні",
-  "whatsNewPlayerTranslateBody": "Перекладайте або романізуйте тексти пісень за допомогою налаштованого вами ШІ-провайдера.",
-  "whatsNewPlayerTimingTitle": "Таймінг тексту",
-  "whatsNewPlayerTimingBody": "Зсувайте синхронізований текст вперед або назад, якщо він розбігається з піснею.",
-  "whatsNewPlayerAutoTitle": "Android Auto",
-  "whatsNewPlayerAutoBody": "Browse and play your Library from your car's screen.",
-  "whatsNewLibraryTitle": "Library and search",
-  "whatsNewLibraryDesc": "New ways to find and organize your music.",
-  "whatsNewLibraryFoldersTitle": "Browse by folder",
-  "whatsNewLibraryFoldersBody": "Explore your Library the way it's stored on disk.",
-  "whatsNewLibrarySuggestionsTitle": "Suggested songs",
-  "whatsNewLibrarySuggestionsBody": "Albums, singles and playlists now suggest songs that fit.",
-  "whatsNewLibraryRecognizeTitle": "Recognize music",
-  "whatsNewLibraryRecognizeBody": "Tap the microphone in Search to find out what's playing nearby.",
-  "whatsNewLibraryPlaylistsTitle": "Better playlists",
-  "whatsNewLibraryPlaylistsBody": "Reorder songs, create a playlist from a folder, or import playlist files.",
-  "whatsNewFasterTitle": "Faster everywhere",
-  "whatsNewFasterDesc": "Quicker and lighter, especially with large libraries.",
-  "whatsNewFasterLibraryTitle": "A quicker Library",
-  "whatsNewFasterLibraryBody": "Tabs and albums open faster, and scrolling stays smooth.",
-  "whatsNewFasterNetworkTitle": "Faster network music",
-  "whatsNewFasterNetworkBody": "Network shares scan many times faster, and Subsonic servers sync with far fewer requests.",
-  "whatsNewFasterQueueTitle": "Long queues that last",
-  "whatsNewFasterQueueBody": "Large queues save quickly and come back after a restart.",
-  "whatsNewFasterBackgroundTitle": "Lighter in the background",
-  "whatsNewFasterBackgroundBody": "The app starts faster and does less work while music plays.",
-  "whatsNewDone": "Start listening",
-  "@whatsNewDone": {
-    "description": "Button on the last page of the What's New tour"
-  },
-  "whatsNewAboutTitle": "What's new in {version}",
-  "@whatsNewAboutTitle": {
-    "description": "About page row that reopens the What's New tour; version is like 5.3",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "libraryForceFullScan": "Примусове повне сканування",
   "@libraryForceFullScan": {
     "description": "Button to force a complete rescan of library"
@@ -4390,14 +4293,6 @@
   "safMigrationSuccess": "Тека завантажень оновлено до режиму SAF",
   "@safMigrationSuccess": {
     "description": "Snackbar after successfully migrating to SAF"
-  },
-  "settingsDonate": "Підтримати розробника",
-  "@settingsDonate": {
-    "description": "Settings menu item - donate page"
-  },
-  "settingsDonateSubtitle": "Пригостіть розробника кавою",
-  "@settingsDonateSubtitle": {
-    "description": "Subtitle for donate menu item"
   },
   "settingsBackup": "Резервування та відновлення",
   "@settingsBackup": {

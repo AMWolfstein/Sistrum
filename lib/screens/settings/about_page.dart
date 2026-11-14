@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/screens/whats_new_screen.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
-import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
@@ -133,18 +131,6 @@ class AboutPage extends StatelessWidget {
                   title: context.l10n.aboutVersion,
                   subtitle:
                       'v${AppInfo.displayVersion} (build ${AppInfo.buildNumber})',
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.new_releases,
-                  title: context.l10n.whatsNewAboutTitle(
-                    AppInfo.whatsNewRelease,
-                  ),
-                  // Above the shell, as it shows after an update.
-                  onTap: () => Navigator.of(
-                    context,
-                    rootNavigator: true,
-                  ).push(slidePageRoute<void>(page: const WhatsNewScreen())),
                   showDivider: true,
                 ),
                 _AboutSettingsItem(

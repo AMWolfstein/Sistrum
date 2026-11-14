@@ -31,9 +31,7 @@ import 'package:sistrum/services/share_intent_service.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/notification_service.dart';
-import 'package:sistrum/services/app_remote_config_service.dart';
 import 'package:sistrum/services/update_checker.dart';
-import 'package:sistrum/widgets/app_announcement_dialog.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/download_queue_feedback.dart';
 import 'package:sistrum/widgets/update_dialog.dart';
@@ -125,7 +123,6 @@ class _MainShellState extends ConsumerState<MainShell>
     end: 1,
   ).animate(_tabJumpOpacity);
   bool _hasCheckedUpdate = false;
-  bool _hasCheckedAppAnnouncement = false;
   bool _initialSafRepairComplete = false;
   bool _safRepairDialogVisible = false;
   bool _usbVolumeWarningShown = false;
@@ -251,10 +248,7 @@ class _MainShellState extends ConsumerState<MainShell>
       _setupShareListener();
       await _checkSafMigration();
       if (!mounted) return;
-      final updateDialogShown = await _checkForUpdates();
-      if (!updateDialogShown) {
-        await _checkAppAnnouncement();
-      }
+      await _checkForUpdates();
     });
   }
 

@@ -897,42 +897,6 @@
   "@permissionNearbyDevices": {
     "description": "Nearby devices permission type label; use Android's name for this permission"
   },
-  "whatsNewNearbyAllow": "Cho phép thiết bị lân cận",
-  "@whatsNewNearbyAllow": {
-    "description": "Main button on the Nearby devices page of the What's New tour that asks for Android's Nearby devices permission"
-  },
-  "whatsNewNearbyGranted": "Cho phép các thiết bị lân cận",
-  "@whatsNewNearbyGranted": {
-    "description": "Shown on the Nearby devices page of the What's New tour after the Nearby devices permission is granted"
-  },
-  "whatsNewNearbyTitle": "Các thiết bị lân cận",
-  "@whatsNewNearbyTitle": {
-    "description": "Title of the What's New page that asks for Android's Nearby devices permission; use Android's name for this permission"
-  },
-  "whatsNewNearbyDesc": "Android sẽ hỏi trước khi cho phép một ứng dụng truy cập các thiết bị khác trong mạng của bạn. Sistrum cần quyền này để:",
-  "@whatsNewNearbyDesc": {
-    "description": "Description on the Nearby devices page of the What's New tour, followed by a list of uses"
-  },
-  "whatsNewNearbyStorageTitle": "Lưu trữ mạng",
-  "@whatsNewNearbyStorageTitle": {
-    "description": "Use of the Nearby devices permission: SMB and WebDAV servers at home"
-  },
-  "whatsNewNearbyStorageBody": "Phát nhạc từ NAS hoặc máy chủ tại nhà qua SMB hoặc WebDAV.",
-  "@whatsNewNearbyStorageBody": {
-    "description": "Explains how network storage uses the Nearby devices permission"
-  },
-  "whatsNewNearbyPrivateTitle": "Chỉ các thiết bị của riêng bạn",
-  "@whatsNewNearbyPrivateTitle": {
-    "description": "Reassurance on the Nearby devices page of the What's New tour"
-  },
-  "whatsNewNearbyPrivateBody": "Sistrum chỉ dùng tính năng này để kết nối với các thiết bị trên mạng của bạn, chứ không bao giờ để tìm vị trí của bạn.",
-  "@whatsNewNearbyPrivateBody": {
-    "description": "Explains that the Nearby devices permission is not used for location"
-  },
-  "whatsNewNearbyRefused": "Không được phép. tính năng lưu trữ mạng vẫn tắt cho đến khi bạn cho phép thiết bị lân cận cho Sistrum trong cài đặt Android.",
-  "@whatsNewNearbyRefused": {
-    "description": "Shown on the Nearby devices page of the What's New tour after the permission is refused"
-  },
   "setupNext": "Tiếp theo",
   "@setupNext": {
     "description": "Next button text"
@@ -3294,67 +3258,6 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Sistrum phiên bản {version} đã có",
-  "@whatsNewIntroTitle": {
-    "description": "First page of the tour shown once after updating; version is like 5.3",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "whatsNewIntroDesc": "Bản cập nhật lớn nhất từ trước đến nay của chúng tôi. Dưới đây là cái nhìn nhanh về những điểm mới.",
-  "whatsNewHomeTitle": "Trang chủ tự học hỏi theo thói quen",
-  "whatsNewHomeDesc": "Các bản hòa âm và tính năng tự động phát giờ đây sẽ tuân theo cách bạn thực sự nghe nhạc.",
-  "whatsNewHomeMixesTitle": "Bản hòa âm từ Thư viện của bạn",
-  "whatsNewHomeMixesBody": "Các bản hòa âm mới được tạo từ chính các bài hát của bạn, bao gồm một bản hòa âm cho từng thể loại.",
-  "whatsNewHomeAutoplayTitle": "Tự động phát thông minh hơn",
-  "whatsNewHomeAutoplayBody": "Tính năng tự động phát bám sát phiên nghe nhạc của bạn và học hỏi từ các bài hát yêu thích, danh sách phát cũng như các lượt phát lại.",
-  "whatsNewHomeAnalysisTitle": "Phân tích bài hát",
-  "whatsNewHomeAnalysisBody": "Sistrum có thể phân tích âm thanh của các bài hát để đưa ra lựa chọn phù hợp hơn. Tính năng này sẽ tắt cho đến khi bạn bật nó trong phần Cài đặt.",
-  "whatsNewPlayerTitle": "Trình phát và lời bài hát",
-  "whatsNewPlayerDesc": "Phát nhạc mượt mà hơn và hiển thị lời bài hát bằng bất kỳ ngôn ngữ nào.",
-  "whatsNewPlayerGaplessTitle": "Phát liền mạch",
-  "whatsNewPlayerGaplessBody": "Các album phát liền mạch từ bài hát này sang bài hát tiếp theo mà không có khoảng dừng.",
-  "whatsNewPlayerTranslateTitle": "Dịch lời bài hát",
-  "whatsNewPlayerTranslateBody": "Sử dụng nhà cung cấp AI do bạn thiết lập để dịch hoặc phiên âm lời bài hát.",
-  "whatsNewPlayerTimingTitle": "Căn chỉnh lời bài hát",
-  "whatsNewPlayerTimingBody": "Điều chỉnh lời bài hát đồng bộ sớm hơn hoặc muộn hơn khi bị lệch so với bài hát.",
-  "whatsNewPlayerAutoTitle": "Android Auto",
-  "whatsNewPlayerAutoBody": "Duyệt và phát nhạc từ Thư viện của bạn ngay trên màn hình xe hơi.",
-  "whatsNewLibraryTitle": "Thư viện và tìm kiếm",
-  "whatsNewLibraryDesc": "Những cách mới để tìm kiếm và tổ chức nhạc của bạn.",
-  "whatsNewLibraryFoldersTitle": "Duyệt theo thư mục",
-  "whatsNewLibraryFoldersBody": "Khám phá Thư viện theo đúng cấu trúc lưu trữ trên đĩa.",
-  "whatsNewLibrarySuggestionsTitle": "Gợi ý bài hát",
-  "whatsNewLibrarySuggestionsBody": "Các album, đĩa đơn và danh sách phát giờ đây sẽ gợi ý những bài hát phù hợp.",
-  "whatsNewLibraryRecognizeTitle": "Nhận diện bài hát",
-  "whatsNewLibraryRecognizeBody": "Chạm vào biểu tượng micro trong mục Tìm kiếm để nhận diện bài hát đang phát xung quanh.",
-  "whatsNewLibraryPlaylistsTitle": "Danh sách phát tốt hơn",
-  "whatsNewLibraryPlaylistsBody": "Sắp xếp lại bài hát, tạo danh sách phát từ thư mục hoặc nhập tệp danh sách phát.",
-  "whatsNewFasterTitle": "Mọi thứ nhanh hơn",
-  "whatsNewFasterDesc": "Nhanh hơn và nhẹ nhàng hơn, đặc biệt là với các thư viện lớn.",
-  "whatsNewFasterLibraryTitle": "Thư viện nhanh hơn",
-  "whatsNewFasterLibraryBody": "Các thẻ và album mở nhanh hơn, cuộn trang luôn mượt mà.",
-  "whatsNewFasterNetworkTitle": "Phát nhạc qua mạng nhanh hơn",
-  "whatsNewFasterNetworkBody": "Chia sẻ mạng quét nhanh hơn nhiều và máy chủ Subsonic đồng bộ hóa với số lượng yêu cầu ít hơn hẳn.",
-  "whatsNewFasterQueueTitle": "Hàng chờ lớn lưu trữ bền vững",
-  "whatsNewFasterQueueBody": "Hàng chờ lớn lưu nhanh chóng và khôi phục lại sau khi khởi động lại.",
-  "whatsNewFasterBackgroundTitle": "Ít tốn tài nguyên hơn khi chạy nền",
-  "whatsNewFasterBackgroundBody": "Ứng dụng khởi động nhanh hơn và hoạt động nhẹ nhàng hơn khi đang phát nhạc.",
-  "whatsNewDone": "Bắt đầu nghe nhạc",
-  "@whatsNewDone": {
-    "description": "Button on the last page of the What's New tour"
-  },
-  "whatsNewAboutTitle": "Có gì mới trong v{version}",
-  "@whatsNewAboutTitle": {
-    "description": "About page row that reopens the What's New tour; version is like 5.3",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "libraryForceFullScan": "Buộc quét lại toàn bộ",
   "@libraryForceFullScan": {
     "description": "Button to force a complete rescan of library"
@@ -4390,14 +4293,6 @@
   "safMigrationSuccess": "Đã cập nhật thư mục tải về sang chế độ SAF",
   "@safMigrationSuccess": {
     "description": "Snackbar after successfully migrating to SAF"
-  },
-  "settingsDonate": "Ủng hộ nhà phát triển",
-  "@settingsDonate": {
-    "description": "Settings menu item - donate page"
-  },
-  "settingsDonateSubtitle": "Mời nhà phát triển một ly cà phê",
-  "@settingsDonateSubtitle": {
-    "description": "Subtitle for donate menu item"
   },
   "settingsBackup": "Sao lưu & Khôi phục",
   "@settingsBackup": {

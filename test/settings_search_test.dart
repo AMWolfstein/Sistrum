@@ -1,19 +1,12 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/screens/settings/about_page.dart';
 import 'package:sistrum/screens/settings/settings_tab.dart';
-import 'package:sistrum/services/app_remote_config_service.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
 void main() {
@@ -23,7 +16,6 @@ void main() {
 
   Future<void> pumpSettings(
     WidgetTester tester, {
-    AppRemoteConfigService? service,
     ThemeData? theme,
   }) async {
     await tester.pumpWidget(
@@ -33,99 +25,12 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: SettingsTab(
-              remoteConfigService:
-                  service ??
-                  AppRemoteConfigService(
-                    client: MockClient((_) async => http.Response('{}', 200)),
-                  ),
-            ),
+            body: SettingsTab(),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
-  }
-
-  Map<String, Object?> goalConfig({
-    double progress = 0.09,
-    bool active = true,
-    bool percentage = true,
-  }) => {
-    'donate': {
-      'monthly_goal': {
-        'enabled': true,
-        'active': active,
-        'progress_ratio': progress,
-        'progress_percent': progress * 100,
-        'display': {'percentage': percentage},
-      },
-    },
-  };
-
-  for (final mornye in [false, true]) {
-    testWidgets('support row updates cached progress after refresh ($mornye)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({
-        'app_remote_config_cached_json': jsonEncode(goalConfig()),
-      });
-      final response = Completer<http.Response>();
-      final service = AppRemoteConfigService(
-        client: MockClient((_) => response.future),
-      );
-      await pumpSettings(
-        tester,
-        service: service,
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
-      );
-      final support = find.byWidgetPredicate(
-        (widget) =>
-            widget is SettingsItem && widget.title == 'Support Development',
-      );
-      final progress = find.descendant(
-        of: support,
-        matching: find.byType(AppProgressIndicator),
-      );
-      expect(
-        find.descendant(of: support, matching: find.text('9%')),
-        findsOneWidget,
-      );
-      expect(tester.widget<AppProgressIndicator>(progress).value, 0.09);
-
-      response.complete(
-        http.Response(jsonEncode(goalConfig(progress: 0.27)), 200),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.descendant(of: support, matching: find.text('27%')),
-        findsOneWidget,
-      );
-      expect(tester.widget<AppProgressIndicator>(progress).value, 0.27);
-      expect(find.text('9%'), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  for (final active in [false, true]) {
-    testWidgets('support row respects active and percentage flags ($active)', (
-      tester,
-    ) async {
-      final service = AppRemoteConfigService(
-        client: MockClient(
-          (_) async => http.Response(
-            jsonEncode(goalConfig(active: active, percentage: false)),
-            200,
-          ),
-        ),
-      );
-      await pumpSettings(tester, service: service);
-      expect(find.text('9%'), findsNothing);
-      expect(
-        find.byType(AppProgressIndicator),
-        active ? findsOneWidget : findsNothing,
-      );
-    });
   }
 
   testWidgets('finds controls nested inside a settings page', (tester) async {

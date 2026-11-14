@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 10,
+  "next_completion": 11,
   "next_mission": 3,
   "next_tor": 8,
   "tasks": {
@@ -136,13 +136,19 @@
       "title": "Rename the app, version, description and copyright"
     },
     "M002-T004": {
-      "completion": null,
+      "completion": 10,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test +4450 ~10 all passed exit 0 (update and touched files re-run after round-1 fixes: 18 update tests, settings_search and adaptive_overlay 34 passed); review round 1 NEEDS_FIXES (Ko-fi icon file, blank-line spots, deferred residual notes) fixed; round 2 NEEDS_FIXES (log notes) fixed; round 3 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "100b195ca10646cd84fbf953b9df278a",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Point updates to AMWolfstein/Sistrum and drop upstream services"
     },
     "M002-T005": {

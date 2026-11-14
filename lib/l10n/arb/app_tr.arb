@@ -897,42 +897,6 @@
   "@permissionNearbyDevices": {
     "description": "Nearby devices permission type label; use Android's name for this permission"
   },
-  "whatsNewNearbyAllow": "Yakındaki cihazlara izin ver",
-  "@whatsNewNearbyAllow": {
-    "description": "Main button on the Nearby devices page of the What's New tour that asks for Android's Nearby devices permission"
-  },
-  "whatsNewNearbyGranted": "Yakındaki cihazlara izin verildi",
-  "@whatsNewNearbyGranted": {
-    "description": "Shown on the Nearby devices page of the What's New tour after the Nearby devices permission is granted"
-  },
-  "whatsNewNearbyTitle": "Yakındaki cihazlar",
-  "@whatsNewNearbyTitle": {
-    "description": "Title of the What's New page that asks for Android's Nearby devices permission; use Android's name for this permission"
-  },
-  "whatsNewNearbyDesc": "Android artık bir uygulama ağınızdaki diğer cihazlara erişmeden önce izin istiyor. Sistrum buna şunlar için ihtiyaç duyar:",
-  "@whatsNewNearbyDesc": {
-    "description": "Description on the Nearby devices page of the What's New tour, followed by a list of uses"
-  },
-  "whatsNewNearbyStorageTitle": "Ağ depolaması",
-  "@whatsNewNearbyStorageTitle": {
-    "description": "Use of the Nearby devices permission: SMB and WebDAV servers at home"
-  },
-  "whatsNewNearbyStorageBody": "Evdeki bir NAS veya sunucudan SMB ya da WebDAV üzerinden müzik çalın.",
-  "@whatsNewNearbyStorageBody": {
-    "description": "Explains how network storage uses the Nearby devices permission"
-  },
-  "whatsNewNearbyPrivateTitle": "Yalnızca kendi cihazlarınız",
-  "@whatsNewNearbyPrivateTitle": {
-    "description": "Reassurance on the Nearby devices page of the What's New tour"
-  },
-  "whatsNewNearbyPrivateBody": "Sistrum bunu yalnızca ağınızdaki cihazlara ulaşmak için kullanır, konumunuzu bulmak için asla.",
-  "@whatsNewNearbyPrivateBody": {
-    "description": "Explains that the Nearby devices permission is not used for location"
-  },
-  "whatsNewNearbyRefused": "İzin verilmedi. Android ayarlarından Sistrum için Yakındaki cihazlar iznini verene kadar ağ depolaması kapalı kalır.",
-  "@whatsNewNearbyRefused": {
-    "description": "Shown on the Nearby devices page of the What's New tour after the permission is refused"
-  },
   "setupNext": "Sıradaki",
   "@setupNext": {
     "description": "Next button text"
@@ -3294,67 +3258,6 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "whatsNewIntroTitle": "Sistrum {version} geldi",
-  "@whatsNewIntroTitle": {
-    "description": "First page of the tour shown once after updating; version is like 5.3",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "whatsNewIntroDesc": "Şimdiye kadarki en büyük güncellememiz. Yeniliklerimize hızlıca bir göz atın.",
-  "whatsNewHomeTitle": "Öğrenen bir Ana sayfa",
-  "whatsNewHomeDesc": "Mix'ler ve otomatik oynatma artık gerçekte nasıl dinlediğinizi izliyor.",
-  "whatsNewHomeMixesTitle": "Kitaplığınızdan mix'ler",
-  "whatsNewHomeMixesBody": "Kendi şarkılarınızdan oluşturulan yeni mix'ler; her tür için bir mix dahil.",
-  "whatsNewHomeAutoplayTitle": "Daha akıllı otomatik oynatma",
-  "whatsNewHomeAutoplayBody": "Otomatik oynatma dinleme oturumunuzu izler ve favorilerinizden, çalma listelerinizden ve tekrarlarınızdan öğrenir.",
-  "whatsNewHomeAnalysisTitle": "Şarkı analizi",
-  "whatsNewHomeAnalysisBody": "Sistrum daha isabetli seçimler için şarkılarınızın nasıl kulağa geldiğini analiz edebilir. Ayarlar'dan açana kadar kapalı kalır.",
-  "whatsNewPlayerTitle": "Oynatıcı ve şarkı sözleri",
-  "whatsNewPlayerDesc": "Daha akıcı oynatma ve her dilde şarkı sözleri.",
-  "whatsNewPlayerGaplessTitle": "Gapless oynatma",
-  "whatsNewPlayerGaplessBody": "Albümler bir şarkıdan diğerine duraklama olmadan akar.",
-  "whatsNewPlayerTranslateTitle": "Şarkı sözlerini çevir",
-  "whatsNewPlayerTranslateBody": "Ayarladığınız bir AI sağlayıcısıyla şarkı sözlerini çevirin veya romanize edin.",
-  "whatsNewPlayerTimingTitle": "Şarkı sözü zamanlaması",
-  "whatsNewPlayerTimingBody": "Senkronlu şarkı sözleri şarkıdan kaydığında öne veya geriye kaydırın.",
-  "whatsNewPlayerAutoTitle": "Android Auto",
-  "whatsNewPlayerAutoBody": "Arabanızın ekranından Kitaplığınıza göz atın ve müzik çalın.",
-  "whatsNewLibraryTitle": "Kitaplık ve arama",
-  "whatsNewLibraryDesc": "Müziğinizi bulmanın ve düzenlemenin yeni yolları.",
-  "whatsNewLibraryFoldersTitle": "Klasöre göre göz at",
-  "whatsNewLibraryFoldersBody": "Kitaplığınızı diskte depolandığı şekilde keşfedin.",
-  "whatsNewLibrarySuggestionsTitle": "Önerilen şarkılar",
-  "whatsNewLibrarySuggestionsBody": "Albümler, tekliler ve çalma listeleri artık uygun şarkılar öneriyor.",
-  "whatsNewLibraryRecognizeTitle": "Müziği tanı",
-  "whatsNewLibraryRecognizeBody": "Yakında ne çaldığını öğrenmek için Aramada mikrofon simgesine dokunun.",
-  "whatsNewLibraryPlaylistsTitle": "Daha iyi çalma listeleri",
-  "whatsNewLibraryPlaylistsBody": "Şarkıları yeniden sıralayın, bir klasörden çalma listesi oluşturun veya çalma listesi dosyalarını içe aktarın.",
-  "whatsNewFasterTitle": "Her yerde daha hızlı",
-  "whatsNewFasterDesc": "Özellikle büyük kitaplıklarda daha hızlı ve daha hafif.",
-  "whatsNewFasterLibraryTitle": "Daha hızlı Kitaplık",
-  "whatsNewFasterLibraryBody": "Sekmeler ve albümler daha hızlı açılır, kaydırma akıcı kalır.",
-  "whatsNewFasterNetworkTitle": "Daha hızlı ağ müziği",
-  "whatsNewFasterNetworkBody": "Ağ paylaşımları çok daha hızlı taranır ve Subsonic sunucuları çok daha az istekle eşitlenir.",
-  "whatsNewFasterQueueTitle": "Uzun süre dayanan kuyruklar",
-  "whatsNewFasterQueueBody": "Büyük kuyruklar hızlı kaydedilir ve yeniden başlatmadan sonra geri gelir.",
-  "whatsNewFasterBackgroundTitle": "Arka planda daha hafif",
-  "whatsNewFasterBackgroundBody": "Uygulama daha hızlı açılır ve müzik çalarken daha az iş yapar.",
-  "whatsNewDone": "Dinlemeye başla",
-  "@whatsNewDone": {
-    "description": "Button on the last page of the What's New tour"
-  },
-  "whatsNewAboutTitle": "{version} sürümündeki yenilikler",
-  "@whatsNewAboutTitle": {
-    "description": "About page row that reopens the What's New tour; version is like 5.3",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "libraryForceFullScan": "Tam Taramayı Zorla",
   "@libraryForceFullScan": {
     "description": "Button to force a complete rescan of library"
@@ -4390,14 +4293,6 @@
   "safMigrationSuccess": "İndirme klasörü SAF moduna güncellendi",
   "@safMigrationSuccess": {
     "description": "Snackbar after successfully migrating to SAF"
-  },
-  "settingsDonate": "Geliştirmeyi destekle",
-  "@settingsDonate": {
-    "description": "Settings menu item - donate page"
-  },
-  "settingsDonateSubtitle": "Geliştiriciye bir kahve ısmarlayın",
-  "@settingsDonateSubtitle": {
-    "description": "Subtitle for donate menu item"
   },
   "settingsBackup": "Yedekle ve geri yükle",
   "@settingsBackup": {

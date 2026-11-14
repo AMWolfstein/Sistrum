@@ -4,10 +4,6 @@ class AppInfo {
   static const String version = '0.1.0';
   static const String buildNumber = '1';
 
-  /// The release whose What's New tour people see once after updating. Change
-  /// it together with the tour's pages when a release earns a new one.
-  static const String whatsNewRelease = '5.3';
-
   static const String gitCommit = String.fromEnvironment('GIT_COMMIT');
   static String get shortGitCommit =>
       gitCommit.length > 8 ? gitCommit.substring(0, 8) : gitCommit;
@@ -26,11 +22,4 @@ class AppInfo {
 
   static const String githubRepo = 'AMWolfstein/Sistrum';
   static const String githubUrl = 'https://github.com/$githubRepo';
-
-  // The server keeps the endpoint name from before the rename.
-  static const String remoteConfigApiUrl =
-      'https://api.zarz.moe/v1/spotiflac-mobile/config';
-
-  static const String kofiUrl = 'https://ko-fi.com/zarzet';
-  static const String githubSponsorsUrl = 'https://github.com/sponsors/zarzet/';
 }
