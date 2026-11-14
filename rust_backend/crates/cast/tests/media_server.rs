@@ -1,6 +1,6 @@
 //! The media server over real sockets: files with ranges, and relays.
 
-use mornye_cast::MediaServer;
+use sistrum_cast::MediaServer;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 

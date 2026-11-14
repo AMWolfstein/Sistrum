@@ -3,10 +3,10 @@
 use super::Backend;
 use crate::files::{StagedFile, SyncBatch};
 use cap_std::fs::OpenOptions;
-use mornye_core::app_version::AppVersion;
-use mornye_core::cover::{MAX_DOWNLOAD_BYTES, resize};
-use mornye_core::tags::{CoverArt, extract_cover};
-use mornye_network::{
+use sistrum_core::app_version::AppVersion;
+use sistrum_core::cover::{MAX_DOWNLOAD_BYTES, resize};
+use sistrum_core::tags::{CoverArt, extract_cover};
+use sistrum_network::{
     HttpRequest, NetworkService, NetworkSession, random_user_agent, url::UrlParts,
 };
 use sha2::{Digest, Sha256};
@@ -308,7 +308,7 @@ impl Backend {
         batch: Option<&SyncBatch>,
         check: &Check<'_>,
     ) -> Result<String, String> {
-        let format = mornye_core::tags::library_extension(audio_path, hint);
+        let format = sistrum_core::tags::library_extension(audio_path, hint);
         // The scan's MP4-family reader also accepts .mp4/.aac. The standalone
         // cover export deliberately keeps its narrower legacy suffix policy.
         let format = matches!(format.as_str(), "mp4" | "aac").then_some("m4a");
@@ -436,7 +436,7 @@ impl Backend {
             read(&input, &format, &check)?
         };
         let mut stored = None;
-        if let Ok(thumbnail) = mornye_core::cover::library_thumbnail_entry(&cover.data, &check) {
+        if let Ok(thumbnail) = sistrum_core::cover::library_thumbnail_entry(&cover.data, &check) {
             let resized = thumbnail.data;
             cover.mime = if resized.starts_with(b"\x89PNG") {
                 "image/png"
@@ -456,7 +456,7 @@ impl Backend {
             return Err("empty library artwork".into());
         }
         let output = if content_addressed {
-            let stem = mornye_core::cover::library_content_stem(&cover.data);
+            let stem = sistrum_core::cover::library_content_stem(&cover.data);
             let extension = if cover.data.starts_with(b"\x89PNG") {
                 "png"
             } else if cover.data.starts_with(b"\xff\xd8") {

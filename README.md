@@ -18,7 +18,7 @@
 </div>
 
 <p align="center">
-  <a href="https://github.com/mornyeapp/Mornye/releases/latest">
+  <a href="https://github.com/AMWolfstein/Sistrum/releases/latest">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/badge-release-dark.svg">
       <img alt="Download the latest release" src="assets/readme/badges/badge-release-light.svg" height="56">
@@ -406,8 +406,8 @@ In AltStore/SideStore, go to **Browse > Sources**, tap **+**, and paste the link
 
 Thanks to everyone who has contributed to Mornye!
 
-<a href="https://github.com/mornyeapp/Mornye/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=mornyeapp/Mornye" />
+<a href="https://github.com/AMWolfstein/Sistrum/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AMWolfstein/Sistrum" />
 </a>
 
 We also appreciate everyone who helped with [translations on Crowdin](https://crowdin.com/project/mornye), reported bugs, suggested features, and spread the word.

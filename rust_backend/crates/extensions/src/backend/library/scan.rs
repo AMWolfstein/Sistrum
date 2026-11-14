@@ -892,7 +892,7 @@ mod tests {
         let expected: Vec<_> = (0..2)
             .map(|album| {
                 let art = artwork(7_000 + album, 1200);
-                mornye_core::cover::library_thumbnail(&art, &|| Ok(())).unwrap()
+                sistrum_core::cover::library_thumbnail(&art, &|| Ok(())).unwrap()
             })
             .collect();
         let backend = backend(root.path(), &library);

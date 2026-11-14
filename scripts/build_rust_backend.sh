@@ -27,15 +27,15 @@ export CARGO_TARGET_DIR="$RUST_BACKEND_DIR/target"
 # do not force target-feature=+aes on Android.
 
 case "$(uname -s)" in
-  Linux) HOST_LIBRARY="$CARGO_TARGET_DIR/release/libmornye_mobile.so" ;;
+  Linux) HOST_LIBRARY="$CARGO_TARGET_DIR/release/libsistrum_mobile.so" ;;
   *) echo "Error: use Linux for this build script." >&2; exit 1 ;;
 esac
 
 # Build separately from bindgen so CLI and cargo-metadata features are not
 # enabled in the shipped library through Cargo's workspace feature unification.
-cargo build --locked --release -p mornye-mobile
+cargo build --locked --release -p sistrum-mobile
 # Bindgen discovers each crate's uniffi.toml through Cargo metadata.
-cargo run --locked -p mornye-bindgen -- generate \
+cargo run --locked -p sistrum-bindgen -- generate \
   --library "$HOST_LIBRARY" \
   --language kotlin \
   --out-dir "$CARGO_TARGET_DIR/bindings/kotlin" \
@@ -69,9 +69,9 @@ if [[ "$PLATFORM" == "android" ]]; then
   # Keep APS2 rather than RELR, which requires API 28; our minimum is API 24.
   # Fold only identical functions whose addresses are not significant.
   export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,max-page-size=16384 -C link-arg=-Wl,--pack-dyn-relocs=android -C link-arg=-Wl,--icf=safe"
-  cargo build --locked --release -p mornye-mobile --target aarch64-linux-android
+  cargo build --locked --release -p sistrum-mobile --target aarch64-linux-android
   mkdir -p "$CARGO_TARGET_DIR/android/jniLibs/arm64-v8a"
-  cp "$CARGO_TARGET_DIR/aarch64-linux-android/release/libmornye_mobile.so" \
+  cp "$CARGO_TARGET_DIR/aarch64-linux-android/release/libsistrum_mobile.so" \
     "$CARGO_TARGET_DIR/android/jniLibs/arm64-v8a/"
 fi
 

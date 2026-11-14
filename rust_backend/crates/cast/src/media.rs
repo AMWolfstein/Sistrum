@@ -173,7 +173,7 @@ fn relay_client() -> io::Result<RelayClient> {
     http.set_connect_timeout(Some(Duration::from_secs(10)));
     http.set_nodelay(true);
     let connector = HttpsConnectorBuilder::new()
-        .with_tls_config(mornye_network::tls_client_config()?)
+        .with_tls_config(sistrum_network::tls_client_config()?)
         .https_or_http()
         .enable_http1()
         .wrap_connector(http);

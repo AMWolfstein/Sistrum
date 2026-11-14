@@ -2,10 +2,10 @@
 
 use super::matching::{duration_matches, exact_identity, matches_track, strong_identity};
 use crate::manifest::ExtensionManifest;
-use mornye_core::downloads::DownloadRequest;
-use mornye_core::lyrics::matching::{normalize_loose_artist, normalize_title};
-use mornye_core::metadata::reenrich::text;
-use mornye_core::resolver::titles_match;
+use sistrum_core::downloads::DownloadRequest;
+use sistrum_core::lyrics::matching::{normalize_loose_artist, normalize_title};
+use sistrum_core::metadata::reenrich::text;
+use sistrum_core::resolver::titles_match;
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -122,7 +122,7 @@ pub(super) fn download_metadata_fields(
     if !album_type.is_empty() {
         fields.insert(
             "RELEASETYPE".into(),
-            mornye_core::matching::lowercase(album_type),
+            sistrum_core::matching::lowercase(album_type),
         );
         if album_type.eq_ignore_ascii_case("compilation") {
             fields.insert("COMPILATION".into(), "1".into());

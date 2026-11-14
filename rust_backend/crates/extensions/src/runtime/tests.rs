@@ -28,7 +28,7 @@ fn queued_timeout_returns_before_busy_worker_is_released() {
 
 #[test]
 fn queued_lease_interruption_returns_without_retiring_the_busy_worker() {
-    use mornye_core::cancellation::{CancellationDomain, CancellationRegistry};
+    use sistrum_core::cancellation::{CancellationDomain, CancellationRegistry};
 
     for mode in ["cancel", "release", "shutdown"] {
         let runtime = ExtensionRuntime::load(
@@ -288,7 +288,7 @@ fn compiled_source_reuses_bytecode_but_isolates_state_settings_and_new_source() 
 
 #[test]
 fn ffmpeg_waits_for_completion_cancellation_or_deadline_without_polling() {
-    use mornye_core::cancellation::{CancellationDomain, CancellationRegistry};
+    use sistrum_core::cancellation::{CancellationDomain, CancellationRegistry};
     for mode in [
         "complete",
         "cancel",

@@ -1,4 +1,4 @@
-use mornye_core::metadata::reenrich::Request;
+use sistrum_core::metadata::reenrich::Request;
 use serde_json::json;
 
 #[test]

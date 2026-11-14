@@ -168,7 +168,7 @@ internal class CastOutputPlugin : FlutterPlugin, ActivityAware, EventChannel.Str
         }
     }
 
-    /** The TV streams from the Rust media server (`mornye-cast`), off the UI isolate. */
+    /** The TV streams from the Rust media server (`sistrum-cast`), off the UI isolate. */
     private fun media(call: MethodCall, result: MethodChannel.Result) {
         val arguments = JSONObject((call.arguments as? Map<*, *>) ?: emptyMap<String, Any?>()).toString()
         mediaWorker.execute {

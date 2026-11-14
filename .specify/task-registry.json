@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 7,
+  "next_completion": 8,
   "next_mission": 3,
-  "next_tor": 6,
+  "next_tor": 7,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -214,6 +214,22 @@
       "record": "specs/002-rebrand-sistrum/tasks.md",
       "status": "complete",
       "title": "Rename the UniFFI Kotlin package to com.sistrum.backend"
+    },
+    "M002-TOR006": {
+      "completion": 7,
+      "evidence": {
+        "checks": "cargo check --locked --workspace exit 0; flutter analyze no issues; full flutter test +4478 ~10 all passed exit 0; scripts/test_check_backend_apk.py 5 tests OK; workflow unit tests OK; leftover grep for mornye-/mornye_ crate and native lib names outside history: none; review round 1 NEEDS_FIXES (record placement) resolved, round 2 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 2
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": "M002",
+      "nonce": "76a34b8b9c68409db975dec30f95580d",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "complete",
+      "title": "Rename the Rust crates, native libraries and upstream repository links to Sistrum"
     },
     "TOR001": {
       "completion": 1,

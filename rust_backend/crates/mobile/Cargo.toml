@@ -1,5 +1,5 @@
 [package]
-name = "mornye-mobile"
+name = "sistrum-mobile"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -10,12 +10,12 @@ publish.workspace = true
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
-mornye-cast.workspace = true
-mornye-core.workspace = true
-mornye-network.workspace = true
-mornye-providers.workspace = true
+sistrum-cast.workspace = true
+sistrum-core.workspace = true
+sistrum-network.workspace = true
+sistrum-providers.workspace = true
 base64.workspace = true
-mornye-extensions.workspace = true
+sistrum-extensions.workspace = true
 thiserror.workspace = true
 uniffi.workspace = true
 serde_json.workspace = true

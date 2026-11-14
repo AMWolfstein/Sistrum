@@ -25,7 +25,7 @@ class AppInfo {
 
   static const String mobileAuthor = 'zarzet';
 
-  static const String githubRepo = 'mornyeapp/Mornye';
+  static const String githubRepo = 'AMWolfstein/Sistrum';
   static const String githubUrl = 'https://github.com/$githubRepo';
 
   // The server keeps the endpoint name from before the rename.

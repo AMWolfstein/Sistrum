@@ -27,7 +27,7 @@ class CheckBackendApkTest(unittest.TestCase):
         self.entries = {
             "lib/arm64-v8a/libapp.so": elf(),
             "lib/arm64-v8a/libflutter.so": elf(),
-            "lib/arm64-v8a/libmornye_mobile.so": elf(),
+            "lib/arm64-v8a/libsistrum_mobile.so": elf(),
             "lib/arm64-v8a/libjnidispatch.so": elf(),
             "assets/flutter_assets/AssetManifest.json": b"{}",
         }
@@ -45,7 +45,7 @@ class CheckBackendApkTest(unittest.TestCase):
         self.assertEqual(len(self.audit()), 64)
 
     def test_rejects_missing_backend_library(self):
-        del self.entries["lib/arm64-v8a/libmornye_mobile.so"]
+        del self.entries["lib/arm64-v8a/libsistrum_mobile.so"]
         with self.assertRaisesRegex(checker.AuditError, "missing APK entry"):
             self.audit()
 

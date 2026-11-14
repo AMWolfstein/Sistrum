@@ -8,7 +8,7 @@ the project.
 
 ## Before You Start
 
-- Search the [existing issues](https://github.com/mornyeapp/Mornye/issues)
+- Search the [existing issues](https://github.com/AMWolfstein/Sistrum/issues)
   before opening a new one.
 - Use the issue template that best matches the problem.
 - Keep pull requests focused. Separate unrelated fixes into separate PRs.
@@ -37,9 +37,9 @@ exact Flutter version declared in `.fvmrc` and replace `fvm flutter` with
 1. Fork and clone the repository:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/Mornye.git
-   cd Mornye
-   git remote add upstream https://github.com/mornyeapp/Mornye.git
+   git clone https://github.com/YOUR_USERNAME/Sistrum.git
+   cd Sistrum
+   git remote add upstream https://github.com/AMWolfstein/Sistrum.git
    ```
 
 2. Install the pinned Flutter SDK and Dart dependencies:
@@ -202,12 +202,12 @@ Workspace dependencies point only downward:
 
 | Crate | Package | Role | Depends on |
 | --- | --- | --- | --- |
-| `core/` | `mornye-core` | Shared logic without bindings: tags, lyrics parsing and provider config, metadata, filenames, CUE, covers | none |
-| `network/` | `mornye-network` | Shared, cancellable HTTP transport | none |
-| `providers/` | `mornye-providers` | Built-in clients: Deezer, MusicBrainz, platform resolver, lyrics | core, network |
-| `extensions/` | `mornye-extensions` | Extension JavaScript runtime (rquickjs), host functions, manager, repository, and backend operations such as downloads, library scan, and tags | core, network, providers |
-| `mobile/` | `mornye-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib`; Kotlin package `com.sistrum.backend` | core, network, extensions |
-| `bindgen/` | `mornye-bindgen` | UniFFI bindgen CLI used by `scripts/build_rust_backend.sh` | none |
+| `core/` | `sistrum-core` | Shared logic without bindings: tags, lyrics parsing and provider config, metadata, filenames, CUE, covers | none |
+| `network/` | `sistrum-network` | Shared, cancellable HTTP transport | none |
+| `providers/` | `sistrum-providers` | Built-in clients: Deezer, MusicBrainz, platform resolver, lyrics | core, network |
+| `extensions/` | `sistrum-extensions` | Extension JavaScript runtime (rquickjs), host functions, manager, repository, and backend operations such as downloads, library scan, and tags | core, network, providers |
+| `mobile/` | `sistrum-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib`; Kotlin package `com.sistrum.backend` | core, network, extensions |
+| `bindgen/` | `sistrum-bindgen` | UniFFI bindgen CLI used by `scripts/build_rust_backend.sh` | none |
 
 ### Native
 

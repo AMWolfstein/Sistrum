@@ -1613,14 +1613,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "mornye-bindgen"
+name = "sistrum-bindgen"
 version = "0.1.0"
 dependencies = [
  "uniffi",
 ]
 
 [[package]]
-name = "mornye-cast"
+name = "sistrum-cast"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1632,7 +1632,7 @@ dependencies = [
  "hyper-rustls",
  "hyper-util",
  "mdns-sd",
- "mornye-network",
+ "sistrum-network",
  "rcgen",
  "rustls",
  "serde",
@@ -1644,7 +1644,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mornye-core"
+name = "sistrum-core"
 version = "0.1.0"
 dependencies = [
  "base64",
@@ -1664,7 +1664,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mornye-extensions"
+name = "sistrum-extensions"
 version = "0.1.0"
 dependencies = [
  "aes",
@@ -1679,9 +1679,9 @@ dependencies = [
  "image",
  "libc",
  "md-5",
- "mornye-core",
- "mornye-network",
- "mornye-providers",
+ "sistrum-core",
+ "sistrum-network",
+ "sistrum-providers",
  "rcgen",
  "regex",
  "rquickjs",
@@ -1699,18 +1699,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "mornye-mobile"
+name = "sistrum-mobile"
 version = "0.1.0"
 dependencies = [
  "base64",
  "chrono",
  "libc",
  "libusb1-sys",
- "mornye-cast",
- "mornye-core",
- "mornye-extensions",
- "mornye-network",
- "mornye-providers",
+ "sistrum-cast",
+ "sistrum-core",
+ "sistrum-extensions",
+ "sistrum-network",
+ "sistrum-providers",
  "regex",
  "roxmltree",
  "rusqlite",
@@ -1728,7 +1728,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mornye-network"
+name = "sistrum-network"
 version = "0.1.0"
 dependencies = [
  "async-compression",
@@ -1752,15 +1752,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "mornye-providers"
+name = "sistrum-providers"
 version = "0.1.0"
 dependencies = [
  "base64",
  "getrandom 0.4.3",
  "html5ever",
  "httpdate",
- "mornye-core",
- "mornye-network",
+ "sistrum-core",
+ "sistrum-network",
  "regex",
  "scraper",
  "serde",

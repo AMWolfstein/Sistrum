@@ -45,7 +45,7 @@ impl CastService {
     pub fn new(emit: impl Fn(&str, Value) + Send + Sync + 'static) -> std::io::Result<Self> {
         let runtime = tokio::runtime::Builder::new_multi_thread()
             .worker_threads(2)
-            .thread_name("mornye-cast")
+            .thread_name("sistrum-cast")
             .enable_all()
             .build()?;
         Ok(Self {

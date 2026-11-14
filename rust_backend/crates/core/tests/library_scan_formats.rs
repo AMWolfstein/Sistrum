@@ -1,6 +1,6 @@
 //! Real-world file shapes that Library scans used to drop as unreadable.
 
-use mornye_core::tags::{
+use sistrum_core::tags::{
     extract_cover, read_file_metadata, read_library_metadata, rewrite_audio_tags,
 };
 use serde_json::Value;

@@ -3,9 +3,9 @@
 
 use crate::cancellation::RequestLease;
 use crate::extensions::ExtensionEnvironment;
-use mornye_extensions::RuntimeLimits;
-use mornye_extensions::backend::Backend as CoreManager;
-use mornye_extensions::manager::ManagerError;
+use sistrum_extensions::RuntimeLimits;
+use sistrum_extensions::backend::Backend as CoreManager;
+use sistrum_extensions::manager::ManagerError;
 use std::path::Path;
 use std::sync::Arc;
 

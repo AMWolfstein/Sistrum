@@ -99,7 +99,7 @@ fn request_uses_locale_ids_and_no_location() {
         sample_count: 64_000,
         ..Signature::default()
     };
-    signature.bands[1].push(mornye_core::music_signature::Peak {
+    signature.bands[1].push(sistrum_core::music_signature::Peak {
         pass: 1,
         magnitude: 2,
         corrected_bin: 3,

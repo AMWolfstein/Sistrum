@@ -22,7 +22,7 @@ Map<String, Object?> release(String version) => {
   'draft': false,
   'body': '- Release notes',
   'published_at': '2026-09-26T06:32:33Z',
-  'html_url': 'https://github.com/mornyeapp/Mornye/releases/tag/v$version',
+  'html_url': 'https://github.com/AMWolfstein/Sistrum/releases/tag/v$version',
   'assets': [
     for (final abi in ['x86_64', 'arm64'])
       {

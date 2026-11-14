@@ -2,7 +2,7 @@
 
 The Rust workspace is the app's only backend on Android. Flutter
 reaches it through the native channel (see `android/README.md`); Kotlin
-calls it through UniFFI bindings generated from `mornye-mobile`.
+calls it through UniFFI bindings generated from `sistrum-mobile`.
 
 The app identifies itself as Mornye in HTTP requests, exported lyrics and
 new FLAC vendor metadata. Crates, native libraries and generated bindings
@@ -26,12 +26,12 @@ workspace crate.
 
 | Crate | Package | Depends on |
 | --- | --- | --- |
-| `crates/core` | `mornye-core` | none |
-| `crates/network` | `mornye-network` | none |
-| `crates/providers` | `mornye-providers` | core, network |
-| `crates/extensions` | `mornye-extensions` | core, network, providers |
-| `crates/mobile` | `mornye-mobile` | core, network, extensions |
-| `crates/bindgen` | `mornye-bindgen` | `uniffi` CLI only |
+| `crates/core` | `sistrum-core` | none |
+| `crates/network` | `sistrum-network` | none |
+| `crates/providers` | `sistrum-providers` | core, network |
+| `crates/extensions` | `sistrum-extensions` | core, network, providers |
+| `crates/mobile` | `sistrum-mobile` | core, network, extensions |
+| `crates/bindgen` | `sistrum-bindgen` | `uniffi` CLI only |
 
 **core.** Shared backend logic, independent of mobile bindings and UI
 runtimes. Modules cover filenames, tags and metadata, covers and palette
@@ -58,7 +58,7 @@ download backend. Its main types are `ExtensionRuntime` and
 
 **mobile.** The UniFFI mobile API (`uniffi::setup_scaffolding!`). This crate
 is the only backend and routes the app. It is built as
-`lib` and `cdylib` (Android `libmornye_mobile.so`).
+`lib` and `cdylib` (Android `libsistrum_mobile.so`).
 It adds native data jobs, the native library, cache, collections, playlists
 and backup, lyrics, ID3 and network tags, `rusqlite`, and USB audio
 (`libusb1-sys`, Android only).
@@ -81,7 +81,7 @@ checks are in `rust_backend/vendor/README.md`. Third-party notices are in
 | Command | Result |
 | --- | --- |
 | `bash scripts/build_rust_backend.sh host` | Release host library and Kotlin bindings |
-| `bash scripts/build_rust_backend.sh android` | Host step, then `libmornye_mobile.so` for each ABI |
+| `bash scripts/build_rust_backend.sh android` | Host step, then `libsistrum_mobile.so` for each ABI |
 | `bash scripts/check_rust_backend.sh` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` |
 
 Every `cargo build`, `cargo run`, `cargo clippy` and `cargo test` call in
@@ -89,8 +89,8 @@ both scripts passes `--locked`, so `Cargo.lock` must be up to date. The
 scripts do not pass `--offline`; dependencies come from crates.io except the
 vendored patches.
 
-The host step always runs first. It builds `mornye-mobile` in release
-mode, then runs `mornye-bindgen generate` against the host library for
+The host step always runs first. It builds `sistrum-mobile` in release
+mode, then runs `sistrum-bindgen generate` against the host library for
 Kotlin. Output goes to `rust_backend/target/`:
 
 - `target/release/`: host library (`.so` on Linux)
@@ -118,7 +118,7 @@ The binding names come from `rust_backend/crates/mobile/uniffi.toml`.
 
 | Platform | Generated | Consumed by |
 | --- | --- | --- |
-| Android | Kotlin package `com.sistrum.backend`, loading `mornye_mobile` through JNA | `android/app/build.gradle.kts` adds `target/bindings/kotlin` and `target/android/jniLibs` as source dirs; used by `android/app/src/rust/kotlin/com/amwolfstein/sistrum/SelectedCoreBackend.kt` and its neighbors |
+| Android | Kotlin package `com.sistrum.backend`, loading `sistrum_mobile` through JNA | `android/app/build.gradle.kts` adds `target/bindings/kotlin` and `target/android/jniLibs` as source dirs; used by `android/app/src/rust/kotlin/com/amwolfstein/sistrum/SelectedCoreBackend.kt` and its neighbors |
 
 The generated files are build output under `target/` and are not tracked.
 After changing an exported function, rebuild; the Kotlin call sites must
@@ -128,8 +128,8 @@ match the new signatures.
 
 ```bash
 bash scripts/check_rust_backend.sh
-(cd rust_backend && cargo test --locked -p mornye-core)
-(cd rust_backend && cargo test --locked -p mornye-mobile network_tags --lib)
+(cd rust_backend && cargo test --locked -p sistrum-core)
+(cd rust_backend && cargo test --locked -p sistrum-mobile network_tags --lib)
 ```
 
 - Unit tests sit in `#[cfg(test)] mod tests` blocks. Larger modules keep them

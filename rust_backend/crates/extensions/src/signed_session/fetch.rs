@@ -171,7 +171,7 @@ mod signed_session_mint_tests {
     use crate::auth::AuthRegistry;
     use crate::manifest::SignedSession;
     use crate::signed_session::SignedRegistry;
-    use mornye_network::NetworkService;
+    use sistrum_network::NetworkService;
     use std::collections::BTreeMap;
     use std::net::TcpListener;
     use std::sync::Arc;

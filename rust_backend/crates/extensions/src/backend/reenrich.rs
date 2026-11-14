@@ -2,12 +2,12 @@
 
 use super::{Backend, LyricsRequest};
 use cap_std::fs::OpenOptions;
-use mornye_core::lyrics::{file, lrc};
-use mornye_core::metadata::TrackMetadata;
-use mornye_core::metadata::reenrich::{self, Request, text};
-use mornye_core::tags::{embed_flac_metadata, extract_cover};
-use mornye_providers::deezer::MetadataLookup;
-use mornye_providers::resolver::{Check, availability};
+use sistrum_core::lyrics::{file, lrc};
+use sistrum_core::metadata::TrackMetadata;
+use sistrum_core::metadata::reenrich::{self, Request, text};
+use sistrum_core::tags::{embed_flac_metadata, extract_cover};
+use sistrum_providers::deezer::MetadataLookup;
+use sistrum_providers::resolver::{Check, availability};
 use serde_json::{Value, json};
 use std::io::Write;
 use std::sync::Mutex;

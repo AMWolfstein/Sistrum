@@ -296,6 +296,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
 ## Owner extras
 
 - [x] M002-TOR005 Rename the UniFFI Kotlin package to com.sistrum.backend
+- [x] M002-TOR006 Rename the Rust crates, native libraries and upstream repository links to Sistrum
 
 ## Final cumulative review
 

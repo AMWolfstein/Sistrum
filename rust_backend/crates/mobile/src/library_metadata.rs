@@ -3,8 +3,8 @@
 
 use crate::cancellation::RequestLease;
 use crate::tags::{AudioTagsError, check_lease, open_audio_file};
-use mornye_core::{cover, tags};
-use mornye_extensions::backend::{
+use sistrum_core::{cover, tags};
+use sistrum_extensions::backend::{
     LIBRARY_COVER_REGENERATE_MARKER, library_cover_is_current, library_cover_stem,
 };
 use std::path::Path;
@@ -172,12 +172,12 @@ mod tests {
     fn document_scan_reuses_the_thumbnail_the_rust_scan_wrote() {
         let directory = tempfile::tempdir().unwrap();
         let data = directory.path().join("data");
-        let backend = mornye_extensions::backend::Backend::new(
+        let backend = sistrum_extensions::backend::Backend::new(
             &directory.path().join("sources"),
             &data,
             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
             "1",
-            mornye_extensions::RuntimeLimits::default(),
+            sistrum_extensions::RuntimeLimits::default(),
         )
         .unwrap();
         let mut picture = b"\0image/jpeg\0\x03\0\0".to_vec();

@@ -131,7 +131,7 @@ def audit(path: Path, backend: str, abis: Sequence[str]) -> str:
             check_abi_directories(names, abis)
             check_backend_markers(zf, infos, backend)
             backend_library = (
-                "libmornye_mobile.so" if backend == "rust" else "libgojni.so"
+                "libsistrum_mobile.so" if backend == "rust" else "libgojni.so"
             )
             libraries = CORE_LIBRARIES + (backend_library,)
             if backend == "rust":

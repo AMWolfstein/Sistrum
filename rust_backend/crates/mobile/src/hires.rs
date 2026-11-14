@@ -1,6 +1,6 @@
 use crate::cancellation::RequestLease;
 use crate::tags::{check_lease, open_audio_file};
-use mornye_core::media::hires::{self, HiResCheckOptions};
+use sistrum_core::media::hires::{self, HiResCheckOptions};
 use std::sync::Arc;
 
 #[derive(Debug, thiserror::Error, uniffi::Error)]

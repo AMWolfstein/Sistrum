@@ -1,8 +1,8 @@
 #![cfg(unix)]
 
-use mornye_core::cancellation::{CancellationDomain, CancellationError, CancellationRegistry};
-use mornye_extensions::environment::ExtensionEnvironment;
-use mornye_extensions::{ExtensionError, RuntimeLimits};
+use sistrum_core::cancellation::{CancellationDomain, CancellationError, CancellationRegistry};
+use sistrum_extensions::environment::ExtensionEnvironment;
+use sistrum_extensions::{ExtensionError, RuntimeLimits};
 use serde_json::{Value, json};
 use std::fs;
 use std::io::{Read, Write};

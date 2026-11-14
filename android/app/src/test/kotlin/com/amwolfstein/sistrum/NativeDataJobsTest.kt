@@ -30,7 +30,7 @@ class NativeDataJobsTest {
             val library = System.getenv("MORNYE_NATIVE_HOST_LIBRARY")
             assumeTrue("Build the Rust host library for ABI tests", !library.isNullOrBlank())
             require(File(library!!).isFile) { "Native host library does not exist" }
-            System.setProperty("uniffi.component.mornye_mobile.libraryOverride", library)
+            System.setProperty("uniffi.component.sistrum_mobile.libraryOverride", library)
             System.getenv("MORNYE_JNA_HOST_DIRECTORY")?.let {
                 System.setProperty("jna.boot.library.path", it)
             }

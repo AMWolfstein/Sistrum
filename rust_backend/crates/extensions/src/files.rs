@@ -6,7 +6,7 @@ mod unix;
 
 use cap_std::ambient_authority;
 use cap_std::fs::{Dir, File, OpenOptions};
-pub(crate) use mornye_core::fs::clean;
+pub(crate) use sistrum_core::fs::clean;
 use std::collections::BTreeMap;
 use std::io;
 use std::path::{Component, Path, PathBuf};

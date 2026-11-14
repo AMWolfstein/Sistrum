@@ -1,6 +1,6 @@
 use super::Backend;
-use mornye_core::metadata::share::{self, Provider, Request, ShareResult};
-use mornye_providers::resolver::{Check, ResolverError};
+use sistrum_core::metadata::share::{self, Provider, Request, ShareResult};
+use sistrum_providers::resolver::{Check, ResolverError};
 use serde_json::Value;
 use std::collections::{BTreeMap, VecDeque};
 

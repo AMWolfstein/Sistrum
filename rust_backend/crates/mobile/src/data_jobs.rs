@@ -93,18 +93,18 @@ fn execute(
             crate::native_lyrics_translation::execute(request, Some(bytes), check)
         }
         "palette" => {
-            let colors = mornye_core::native_palette::quantize_rgba(bytes, check)?;
+            let colors = sistrum_core::native_palette::quantize_rgba(bytes, check)?;
             Ok(json!({"colors": colors}))
         }
         "automix" => {
-            let grid = mornye_core::native_audio_analysis::analyze_automix_pcm_file(
+            let grid = sistrum_core::native_audio_analysis::analyze_automix_pcm_file(
                 string(request, "path")?,
                 check,
             )?;
             serde_json::to_value(grid).map_err(|error| error.to_string())
         }
         "audio_features" => {
-            use mornye_core::native_audio_features as features;
+            use sistrum_core::native_audio_features as features;
             let paths = request
                 .get("paths")
                 .and_then(Value::as_array)
@@ -132,7 +132,7 @@ fn execute(
                 .get("max_frequency")
                 .and_then(Value::as_f64)
                 .ok_or("Missing maximum frequency")?;
-            let cutoff = mornye_core::native_audio_analysis::estimate_spectral_cutoff_file(
+            let cutoff = sistrum_core::native_audio_analysis::estimate_spectral_cutoff_file(
                 string(request, "path")?,
                 usize::try_from(width).map_err(|e| e.to_string())?,
                 usize::try_from(height).map_err(|e| e.to_string())?,
@@ -200,7 +200,7 @@ pub(crate) fn hash_file(
         hash.update(&buffer[..count]);
     }
     check()?;
-    Ok(mornye_core::lower_hex(&hash.finalize()))
+    Ok(sistrum_core::lower_hex(&hash.finalize()))
 }
 
 #[cfg(test)]
@@ -242,7 +242,7 @@ mod tests {
         assert_eq!(described["version"], 1);
         assert_eq!(
             described["features"].as_array().unwrap().len(),
-            mornye_core::native_audio_features::AudioFeatures::LEN
+            sistrum_core::native_audio_features::AudioFeatures::LEN
         );
         let silent = run(json!([silence.path().to_str().unwrap()])).unwrap();
         assert!(silent["features"].is_null());

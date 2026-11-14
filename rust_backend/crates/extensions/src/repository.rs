@@ -8,8 +8,8 @@ pub use model::{Registry, RepoExtension, normalize_sha256};
 pub use package::{destination_path, write_verified_package};
 pub use urls::{RegistryLocation, registry_location, require_https};
 
-use mornye_core::fs::{DEFAULT_TEMP_PREFIX, OpenOptionsPortableExt, write_atomic};
-use mornye_network::{HttpRequest, NetworkService, NetworkSession};
+use sistrum_core::fs::{DEFAULT_TEMP_PREFIX, OpenOptionsPortableExt, write_atomic};
+use sistrum_network::{HttpRequest, NetworkService, NetworkSession};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::{self, File, OpenOptions};

@@ -253,7 +253,7 @@ the native libraries in `rust_backend/target/android/jniLibs/`. The
 - `android/app/src/rust/kotlin/com/amwolfstein/sistrum/NativeDataJobs.kt`:
   `runNativeDataJob` and its cancellation registry.
 
-The generated bindings load `libmornye_mobile.so` through JNA
+The generated bindings load `libsistrum_mobile.so` through JNA
 (`Native.register` with the `cdylib_name` from
 `rust_backend/crates/mobile/uniffi.toml`). The app depends on
 `net.java.dev.jna:jna` for this, and `android/app/proguard-rules.pro` keeps

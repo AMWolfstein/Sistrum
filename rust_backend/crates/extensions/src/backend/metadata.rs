@@ -1,10 +1,10 @@
 //! Backend metadata options and operations: language and region settings, caches, and Deezer lookups.
 
 use super::Backend;
-use mornye_core::metadata::TrackMetadata;
-use mornye_providers::deezer::MetadataLookup;
-use mornye_providers::musicbrainz::MusicBrainzOptions;
-use mornye_providers::resolver::{Check, ResolverError, ResolverOptions};
+use sistrum_core::metadata::TrackMetadata;
+use sistrum_providers::deezer::MetadataLookup;
+use sistrum_providers::musicbrainz::MusicBrainzOptions;
+use sistrum_providers::resolver::{Check, ResolverError, ResolverOptions};
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
@@ -220,7 +220,7 @@ mod tests {
     use super::*;
     use crate::RuntimeLimits;
     use crate::environment::ExtensionEnvironment;
-    use mornye_network::{NetworkOptions, NetworkService};
+    use sistrum_network::{NetworkOptions, NetworkService};
     use std::io::{BufRead, BufReader, ErrorKind, Write};
     use std::net::TcpListener;
     use std::sync::{Arc, mpsc};
