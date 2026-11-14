@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   final messenger =
       TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const url = 'https://example.invalid/playlist/large';
 
   setUp(() async {

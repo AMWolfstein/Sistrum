@@ -41,18 +41,18 @@
 # Android instantiates these components from the manifest. Preserve only their
 # names and constructors; normal reachability can now shrink/optimize helpers,
 # coroutine state machines, and unused members in the rest of the app package.
--keep,allowoptimization class com.zarz.mornye.MainActivity {
+-keep,allowoptimization class com.amwolfstein.sistrum.MainActivity {
     public <init>();
 }
--keep,allowoptimization class com.zarz.mornye.DownloadService {
+-keep,allowoptimization class com.amwolfstein.sistrum.DownloadService {
     public <init>();
 }
--keep,allowoptimization class com.zarz.mornye.DownloadQueueWidgetProvider {
+-keep,allowoptimization class com.amwolfstein.sistrum.DownloadQueueWidgetProvider {
     public <init>();
 }
 
 # Flutter's fragment builders instantiate this class through reflection.
--keep,allowoptimization class com.zarz.mornye.MainActivity$ImpellerAwareFlutterFragment {
+-keep,allowoptimization class com.amwolfstein.sistrum.MainActivity$ImpellerAwareFlutterFragment {
     public <init>();
 }
 

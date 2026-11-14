@@ -33,7 +33,7 @@ Future<void> _pumpArtist(
   SharedPreferences.setMockInitialValues({});
   await tester.binding.setSurfaceSize(const Size(1200, 1800));
   addTearDown(() => tester.binding.setSurfaceSize(null));
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   messenger.setMockMethodCallHandler(channel, (_) async => null);

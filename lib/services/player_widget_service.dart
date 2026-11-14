@@ -21,7 +21,7 @@ class PlayerWidgetArtwork {
 class PlayerWidgetService {
   PlayerWidgetService({
     MethodChannel channel = const MethodChannel(
-      'com.zarz.mornye/player_widget',
+      'com.amwolfstein.sistrum/player_widget',
     ),
     Future<PlayerWidgetArtwork?> Function(Uri?)? loadArtwork,
   }) : _channel = channel,

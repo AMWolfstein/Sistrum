@@ -18,7 +18,7 @@ class _Settings extends SettingsNotifier {
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   late List<bool> requests;
 
   setUp(() {

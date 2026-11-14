@@ -203,7 +203,7 @@ void main() {
       testWidgets(
         'empty/failed preview stays visible before selection returns ($mornye/$fails)',
         (tester) async {
-          const channel = MethodChannel('com.zarz.mornye/backend');
+          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
           tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
             channel,
             (call) async {

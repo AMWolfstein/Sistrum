@@ -66,7 +66,7 @@ void main() {
         var statCalls = 0;
         var followUpCalls = 0;
         final delayedStat = Completer<String>();
-        const channel = MethodChannel('com.zarz.mornye/backend');
+        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
         final messenger =
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
         messenger.setMockMethodCallHandler(channel, (call) async {

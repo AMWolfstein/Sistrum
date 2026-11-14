@@ -296,7 +296,7 @@ void main() {
         0xffe91e62,
       ),
     };
-    const backend = MethodChannel('com.zarz.mornye/backend');
+    const backend = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     var paletteJobs = 0;

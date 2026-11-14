@@ -23,7 +23,7 @@ void main() {
     late PreferenceBlobFixture blobs;
     setUp(() async => blobs = await PreferenceBlobFixture.create());
     tearDown(() => blobs.close());
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     tearDown(() => messenger.setMockMethodCallHandler(channel, null));

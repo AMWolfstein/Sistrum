@@ -89,7 +89,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   const secure = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   late Directory root;
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;

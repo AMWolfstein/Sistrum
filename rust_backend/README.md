@@ -118,7 +118,7 @@ The binding names come from `rust_backend/crates/mobile/uniffi.toml`.
 
 | Platform | Generated | Consumed by |
 | --- | --- | --- |
-| Android | Kotlin package `com.mornye.backend`, loading `mornye_mobile` through JNA | `android/app/build.gradle.kts` adds `target/bindings/kotlin` and `target/android/jniLibs` as source dirs; used by `android/app/src/rust/kotlin/com/zarz/mornye/SelectedCoreBackend.kt` and its neighbors |
+| Android | Kotlin package `com.mornye.backend`, loading `mornye_mobile` through JNA | `android/app/build.gradle.kts` adds `target/bindings/kotlin` and `target/android/jniLibs` as source dirs; used by `android/app/src/rust/kotlin/com/amwolfstein/sistrum/SelectedCoreBackend.kt` and its neighbors |
 
 The generated files are build output under `target/` and are not tracked.
 After changing an exported function, rebuild; the Kotlin call sites must

@@ -9,7 +9,7 @@ import 'package:mornye/widgets/audio_output_button.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/audio_output');
+  const channel = MethodChannel('com.amwolfstein.sistrum/audio_output');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

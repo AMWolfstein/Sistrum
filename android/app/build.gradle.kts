@@ -46,7 +46,7 @@ require(rustAndroidAbis.all { it in supportedRustAndroidAbis }) {
 }
 
 android {
-    namespace = "com.zarz.mornye"
+    namespace = "com.amwolfstein.sistrum"
     compileSdk = 37
     ndkVersion = "30.0.16248370"
 
@@ -96,7 +96,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.zarz.mornye"
+        applicationId = "com.amwolfstein.sistrum"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = flutter.minSdkVersion
         targetSdk = 37

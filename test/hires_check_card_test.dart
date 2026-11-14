@@ -26,7 +26,7 @@ const _limitedResult = <String, dynamic>{
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final capture = GlobalKey();
   var calls = 0;
 

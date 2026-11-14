@@ -143,7 +143,7 @@ registerExtension({
   );
 
   testWidgets('invalid native batch leaves IDs uncancelled', (tester) async {
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     await expectLater(
       channel.invokeMethod<void>('cancelDownloads', {
         'item_ids': ['untouched', 1],

@@ -391,7 +391,7 @@ void main() {
     testWidgets(
       'batch completion respects owner lifecycle during refresh: $leaveDuringRefresh',
       (tester) async {
-        const channel = MethodChannel('com.zarz.mornye/backend');
+        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
         final settings = _BatchSettings();
         final library = _BatchLibrary();
         var active = true;

@@ -10,7 +10,7 @@ import 'package:mornye/services/platform_bridge.dart';
 import 'package:mornye/widgets/app_alert_dialog.dart';
 
 void main() {
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const browser = MethodChannel('plugins.flutter.io/url_launcher');
 
   tearDown(() {

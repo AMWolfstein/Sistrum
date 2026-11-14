@@ -112,7 +112,7 @@ void main() {
   });
 
   test('Hi-Res checker receives the staged file, never a proxy URL', () async {
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
           expect(call.method, 'checkHiResAuthenticity');

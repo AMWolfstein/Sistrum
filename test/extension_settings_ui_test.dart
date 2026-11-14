@@ -69,7 +69,7 @@ class _IconExtensions extends _Extensions {
 }
 
 void main() {
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   setUp(() => SharedPreferences.setMockInitialValues({}));
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

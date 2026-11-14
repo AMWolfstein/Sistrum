@@ -10,7 +10,7 @@ import 'package:mornye/utils/path_match_keys.dart';
 void main() {
   test('native History writers accept the current Dart History schema', () {
     final kotlin = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/NativeHistoryStore.kt',
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/NativeHistoryStore.kt',
     ).readAsStringSync();
     final nativeVersion = RegExp(
       r'HISTORY_SCHEMA_VERSION = (\d+)',

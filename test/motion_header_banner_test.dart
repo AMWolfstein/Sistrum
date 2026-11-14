@@ -208,7 +208,7 @@ void main() {
           final platform = _VideoPlatform();
           VideoPlayerPlatform.instance = platform;
           addTearDown(() => VideoPlayerPlatform.instance = previous);
-          const channel = MethodChannel('com.zarz.mornye/backend');
+          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
           final messenger =
               TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
           messenger.setMockMethodCallHandler(channel, (_) async => null);

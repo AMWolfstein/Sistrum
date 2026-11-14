@@ -17,7 +17,7 @@ import 'package:mornye/services/platform_bridge.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   late Directory root;
   late Directory output;
   late Directory sources;

@@ -140,7 +140,7 @@ registerExtension({
   testWidgets('malformed native batch does not reset any flags', (
     tester,
   ) async {
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     await PlatformBridge.cancelDownload('invalid-batch');
     await expectLater(
       channel.invokeMethod<void>('resetDownloadCancels', {

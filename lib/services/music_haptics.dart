@@ -356,7 +356,7 @@ class MusicHapticsAnalyzer {
 
 typedef HapticPulse = Future<void> Function(double intensity, double sharpness);
 
-const _channel = MethodChannel('com.zarz.mornye/haptics');
+const _channel = MethodChannel('com.amwolfstein.sistrum/haptics');
 
 Future<void> nativeHapticPulse(double intensity, double sharpness) =>
     _channel.invokeMethod<void>('pulse', {

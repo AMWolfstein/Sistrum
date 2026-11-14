@@ -19,7 +19,7 @@ import 'package:mornye/widgets/track_list_tile.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const backendChannel = MethodChannel('com.zarz.mornye/backend');
+  const backendChannel = MethodChannel('com.amwolfstein.sistrum/backend');
   final backendMessenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   setUp(() async {
@@ -47,7 +47,7 @@ void main() {
           SharedPreferences.setMockInitialValues({});
           await tester.binding.setSurfaceSize(const Size(430, 1200));
           addTearDown(() => tester.binding.setSurfaceSize(null));
-          const channel = MethodChannel('com.zarz.mornye/backend');
+          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
           final messenger = tester.binding.defaultBinaryMessenger;
           var requests = 0;
           messenger.setMockMethodCallHandler(channel, (call) async {
@@ -339,7 +339,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await tester.binding.setSurfaceSize(const Size(430, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     const payload = <String, dynamic>{
       'id': 'song-1',
       'spotify_id': 'song-1',

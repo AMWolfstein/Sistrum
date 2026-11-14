@@ -34,7 +34,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null;
   late Directory directory;
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('cover-store-test-');
   });

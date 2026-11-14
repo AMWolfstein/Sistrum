@@ -34,7 +34,7 @@ void main() {
       addTearDown(() => directory.delete(recursive: true));
       final storage = _Storage(protocol);
       addTearDown(storage.dispose);
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));

@@ -30,7 +30,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
 
 ## Implementation
 
-- [ ] M002-T001 Move the Android identity to com.amwolfstein.sistrum
+- [x] M002-T001 Move the Android identity to com.amwolfstein.sistrum
   - Start: refresh the map; query `NativeAudio`, `MornyeApplication`,
     `MainActivity`, `SharedEngineChannels`.
   - Acceptance: FR-001. `applicationId`, `namespace` and the manifest `package`

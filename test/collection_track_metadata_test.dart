@@ -74,7 +74,7 @@ void main() {
         'audio_quality': '24-bit/96000Hz',
         'audio_modes': 'STEREO',
       };
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       var requested = false;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {

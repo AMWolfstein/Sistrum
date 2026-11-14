@@ -27,7 +27,7 @@ Future<void> _settleFileIo(WidgetTester tester) async {
 }
 
 void main() {
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   late Directory cache;
   setUpAll(() async {

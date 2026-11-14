@@ -505,7 +505,7 @@ void main() {
 
   test('the dropped History indexes match the native writer', () {
     final native = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/NativeHistoryStore.kt',
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/NativeHistoryStore.kt',
     ).readAsStringSync();
     final list = RegExp(
       r'unusedHistoryIndexes = listOf\(([^)]*)\)',

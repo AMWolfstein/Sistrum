@@ -59,7 +59,7 @@ void main() {
         (tester) async {
           SharedPreferences.setMockInitialValues({});
           FlutterSecureStorage.setMockInitialValues({});
-          const channel = MethodChannel('com.zarz.mornye/backend');
+          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
           tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
             channel,
             (call) async => switch (call.method) {

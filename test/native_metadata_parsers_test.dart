@@ -15,7 +15,7 @@ void main() {
             ).readAsStringSync(),
           )
           as Map<String, dynamic>;
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

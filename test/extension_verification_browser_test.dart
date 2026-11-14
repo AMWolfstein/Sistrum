@@ -13,7 +13,7 @@ import 'support/fixed_settings.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('plugins.flutter.io/url_launcher');
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   final uri = Uri.parse('https://example.invalid/verify?state=sample');

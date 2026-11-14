@@ -27,22 +27,22 @@ void main() {
 
   group('native worker contracts', () {
     final finalizerSource = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/'
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/'
       'NativeDownloadFinalizer.kt',
     ).readAsStringSync();
     final finalizerHistorySource = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/'
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/'
       'NativeFinalizerHistory.kt',
     ).readAsStringSync();
     final historyStoreSource = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/'
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/'
       'NativeHistoryStore.kt',
     ).readAsStringSync();
     final historyDatabaseSource = File(
       'lib/services/history_schema.dart',
     ).readAsStringSync();
     final workerSnapshotSource = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/'
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/'
       'DownloadServiceSnapshot.kt',
     ).readAsStringSync();
     final nativeWorkerProviderSource = File(

@@ -79,7 +79,7 @@ class _Queue extends DownloadQueueNotifier {
 void main() {
   final messenger =
       TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   const sqlite = MethodChannel('com.tekartik.sqflite');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   const notifications = MethodChannel(
@@ -88,7 +88,7 @@ void main() {
   const connectivity = MethodChannel(
     'dev.fluttercommunity.plus/connectivity_status',
   );
-  const progress = MethodChannel('com.zarz.mornye/download_progress_stream');
+  const progress = MethodChannel('com.amwolfstein.sistrum/download_progress_stream');
 
   final previousFactory = databaseFactoryOrNull;
   setUpAll(() {

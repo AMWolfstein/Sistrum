@@ -117,7 +117,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'app_state_migrated_queue_to_sqlite_v1': true,
     });
-    const backend = MethodChannel('com.zarz.mornye/backend');
+    const backend = MethodChannel('com.amwolfstein.sistrum/backend');
     const sqlite = MethodChannel('com.tekartik.sqflite');
     const paths = MethodChannel('plugins.flutter.io/path_provider');
     const notifications = MethodChannel(
@@ -126,7 +126,7 @@ void main() {
     const connectivity = MethodChannel(
       'dev.fluttercommunity.plus/connectivity_status',
     );
-    const progress = MethodChannel('com.zarz.mornye/download_progress_stream');
+    const progress = MethodChannel('com.amwolfstein.sistrum/download_progress_stream');
     messenger.setMockMethodCallHandler(paths, (_) async => root.path);
     messenger.setMockMethodCallHandler(connectivity, (_) async => null);
     messenger.setMockMethodCallHandler(progress, (_) async => null);

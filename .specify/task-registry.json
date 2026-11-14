@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 4,
+  "next_completion": 5,
   "next_mission": 3,
   "next_tor": 5,
   "tasks": {
@@ -88,13 +88,19 @@
       "title": "Remove the Android home-screen widgets"
     },
     "M002-T001": {
-      "completion": null,
+      "completion": 4,
+      "evidence": {
+        "checks": "flutter analyze: no issues; flutter test full suite: +4478 ~10 all passed, exit 0; Gradle compileDebugKotlin unavailable (Kotlin plugin 2.4.10 not resolvable); grep for com.zarz.mornye/com/zarz/mornye/Java_com_zarz outside specs/.specify/history: 0; channel multiset 169=169; JNI 18=18 symbols",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "e09779b3928e44b59b16a9fb92bd9198",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Move the Android identity to com.amwolfstein.sistrum"
     },
     "M002-T002": {

@@ -7,7 +7,7 @@ import 'package:mornye/services/platform_bridge.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const backendChannel = MethodChannel('com.zarz.mornye/backend');
+  const backendChannel = MethodChannel('com.amwolfstein.sistrum/backend');
 
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

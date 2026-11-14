@@ -128,7 +128,7 @@ void main() {
     });
 
     test('feed normalization preserves absent and explicit layouts', () async {
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(channel, (call) async {

@@ -23,7 +23,7 @@ void main() {
     for (final name in [
       'xyz.luan/audioplayers.global',
       'xyz.luan/audioplayers.global/events',
-      'com.zarz.mornye/usb_pcm/events',
+      'com.amwolfstein.sistrum/usb_pcm/events',
     ]) {
       messenger.setMockMethodCallHandler(
         MethodChannel(name),
@@ -31,7 +31,7 @@ void main() {
       );
     }
     messenger.setMockMethodCallHandler(
-      const MethodChannel('com.zarz.mornye/usb_pcm'),
+      const MethodChannel('com.amwolfstein.sistrum/usb_pcm'),
       (call) async => call.method == 'prepare'
           ? {
               'ready': true,

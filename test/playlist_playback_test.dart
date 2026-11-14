@@ -884,7 +884,7 @@ void main() {
   test('external mode opens only the selected available file', () async {
     container.read(settingsProvider.notifier).setPlayerMode('external');
     final calls = <MethodCall>[];
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
@@ -910,7 +910,7 @@ void main() {
   test('external mode skips unavailable and CUE candidates lazily', () async {
     container.read(settingsProvider.notifier).setPlayerMode('external');
     playback.paths['Selected'] = '/album.cue#track02';
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     final calls = <MethodCall>[];

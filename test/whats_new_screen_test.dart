@@ -51,7 +51,7 @@ Future<void> _openNearbyTour(WidgetTester tester, {required bool allow}) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  const channel = MethodChannel('com.zarz.mornye/local_network');
+  const channel = MethodChannel('com.amwolfstein.sistrum/local_network');
   final messenger = tester.binding.defaultBinaryMessenger;
   var granted = false;
   messenger.setMockMethodCallHandler(channel, (call) async {

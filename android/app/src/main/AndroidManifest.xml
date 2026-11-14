@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.zarz.mornye">
+    package="com.amwolfstein.sistrum">
 
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
 
@@ -31,7 +31,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
-        android:label="Mornye Local"
+        android:label="Sistrum"
         android:name=".MornyeApplication"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
@@ -43,7 +43,7 @@
         android:localeConfig="@xml/locale_config">
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.zarz.mornye.MornyeCastOptionsProvider" />
+            android:value="com.amwolfstein.sistrum.MornyeCastOptionsProvider" />
         <activity
             android:name=".AudioOutputActivity"
             android:exported="false"

@@ -62,7 +62,7 @@ DownloadItem _item(String id, DownloadStatus status, DownloadErrorType? type) =>
 void main() {
   final messenger =
       TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   const sqlite = MethodChannel('com.tekartik.sqflite');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   const notifications = MethodChannel(

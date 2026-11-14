@@ -20,7 +20,7 @@ class _Settings extends SettingsNotifier {
   Future<void> ensureLoaded() async {}
 }
 
-const _backend = MethodChannel('com.zarz.mornye/backend');
+const _backend = MethodChannel('com.amwolfstein.sistrum/backend');
 const _device = MethodChannel('dev.fluttercommunity.plus/device_info');
 const _permissions = MethodChannel('flutter.baseflow.com/permissions/methods');
 const _treeUri =

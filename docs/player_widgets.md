@@ -23,7 +23,7 @@ The operating system controls when widget updates appear.
 ## Native integration
 
 `PlayerWidgetService` publishes presentation data through
-`com.zarz.mornye/player_widget`. Artwork loading discards stale results when
+`com.amwolfstein.sistrum/player_widget`. Artwork loading discards stale results when
 tracks change. Commands are serialized and publish the latest state before
 acknowledging completion. A restored session starts paused and uses the same
 audio handler as the app.
@@ -37,11 +37,11 @@ widget extension. Runner starts one headless-capable Flutter engine at process
 launch; UIScene attaches the player interface to that same engine. This keeps
 widget commands available before a foreground scene exists.
 `player.json` and thumbnail images live in the App Group
-`group.com.zarz.mornye`; the widget does not receive audio files.
+`group.com.amwolfstein.sistrum`; the widget does not receive audio files.
 The extension target is embedded by Runner and inherits the app's build version.
 
 For physical iOS builds, both Runner and PlayerWidget signing profiles must
-include `group.com.zarz.mornye`. If using another bundle identifier, update
+include `group.com.amwolfstein.sistrum`. If using another bundle identifier, update
 `PLAYER_WIDGET_APP_GROUP` in all Runner configurations and
 `ios/PlayerWidget/PlayerWidget.xcconfig`, together with the extension bundle ID.
 

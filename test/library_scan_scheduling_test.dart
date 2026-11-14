@@ -137,7 +137,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   AndroidFlutterLocalNotificationsPlugin.registerWith();
   SharedPreferences.setMockInitialValues({});
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   const notifications = MethodChannel(
     'dexterous.com/flutter/local_notifications',

@@ -23,7 +23,7 @@ void main() {
     // The native picker stays above Flutter until the user chooses or cancels.
     output.dispose();
     await const MethodChannel(
-      'com.zarz.mornye/cast',
+      'com.amwolfstein.sistrum/cast',
     ).invokeMethod<void>('disconnect');
   });
 }

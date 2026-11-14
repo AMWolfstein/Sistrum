@@ -103,7 +103,7 @@ void main() {
       SharedPreferences.setMockInitialValues({
         'app_state_migrated_queue_to_sqlite_v1': true,
       });
-      const backend = MethodChannel('com.zarz.mornye/backend');
+      const backend = MethodChannel('com.amwolfstein.sistrum/backend');
       const sqlite = MethodChannel('com.tekartik.sqflite');
       const paths = MethodChannel('plugins.flutter.io/path_provider');
       const notifications = MethodChannel(
@@ -113,7 +113,7 @@ void main() {
         'dev.fluttercommunity.plus/connectivity_status',
       );
       const progress = MethodChannel(
-        'com.zarz.mornye/download_progress_stream',
+        'com.amwolfstein.sistrum/download_progress_stream',
       );
       final summaries = <String>[];
       final attempts = <String>[];

@@ -119,7 +119,7 @@ void main() {
   SharedPreferences.setMockInitialValues({});
   late AudioNative native;
   late Directory folder;
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   const ffmpeg = MethodChannel('flutter.arthenica.com/ffmpeg_kit');
   final ffmpegCalls = <MethodCall>[];
   final messenger =

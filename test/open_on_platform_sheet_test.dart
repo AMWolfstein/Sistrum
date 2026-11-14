@@ -11,7 +11,7 @@ void main() {
   testWidgets(
     'theme rebuild retains completed lookup; identifiers replace it',
     (tester) async {
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final calls = <MethodCall>[];
       final pending = Completer<Map<String, dynamic>>();
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (

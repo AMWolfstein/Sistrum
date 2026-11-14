@@ -14,8 +14,8 @@ import 'package:mornye/widgets/animation_utils.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const backend = MethodChannel('com.zarz.mornye/backend');
-  const calendar = MethodChannel('com.zarz.mornye/concert_calendar');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
+  const calendar = MethodChannel('com.amwolfstein.sistrum/concert_calendar');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

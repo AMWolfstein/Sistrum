@@ -41,7 +41,7 @@ abstract interface class CastTransport {
 
 class MethodChannelCastTransport implements CastTransport {
   const MethodChannelCastTransport({
-    this.channel = const MethodChannel('com.zarz.mornye/cast'),
+    this.channel = const MethodChannel('com.amwolfstein.sistrum/cast'),
     this.eventStream,
   });
 
@@ -56,7 +56,7 @@ class MethodChannelCastTransport implements CastTransport {
   Stream<Object?> events() =>
       eventStream ??
       const EventChannel(
-        'com.zarz.mornye/cast/events',
+        'com.amwolfstein.sistrum/cast/events',
       ).receiveBroadcastStream();
 }
 
@@ -64,7 +64,7 @@ class MethodChannelCastTransport implements CastTransport {
 /// shared engine; elsewhere it lives in the Rust backend.
 class CastOutput extends ChangeNotifier {
   CastOutput({
-    MethodChannel channel = const MethodChannel('com.zarz.mornye/cast'),
+    MethodChannel channel = const MethodChannel('com.amwolfstein.sistrum/cast'),
     Stream<Object?>? events,
     CastTransport? transport,
     bool? nativePicker,

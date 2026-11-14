@@ -13,7 +13,7 @@ import 'package:mornye/widgets/app_bottom_sheet.dart';
 import 'support/fixed_settings.dart';
 
 void main() {
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   tearDown(
     () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null),

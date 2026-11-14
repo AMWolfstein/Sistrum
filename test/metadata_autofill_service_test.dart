@@ -12,7 +12,7 @@ void main() {
   test(
     'album video is resolved even when the track has a still cover',
     () async {
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       final resources = <String>[];
@@ -182,7 +182,7 @@ void main() {
 
   for (final instrumental in [false, true]) {
     test('lyrics-only enrichment handles instrumental=$instrumental', () async {
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       var synced = false;

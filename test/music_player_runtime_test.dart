@@ -2440,7 +2440,7 @@ void main() {
       final cached = await File(
         '${directory.path}/copy.flac',
       ).writeAsString('audio');
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(
@@ -2511,7 +2511,7 @@ void main() {
       ).writeAsString('new');
       final copying = Completer<void>();
       final release = Completer<String>();
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       var copies = 0;

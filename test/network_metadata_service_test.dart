@@ -56,7 +56,7 @@ void main() {
   tearDown(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-          const MethodChannel('com.zarz.mornye/backend'),
+          const MethodChannel('com.amwolfstein.sistrum/backend'),
           null,
         );
     await storage.dispose();
@@ -69,7 +69,7 @@ void main() {
       var calls = 0;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('com.zarz.mornye/backend'),
+            const MethodChannel('com.amwolfstein.sistrum/backend'),
             (call) async {
               expect(call.method, 'runNativeDataJob');
               final args = call.arguments as Map;
@@ -114,7 +114,7 @@ void main() {
       final cancelled = <String>[];
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('com.zarz.mornye/backend'),
+            const MethodChannel('com.amwolfstein.sistrum/backend'),
             (call) async {
               final args = call.arguments as Map;
               final id = args['request_id'] as String;

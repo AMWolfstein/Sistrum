@@ -126,7 +126,7 @@ void main() {
   test(
     'cancel interrupts active native metadata reads and drains their work',
     () async {
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       final jobs = <String, Completer<String>>{};

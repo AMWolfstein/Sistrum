@@ -8,7 +8,7 @@ import 'package:mornye/services/network_storage_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/local_network');
+  const channel = MethodChannel('com.amwolfstein.sistrum/local_network');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   HttpOverrides.global = null;

@@ -35,7 +35,7 @@ class BrowserCoverProvider {
   /// The folders the provider serves, by the name their URIs start with.
   final Map<String, String> folders;
 
-  static const _channel = MethodChannel('com.zarz.mornye/covers');
+  static const _channel = MethodChannel('com.amwolfstein.sistrum/covers');
 
   /// This app's cover provider, or null where there is none or it could
   /// not be reached.

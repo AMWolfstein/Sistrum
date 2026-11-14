@@ -138,7 +138,7 @@ void main() {
               (await File(path).readAsBytes()).single == 2,
           download: (_, _) async => throw StateError('must not download'),
         );
-        const channel = MethodChannel('com.zarz.mornye/backend');
+        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
         final messenger =
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
         messenger.setMockMethodCallHandler(channel, (call) async {

@@ -264,13 +264,13 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('com.zarz.mornye/backend'),
+            const MethodChannel('com.amwolfstein.sistrum/backend'),
             (_) async => null,
           );
       addTearDown(
         () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-              const MethodChannel('com.zarz.mornye/backend'),
+              const MethodChannel('com.amwolfstein.sistrum/backend'),
               null,
             ),
       );

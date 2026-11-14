@@ -63,7 +63,7 @@ void main() {
     test(
       'failed requested SAF write propagates and is not silently ignored',
       () async {
-        const channel = MethodChannel('com.zarz.mornye/backend');
+        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
         final messenger =
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
         var succeeds = false;

@@ -40,7 +40,7 @@ void main() {
           tester.view.physicalSize = const Size(800, 1600);
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
-          const channel = MethodChannel('com.zarz.mornye/backend');
+          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
           final messenger = tester.binding.defaultBinaryMessenger;
           final requests = <Map<String, dynamic>>[];
           messenger.setMockMethodCallHandler(channel, (call) async {

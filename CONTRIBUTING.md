@@ -211,18 +211,18 @@ Workspace dependencies point only downward:
 
 ### Native
 
-Android Kotlin lives in `android/app/src/main/kotlin/com/zarz/mornye/`.
-`android/app/build.gradle.kts` adds `android/app/src/rust/kotlin/com/zarz/mornye/`
+Android Kotlin lives in `android/app/src/main/kotlin/com/amwolfstein/sistrum/`.
+`android/app/build.gradle.kts` adds `android/app/src/rust/kotlin/com/amwolfstein/sistrum/`
 and the generated bindings to the same source set.
 
 | Files | Role |
 | --- | --- |
-| `MainActivity.kt` | Backend channel `com.zarz.mornye/backend`, the `nativeBackendMethods` set, and the `when (call.method)` dispatch |
+| `MainActivity.kt` | Backend channel `com.amwolfstein.sistrum/backend`, the `nativeBackendMethods` set, and the `when (call.method)` dispatch |
 | `MainActivity*Calls.kt`, `MainActivitySaf*.kt`, `MainActivityProgressStreams.kt`, `MainActivitySmallChannels.kt` | `MainActivity.handleX(call, result)` extension functions grouped by area, progress EventChannels, small channels |
 | `DownloadService*.kt`, `BackgroundWorkService.kt` | Foreground services: the native download worker and its snapshot, other background work |
 | `NativeDownloadFinalizer.kt`, `NativeFinalizer*.kt`, `NativeHistoryStore.kt` | Post-download finalization and the native history write |
 | `Saf*.kt` | Storage Access Framework helpers |
-| `UsbBitPerfectPlugin.kt`, `Usb*.kt`, `BitPerfectPcm.kt`, `Dsd*.kt`, `HiResPlayback.kt`, `NativeAudio.kt` | Bit-perfect and USB playback (`com.zarz.mornye/usb_pcm`) |
+| `UsbBitPerfectPlugin.kt`, `Usb*.kt`, `BitPerfectPcm.kt`, `Dsd*.kt`, `HiResPlayback.kt`, `NativeAudio.kt` | Bit-perfect and USB playback (`com.amwolfstein.sistrum/usb_pcm`) |
 | `PlayerWidget*.kt`, `DownloadQueueWidgetProvider.kt` | Home-screen widgets |
 | `CoreBackend.kt`; `SelectedCoreBackend.kt`, `RustCoreBackendApplication.kt`, `NativeDataJobs.kt` | The `CoreBackend` interface and its Rust implementation `RustCoreBackend`, which maps method names to UniFFI calls |
 
@@ -381,7 +381,7 @@ in `handleDownloadByStrategy`.
 - New Rust entry points are `#[uniffi::export]` items in
   `rust_backend/crates/mobile/src/`; the build regenerates bindings (see
   [Development Setup](#development-setup)).
-- Dart tests stub `com.zarz.mornye/backend` with `setMockMethodCallHandler`,
+- Dart tests stub `com.amwolfstein.sistrum/backend` with `setMockMethodCallHandler`,
   for example `test/extension_initialization_test.dart`.
 
 ### A Lyrics Provider
@@ -437,7 +437,7 @@ Commands are in [Validation](#validation).
 | --- | --- | --- |
 | Dart unit and widget | `test/` | [test/README.md](test/README.md); fixtures in `test/fixtures/`, helpers in `test/support/` |
 | Device and performance | `integration_test/` | [integration_test/README.md](integration_test/README.md) |
-| Kotlin JVM | `android/app/src/test/kotlin/com/zarz/mornye/` | Case tables in `android/app/src/test/resources/` are also read by Dart tests |
+| Kotlin JVM | `android/app/src/test/kotlin/com/amwolfstein/sistrum/` | Case tables in `android/app/src/test/resources/` are also read by Dart tests |
 | Rust | `tests.rs` modules beside the code, `rust_backend/crates/extensions/tests/` | For example `rust_backend/crates/extensions/src/runtime/tests.rs` |
 
 ## Conventions

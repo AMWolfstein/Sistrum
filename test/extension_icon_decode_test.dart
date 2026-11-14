@@ -299,7 +299,7 @@ void main() {
       final fixture = await tester.runAsync(
         () => _IconFixture.create(const Size(1024, 256), network: false),
       );
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(

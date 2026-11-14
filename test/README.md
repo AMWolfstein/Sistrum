@@ -84,7 +84,7 @@ only for that:
     playback-session migration.
   - `NativeDownloadFinalizer.kt`, `NativeFinalizerHistory.kt`,
     `NativeHistoryStore.kt` and `DownloadServiceSnapshot.kt` (in
-    `android/app/src/main/kotlin/com/zarz/mornye/`), with
+    `android/app/src/main/kotlin/com/amwolfstein/sistrum/`), with
     `lib/services/history_schema.dart` and
     `lib/providers/download_queue_provider_native_worker.dart`: the native
     worker contract version, the history schema version, columns and

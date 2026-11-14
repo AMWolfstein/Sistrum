@@ -161,7 +161,7 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         SharedPreferences.setMockInitialValues({});
-        const channel = MethodChannel('com.zarz.mornye/backend');
+        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
         final messenger =
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
         messenger.setMockMethodCallHandler(channel, (_) async => null);
