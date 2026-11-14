@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 6,
+  "next_completion": 7,
   "next_mission": 3,
-  "next_tor": 5,
+  "next_tor": 6,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -198,6 +198,22 @@
       "record": "specs/002-rebrand-sistrum/tasks.md",
       "status": "reserved",
       "title": "Remove signed extension sessions and the api.zarz.moe rules"
+    },
+    "M002-TOR005": {
+      "completion": 6,
+      "evidence": {
+        "checks": "cargo check -p mornye-mobile exit 0; flutter analyze no issues; full flutter test +4478 ~10 all passed exit 0; grep for com.mornye.backend/test outside history: none; review round 2 PASS (round 1 NEEDS_FIXES resolved: title, placement, test evidence)",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 2
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": "M002",
+      "nonce": "6a15b5b702d14c028d92c4566f9778c7",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "complete",
+      "title": "Rename the UniFFI Kotlin package to com.sistrum.backend"
     },
     "TOR001": {
       "completion": 1,

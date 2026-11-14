@@ -1,8 +1,8 @@
 package com.amwolfstein.sistrum
 
-import com.mornye.backend.CancellationDomain
-import com.mornye.backend.CancellationRegistry
-import com.mornye.backend.RequestLease
+import com.sistrum.backend.CancellationDomain
+import com.sistrum.backend.CancellationRegistry
+import com.sistrum.backend.RequestLease
 import java.io.File
 import org.json.JSONArray
 import org.json.JSONObject

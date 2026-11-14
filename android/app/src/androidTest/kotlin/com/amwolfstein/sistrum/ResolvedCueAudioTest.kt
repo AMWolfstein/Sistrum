@@ -2,9 +2,9 @@ package com.amwolfstein.sistrum
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.mornye.backend.CancellationDomain
-import com.mornye.backend.CancellationRegistry
-import com.mornye.backend.ExtensionManager
+import com.sistrum.backend.CancellationDomain
+import com.sistrum.backend.CancellationRegistry
+import com.sistrum.backend.ExtensionManager
 import android.os.ParcelFileDescriptor
 import java.io.File
 import org.json.JSONArray

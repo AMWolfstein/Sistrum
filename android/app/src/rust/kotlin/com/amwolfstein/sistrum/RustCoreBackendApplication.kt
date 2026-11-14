@@ -1,6 +1,6 @@
 package com.amwolfstein.sistrum
 
-import com.mornye.backend.LyricsRequest
+import com.sistrum.backend.LyricsRequest
 import java.io.File
 import java.util.UUID
 import org.json.JSONArray

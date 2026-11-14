@@ -19,3 +19,11 @@ Baseline: `8cb6f4f` on `wip` (see plan.md, Repository evidence).
 - Left as-is by design: `mornye://` scheme strings (T008/T010), `mornye_*` asset names and the `mornye` theme variables (theme names per spec Assumptions).
 - Checks: `flutter analyze` no issues. Validation grep `package:mornye/` outside specs/.specify/history: 0.
 - Review note: CONTRIBUTING.md:172 prose also changed from package:mornye/ to package:sistrum/ (same substitution, kept).
+
+## M002-TOR005 Rename the UniFFI Kotlin package to com.sistrum.backend (owner extra)
+
+- Request: owner, 2026-11-14, after M002-T002: rename the Kotlin package generated for the Rust mobile backend from `com.mornye.backend` to `com.sistrum.backend`.
+- Map refresh (first action): `code_tools.py update` OK, 1785 sources, 0 partial, 0 unindexed, 36740 symbols.
+- Changes: `rust_backend/crates/mobile/uniffi.toml` `package_name`; `android/app/proguard-rules.pro` keep rule; Kotlin imports and qualified calls in `android/app/{main,rust,test,androidTest}`; the androidTest content-provider authorities `com.mornye.test.documents.lookup` renamed to `com.sistrum.test.documents.lookup` in the manifest, Java and Kotlin tests; docs (`android/README.md`, `rust_backend/README.md`, `CONTRIBUTING.md`). Rust crate names, `mornye_mobile` cdylib and upstream GitHub links stay.
+- Checks: `cargo check -p mornye-mobile` OK (exit 0). `flutter analyze` no issues. Gradle Kotlin compile unavailable here (see T001). Full `flutter test` on this tree (after the rename): +4478 ~10, all passed, exit 0.
+- Validation grep `com\.mornye\.backend` outside specs/.specify/history: 0.

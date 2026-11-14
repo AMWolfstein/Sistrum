@@ -11,7 +11,7 @@
 # UniFFI/JNA resolves FFI methods and structure fields by their generated names.
 # Preserve the generated Rust bindings used by JNA.
 -keep class com.sun.jna.** { *; }
--keep class com.mornye.backend.** { *; }
+-keep class com.sistrum.backend.** { *; }
 # JNA's desktop AWT helpers are unavailable and unused on Android.
 # https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android
 -dontwarn java.awt.Component

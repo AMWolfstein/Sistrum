@@ -240,7 +240,7 @@ its state to native_download_worker_state.json in `filesDir` for
 
 `android/app/build.gradle.kts` adds `android/app/src/rust/kotlin` as a source
 directory, plus the generated UniFFI Kotlin bindings in
-`rust_backend/target/bindings/kotlin/` (package `com.mornye.backend`) and
+`rust_backend/target/bindings/kotlin/` (package `com.sistrum.backend`) and
 the native libraries in `rust_backend/target/android/jniLibs/`. The
 `buildRustBackend` task runs `scripts/build_rust_backend.sh android` before
 `preBuild`.

@@ -206,7 +206,7 @@ Workspace dependencies point only downward:
 | `network/` | `mornye-network` | Shared, cancellable HTTP transport | none |
 | `providers/` | `mornye-providers` | Built-in clients: Deezer, MusicBrainz, platform resolver, lyrics | core, network |
 | `extensions/` | `mornye-extensions` | Extension JavaScript runtime (rquickjs), host functions, manager, repository, and backend operations such as downloads, library scan, and tags | core, network, providers |
-| `mobile/` | `mornye-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib`; Kotlin package `com.mornye.backend` | core, network, extensions |
+| `mobile/` | `mornye-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib`; Kotlin package `com.sistrum.backend` | core, network, extensions |
 | `bindgen/` | `mornye-bindgen` | UniFFI bindgen CLI used by `scripts/build_rust_backend.sh` | none |
 
 ### Native

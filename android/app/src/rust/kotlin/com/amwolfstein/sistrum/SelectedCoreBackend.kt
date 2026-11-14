@@ -2,13 +2,13 @@ package com.amwolfstein.sistrum
 
 import android.content.Context
 import android.net.Uri
-import com.mornye.backend.CancellationDomain
-import com.mornye.backend.CancellationRegistry
-import com.mornye.backend.DownloadState
-import com.mornye.backend.ExtensionManager
-import com.mornye.backend.ExtensionRepository
-import com.mornye.backend.LyricsRequest
-import com.mornye.backend.RequestLease
+import com.sistrum.backend.CancellationDomain
+import com.sistrum.backend.CancellationRegistry
+import com.sistrum.backend.DownloadState
+import com.sistrum.backend.ExtensionManager
+import com.sistrum.backend.ExtensionRepository
+import com.sistrum.backend.LyricsRequest
+import com.sistrum.backend.RequestLease
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.Dispatchers
@@ -146,7 +146,7 @@ internal object RustCoreBackend : CoreBackend {
 
     internal fun runDataJob(request: JSONObject, bytes: ByteArray, lease: RequestLease): String {
         if (request.optString("operation") != "library_scan_incremental") {
-            return com.mornye.backend.runNativeDataJob(request.toString(), bytes, lease)
+            return com.sistrum.backend.runNativeDataJob(request.toString(), bytes, lease)
         }
         val folder = request.getString("folder_path")
         return withLibraryDirectories(listOf(folder)) { current ->
@@ -261,10 +261,10 @@ internal object RustCoreBackend : CoreBackend {
     override fun fileMetadataImplementation(path: String): String = "rust"
 
     override fun readFileMetadata(path: String, hint: String): String =
-        com.mornye.backend.readFileMetadata(path, hint, null)
+        com.sistrum.backend.readFileMetadata(path, hint, null)
 
     override fun checkHiResAuthenticity(path: String, optionsJson: String): String =
-        com.mornye.backend.checkHiresAuthenticity(path, optionsJson, null)
+        com.sistrum.backend.checkHiresAuthenticity(path, optionsJson, null)
 
     override fun readAudioMetadata(path: String, hint: String, cacheKey: String): String {
         if (path.startsWith("/proc/self/fd/") && path.removePrefix("/proc/self/fd/").toIntOrNull() != null) {
@@ -282,10 +282,10 @@ internal object RustCoreBackend : CoreBackend {
             // Never key artwork by the descriptor number: Android reuses it.
             val key = cacheKey.trim().takeIf { it.isNotEmpty() }
             val slot = if (directory != null && key != null) {
-                com.mornye.backend.libraryCoverSlot(directory.path, key)
+                com.sistrum.backend.libraryCoverSlot(directory.path, key)
             } else null
             val cached = slot?.cached?.let { File(it) }?.takeIf { it.length() > 0 }
-            val result = com.mornye.backend.readLibraryMetadataFromDescriptor(
+            val result = com.sistrum.backend.readLibraryMetadataFromDescriptor(
                 descriptor, hint, java.time.Instant.now().toString(),
                 slot != null && cached == null, null,
             )
@@ -437,7 +437,7 @@ internal object RustCoreBackend : CoreBackend {
             audioPath.removePrefix("/proc/self/fd/").toIntOrNull()
         } else null
         if (descriptor != null) {
-            val artwork = com.mornye.backend.extractCoverFromDescriptor(
+            val artwork = com.sistrum.backend.extractCoverFromDescriptor(
                 descriptor, hint, null,
             )
             check(artwork.isNotEmpty()) { "No embedded artwork" }
@@ -575,8 +575,8 @@ internal object RustCoreBackend : CoreBackend {
     override fun invokeApplication(method: String, arguments: Any?): Any? = dispatchApplication(method, arguments)
 
     override fun buildFilename(template: String, metadataJson: String): String =
-        com.mornye.backend.buildFilename(template, metadataJson)
+        com.sistrum.backend.buildFilename(template, metadataJson)
 
     override fun sanitizeFilename(filename: String): String =
-        com.mornye.backend.sanitizeFilename(filename)
+        com.sistrum.backend.sanitizeFilename(filename)
 }
