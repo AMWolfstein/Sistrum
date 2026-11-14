@@ -68,7 +68,6 @@ void main() {
       expect(settings.lyricsProviders, [
         'apple_music',
         'lrcred',
-        'mornye_lyrics',
         'lyricsplus',
         'lrclib',
       ]);
@@ -89,7 +88,7 @@ void main() {
       );
     });
 
-    test('normalizes the old lyrics provider without duplicating it', () {
+    test('drops the removed Zarz-LRC provider from a stored order', () {
       final settings = AppSettings.fromJson({
         'lyricsProviders': [
           'lrclib',
@@ -98,11 +97,7 @@ void main() {
           'mornye_lyrics',
         ],
       });
-      expect(settings.lyricsProviders, [
-        'lrclib',
-        'mornye_lyrics',
-        'apple_music',
-      ]);
+      expect(settings.lyricsProviders, ['lrclib', 'apple_music']);
     });
 
     test('copyWith updates values and can clear nullable provider fields', () {

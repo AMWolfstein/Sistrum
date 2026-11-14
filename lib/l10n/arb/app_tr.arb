@@ -4262,10 +4262,6 @@
   "@lyricsProviderLyricsPlusDesc": {
     "description": "Description for LyricsPlus provider"
   },
-  "lyricsProviderZarzLrcDesc": "Zarz-LRC'den kelime kelime Apple Music şarkı sözleri",
-  "@lyricsProviderZarzLrcDesc": {
-    "description": "Description for the first-party Zarz-LRC provider"
-  },
   "lyricsProviderLrcRedDesc": "Kayda göre eşleştirilen kelime kelime Apple Music şarkı sözleri",
   "@lyricsProviderLrcRedDesc": {
     "description": "Description for lrc.red provider"

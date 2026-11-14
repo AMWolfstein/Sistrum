@@ -4262,10 +4262,6 @@
   "@lyricsProviderLyricsPlusDesc": {
     "description": "Description for LyricsPlus provider"
   },
-  "lyricsProviderZarzLrcDesc": "来自Zarz-LRC的逐字Apple Music歌词",
-  "@lyricsProviderZarzLrcDesc": {
-    "description": "Description for the first-party Zarz-LRC provider"
-  },
   "lyricsProviderLrcRedDesc": "逐字Apple Music歌词，按录音匹配",
   "@lyricsProviderLrcRedDesc": {
     "description": "Description for lrc.red provider"

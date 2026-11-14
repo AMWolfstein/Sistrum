@@ -4262,10 +4262,6 @@
   "@lyricsProviderLyricsPlusDesc": {
     "description": "Description for LyricsPlus provider"
   },
-  "lyricsProviderZarzLrcDesc": "Zarz-LRC의 Apple Music 가사 (단어별)",
-  "@lyricsProviderZarzLrcDesc": {
-    "description": "Description for the first-party Zarz-LRC provider"
-  },
   "lyricsProviderLrcRedDesc": "녹음과 일치하는 Apple Music 가사 (단어별)",
   "@lyricsProviderLrcRedDesc": {
     "description": "Description for lrc.red provider"

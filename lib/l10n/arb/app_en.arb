@@ -4355,10 +4355,6 @@
   "@lyricsProviderLyricsPlusDesc": {
     "description": "Description for LyricsPlus provider"
   },
-  "lyricsProviderZarzLrcDesc": "Word-by-word Apple Music lyrics from Zarz-LRC",
-  "@lyricsProviderZarzLrcDesc": {
-    "description": "Description for the first-party Zarz-LRC provider"
-  },
   "lyricsProviderLrcRedDesc": "Word-by-word Apple Music lyrics, matched by recording",
   "@lyricsProviderLrcRedDesc": {
     "description": "Description for lrc.red provider"

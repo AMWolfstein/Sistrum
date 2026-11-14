@@ -266,7 +266,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     returns nothing.
   - Dependencies: M002-T010.
 
-- [ ] M002-T009 Remove the Zarz-LRC lyrics provider
+- [x] M002-T009 Remove the Zarz-LRC lyrics provider
   - Request: owner, 2026-11-14: remove Zarz-LRC (FR-014).
   - Start: refresh the map; query `zarz_lrc_lyrics`, `format_zarz_lrc_apple`,
     `AppleLyricsSource`, `lyricsProviderZarzLrcDesc`.

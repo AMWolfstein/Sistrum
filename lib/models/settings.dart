@@ -366,7 +366,6 @@ class AppSettings {
     this.lyricsProviders = const [
       'apple_music',
       'lrcred',
-      'mornye_lyrics',
       'lyricsplus',
       'lrclib',
     ],
@@ -704,14 +703,16 @@ class AppSettings {
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     final settings = _$AppSettingsFromJson(json);
-    if (!settings.lyricsProviders.contains('spotiflac_lyrics')) {
+    // Zarz-LRC and its legacy alias were removed; stored lists drop them.
+    const removedProviders = {'mornye_lyrics', 'spotiflac_lyrics'};
+    if (!settings.lyricsProviders.any(removedProviders.contains)) {
       return settings;
     }
     return settings.copyWith(
-      lyricsProviders: {
+      lyricsProviders: [
         for (final provider in settings.lyricsProviders)
-          provider == 'spotiflac_lyrics' ? 'mornye_lyrics' : provider,
-      }.toList(),
+          if (!removedProviders.contains(provider)) provider,
+      ],
     );
   }
   Map<String, dynamic> toJson() => _$AppSettingsToJson(this);

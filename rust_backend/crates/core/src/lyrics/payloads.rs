@@ -236,19 +236,6 @@ pub fn format_pax_content(
     output.trim().into()
 }
 
-/// The first-party service's exported eLRC flattens backing vocals into lead
-/// lines. Read its v1 JSON instead to preserve background groups and exact
-/// word boundaries, including adjacent syllables and line-only lyrics.
-pub fn format_zarz_lrc_apple(
-    raw: &str,
-    multi_person: bool,
-    word_timing: bool,
-) -> Result<String, String> {
-    let payload: ApplePayload =
-        json::decode(raw).map_err(|error| format!("invalid Zarz-LRC response: {error}"))?;
-    format_apple_payload(&payload, "Zarz-LRC", multi_person, word_timing)
-}
-
 /// Shared by every source that exposes Apple's own line structure, either as
 /// first-party JSON or as the TTML document it is derived from.
 fn format_apple_payload(

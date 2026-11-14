@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,7 +24,6 @@ const _currentMigrationVersion = 15;
 
 /// Marked the removed rebrand tour as seen.
 const _retiredUpgradeIntroSeenKey = 'upgrade_intro_mornye_seen';
-const _legacyDefaultLyricsProviders = ['apple_music', 'lrclib'];
 const _spotifyClientSecretKey = 'spotify_client_secret';
 const _retiredBuiltInProviderIds = {'deezer', 'qobuz', 'tidal', 'youtube'};
 final _log = AppLogger('SettingsProvider');
@@ -327,29 +325,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
           libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
         );
       }
-      // Migration 13: Zarz-LRC left Apple Music's Paxsenix
-      // fallback chain. Untouched defaults move to the new defaults; a custom
-      // order keeps the former fallback right after Apple Music.
-      if (lastMigration < 13) {
-        final providers = state.lyricsProviders;
-        if (listEquals(providers, _legacyDefaultLyricsProviders)) {
-          state = state.copyWith(
-            lyricsProviders: const AppSettings().lyricsProviders,
-          );
-        } else if (providers.contains('apple_music') &&
-            !providers.contains('mornye_lyrics')) {
-          state = state.copyWith(
-            lyricsProviders: [
-              for (final provider in providers) ...[
-                provider,
-                if (provider == 'apple_music') 'mornye_lyrics',
-              ],
-            ],
-          );
-        }
-      }
-      // Migration 14 persists the legacy lyrics provider alias normalized by
-      // AppSettings.fromJson without changing the user's provider order.
+      // Migration 14 was a no-op that once persisted the lyrics provider alias
+      // rename; removed providers are now dropped by AppSettings.fromJson.
       // Migration 15: the rebrand tour is gone, and so is its flag.
       if (lastMigration < 15) {
         await prefs.remove(_retiredUpgradeIntroSeenKey);

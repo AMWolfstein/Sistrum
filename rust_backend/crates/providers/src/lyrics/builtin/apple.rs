@@ -1,4 +1,4 @@
-//! Built-in Apple Music and Zarz-LRC providers.
+//! Built-in Apple Music provider.
 
 use super::*;
 use crate::lyrics::http;
@@ -16,7 +16,6 @@ static TOKEN: LazyLock<Regex> =
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum AppleLyricsSource {
     Paxsenix,
-    ZarzLrc,
 }
 
 impl BuiltinLyricsClient {
@@ -108,15 +107,6 @@ impl BuiltinLyricsClient {
         self.apple_lyrics(&id, AppleLyricsSource::Paxsenix, request, check)
     }
 
-    pub(super) fn zarz_lrc_lyrics(
-        &self,
-        request: &SearchRequest,
-        check: &Check<'_>,
-    ) -> Result<LyricsResponse, LyricsError> {
-        let id = self.apple_song_id(request, check)?;
-        self.apple_lyrics(&id, AppleLyricsSource::ZarzLrc, request, check)
-    }
-
     fn apple_song_id(
         &self,
         request: &SearchRequest,
@@ -186,14 +176,6 @@ impl BuiltinLyricsClient {
                 get.params = pairs(&[("id", id)]);
                 get
             }
-            AppleLyricsSource::ZarzLrc => {
-                let mut get = Request::new("https://api.zarz.moe/apple-music/lyrics");
-                get.timeout = Duration::from_secs(65);
-                // Let the backup use its account's storefront, since lyric
-                // availability differs between catalog regions.
-                get.params = pairs(&[("id", id), ("v", "1")]);
-                get
-            }
         };
         get.allowed = &[200, 404];
         let response = self.http.get(get, check)?;
@@ -226,11 +208,6 @@ impl BuiltinLyricsClient {
                 };
                 (text, "Apple Music")
             }
-            AppleLyricsSource::ZarzLrc => (
-                payloads::format_zarz_lrc_apple(raw, multi_person, word_timing)
-                    .map_err(LyricsError::Unavailable)?,
-                "Zarz-LRC",
-            ),
         };
         let mut lyrics = from_text(&text, name, name)?;
         payloads::apple_supplements(raw, &mut lyrics);
@@ -248,41 +225,6 @@ mod tests {
         fn deezer_id_from_spotify(&self, _: &str, _: &Check<'_>) -> Result<String, LyricsError> {
             unreachable!("token test must not resolve tracks")
         }
-    }
-
-    #[test]
-    fn zarz_lrc_lyrics_credit_never_names_the_proxy() {
-        let lyrics = LyricsResponse::from_text("[00:01.00]Example", "Zarz-LRC", "Zarz-LRC");
-        let saved = sistrum_core::lyrics::lrc::with_metadata(&lyrics, "Track", "Artist");
-        assert!(saved.contains("source: Zarz-LRC"));
-        assert!(!saved.contains("Paxsenix"));
-    }
-
-    #[test]
-    #[ignore = "requires live Apple catalog and Zarz-LRC access"]
-    fn live_zarz_lrc_lyrics_works_without_paxsenix() {
-        let network = NetworkService::new().unwrap();
-        let client = BuiltinLyricsClient::with_endpoints(
-            &network,
-            "",
-            Arc::new(Resolver),
-            BTreeMap::from([(
-                "https://lyrics.paxsenix.org".into(),
-                "https://127.0.0.1:9".into(),
-            )]),
-        )
-        .unwrap();
-        let request = SearchRequest {
-            track: "Never Gonna Give You Up".into(),
-            artist: "Rick Astley".into(),
-            duration: 213.0,
-            ..SearchRequest::default()
-        };
-        let lyrics = client.zarz_lrc_lyrics(&request, &|| Ok(())).unwrap();
-        assert!(lyrics.has_usable_text());
-        assert!(lyrics.is_synced());
-        assert_eq!(lyrics.provider, "Zarz-LRC");
-        assert_eq!(lyrics.source, "Zarz-LRC");
     }
 
     #[test]

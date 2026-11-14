@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 16,
+  "next_completion": 17,
   "next_mission": 3,
   "next_tor": 9,
   "tasks": {
@@ -210,13 +210,19 @@
       "title": "Rename the app-owned protocol identifiers to Sistrum"
     },
     "M002-T009": {
-      "completion": null,
+      "completion": 16,
+      "evidence": {
+        "checks": "flutter analyze no issues; flutter gen-l10n run; full flutter test +4408 ~10 all passed exit 0; full cargo test --workspace all suites passed exit 0; cargo check --locked --workspace exit 0; grep for Zarz-LRC, mornye_lyrics, spotiflac_lyrics and Zarz URLs: only the intended filter and test references remain; review round 1 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "952638ea61814f878139487a6fdd5aa4",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove the Zarz-LRC lyrics provider"
     },
     "M002-T010": {

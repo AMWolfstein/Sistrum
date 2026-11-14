@@ -15,3 +15,4 @@
 - M002-T010 — Remove signed extension sessions and the api.zarz.moe rules
 - M002-T008 — Rename the app-owned protocol identifiers to Sistrum
 - M002-TOR008 — Rename the remaining non-theme mornye names to sistrum
+- M002-T009 — Remove the Zarz-LRC lyrics provider

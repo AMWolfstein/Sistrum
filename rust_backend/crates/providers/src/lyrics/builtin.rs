@@ -78,7 +78,6 @@ impl BuiltinLyricsClient {
             "netease" => self.netease(request, check),
             "musixmatch" => self.musixmatch(request, check),
             "apple_music" => self.apple(request, check),
-            "mornye_lyrics" | "spotiflac_lyrics" => self.zarz_lrc_lyrics(request, check),
             "spotify" => self.spotify(request, check),
             "deezer" => self.deezer(request, check),
             "youtube" => self.youtube(request, check),

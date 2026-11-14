@@ -27,7 +27,6 @@ class _LyricsProviderPriorityPageState
     'netease',
     'musixmatch',
     'apple_music',
-    'mornye_lyrics',
     'qqmusic',
     'spotify',
     'deezer',
@@ -227,12 +226,6 @@ class _LyricsProviderPriorityPageState
           name: 'Apple Music',
           description: context.l10n.lyricsProviderAppleMusicDesc,
           icon: Icons.music_note,
-        );
-      case 'mornye_lyrics':
-        return _LyricsProviderInfo(
-          name: 'Zarz-LRC',
-          description: context.l10n.lyricsProviderZarzLrcDesc,
-          icon: Icons.verified_outlined,
         );
       case 'qqmusic':
         return _LyricsProviderInfo(

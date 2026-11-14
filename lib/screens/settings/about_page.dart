@@ -64,14 +64,6 @@ class AboutPage extends StatelessWidget {
                 ),
                 _AboutSettingsItem(
                   icon: Icons.lyrics_outlined,
-                  title: 'Zarz-LRC',
-                  subtitle: context.l10n.lyricsProviderZarzLrcDesc,
-                  onTap: () =>
-                      _launchUrl('https://api.zarz.moe/apple-music/docs'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.lyrics_outlined,
                   title: 'Paxsenix',
                   subtitle: context.l10n.aboutPaxsenixSubtitle,
                   onTap: () => _launchUrl('https://lyrics.paxsenix.org'),
@@ -89,20 +81,6 @@ class AboutPage extends StatelessWidget {
                   title: context.l10n.aboutMobileSource,
                   subtitle: 'github.com/${AppInfo.githubRepo}',
                   onTap: () => _launchUrl(AppInfo.githubUrl),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.lyrics_outlined,
-                  title: context.l10n.aboutLyricsWebsite,
-                  subtitle: 'lyrics.zarz.moe',
-                  onTap: () => _launchUrl('https://lyrics.zarz.moe'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.monitor_heart_outlined,
-                  title: context.l10n.aboutServiceStatus,
-                  subtitle: 'status.zarz.moe',
-                  onTap: () => _launchUrl('https://status.zarz.moe'),
                   showDivider: true,
                 ),
                 _AboutSettingsItem(

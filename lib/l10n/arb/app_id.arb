@@ -4230,10 +4230,6 @@
   "@lyricsProviderLyricsPlusDesc": {
     "description": "Description for LyricsPlus provider"
   },
-  "lyricsProviderZarzLrcDesc": "Lirik Apple Music per kata dari Zarz-LRC",
-  "@lyricsProviderZarzLrcDesc": {
-    "description": "Description for the first-party Zarz-LRC provider"
-  },
   "lyricsProviderLrcRedDesc": "Lirik Apple Music per kata, dicocokkan per rekaman",
   "@lyricsProviderLrcRedDesc": {
     "description": "Description for lrc.red provider"
