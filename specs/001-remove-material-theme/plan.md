@@ -3,6 +3,17 @@
 **Branch**: `wip` | **Date**: 2026-11-14 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `specs/001-remove-material-theme/spec.md`
 
+## Changes from M002 (rebrand)
+
+M002 runs first and changes this plan's baseline: the app is Sistrum
+(`com.amwolfstein.sistrum`, `package:sistrum/`, version 0.1.0+1). These files
+and features M002 removes are no longer M001 work: the What's New tour
+(`lib/screens/whats_new_screen.dart`), the donate page and remote config
+(`lib/screens/settings/donate_page.dart`, `lib/services/app_remote_config_service.dart`),
+the About contributors and translators lists, the Telegram rows, the Zarz-LRC
+provider, and signed extension sessions. Where this plan names one of them, the
+file is already gone. Test counts are re-taken at M001's first task.
+
 ## Summary
 
 Make Mornye the app's only theme and delete the Material design layer: the style

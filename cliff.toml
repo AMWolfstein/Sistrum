@@ -64,7 +64,7 @@ commit_preprocessors = [
 
 # Regex for parsing and grouping commits
 commit_parsers = [
-  # Skip noise: translation commits from Crowdin
+  # Skip noise: translation commits
   { message = "^New translations", skip = true },
   { message = "^Update source file", skip = true },
   # Skip merge commits

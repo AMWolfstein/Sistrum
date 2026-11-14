@@ -84,3 +84,17 @@ Baseline: `8cb6f4f` on `wip` (see plan.md, Repository evidence).
 - Review round 1 fix: `android/app/src/main/res/drawable-nodpi/ic_launcher_background.png` copied from Private (`cmp` equal). The copied `mipmap-anydpi-v26/ic_launcher.xml` refers to `@drawable/ic_launcher_background`, so the file is needed for the resource to resolve.
 - Kept: the Private `android/.../res` files outside this task's list (splash art, launch background, v31 styles, widget files), which are not part of T005.
 - Checks: `flutter analyze` no issues; full `flutter test`: +4450 ~10, all passed, exit 0. Android/Gradle build and visual check on a device not run; icons were inspected as images only.
+
+## M002-T006 Update the docs, GitHub files and the M001 plan
+
+- Map refresh (first action): `code_tools.py update` OK, 1777 sources, 0 partial, 0 unindexed, 36487 symbols.
+- Deleted: `CHANGELOG.md` (Mornye history), `crowdin.yml`, `.github/FUNDING.yml`, `assets/readme/featured-on-fmhy.svg`, the Crowdin and Telegram badge SVGs in `assets/readme/badges/`.
+- README: the Trendshift and FMHY block, the Crowdin badge and the Crowdin thanks removed; Zarz-LRC removed from the lyrics text (lines about the providers); the app name says Sistrum in the body (the Mornye theme text and the "Based on Mornye" credit stay).
+- CONTRIBUTING: the Crowdin link removed; app name says Sistrum. `CODE_OF_CONDUCT.md` contact is AMWolfstein. `cliff.toml` comment and `lib/l10n/supported_locales.dart` comment no longer name Crowdin.
+- `.github` issue templates say Sistrum (the PR template has no app name and is unchanged); `FUNDING.yml` deleted.
+- Owner decision: `README.md:172` and `.github/ISSUE_TEMPLATE/config.yml:7` still link to `https://mornye.com/docs`, the Mornye project's documentation domain. Kept for now; re-point or keep is the owner's call.
+- Rust backend README and Android README: app identity and wake-lock tags say Sistrum.
+- `specs/001-remove-material-theme/`: package and folder paths changed to `com/amwolfstein/sistrum` and `package:sistrum/`; `plan.md` has a note on what M002 removes (the M001 findings about the Mornye theme stay).
+- Kept on purpose: theme names in the docs (`lib/theme/README.md`, `integration_test/README.md`, "Material or the Mornye theme" lines), `MornyeApp`/`Mornye*` identifiers, the `third_party/*` patch records, `rust_backend/vendor`, the "Based on Mornye" credit and the LGPL text.
+- Left for later tasks (the acceptance grep still lists them): `zarz` in the Zarz-LRC provider and its tests (T009), `api.zarz.moe` in the extension cover and health code, the Apple lyrics provider and `test/extension_session_callback_test.dart` (T009 and T010), the About lyrics and status links (T009).
+- Checks: `flutter analyze` run; full `flutter test`: see the result line below; `python3 workflow/work.py validate` PASS.

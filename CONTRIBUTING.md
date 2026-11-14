@@ -1,6 +1,6 @@
-# Contributing to Mornye
+# Contributing to Sistrum
 
-Thank you for helping improve Mornye. Bug reports, focused pull
+Thank you for helping improve Sistrum. Bug reports, focused pull
 requests, documentation, and translations are all welcome.
 
 Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) when participating in
@@ -15,8 +15,6 @@ the project.
 - Never commit credentials, signing files, downloaded media, or generated build
   artifacts.
 
-Translations are managed through the
-[Mornye Crowdin project](https://crowdin.com/project/mornye).
 The English source strings live in `lib/l10n/arb/app_en.arb`.
 
 ## Toolchain
@@ -116,7 +114,7 @@ when choosing symbols; equal version numbers do not guarantee a match.
 
 ### Last.fm Integration
 
-Create a Last.fm API account for Mornye at
+Create a Last.fm API account for Sistrum at
 <https://www.last.fm/api/account/create>. Authorization uses a request
 token and a browser approval, so no callback URL is needed. Put its API key
 and shared secret in the Git-ignored `.env.lastfm` file:
@@ -150,7 +148,7 @@ docs/         Local documentation and migration archives (gitignored)
 scripts/      Reproducible project build helpers
 ```
 
-Mornye is extension-driven. Extension-specific behavior must be
+Sistrum is extension-driven. Extension-specific behavior must be
 declared through a generic manifest field, capability, or reusable app API.
 Do not add provider-name checks such as `if source == 'provider-name'` to the
 main app. The backend should parse and expose the generic declaration, and Dart
@@ -559,6 +557,6 @@ before/after screenshots for UI changes.
 5. Respond to review feedback with follow-up commits; maintainers may squash
    commits when merging.
 
-When reporting a crash, include the Mornye version, release channel,
+When reporting a crash, include the Sistrum version, release channel,
 device/OS, exact reproduction steps, storage mode, and exported app logs. For a
 cold-start Android crash, `adb logcat -b crash -d` is especially useful.

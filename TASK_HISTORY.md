@@ -11,3 +11,4 @@
 - M002-T003 — Rename the app, version, description and copyright
 - M002-T004 — Point updates to AMWolfstein/Sistrum and drop upstream services
 - M002-T005 — Replace the icons and logos
+- M002-T006 — Update the docs, GitHub files and the M001 plan

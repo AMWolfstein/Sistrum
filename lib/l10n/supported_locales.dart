@@ -1,5 +1,5 @@
 // Hand-maintained list of locales offered in the UI.
-// A locale is enabled once its Crowdin coverage reaches about 70 percent.
+// A locale is enabled once its translation coverage reaches about 70 percent.
 // Edit this list by hand when a locale crosses that threshold in either
 // direction.
 

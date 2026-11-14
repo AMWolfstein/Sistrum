@@ -196,7 +196,7 @@ Both services are declared with `foregroundServiceType="dataSync"` in
 | File | `android/app/src/main/kotlin/com/amwolfstein/sistrum/DownloadService.kt` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/BackgroundWorkService.kt` |
 | Channels | `download_channel` (progress), `download_alerts_v1` (alerts) | `background_work` |
 | Notification IDs | 1001 (foreground), 1 (result), 4 (verification required) | 1002 |
-| Wake lock tag | `Mornye:DownloadWakeLock` | `Mornye:BackgroundWorkWakeLock` |
+| Wake lock tag | `Sistrum:DownloadWakeLock` | `Sistrum:BackgroundWorkWakeLock` |
 | Wake lock timing | 30 min timeout, renewed on progress updates once 15 min have passed | 30 min timeout, re-acquired by a 15 min timer |
 | Started by | `startDownloadService`, `startNativeDownloadWorker` (intent actions `com.amwolfstein.sistrum.action.*`) | `startBackgroundWork` for a `kind` (Dart uses `library_scan` and `app_update`) |
 | Stopped by | `stopDownloadService`, the native queue finishing or being cancelled, an invalid queue payload, a null restart intent, `onTimeout` | `stopBackgroundWork` for the last active kind, `onTimeout` |

@@ -1,12 +1,12 @@
-# Mornye Rust Backend
+# Sistrum Rust Backend
 
 The Rust workspace is the app's only backend on Android. Flutter
 reaches it through the native channel (see `android/README.md`); Kotlin
 calls it through UniFFI bindings generated from `sistrum-mobile`.
 
-The app identifies itself as Mornye in HTTP requests, exported lyrics and
+The app identifies itself as Sistrum in HTTP requests, exported lyrics and
 new FLAC vendor metadata. Crates, native libraries and generated bindings
-use Mornye names. Legacy backup and extension formats remain readable;
+use Sistrum names. Legacy backup and extension formats remain readable;
 cryptographic domain separators retain their original values so branding
 changes do not invalidate encrypted storage or external session protocols.
 

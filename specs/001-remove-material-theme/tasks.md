@@ -206,7 +206,7 @@ searches below.
     `ic_widget_play`, `ic_widget_pause`, `ic_widget_next` and `ic_widget_previous`
     stay (used by `playback_notification.dart` and `MornyeApplication.kt`).
   - Paths: `android/app/src/main/AndroidManifest.xml`;
-    `android/app/src/main/kotlin/com/zarz/mornye/PlayerWidgetProvider.kt`,
+    `android/app/src/main/kotlin/com/amwolfstein/sistrum/PlayerWidgetProvider.kt`,
     `PlayerWidgetConfigurationActivity.kt`, `DownloadQueueWidgetProvider.kt`,
     `DownloadService.kt` (widget push only), `MainActivity.kt`
     (`PlayerWidgetBridge.handleIntent`), `SharedEngineChannels.kt`

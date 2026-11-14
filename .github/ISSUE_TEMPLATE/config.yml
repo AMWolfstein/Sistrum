@@ -5,4 +5,4 @@ contact_links:
     about: Check the README for setup instructions and FAQ
   - name: Extension Development Guide
     url: https://mornye.com/docs
-    about: Documentation for building Mornye extensions
+    about: Documentation for building Sistrum extensions

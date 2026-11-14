@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 12,
+  "next_completion": 13,
   "next_mission": 3,
   "next_tor": 8,
   "tasks": {
@@ -168,13 +168,19 @@
       "title": "Replace the icons and logos"
     },
     "M002-T006": {
-      "completion": null,
+      "completion": 12,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test +4450 ~10 all passed exit 0; deletions and reference greps; README tag balance against HEAD; workflow unchanged; review round 1 PASS with non-blocking notes (mornye.com links logged as owner decision)",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "d1ee922ae38e46258b18132caf43f510",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Update the docs, GitHub files and the M001 plan"
     },
     "M002-T007": {

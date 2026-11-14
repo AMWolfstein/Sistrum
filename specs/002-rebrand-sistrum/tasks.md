@@ -163,7 +163,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     nothing; the icons are inspected as images.
   - Dependencies: M002-T004.
 
-- [ ] M002-T006 Update the docs, GitHub files and the M001 plan
+- [x] M002-T006 Update the docs, GitHub files and the M001 plan
   - Start: refresh the map.
   - Acceptance: FR-012. `README.md`, `CONTRIBUTING.md`, `android/README.md`,
     `rust_backend/README.md`, `integration_test/README.md`, `test/README.md`,

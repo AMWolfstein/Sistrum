@@ -42,7 +42,7 @@ file). A song opens from its copy only once the copy is complete, so the next
 song starts without waiting for the server and gapless playback holds; until
 then it streams. Copies are checked against the server's size and modification
 time or entity tag, and an edit or deletion made in the app drops its copy.
-Saved offline copies take priority, and Mornye Link songs are not cached.
+Saved offline copies take priority, and Sistrum Link songs are not cached.
 
 Browsing alone does not add anything to the Library. Inside an SMB or WebDAV
 folder, choose **Add folder to Library** to index that folder and its subfolders.
