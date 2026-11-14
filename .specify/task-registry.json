@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 8,
+  "next_completion": 9,
   "next_mission": 3,
-  "next_tor": 7,
+  "next_tor": 8,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -230,6 +230,22 @@
       "record": "specs/002-rebrand-sistrum/tasks.md",
       "status": "complete",
       "title": "Rename the Rust crates, native libraries and upstream repository links to Sistrum"
+    },
+    "M002-TOR007": {
+      "completion": 8,
+      "evidence": {
+        "checks": "flutter analyze no issues; flutter gen-l10n run; flutter test full suite +4478 ~10 all passed exit 0; ARB JSON valid; grep for ko-fi/altstore/ios/flatpak/armeabi in scope: only out-of-scope Ko-fi code (M002-T004) and kept items; review round 1 NEEDS_FIXES (checkbox placement) resolved, round 2 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 2
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": "M002",
+      "nonce": "c04a874a09f14304b840f2c516ee0845",
+      "record": "specs/002-rebrand-sistrum/tasks.md",
+      "status": "complete",
+      "title": "Remove leftover iOS, desktop, arm32 and TV references from docs and metadata"
     },
     "TOR001": {
       "completion": 1,

@@ -1607,7 +1607,7 @@
   },
   "updateViewRelease": "Xem bản phát hành",
   "@updateViewRelease": {
-    "description": "Update button - open the release page when this install cannot update itself (deb, Flatpak, no matching package)"
+    "description": "Update button - open the release page when this install cannot update itself (no matching package)"
   },
   "providerPriorityTitle": "Thứ tự ưu tiên nguồn",
   "@providerPriorityTitle": {

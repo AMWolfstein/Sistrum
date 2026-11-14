@@ -381,30 +381,11 @@ another country's recommendations without a VPN.
 
 </details>
 
-<details>
-<summary><b>Can I add Mornye to AltStore or SideStore?</b></summary>
-<br>
-
-Yes! Add the official source to receive updates directly within the app. Copy this link:
-
-```
-https://raw.githubusercontent.com/mornyeapp/Mornye/refs/heads/main/apps.json
-```
-
-In AltStore/SideStore, go to **Browse > Sources**, tap **+**, and paste the link.
-
-</details>
-
-> [!NOTE]
-> If Mornye is useful to you, consider supporting development:
->
-> [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/zarzet)
-
 ---
 
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-contributors-dark.svg"><img src="assets/readme/sections/section-contributors-light.svg" height="32" align="top" alt=""></picture> Contributors
 
-Thanks to everyone who has contributed to Mornye!
+Thanks to everyone who has contributed to Sistrum!
 
 <a href="https://github.com/AMWolfstein/Sistrum/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=AMWolfstein/Sistrum" />

@@ -105,8 +105,7 @@ enough. For a manual build:
 
 - Set `ANDROID_NDK_HOME` to NDK 30.0.16248370 (the version CI installs in
   `.github/workflows/ci.yml` and `android/app/build.gradle.kts` uses).
-- `MORNYE_RUST_ANDROID_ABIS` selects `arm64-v8a`, `armeabi-v7a` or both
-  (comma-separated; the default is both).
+- `MORNYE_RUST_ANDROID_ABIS` must be `arm64-v8a`, the only supported ABI.
 - Libraries link against API 24 with 16 KB page alignment.
 
 `bash scripts/check_android_statx.sh arm64-v8a` checks the vendored Rustix

@@ -36,3 +36,12 @@ Baseline: `8cb6f4f` on `wip` (see plan.md, Repository evidence).
 - Overlap: T004 (`githubRepo`, `cliff.toml`) and T006 (docs links) planned these links; they are done here, so those tasks only keep their remaining items.
 - Checks: `cargo check --locked --workspace` exit 0; `scripts/test_check_backend_apk.py` 5 tests OK; `python3 -m unittest discover -s workflow` OK; `flutter analyze` no issues; full `flutter test` on this tree: +4478 ~10, all passed, exit 0. Rust unit tests not run; this is a rename verified by compilation.
 - Validation grep `mornye[-_](bindgen|cast|core|extensions|mobile|network|providers)|mornye_audio|mornye_flac|mornyeapp/Mornye` outside specs/.specify/history/third_party/vendor: only the iOS apps.json link and the credit/licence references.
+
+## M002-TOR007 Remove leftover iOS, desktop, arm32 and TV references from docs and metadata (owner extra)
+
+- Request: owner, 2026-11-14: remove what is left of iOS, macOS, desktop, Android TV and 32-bit ARM after the platform-only cleanup.
+- Map refresh (first action): `code_tools.py update` OK, 1785 sources, 0 partial, 0 unindexed, 36740 symbols.
+- Findings: no `ios/`, `macos/`, `windows/`, `linux/` folders; no Dart branch for iOS, desktop or TV (`Platform.isAndroid` only). Leftovers were documentation and metadata.
+- Changes: README AltStore/SideStore section and Ko-fi donation note removed; the contributors sentence says Sistrum; `docs/artist_concerts.md` iOS calendar sentence removed; `docs/player_widgets.md` deleted (it documented iOS WidgetKit and the Android widgets, which M001-TOR004 removes); `.editorconfig` drops `swift`; `analysis_options.yaml` drops the `web/**` exclude; `rust_backend/README.md` says `MORNYE_RUST_ANDROID_ABIS` must be `arm64-v8a`; usb_audio README drops ARM32; the update-button description in 18 ARB files drops "deb, Flatpak".
+- Kept on purpose: the runner cleanup `sudo rm -rf /usr/share/swift` in `release.yml` (CI image, not an app platform); `x86`/`x86_64` cfgs and test ABIs; the Ko-fi and donate page code (M002-T004).
+- Checks: `flutter gen-l10n` run; `flutter analyze` no issues; full `flutter test` on this tree: +4478 ~10, all passed, exit 0.

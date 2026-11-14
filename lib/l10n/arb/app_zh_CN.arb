@@ -1607,7 +1607,7 @@
   },
   "updateViewRelease": "View Release",
   "@updateViewRelease": {
-    "description": "Update button - open the release page when this install cannot update itself (deb, Flatpak, no matching package)"
+    "description": "Update button - open the release page when this install cannot update itself (no matching package)"
   },
   "providerPriorityTitle": "提供商优先级",
   "@providerPriorityTitle": {

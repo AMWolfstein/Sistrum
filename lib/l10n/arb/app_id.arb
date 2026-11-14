@@ -1555,7 +1555,7 @@
   },
   "updateViewRelease": "Lihat Rilisan",
   "@updateViewRelease": {
-    "description": "Update button - open the release page when this install cannot update itself (deb, Flatpak, no matching package)"
+    "description": "Update button - open the release page when this install cannot update itself (no matching package)"
   },
   "providerPriorityTitle": "Prioritas Provider",
   "@providerPriorityTitle": {

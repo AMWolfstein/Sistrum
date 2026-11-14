@@ -92,7 +92,7 @@ uses the filename for metadata; embedded DSD artwork/tags are not yet imported.
 The user reported working physical USB DSP playback with the previous direct
 USB build (device model unspecified). New hardware volume, native DSD/DoP and
 long playback stability still require device testing. Host tests, emulator
-tests and successful ARM32/ARM64 builds do not establish DAC compatibility.
+tests and successful ARM64 builds do not establish DAC compatibility.
 
 ## DAP PCM hi-res
 
@@ -136,7 +136,7 @@ USB identity/format facts were checked against
 The Android-only `libusb1-sys` dependency builds its unmodified bundled libusb;
 license texts and rebuild information are in `assets/licenses/usb.txt` and in
 the app's license registry. Oboe (Apache-2.0), WavPack and libFLAC (BSD-3-Clause) are built
-statically into `libsistrum_audio.so` for ARM32/ARM64. Their pinned release URLs
+statically into `libsistrum_audio.so` for ARM64. Their pinned release URLs
 and SHA-256 checksums are in `android/app/src/main/cpp/CMakeLists.txt`; licenses
 are included in `assets/licenses/oboe.txt`, `assets/licenses/wavpack.txt` and
 `assets/licenses/flac.txt`.
