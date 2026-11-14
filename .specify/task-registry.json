@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 11,
+  "next_completion": 12,
   "next_mission": 3,
   "next_tor": 8,
   "tasks": {
@@ -152,13 +152,19 @@
       "title": "Point updates to AMWolfstein/Sistrum and drop upstream services"
     },
     "M002-T005": {
-      "completion": null,
+      "completion": 11,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test +4450 ~10 all passed exit 0; byte equality with Private 9c7643b for icons, logos, mipmaps, drawables; launcher resources resolve (background, foreground, monochrome); review round 1 NEEDS_FIXES (missing launcher background drawable) fixed; round 2 PASS",
+        "result": "PASS",
+        "reviewer": "independent-subagent",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M002",
       "nonce": "a6a11da274db459eb659756719c9f441",
       "record": "specs/002-rebrand-sistrum/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Replace the icons and logos"
     },
     "M002-T006": {

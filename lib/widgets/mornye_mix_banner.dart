@@ -2,8 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-const mornyeLockupAsset =
-    'assets/brand/logo/png/mornye-lockup-horizontal-white@1x.png';
+import 'package:sistrum/constants/app_info.dart';
+
+const sistrumLogoAsset = 'assets/images/logo-transparent.png';
 
 /// The colors of one banner: the wash, and the two blooms that move across it.
 class _BannerPalette {
@@ -101,7 +102,7 @@ double mornyeBannerTitleSize(String title, double width) {
 }
 
 /// The art of a Top Pick: a soft color field, the mix's name set large, and
-/// the Mornye lockup in the top trailing corner.
+/// the Sistrum logo and name in the top trailing corner.
 class MornyeMixBanner extends StatelessWidget {
   const MornyeMixBanner({
     super.key,
@@ -140,11 +141,23 @@ class MornyeMixBanner extends StatelessWidget {
                 top: 16,
                 end: 16,
                 child: ExcludeSemantics(
-                  child: Image.asset(
-                    mornyeLockupAsset,
-                    width: logoWidth,
-                    cacheWidth: (logoWidth * pixelRatio).round(),
-                    filterQuality: FilterQuality.medium,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        sistrumLogoAsset,
+                        width: logoWidth,
+                        cacheWidth: (logoWidth * pixelRatio).round(),
+                        filterQuality: FilterQuality.medium,
+                      ),
+                      Text(
+                        AppInfo.appName,
+                        style: textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

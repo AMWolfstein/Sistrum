@@ -132,7 +132,7 @@ class NotificationService {
   Future<void> _initialize() async {
     // Use the notification mark without the adaptive launcher's padding.
     const androidSettings = AndroidInitializationSettings(
-      '@drawable/ic_notification_mornye',
+      '@drawable/ic_stat_sistrum',
     );
 
     const initSettings = InitializationSettings(
@@ -258,7 +258,7 @@ class NotificationService {
         playSound: playSound,
         enableVibration: !inProgress,
         onlyAlertOnce: inProgress,
-        icon: '@drawable/ic_notification_mornye',
+        icon: '@drawable/ic_stat_sistrum',
       ),
     );
   }

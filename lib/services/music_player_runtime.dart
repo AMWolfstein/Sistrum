@@ -224,7 +224,7 @@ class PlaybackDependencies {
         androidNotificationChannelId: 'com.amwolfstein.sistrum.playback',
         androidNotificationChannelName: 'Playback',
         // The notification mark omits the adaptive launcher's safe-zone padding.
-        androidNotificationIcon: 'drawable/ic_notification_mornye',
+        androidNotificationIcon: 'drawable/ic_stat_sistrum',
         artDownscaleWidth: 512,
         artDownscaleHeight: 512,
         // Keep background resume eligible for audio focus. The Android fork

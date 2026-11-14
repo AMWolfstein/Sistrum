@@ -123,9 +123,9 @@ flutter_launcher_icons:
   android: true
   image_path: "icon.png"
   image_path_android: "icon_android.png"
-  adaptive_icon_background: "#1E4E4F"
+  adaptive_icon_background: "#12100E"
   adaptive_icon_foreground: "icon_foreground_android.png"
-  adaptive_icon_foreground_inset: 0
+  adaptive_icon_foreground_inset: 16
   adaptive_icon_monochrome: "icon_monochrome_android.png"
 
 flutter:
@@ -140,7 +140,6 @@ flutter:
     - COPYING
     - NOTICE
     - assets/images/
-    - assets/brand/logo/png/mornye-lockup-horizontal-white@1x.png
     - assets/fonts/Inter-LICENSE.txt
     - assets/fonts/GoogleSansFlex-LICENSE.txt
     - assets/licenses/usb.txt

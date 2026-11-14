@@ -72,3 +72,15 @@ Baseline: `8cb6f4f` on `wip` (see plan.md, Repository evidence).
 - Also left for later tasks: `lyrics.zarz.moe` and `status.zarz.moe` links in `lib/screens/settings/about_page.dart` (lines 97-105, T009), and the `mornyeapp/Mornye-Desktop` issue link in `rust_backend/vendor/README.md:89` (vendored third-party note; owner decision whether to edit vendored text).
 - Review round 1 fixes: `lib/widgets/donate_icons.dart` (Ko-fi icon, no longer used) deleted; the blank-line spots reported in `settings.dart`, `app_info.dart`, `settings_search_test.dart` and `adaptive_overlay_test.dart` fixed by hand. The repository's formatter reports the `HEAD` copy of `integration_test/android_background_playback_driver.dart` as changed too in this environment (checked on a copy of the HEAD file), so no whole-repo reformat was done.
 - Checks: `flutter analyze` no issues; `flutter test test/update_checker_test.dart` 18 tests passed; full `flutter test`: +4450 ~10, all passed, exit 0 (4478 before T004; the difference is the removed remote-config, What's New and announcement tests, less the new update test).
+
+## M002-T005 Replace the icons and logos
+
+- Map refresh (first action): `code_tools.py update` OK, 1777 sources, 0 partial, 0 unindexed, 36486 symbols.
+- Source: `AMWolfstein/Private` at `9c7643b` (read-only clone at `/home/user/amwolfstein/private`). Copied and checked with `cmp`: root `icon.png`, `icon_android.png`, `icon_foreground_android.png`, `icon_monochrome_android.png`; `assets/images/logo.png` and `logo-transparent.png`; `android/app/src/main/res/mipmap-*/` (every file in those folders); `drawable-*dpi/ic_launcher_{foreground,monochrome}.png`; `drawable/ic_stat_sistrum.xml`.
+- `pubspec.yaml`: `flutter_launcher_icons` background `#12100E`, `adaptive_icon_foreground_inset: 16`; the `assets/brand/logo/png/...` asset entry removed.
+- Notification small icon is `ic_stat_sistrum` in `MornyeApplication.kt`, `music_player_runtime.dart`, `notification_service.dart`, the androidTest and `test/notification_service_test.dart`; `ic_notification_mornye.xml` deleted.
+- `assets/brand/` deleted (it was the Mornye brand kit). The README header now uses `assets/images/logo-transparent.png` with the alt text "Sistrum".
+- `lib/widgets/mornye_mix_banner.dart`: the banner shows `assets/images/logo-transparent.png` with the app name "Sistrum" beneath it, in place of the Mornye lockup (`sistrumLogoAsset`).
+- Review round 1 fix: `android/app/src/main/res/drawable-nodpi/ic_launcher_background.png` copied from Private (`cmp` equal). The copied `mipmap-anydpi-v26/ic_launcher.xml` refers to `@drawable/ic_launcher_background`, so the file is needed for the resource to resolve.
+- Kept: the Private `android/.../res` files outside this task's list (splash art, launch background, v31 styles, widget files), which are not part of T005.
+- Checks: `flutter analyze` no issues; full `flutter test`: +4450 ~10, all passed, exit 0. Android/Gradle build and visual check on a device not run; icons were inspected as images only.

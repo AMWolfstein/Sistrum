@@ -141,7 +141,7 @@ Rust: `cargo check` for touched crates. Record each as run or unavailable.
     returns nothing outside history records.
   - Dependencies: M002-T003.
 
-- [ ] M002-T005 Replace the icons and logos
+- [x] M002-T005 Replace the icons and logos
   - Start: refresh the map.
   - Acceptance: FR-009. From `AMWolfstein/Private` `9c7643b`: root `icon.png`,
     `icon_android.png`, `icon_foreground_android.png`,

@@ -10,3 +10,4 @@
 - M002-TOR007 — Remove leftover iOS, desktop, arm32 and TV references from docs and metadata
 - M002-T003 — Rename the app, version, description and copyright
 - M002-T004 — Point updates to AMWolfstein/Sistrum and drop upstream services
+- M002-T005 — Replace the icons and logos

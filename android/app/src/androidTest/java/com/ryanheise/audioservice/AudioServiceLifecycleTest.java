@@ -83,7 +83,7 @@ public class AudioServiceLifecycleTest {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String[] resources = {
             "mipmap/ic_launcher", "drawable/ic_launcher_monochrome",
-            "drawable/ic_notification_mornye",
+            "drawable/ic_stat_sistrum",
             "drawable/ic_notification_airplay", "drawable/ic_notification_star",
             "drawable/ic_notification_star_filled", "drawable/ic_notification_shuffle",
             "drawable/ic_notification_shuffle_on", "drawable/ic_widget_previous",
@@ -105,7 +105,7 @@ public class AudioServiceLifecycleTest {
     @Test
     public void notificationMarkFillsTheStatusBarGridWithoutClipping() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        int id = AudioServicePlugin.resolveResourceId(context, "drawable/ic_notification_mornye");
+        int id = AudioServicePlugin.resolveResourceId(context, "drawable/ic_stat_sistrum");
         for (int size : new int[] {24, 36, 48, 72, 96}) {
             Drawable drawable = context.getDrawable(id);
             Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
