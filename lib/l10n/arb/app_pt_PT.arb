@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Links",
   "aboutMobileSource": "Código-fonte do app móvel",
-  "aboutLyricsWebsite": "Lyrics website",
-  "aboutServiceStatus": "Service status",
   "aboutReportIssue": "Reportar um problema",
   "aboutReportIssueSubtitle": "Reporte qualquer problema que encontrar",
   "@aboutReportIssueSubtitle": {

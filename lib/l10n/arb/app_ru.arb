@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Ссылки",
   "aboutMobileSource": "Исходный код мобильной версии",
-  "aboutLyricsWebsite": "Lyrics website",
-  "aboutServiceStatus": "Статус сервиса",
   "aboutReportIssue": "Сообщить о проблеме",
   "aboutReportIssueSubtitle": "Сообщите о возникших проблемах",
   "@aboutReportIssueSubtitle": {

@@ -696,8 +696,6 @@
   },
   "aboutLinks": "링크",
   "aboutMobileSource": "모바일 소스 코드",
-  "aboutLyricsWebsite": "가사 웹사이트",
-  "aboutServiceStatus": "서비스 상태",
   "aboutReportIssue": "문제 신고",
   "aboutReportIssueSubtitle": "발생하는 모든 문제를 신고해 주세요",
   "@aboutReportIssueSubtitle": {

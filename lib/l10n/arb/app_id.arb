@@ -683,8 +683,6 @@
   },
   "aboutLinks": "Link",
   "aboutMobileSource": "Source code",
-  "aboutLyricsWebsite": "Website lirik",
-  "aboutServiceStatus": "Status layanan",
   "aboutReportIssue": "Laporkan masalah",
   "aboutReportIssueSubtitle": "Laporkan masalah yang kamu temui",
   "@aboutReportIssueSubtitle": {

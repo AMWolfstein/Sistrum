@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Liens",
   "aboutMobileSource": "Code source pour mobile",
-  "aboutLyricsWebsite": "Site web de paroles de chansons",
-  "aboutServiceStatus": "État du service",
   "aboutReportIssue": "Signaler un problème",
   "aboutReportIssueSubtitle": "Signalez tout problème que vous rencontrez",
   "@aboutReportIssueSubtitle": {

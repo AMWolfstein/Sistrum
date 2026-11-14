@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Linkler",
   "aboutMobileSource": "Mobil kaynak kodu",
-  "aboutLyricsWebsite": "Şarkı sözleri web sitesi",
-  "aboutServiceStatus": "Hizmet durumu",
   "aboutReportIssue": "Sorun bildir",
   "aboutReportIssueSubtitle": "Karşılaştığın herhangi bir problemi bildir",
   "@aboutReportIssueSubtitle": {

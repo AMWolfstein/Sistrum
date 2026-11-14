@@ -1,7 +1,7 @@
 FFmpeg
 Copyright (c) the FFmpeg developers. https://ffmpeg.org/
 
-Mornye uses FFmpeg for audio conversion, tagging, analysis and artwork
+Sistrum uses FFmpeg for audio conversion, tagging, analysis and artwork
 handling. The app includes FFmpegKit
 (https://github.com/arthenica/ffmpeg-kit), which is licensed under the GNU
 Lesser General Public License version 3. The text of version 3 is listed
@@ -19,9 +19,9 @@ A PARTICULAR PURPOSE. See the GNU Lesser General Public License below for
 more details.
 
 Source code offer: the complete corresponding source code of the FFmpeg
-version shipped with Mornye, together with the scripts and configuration used
+version shipped with Sistrum, together with the scripts and configuration used
 to build it, is available from https://ffmpeg.org/download.html and from the
-Mornye project. On request, the Mornye maintainers will provide a copy of
+Sistrum project. On request, the Sistrum maintainers will provide a copy of
 that source code for at least three years after the release that included it,
 for no more than the cost of physically performing the distribution.
 

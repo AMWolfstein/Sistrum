@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Enlaces",
   "aboutMobileSource": "Código fuente de la versión móvil",
-  "aboutLyricsWebsite": "Sitio web de Letras",
-  "aboutServiceStatus": "Estado del servicio",
   "aboutReportIssue": "Reportar un problema",
   "aboutReportIssueSubtitle": "Reporta cualquier problema que encuentres",
   "@aboutReportIssueSubtitle": {

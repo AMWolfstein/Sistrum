@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Link",
   "aboutMobileSource": "Codice sorgente mobile",
-  "aboutLyricsWebsite": "Lyrics website",
-  "aboutServiceStatus": "Service status",
   "aboutReportIssue": "Segnala un problema",
   "aboutReportIssueSubtitle": "Segnala ogni problema che incontri",
   "@aboutReportIssueSubtitle": {

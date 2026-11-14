@@ -759,8 +759,6 @@
   },
   "aboutLinks": "Links",
   "aboutMobileSource": "Mobile source code",
-  "aboutLyricsWebsite": "Lyrics website",
-  "aboutServiceStatus": "Service status",
   "aboutReportIssue": "Report an issue",
   "aboutReportIssueSubtitle": "Report any problems you encounter",
   "@aboutReportIssueSubtitle": {

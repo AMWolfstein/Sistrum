@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Liên kết",
   "aboutMobileSource": "Mã nguồn bản di động",
-  "aboutLyricsWebsite": "Trang web lời bài hát",
-  "aboutServiceStatus": "Trạng thái dịch vụ",
   "aboutReportIssue": "Báo lỗi / Sự cố",
   "aboutReportIssueSubtitle": "Báo cáo lỗi hoặc sự cố bạn gặp phải",
   "@aboutReportIssueSubtitle": {

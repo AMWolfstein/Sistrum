@@ -696,8 +696,6 @@
   },
   "aboutLinks": "Посилання",
   "aboutMobileSource": "Мобільний вихідний код",
-  "aboutLyricsWebsite": "Сайт текстів",
-  "aboutServiceStatus": "Стан послуг",
   "aboutReportIssue": "Повідомити про проблему",
   "aboutReportIssueSubtitle": "Повідомити про будь-які проблеми, з якими ви зіткнулися",
   "@aboutReportIssueSubtitle": {

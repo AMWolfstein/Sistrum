@@ -696,8 +696,6 @@
   },
   "aboutLinks": "リンク",
   "aboutMobileSource": "モバイル版のソースコード",
-  "aboutLyricsWebsite": "Lyrics website",
-  "aboutServiceStatus": "Service status",
   "aboutReportIssue": "問題を報告する",
   "aboutReportIssueSubtitle": "問題が発生した場合に報告してください",
   "@aboutReportIssueSubtitle": {

@@ -696,8 +696,6 @@
   },
   "aboutLinks": "相关链接",
   "aboutMobileSource": "移动版本源代码",
-  "aboutLyricsWebsite": "歌词网站",
-  "aboutServiceStatus": "服务状态",
   "aboutReportIssue": "报告一个问题",
   "aboutReportIssueSubtitle": "报告您遇到的任何问题",
   "@aboutReportIssueSubtitle": {

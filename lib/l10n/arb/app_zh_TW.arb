@@ -696,8 +696,6 @@
   },
   "aboutLinks": "連結",
   "aboutMobileSource": "行動裝置版本開源碼",
-  "aboutLyricsWebsite": "Lyrics website",
-  "aboutServiceStatus": "Service status",
   "aboutReportIssue": "回報問題",
   "aboutReportIssueSubtitle": "回報您遇到的任何問題",
   "@aboutReportIssueSubtitle": {
