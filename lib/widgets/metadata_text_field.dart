@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/widgets/app_text_field.dart';
 
 Color metadataEditorFieldFill(BuildContext context, ColorScheme cs) {
   return Colors.transparent;
@@ -31,20 +29,6 @@ class MetadataTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = colorScheme;
-    if (materialExpressiveEnabled(context)) {
-      // The expressive field floats its own label.
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 14),
-        child: AppTextField(
-          controller: controller,
-          label: label,
-          hint: hint,
-          keyboardType: keyboard,
-          inputFormatters: inputFormatters,
-          maxLines: maxLines,
-        ),
-      );
-    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(

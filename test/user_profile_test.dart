@@ -256,7 +256,6 @@ void main() {
     },
   );
 
-
   testWidgets('Home avatar opens Settings and reflects the saved name', (
     tester,
   ) async {

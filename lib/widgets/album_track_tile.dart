@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 /// Album-style track row: track number, title/subtitle, and a trailing play
@@ -80,7 +79,7 @@ class AlbumTrackPlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return AppIconButton(
+    return IconButton(
       tooltip: isPlaying ? context.l10n.actionPause : context.l10n.tooltipPlay,
       onPressed: onPlay,
       icon: Icon(

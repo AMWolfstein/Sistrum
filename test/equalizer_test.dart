@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/equalizer_settings.dart';
@@ -100,9 +99,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         final page = tester.widget<Scaffold>(find.byType(Scaffold));
-        final picker = find.byType(
-          mornye ? MornyeSegmentedControl : M3EButtonGroup,
-        );
+        final picker = find.byType(MornyeSegmentedControl);
         final bandPicker = tester.widget(picker);
         Widget bass() => mornye
             ? tester
@@ -369,9 +366,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        final picker = find.byType(
-          mornye ? MornyeSegmentedControl : M3EButtonGroup,
-        );
+        final picker = find.byType(MornyeSegmentedControl);
         await tester.scrollUntilVisible(
           picker,
           150,

@@ -13,7 +13,6 @@ void main() {
         .setMockMethodCallHandler(backendChannel, null);
   });
 
-
   test('complete metadata forwards descriptor format hint', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(backendChannel, (call) async {
@@ -193,5 +192,4 @@ void main() {
     expect(results.single['status'], 'found');
     expect(results.single['relative_dir'], 'Artist/Album');
   });
-
 }

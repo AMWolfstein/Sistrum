@@ -31,7 +31,6 @@ class _Connectivity implements Connectivity {
 void main() {
   const interval = Duration(seconds: 1);
 
-
   testWidgets('polling reports initial status and changed interface sets', (
     tester,
   ) async {

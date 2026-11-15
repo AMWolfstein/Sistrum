@@ -29,9 +29,7 @@ import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 /// Slivers shared by Sistrum's Library/Songs screens.
 /// Only the current query's provider families are watched; late results from
@@ -432,7 +430,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       title: hit.title,
       subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
       trailing: song
-          ? AppIconButton(
+          ? IconButton(
               tooltip: context.l10n.tooltipPlay,
               icon: const Icon(Icons.play_arrow_rounded),
               onPressed: () => _open(hit, play: true),
@@ -455,7 +453,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
   /// search's view button does; both searches share the choice. [cover] is
   /// the layout on screen.
   Widget _viewToggle({required bool cover}) {
-    return AppIconButton(
+    return IconButton(
       tooltip: cover
           ? context.l10n.appearanceHistoryViewList
           : context.l10n.appearanceHistoryViewGrid,
@@ -778,8 +776,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                   ),
                 if (failed) Text(context.l10n.libraryLyricsSearchIncomplete),
                 if (!loading)
-                  ExpressiveButton(
-                    text: true,
+                  TextButton.icon(
                     icon: const Icon(Icons.refresh),
                     onPressed: () async {
                       try {
@@ -794,7 +791,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                         }
                       }
                     },
-                    child: Text(context.l10n.libraryLyricsRefresh),
+                    label: Text(context.l10n.libraryLyricsRefresh),
                   ),
               ],
             ),
@@ -896,8 +893,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           slivers.add(
             SliverToBoxAdapter(
               child: Center(
-                child: ExpressiveButton(
-                  text: true,
+                child: TextButton.icon(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
                     if (_lyricsSearch) {
@@ -907,7 +903,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                       ref.invalidate(librarySearchProvider(request));
                     }
                   },
-                  child: Text('${_label(kind)} · ${context.l10n.dialogRetry}'),
+                  label: Text('${_label(kind)} · ${context.l10n.dialogRetry}'),
                 ),
               ),
             ),
@@ -919,7 +915,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         slivers.add(
           SliverToBoxAdapter(
             child: Center(
-              child: AppIconButton(
+              child: IconButton(
                 tooltip: _label(kind),
                 icon: const Icon(Icons.expand_more),
                 onPressed: () => setState(() => _pages++),

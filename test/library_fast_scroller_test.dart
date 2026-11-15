@@ -31,9 +31,7 @@ void main() {
         widget is GestureDetector && widget.onVerticalDragUpdate != null,
   );
 
-  {
-
-  }
+  {}
 
   testWidgets('dragging the thumb scrolls and names the section', (
     tester,

@@ -15,11 +15,9 @@ import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/library_search_results.dart';
@@ -830,7 +828,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                           ),
                         ),
                         if (failedCount > 0 && !isProcessing)
-                          AppIconButton(
+                          IconButton(
                             onPressed: () => ref
                                 .read(downloadQueueProvider.notifier)
                                 .retryAllFailed(),
@@ -841,7 +839,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                             color: colorScheme.primary,
                             visualDensity: VisualDensity.compact,
                           ),
-                        AppIconButton(
+                        IconButton(
                           onPressed: () => ref
                               .read(downloadQueueProvider.notifier)
                               .togglePause(),
@@ -857,7 +855,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                           color: colorScheme.onSurfaceVariant,
                           visualDensity: VisualDensity.compact,
                         ),
-                        AppIconButton(
+                        IconButton(
                           onPressed: () =>
                               _showClearAllDialog(context, ref, colorScheme),
                           icon: const Icon(Icons.clear_all_rounded, size: 20),

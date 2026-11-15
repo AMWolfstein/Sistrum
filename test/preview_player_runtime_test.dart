@@ -16,7 +16,6 @@ void main() {
     overrides: [musicPlayerRuntimeProvider.overrideWithValue(runtime)],
   );
 
-
   test('previews play through the runtime preview deck', () async {
     final decks = <_PreviewDeck>[];
     final runtime = MusicPlayerRuntime(

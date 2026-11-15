@@ -6,7 +6,6 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -838,7 +837,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
       children: [
         SizedBox(
           width: double.infinity,
-          child: ExpressiveButton(
+          child: FilledButton.icon(
             onPressed: selectedCount > 0 && !_isFetchingDiscography
                 ? () {
                     exitSelectionMode();
@@ -851,19 +850,19 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
                   }
                 : null,
             icon: const Icon(Icons.playlist_add),
-            child: Text(context.l10n.collectionAddToPlaylist),
+            label: Text(context.l10n.collectionAddToPlaylist),
           ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
-              child: ExpressiveButton(
+              child: FilledButton.icon(
                 onPressed: selectedCount > 0
                     ? () => _downloadSelectedAlbums(context, selectedAlbums)
                     : null,
                 icon: const Icon(Icons.download, size: 18),
-                child: Text(context.l10n.discographyDownloadSelected),
+                label: Text(context.l10n.discographyDownloadSelected),
               ),
             ),
           ],

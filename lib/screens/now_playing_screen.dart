@@ -24,7 +24,6 @@ import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/audio_output_button.dart';
 import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
@@ -209,7 +208,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     if (mediaItem == null) {
       return Scaffold(
         appBar: AppBar(
-          leading: AppIconButton(
+          leading: IconButton(
             tooltip: _minimizeTooltip(context),
             icon: const AppIcon(Icons.keyboard_arrow_down),
             onPressed: _minimize,

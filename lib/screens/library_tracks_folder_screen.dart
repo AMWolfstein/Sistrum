@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
@@ -12,8 +11,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/widgets/collection_scaffold.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
@@ -813,12 +810,13 @@ class _LibraryTracksFolderScreenState
           : null,
       // Play is the one wide action, between Download All and Shuffle.
       actions: entries.isNotEmpty && !_editingOrder
-          ? ExpressiveButtonGroup(
-              flexible: const {1},
-              spacing: 8,
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildDownloadAllCenterButton(entries),
-                _buildPlayAllCenterButton(entries),
+                const SizedBox(width: 8),
+                Flexible(child: _buildPlayAllCenterButton(entries)),
+                const SizedBox(width: 8),
                 HeaderCircleButton(
                   key: const ValueKey('collection-shuffle'),
                   icon: Icons.shuffle,
@@ -833,9 +831,8 @@ class _LibraryTracksFolderScreenState
           : null,
       appBarActions: [
         if (_editingOrder)
-          ExpressiveButton(
+          TextButton(
             key: const ValueKey('collection-order-save'),
-            text: true,
             onPressed: !_orderChanged || _savingOrder || _draggingOrder
                 ? null
                 : _saveOrder,
@@ -1220,7 +1217,7 @@ class _CollectionTrackTile extends ConsumerWidget {
           ? Builder(
               builder: (context) {
                 final colorScheme = Theme.of(context).colorScheme;
-                return AppIconButton(
+                return IconButton(
                   tooltip: context.l10n.tooltipPlay,
                   onPressed: () => _playFromHere(context, ref),
                   icon: Icon(Icons.play_arrow, color: colorScheme.primary),

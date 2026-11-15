@@ -24,7 +24,6 @@ void main() {
     });
   });
 
-
   group('native worker contracts', () {
     final finalizerSource = File(
       'android/app/src/main/kotlin/com/amwolfstein/sistrum/'

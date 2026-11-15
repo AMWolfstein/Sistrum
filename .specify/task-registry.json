@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 25,
+  "next_completion": 26,
   "next_mission": 3,
   "next_tor": 13,
   "tasks": {
@@ -66,13 +66,19 @@
       "title": "Collapse Material branches in screens and remove isMornye"
     },
     "M001-T004": {
-      "completion": null,
+      "completion": 25,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test 4096 passed, 10 skipped, 0 failed; M3E/material_ui/material_symbols_icons and class (Expressive|Material) searches return nothing",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a532c673",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "bb91f6e6e77d41109cf74a5e694c4a07",
       "record": "specs/001-remove-material-theme/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove Material 3 Expressive, Material UI and Material Symbols"
     },
     "M001-T005": {

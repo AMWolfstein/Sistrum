@@ -79,7 +79,6 @@ class _ArtistConcertsScreenState extends State<ArtistConcertsScreen> {
               child: Row(
                 children: [
                   AppShapeClip(
-                    kind: AppShapes.artist,
                     child: SizedBox.square(
                       dimension: 96,
                       child: widget.coverUrl == null || widget.coverUrl!.isEmpty

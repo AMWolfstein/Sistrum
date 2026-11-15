@@ -433,7 +433,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppIconButton(
+            IconButton(
               onPressed: () => ref
                   .read(downloadQueueProvider.notifier)
                   .downloadNext(item.id),
@@ -446,7 +446,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
               ),
             ),
             const SizedBox(width: 4),
-            AppIconButton(
+            IconButton(
               onPressed: () =>
                   ref.read(downloadQueueProvider.notifier).cancelItem(item.id),
               icon: Icon(Icons.close, color: colorScheme.error),
@@ -460,7 +460,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
           ],
         );
       case DownloadStatus.downloading:
-        return AppIconButton(
+        return IconButton(
           onPressed: () =>
               ref.read(downloadQueueProvider.notifier).cancelItem(item.id),
           icon: Icon(Icons.stop, color: colorScheme.error),
@@ -554,7 +554,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppIconButton(
+            IconButton(
               onPressed: requiresFolderReselection
                   ? () => _showDownloadErrorDialog(context, item)
                   : () => ref
@@ -574,7 +574,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
               ),
             ),
             const SizedBox(width: 4),
-            AppIconButton(
+            IconButton(
               onPressed: () =>
                   ref.read(downloadQueueProvider.notifier).removeItem(item.id),
               icon: Icon(
@@ -600,8 +600,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
   Widget _buildFilterButton(BuildContext context) {
     return GestureDetector(
       onLongPress: _activeFilterCount > 0 ? _resetFilters : null,
-      child: ExpressiveButton(
-        text: true,
+      child: TextButton.icon(
         onPressed: () => _showFilterSheet(context),
         icon: Badge(
           isLabelVisible: _activeFilterCount > 0,
@@ -609,7 +608,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
           child: const AppIcon(Icons.filter_list, size: 18),
         ),
         style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-        child: Text(context.l10n.libraryFilterTitle),
+        label: Text(context.l10n.libraryFilterTitle),
       ),
     );
   }
@@ -1174,7 +1173,7 @@ class _LibraryPlaybackButton extends ConsumerWidget {
       );
     }
     final colorScheme = Theme.of(context).colorScheme;
-    return AppIconButton(
+    return IconButton(
       onPressed: onPressed,
       icon: Icon(icon, color: colorScheme.primary),
       tooltip: tooltip,

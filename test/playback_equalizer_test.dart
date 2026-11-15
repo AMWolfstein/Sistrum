@@ -185,7 +185,6 @@ void main() {
     expect(playbackEqualizerError.value, isNull);
   });
 
-
   test('in-app output volume scales the gain of every deck', () async {
     addTearDown(() => playbackOutputVolume.value = 1);
     final deck = AudioplayersPlaybackDeck(playerId: 'output-gain');

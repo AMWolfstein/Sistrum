@@ -125,7 +125,7 @@ searches below.
     `lib/screens` file in plan.md's appendix is done.
   - Dependencies: M001-T002.
 
-- [ ] M001-T004 Remove Material 3 Expressive, Material UI and Material Symbols
+- [x] M001-T004 Remove Material 3 Expressive, Material UI and Material Symbols
   - Start: refresh the map; query `materialExpressiveEnabled`,
     `MaterialExpressiveScope`, `AppMotion`, `AppShapeClip`, `AppIcon`.
   - Acceptance: FR-006, FR-007. `materialExpressiveEnabled`, every M3E arm,

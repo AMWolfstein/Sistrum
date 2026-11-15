@@ -6,11 +6,9 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/scroll_edge_fade.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 class TutorialScreen extends ConsumerStatefulWidget {
   const TutorialScreen({super.key});
@@ -89,7 +87,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
                     opacity: _currentPage > 0 ? 1.0 : 0.0,
-                    child: AppIconButton.filledTonal(
+                    child: IconButton.filledTonal(
                       onPressed: _currentPage > 0 ? _prevPage : null,
                       tooltip: MaterialLocalizations.of(
                         context,
@@ -102,8 +100,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                     ),
                   ),
 
-                  ExpressiveButton(
-                    text: true,
+                  TextButton(
                     onPressed: _skipTutorial,
                     style: TextButton.styleFrom(
                       foregroundColor: colorScheme.onSurfaceVariant,
@@ -242,7 +239,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         height: actionButtonHeight,
-                        child: ExpressiveButton(
+                        child: FilledButton(
                           onPressed: _nextPage,
                           style: FilledButton.styleFrom(
                             shape: RoundedRectangleBorder(

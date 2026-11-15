@@ -8,7 +8,6 @@ import 'package:sistrum/services/collection_suggestions.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/preview_button.dart';
@@ -191,7 +190,7 @@ class _SuggestionsHeader extends StatelessWidget {
               ],
             ),
           ),
-          AppIconButton(
+          IconButton(
             icon: const AppIcon.adaptive(Icons.refresh),
             tooltip: l10n.collectionSuggestionsRefresh,
             onPressed: onRefresh,
@@ -244,7 +243,7 @@ class _SuggestionRow extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           PreviewButton(track: track),
-          AppIconButton(
+          IconButton(
             icon: const AppIcon.adaptive(Icons.add_circle_outline),
             tooltip: addTooltip,
             onPressed: onAdd,

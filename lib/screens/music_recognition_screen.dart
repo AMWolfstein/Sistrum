@@ -16,7 +16,6 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
@@ -81,9 +80,9 @@ class _MusicRecognitionScreenState
     final controller = ref.read(musicRecognitionProvider.notifier);
     final l10n = context.l10n;
     final inset = 16 + wideListInset(context);
-    final motion = AppMotion.effects(
-      context,
-      const AppMotionSpec(Duration(milliseconds: 200), Curves.easeOut),
+    final motion = const AppMotionSpec(
+      Duration(milliseconds: 200),
+      Curves.easeOut,
     );
 
     final stage = switch (state.phase) {
@@ -123,7 +122,7 @@ class _MusicRecognitionScreenState
             actions: history.isEmpty || state.isBusy
                 ? null
                 : [
-                    AppIconButton(
+                    IconButton(
                       tooltip: l10n.recognizeClearHistory,
                       icon: const AppIcon.adaptive(Icons.delete_sweep_outlined),
                       onPressed: _clearHistory,

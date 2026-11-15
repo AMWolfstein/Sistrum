@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EButtonGroup;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
@@ -326,7 +324,6 @@ void main() {
     await pumpLibrary(tester, mornye: true);
     final l10n = l10nOf(tester);
 
-    expect(find.byType(M3EButtonGroup), findsNothing);
     expect(find.text(l10n.libraryFilterTitle), findsOneWidget);
   });
 }

@@ -335,8 +335,8 @@ class AppTheme {
     }),
   );
 
-  // Every menu wears the M3 Expressive standard menu skin, as M3EMenuPopup
-  // does: the low container tier, the control radius and a level 2 lift.
+  // Every menu wears the low container tier, the control radius and a level 2
+  // lift.
   static PopupMenuThemeData _popupMenuTheme(ColorScheme scheme) =>
       PopupMenuThemeData(
         color: scheme.surfaceContainerLow,

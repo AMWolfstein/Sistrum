@@ -115,7 +115,6 @@ void main() {
     expect(deformation(tester), isNull);
   });
 
-
   testWidgets('Reduce Motion keeps the shape still', (tester) async {
     var taps = 0;
     await pumpPress(tester, onTap: () => taps++, reduceMotion: true);

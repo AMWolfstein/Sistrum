@@ -14,7 +14,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/track_collection_quick_actions.dart';
@@ -75,9 +74,8 @@ class _PopObserver extends NavigatorObserver {
   }
 }
 
-VoidCallback? _doneAction(WidgetTester tester, bool mornye) => mornye
-    ? tester.widget<AppActionButton>(find.byType(AppActionButton)).onPressed
-    : tester.widget<ExpressiveButton>(find.byType(ExpressiveButton)).onPressed;
+VoidCallback? _doneAction(WidgetTester tester) =>
+    tester.widget<AppActionButton>(find.byType(AppActionButton)).onPressed;
 
 PlaylistPickerSummary _playlist(String name, {bool contains = false}) =>
     PlaylistPickerSummary(
@@ -269,13 +267,13 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Road trip'));
       await tester.pump();
-      final submit = _doneAction(tester, mornye)!;
+      final submit = _doneAction(tester)!;
       // A repeated callback can arrive before the disabled button is rebuilt.
       submit();
       submit();
       await tester.pump();
       expect(collections.additions, ['Road trip']);
-      expect(_doneAction(tester, mornye), isNull);
+      expect(_doneAction(tester), isNull);
       expect(observer.pops, 0);
 
       addition.complete();
@@ -324,7 +322,7 @@ void main() {
       secondAddition.completeError(StateError('write failed'));
       await tester.pump();
       expect(observer.pops, 0);
-      expect(_doneAction(tester, mornye), isNotNull);
+      expect(_doneAction(tester), isNotNull);
 
       // Retrying keeps the failed selection and skips the persisted playlist.
       await tester.tap(find.text('Done'));

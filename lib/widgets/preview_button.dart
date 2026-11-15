@@ -5,18 +5,13 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/preview_player_provider.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 
 class PreviewButton extends ConsumerWidget {
   final Track track;
   final double size;
 
-  const PreviewButton({
-    super.key,
-    required this.track,
-    this.size = 24,
-  });
+  const PreviewButton({super.key, required this.track, this.size = 24});
 
   /// The hit area is always at least 48 dp, whatever the glyph size.
   static const _constraints = BoxConstraints(minWidth: 48, minHeight: 48);
@@ -55,7 +50,7 @@ class PreviewButton extends ConsumerWidget {
     );
     if (isCurrentMainTrack) {
       final isPlaying = ref.watch(playbackPlayingProvider);
-      return AppIconButton(
+      return IconButton(
         iconSize: size,
         padding: EdgeInsets.zero,
         constraints: _constraints,
@@ -114,7 +109,7 @@ class PreviewButton extends ConsumerWidget {
         break;
     }
 
-    return AppIconButton(
+    return IconButton(
       iconSize: size,
       padding: EdgeInsets.zero,
       constraints: _constraints,

@@ -11,7 +11,6 @@ import 'package:flutter/rendering.dart'
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/components/progress_indicators/components/m3e_linear_progress_painter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -327,18 +326,6 @@ void main() {
               .duration,
           Duration.zero,
         );
-        double miniProgress() => tester
-            .widgetList<CustomPaint>(
-              find.descendant(
-                of: find.byType(MiniPlayer),
-                matching: find.byType(CustomPaint),
-              ),
-            )
-            .map((paint) => paint.painter)
-            .whereType<M3ELinearProgressPainter>()
-            .single
-            .value!;
-        if (!mornye) expect(miniProgress(), 0);
         final readsBefore = metadataReads.length;
 
         mediaItems.add(initial.copyWith(duration: const Duration(minutes: 3)));
@@ -353,7 +340,6 @@ void main() {
               .duration,
           const Duration(minutes: 3),
         );
-        if (!mornye) expect(miniProgress(), closeTo(1 / 6, 0.001));
         expect(metadataReads.length, readsBefore);
         expect(tester.takeException(), isNull);
       },

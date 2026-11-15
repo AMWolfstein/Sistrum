@@ -4,14 +4,12 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/hires_check_card.dart';
 
 const _limitedResult = <String, dynamic>{
@@ -120,14 +118,11 @@ void main() {
         await tester.pumpAndSettle();
         final button = find.ancestor(
           of: find.text('Check'),
-          matching: mornye
-              ? find.byType(CupertinoButton)
-              : find.byType(ExpressiveButton),
+          matching: find.byType(CupertinoButton),
         );
         expect(button, findsOneWidget);
         expect(tester.getSize(button).width, greaterThan(300));
         expect(tester.getCenter(button).dx, closeTo(195, 1));
-        expect(find.byType(M3ECard), mornye ? findsNothing : findsOneWidget);
         await captureCard(tester, '$name-idle');
 
         await tester.tap(find.text('Check'));

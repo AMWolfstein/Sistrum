@@ -160,14 +160,11 @@ class _RewindStoryState extends State<_RewindStory>
 
   void _go(int index) {
     if (index < 0 || index >= _slides.length) return;
-    final motion = AppMotion.spatialSlow(
-      context,
-      AppMotionSpec(
-        MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 320),
-        Curves.easeOutCubic,
-      ),
+    final motion = AppMotionSpec(
+      MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 320),
+      Curves.easeOutCubic,
     );
     if (motion.duration == Duration.zero) {
       _pages.jumpToPage(index);

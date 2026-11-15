@@ -112,5 +112,4 @@ void main() {
     expect(File(path).existsSync(), isTrue);
     expect(downloads, 2);
   });
-
 }

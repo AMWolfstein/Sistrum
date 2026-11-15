@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/open_audio_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 
@@ -32,7 +31,7 @@ class OpenAudioButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final busy = ref.watch(openAudioControllerProvider);
-    return AppIconButton(
+    return IconButton(
       icon: const Icon(Icons.folder_open_outlined),
       tooltip: context.l10n.openAudio,
       onPressed: busy

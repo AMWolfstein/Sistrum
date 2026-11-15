@@ -2,7 +2,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/utils/isrc_utils.dart';
 import 'package:sistrum/widgets/mornye_player_details_sheet.dart';
 
@@ -26,7 +25,6 @@ Future<void> showPlayerDetailsSheet(
   // The Mornye details draw their own glass, handle and header.
   return showModalBottomSheet<void>(
     context: context,
-    sheetAnimationStyle: AppMotion.surfaceEntrance(context),
     isScrollControlled: true,
     useRootNavigator: true,
     backgroundColor: Colors.transparent,

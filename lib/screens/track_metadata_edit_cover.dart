@@ -193,7 +193,7 @@ extension _EditMetadataSheetCover on _EditMetadataSheetState {
             ),
             if (hasSelectedCover) ...[
               const SizedBox(width: 8),
-              AppIconButton(
+              IconButton(
                 tooltip: context.l10n.trackCoverClearSelected,
                 onPressed: _saving
                     ? null

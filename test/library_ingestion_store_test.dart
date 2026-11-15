@@ -94,5 +94,4 @@ void main() {
     expect(await keyOwners(), ['elsewhere', 'kept', 'new']);
     expect(await tempTables(), isEmpty);
   });
-
 }

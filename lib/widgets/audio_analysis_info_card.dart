@@ -36,7 +36,7 @@ class _AudioInfoCard extends StatelessWidget {
                   ),
                 ),
                 if (onRescan != null)
-                  AppIconButton(
+                  IconButton(
                     icon: const Icon(Icons.refresh, size: 20),
                     tooltip: context.l10n.audioAnalysisRescan,
                     visualDensity: VisualDensity.compact,

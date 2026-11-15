@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/music_player_service.dart';
 
 void main() {
-
   const media = PlayableMedia(
     id: 'track-1',
     source: '/music/track.flac',
@@ -39,7 +38,6 @@ void main() {
     expect(restored.format, 'flac');
     expect(restored.explicit, isTrue);
   });
-
 
   test('file probe cannot erase valid queue quality with empty values', () {
     final merged = mergePlaybackFileMetadata(

@@ -92,14 +92,12 @@ Future<void> _disposeArtist(WidgetTester tester) async {
 }
 
 void main() {
-  tearDown(() {
-  });
+  tearDown(() {});
 
   for (final mornye in [false, true]) {
     final style = mornye ? 'Mornye' : 'Material';
 
-
-testWidgets('$style: touch long press still selects albums', (
+    testWidgets('$style: touch long press still selects albums', (
       tester,
     ) async {
       await _pumpArtist(tester, mornye: mornye);

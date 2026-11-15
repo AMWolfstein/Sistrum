@@ -10,9 +10,7 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/extension_repo_card.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/extension_icon_image.dart';
 
 class ExtensionDetailsScreen extends ConsumerStatefulWidget {
@@ -139,7 +137,7 @@ class _ExtensionDetailsScreenState
       leadingWidth: kToolbarHeight + edgeInset,
       leading: Padding(
         padding: EdgeInsetsDirectional.only(start: edgeInset),
-        child: AppIconButton(
+        child: IconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           icon: Icon(CupertinoIcons.back),
           onPressed: () => Navigator.pop(context),
@@ -234,7 +232,7 @@ class _ExtensionDetailsScreenState
                   Center(child: AppLoadingIndicator(color: colorScheme.primary))
                 else ...[
                   if (ext.hasUpdate)
-                    ExpressiveButton(
+                    FilledButton.icon(
                       onPressed: () => _updateExtension(ext),
                       icon: Icon(CupertinoIcons.arrow_clockwise),
                       style: FilledButton.styleFrom(
@@ -243,7 +241,7 @@ class _ExtensionDetailsScreenState
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: Text(
+                      label: Text(
                         '${context.l10n.storeUpdate} v${ext.version}',
                       ),
                     )
@@ -251,8 +249,7 @@ class _ExtensionDetailsScreenState
                     Row(
                       children: [
                         Expanded(
-                          child: ExpressiveButton(
-                            outlined: true,
+                          child: OutlinedButton.icon(
                             onPressed: null,
                             icon: Icon(CupertinoIcons.check_mark),
                             style: OutlinedButton.styleFrom(
@@ -261,11 +258,11 @@ class _ExtensionDetailsScreenState
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: Text(context.l10n.storeInstalled),
+                            label: Text(context.l10n.storeInstalled),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        AppIconButton.filled(
+                        IconButton.filled(
                           onPressed: () => _uninstallExtension(ext),
                           icon: Icon(CupertinoIcons.trash),
                           style: IconButton.styleFrom(
@@ -281,7 +278,7 @@ class _ExtensionDetailsScreenState
                       ],
                     )
                   else
-                    ExpressiveButton(
+                    FilledButton.icon(
                       onPressed: () => _installExtension(ext),
                       icon: Icon(CupertinoIcons.arrow_down_circle),
                       style: FilledButton.styleFrom(
@@ -290,7 +287,7 @@ class _ExtensionDetailsScreenState
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: Text(context.l10n.storeInstall),
+                      label: Text(context.l10n.storeInstall),
                     ),
                 ],
               ],

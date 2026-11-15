@@ -7,7 +7,6 @@ import 'package:sistrum/providers/weekly_releases_provider.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/error_card.dart';
@@ -42,7 +41,7 @@ class _WeeklyReleasesScreenState extends ConsumerState<WeeklyReleasesScreen> {
   Widget build(BuildContext context) {
     final feed = ref.watch(weeklyReleasesProvider(_refresh));
     return Scaffold(
-      body: AppRefreshIndicator(
+      body: RefreshIndicator(
         onRefresh: _reload,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -64,7 +63,6 @@ class _WeeklyReleasesScreenState extends ConsumerState<WeeklyReleasesScreen> {
                           SettingsSegmentedChoice<int>(
                             selected: _days,
                             onChanged: (days) => setState(() => _days = days),
-                            semanticLabel: context.l10n.weeklyReleases,
                             options: [
                               for (final days in [7, 30])
                                 SettingsSegmentOption(

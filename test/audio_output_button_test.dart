@@ -15,27 +15,22 @@ void main() {
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
-  Widget app({
-    ValueChanged<bool>? onChanged,
-    Color? background,
-    CastOutput? output,
-  }) => ProviderScope(
-    child: MaterialApp(
-      theme: MornyeTheme.build(Brightness.light),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(
-        body: Center(
-          child: AudioOutputButton(
-            onPickerChanged: onChanged,
-            backgroundColor: background,
-            width: 56,
-            output: output,
+  Widget app({ValueChanged<bool>? onChanged, CastOutput? output}) =>
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Center(
+              child: AudioOutputButton(
+                onPickerChanged: onChanged,
+                output: output,
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   tearDown(() {
     messenger.setMockMethodCallHandler(channel, null);

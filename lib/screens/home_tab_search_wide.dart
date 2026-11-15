@@ -792,8 +792,7 @@ class _SearchCoverCell extends StatelessWidget {
         onLongPress: hasCover ? onSaveCover : null,
         child: isArtist
             ? AppShapeClip(
-                kind: AppShapes.artist,
-                fallbackRadius: BorderRadius.circular(extent / 2),
+                radius: BorderRadius.circular(extent / 2),
                 child: image,
               )
             : ClipRRect(borderRadius: radius, child: image),

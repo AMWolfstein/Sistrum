@@ -104,7 +104,6 @@ class _SearchProviderDropdown extends ConsumerWidget {
         ),
         tooltip: context.l10n.homeChangeSearchProviderTooltip,
         offset: const Offset(0, 40),
-        alignStart: true,
         onSelected: (providerId) {
           ref.read(settingsProvider.notifier).setSearchProvider(providerId);
           onProviderChanged?.call();
@@ -458,11 +457,7 @@ class _CollectionItemWidget extends StatelessWidget {
         excludeFromSemantics: true,
         onLongPress: hasCover ? onSaveCover : null,
         child: isArtist
-            ? AppShapeClip(
-                kind: AppShapes.artist,
-                fallbackRadius: BorderRadius.circular(28),
-                child: image,
-              )
+            ? AppShapeClip(radius: BorderRadius.circular(28), child: image)
             : ClipRRect(borderRadius: BorderRadius.circular(10), child: image),
       ),
     );
@@ -823,7 +818,7 @@ class _QuickPicksPageViewState extends State<_QuickPicksPageView> {
               ),
             ),
             Builder(
-              builder: (buttonContext) => AppIconButton(
+              builder: (buttonContext) => IconButton(
                 tooltip: MaterialLocalizations.of(context).showMenuTooltip,
                 icon: Icon(
                   Icons.more_vert,

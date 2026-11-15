@@ -610,7 +610,6 @@ void main() {
       if (uri.pathSegments.last == '$method.view') uri.queryParameters,
   ];
 
-
   test('a forced Sistrum sync refreshes each cover once', () async {
     server.type = 'mornye';
     server.library = library()..shuffle(Random(7));
@@ -625,7 +624,6 @@ void main() {
     await scan(forceFullScan: true);
     expect(requested('getCoverArt'), hasLength(160));
   });
-
 
   test('lyrics come from the songLyrics extension', () async {
     final source = NetworkStorageService.source(

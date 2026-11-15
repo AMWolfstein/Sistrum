@@ -40,7 +40,6 @@ import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/nav_destination_icons.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/lazy_tab_view.dart';
-import 'package:sistrum/widgets/expressive_navigation_bar.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
@@ -706,13 +705,35 @@ class _MainShellState extends ConsumerState<MainShell>
                 SafeArea(
                   right: false,
                   bottom: false,
-                  child: ExpressiveNavigationRail(
-                    selectedIndex: selectedDestination,
-                    onDestinationSelected: _onNavTap,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainer,
-                    destinations: destinations,
+                  // The rail needs ~300dp of height for four labeled
+                  // destinations; on short viewports it must scroll, not
+                  // overflow.
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: NavigationRail(
+                            selectedIndex: selectedDestination,
+                            onDestinationSelected: _onNavTap,
+                            labelType: NavigationRailLabelType.all,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainer,
+                            destinations: [
+                              for (final destination in destinations)
+                                NavigationRailDestination(
+                                  icon: destination.icon,
+                                  selectedIcon: destination.selectedIcon,
+                                  label: Text(destination.label),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 const VerticalDivider(width: 1),

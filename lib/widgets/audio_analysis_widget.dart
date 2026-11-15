@@ -17,7 +17,6 @@ import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/string_utils.dart';
@@ -558,7 +557,7 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
                   style: TextStyle(color: cs.onErrorContainer, fontSize: 13),
                 ),
               ),
-              AppIconButton(
+              IconButton(
                 icon: const Icon(Icons.refresh, size: 20),
                 tooltip: l10n.audioAnalysisRescan,
                 visualDensity: VisualDensity.compact,

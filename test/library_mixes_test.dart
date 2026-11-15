@@ -40,8 +40,7 @@ Map<String, Object?> _json(List<LibraryMix> mixes) => {
 };
 
 void main() {
-  group('genre families', () {
-  });
+  group('genre families', () {});
 
   group('mixes', () {
     final day = DateTime(2026, 10, 27, 9);

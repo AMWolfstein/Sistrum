@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
 import 'package:sistrum/widgets/player_lyrics_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,12 +59,13 @@ Future<_NoLyrics> _pump(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  final search = find.widgetWithText(ExpressiveButton, 'Search online');
+  final search = find.ancestor(
+    of: find.text('Search online'),
+    matching: find.bySubtype<FilledButton>(),
+  );
 
   {
-    {
-
-    }
+    {}
   }
 
   testWidgets('no-lyrics state centers above the covered controls', (

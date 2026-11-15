@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -38,9 +37,6 @@ Future<Color> _groupColor(WidgetTester tester, ThemeData theme) async {
   return color;
 }
 
-BorderRadius? _radiusOf(ShapeBorder? shape) =>
-    shape is RoundedRectangleBorder ? shape.borderRadius as BorderRadius : null;
-
 void main() {
   group('settingsGroupColor', () {
     testWidgets('Sistrum keeps its grouped surface', (tester) async {
@@ -49,31 +45,6 @@ void main() {
         await _groupColor(tester, theme),
         theme.colorScheme.surfaceContainer,
       );
-    });
-  });
-
-  group('menus', () {
-    test('theme menus share the M3 Expressive standard menu skin', () {
-      const expressive = M3EMenuTheme.defaults;
-      for (final theme in [AppTheme.light(), AppTheme.dark()]) {
-        final scheme = theme.colorScheme;
-        final container = BorderRadius.circular(expressive.containerRadius);
-
-        expect(theme.popupMenuTheme.color, scheme.surfaceContainerLow);
-        expect(_radiusOf(theme.popupMenuTheme.shape), container);
-
-        final style = theme.menuTheme.style!;
-        expect(style.backgroundColor!.resolve({}), scheme.surfaceContainerLow);
-        expect(style.elevation!.resolve({}), theme.popupMenuTheme.elevation);
-        expect(_radiusOf(style.shape!.resolve({})), container);
-        expect(
-          style.padding!.resolve({}),
-          EdgeInsets.all(expressive.stateLayerInset),
-        );
-
-        final item = theme.menuButtonTheme.style!.shape!.resolve({});
-        expect(_radiusOf(item), BorderRadius.circular(expressive.itemRadius));
-      }
     });
   });
 

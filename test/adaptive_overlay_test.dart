@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +8,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/download_settings_page.dart';
 import 'package:sistrum/services/update_checker.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/material_symbols.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -152,9 +150,7 @@ void main() {
           final container = ProviderScope.containerOf(
             tester.element(find.byType(DownloadSettingsPage)),
           );
-          final check = mornye
-              ? mornyeIconFor(Icons.check)
-              : materialSymbolFor(Icons.check)!.icon;
+          final check = mornyeIconFor(Icons.check);
           for (final (picker, initial, next) in [
             ('Output format', 'MP3', 'Opus'),
             ('Output quality', '320 kbps', '160 kbps'),
@@ -448,7 +444,6 @@ void main() {
           find.byType(MornyeGlassPanel),
           mornye ? findsOneWidget : findsNothing,
         );
-        expect(find.byType(M3EChip), mornye ? findsNothing : findsOneWidget);
         await tester.tap(find.text('Unavailable'));
         expect(disabledTaps, 0);
         await tester.tap(find.text('Downloaded tracks'));

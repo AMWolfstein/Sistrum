@@ -2,8 +2,6 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EShapeKind;
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
@@ -11,9 +9,7 @@ import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/widget_capture.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_shape.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 
 /// Story-sized lyric cards stay short, like quoting a song rather than
@@ -180,7 +176,7 @@ class _LyricsShareScreenState extends State<LyricsShareScreen> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        leading: AppIconButton(
+        leading: IconButton(
           tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           icon: const AppIcon(Icons.close),
           onPressed: () => Navigator.of(context).maybePop(),
@@ -289,7 +285,7 @@ class _LyricsShareScreenState extends State<LyricsShareScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  ExpressiveButton(
+                  FilledButton.icon(
                     key: _shareButtonKey,
                     icon: const AppIcon(Icons.ios_share),
                     style: ButtonStyle(
@@ -302,7 +298,7 @@ class _LyricsShareScreenState extends State<LyricsShareScreen> {
                       ),
                     ),
                     onPressed: _selected.isEmpty || _sharing ? null : _share,
-                    child: Text(l10n.lyricsShareAction),
+                    label: Text(l10n.lyricsShareAction),
                   ),
                 ],
               ),
@@ -645,8 +641,7 @@ class LyricsShareCard extends StatelessWidget {
                         Row(
                           children: [
                             AppShapeClip(
-                              kind: M3EShapeKind.cookie4Sided,
-                              fallbackRadius: BorderRadius.circular(10),
+                              radius: BorderRadius.circular(10),
                               child: SizedBox.square(
                                 dimension: 52,
                                 child: PlayerArtwork(

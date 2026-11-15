@@ -23,7 +23,6 @@ import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 
 part 'library_settings_page_widgets.dart';
@@ -469,8 +468,7 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                   ),
                   trailing: status.loading
                       ? null
-                      : ExpressiveButton(
-                          text: true,
+                      : TextButton(
                           onPressed: () => ref
                               .read(localLibraryProvider.notifier)
                               .reloadFromStorage(),
@@ -636,8 +634,7 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                             ],
                           ),
                         ),
-                        ExpressiveButton(
-                          text: true,
+                        TextButton(
                           onPressed: _startScan,
                           child: Text(context.l10n.dialogRetry),
                         ),

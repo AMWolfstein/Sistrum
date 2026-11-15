@@ -56,8 +56,7 @@ extension _HomeTabRecentUI on _HomeTabState {
                 ),
               ),
               if (uniqueItems.isNotEmpty)
-                ExpressiveButton(
-                  text: true,
+                TextButton(
                   onPressed: () async {
                     // Clearing history is not undoable, so ask first.
                     final confirmed = await showAppDialog<bool>(
@@ -121,15 +120,14 @@ extension _HomeTabRecentUI on _HomeTabState {
                     ),
                     if (hasHiddenDownloads) ...[
                       const SizedBox(height: 16),
-                      ExpressiveButton(
-                        outlined: true,
+                      OutlinedButton.icon(
                         onPressed: () {
                           ref
                               .read(recentAccessProvider.notifier)
                               .clearHiddenDownloads();
                         },
                         icon: const Icon(Icons.visibility, size: 18),
-                        child: Text(context.l10n.recentShowAllDownloads),
+                        label: Text(context.l10n.recentShowAllDownloads),
                       ),
                     ],
                   ],
@@ -251,7 +249,7 @@ extension _HomeTabRecentUI on _HomeTabState {
                   ],
                 ),
               ),
-              AppIconButton(
+              IconButton(
                 tooltip: context.l10n.actionDismiss,
                 icon: Icon(
                   Icons.close,

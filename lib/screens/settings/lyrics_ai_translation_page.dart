@@ -15,7 +15,6 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
@@ -658,13 +657,12 @@ class _ModelSheetState extends State<_ModelSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: ExpressiveButton(
-                  tonal: true,
+                child: FilledButton.tonalIcon(
                   onPressed: _loading ? null : _load,
                   icon: _loading
                       ? const AppLoadingIndicator(size: 18)
                       : const Icon(Icons.list_alt_outlined),
-                  child: Text(l10n.lyricsAiModelLoad),
+                  label: Text(l10n.lyricsAiModelLoad),
                 ),
               ),
             ),

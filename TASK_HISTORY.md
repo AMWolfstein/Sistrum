@@ -24,3 +24,4 @@
 - M001-T001 — Make Mornye the only theme setting
 - M001-T002 — Collapse Material branches in shared widgets and theme
 - M001-T003 — Collapse Material branches in screens and remove isMornye
+- M001-T004 — Remove Material 3 Expressive, Material UI and Material Symbols

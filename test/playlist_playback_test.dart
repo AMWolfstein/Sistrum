@@ -301,8 +301,6 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   for (final mornye in [false, true]) {
-
-
     testWidgets(
       'playlist file deletion confirms and cleans both indexes ($mornye)',
       (tester) async {

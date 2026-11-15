@@ -232,7 +232,7 @@ class _HealthSummaryItem extends StatelessWidget {
                   ],
                 ),
               ),
-              AppIconButton(
+              IconButton(
                 tooltip: context.l10n.extensionRefreshStatus,
                 onPressed: isRefreshing ? null : onRefresh,
                 icon: isRefreshing

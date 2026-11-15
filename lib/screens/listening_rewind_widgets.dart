@@ -38,12 +38,9 @@ class _Reveal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reduced = MediaQuery.disableAnimationsOf(context);
-    final motion = AppMotion.spatial(
-      context,
-      AppMotionSpec(
-        reduced ? Duration.zero : const Duration(milliseconds: 420),
-        Curves.easeOutCubic,
-      ),
+    final motion = AppMotionSpec(
+      reduced ? Duration.zero : const Duration(milliseconds: 420),
+      Curves.easeOutCubic,
     );
     if (motion.duration == Duration.zero) return child;
     const stagger = Duration(milliseconds: 90);
@@ -214,7 +211,7 @@ class _Artwork extends StatelessWidget {
               iconSize: size * 0.4,
             ),
     );
-    if (artist) return AppShapeClip(kind: AppShapes.artist, child: image);
+    if (artist) return AppShapeClip(child: image);
     final radius = size * 0.06;
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
   }

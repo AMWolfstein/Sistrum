@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'
     show CupertinoButton, CupertinoDynamicColor, kCupertinoModalBarrierColor;
-import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -369,7 +368,6 @@ Future<T?> showAppModalBottomSheet<T>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
-    sheetAnimationStyle: AppMotion.surfaceEntrance(context),
     isScrollControlled: isScrollControlled,
     isDismissible: isDismissible,
     enableDrag: enableDrag,

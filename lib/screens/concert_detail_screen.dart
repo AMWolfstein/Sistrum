@@ -16,9 +16,7 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_shape.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 class ConcertDetailScreen extends StatefulWidget {
   const ConcertDetailScreen({
@@ -191,7 +189,6 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
                       clipBehavior: Clip.none,
                       children: [
                         AppShapeClip(
-                          kind: AppShapes.artist,
                           child: SizedBox.square(
                             dimension: photoSize,
                             child: source == null
@@ -359,8 +356,7 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
                                 context.l10n.concertDetailsUnavailable,
                                 textAlign: TextAlign.center,
                               ),
-                              ExpressiveButton(
-                                text: true,
+                              TextButton(
                                 onPressed: _load,
                                 child: Text(context.l10n.dialogRetry),
                               ),
@@ -441,8 +437,7 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
     IconData icon,
     String label,
     VoidCallback onTap,
-  ) => ExpressiveButton(
-    outlined: true,
+  ) => OutlinedButton.icon(
     onPressed: onTap,
     icon: Icon(icon, size: 19),
     style: OutlinedButton.styleFrom(
@@ -453,7 +448,7 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
     ),
-    child: Text(label, textAlign: TextAlign.center),
+    label: Text(label, textAlign: TextAlign.center),
   );
 
   Widget _infoRow(
@@ -486,7 +481,7 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
           ),
         ),
         if (onTap != null)
-          AppIconButton(
+          IconButton(
             onPressed: onTap,
             tooltip: tooltip,
             icon: Icon(icon, size: 21),

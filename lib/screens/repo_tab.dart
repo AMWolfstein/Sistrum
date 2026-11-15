@@ -3,7 +3,6 @@ import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoTextField;
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_text_field.dart';
-import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/extension_row.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
@@ -21,8 +20,6 @@ import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/extension_repo_card.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 
 class RepoTab extends ConsumerStatefulWidget {
@@ -98,7 +95,7 @@ class _RepoTabState extends ConsumerState<RepoTab> {
     final edge = 16 + wideListInset(context);
 
     return Scaffold(
-      body: AppRefreshIndicator(
+      body: RefreshIndicator(
         onRefresh: () =>
             ref.read(repoProvider.notifier).refresh(forceRefresh: true),
         child: CustomScrollView(
@@ -108,7 +105,7 @@ class _RepoTabState extends ConsumerState<RepoTab> {
               title: context.l10n.storeTitle,
               actions: [
                 if (hasRegistryUrl)
-                  AppIconButton(
+                  IconButton(
                     icon: Icon(CupertinoIcons.link),
                     tooltip: context.l10n.storeChangeRepoTooltip,
                     onPressed: () => _showChangeRepoDialog(registryUrl),
@@ -257,7 +254,6 @@ class _RepoTabState extends ConsumerState<RepoTab> {
               const SizedBox(height: 32),
               AppTextField(
                 controller: _repoUrlController,
-                outlined: true,
                 label: context.l10n.storeRepoUrlLabel,
                 hint: context.l10n.storeRepoUrlHint,
                 leading: const Icon(Icons.link),
@@ -324,10 +320,10 @@ class _RepoTabState extends ConsumerState<RepoTab> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: ExpressiveButton(
+                child: FilledButton.icon(
                   onPressed: _submitRepoUrl,
                   icon: const Icon(Icons.add),
-                  child: Text(context.l10n.storeAddRepoButton),
+                  label: Text(context.l10n.storeAddRepoButton),
                 ),
               ),
             ],
@@ -434,11 +430,11 @@ class _RepoTabState extends ConsumerState<RepoTab> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            ExpressiveButton(
+            FilledButton.icon(
               onPressed: () =>
                   ref.read(repoProvider.notifier).refresh(forceRefresh: true),
               icon: const Icon(Icons.refresh),
-              child: Text(context.l10n.dialogRetry),
+              label: Text(context.l10n.dialogRetry),
             ),
           ],
         ),
@@ -470,8 +466,7 @@ class _RepoTabState extends ConsumerState<RepoTab> {
           ),
           if (hasFilters) ...[
             const SizedBox(height: 8),
-            ExpressiveButton(
-              text: true,
+            TextButton(
               onPressed: () {
                 _searchController.clear();
                 ref.read(repoProvider.notifier).clearSearch();

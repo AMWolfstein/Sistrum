@@ -12,7 +12,6 @@ import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
 const _pathProvider = MethodChannel('plugins.flutter.io/path_provider');
@@ -137,14 +136,14 @@ void main() {
         ],
       );
       for (final row in rows) {
-        expect(row.trailing, isA<ExpressiveButton>(), reason: row.title);
+        expect(row.trailing, isA<TextButton>(), reason: row.title);
       }
 
       // A row's clear button names that cache in the confirm dialog, and
       // cancelling clears nothing.
       final coverRow = find.byWidget(rows[2]);
       await tester.tap(
-        find.descendant(of: coverRow, matching: find.byType(ExpressiveButton)),
+        find.descendant(of: coverRow, matching: find.byType(TextButton)),
       );
       await tester.pumpAndSettle();
       final dialog = tester.widget<AppAlertDialog>(find.byType(AppAlertDialog));
@@ -191,7 +190,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byWidget(exploreRow()!),
-          matching: find.byType(ExpressiveButton),
+          matching: find.byType(TextButton),
         ),
       );
       await tester.pumpAndSettle();

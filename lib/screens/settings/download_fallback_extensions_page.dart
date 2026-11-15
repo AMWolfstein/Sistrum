@@ -7,8 +7,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/discard_changes_dialog.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 
 class DownloadFallbackExtensionsPage extends ConsumerStatefulWidget {
@@ -73,7 +71,7 @@ class _DownloadFallbackExtensionsPageState
           slivers: [
             AppSliverHeader.page(
               title: context.l10n.extensionsFallbackTitle,
-              leading: AppIconButton(
+              leading: IconButton(
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 icon: const AppIcon(Icons.arrow_back),
                 onPressed: () async {
@@ -89,8 +87,7 @@ class _DownloadFallbackExtensionsPageState
               ),
               actions: [
                 if (_hasChanges)
-                  ExpressiveButton(
-                    text: true,
+                  TextButton(
                     onPressed: _saveChanges,
                     child: Text(context.l10n.dialogSave),
                   ),

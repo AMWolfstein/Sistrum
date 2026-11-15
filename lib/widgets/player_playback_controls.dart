@@ -2,20 +2,14 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_3_expressive/material_3_expressive.dart' show M3ETheme;
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/audio_info_sheet.dart';
 import 'package:sistrum/widgets/automix_status_badge.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 import 'package:sistrum/widgets/mornye_playback_button.dart';
 import 'package:sistrum/widgets/mornye_playback_time.dart';
 import 'package:sistrum/widgets/mornye_player_slider.dart';
@@ -37,10 +31,6 @@ class PlayerPlaybackControls extends ConsumerWidget {
   /// side insets, lining up with the artwork above.
   final bool edgeAligned;
 
-  /// Material puts shuffle and repeat beside the transport unless the layout
-  /// shows them elsewhere, as the phone player's [PlayerPlaybackModeToolbar].
-  final bool showPlaybackModes;
-
   const PlayerPlaybackControls({
     super.key,
     required this.mediaId,
@@ -51,7 +41,6 @@ class PlayerPlaybackControls extends ConsumerWidget {
     this.compact = false,
     this.transportTopPadding = 16,
     this.edgeAligned = false,
-    this.showPlaybackModes = true,
   });
 
   @override
@@ -61,7 +50,7 @@ class PlayerPlaybackControls extends ConsumerWidget {
     final isLoading = ref.watch(playbackLoadingProvider);
     // and repeat at the timeline's ends; its phone player has them in the queue.
     final wideMornye = edgeAligned;
-    final showModes = showPlaybackModes && edgeAligned;
+    final showModes = edgeAligned;
     final skipSize = wideMornye ? 30.0 : 40.0;
     final playPauseSize = wideMornye
         ? (isPlaying ? 34.0 : 32.0)
@@ -310,7 +299,7 @@ class PlayerPlaybackModeButton extends ConsumerWidget {
     // on the capsule.
     return Semantics(
       toggled: selected,
-      child: AppIconButton(
+      child: IconButton(
         tooltip: tooltip,
         iconSize: 20,
         isSelected: selected,
@@ -322,146 +311,6 @@ class PlayerPlaybackModeButton extends ConsumerWidget {
             : null,
         icon: AppIcon(icon),
         onPressed: onPressed,
-      ),
-    );
-  }
-}
-
-/// Shuffle and repeat as one connected button group in the Material phone
-/// player's footer: round outer ends, small inner corners and a hairline
-/// gap, like the Library toolbar. A selected segment fills its own shape
-/// instead of morphing, and a pressed one widens while the other yields.
-class PlayerPlaybackModeToolbar extends StatefulWidget {
-  const PlayerPlaybackModeToolbar({super.key, required this.colorScheme});
-
-  /// Width of each segment at rest; the footer's lone buttons match it.
-  static const segmentWidth = 56.0;
-
-  final ColorScheme colorScheme;
-
-  @override
-  State<PlayerPlaybackModeToolbar> createState() =>
-      _PlayerPlaybackModeToolbarState();
-}
-
-class _PlayerPlaybackModeToolbarState extends State<PlayerPlaybackModeToolbar>
-    with ExpressivePressSquish {
-  static const _segmentWidth = PlayerPlaybackModeToolbar.segmentWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final height = tokens.minTouchTarget;
-    final outer = Radius.circular(height / 2);
-    final inner = Radius.circular(tokens.radiusThumb);
-    final expressive = materialExpressiveEnabled(context);
-    Widget slot(int index, PlayerPlaybackMode mode, BorderRadiusGeometry ends) {
-      final pressed = pressedIndex;
-      final width = !expressive || pressed == null
-          ? _segmentWidth
-          : _segmentWidth *
-                (pressed == index ? 1 + squishRatio : 1 - squishRatio);
-      return pressSlot(
-        index,
-        TweenAnimationBuilder<double>(
-          tween: Tween(end: width),
-          duration: pressSpring.duration,
-          curve: pressSpring,
-          builder: (context, width, segment) =>
-              SizedBox(width: width, height: height, child: segment),
-          child: _PlaybackModeSegment(
-            mode: mode,
-            colorScheme: widget.colorScheme,
-            borderRadius: ends,
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        slot(
-          0,
-          PlayerPlaybackMode.shuffle,
-          BorderRadiusDirectional.horizontal(start: outer, end: inner),
-        ),
-        SizedBox(width: M3ETheme.of(context).buttonGroupTheme.connectedGap),
-        slot(
-          1,
-          PlayerPlaybackMode.repeat,
-          BorderRadiusDirectional.horizontal(start: inner, end: outer),
-        ),
-      ],
-    );
-  }
-}
-
-class _PlaybackModeSegment extends ConsumerWidget {
-  const _PlaybackModeSegment({
-    required this.mode,
-    required this.colorScheme,
-    required this.borderRadius,
-  });
-
-  final PlayerPlaybackMode mode;
-  final ColorScheme colorScheme;
-  final BorderRadiusGeometry borderRadius;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final (:selected, :icon, :tooltip, :onPressed) = _watchPlaybackMode(
-      context,
-      ref,
-      mode,
-    );
-    final shape = RoundedRectangleBorder(borderRadius: borderRadius);
-    final motion = AppMotion.effectsFast(
-      context,
-      AppMotionSpec(
-        MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 150),
-        Curves.easeOut,
-      ),
-    );
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: tooltip,
-      excludeSemantics: true,
-      child: Tooltip(
-        message: tooltip,
-        excludeFromSemantics: true,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(end: selected ? 1 : 0),
-          duration: motion.duration,
-          curve: motion.curve,
-          builder: (context, fill, _) => Material(
-            color: Color.lerp(
-              colorScheme.surfaceContainerHigh,
-              colorScheme.primaryContainer,
-              fill,
-            ),
-            shape: shape,
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              customBorder: shape,
-              onTap: onPressed,
-              child: Center(
-                child: AppIcon(
-                  icon,
-                  size: 24,
-                  color: Color.lerp(
-                    colorScheme.onSurfaceVariant,
-                    colorScheme.onPrimaryContainer,
-                    fill,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

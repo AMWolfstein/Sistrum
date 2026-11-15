@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -15,7 +14,6 @@ import 'package:sistrum/providers/player_artwork_video_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/utils/string_utils.dart';
@@ -154,7 +152,6 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
     final isLoading = ref.watch(playbackLoadingProvider);
     final controller = ref.read(musicPlayerControllerProvider);
     final colorScheme = Theme.of(context).colorScheme;
-    final expressive = materialExpressiveEnabled(context);
     final compact = widget.compact;
     // Frosted and flat glass levels run on constrained Android hardware. They
     // skip keeping a paused video decoder for the full player's motion cover.
@@ -249,54 +246,24 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
                       ],
                     ),
                   ),
-                  if (expressive)
-                    AppIconButton.filled(
-                      tooltip: isPlaying
-                          ? context.l10n.actionPause
-                          : context.l10n.tooltipPlay,
-                      isSelected: isPlaying,
-                      style: IconButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                      ),
-                      icon: isLoading
-                          ? AppLoadingIndicator(
-                              size: 20,
-                              color: colorScheme.onPrimary,
-                            )
-                          : const AppIcon(Icons.play_arrow),
-                      selectedIcon: isLoading
-                          ? AppLoadingIndicator(
-                              size: 20,
-                              color: colorScheme.onPrimary,
-                            )
-                          : const AppIcon(Icons.pause),
-                      onPressed: isLoading
-                          ? null
-                          : () => controller.togglePlayPause(isPlaying),
-                    )
-                  else
-                    AppIconButton(
-                      color: colorScheme.onSurface,
-                      tooltip: isPlaying
-                          ? context.l10n.actionPause
-                          : context.l10n.tooltipPlay,
-                      icon: isLoading
-                          ? const AppLoadingIndicator(
-                              size: 20,
-                              strokeWidth: 2.5,
-                            )
-                          : AppIcon(
-                              (isPlaying
-                                  ? CupertinoIcons.pause_fill
-                                  : CupertinoIcons.play_fill),
-                            ),
-                      onPressed: isLoading
-                          ? null
-                          : () => controller.togglePlayPause(isPlaying),
-                    ),
+                  IconButton(
+                    color: colorScheme.onSurface,
+                    tooltip: isPlaying
+                        ? context.l10n.actionPause
+                        : context.l10n.tooltipPlay,
+                    icon: isLoading
+                        ? const AppLoadingIndicator(size: 20, strokeWidth: 2.5)
+                        : AppIcon(
+                            (isPlaying
+                                ? CupertinoIcons.pause_fill
+                                : CupertinoIcons.play_fill),
+                          ),
+                    onPressed: isLoading
+                        ? null
+                        : () => controller.togglePlayPause(isPlaying),
+                  ),
                   if (!compact)
-                    AppIconButton(
+                    IconButton(
                       color: colorScheme.onSurface,
                       tooltip: context.l10n.nowPlayingNextTrack,
                       icon: AppIcon(CupertinoIcons.forward_fill),

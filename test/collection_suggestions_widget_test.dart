@@ -61,9 +61,7 @@ Widget _app(
 
 void main() {
   {
-    {
-
-    }
+    {}
   }
 
   testWidgets('playlist membership updates filter already loaded suggestions', (

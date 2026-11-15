@@ -258,3 +258,83 @@ Baseline checks on `5edaaac`: `flutter analyze` no issues; full `flutter test`
 - Round 3 (independent): code clean, no stray comments, `work.py validate` PASS; one
   finding, this log lacked the round 2/3 entries. Added here. Third result was
   NEEDS_FIXES, so no further review is run without the owner's permission.
+
+## M001-T004 Remove Material 3 Expressive, Material UI and Material Symbols
+
+- **Map refresh (first action):** `python3 workflow/codegraph/code_tools.py update`
+  succeeded: 35061 symbols, 1731 extracted sources, 0 partial, 0 unindexed, 0 rejected
+  cross-language calls.
+- **Probe re-run on the real tree (differences from the plan):** `materialExpressiveEnabled`
+  was already a constant `false` (27 `lib` files, not 34); 67 `ExpressiveButton(` call
+  sites in 35 files (plan: 71 in 38; T003 counted 65); `ExpressiveButtonGroup` 1 site;
+  `ExpressiveNavigationRail` was still used by `main_shell.dart` on widths >= 1440
+  (plan R6 listed only the bar); `ToolButtonGroup` had no caller left (T003 note).
+- **Packages:** `material_3_expressive`, `material_ui` and `material_symbols_icons` removed
+  from `pubspec.yaml`; `flutter pub get` also dropped the now-unused transitive
+  `dynamic_color`, `equatable`, `material_new_shapes` and `motor` from `pubspec.lock`.
+  `lib/app.dart` keeps only the `flutter_localizations` Material delegate.
+- **Deleted:** `lib/theme/material_expressive.dart`, `lib/theme/material_symbols.dart`,
+  `lib/widgets/{expressive_button,expressive_button_group,expressive_icon_button,
+  expressive_navigation_bar,expressive_playback_transport,tool_button_group,app_checkbox,
+  app_icon_button,app_refresh_indicator}.dart`; tests `app_motion_test`,
+  `expressive_playback_transport_test`, `material_expressive_test`,
+  `material_shared_controls_test`.
+- **Replacements, nothing renamed:** each `ExpressiveButton` became the framework button
+  its fallback arm returned (`TextButton`, `OutlinedButton`, `FilledButton`,
+  `FilledButton.tonal`, `.icon` variants), by a throw-away script in the scratchpad that
+  parsed `text:`/`outlined:`/`tonal:`/`icon:` literals (no non-literal flag existed);
+  `ExpressiveButtonGroup` site (`library_tracks_folder_screen.dart`) is a `Row` with a
+  `Flexible` Play button and 8 dp gaps; `ExpressiveNavigationRail` is inlined in
+  `main_shell.dart` as its fallback `NavigationRail` (scrolling, all labels);
+  `AppIconButton` (pure pass-through) and `AppRefreshIndicator` are replaced by
+  `IconButton` / `RefreshIndicator` at all callers; `AudioOutputButton.backgroundColor`
+  and `width` deleted; `ToolButtonGroup` deleted, the `ToolButton` data class is kept as
+  a three-field class at the end of `home_tab_search_results.dart` (its only user).
+- **M3E arms deleted, fallback kept:** `AppSwitch`, `AppSlider` (also loses
+  `trackThickness`/`thumbLength`/`centered`), `AppChoiceChip`, `AppProgressIndicator`
+  (loses `wavy`), `AppMenuButton` (loses `alignStart` and the M3E anchor),
+  `AppTextField` (loses `outlined`), `AppShapeClip`/`AppShapeBadge` (lose `kind`;
+  `AppShapes` and `fallbackRadius` -> `radius`), `SwipeDeleteDismissible` (now
+  stateless), `MetadataTextField`, `StaggeredListItem`, `SettingsGroup`,
+  `SettingsSegmentedChoice` (loses `semanticLabel`, which only the M3E group read),
+  `MiniPlayer` play button, listening-statistics activity bars (`_ActivityBar` and the
+  `_connectedRow` pass-through deleted), `PlayerPlaybackControls`
+  (`PlayerPlaybackModeToolbar`, `_PlaybackModeSegment` and `showPlaybackModes` deleted:
+  no caller). `AppMotion`/`SpringCurve` and the M3E springs are deleted; every call site
+  uses its own `AppMotionSpec` (the fallback) directly, and sheet/menu entrance styles
+  (`surfaceEntrance`, always null on Mornye) are gone. `app_motion.dart` keeps only
+  `AppMotionSpec`. `AppIcon` lost `fill` and `symbolIconWidget` (it only matters for
+  Material Symbols).
+- **Setup flow (FR-015):** `setup_screen.dart` keeps the standard
+  `FloatingActionButton.extended` next/finish buttons (`_buildExpressiveFab` deleted);
+  the step progress ring is a plain `AppProgressIndicator.circular` (the zero-duration
+  tween around it was an identity); the language list rows are `AppSheetOption`s with
+  the accent icon, bold accent title and trailing check, exactly like
+  `_showLanguagePicker` in Appearance settings. New test in
+  `test/setup_screen_recovery_test.dart`: `setup language list marks the chosen
+  language like Settings` (selected row, accent bold title, check, no
+  `Icons.check_circle`, other row plain).
+- **Tests:** shared-behaviour tests kept and re-pointed at the framework widgets
+  (collection reorder `TextButton`, cache page `TextButton`, lyrics share
+  `FilledButton`, lyrics empty state `FilledButton`, hires card `CupertinoButton`,
+  audio output button without the removed parameters, equalizer/overflow/design-system
+  tests without `M3E*` finders). Material-only cases deleted: `legacy icons keep their
+  filled or outlined meaning`, `symbolIconWidget` and `AppIconButton` tests in
+  `app_icon_test.dart`, the M3E menu-skin test in `material_theme_roles_test.dart`,
+  M3E progress painter and M3E chip/button-group expectations.
+- **Leftover scan (T002/T003 lessons):** l10n keys of `app_en.arb` all still have a
+  reader (2138 keys, script over `lib`, `test`, `integration_test`); constructor
+  parameters of changed files with no reader scanned by script (none new); doc comments
+  naming the removed Material/expressive behaviour rewritten in the touched files. Left
+  for T005: `AppTheme` (and its "Expressive brand" font comments), `lib/theme/README.md`
+  rewrite beyond the removed rows, the `isMornye` prose in that README.
+- **Deviations / not done:** `semanticLabel` of `SettingsSegmentedChoice` was only
+  passed to the M3E button group, so Mornye never exposed it; removed rather than
+  adding new semantics (no Mornye behaviour change). `AppSheetDialog`,
+  `duplicateReviewGroupsLoaderProvider` show up in a single-file reader scan but
+  predate this task and were left. Nothing was checked on a device.
+- **Checks:** `flutter analyze` (whole repo incl. `integration_test`): no issues. Full
+  `flutter test`: 4096 passed, 10 skipped, 0 failed, exit 0 (T003 left 4126; the 30
+  fewer are the deleted M3E/symbol/motion/expressive-transport/Material-control tests,
+  plus one new setup test). `rg -n "material_3_expressive|material_ui|material_symbols_icons|M3E|materialExpressive" lib test pubspec.yaml`
+  and `rg -n "class (Expressive|Material)[A-Z]" lib` return nothing. `work.py validate` PASS.

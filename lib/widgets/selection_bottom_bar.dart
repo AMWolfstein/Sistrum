@@ -188,22 +188,19 @@ class _AnimatedSelectionBottomBarState extends State<AnimatedSelectionBottomBar>
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_controller.duration != null) return;
-    // Expressive: the bar springs into place while fading without overshoot.
-    const fallback = AppMotionSpec(
+    const motion = AppMotionSpec(
       Duration(milliseconds: 240),
       Curves.easeOutCubic,
     );
-    final slide = AppMotion.spatial(context, fallback);
-    final fade = AppMotion.effects(context, fallback);
-    _controller.duration = slide.duration;
+    _controller.duration = motion.duration;
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.08),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: slide.curve));
+    ).animate(CurvedAnimation(parent: _controller, curve: motion.curve));
     _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: fade.curve));
+    ).animate(CurvedAnimation(parent: _controller, curve: motion.curve));
     _controller.forward();
   }
 
@@ -438,14 +435,11 @@ class _SelectionPanelDragState extends State<_SelectionPanelDrag>
   void _setExpanded(bool expanded) {
     setState(() => _expanded = expanded);
     if (!expanded && _scroll.hasClients) _scroll.jumpTo(0);
-    final motion = AppMotion.spatialSlow(
-      context,
-      AppMotionSpec(
-        MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 220),
-        Curves.easeOutCubic,
-      ),
+    final motion = AppMotionSpec(
+      MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 220),
+      Curves.easeOutCubic,
     );
     _expansion.animateTo(
       expanded ? 1 : 0,

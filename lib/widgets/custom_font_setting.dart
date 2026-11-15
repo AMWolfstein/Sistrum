@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/services/custom_font_service.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 
 class CustomFontSetting extends ConsumerStatefulWidget {
@@ -60,7 +59,7 @@ class _CustomFontSettingState extends ConsumerState<CustomFontSetting> {
           ? const AppLoadingIndicator(size: 24, strokeWidth: 2)
           : theme.customFontId.isEmpty
           ? const Icon(Icons.add)
-          : AppIconButton(
+          : IconButton(
               tooltip: context.l10n.appearanceCustomFontReset,
               onPressed: () =>
                   ref.read(themeProvider.notifier).setCustomFont('', ''),

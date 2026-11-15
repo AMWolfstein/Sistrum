@@ -18,7 +18,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/open_audio_button.dart';
-import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
@@ -326,7 +325,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
         ),
       ],
     ];
-    return AppRefreshIndicator(
+    return RefreshIndicator(
       onRefresh: () async {
         if (searchingLibrary) return;
         ref.invalidate(libraryBrowseProvider(_request));

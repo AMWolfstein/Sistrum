@@ -333,7 +333,6 @@ void main() {
     expect(analyzer.calls, ['/a.flac', '/b.flac', '/c.flac']);
   });
 
-
   test('windows skip intros and stay inside the song', () {
     List<double> offsets(int seconds) =>
         SongFeatureAnalyzer.windowOffsets(Duration(seconds: seconds));

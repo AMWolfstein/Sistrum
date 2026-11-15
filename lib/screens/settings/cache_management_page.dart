@@ -23,9 +23,7 @@ import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 
 class CacheManagementPage extends ConsumerStatefulWidget {
@@ -312,8 +310,7 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
       return const AppLoadingIndicator(size: 18, strokeWidth: 2);
     }
 
-    return ExpressiveButton(
-      text: true,
+    return TextButton(
       onPressed: _isBusy ? null : onPressed,
       child: Text(context.l10n.dialogClear),
     );
@@ -344,7 +341,7 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
           AppSliverHeader.page(
             title: context.l10n.cacheTitle,
             actions: [
-              AppIconButton(
+              IconButton(
                 tooltip: context.l10n.cacheRefresh,
                 onPressed: _isBusy ? null : _refreshOverview,
                 icon: const AppIcon(Icons.refresh),

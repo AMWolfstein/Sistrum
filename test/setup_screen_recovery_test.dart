@@ -11,6 +11,8 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/setup_screen.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -343,5 +345,56 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('5/5'), findsOneWidget);
     expect(permissionRequests, 0);
+  });
+
+  testWidgets('setup language list marks the chosen language like Settings', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(_setup());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('2/5'), findsOneWidget);
+
+    final scheme = Theme.of(
+      tester.element(find.byType(SetupScreen)),
+    ).colorScheme;
+    final selected = find.ancestor(
+      of: find.text('System Default'),
+      matching: find.byType(AppSheetOption),
+    );
+    expect(selected, findsOneWidget);
+    final title = tester.widget<Text>(find.text('System Default'));
+    expect(title.style?.color, scheme.primary);
+    expect(title.style?.fontWeight, FontWeight.w600);
+    expect(
+      find.descendant(
+        of: selected,
+        matching: find.byIcon(mornyeIconFor(Icons.check)),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.check_circle), findsNothing);
+
+    // Another language is plain: no check, regular weight.
+    final other = find.ancestor(
+      of: find.text('English'),
+      matching: find.byType(AppSheetOption),
+    );
+    expect(other, findsOneWidget);
+    expect(
+      find.descendant(
+        of: other,
+        matching: find.byIcon(mornyeIconFor(Icons.check)),
+      ),
+      findsNothing,
+    );
+    expect(
+      tester.widget<Text>(find.text('English')).style?.fontWeight,
+      FontWeight.normal,
+    );
   });
 }

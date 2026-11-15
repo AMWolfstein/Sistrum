@@ -9,7 +9,6 @@ import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 
@@ -100,7 +99,7 @@ class FavoriteArtistsScreen extends ConsumerWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                    trailing: AppIconButton(
+                    trailing: IconButton(
                       tooltip: context.l10n.artistOptionRemoveFromFavorites,
                       icon: Icon(Icons.favorite, color: colorScheme.error),
                       onPressed: () async {
@@ -156,7 +155,6 @@ class _ArtistThumbnail extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final imageUrl = artist.imageUrl;
     return AppShapeClip(
-      kind: AppShapes.artist,
       child: imageUrl != null && imageUrl.isNotEmpty
           ? CachedNetworkImage(
               imageUrl: imageUrl,

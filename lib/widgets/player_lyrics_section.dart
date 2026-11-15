@@ -10,7 +10,6 @@ import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
 import 'package:sistrum/widgets/lyrics_text_scale.dart';
@@ -134,8 +133,7 @@ class PlayerLyricsSection extends ConsumerWidget {
         ),
         if (metadata.canSearchOnline) ...[
           const SizedBox(height: 16),
-          ExpressiveButton(
-            tonal: true,
+          FilledButton.tonalIcon(
             onPressed: () async {
               await metadata.searchOnline();
               if (context.mounted && metadata.onlineLyricsSaveFailed) {
@@ -146,17 +144,16 @@ class PlayerLyricsSection extends ConsumerWidget {
               }
             },
             icon: const Icon(Icons.manage_search),
-            child: Text(context.l10n.nowPlayingSearchLyricsOnline),
+            label: Text(context.l10n.nowPlayingSearchLyricsOnline),
           ),
         ],
         if (canEditPlayerLyrics(metadata)) ...[
           const SizedBox(height: 8),
-          ExpressiveButton(
+          TextButton.icon(
             key: const ValueKey('lyrics-write'),
-            text: true,
             onPressed: () => openLyricsEditor(context, metadata),
             icon: const Icon(Icons.edit_note),
-            child: Text(context.l10n.lyricsEditWrite),
+            label: Text(context.l10n.lyricsEditWrite),
           ),
         ],
       ],

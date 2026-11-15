@@ -8,7 +8,6 @@ import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 
 /// On-demand sampled spectrum and bit-depth analysis for one FLAC/WAV file.
 class HiResCheckCard extends StatefulWidget {
@@ -136,7 +135,7 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
                     ),
                   )
                 else if (result != null || _error != null)
-                  AppIconButton(
+                  IconButton(
                     icon: const Icon(Icons.refresh, size: 20),
                     tooltip: l10n.audioAnalysisRescan,
                     visualDensity: VisualDensity.compact,

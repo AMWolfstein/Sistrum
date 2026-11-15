@@ -649,8 +649,6 @@ const _track = PlayableMedia(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-
-
   test('a paused song stays paused when moved to the TV', () async {
     const channel = MethodChannel('paused-cast-test');
     final messenger =
@@ -761,7 +759,6 @@ void main() {
     },
   );
 
-
   test(
     'relocated sources update every queue occurrence without restarting',
     () async {
@@ -824,7 +821,6 @@ void main() {
     final handler = await _runtime().initialize();
     expect(handler.androidPlaybackInfo.value, isA<LocalAndroidPlaybackInfo>());
   });
-
 
   test(
     'a handed-off shuffled queue keeps its order and current song',
@@ -1509,7 +1505,6 @@ void main() {
     },
   );
 
-
   test(
     'missing offline file falls back to its server without requiring a rescan',
     () async {
@@ -1567,7 +1562,6 @@ void main() {
         connectionRemovals: SourceDeletionEvents(),
       );
     }
-
 
     test('a song still downloading streams from its server', () async {
       final cache = await networkCache(release: Completer<void>().future);
@@ -1695,7 +1689,6 @@ void main() {
     },
   );
 
-
   test('denied or failed audio focus cannot resume a paused source', () async {
     final session = _Session();
     final decks = <_Deck>[];
@@ -1810,7 +1803,6 @@ void main() {
       expect(handler.playbackState.value.playing, isFalse);
     },
   );
-
 
   test(
     'muted start pauses and warns; explicit resume survives source reload',
@@ -3053,7 +3045,6 @@ void main() {
     },
   );
 
-
   group('network covers', () {
     const cover = 'network://nas/Album/cover.jpg';
     const song = PlayableMedia(
@@ -3655,7 +3646,6 @@ void main() {
         covers.indexedFile(CoverStore.songCoverReference(other.source)),
       );
     });
-
 
     test(
       'a restored session shows its stored cover from the first item',

@@ -12,8 +12,7 @@ import 'package:sistrum/services/music_playback_deck.dart';
 export 'package:sistrum/providers/system_volume_provider.dart';
 
 /// System (or USB hardware) volume slider for the player and USB settings.
-/// Mornye draws its glass slider between speaker glyphs; Material draws the
-/// expressive slider between volume icons.
+/// Draws a glass slider between speaker glyphs.
 class PlayerVolumeControl extends ConsumerStatefulWidget {
   const PlayerVolumeControl({super.key, this.foreground = Colors.white});
 

@@ -77,7 +77,6 @@ class _Library implements LibraryDatabase {
 }
 
 void main() {
-
   test('picks carry their score parts, which weights multiply', () {
     final seed = track('seed', artist: 'S', genre: 'Rock');
     List<AutoplayPick> rank(Map<String, double> weights) => rankAutoplayTracks(

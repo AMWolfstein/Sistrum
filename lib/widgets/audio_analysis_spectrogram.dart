@@ -73,7 +73,7 @@ class _SpectrogramView extends StatelessWidget {
                         )
                       : const SizedBox.shrink(),
                 ),
-                AppIconButton(
+                IconButton(
                   key: const ValueKey('audio-analysis-save-spectrogram'),
                   icon: const AppIcon.adaptive(
                     Icons.download_outlined,

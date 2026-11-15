@@ -29,7 +29,6 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/saf_download_tree.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/batch_progress_dialog.dart';
@@ -170,8 +169,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                   title: context.l10n.downloadFolderAccessLostTitle,
                   message: context.l10n.downloadFolderAccessLostSubtitle,
                   margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  action: ExpressiveButton(
-                    tonal: true,
+                  action: FilledButton.tonal(
                     onPressed: () async {
                       await _pickSafTreeAndSave();
                       await _checkSafAccess();

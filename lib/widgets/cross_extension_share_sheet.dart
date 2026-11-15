@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -177,7 +176,7 @@ class _CrossExtensionShareTile extends StatelessWidget {
         ),
       ),
       trailing: hasUrl
-          ? AppIconButton(
+          ? IconButton(
               tooltip: context.l10n.shareSheetCopyLink,
               icon: const Icon(Icons.copy_rounded, size: 20),
               color: colorScheme.onSurfaceVariant,

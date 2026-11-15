@@ -41,7 +41,9 @@ void main() {
   test(
     'ZIP backup pages history and streams cover files during restore',
     () async {
-      final root = await Directory.systemTemp.createTemp('sistrum-backup-test-');
+      final root = await Directory.systemTemp.createTemp(
+        'sistrum-backup-test-',
+      );
       addTearDown(() async {
         if (await root.exists()) await root.delete(recursive: true);
       });

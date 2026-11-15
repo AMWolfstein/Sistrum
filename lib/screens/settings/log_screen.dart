@@ -4,14 +4,12 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_crash_banner.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_menu_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
@@ -308,7 +306,7 @@ class _LogScreenState extends State<LogScreen> {
                   ? context.l10n.selectionSelected(_selectedEntries.length)
                   : context.l10n.logTitle,
               leading: _selectionMode
-                  ? AppIconButton(
+                  ? IconButton(
                       tooltip: MaterialLocalizations.of(
                         context,
                       ).closeButtonTooltip,
@@ -318,7 +316,7 @@ class _LogScreenState extends State<LogScreen> {
                   : null,
               actions: _selectionMode
                   ? [
-                      AppIconButton(
+                      IconButton(
                         icon: AppIcon(
                           logs.isNotEmpty &&
                                   logs.every(_selectedEntries.contains)
@@ -332,14 +330,14 @@ class _LogScreenState extends State<LogScreen> {
                             : context.l10n.actionSelectAll,
                         onPressed: _toggleSelectAllVisible,
                       ),
-                      AppIconButton(
+                      IconButton(
                         icon: const AppIcon(Icons.copy),
                         tooltip: context.l10n.logCopyLogs,
                         onPressed: _selectedEntries.isEmpty
                             ? null
                             : _copySelectedLogs,
                       ),
-                      AppIconButton(
+                      IconButton(
                         icon: const AppIcon(Icons.share),
                         tooltip: context.l10n.logShareLogs,
                         onPressed: _selectedEntries.isEmpty
@@ -348,7 +346,7 @@ class _LogScreenState extends State<LogScreen> {
                       ),
                     ]
                   : [
-                      AppIconButton(
+                      IconButton(
                         icon: AppIcon(
                           _autoScroll
                               ? Icons.vertical_align_bottom
@@ -360,7 +358,7 @@ class _LogScreenState extends State<LogScreen> {
                         onPressed: () =>
                             setState(() => _autoScroll = !_autoScroll),
                       ),
-                      AppIconButton(
+                      IconButton(
                         icon: const AppIcon(Icons.copy),
                         tooltip: context.l10n.logCopyLogs,
                         onPressed: _copyLogs,
@@ -431,15 +429,14 @@ class _LogScreenState extends State<LogScreen> {
                           ],
                         ),
                       ),
-                      ExpressiveButton(
-                        tonal: true,
+                      FilledButton.tonalIcon(
                         onPressed: () => _showLevelPicker(context),
                         icon: const Icon(Icons.arrow_drop_down, size: 20),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size(0, 40),
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                         ),
-                        child: Text(
+                        label: Text(
                           _selectedLevel,
                           style: TextStyle(
                             color: _selectedLevel == 'ALL'

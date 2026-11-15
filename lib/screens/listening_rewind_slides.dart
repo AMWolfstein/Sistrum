@@ -415,9 +415,8 @@ String? _slideArtwork(_Slide slide, ListeningRewind rewind) => switch (slide) {
 
 /// One background behind every slide, so colors blend while swiping.
 ///
-/// Material floats large expressive shapes that drift, turn and follow the
-/// swipe. Mornye cross-fades the slides' blurred artwork while it slowly
-/// zooms. Reduced motion keeps the shapes and artwork still.
+/// It cross-fades the slides' blurred artwork while it slowly zooms. Reduced
+/// motion keeps the artwork still.
 ///
 /// The drift advances on the 30 Hz decorative clock. Each artwork blurs once
 /// into a quarter-resolution image that the zoom and cross-fade then move;

@@ -27,7 +27,7 @@ class AppContentCard extends StatelessWidget {
   /// Outer margin; zero when null on the Mornye surface.
   final EdgeInsetsGeometry? margin;
 
-  /// Makes the whole card pressable, with the expressive press feedback.
+  /// Makes the whole card pressable.
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 

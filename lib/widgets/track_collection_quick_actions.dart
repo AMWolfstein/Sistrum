@@ -14,7 +14,6 @@ import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/track_collection_action_policy.dart';
 import 'package:sistrum/widgets/track_detail_actions.dart';
 
@@ -51,7 +50,7 @@ class TrackCollectionQuickActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return AppIconButton(
+    return IconButton(
       tooltip: MaterialLocalizations.of(context).showMenuTooltip,
       icon: AppIcon(
         CupertinoIcons.ellipsis,

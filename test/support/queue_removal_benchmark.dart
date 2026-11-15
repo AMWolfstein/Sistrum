@@ -37,7 +37,6 @@ DownloadQueueState legacyRemoveQueueItem(DownloadQueueState state, String id) {
   return result;
 }
 
-
 ({int microseconds, DownloadQueueState state}) queueRemovalRun(
   DownloadQueueState initial, {
   required bool incremental,

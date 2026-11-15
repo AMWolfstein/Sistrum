@@ -10,7 +10,6 @@ import 'package:sistrum/services/lyrics_translation_languages.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
@@ -144,7 +143,7 @@ class _LyricsOptionsButtonState extends ConsumerState<LyricsOptionsButton> {
     final foreground = _open ? colorScheme.surface : colorScheme.onSurface;
     final percent = ((job?.progress ?? 0) * 100).round();
     return Builder(
-      builder: (buttonContext) => AppIconButton.filledTonal(
+      builder: (buttonContext) => IconButton.filledTonal(
         key: const ValueKey('lyrics-language-options'),
         tooltip: translating
             ? context.l10n.nowPlayingTranslatingLyrics(percent)
@@ -157,7 +156,6 @@ class _LyricsOptionsButtonState extends ConsumerState<LyricsOptionsButton> {
                   value: job.done == 0 ? null : job.progress,
                   color: foreground,
                   strokeWidth: 2.5,
-                  wavy: false,
                 ),
               )
             : const AppIcon(Icons.translate_rounded),
@@ -184,7 +182,7 @@ class _LyricsOptionsButtonState extends ConsumerState<LyricsOptionsButton> {
   Widget _editButton(BuildContext context) {
     final colorScheme = widget.colorScheme;
     final foreground = _open ? colorScheme.surface : colorScheme.onSurface;
-    return AppIconButton.filledTonal(
+    return IconButton.filledTonal(
       key: const ValueKey('lyrics-edit'),
       tooltip: context.l10n.lyricsEditTitle,
       icon: const AppIcon.adaptive(Icons.edit_note),

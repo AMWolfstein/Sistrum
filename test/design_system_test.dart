@@ -53,10 +53,7 @@ class _IconButtonTooltipVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitInstanceCreationExpression(InstanceCreationExpression node) {
-    if (const {
-      'IconButton',
-      'AppIconButton',
-    }.contains(node.constructorName.type.name.lexeme)) {
+    if (node.constructorName.type.name.lexeme == 'IconButton') {
       final hasTooltip = node.argumentList.arguments.any(
         (argument) =>
             argument is NamedArgument && argument.name.lexeme == 'tooltip',

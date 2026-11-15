@@ -155,49 +155,55 @@ void main() {
     },
   );
 
-  test('the retired Material keys are removed once and the rest is kept', () async {
-    SharedPreferences.setMockInitialValues({
-      'theme_style': 'material',
-      'use_dynamic_color': false,
-      'seed_color': 0xff123456,
-      'use_amoled': true,
-      kThemeModeKey: 'dark',
-      kMornyeAccentKey: 'pink',
-      kUseSystemFontKey: true,
-      kMornyeGlassOutlinesKey: false,
-      kLyricsTextScaleKey: 1.2,
-    });
-    final prefs = await SharedPreferences.getInstance();
-    final settings = loadBootstrapThemeSettings(prefs);
-    await Future<void>.delayed(Duration.zero);
-    for (final key in [
-      'theme_style',
-      'use_dynamic_color',
-      'seed_color',
-      'use_amoled',
-    ]) {
-      expect(prefs.containsKey(key), isFalse, reason: key);
-    }
-    expect(settings.themeMode, ThemeMode.dark);
-    expect(settings.mornyeAccent, MornyeAccent.pink);
-    expect(settings.useSystemFont, isTrue);
-    expect(settings.mornyeGlassOutlines, isFalse);
-    expect(settings.lyricsTextScale, 1.2);
-    expect(loadBootstrapThemeSettings(prefs), settings);
-  });
+  test(
+    'the retired Material keys are removed once and the rest is kept',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        'theme_style': 'material',
+        'use_dynamic_color': false,
+        'seed_color': 0xff123456,
+        'use_amoled': true,
+        kThemeModeKey: 'dark',
+        kMornyeAccentKey: 'pink',
+        kUseSystemFontKey: true,
+        kMornyeGlassOutlinesKey: false,
+        kLyricsTextScaleKey: 1.2,
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final settings = loadBootstrapThemeSettings(prefs);
+      await Future<void>.delayed(Duration.zero);
+      for (final key in [
+        'theme_style',
+        'use_dynamic_color',
+        'seed_color',
+        'use_amoled',
+      ]) {
+        expect(prefs.containsKey(key), isFalse, reason: key);
+      }
+      expect(settings.themeMode, ThemeMode.dark);
+      expect(settings.mornyeAccent, MornyeAccent.pink);
+      expect(settings.useSystemFont, isTrue);
+      expect(settings.mornyeGlassOutlines, isFalse);
+      expect(settings.lyricsTextScale, 1.2);
+      expect(loadBootstrapThemeSettings(prefs), settings);
+    },
+  );
 
-  test('retired keys with unexpected types are removed without failing', () async {
-    SharedPreferences.setMockInitialValues({
-      'theme_style': 3,
-      'use_dynamic_color': 'yes',
-      'seed_color': 'green',
-      'use_amoled': 1.5,
-    });
-    final prefs = await SharedPreferences.getInstance();
-    expect(loadBootstrapThemeSettings(prefs), const ThemeSettings());
-    await Future<void>.delayed(Duration.zero);
-    expect(prefs.getKeys().where((k) => k.startsWith('use_')), isEmpty);
-    expect(prefs.containsKey('theme_style'), isFalse);
-    expect(prefs.containsKey('seed_color'), isFalse);
-  });
+  test(
+    'retired keys with unexpected types are removed without failing',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        'theme_style': 3,
+        'use_dynamic_color': 'yes',
+        'seed_color': 'green',
+        'use_amoled': 1.5,
+      });
+      final prefs = await SharedPreferences.getInstance();
+      expect(loadBootstrapThemeSettings(prefs), const ThemeSettings());
+      await Future<void>.delayed(Duration.zero);
+      expect(prefs.getKeys().where((k) => k.startsWith('use_')), isEmpty);
+      expect(prefs.containsKey('theme_style'), isFalse);
+      expect(prefs.containsKey('seed_color'), isFalse);
+    },
+  );
 }

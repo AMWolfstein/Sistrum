@@ -83,7 +83,9 @@ void main() {
   const connectivity = MethodChannel(
     'dev.fluttercommunity.plus/connectivity_status',
   );
-  const progress = MethodChannel('com.amwolfstein.sistrum/download_progress_stream');
+  const progress = MethodChannel(
+    'com.amwolfstein.sistrum/download_progress_stream',
+  );
   final previousFactory = databaseFactoryOrNull;
   setUpAll(() {
     databaseFactory = databaseFactorySqflitePlugin;

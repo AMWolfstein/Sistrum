@@ -10,7 +10,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/profile_avatar.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -125,8 +124,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
                     ),
                     if (hasPhoto)
                       Center(
-                        child: ExpressiveButton(
-                          text: true,
+                        child: TextButton(
                           onPressed: _busy
                               ? null
                               : () => setState(() {

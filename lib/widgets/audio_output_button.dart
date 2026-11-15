@@ -7,9 +7,7 @@ import 'package:sistrum/services/local_network_access.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/cast_device_picker.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 
 enum _OutputChoice { system, cast, disconnect }
 
@@ -18,18 +16,12 @@ class AudioOutputButton extends StatefulWidget {
   const AudioOutputButton({
     super.key,
     this.color,
-    this.backgroundColor,
-    this.width = 48,
     this.onPickerChanged,
     this.output,
   });
 
   final Color? color;
 
-  /// Fills a pill [width] wide behind the icon, as Material's player footer
-  /// does beside its shuffle and repeat group; transparent when null.
-  final Color? backgroundColor;
-  final double width;
   final ValueChanged<bool>? onPickerChanged;
 
   /// The Cast session; [CastOutput.instance] when null.
@@ -40,11 +32,12 @@ class AudioOutputButton extends StatefulWidget {
 }
 
 class _AudioOutputButtonState extends State<AudioOutputButton> {
-  static const _systemChannel = MethodChannel('com.amwolfstein.sistrum/audio_output');
+  static const _systemChannel = MethodChannel(
+    'com.amwolfstein.sistrum/audio_output',
+  );
   bool _opening = false;
 
   CastOutput get _output => widget.output ?? CastOutput.instance;
-
 
   Future<void> _showPicker() async {
     if (_opening) return;
@@ -142,17 +135,7 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
     final icon = _output.connected
         ? Icons.cast_connected
         : Icons.speaker_group_outlined;
-    if (widget.backgroundColor case final background?) {
-      return ExpressiveIconButton(
-        tooltip: context.l10n.nowPlayingAudioOutput,
-        width: widget.width,
-        foregroundColor: widget.color,
-        backgroundColor: background,
-        icon: Icon(icon),
-        onPressed: _showPicker,
-      );
-    }
-    return AppIconButton(
+    return IconButton(
       tooltip: context.l10n.nowPlayingAudioOutput,
       color: widget.color,
       icon: Icon(icon),

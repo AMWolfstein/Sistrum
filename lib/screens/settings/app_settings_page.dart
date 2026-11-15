@@ -296,7 +296,6 @@ class _UpdateChannelSelector extends StatelessWidget {
           SettingsSegmentedChoice<String>(
             selected: currentChannel,
             onChanged: onChanged,
-            semanticLabel: context.l10n.optionsUpdateChannel,
             options: [
               SettingsSegmentOption(
                 value: 'stable',
@@ -400,7 +399,6 @@ class _VerificationBrowserModeSelector extends StatelessWidget {
               SettingsSegmentedChoice<String>(
                 selected: normalizedMode,
                 onChanged: onChanged,
-                semanticLabel: context.l10n.extensionVerificationBrowserTitle,
                 options: [
                   SettingsSegmentOption(
                     value: 'external_first',

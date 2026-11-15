@@ -17,7 +17,6 @@ import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 import 'package:sistrum/widgets/discard_changes_dialog.dart';
@@ -374,7 +373,7 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
               ],
             ),
           ),
-          AppIconButton(
+          IconButton(
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
             onPressed: _saving ? null : _close,
             icon: const AppIcon.adaptive(Icons.close),
@@ -453,12 +452,12 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
     );
     final selectedTimed = _lines[_selected].time != null;
     Widget nudge(String label, String tooltip, Duration delta) =>
-        AppIconButton.filledTonal(
+        IconButton.filledTonal(
           tooltip: tooltip,
           onPressed: selectedTimed ? () => _nudge(delta) : null,
           icon: Text(label, style: theme.textTheme.labelLarge),
         );
-    final playButton = AppIconButton.filledTonal(
+    final playButton = IconButton.filledTonal(
       tooltip: playing ? l10n.actionPause : l10n.tooltipPlay,
       isSelected: playing,
       onPressed: () => controller.togglePlayPause(playing),
@@ -691,7 +690,7 @@ class _LyricsEditorRow extends StatelessWidget {
                 ),
               ),
               Builder(
-                builder: (buttonContext) => AppIconButton(
+                builder: (buttonContext) => IconButton(
                   tooltip: l10n.lyricsEditLineActions,
                   color: onFill.withValues(alpha: 0.8),
                   onPressed: () => onMenu(

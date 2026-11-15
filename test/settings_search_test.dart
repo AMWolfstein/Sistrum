@@ -14,19 +14,14 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<void> pumpSettings(
-    WidgetTester tester, {
-    ThemeData? theme,
-  }) async {
+  Future<void> pumpSettings(WidgetTester tester, {ThemeData? theme}) async {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
           theme: theme ?? AppTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: SettingsTab(),
-          ),
+          home: Scaffold(body: SettingsTab()),
         ),
       ),
     );

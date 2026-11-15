@@ -26,7 +26,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                   ),
                 ),
                 if (hasDisplayLyrics)
-                  AppIconButton(
+                  IconButton(
                     icon: Icon(CupertinoIcons.doc_on_doc, size: 20),
                     onPressed: () => _copyToClipboard(context, _lyrics!),
                     tooltip: context.l10n.trackCopyLyrics,
@@ -70,8 +70,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                         style: TextStyle(color: colorScheme.onSurface),
                       ),
                     ),
-                    ExpressiveButton(
-                      text: true,
+                    TextButton(
                       onPressed: _fetchLyrics,
                       child: Text(context.l10n.dialogRetry),
                     ),
@@ -133,8 +132,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                   if (!_lyricsEmbedded && _canEditMetadataFile) ...[
                     const SizedBox(height: 16),
                     Center(
-                      child: ExpressiveButton(
-                        tonal: true,
+                      child: FilledButton.tonalIcon(
                         onPressed: _isEmbedding ? null : _embedLyrics,
                         icon: _isEmbedding
                             ? const AppLoadingIndicator(
@@ -142,7 +140,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                                 strokeWidth: 2,
                               )
                             : const Icon(Icons.save_alt),
-                        child: Text(context.l10n.trackEmbedLyrics),
+                        label: Text(context.l10n.trackEmbedLyrics),
                       ),
                     ),
                   ],
@@ -174,22 +172,20 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                   ),
                   const SizedBox(height: 12),
                   Center(
-                    child: ExpressiveButton(
-                      tonal: true,
+                    child: FilledButton.tonalIcon(
                       onPressed: _fetchLyrics,
                       icon: const Icon(Icons.cloud_download_outlined),
-                      child: Text(context.l10n.trackFetchOnlineLyrics),
+                      label: Text(context.l10n.trackFetchOnlineLyrics),
                     ),
                   ),
                 ],
               )
             else
               Center(
-                child: ExpressiveButton(
-                  tonal: true,
+                child: FilledButton.tonalIcon(
                   onPressed: () => _fetchLyrics(checkEmbedded: true),
                   icon: const Icon(Icons.download),
-                  child: Text(context.l10n.trackLoadLyrics),
+                  label: Text(context.l10n.trackLoadLyrics),
                 ),
               ),
           ],

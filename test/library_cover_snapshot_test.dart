@@ -311,5 +311,4 @@ void main() {
       '/covers/two.png',
     });
   });
-
 }

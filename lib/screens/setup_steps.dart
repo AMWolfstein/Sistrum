@@ -1,29 +1,6 @@
 part of 'setup_screen.dart';
 
 extension _SetupScreenSteps on _SetupScreenState {
-  /// Expressive FABs keep their icon leading and show loading in its place.
-  Widget _buildExpressiveFab(ColorScheme colorScheme) {
-    final isLastStep = _currentStep >= _totalSteps - 1;
-    return MaterialExpressiveScope(
-      child: isLastStep
-          ? M3EExtendedFab(
-              label: context.l10n.setupGetStarted,
-              icon: _isLoading
-                  ? AppLoadingIndicator(size: 24, color: colorScheme.onPrimary)
-                  : const AppIcon(Icons.check),
-              color: M3EFabColor.primaryFilled,
-              onPressed: _isLoading ? null : _completeSetup,
-            )
-          : M3EExtendedFab(
-              label: context.l10n.setupNext,
-              icon: const AppIcon(Icons.arrow_forward),
-              onPressed: !_isLoading && _isStepCompleted(_currentStep)
-                  ? _nextPage
-                  : null,
-            ),
-    );
-  }
-
   Widget _buildWelcomeStep(ColorScheme colorScheme) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -180,83 +157,25 @@ extension _SetupScreenSteps on _SetupScreenState {
         final name = lang.$2;
         final isSelected = _selectedLocale == code;
 
-        // Expressive rows morph into a pill as they become selected.
-        final shapeMotion = AppMotion.spatial(
-          context,
-          const AppMotionSpec(Duration.zero, Curves.linear),
-        );
-        final fillMotion = AppMotion.effects(
-          context,
-          const AppMotionSpec(Duration.zero, Curves.linear),
-        );
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(end: isSelected ? 1 : 0),
-            duration: fillMotion.duration,
-            curve: fillMotion.curve,
-            builder: (context, fill, child) => TweenAnimationBuilder<double>(
-              tween: Tween(
-                end: isSelected && materialExpressiveEnabled(context) ? 28 : 16,
-              ),
-              duration: shapeMotion.duration,
-              curve: shapeMotion.curve,
-              builder: (context, radius, child) => Material(
-                color: Color.lerp(
-                  colorScheme.primaryContainer.withValues(alpha: 0),
-                  colorScheme.primaryContainer,
-                  fill.clamp(0.0, 1.0),
-                ),
-                borderRadius: BorderRadius.circular(radius.clamp(0.0, 32.0)),
-                clipBehavior: Clip.antiAlias,
-                child: child,
-              ),
-              child: child,
-            ),
-            child: InkWell(
-              onTap: () => _onLanguageSelected(code),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      lang.$3,
-                      color: isSelected
-                          ? colorScheme.onPrimaryContainer
-                          : colorScheme.onSurfaceVariant,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        code == 'system'
-                            ? context.l10n.setupLanguageSystemDefault
-                            : name,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          color: isSelected
-                              ? colorScheme.onPrimaryContainer
-                              : colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                    if (isSelected)
-                      Icon(
-                        Icons.check_circle,
-                        color: colorScheme.onPrimaryContainer,
-                        size: 22,
-                      ),
-                  ],
-                ),
-              ),
+        return AppSheetOption(
+          leading: AppIcon(
+            lang.$3,
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
+          ),
+          title: Text(
+            code == 'system' ? context.l10n.setupLanguageSystemDefault : name,
+            style: TextStyle(
+              color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
+          selected: isSelected,
+          trailing: isSelected
+              ? AppIcon(Icons.check, color: colorScheme.primary)
+              : null,
+          onTap: () => _onLanguageSelected(code),
         );
       },
     );
@@ -272,8 +191,7 @@ extension _SetupScreenSteps on _SetupScreenState {
               text: context.l10n.setupStorageGranted,
               colorScheme: colorScheme,
             )
-          : ExpressiveButton(
-              tonal: true,
+          : FilledButton.tonalIcon(
               onPressed: _requestStoragePermission,
               icon: const Icon(Icons.folder_open),
               style: FilledButton.styleFrom(
@@ -282,7 +200,7 @@ extension _SetupScreenSteps on _SetupScreenState {
                   vertical: 16,
                 ),
               ),
-              child: Text(context.l10n.setupGrantPermission),
+              label: Text(context.l10n.setupGrantPermission),
             ),
     );
   }
@@ -299,8 +217,7 @@ extension _SetupScreenSteps on _SetupScreenState {
             )
           : Column(
               children: [
-                ExpressiveButton(
-                  tonal: true,
+                FilledButton.tonalIcon(
                   onPressed: _requestNotificationPermission,
                   icon: const Icon(Icons.notifications_active),
                   style: FilledButton.styleFrom(
@@ -309,10 +226,9 @@ extension _SetupScreenSteps on _SetupScreenState {
                       vertical: 16,
                     ),
                   ),
-                  child: Text(context.l10n.setupEnableNotifications),
+                  label: Text(context.l10n.setupEnableNotifications),
                 ),
-                ExpressiveButton(
-                  text: true,
+                TextButton(
                   onPressed: () async {
                     _setState(() => _notificationPermissionSkipped = true);
                     await _saveProgress();
@@ -336,8 +252,7 @@ extension _SetupScreenSteps on _SetupScreenState {
               text: context.l10n.setupNearbyGranted,
               colorScheme: colorScheme,
             )
-          : ExpressiveButton(
-              tonal: true,
+          : FilledButton.tonalIcon(
               onPressed: _requestNearbyDevices,
               icon: const Icon(Icons.wifi_find),
               style: FilledButton.styleFrom(
@@ -346,7 +261,7 @@ extension _SetupScreenSteps on _SetupScreenState {
                   vertical: 16,
                 ),
               ),
-              child: Text(context.l10n.setupNearbyEnable),
+              label: Text(context.l10n.setupNearbyEnable),
             ),
     );
   }
@@ -374,7 +289,7 @@ extension _SetupScreenSteps on _SetupScreenState {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                trailing: AppIconButton(
+                trailing: IconButton(
                   tooltip: context.l10n.setupChangeFolderTooltip,
                   icon: const Icon(Icons.edit),
                   onPressed: _selectDirectory,
@@ -382,8 +297,7 @@ extension _SetupScreenSteps on _SetupScreenState {
               ),
             )
           else
-            ExpressiveButton(
-              tonal: true,
+            FilledButton.tonalIcon(
               onPressed: _selectDirectory,
               icon: const Icon(Icons.create_new_folder),
               style: FilledButton.styleFrom(
@@ -392,7 +306,7 @@ extension _SetupScreenSteps on _SetupScreenState {
                   vertical: 16,
                 ),
               ),
-              child: Text(context.l10n.setupSelectFolder),
+              label: Text(context.l10n.setupSelectFolder),
             ),
         ],
       ),

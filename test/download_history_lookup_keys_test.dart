@@ -60,7 +60,6 @@ class _CountingState extends DownloadHistoryState {
   }
 }
 
-
 DownloadHistoryItem _item(
   int index, {
   String? spotifyId,

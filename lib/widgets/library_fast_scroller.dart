@@ -209,12 +209,9 @@ class _LibraryFastScrollerState extends State<LibraryFastScroller> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final reduced = MediaQuery.disableAnimationsOf(context);
-    final motion = AppMotion.spatialFast(
-      context,
-      AppMotionSpec(
-        reduced ? Duration.zero : const Duration(milliseconds: 180),
-        Curves.easeOutCubic,
-      ),
+    final motion = AppMotionSpec(
+      reduced ? Duration.zero : const Duration(milliseconds: 180),
+      Curves.easeOutCubic,
     );
     // NestedScrollView's body slides behind its pinned header. Reserve only
     // the part of that header currently overlapping this body's viewport.

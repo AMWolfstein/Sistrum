@@ -18,7 +18,6 @@ import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/utils/extension_country_name.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/extension_health.dart';

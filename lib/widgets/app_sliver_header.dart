@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/app_bar_layout.dart';
 
@@ -98,7 +97,7 @@ class AppSliverHeader extends StatelessWidget {
               padding: EdgeInsetsDirectional.only(start: edgeInset),
               child:
                   leading ??
-                  (AppIconButton(
+                  (IconButton(
                     tooltip: MaterialLocalizations.of(
                       context,
                     ).backButtonTooltip,

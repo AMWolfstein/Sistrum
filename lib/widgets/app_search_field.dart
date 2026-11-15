@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
 /// The standard search field used by top-level app surfaces.
@@ -82,7 +81,7 @@ class AppSearchField extends StatelessWidget {
               suffixIcon ??
               (value.text.isEmpty
                   ? null
-                  : AppIconButton(
+                  : IconButton(
                       tooltip: clearTooltip,
                       icon: AppIcon(CupertinoIcons.clear_circled_solid),
                       onPressed: () {
@@ -90,8 +89,7 @@ class AppSearchField extends StatelessWidget {
                         onClear();
                       },
                     )),
-          // Expressive search bar: an outline-free tonal pill. Focus keeps a
-          // visible 2dp ring.
+          // An outline-free tonal pill. Focus keeps a visible 2dp ring.
           border: OutlineInputBorder(
             borderRadius: radius,
             borderSide: BorderSide.none,

@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/screens/lyrics_share_screen.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 void main() {
   test('timed lyrics share their sung lines, plain lyrics their text', () {
@@ -53,10 +52,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    ExpressiveButton share() => tester.widget<ExpressiveButton>(
+    FilledButton share() => tester.widget<FilledButton>(
       find.ancestor(
         of: find.text('Share'),
-        matching: find.byType(ExpressiveButton),
+        matching: find.bySubtype<FilledButton>(),
       ),
     );
     expect(share().onPressed, isNull);

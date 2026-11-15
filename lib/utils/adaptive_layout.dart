@@ -12,7 +12,7 @@ bool useNavigationRailForWidth(double width) =>
     width >= navigationRailBreakpoint;
 
 /// Explicit horizontal safe spacing for controls drawn in full-bleed detail
-/// headers. Filled expressive circles need breathing room from the device edge.
+/// headers. Filled circles need breathing room from the device edge.
 double detailHeaderEdgeInset(BuildContext context) => 8;
 
 /// pixels to make an unscaled phone density feel miniature, especially when

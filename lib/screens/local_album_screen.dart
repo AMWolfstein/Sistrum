@@ -29,7 +29,6 @@ import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/widgets/collection_suggestions_section.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
@@ -265,13 +264,12 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
         if (_loadError != null)
           SliverToBoxAdapter(
             child: Center(
-              child: ExpressiveButton(
-                text: true,
+              child: TextButton.icon(
                 onPressed: () => setState(() {
                   _loadTracks();
                 }),
                 icon: const Icon(Icons.refresh),
-                child: Text(context.l10n.dialogRetry),
+                label: Text(context.l10n.dialogRetry),
               ),
             ),
           )

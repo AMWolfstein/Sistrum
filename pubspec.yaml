@@ -44,12 +44,9 @@ dependencies:
   flutter_cache_manager: ^3.4.6
   liquid_glass_easy: 5.2.0
   cupertino_icons: ^2.0.0
-  material_symbols_icons: ^4.2960.0
   volume_controller: ^3.7.1
 
-  # Material Expressive 3
-  material_ui: ^1.9.0
-  material_3_expressive: ^1.2.0
+  # Artwork colours
   material_color_utilities: 0.13.0
 
   # Permissions

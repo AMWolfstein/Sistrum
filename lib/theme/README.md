@@ -24,11 +24,8 @@ replacing them.
 | `lib/theme/app_tokens.dart` | `AppTokens`, a `ThemeExtension` with the shared radii, spacing, cover sizes and header metrics |
 | `lib/theme/mornye_theme.dart` | `MornyeTheme`: the Mornye `ThemeExtension`, its `ThemeData` builder, `context.isMornye`, `MornyeSettingsTheme` |
 | `lib/theme/mornye_icons.dart` | `mornyeIconFor` (Material icon to Cupertino icon) and `context.adaptiveIcon` |
-| `lib/theme/material_symbols.dart` | Material Symbols Rounded counterparts of `Icons.*` for the Material style |
-| `lib/theme/material_expressive.dart` | `materialExpressiveEnabled` and `MaterialExpressiveScope`, the bridge to the Material UI and Material 3 Expressive packages |
-| `lib/theme/app_motion.dart` | `AppMotionSpec`, `SpringCurve` and `AppMotion` spring presets |
+| `lib/theme/app_motion.dart` | `AppMotionSpec`, a duration and curve pair for implicit animations |
 | `lib/theme/cover_palette.dart` | `CoverPalette`, `HeaderPalette`, `CoverPaletteBuilder` and `CoverSourceColorBuilder`: colors extracted from artwork |
-| `lib/theme/player_artwork_theme.dart` | `PlayerArtworkTheme`: the current track's artwork scheme for the Material player surfaces, through a local `Theme` |
 
 ## How a Theme Is Built
 
@@ -61,9 +58,6 @@ user's Mornye preferences.
   subtree can be switched by wrapping it in another theme.
 - Keep `Icons.*` at call sites and pass them through `context.adaptiveIcon`;
   Mornye then shows the Cupertino glyph from `mornyeIconFor`.
-- Gate Material 3 Expressive motion with `materialExpressiveEnabled` (false
-  for Mornye and when the OS asks for reduced motion). `AppMotion` presets
-  return the call site's fallback spec in those cases.
 - Wrap settings pages in `MornyeSettingsTheme` for inset grouped
   surfaces; it does nothing in the Material style.
 

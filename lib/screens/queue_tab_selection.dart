@@ -340,7 +340,7 @@ extension _QueueTabSelectionActions on _QueueTabState {
       children: [
         SizedBox(
           width: double.infinity,
-          child: ExpressiveButton(
+          child: FilledButton.icon(
             onPressed: selectedCount > 0
                 ? () => _downloadAllSelectedPlaylists(context)
                 : null,
@@ -357,7 +357,7 @@ extension _QueueTabSelectionActions on _QueueTabState {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Text(
+            label: Text(
               selectedCount > 0
                   ? context.l10n.bulkDownloadPlaylistsButton(selectedCount)
                   : context.l10n.bulkDownloadSelectPlaylists,
@@ -369,7 +369,7 @@ extension _QueueTabSelectionActions on _QueueTabState {
 
         SizedBox(
           width: double.infinity,
-          child: ExpressiveButton(
+          child: FilledButton.icon(
             onPressed: selectedCount > 0
                 ? () => _deleteSelectedPlaylists(context)
                 : null,
@@ -386,7 +386,7 @@ extension _QueueTabSelectionActions on _QueueTabState {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Text(
+            label: Text(
               selectedCount > 0
                   ? context.l10n.selectionDeletePlaylistsCount(selectedCount)
                   : context.l10n.selectionSelectPlaylistsToDelete,

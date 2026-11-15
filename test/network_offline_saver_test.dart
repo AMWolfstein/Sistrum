@@ -297,19 +297,16 @@ void main() {
       final cancel = OfflineCancel();
       final source = NetworkStorageService.source('nas', 'a.flac');
       final recorded = <DownloadHistoryItem>[];
-      final saved =
-          OfflineSaver(
-            serverId: 'network',
-            openTransport: () => transport,
-            prepareSong: transport.prepare,
-            destination: DownloadFolderDestination(
-              AppSettings(downloadDirectory: '${temp.path}/downloads'),
-            ),
-            record: (item) async => recorded.add(item),
-            temporaryDirectory: () async => staged,
-          ).save([
-            OfflineSong(item: song(source), songId: source),
-          ], cancel: cancel);
+      final saved = OfflineSaver(
+        serverId: 'network',
+        openTransport: () => transport,
+        prepareSong: transport.prepare,
+        destination: DownloadFolderDestination(
+          AppSettings(downloadDirectory: '${temp.path}/downloads'),
+        ),
+        record: (item) async => recorded.add(item),
+        temporaryDirectory: () async => staged,
+      ).save([OfflineSong(item: song(source), songId: source)], cancel: cancel);
       await started.future;
       cancel.cancel();
       final result = await saved.timeout(const Duration(seconds: 3));

@@ -120,7 +120,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppShapeBadge(
-            kind: AppShapes.badge,
             size: 86,
             color: colorScheme.surfaceContainerHighest,
             child: Icon(
@@ -199,8 +198,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
                         ),
                       ),
                       const Spacer(),
-                      ExpressiveButton(
-                        text: true,
+                      TextButton(
                         onPressed: () => setSheetState(
                           () => tempSort = HomeSearchSortOption.defaultOrder,
                         ),
@@ -223,7 +221,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    child: ExpressiveButton(
+                    child: FilledButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         if (_searchSortOption != tempSort) {
@@ -506,8 +504,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     ];
   }
 
-  /// Sort, then the [viewToggle] when given. Material groups them as Library
-  /// pages do; Mornye keeps a text Sort and an icon button.
+  /// Sort, then the [viewToggle] when given: a text Sort and an icon button.
   List<Widget> _buildSearchResultTools(
     ColorScheme colorScheme, {
     required bool showSortButton,
@@ -518,10 +515,8 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
         ? _sortOptionLabel(_searchSortOption)
         : context.l10n.libraryFilterSort;
     return [
-      // Keeps ExpressiveButton's 48dp minimum touch target.
       if (showSortButton)
-        ExpressiveButton(
-          text: true,
+        TextButton(
           onPressed: () => _showSortOptions(colorScheme),
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -536,7 +531,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
           ),
         ),
       if (viewToggle != null)
-        AppIconButton(
+        IconButton(
           tooltip: viewToggle.tooltip,
           icon: IconTheme(
             data: IconThemeData(size: 20, color: colorScheme.onSurfaceVariant),
@@ -656,8 +651,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
 
   /// Show all, read out with the section it belongs to.
   Widget _buildShowAllButton(String title, VoidCallback onPressed) {
-    return ExpressiveButton(
-      text: true,
+    return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -899,27 +893,27 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (hasText)
-            AppIconButton(
+            IconButton(
               icon: const Icon(Icons.clear),
               onPressed: _clearAndRefresh,
               tooltip: context.l10n.dialogClear,
             )
           else ...[
-            AppIconButton(
+            IconButton(
               icon: const Icon(Icons.file_upload_outlined),
               onPressed: _isCsvImporting
                   ? null
                   : () => _importCsv(context, ref),
               tooltip: context.l10n.homeImportCsvTooltip,
             ),
-            AppIconButton(
+            IconButton(
               icon: const Icon(Icons.paste),
               onPressed: _pasteFromClipboard,
               tooltip: context.l10n.actionPaste,
             ),
           ],
           if (!hasText)
-            AppIconButton(
+            IconButton(
               icon: const AppIcon.adaptive(Icons.mic),
               onPressed: _openMusicRecognition,
               tooltip: context.l10n.recognizeSearchTooltip,
@@ -961,4 +955,19 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     }
     _searchFocusNode.unfocus();
   }
+}
+
+/// The icon button that switches the search results layout.
+class ToolButton {
+  const ToolButton({
+    required this.icon,
+    required this.onPressed,
+    required this.tooltip,
+  });
+
+  final Widget icon;
+  final String tooltip;
+
+  /// Receives the button's own context.
+  final ValueChanged<BuildContext> onPressed;
 }

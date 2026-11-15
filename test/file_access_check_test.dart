@@ -4,8 +4,6 @@ import 'package:sistrum/services/file_access_check.dart';
 import 'package:sistrum/utils/file_access.dart';
 
 void main() {
-
-
   test('found files retain their size and modification time', () async {
     final stat = FileAccessStat(size: 123, modified: DateTime(2026));
     final result = await checkFileAccess(

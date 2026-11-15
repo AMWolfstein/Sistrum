@@ -49,7 +49,6 @@ void main() {
     },
   );
 
-
   test(
     'cache eviction rechecks old paths while retaining shared cover and order',
     () async {
@@ -180,7 +179,6 @@ void main() {
     expect(reads['/old.jpg'], 1);
     expect(result.artworkRelocated, isTrue);
   });
-
 
   test(
     'restore drops loopback and temporary covers of older sessions',

@@ -8,7 +8,6 @@ import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
@@ -185,7 +184,7 @@ class _SeparatorPickerState extends State<_SeparatorPicker> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  ExpressiveButton(
+                  FilledButton(
                     onPressed: valid
                         ? () => Navigator.of(context).pop(separator)
                         : null,

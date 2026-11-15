@@ -11,12 +11,8 @@ import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_shape.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_menu_button.dart';
-import 'package:sistrum/widgets/tool_button_group.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
@@ -835,9 +831,9 @@ class _HomeTabState extends ConsumerState<HomeTab>
         !hasHomeFeedExtension &&
         !hasExploreContent &&
         !hasResults;
-    final sectionMotion = AppMotion.spatial(
-      context,
-      const AppMotionSpec(Duration(milliseconds: 250), Curves.easeOut),
+    final sectionMotion = const AppMotionSpec(
+      Duration(milliseconds: 250),
+      Curves.easeOut,
     );
     ref.listen<String>(settingsProvider.select((s) => s.defaultSearchTab), (
       previous,
@@ -879,7 +875,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
       },
       behavior: HitTestBehavior.translucent,
       child: Scaffold(
-        body: AppRefreshIndicator(
+        body: RefreshIndicator(
           onRefresh: () => ref.read(exploreProvider.notifier).refresh(),
           notificationPredicate: (notification) => showExplore,
           child: CustomScrollView(

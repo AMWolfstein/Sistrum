@@ -18,7 +18,6 @@ import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/decorative_phase.dart';
@@ -163,7 +162,6 @@ class _MonthlyRewindBanner extends StatelessWidget {
         child: Row(
           children: [
             AppShapeBadge(
-              kind: AppShapes.badge,
               size: 48,
               color: accent,
               child: AppIcon(Icons.auto_awesome, color: onAccent),
@@ -250,7 +248,6 @@ class _YearlyRewindBanner extends StatelessWidget {
                   end: 96,
                   top: -18,
                   child: AppShapeBadge(
-                    kind: AppShapes.badge,
                     size: 64,
                     color: foreground.withValues(alpha: 0.12),
                     child: const SizedBox.shrink(),
@@ -393,7 +390,7 @@ class _CloseButton extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) => AppIconButton(
+  Widget build(BuildContext context) => IconButton(
     tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
     color: color,
     icon: AppIcon.adaptive(Icons.close, color: color),

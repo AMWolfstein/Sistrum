@@ -9,7 +9,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 /// Home notice for a crash saved by the previous session. Styled like
 /// `ErrorCard`; the full report opens in a sheet instead of expanding inline,
@@ -107,20 +106,17 @@ class _AppCrashBannerState extends ConsumerState<AppCrashBanner> {
                       spacing: tokens.gapSm,
                       runSpacing: tokens.gapSm,
                       children: [
-                        ExpressiveButton(
-                          tonal: true,
+                        FilledButton.tonalIcon(
                           icon: const Icon(Icons.copy, size: 18),
                           onPressed: () => _copy(context, crash),
-                          child: Text(l10n.appCrashCopy),
+                          label: Text(l10n.appCrashCopy),
                         ),
-                        ExpressiveButton(
-                          text: true,
+                        TextButton(
                           onPressed: () => _showReport(context, crash),
                           child: Text(l10n.appCrashDetails),
                         ),
                         if (!widget.diagnostic)
-                          ExpressiveButton(
-                            text: true,
+                          TextButton(
                             onPressed: () => _dismiss(context, ref, crash),
                             child: Text(l10n.appCrashDismiss),
                           ),

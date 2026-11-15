@@ -13,7 +13,6 @@ import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
@@ -216,7 +215,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(
       tester
-          .widget<ExpressiveButton>(
+          .widget<TextButton>(
             find.byKey(const ValueKey('collection-order-save')),
           )
           .onPressed,
@@ -226,7 +225,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       tester
-          .widget<ExpressiveButton>(
+          .widget<TextButton>(
             find.byKey(const ValueKey('collection-order-save')),
           )
           .onPressed,

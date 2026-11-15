@@ -293,12 +293,11 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         [
           if (!_isSelectionMode) _buildFilterButton(context),
           if (!_isSelectionMode && filteredUnifiedItems.isNotEmpty)
-            ExpressiveButton(
-              text: true,
+            TextButton.icon(
               onPressed: () => _showCreatePlaylistDialog(context),
               icon: const Icon(Icons.add, size: 20),
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              child: Text(context.l10n.collectionCreatePlaylist),
+              label: Text(context.l10n.collectionCreatePlaylist),
             ),
         ],
       ),
@@ -426,14 +425,13 @@ extension _QueueTabFilterWidgets on _QueueTabState {
               context.l10n.queuePlaylistCount(playlistIndexes.length),
               [
                 if (!_isPlaylistSelectionMode)
-                  ExpressiveButton(
-                    text: true,
+                  TextButton.icon(
                     onPressed: () => _showCreatePlaylistDialog(context),
                     icon: const Icon(Icons.add, size: 20),
                     style: TextButton.styleFrom(
                       visualDensity: VisualDensity.compact,
                     ),
-                    child: Text(context.l10n.collectionCreatePlaylist),
+                    label: Text(context.l10n.collectionCreatePlaylist),
                   ),
               ],
             ),
@@ -668,10 +666,10 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       message: subtitle,
       // Every empty branch here means "you have not downloaded anything of
       // this kind yet", so the way forward is always search.
-      action: ExpressiveButton(
+      action: FilledButton.icon(
         onPressed: () => ShellNavigationService.requestTab(ShellTab.home),
         icon: const Icon(Icons.search),
-        child: Text(context.l10n.navHome),
+        label: Text(context.l10n.navHome),
       ),
     );
   }

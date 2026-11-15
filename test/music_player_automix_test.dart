@@ -28,7 +28,6 @@ final _passTracks = [
 void main() {
   setUpMusicPlayerHarness();
 
-
   fakeTimeTest(
     'USB mode prevents a second DSP deck even when AutoMix is enabled',
     () async {
@@ -1159,7 +1158,6 @@ void main() {
     expect(effectRenderer.tails, isEmpty);
   });
 
-
   test(
     'turning AutoMix off releases the standby player without changing song',
     () async {
@@ -1635,7 +1633,7 @@ void main() {
     await _until(() => handler.mediaItem.value?.id == 'one');
   });
 
-fakeTimeTest(
+  fakeTimeTest(
     'a next song that arrives before the last 150 s is mixed in',
     () async {
       setLengths(const Duration(minutes: 4));

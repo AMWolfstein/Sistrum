@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/models/settings.dart';
@@ -56,9 +55,7 @@ void main() {
   }
 
   void expectCenteredHitbox(WidgetTester tester, IconData iconData) {
-    final button = find.byWidgetPredicate(
-      (widget) => widget is IconButton || widget is M3EIconButton,
-    );
+    final button = find.byType(IconButton);
     final icon = findAppIcon(iconData);
     final hitbox = tester.getRect(button);
 

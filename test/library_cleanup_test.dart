@@ -173,12 +173,7 @@ void main() {
       for (final (id, path, cover, version) in [
         ('local', '/music/a.flac', '$stored/cover_a.jpg', 4),
         ('saf', 'content://tree/b.flac', '${covers.path}/cover_b.png', 4),
-        (
-          'posix',
-          '/music/f.flac',
-          '$stored/cover_f.jpg',
-          4,
-        ),
+        ('posix', '/music/f.flac', '$stored/cover_f.jpg', 4),
         ('network', 'network://nas/b.flac', '$stored/x.image', 4),
         ('download', '/music/c.flac', '${root.path}/downloads/c.jpg', 4),
         ('named', '/music/d.flac', null, 0),

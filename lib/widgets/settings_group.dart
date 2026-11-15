@@ -3,9 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/theme/app_tokens.dart';
@@ -162,9 +160,9 @@ class _SettingsSearchTargetState extends State<SettingsSearchTarget> {
     if (!_handled) return widget.child;
 
     final colorScheme = Theme.of(context).colorScheme;
-    final motion = AppMotion.effects(
-      context,
-      AppMotionSpec(context.tokens.motionMedium, Curves.easeOutCubic),
+    final motion = AppMotionSpec(
+      context.tokens.motionMedium,
+      Curves.easeOutCubic,
     );
     return Semantics(
       selected: _highlighted,
@@ -236,20 +234,6 @@ class SettingsGroup extends StatelessWidget {
       // Groups scroll over the opaque page color, where a backdrop pass
       // filters a flat color; keep the glass tint and rim without it.
       return inset(MornyeGlassPanel(samplesBackdrop: false, child: child));
-    }
-    final expressive = materialExpressiveEnabled(context);
-    if (expressive) {
-      return inset(
-        MaterialExpressiveScope(
-          child: M3ECard(
-            variant: M3ECardVariant.filled,
-            color: cardColor,
-            padding: EdgeInsets.zero,
-            borderRadius: context.tokens.borderRadiusCard,
-            child: child,
-          ),
-        ),
-      );
     }
     return inset(
       Container(
@@ -697,58 +681,23 @@ class SettingsSegmentOption<T> {
   final IconData? icon;
 }
 
-/// Single-select row of two to four related options that fits on one line.
-///
-/// Material 3 Expressive replaces the segmented button with a connected
-/// button group spanning the row; reduced motion keeps the static
-/// [SegmentedButton]. Mornye keeps its equal-width chips. Option sets that
-/// wrap belong in a [SettingsChoiceGrid] instead.
+/// Single-select row of two to four related options that fits on one line, as
+/// equal-width chips. Option sets that wrap belong in a [SettingsChoiceGrid]
+/// instead.
 class SettingsSegmentedChoice<T> extends StatelessWidget {
   const SettingsSegmentedChoice({
     super.key,
     required this.options,
     required this.selected,
     required this.onChanged,
-    this.semanticLabel,
   });
 
   final List<SettingsSegmentOption<T>> options;
   final T selected;
   final ValueChanged<T> onChanged;
-  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    if (materialExpressiveEnabled(context)) {
-      final index = options.indexWhere((option) => option.value == selected);
-      return MaterialExpressiveScope(
-        skipAutofocus: true,
-        child: M3EButtonGroup(
-          type: M3EButtonGroupType.connected,
-          style: M3EButtonStyle.filled,
-          // Connected segments get no inflated target; keep 48 dp.
-          size: M3EButtonSize.sm.copyWith(height: 48),
-          selectedIndex: index < 0 ? null : index,
-          selectionRequired: true,
-          onSelectedIndexChanged: (index) {
-            if (index != null) onChanged(options[index].value);
-          },
-          semanticLabel: semanticLabel,
-          actions: [
-            for (final option in options)
-              M3EButtonGroupAction(
-                icon: option.icon == null
-                    ? null
-                    : AppIcon.adaptive(option.icon!, size: 18, fill: 0),
-                selectedIcon: option.icon == null
-                    ? null
-                    : AppIcon.adaptive(option.icon!, size: 18, fill: 1),
-                label: Text(option.label),
-              ),
-          ],
-        ),
-      );
-    }
     return Row(
       children: [
         for (final (index, option) in options.indexed) ...[

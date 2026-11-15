@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/theme_provider.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/lyrics_text_scale.dart';
 
@@ -19,7 +18,7 @@ class LyricsSizeSetting extends ConsumerWidget {
     );
     final notifier = ref.read(themeProvider.notifier);
     final percent = '${(scale * 100).round()}%';
-    final reset = AppIconButton(
+    final reset = IconButton(
       tooltip: context.l10n.libraryFilterReset,
       onPressed: scale == 1 ? null : () => notifier.setLyricsTextScale(1),
       icon: const Icon(Icons.restart_alt),
@@ -86,7 +85,7 @@ class LyricsOffsetSetting extends ConsumerWidget {
     }
 
     final value = format(offsetMs.toDouble());
-    final reset = AppIconButton(
+    final reset = IconButton(
       tooltip: context.l10n.libraryFilterReset,
       onPressed: offsetMs == 0 ? null : () => notifier.setLyricsOffsetMs(0),
       icon: const Icon(Icons.restart_alt),
@@ -161,7 +160,7 @@ class LyricsBlurSetting extends ConsumerWidget {
                 ),
               ),
               Text(format(strength)),
-              AppIconButton(
+              IconButton(
                 tooltip: context.l10n.libraryFilterReset,
                 onPressed: strength == 1
                     ? null

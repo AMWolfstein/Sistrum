@@ -311,7 +311,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                       ? AppProgressIndicator.linear(
                           value: analysis.analyzed / analysis.total,
                           trackColor: colorScheme.surfaceContainerHighest,
-                          wavy: false,
                         )
                       : null,
                   onTap: analysis.analyzed > 0 ? _confirmClearAnalysis : null,

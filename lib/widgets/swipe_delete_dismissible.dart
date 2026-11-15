@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 
-/// End-to-start swipe that removes a track row over a delete background.
-///
-/// With expressive motion the icon grows with the swipe and the fill deepens
-/// to the error color once letting go would dismiss. Mornye and reduced
-/// motion keep the static background.
-class SwipeDeleteDismissible extends StatefulWidget {
+/// End-to-start swipe that removes a track row over a static delete
+/// background.
+class SwipeDeleteDismissible extends StatelessWidget {
   const SwipeDeleteDismissible({
     super.key,
     required this.dismissKey,
@@ -16,70 +12,37 @@ class SwipeDeleteDismissible extends StatefulWidget {
     this.confirmDismiss,
   });
 
+  static const _threshold = 0.4;
+
   final Key dismissKey;
   final DismissDirectionCallback onDismissed;
   final ConfirmDismissCallback? confirmDismiss;
   final Widget child;
 
   @override
-  State<SwipeDeleteDismissible> createState() => _SwipeDeleteDismissibleState();
-}
-
-class _SwipeDeleteDismissibleState extends State<SwipeDeleteDismissible> {
-  static const _threshold = 0.4;
-  final _swipe = ValueNotifier<DismissUpdateDetails?>(null);
-
-  @override
-  void dispose() {
-    _swipe.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final expressive = materialExpressiveEnabled(context);
-    final radius = BorderRadius.circular(12);
-    const margin = EdgeInsets.symmetric(horizontal: 16, vertical: 4);
-    Widget background({required bool reached, required double progress}) {
-      final scale = 0.7 + 0.45 * (progress / _threshold).clamp(0.0, 1.0);
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        margin: margin,
+    return Dismissible(
+      key: dismissKey,
+      direction: DismissDirection.endToStart,
+      dismissThresholds: const {DismissDirection.endToStart: _threshold},
+      confirmDismiss: confirmDismiss,
+      onDismissed: onDismissed,
+      background: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
-          color: reached ? colorScheme.error : colorScheme.errorContainer,
-          borderRadius: radius,
+          color: colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(12),
         ),
         // The row slides toward the start, uncovering its end.
         alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsetsDirectional.only(end: 20),
-        child: Transform.scale(
-          scale: expressive ? scale : 1,
-          child: AppIcon(
-            Icons.delete_outline,
-            color: reached ? colorScheme.onError : colorScheme.onErrorContainer,
-          ),
+        child: AppIcon(
+          Icons.delete_outline,
+          color: colorScheme.onErrorContainer,
         ),
-      );
-    }
-
-    return Dismissible(
-      key: widget.dismissKey,
-      direction: DismissDirection.endToStart,
-      dismissThresholds: const {DismissDirection.endToStart: _threshold},
-      confirmDismiss: widget.confirmDismiss,
-      onDismissed: widget.onDismissed,
-      onUpdate: expressive ? (details) => _swipe.value = details : null,
-      background: expressive
-          ? ValueListenableBuilder(
-              valueListenable: _swipe,
-              builder: (context, swipe, _) => background(
-                reached: swipe?.reached ?? false,
-                progress: swipe?.progress ?? 0,
-              ),
-            )
-          : background(reached: false, progress: _threshold),
-      child: widget.child,
+      ),
+      child: child,
     );
   }
 }

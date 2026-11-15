@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 
 import 'package:flutter/material.dart';
@@ -28,12 +27,10 @@ import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/error_card.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
@@ -286,11 +283,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           child: EmptyState(
             icon: Icons.error_outline,
             title: context.l10n.libraryFoldersLoadFailed,
-            action: ExpressiveButton(
-              text: true,
+            action: TextButton.icon(
               icon: const Icon(Icons.refresh),
               onPressed: () => ref.invalidate(libraryDirectoryIndexProvider),
-              child: Text(context.l10n.dialogRetry),
+              label: Text(context.l10n.dialogRetry),
             ),
           ),
         ),
@@ -340,7 +336,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && isSelectionMode) exitSelectionMode();
       },
-      child: AppRefreshIndicator(
+      child: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(libraryDirectoryIndexProvider);
           await ref.read(libraryDirectoryIndexProvider.future);
@@ -448,12 +444,11 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       else if (!songsValue.hasValue && songsValue.hasError)
         SliverToBoxAdapter(
           child: Center(
-            child: ExpressiveButton(
-              text: true,
+            child: TextButton.icon(
               icon: const Icon(Icons.refresh),
               onPressed: () =>
                   ref.invalidate(libraryDirectoryTracksProvider(folder.key)),
-              child: Text(context.l10n.dialogRetry),
+              label: Text(context.l10n.dialogRetry),
             ),
           ),
         )
@@ -523,7 +518,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: AppIconButton(
+          trailing: IconButton(
             tooltip: playback.isPlaying
                 ? context.l10n.actionPause
                 : context.l10n.tooltipPlay,

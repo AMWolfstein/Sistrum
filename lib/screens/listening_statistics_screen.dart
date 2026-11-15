@@ -6,17 +6,12 @@ import 'package:sistrum/providers/listening_statistics_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/services/listening_statistics.dart';
-import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/animation_utils.dart' show SkeletonBox;
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_shape.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -70,7 +65,7 @@ class _ListeningStatisticsScreenState
     final summary = ref.watch(listeningSummaryProvider(period));
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      body: AppRefreshIndicator(
+      body: RefreshIndicator(
         onRefresh: () => ref.refresh(listeningSummaryProvider(period).future),
         child: CustomScrollView(
           slivers: [
@@ -117,13 +112,13 @@ class _ListeningStatisticsScreenState
                               onSelected: (_) => setState(() => _days = days),
                             ),
                           if (_days == 0)
-                            AppIconButton(
+                            IconButton(
                               tooltip: context.l10n.listeningStatsPreviousYear,
                               onPressed: () => setState(() => _year--),
                               icon: const Icon(Icons.chevron_left),
                             ),
                           if (_days == 0)
-                            AppIconButton(
+                            IconButton(
                               tooltip: context.l10n.listeningStatsNextYear,
                               onPressed: _year >= DateTime.now().year
                                   ? null
@@ -142,7 +137,7 @@ class _ListeningStatisticsScreenState
                       SliverToBoxAdapter(
                         child: ListTile(
                           title: Text(context.l10n.listeningStatsLoadError),
-                          trailing: AppIconButton(
+                          trailing: IconButton(
                             icon: const Icon(Icons.refresh),
                             onPressed: () => ref.invalidate(
                               listeningSummaryProvider(period),
@@ -156,11 +151,10 @@ class _ListeningStatisticsScreenState
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
-                      child: ExpressiveButton(
-                        text: true,
+                      child: TextButton.icon(
                         onPressed: _clearing ? null : _clear,
                         icon: Icon(Icons.delete_outline, color: colors.error),
-                        child: Text(
+                        label: Text(
                           context.l10n.listeningStatsClear,
                           style: TextStyle(color: colors.error),
                         ),
@@ -174,16 +168,6 @@ class _ListeningStatisticsScreenState
         ),
       ),
     );
-  }
-
-  /// Material rows form an expressive connected list; Mornye keeps plain rows.
-  Widget _connectedRow(
-    BuildContext context, {
-    required int index,
-    required int count,
-    required Widget child,
-  }) {
-    return child;
   }
 
   Widget _summarySkeleton(BuildContext context) {
@@ -241,36 +225,30 @@ class _ListeningStatisticsScreenState
                   : context.l10n.listeningStatsTopTracks,
             ),
             for (var index = 0; index < 3; index++)
-              _connectedRow(
-                context,
-                index: index,
-                count: 3,
-                child: ListTile(
-                  leading: artists
-                      ? const AppShapeClip(
-                          kind: AppShapes.artist,
-                          child: SkeletonBox(
-                            width: 48,
-                            height: 48,
-                            borderRadius: 0,
-                          ),
-                        )
-                      : const SkeletonBox(width: 48, height: 48),
-                  title: const Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: SkeletonBox(width: 160, height: 16),
-                  ),
-                  subtitle: const Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: SkeletonBox(width: 88, height: 12),
-                    ),
-                  ),
-                  trailing: artists
-                      ? null
-                      : const SkeletonBox(width: 40, height: 12),
+              ListTile(
+                leading: artists
+                    ? const AppShapeClip(
+                        child: SkeletonBox(
+                          width: 48,
+                          height: 48,
+                          borderRadius: 0,
+                        ),
+                      )
+                    : const SkeletonBox(width: 48, height: 48),
+                title: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: SkeletonBox(width: 160, height: 16),
                 ),
+                subtitle: const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: SkeletonBox(width: 88, height: 12),
+                  ),
+                ),
+                trailing: artists
+                    ? null
+                    : const SkeletonBox(width: 40, height: 12),
               ),
           ],
         ],
@@ -361,16 +339,11 @@ class _ListeningStatisticsScreenState
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: materialExpressiveEnabled(context)
-                              ? _ActivityBar(
-                                  fraction: day.value / peakDay,
-                                  peak: day.value == peakDay,
-                                )
-                              : LinearProgressIndicator(
-                                  value: day.value / peakDay,
-                                  minHeight: 8,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                          child: LinearProgressIndicator(
+                            value: day.value / peakDay,
+                            minHeight: 8,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text('${(day.value / 60000).round()}'),
@@ -389,38 +362,32 @@ class _ListeningStatisticsScreenState
       ),
       SliverList.list(
         children: [
-          for (final (index, artist) in topArtists.indexed)
-            _connectedRow(
-              context,
-              index: index,
-              count: topArtists.length,
-              child: ListTile(
-                leading: ExcludeSemantics(
-                  child: AppShapeClip(
-                    kind: AppShapes.artist,
-                    child: SizedBox.square(
-                      dimension: 48,
-                      child: artistArtwork[artist.key] == null
-                          ? ColoredBox(
-                              color: colors.surfaceContainerHighest,
-                              child: const Icon(Icons.person_outline),
-                            )
-                          : PlayerArtwork(
-                              artUri: artistArtwork[artist.key],
-                              colorScheme: colors,
-                              cacheWidth:
-                                  (48 * MediaQuery.devicePixelRatioOf(context))
-                                      .ceil(),
-                              iconSize: 24,
-                            ),
-                    ),
+          for (final artist in topArtists)
+            ListTile(
+              leading: ExcludeSemantics(
+                child: AppShapeClip(
+                  child: SizedBox.square(
+                    dimension: 48,
+                    child: artistArtwork[artist.key] == null
+                        ? ColoredBox(
+                            color: colors.surfaceContainerHighest,
+                            child: const Icon(Icons.person_outline),
+                          )
+                        : PlayerArtwork(
+                            artUri: artistArtwork[artist.key],
+                            colorScheme: colors,
+                            cacheWidth:
+                                (48 * MediaQuery.devicePixelRatioOf(context))
+                                    .ceil(),
+                            iconSize: 24,
+                          ),
                   ),
                 ),
-                title: Text(artist.key),
-                subtitle: Text(
-                  context.l10n.listeningStatsMinutes(
-                    (artist.value / 60000).round(),
-                  ),
+              ),
+              title: Text(artist.key),
+              subtitle: Text(
+                context.l10n.listeningStatsMinutes(
+                  (artist.value / 60000).round(),
                 ),
               ),
             ),
@@ -433,91 +400,43 @@ class _ListeningStatisticsScreenState
       ),
       SliverList.list(
         children: [
-          for (final (index, total) in topTracks.indexed)
-            _connectedRow(
-              context,
-              index: index,
-              count: topTracks.length,
-              child: ListTile(
-                leading: ExcludeSemantics(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox.square(
-                      dimension: 48,
-                      child: PlayerArtwork(
-                        artUri: total.track.artwork,
-                        colorScheme: Theme.of(context).colorScheme,
-                        cacheWidth:
-                            (48 * MediaQuery.devicePixelRatioOf(context))
-                                .ceil(),
-                        iconSize: 24,
-                      ),
+          for (final total in topTracks)
+            ListTile(
+              leading: ExcludeSemantics(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox.square(
+                    dimension: 48,
+                    child: PlayerArtwork(
+                      artUri: total.track.artwork,
+                      colorScheme: Theme.of(context).colorScheme,
+                      cacheWidth: (48 * MediaQuery.devicePixelRatioOf(context))
+                          .ceil(),
+                      iconSize: 24,
                     ),
                   ),
                 ),
-                title: Text(
-                  total.track.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  total.track.artist.trim().isEmpty
-                      ? context.l10n.unknownArtist
-                      : total.track.artist,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  context.l10n.listeningStatsMinutes(
-                    (total.milliseconds / 60000).round(),
-                  ),
+              ),
+              title: Text(
+                total.track.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                total.track.artist.trim().isEmpty
+                    ? context.l10n.unknownArtist
+                    : total.track.artist,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: Text(
+                context.l10n.listeningStatsMinutes(
+                  (total.milliseconds / 60000).round(),
                 ),
               ),
             ),
         ],
       ),
     ];
-  }
-}
-
-/// One day of listening activity. The bar grows in on a spatial spring and the
-/// busiest day takes the primary color.
-class _ActivityBar extends StatelessWidget {
-  const _ActivityBar({required this.fraction, required this.peak});
-
-  final double fraction;
-  final bool peak;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final motion = AppMotion.spatial(
-      context,
-      const AppMotionSpec(Duration.zero, Curves.linear),
-    );
-    return Container(
-      height: 12,
-      decoration: ShapeDecoration(
-        color: colors.surfaceContainerHighest,
-        shape: const StadiumBorder(),
-      ),
-      alignment: AlignmentDirectional.centerStart,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: fraction.clamp(0.0, 1.0)),
-        duration: motion.duration,
-        curve: motion.curve,
-        builder: (context, value, _) => FractionallySizedBox(
-          // The spring may overshoot; keep the fill inside its track.
-          widthFactor: value.clamp(0.0, 1.0),
-          heightFactor: 1,
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: peak ? colors.primary : colors.secondary,
-              shape: const StadiumBorder(),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
