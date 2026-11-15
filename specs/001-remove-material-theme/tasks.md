@@ -206,13 +206,13 @@ searches below.
     are deleted; the native `player_widget` and `download_widget_state`
     preference files are deleted once at start. The notification keeps its icons:
     `ic_widget_play`, `ic_widget_pause`, `ic_widget_next` and `ic_widget_previous`
-    stay (used by `playback_notification.dart` and `MornyeApplication.kt`).
+    stay (used by `playback_notification.dart` and `SistrumApplication.kt`).
   - Paths: `android/app/src/main/AndroidManifest.xml`;
     `android/app/src/main/kotlin/com/amwolfstein/sistrum/PlayerWidgetProvider.kt`,
     `PlayerWidgetConfigurationActivity.kt`, `DownloadQueueWidgetProvider.kt`,
     `DownloadService.kt` (widget push only), `MainActivity.kt`
     (`PlayerWidgetBridge.handleIntent`), `SharedEngineChannels.kt`
-    (`PlayerWidgetBridge.attach`), `MornyeApplication.kt` (one-time prefs cleanup);
+    (`PlayerWidgetBridge.attach`), `SistrumApplication.kt` (one-time prefs cleanup);
     `res/layout/widget_*.xml`, `res/xml/widget_*_info.xml`,
     `res/drawable/widget_*.xml` and widget-only `ic_widget_*` drawables,
     `res/values*/player_widget_strings.xml`, widget strings in other `values*`,
@@ -228,7 +228,7 @@ searches below.
 
 ## Final cumulative review
 
-- [ ] M001-T006 [FINAL] Cumulative review
+- [x] M001-T006 [FINAL] Cumulative review
   - Start: refresh the map and inspect coverage.
   - Acceptance: every FR and SC in spec.md holds on the cumulative diff from
     `5edaaac`; all actionable findings fixed.

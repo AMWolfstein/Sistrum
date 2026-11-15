@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 28,
+  "next_completion": 29,
   "next_mission": 3,
   "next_tor": 13,
   "tasks": {
@@ -98,13 +98,19 @@
       "title": "Delete AppTheme, move tests to Mornye and update docs"
     },
     "M001-T006": {
-      "completion": null,
+      "completion": 28,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test 3911 passed, 10 skipped, 0 failed (before deleting two zero-reference widgets; analyze re-run after); all FR/SC verified; Kotlin/Gradle compile and device not verified",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a4d9e9af",
+        "round": 2
+      },
       "final": true,
       "kind": "T",
       "mission": "M001",
       "nonce": "f2ba3f8567ad4fd9a383ce7d3acbf7d5",
       "record": "specs/001-remove-material-theme/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Cumulative review"
     },
     "M001-TOR004": {

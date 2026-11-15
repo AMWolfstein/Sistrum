@@ -5,8 +5,8 @@ import 'package:sistrum/utils/artist_utils.dart';
 
 part 'settings.g.dart';
 
-/// 'default' (a card) or 'fullscreen' once chosen, else empty for the app
-/// style's own ([AppSettings.playerCoverStyleFor]).
+/// 'default' (a card) or 'fullscreen' once chosen, else empty for the card
+/// ([AppSettings.playerCoverStyleFor]).
 String playerCoverStyleFromJson(Object? value) =>
     value == 'default' || value == 'fullscreen' ? value as String : '';
 

@@ -60,7 +60,7 @@
   roles, an Expressive squircle play button, a wavy progress bar).
   **Decision**: delete them (owner, 2026-11-14), task M001-TOR004. Keep
   `ic_widget_play/pause/next/previous`: the Mornye notification uses them
-  (`playback_notification.dart`, `MornyeApplication.kt`). Delete the native
+  (`playback_notification.dart`, `SistrumApplication.kt`). Delete the native
   `player_widget` and `download_widget_state` preference files once at start,
   as FR-004 does for the retired theme keys.
 

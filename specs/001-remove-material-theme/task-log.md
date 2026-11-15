@@ -528,3 +528,74 @@ Marked above. The third result was NEEDS_FIXES, so a further review needs owner 
   `test/player_widget_service_test.dart` (the widget service); nothing else was removed.
 - **Not verified**: Kotlin compilation, lint, and the launcher behaviour (existing widget
   placements, device cleanup of the retired data) were not run; no APK.
+
+## M001-T006 [FINAL] Cumulative review
+
+**Map refresh (first action):** `code_tools.py update` succeeded: 34343 symbols, 118521
+relationships, 1708 extracted sources, 0 partial, 0 unindexed. M001 base `50609e8^`
+(T001 50609e8, T002 e9dd087, T003 ec5f305, T004 ca6c1e0, T005 aca697b, TOR004 98d69d1).
+
+**Checks (current tree)**
+- `flutter analyze` (whole repo incl. `integration_test`): no issues (re-run after the
+  comment fix below).
+- Full `flutter test` (JSON reporter, scratchpad `t006-test.json`): 3911 passed,
+  10 skipped, 0 failed, exit 0. Baseline had 0 failures and 10 skipped.
+- `flutter pub get`: `pubspec.lock` unchanged. `work.py validate`: PASS.
+- Searches: `isMornye` in lib/test/integration_test: none. M3E/material_ui/
+  material_symbols_icons/materialExpressive in lib/test/integration_test/pubspec.yaml:
+  none; `class (Expressive|Material)[A-Z]` in lib: none. `AppTheme`/`GoogleSansFlex` in
+  lib/test/integration_test/pubspec.yaml: none. Imports of the four removed packages:
+  none. T001 search: only the retired-key literals `use_dynamic_color` in
+  `theme_provider.dart` (the once-only removal list) and its tests remain, by design.
+  Widget search (android lib test integration_test): only the literals `player_widget` and
+  `download_widget_state` in `SistrumApplication.kt` (the one-time cleanup).
+- `material_ui` is still in `pubspec.lock` as a transitive dependency of other packages
+  (go_router, cached_network_image, cupertino_ui); it is not a direct dependency and is
+  imported nowhere. `dynamic_color`, `material_3_expressive`, `material_symbols_icons`,
+  `equatable`, `material_new_shapes`, `motor` are gone from the lock.
+
+**Requirement evidence**
+
+| Req | Evidence |
+| --- | --- |
+| FR-001 | `MornyeThemeWrapper` (`lib/theme/mornye_theme_wrapper.dart`) is the only theme wrapper; no `AppTheme`, `AppThemeStyle`; full suite on `MornyeTheme.build`. |
+| FR-002 | `isMornye` and `materialExpressiveEnabled` have 0 occurrences; every collapse kept the Mornye arm (per-task independent reviews compared with `git show HEAD:`). |
+| FR-003 | Appearance page has Mornye accent, glass outlines, theme mode, font and lyrics only; settings-search entries for style/dynamic/AMOLED/seed removed; test "Appearance offers no Material-only options". |
+| FR-004 | `theme_provider.dart` `_retiredKeys` (theme_style, use_dynamic_color, seed_color, use_amoled, mornye_glass_clarity) removed once at load whatever the type; tests in `theme_provider_persistence_test.dart` (right types and wrong types). |
+| FR-005 | `PlaybackNotification` has no style flag; `playback_notification.dart` uses `drawable/ic_widget_{previous,pause,play,next}`, which exist in `res/drawable` and are kept by `notification_keep.xml` and `SistrumApplication`. |
+| FR-006 | Deleted: `app_theme.dart`, `dynamic_color_wrapper.dart`, `material_expressive.dart`, `material_symbols.dart`, `player_artwork_theme.dart`, `material_player_layout/backdrop`, `player_compact_bar`, the Expressive* widgets; retired l10n keys absent from all 21 ARBs and from code. |
+| FR-007 | `pubspec.yaml` has none of the four packages; `material_color_utilities`, `cupertino_icons`, `flutter_localizations` stay (R4). |
+| FR-008 | Material-look tests deleted, shared tests moved to `MornyeTheme.build` with assertions kept (T002/T003/T005 reviews; T005 JSON count comparison HEAD 4103 -> 3930). |
+| FR-009 | `lib/theme/README.md`, `README.md`, `CONTRIBUTING.md`, `test/README.md`, `android/README.md` describe one Mornye theme and no widgets; only remaining "Material 3" text is `lib/theme/README.md:11` (Mornye maps onto Material 3 `ColorScheme` roles, accurate) and a Flutter-issue comment in `queue_tab.dart:688`. |
+| FR-010 | Home/Now Playing/mini player/shell keep Mornye only; `shellIndexOfTab`/`shellTabAt` and the live remap are gone; the Material player layout, backdrop, compact bar and artwork theme files do not exist. |
+| FR-011 | `AppSettings.playerCoverStyleFor()` takes no parameter and returns the stored style or `default`; callers updated (`now_playing_screen.dart`, `playback_settings_page.dart`). |
+| FR-012 | Manifest has no widget receivers/activity; widget Kotlin, layouts, drawables, styles, strings, colours and Dart service deleted; `SistrumApplication.removeRetiredWidgetData()` deletes the `player_widget`/`download_widget_state` prefs and cover files at start. Kotlin/Gradle compile NOT run (unverified). |
+| FR-013 | `SettingsSwitchItem.icon` and `SettingsItem.showIconInMornye` deleted; only the 12 former `showIconInMornye: true` rows keep `icon:`; Settings is a page, Mornye groups only. |
+| FR-014 | `QueueTab.librarySection` is required; `main_shell.dart` builds `MornyeLibraryScreen` directly; root-library Material paths deleted. |
+| FR-015 | Setup uses `FloatingActionButton.extended`; the language list rows are `AppSheetOption`s (accent icon/title, trailing check) with a widget test. |
+| SC-001 | 0 `isMornye`/`materialExpressiveEnabled`/`AppThemeStyle` occurrences. |
+| SC-002 | 0 imports of the four removed packages in lib, test, integration_test. |
+| SC-003 | Analyzer clean; suite 3911 passed, 10 skipped, 0 failed. |
+| SC-004 | Test: stored `theme_style=material` and the other retired keys load Mornye settings with mode, accent and font kept and the retired keys removed. |
+
+**Findings fixed in this task**
+- `tasks.md`/`research.md` named `MornyeApplication.kt`; the file is `SistrumApplication.kt`. Fixed.
+- `lib/models/settings.dart` doc comment of `playerCoverStyleFromJson` still said "the app style's own"; reworded (comment only).
+
+**Not verified:** device rendering, Kotlin compile and Android lint (Gradle not run), the
+launcher's handling of already-placed widgets, the keyboard-resume integration test
+(needs an emulator).
+
+### Review round 1 (NEEDS_FIXES) and fixes
+
+- Deleted orphaned `SpinIcon` (`lib/widgets/nav_destination_icons.dart`, last caller was the
+  removed Settings tab) and `lib/widgets/skip_autofocus.dart` (last caller was the deleted
+  `material_expressive.dart`).
+- Extra review rounds, owner-authorized: T003 had three NEEDS_FIXES results, then the owner
+  allowed a fourth round limited to the log, which returned PASS; T005 the same. The
+  registry stores `--round 3` because the completion helper accepts rounds 1-3 only; the
+  real history is in each task's section and its completion `checks` text.
+- The retired-key list in `theme_provider.dart` also contains `mornye_glass_clarity`, a key
+  that was already retired before M001.
+- T006 acceptance names base `5edaaac`; M002 landed in between, so the M001 base used is
+  `50609e8^` (ba6ccce).

@@ -27,3 +27,4 @@
 - M001-T004 — Remove Material 3 Expressive, Material UI and Material Symbols
 - M001-T005 — Delete AppTheme, move tests to Mornye and update docs
 - M001-TOR004 — Remove the Android home-screen widgets
+- M001-T006 — Cumulative review
