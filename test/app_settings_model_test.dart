@@ -88,18 +88,6 @@ void main() {
       );
     });
 
-    test('drops the removed Zarz-LRC provider from a stored order', () {
-      final settings = AppSettings.fromJson({
-        'lyricsProviders': [
-          'lrclib',
-          'spotiflac_lyrics',
-          'apple_music',
-          'mornye_lyrics',
-        ],
-      });
-      expect(settings.lyricsProviders, ['lrclib', 'apple_music']);
-    });
-
     test('copyWith updates values and can clear nullable provider fields', () {
       const settings = AppSettings(
         downloadFallbackExtensionIds: ['fallback.ext'],

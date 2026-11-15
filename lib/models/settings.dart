@@ -701,19 +701,7 @@ class AppSettings {
     );
   }
 
-  factory AppSettings.fromJson(Map<String, dynamic> json) {
-    final settings = _$AppSettingsFromJson(json);
-    // Zarz-LRC and its legacy alias were removed; stored lists drop them.
-    const removedProviders = {'mornye_lyrics', 'spotiflac_lyrics'};
-    if (!settings.lyricsProviders.any(removedProviders.contains)) {
-      return settings;
-    }
-    return settings.copyWith(
-      lyricsProviders: [
-        for (final provider in settings.lyricsProviders)
-          if (!removedProviders.contains(provider)) provider,
-      ],
-    );
-  }
+  factory AppSettings.fromJson(Map<String, dynamic> json) =>
+      _$AppSettingsFromJson(json);
   Map<String, dynamic> toJson() => _$AppSettingsToJson(this);
 }

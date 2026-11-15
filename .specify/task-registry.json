@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 18,
+  "next_completion": 19,
   "next_mission": 3,
-  "next_tor": 9,
+  "next_tor": 10,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -358,6 +358,22 @@
       "record": ".specify/quick-tasks/TOR003.md",
       "status": "complete",
       "title": "Apply Mornye arm64-only Android commit a5574536"
+    },
+    "TOR009": {
+      "completion": 18,
+      "evidence": {
+        "checks": "Review history: rounds 1-3 NEEDS_FIXES; owner-allowed rounds 4-5 NEEDS_FIXES (record wording only, code confirmed); round 6 PASS. The helper accepts rounds 1-3 only, so --round 3 is the maximum value and does not mean three rounds total. flutter analyze: no issues; flutter test +4407 ~10 all passed exit 0; cargo test --locked --workspace all passed exit 0; cargo check --locked --workspace exit 0; work.py validate PASS. Map refreshed after restoration (36109 symbols, 0 partial, 0 unindexed). Pre-edit map refresh and Ponytail review were not done first (owner-accepted deviation, recorded).",
+        "result": "PASS",
+        "reviewer": "independent general-purpose reviewer following .agents/reviewers/task-reviewer.md",
+        "round": 3
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "3106aeac1ab14633ad4b37d0d0ed3990",
+      "record": ".specify/quick-tasks/TOR009.md",
+      "status": "complete",
+      "title": "Remove the stored-list filters, refusal tests and removed-provider comments"
     }
   },
   "version": 1

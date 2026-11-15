@@ -316,12 +316,6 @@ void main() {
       'sistrum-equalizer',
     );
     notifier.importPreset(export);
-    for (final legacy in ['mornye-equalizer', 'spotiflac-equalizer']) {
-      expect(
-        () => notifier.importPreset(export.replaceFirst('sistrum-equalizer', legacy)),
-        throwsFormatException,
-      );
-    }
     expect(container.read(equalizerProvider).presets.map((v) => v.name), [
       'Headphones',
       'Desk',

@@ -347,13 +347,6 @@ mod branding_tests {
         for name in ["example.sistrum-ext", "example.SISTRUM-EXT"] {
             assert!(is_package_path(Path::new(name)), "{name}");
         }
-        for name in [
-            "example.mornye-ext",
-            "example.spotiflac-ext",
-            "example.sflx",
-            "example.zip",
-        ] {
-            assert!(!is_package_path(Path::new(name)), "{name}");
-        }
+        assert!(!is_package_path(Path::new("example.zip")));
     }
 }
