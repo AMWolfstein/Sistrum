@@ -1613,164 +1613,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sistrum-bindgen"
-version = "0.1.0"
-dependencies = [
- "uniffi",
-]
-
-[[package]]
-name = "sistrum-cast"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "futures-util",
- "getrandom 0.4.3",
- "http",
- "http-body-util",
- "hyper",
- "hyper-rustls",
- "hyper-util",
- "mdns-sd",
- "sistrum-network",
- "rcgen",
- "rustls",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tokio-rustls",
- "tokio-util",
-]
-
-[[package]]
-name = "sistrum-core"
-version = "0.1.0"
-dependencies = [
- "base64",
- "chrono",
- "claxon",
- "image",
- "regex",
- "roxmltree",
- "rustix",
- "serde",
- "serde_json",
- "sha2",
- "tempfile",
- "tz-rs",
- "unicode-general-category",
- "unicode-normalization",
-]
-
-[[package]]
-name = "sistrum-extensions"
-version = "0.1.0"
-dependencies = [
- "aes",
- "aes-gcm",
- "base64",
- "blowfish",
- "cap-std",
- "chrono",
- "getrandom 0.4.3",
- "hmac",
- "httpdate",
- "image",
- "libc",
- "md-5",
- "sistrum-core",
- "sistrum-network",
- "sistrum-providers",
- "rcgen",
- "regex",
- "rquickjs",
- "rustix",
- "rustls",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "tempfile",
- "thiserror",
- "time",
- "zeroize",
- "zip",
-]
-
-[[package]]
-name = "sistrum-mobile"
-version = "0.1.0"
-dependencies = [
- "base64",
- "chrono",
- "libc",
- "libusb1-sys",
- "sistrum-cast",
- "sistrum-core",
- "sistrum-extensions",
- "sistrum-network",
- "sistrum-providers",
- "regex",
- "roxmltree",
- "rusqlite",
- "rustix",
- "scraper",
- "serde",
- "serde_json",
- "sha2",
- "tempfile",
- "thiserror",
- "uniffi",
- "url",
- "zeroize",
- "zip",
-]
-
-[[package]]
-name = "sistrum-network"
-version = "0.1.0"
-dependencies = [
- "async-compression",
- "bytes",
- "cookie",
- "futures-util",
- "hickory-proto",
- "http",
- "http-body-util",
- "hyper-rustls",
- "hyper-util",
- "rustls",
- "rustls-native-certs",
- "rustls-pemfile",
- "serde",
- "serde_json",
- "tokio",
- "tokio-util",
- "tower-service",
- "url",
-]
-
-[[package]]
-name = "sistrum-providers"
-version = "0.1.0"
-dependencies = [
- "base64",
- "getrandom 0.4.3",
- "html5ever",
- "httpdate",
- "sistrum-core",
- "sistrum-network",
- "regex",
- "scraper",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror",
- "url",
-]
-
-[[package]]
 name = "moxcms"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2589,6 +2431,164 @@ name = "siphasher"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33f4fe9184a62d842c9ef383018f3306d8ba224fd9d836f56d7288308847c256"
+
+[[package]]
+name = "sistrum-bindgen"
+version = "0.1.0"
+dependencies = [
+ "uniffi",
+]
+
+[[package]]
+name = "sistrum-cast"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "futures-util",
+ "getrandom 0.4.3",
+ "http",
+ "http-body-util",
+ "hyper",
+ "hyper-rustls",
+ "hyper-util",
+ "mdns-sd",
+ "rcgen",
+ "rustls",
+ "serde",
+ "serde_json",
+ "sistrum-network",
+ "tempfile",
+ "tokio",
+ "tokio-rustls",
+ "tokio-util",
+]
+
+[[package]]
+name = "sistrum-core"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "chrono",
+ "claxon",
+ "image",
+ "regex",
+ "roxmltree",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "tz-rs",
+ "unicode-general-category",
+ "unicode-normalization",
+]
+
+[[package]]
+name = "sistrum-extensions"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "base64",
+ "blowfish",
+ "cap-std",
+ "chrono",
+ "getrandom 0.4.3",
+ "hmac",
+ "httpdate",
+ "image",
+ "libc",
+ "md-5",
+ "rcgen",
+ "regex",
+ "rquickjs",
+ "rustix",
+ "rustls",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "sistrum-core",
+ "sistrum-network",
+ "sistrum-providers",
+ "tempfile",
+ "thiserror",
+ "time",
+ "zeroize",
+ "zip",
+]
+
+[[package]]
+name = "sistrum-mobile"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "chrono",
+ "libc",
+ "libusb1-sys",
+ "regex",
+ "roxmltree",
+ "rusqlite",
+ "rustix",
+ "scraper",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sistrum-cast",
+ "sistrum-core",
+ "sistrum-extensions",
+ "sistrum-network",
+ "sistrum-providers",
+ "tempfile",
+ "thiserror",
+ "uniffi",
+ "url",
+ "zeroize",
+ "zip",
+]
+
+[[package]]
+name = "sistrum-network"
+version = "0.1.0"
+dependencies = [
+ "async-compression",
+ "bytes",
+ "cookie",
+ "futures-util",
+ "hickory-proto",
+ "http",
+ "http-body-util",
+ "hyper-rustls",
+ "hyper-util",
+ "rustls",
+ "rustls-native-certs",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-util",
+ "tower-service",
+ "url",
+]
+
+[[package]]
+name = "sistrum-providers"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "getrandom 0.4.3",
+ "html5ever",
+ "httpdate",
+ "regex",
+ "scraper",
+ "serde",
+ "serde_json",
+ "sistrum-core",
+ "sistrum-network",
+ "tempfile",
+ "thiserror",
+ "url",
+]
 
 [[package]]
 name = "slab"

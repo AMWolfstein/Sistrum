@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 21,
+  "next_completion": 22,
   "next_mission": 3,
-  "next_tor": 12,
+  "next_tor": 13,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -406,6 +406,22 @@
       "record": ".specify/quick-tasks/TOR011.md",
       "status": "complete",
       "title": "Rename non-theme mornye names in tests, scheme and docs links"
+    },
+    "TOR012": {
+      "completion": 21,
+      "evidence": {
+        "checks": "Review round 1 PASS. cargo check --locked --workspace passes; cargo test --locked --workspace all suites passed exit 0 with the lockfile byte-identical before and after; sorted content of Cargo.lock equals HEAD (reorder only, 380 packages); work.py validate PASS. Flutter and Gradle not run (no Dart or Android file changed).",
+        "result": "PASS",
+        "reviewer": "independent general-purpose reviewer following .agents/reviewers/task-reviewer.md",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "a26bb5f677ac4dc893168e44be74f986",
+      "record": ".specify/quick-tasks/TOR012.md",
+      "status": "complete",
+      "title": "Sort Cargo.lock after the crate rename"
     }
   },
   "version": 1
