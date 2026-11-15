@@ -555,12 +555,8 @@ void main() {
   });
 
   group('screen', () {
-    for (final (style, reduceMotion) in [
-      ('material', false),
-      ('mornye', false),
-      ('material', true),
-    ]) {
-      final name = '$style${reduceMotion ? ', reduced motion' : ''}';
+    for (final reduceMotion in [false, true]) {
+      final name = reduceMotion ? 'reduced motion' : 'default motion';
 
       Future<(FakeMicrophone, FakeRecognizer, List<String?>)> open(
         WidgetTester tester, {
@@ -584,9 +580,7 @@ void main() {
               playbackPlayingProvider.overrideWith((ref) => false),
             ],
             child: MaterialApp(
-              theme: style == 'mornye'
-                  ? MornyeTheme.build(Brightness.light)
-                  : ThemeData(),
+              theme: MornyeTheme.build(Brightness.light),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               home: MediaQuery(

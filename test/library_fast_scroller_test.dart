@@ -6,25 +6,22 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/library_fast_scroller.dart';
 
 void main() {
-  Widget host({
-    required ScrollController controller,
-    int itemCount = 400,
-    bool mornye = false,
-  }) => MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : null,
-    home: Scaffold(
-      body: LibraryFastScroller(
-        labelAt: (fraction) =>
-            String.fromCharCode(65 + (fraction * 25).round()),
-        child: ListView.builder(
-          controller: controller,
-          itemExtent: 56,
-          itemCount: itemCount,
-          itemBuilder: (context, index) => Text('Row $index'),
+  Widget host({required ScrollController controller, int itemCount = 400}) =>
+      MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
+        home: Scaffold(
+          body: LibraryFastScroller(
+            labelAt: (fraction) =>
+                String.fromCharCode(65 + (fraction * 25).round()),
+            child: ListView.builder(
+              controller: controller,
+              itemExtent: 56,
+              itemCount: itemCount,
+              itemBuilder: (context, index) => Text('Row $index'),
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   Finder thumb() => find.byWidgetPredicate(
     (widget) =>

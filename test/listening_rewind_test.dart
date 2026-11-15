@@ -377,57 +377,53 @@ void main() {
     );
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('Rewind story steps through highlights ($mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 2.5;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            listeningRewindProvider.overrideWith(
-              (ref, period) async => _sample(newArtists: {'Fresh'}),
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            // Reduced motion: no auto-advance, so the story waits for taps.
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(disableAnimations: true),
-              child: child!,
-            ),
-            home: const ListeningRewindScreen(
-              period: ListeningRewindPeriod.weeks,
-            ),
+  testWidgets('Rewind story steps through highlights', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.5;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          listeningRewindProvider.overrideWith(
+            (ref, period) async => _sample(newArtists: {'Fresh'}),
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          // Reduced motion: no auto-advance, so the story waits for taps.
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: child!,
+          ),
+          home: const ListeningRewindScreen(
+            period: ListeningRewindPeriod.weeks,
           ),
         ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Your Rewind'), findsOneWidget);
-      expect(find.text('Last 4 weeks'), findsOneWidget);
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Your Rewind'), findsOneWidget);
+    expect(find.text('Last 4 weeks'), findsOneWidget);
 
-      final story = tester.getRect(find.byType(PageView));
-      Future<void> next() async {
-        await tester.tapAt(Offset(story.right - 40, story.center.dy));
-        await tester.pumpAndSettle();
-      }
-
-      await next();
-      expect(find.text('110'), findsOneWidget);
-      expect(find.text('10% more than the period before'), findsOneWidget);
-      await next();
-      expect(find.text('Your top artist'), findsOneWidget);
-      expect(find.text('65 min · 59% of your listening time'), findsOneWidget);
-      await tester.tapAt(Offset(story.left + 20, story.center.dy));
+    final story = tester.getRect(find.byType(PageView));
+    Future<void> next() async {
+      await tester.tapAt(Offset(story.right - 40, story.center.dy));
       await tester.pumpAndSettle();
-      expect(find.text('110'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    }
+
+    await next();
+    expect(find.text('110'), findsOneWidget);
+    expect(find.text('10% more than the period before'), findsOneWidget);
+    await next();
+    expect(find.text('Your top artist'), findsOneWidget);
+    expect(find.text('65 min · 59% of your listening time'), findsOneWidget);
+    await tester.tapAt(Offset(story.left + 20, story.center.dy));
+    await tester.pumpAndSettle();
+    expect(find.text('110'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('a year-end Rewind adds its year-in-review slides', (
     tester,
@@ -553,60 +549,54 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('yearly slides fit landscape with large text ($mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(780, 360);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final sample = _yearSample();
-      final rewind = ListeningRewind.compute(
-        range: sample.range,
-        summary: sample.summary,
-        previousMilliseconds: 0,
-        year: ListeningYearDetails(
-          monthlyTopArtists: {
-            for (var month = 1; month <= 12; month++) month: 'Artist $month',
-          },
-          loyalArtist: sample.year?.loyalArtist,
-          loyalArtistDays: sample.year!.loyalArtistDays,
-          firstPlay: sample.year?.firstPlay,
-        ),
-      );
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            listeningRewindProvider.overrideWith((ref, period) async => rewind),
-          ],
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                disableAnimations: true,
-                textScaler: const TextScaler.linear(1.6),
-              ),
-              child: child!,
+  testWidgets('yearly slides fit landscape with large text', (tester) async {
+    tester.view.physicalSize = const Size(780, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final sample = _yearSample();
+    final rewind = ListeningRewind.compute(
+      range: sample.range,
+      summary: sample.summary,
+      previousMilliseconds: 0,
+      year: ListeningYearDetails(
+        monthlyTopArtists: {
+          for (var month = 1; month <= 12; month++) month: 'Artist $month',
+        },
+        loyalArtist: sample.year?.loyalArtist,
+        loyalArtistDays: sample.year!.loyalArtistDays,
+        firstPlay: sample.year?.firstPlay,
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          listeningRewindProvider.overrideWith((ref, period) async => rewind),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              disableAnimations: true,
+              textScaler: const TextScaler.linear(1.6),
             ),
-            home: const ListeningRewindScreen(
-              period: ListeningRewindPeriod.year,
-            ),
+            child: child!,
           ),
+          home: const ListeningRewindScreen(period: ListeningRewindPeriod.year),
         ),
-      );
-      await tester.pumpAndSettle();
-      final story = tester.getRect(find.byType(PageView));
-      for (var i = 0; i < 20; i++) {
-        expect(tester.takeException(), isNull);
-        await tester.tapAt(Offset(story.right - 40, story.center.dy));
-        await tester.pumpAndSettle();
-      }
-      expect(find.text('That was your 2026'), findsOneWidget);
+      ),
+    );
+    await tester.pumpAndSettle();
+    final story = tester.getRect(find.byType(PageView));
+    for (var i = 0; i < 20; i++) {
       expect(tester.takeException(), isNull);
-    });
-  }
+      await tester.tapAt(Offset(story.right - 40, story.center.dy));
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('That was your 2026'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('no spotlight leaves no banner', (tester) async {
     await tester.pumpWidget(

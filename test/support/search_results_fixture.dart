@@ -12,7 +12,6 @@ import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -158,7 +157,6 @@ class SearchFixtureResults extends TrackNotifier {
 Future<void> pumpSearchFixture(
   WidgetTester tester, {
   required Size size,
-  required bool mornye,
   Brightness brightness = Brightness.dark,
   SearchFixtureResults? results,
   List<SearchFilter> filters = const [],
@@ -194,11 +192,7 @@ Future<void> pumpSearchFixture(
         trackProvider.overrideWith(() => results ?? SearchFixtureResults()),
       ],
       child: MaterialApp(
-        theme: mornye
-            ? MornyeTheme.build(brightness)
-            : (brightness == Brightness.dark
-                  ? AppTheme.dark()
-                  : AppTheme.light()),
+        theme: MornyeTheme.build(brightness),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) =>

@@ -151,8 +151,8 @@
         <br><b>Your look</b>
       </p>
       <p>
-        Material 3 Expressive or the Mornye theme, Dynamic Color, an AMOLED
-        mode, Material Symbols and layouts for tablets and large screens.
+        The Mornye theme with light and dark modes, a choice of accent color,
+        glass outlines, your own font and layouts for tablets and large screens.
       </p>
       <p></p>
     </td>

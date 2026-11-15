@@ -138,7 +138,7 @@ Widget _scene(
               ),
             ),
             // Stands in for the playing mini player, which draws a frame
-            // every 33 ms on every Material screen.
+            // every 33 ms on every screen.
             if (playing)
               const SizedBox(width: 100, child: LinearProgressIndicator()),
           ],

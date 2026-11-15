@@ -403,68 +403,61 @@ void main() {
     });
   }
 
-  for (final mornye in [false, true]) {
-    for (final compact in [false, true]) {
-      testWidgets(
-        'mini player scrolls title and artist (Mornye: $mornye, compact: $compact)',
-        (tester) async {
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                currentMediaItemProvider.overrideWithBuild(
-                  (ref, notifier) => Stream.value(
-                    const MediaItem(
-                      id: 'long-track',
-                      title: longTitle,
-                      artist: 'First artist, second artist and another artist',
-                      extras: {'explicit': true},
-                    ),
-                  ),
-                ),
-                playbackStateProvider.overrideWith(
-                  (ref) => const Stream.empty(),
-                ),
-                lowEndDeviceProvider.overrideWithValue(true),
-                backdropBlurEnabledProvider.overrideWithValue(false),
-              ],
-              child: MaterialApp(
-                theme: mornye
-                    ? MornyeTheme.build(Brightness.light)
-                    : ThemeData(),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: Scaffold(
-                  body: Center(
-                    child: SizedBox(
-                      width: 320,
-                      child: MiniPlayer(compact: compact),
-                    ),
-                  ),
+  for (final compact in [false, true]) {
+    testWidgets('mini player scrolls title and artist (compact: $compact)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentMediaItemProvider.overrideWithBuild(
+              (ref, notifier) => Stream.value(
+                const MediaItem(
+                  id: 'long-track',
+                  title: longTitle,
+                  artist: 'First artist, second artist and another artist',
+                  extras: {'explicit': true},
                 ),
               ),
             ),
-          );
-          await tester.pump();
-          await tester.pump();
-          await tester.pump();
-          await tester.pump();
-          await startScrolling(tester);
-          final scrollViews = tester.widgetList<SingleChildScrollView>(
-            find.descendant(
-              of: find.byType(MiniPlayer),
-              matching: find.byType(SingleChildScrollView),
+            playbackStateProvider.overrideWith((ref) => const Stream.empty()),
+            lowEndDeviceProvider.overrideWithValue(true),
+            backdropBlurEnabledProvider.overrideWithValue(false),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: MiniPlayer(compact: compact),
+                ),
+              ),
             ),
-          );
-          expect(scrollViews, hasLength(2));
-          for (final view in scrollViews) {
-            expect(view.controller!.offset, greaterThan(0));
-          }
-          expect(find.byType(ExplicitBadge), findsNWidgets(2));
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox.shrink());
-        },
+          ),
+        ),
       );
-    }
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      await startScrolling(tester);
+      final scrollViews = tester.widgetList<SingleChildScrollView>(
+        find.descendant(
+          of: find.byType(MiniPlayer),
+          matching: find.byType(SingleChildScrollView),
+        ),
+      );
+      expect(scrollViews, hasLength(2));
+      for (final view in scrollViews) {
+        expect(view.controller!.offset, greaterThan(0));
+      }
+      expect(find.byType(ExplicitBadge), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
   }
 }
 

@@ -18,7 +18,6 @@ import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/main_shell.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,7 +43,6 @@ void main() {
 
   Future<ValueNotifier<Locale>> pumpShell(
     WidgetTester tester, {
-    bool mornye = true,
     bool externalPlayer = false,
     bool search = false,
     Stream<MediaItem?>? media,
@@ -94,9 +92,7 @@ void main() {
         child: ValueListenableBuilder(
           valueListenable: locale,
           builder: (context, value, _) => MaterialApp.router(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.dark(),
+            theme: MornyeTheme.build(Brightness.dark),
             locale: value,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -113,21 +109,19 @@ void main() {
   bool collapsed(WidgetTester tester) =>
       tester.widget<MornyeBottomBar>(find.byType(MornyeBottomBar)).collapsed;
 
-  for (final mornye in [false, true]) {
-    testWidgets('external mode hides Home playback and mini player ($mornye)', (
-      tester,
-    ) async {
-      await pumpShell(tester, mornye: mornye, externalPlayer: true);
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('Continue Listening'), findsNothing);
-      expect(find.text('Old internal song'), findsNothing);
-      expect(find.text('Saved song'), findsNothing);
-      for (final player in find.byType(MiniPlayer).evaluate()) {
-        expect(tester.getSize(find.byWidget(player.widget)).height, 0);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
+  testWidgets('external mode hides Home playback and mini player', (
+    tester,
+  ) async {
+    await pumpShell(tester, externalPlayer: true);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Continue Listening'), findsNothing);
+    expect(find.text('Old internal song'), findsNothing);
+    expect(find.text('Saved song'), findsNothing);
+    for (final player in find.byType(MiniPlayer).evaluate()) {
+      expect(tester.getSize(find.byWidget(player.widget)).height, 0);
+    }
+    expect(tester.takeException(), isNull);
+  });
 
   void scrollHome(WidgetTester tester, {required double pixels}) {
     ScrollUpdateNotification(

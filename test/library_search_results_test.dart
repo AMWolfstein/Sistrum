@@ -50,149 +50,82 @@ void main() {
     {}
   }
 
-  for (final mornye in const [true]) {
-    for (final local in [false, true]) {
-      testWidgets(
-        'search opens metadata; only Play starts audio ($mornye/$local)',
-        (tester) async {
-          SharedPreferences.setMockInitialValues({});
-          FlutterSecureStorage.setMockInitialValues({});
-          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
-          tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-            channel,
-            (call) async => switch (call.method) {
-              'safStat' => jsonEncode({'exists': true, 'size': 100}),
-              'readAudioMetadata' || 'readFileMetadata' => '{}',
-              'getLyricsLRCWithSource' => jsonEncode({
-                'lyrics': '',
-                'source': '',
-              }),
-              'getSafFileModTimes' => '{}',
-              _ => null,
-            },
-          );
-          addTearDown(
-            () => tester.binding.defaultBinaryMessenger
-                .setMockMethodCallHandler(channel, null),
-          );
-          const path = 'content://library/document/song.flac';
-          final item = local
-              ? UnifiedLibraryItem.fromLocalLibrary(
-                  LocalLibraryItem(
-                    id: 'chosen',
-                    trackName: 'Song',
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    filePath: path,
-                    scannedAt: DateTime(2026),
-                  ),
-                )
-              : UnifiedLibraryItem.fromDownloadHistory(
-                  DownloadHistoryItem(
-                    id: 'chosen',
-                    trackName: 'Song',
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    filePath: path,
-                    service: 'provider-a',
-                    downloadedAt: DateTime(2026),
-                  ),
-                );
-          final player = _PlaybackRecorder();
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                playbackProvider.overrideWith(() => player),
-                librarySearchProvider.overrideWith(
-                  (ref, request) async =>
-                      request.kind == LibrarySearchKind.songs
-                      ? [
-                          LibrarySearchHit(
-                            kind: LibrarySearchKind.songs,
-                            id: 'chosen',
-                            title: 'Song',
-                            source: local ? 'local' : 'history',
-                          ),
-                        ]
-                      : [],
-                ),
-                librarySearchTrackProvider.overrideWith((ref, key) async {
-                  expect(key, (
-                    source: local ? 'local' : 'history',
-                    id: 'chosen',
-                  ));
-                  return item;
-                }),
-              ],
-              child: MaterialApp(
-                theme: mornye
-                    ? MornyeTheme.build(Brightness.dark)
-                    : ThemeData(),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: Scaffold(
-                  body: CustomScrollView(
-                    slivers: [
-                      LibrarySearchResults(query: 'Song', onOpenArtist: (_) {}),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          expect(
-            tester.widget<TrackCard>(find.byType(TrackCard)).style,
-            mornye ? TrackCardStyle.flat : TrackCardStyle.filled,
-          );
-          await tester.tap(find.text('Song'));
-          await tester.pumpAndSettle();
-          final details = tester.widget<TrackMetadataScreen>(
-            find.byType(TrackMetadataScreen),
-          );
-          expect(details.item, item.historyItem);
-          expect(details.localItem, item.localItem);
-          expect(player.paths, isEmpty);
-          tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-          await tester.pumpAndSettle();
-          await tester.tap(find.byTooltip('Play'));
-          await tester.pumpAndSettle();
-          expect(player.paths, [path]);
-          expect(find.byType(TrackMetadataScreen), findsNothing);
-          expect(tester.takeException(), isNull);
-        },
-      );
-    }
-  }
-
-  for (final mornye in const [true]) {
-    testWidgets('Library shows every result type and paginates ($mornye)', (
+  for (final local in [false, true]) {
+    testWidgets('search opens metadata; only Play starts audio ($local)', (
       tester,
     ) async {
-      final requests = <LibrarySearchRequest>[];
-      final artists = <String>[];
+      SharedPreferences.setMockInitialValues({});
+      FlutterSecureStorage.setMockInitialValues({});
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        (call) async => switch (call.method) {
+          'safStat' => jsonEncode({'exists': true, 'size': 100}),
+          'readAudioMetadata' || 'readFileMetadata' => '{}',
+          'getLyricsLRCWithSource' => jsonEncode({'lyrics': '', 'source': ''}),
+          'getSafFileModTimes' => '{}',
+          _ => null,
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          null,
+        ),
+      );
+      const path = 'content://library/document/song.flac';
+      final item = local
+          ? UnifiedLibraryItem.fromLocalLibrary(
+              LocalLibraryItem(
+                id: 'chosen',
+                trackName: 'Song',
+                artistName: 'Artist',
+                albumName: 'Album',
+                filePath: path,
+                scannedAt: DateTime(2026),
+              ),
+            )
+          : UnifiedLibraryItem.fromDownloadHistory(
+              DownloadHistoryItem(
+                id: 'chosen',
+                trackName: 'Song',
+                artistName: 'Artist',
+                albumName: 'Album',
+                filePath: path,
+                service: 'provider-a',
+                downloadedAt: DateTime(2026),
+              ),
+            );
+      final player = _PlaybackRecorder();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            librarySearchProvider.overrideWith((ref, request) async {
-              requests.add(request);
-              return List.generate(
-                request.limit,
-                (i) => _hit(request.kind, request.offset + i),
-              );
+            playbackProvider.overrideWith(() => player),
+            librarySearchProvider.overrideWith(
+              (ref, request) async => request.kind == LibrarySearchKind.songs
+                  ? [
+                      LibrarySearchHit(
+                        kind: LibrarySearchKind.songs,
+                        id: 'chosen',
+                        title: 'Song',
+                        source: local ? 'local' : 'history',
+                      ),
+                    ]
+                  : [],
+            ),
+            librarySearchTrackProvider.overrideWith((ref, key) async {
+              expect(key, (source: local ? 'local' : 'history', id: 'chosen'));
+              return item;
             }),
           ],
           child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
+            theme: MornyeTheme.build(Brightness.dark),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: CustomScrollView(
                 slivers: [
-                  LibrarySearchResults(
-                    query: 'Found',
-                    onOpenArtist: artists.add,
-                  ),
+                  LibrarySearchResults(query: 'Song', onOpenArtist: (_) {}),
                 ],
               ),
             ),
@@ -201,26 +134,76 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(
-        requests.map((r) => r.kind).toSet(),
-        LibrarySearchKind.values.toSet(),
+        tester.widget<TrackCard>(find.byType(TrackCard)).style,
+        TrackCardStyle.flat,
       );
-      expect(requests.every((r) => r.limit == 6 && r.offset == 0), isTrue);
-      await tester.tap(find.text('Artists').first);
+      await tester.tap(find.text('Song'));
       await tester.pumpAndSettle();
-      expect(requests.last.limit, 41);
-      await tester.tap(find.text('Found artists 0'));
-      expect(artists, ['Found artists 0']);
-      await tester.scrollUntilVisible(
-        findAppIcon(Icons.expand_more),
-        600,
-        scrollable: find.byType(Scrollable).first,
+      final details = tester.widget<TrackMetadataScreen>(
+        find.byType(TrackMetadataScreen),
       );
-      await tester.tap(findAppIcon(Icons.expand_more));
+      expect(details.item, item.historyItem);
+      expect(details.localItem, item.localItem);
+      expect(player.paths, isEmpty);
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
-      expect(requests.last.offset, 40);
+      await tester.tap(find.byTooltip('Play'));
+      await tester.pumpAndSettle();
+      expect(player.paths, [path]);
+      expect(find.byType(TrackMetadataScreen), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('Library shows every result type and paginates', (tester) async {
+    final requests = <LibrarySearchRequest>[];
+    final artists = <String>[];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          librarySearchProvider.overrideWith((ref, request) async {
+            requests.add(request);
+            return List.generate(
+              request.limit,
+              (i) => _hit(request.kind, request.offset + i),
+            );
+          }),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                LibrarySearchResults(query: 'Found', onOpenArtist: artists.add),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      requests.map((r) => r.kind).toSet(),
+      LibrarySearchKind.values.toSet(),
+    );
+    expect(requests.every((r) => r.limit == 6 && r.offset == 0), isTrue);
+    await tester.tap(find.text('Artists').first);
+    await tester.pumpAndSettle();
+    expect(requests.last.limit, 41);
+    await tester.tap(find.text('Found artists 0'));
+    expect(artists, ['Found artists 0']);
+    await tester.scrollUntilVisible(
+      findAppIcon(Icons.expand_more),
+      600,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(findAppIcon(Icons.expand_more));
+    await tester.pumpAndSettle();
+    expect(requests.last.offset, 40);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('an older query cannot replace newer results', (tester) async {
     final old = Completer<List<LibrarySearchHit>>();
@@ -266,215 +249,209 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in const [true]) {
-    testWidgets(
-      'long-press selects songs for Library batch actions ($mornye)',
-      (tester) async {
-        SharedPreferences.setMockInitialValues({});
-        FlutterSecureStorage.setMockInitialValues({});
-        // Tall enough that the selection bar never covers a result row.
-        tester.view.physicalSize = const Size(800, 1600);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        UnifiedLibraryItem local(String id) =>
-            UnifiedLibraryItem.fromLocalLibrary(
-              LocalLibraryItem(
-                id: id,
-                trackName: 'Song $id',
-                artistName: 'Artist',
-                albumName: 'Album',
-                filePath: '/music/$id.mp3',
-                scannedAt: DateTime(2026),
-              ),
-            );
-        final query = ValueNotifier('Song');
-        addTearDown(query.dispose);
-        final player = _PlaybackRecorder();
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              playbackProvider.overrideWith(() => player),
-              librarySearchProvider.overrideWith(
-                (ref, request) async => switch (request.kind) {
-                  LibrarySearchKind.songs => [
-                    for (final id in ['a', 'b'])
-                      LibrarySearchHit(
-                        kind: LibrarySearchKind.songs,
-                        id: id,
-                        title: 'Song $id',
-                        source: 'local',
-                      ),
-                  ],
-                  LibrarySearchKind.albums => [
-                    _hit(LibrarySearchKind.albums, 0, query: 'Song'),
-                  ],
-                  _ => [],
-                },
-              ),
-              librarySearchTrackProvider.overrideWith(
-                (ref, key) async => local(key.id),
-              ),
-            ],
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: Scaffold(
-                body: ValueListenableBuilder(
-                  valueListenable: query,
-                  builder: (context, value, _) => CustomScrollView(
-                    slivers: [
-                      LibrarySearchResults(query: value, onOpenArtist: (_) {}),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(find.byTooltip('Play'), findsNWidgets(2));
-
-        await tester.longPress(find.text('Song a'));
-        await tester.pumpAndSettle();
-        expect(find.text('1 selected'), findsOneWidget);
-        expect(find.text('Re-enrich (1)'), findsOneWidget);
-        expect(find.text('Convert 1 track'), findsOneWidget);
-        expect(find.text('Delete 1 track'), findsOneWidget);
-        // Selecting hides row actions and keeps taps on the selection.
-        expect(find.byTooltip('Play'), findsNothing);
-        await tester.tap(find.text('Song b'));
-        await tester.pumpAndSettle();
-        expect(find.text('2 selected'), findsOneWidget);
-        expect(find.text('All tracks selected'), findsOneWidget);
-        await tester.tap(find.text('Song albums 0'));
-        await tester.pumpAndSettle();
-        expect(find.byType(LibrarySearchResults), findsOneWidget);
-        expect(find.text('2 selected'), findsOneWidget);
-        expect(player.paths, isEmpty);
-
-        await tester.tap(find.text('Song b'));
-        await tester.pumpAndSettle();
-        expect(find.text('1 selected'), findsOneWidget);
-        // Back leaves selection mode instead of the screen.
-        await tester.binding.handlePopRoute();
-        await tester.pumpAndSettle();
-        expect(find.textContaining('selected'), findsNothing);
-        expect(find.byTooltip('Play'), findsNWidgets(2));
-
-        await tester.longPress(find.text('Song a'));
-        await tester.pumpAndSettle();
-        expect(find.text('1 selected'), findsOneWidget);
-        query.value = 'Song ';
-        await tester.pumpAndSettle();
-        expect(find.textContaining('selected'), findsNothing);
-        expect(tester.takeException(), isNull);
-      },
+  testWidgets('long-press selects songs for Library batch actions', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    // Tall enough that the selection bar never covers a result row.
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    UnifiedLibraryItem local(String id) => UnifiedLibraryItem.fromLocalLibrary(
+      LocalLibraryItem(
+        id: id,
+        trackName: 'Song $id',
+        artistName: 'Artist',
+        albumName: 'Album',
+        filePath: '/music/$id.mp3',
+        scannedAt: DateTime(2026),
+      ),
     );
-  }
-
-  for (final mornye in const [true]) {
-    testWidgets('wide Library search offers covers, songs included ($mornye)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      FlutterSecureStorage.setMockInitialValues({});
-      tester.view.physicalSize = const Size(1280, 1600);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final requests = <LibrarySearchRequest>[];
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            librarySearchProvider.overrideWith((ref, request) async {
-              requests.add(request);
-              return List.generate(request.limit, (i) {
-                final hit = _hit(request.kind, request.offset + i);
-                return request.kind == LibrarySearchKind.songs
-                    ? LibrarySearchHit(
-                        kind: hit.kind,
-                        id: hit.id,
-                        title: hit.title,
-                        source: 'local',
-                      )
-                    : hit;
-              });
-            }),
-            librarySearchTrackProvider.overrideWith(
-              (ref, key) async => UnifiedLibraryItem.fromLocalLibrary(
-                LocalLibraryItem(
-                  id: key.id,
-                  trackName: 'Song ${key.id}',
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  filePath: '/music/${key.id}.mp3',
-                  scannedAt: DateTime(2026),
-                ),
-              ),
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: CustomScrollView(
+    final query = ValueNotifier('Song');
+    addTearDown(query.dispose);
+    final player = _PlaybackRecorder();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          playbackProvider.overrideWith(() => player),
+          librarySearchProvider.overrideWith(
+            (ref, request) async => switch (request.kind) {
+              LibrarySearchKind.songs => [
+                for (final id in ['a', 'b'])
+                  LibrarySearchHit(
+                    kind: LibrarySearchKind.songs,
+                    id: id,
+                    title: 'Song $id',
+                    source: 'local',
+                  ),
+              ],
+              LibrarySearchKind.albums => [
+                _hit(LibrarySearchKind.albums, 0, query: 'Song'),
+              ],
+              _ => [],
+            },
+          ),
+          librarySearchTrackProvider.overrideWith(
+            (ref, key) async => local(key.id),
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: ValueListenableBuilder(
+              valueListenable: query,
+              builder: (context, value, _) => CustomScrollView(
                 slivers: [
-                  LibrarySearchResults(query: 'Found', onOpenArtist: (_) {}),
+                  LibrarySearchResults(query: value, onOpenArtist: (_) {}),
                 ],
               ),
             ),
           ),
         ),
-      );
-      await tester.pumpAndSettle();
-      // Rows until the shared view setting picks covers.
-      expect(find.byType(TrackCard), findsWidgets);
-      expect(find.byTooltip('Grid'), findsOneWidget);
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Play'), findsNWidgets(2));
 
-      await tester.tap(find.byTooltip('Grid'));
-      await tester.pumpAndSettle();
-      expect(find.byType(TrackCard), findsNothing);
-      expect(find.byTooltip('List'), findsOneWidget);
-      // The overview: one shelf per kind, songs as covers the albums' size.
-      expect(find.byType(SliverGrid), findsNothing);
-      final song = find.byKey(const ValueKey('songs:local:0'));
-      expect(song, findsOneWidget);
-      expect(
-        tester.getSize(song).width,
-        tester.getSize(find.byKey(const ValueKey('albums::0'))).width,
-      );
+    await tester.longPress(find.text('Song a'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 selected'), findsOneWidget);
+    expect(find.text('Re-enrich (1)'), findsOneWidget);
+    expect(find.text('Convert 1 track'), findsOneWidget);
+    expect(find.text('Delete 1 track'), findsOneWidget);
+    // Selecting hides row actions and keeps taps on the selection.
+    expect(find.byTooltip('Play'), findsNothing);
+    await tester.tap(find.text('Song b'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 selected'), findsOneWidget);
+    expect(find.text('All tracks selected'), findsOneWidget);
+    await tester.tap(find.text('Song albums 0'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LibrarySearchResults), findsOneWidget);
+    expect(find.text('2 selected'), findsOneWidget);
+    expect(player.paths, isEmpty);
 
-      // One kind fills a grid of covers and still pages.
-      await tester.tap(find.text('Songs').first);
-      await tester.pumpAndSettle();
-      expect(requests.last.kind, LibrarySearchKind.songs);
-      expect(requests.last.limit, 41);
-      expect(find.byType(SliverGrid), findsOneWidget);
-      expect(find.byType(TrackCard), findsNothing);
+    await tester.tap(find.text('Song b'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 selected'), findsOneWidget);
+    // Back leaves selection mode instead of the screen.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.textContaining('selected'), findsNothing);
+    expect(find.byTooltip('Play'), findsNWidgets(2));
 
-      // A long press selects, as on the rows.
-      await tester.longPress(find.text('Found songs 0'));
-      await tester.pumpAndSettle();
-      expect(find.text('1 selected'), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('songs:local:0')),
-          matching: find.byIcon(Icons.check),
+    await tester.longPress(find.text('Song a'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 selected'), findsOneWidget);
+    query.value = 'Song ';
+    await tester.pumpAndSettle();
+    expect(find.textContaining('selected'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('wide Library search offers covers, songs included', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1280, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final requests = <LibrarySearchRequest>[];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          librarySearchProvider.overrideWith((ref, request) async {
+            requests.add(request);
+            return List.generate(request.limit, (i) {
+              final hit = _hit(request.kind, request.offset + i);
+              return request.kind == LibrarySearchKind.songs
+                  ? LibrarySearchHit(
+                      kind: hit.kind,
+                      id: hit.id,
+                      title: hit.title,
+                      source: 'local',
+                    )
+                  : hit;
+            });
+          }),
+          librarySearchTrackProvider.overrideWith(
+            (ref, key) async => UnifiedLibraryItem.fromLocalLibrary(
+              LocalLibraryItem(
+                id: key.id,
+                trackName: 'Song ${key.id}',
+                artistName: 'Artist',
+                albumName: 'Album',
+                filePath: '/music/${key.id}.mp3',
+                scannedAt: DateTime(2026),
+              ),
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                LibrarySearchResults(query: 'Found', onOpenArtist: (_) {}),
+              ],
+            ),
+          ),
         ),
-        findsOneWidget,
-      );
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.textContaining('selected'), findsNothing);
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Rows until the shared view setting picks covers.
+    expect(find.byType(TrackCard), findsWidgets);
+    expect(find.byTooltip('Grid'), findsOneWidget);
 
-      // A narrow pane keeps the rows and offers no switch.
-      tester.view.physicalSize = const Size(700, 1600);
-      await tester.pumpAndSettle();
-      expect(find.byType(SliverGrid), findsNothing);
-      expect(find.byType(TrackCard), findsWidgets);
-      expect(find.byTooltip('List'), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(find.byTooltip('Grid'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TrackCard), findsNothing);
+    expect(find.byTooltip('List'), findsOneWidget);
+    // The overview: one shelf per kind, songs as covers the albums' size.
+    expect(find.byType(SliverGrid), findsNothing);
+    final song = find.byKey(const ValueKey('songs:local:0'));
+    expect(song, findsOneWidget);
+    expect(
+      tester.getSize(song).width,
+      tester.getSize(find.byKey(const ValueKey('albums::0'))).width,
+    );
+
+    // One kind fills a grid of covers and still pages.
+    await tester.tap(find.text('Songs').first);
+    await tester.pumpAndSettle();
+    expect(requests.last.kind, LibrarySearchKind.songs);
+    expect(requests.last.limit, 41);
+    expect(find.byType(SliverGrid), findsOneWidget);
+    expect(find.byType(TrackCard), findsNothing);
+
+    // A long press selects, as on the rows.
+    await tester.longPress(find.text('Found songs 0'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 selected'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('songs:local:0')),
+        matching: find.byIcon(Icons.check),
+      ),
+      findsOneWidget,
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.textContaining('selected'), findsNothing);
+
+    // A narrow pane keeps the rows and offers no switch.
+    tester.view.physicalSize = const Size(700, 1600);
+    await tester.pumpAndSettle();
+    expect(find.byType(SliverGrid), findsNothing);
+    expect(find.byType(TrackCard), findsWidgets);
+    expect(find.byTooltip('List'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -10,7 +10,6 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,7 +99,6 @@ void main() {
 
   Future<_Collections> open(
     WidgetTester tester, {
-    bool mornye = false,
     LibraryTracksFolderMode mode = LibraryTracksFolderMode.loved,
   }) async {
     tester.view.physicalSize = const Size(430, 1000);
@@ -123,7 +121,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: LibraryTracksFolderScreen(

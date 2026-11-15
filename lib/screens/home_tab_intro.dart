@@ -312,7 +312,7 @@ final _homeShelfMemoProvider = Provider<_HomeShelfMemo>(
   (ref) => _HomeShelfMemo(),
 );
 
-/// Everything under the search bar on the Material Home. Sections without
+/// Everything under the search bar on Home. Sections without
 /// content leave no gap behind.
 class _HomeSections extends ConsumerWidget {
   const _HomeSections({required this.inset});

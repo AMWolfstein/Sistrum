@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Single source of truth for the app's visual scale.
 ///
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 ///
 /// Read it through [AppTokensContext.tokens] rather than
 /// `Theme.of(context).extension<AppTokens>()`, so a widget rendered outside a
-/// themed subtree (tests, isolated previews) still gets [AppTokens.standard].
+/// themed subtree (tests, isolated previews) still gets [MornyeTheme.tokens].
 @immutable
 class AppTokens extends ThemeExtension<AppTokens> {
   const AppTokens({
@@ -48,9 +49,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     this.dialogInsetH = 40,
   });
 
-  /// The values every theme in the app uses today. Kept as the single
-  /// definition so a future "compact"/"expressive" theme only overrides the
-  /// handful of tokens it actually changes.
+  /// The base values. [MornyeTheme.tokens] copies it and overrides the handful
+  /// of tokens Mornye changes.
   static const AppTokens standard = AppTokens(
     radiusBadge: 6,
     radiusThumb: 8,
@@ -131,7 +131,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   final double headerCollapsedTitleSize;
 
-  /// Material 3 large top app bar headline size used by collapsing headers.
+  /// Large top app bar headline size used by collapsing headers.
   final double headerExpandedTitleSize;
 
   final Duration motionFast;
@@ -347,8 +347,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
 }
 
 extension AppTokensContext on BuildContext {
-  /// The active [AppTokens]. Falls back to [AppTokens.standard] when the widget
+  /// The active [AppTokens]. Falls back to [MornyeTheme.tokens] when the widget
   /// is built outside a theme that registered the extension.
   AppTokens get tokens =>
-      Theme.of(this).extension<AppTokens>() ?? AppTokens.standard;
+      Theme.of(this).extension<AppTokens>() ?? MornyeTheme.tokens;
 }

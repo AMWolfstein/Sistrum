@@ -102,122 +102,118 @@ Future<List<int>> _pixels(
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
-  for (final mornye in [false, true]) {
-    for (final aiRomaji in [false, true]) {
-      testWidgets('translation and pronunciation share pause/seek clock '
-          '(mornye=$mornye, ai=$aiRomaji)', (tester) async {
-        tester.view.physicalSize = const Size(390, 800);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        final playback = StreamController<PlaybackState>.broadcast();
-        final preview = ValueNotifier<Duration?>(null);
-        addTearDown(playback.close);
-        addTearDown(preview.dispose);
-        final source = aiRomaji ? _aiSource : _source;
-        final lyrics = applyLyricsTranslation(
-          source,
-          LyricsTranslationSource.of(source),
-          ['Halo dunia'],
-          romanizations: aiRomaji ? ['kimi o'] : const [],
-          romanizationAlignments: aiRomaji
-              ? const [
-                  [
-                    LyricsTranslationChunk('kimi ', 0),
-                    LyricsTranslationChunk('o', 1),
-                  ],
-                ]
-              : const [],
-          alignments: const [
-            [
-              LyricsTranslationChunk('Halo ', 0),
-              LyricsTranslationChunk('dunia', 1),
-            ],
+  for (final aiRomaji in [false, true]) {
+    testWidgets('translation and pronunciation share pause/seek clock '
+        '(ai=$aiRomaji)', (tester) async {
+      tester.view.physicalSize = const Size(390, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final playback = StreamController<PlaybackState>.broadcast();
+      final preview = ValueNotifier<Duration?>(null);
+      addTearDown(playback.close);
+      addTearDown(preview.dispose);
+      final source = aiRomaji ? _aiSource : _source;
+      final lyrics = applyLyricsTranslation(
+        source,
+        LyricsTranslationSource.of(source),
+        ['Halo dunia'],
+        romanizations: aiRomaji ? ['kimi o'] : const [],
+        romanizationAlignments: aiRomaji
+            ? const [
+                [
+                  LyricsTranslationChunk('kimi ', 0),
+                  LyricsTranslationChunk('o', 1),
+                ],
+              ]
+            : const [],
+        alignments: const [
+          [
+            LyricsTranslationChunk('Halo ', 0),
+            LyricsTranslationChunk('dunia', 1),
           ],
-        );
-        final theme = mornye
-            ? MornyeTheme.build(Brightness.dark)
-            : ThemeData.dark();
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              playbackStateProvider.overrideWith((ref) => playback.stream),
-            ],
-            child: MaterialApp(
-              theme: theme,
-              home: Scaffold(
-                body: SyncedLyricsView(
-                  lyrics: lyrics,
-                  seekPreview: preview,
-                  colorScheme: theme.colorScheme,
-                  isActive: true,
-                  showPronunciation: true,
-                  showTranslation: true,
-                ),
+        ],
+      );
+      final theme = MornyeTheme.build(Brightness.dark);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            playbackStateProvider.overrideWith((ref) => playback.stream),
+          ],
+          child: MaterialApp(
+            theme: theme,
+            home: Scaffold(
+              body: SyncedLyricsView(
+                lyrics: lyrics,
+                seekPreview: preview,
+                colorScheme: theme.colorScheme,
+                isActive: true,
+                showPronunciation: true,
+                showTranslation: true,
               ),
             ),
           ),
-        );
-        playback.add(
-          PlaybackState(
-            processingState: AudioProcessingState.ready,
-            updatePosition: const Duration(seconds: 2),
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(_paint('Halo dunia'), findsOneWidget);
-        final early = await _pixels(tester, 'Halo dunia');
-        final readingPaint = aiRomaji
-            ? find
-                  .descendant(
-                    of: find.byWidgetPredicate(
-                      (widget) =>
-                          widget is Semantics &&
-                          widget.properties.label?.startsWith('kimi') == true,
-                    ),
-                    matching: find.byType(CustomPaint),
-                  )
-                  .first
-            : null;
-        final earlyReading = readingPaint == null
-            ? null
-            : await _pixels(tester, '', target: readingPaint);
-        await tester.pump(const Duration(seconds: 1));
+        ),
+      );
+      playback.add(
+        PlaybackState(
+          processingState: AudioProcessingState.ready,
+          updatePosition: const Duration(seconds: 2),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_paint('Halo dunia'), findsOneWidget);
+      final early = await _pixels(tester, 'Halo dunia');
+      final readingPaint = aiRomaji
+          ? find
+                .descendant(
+                  of: find.byWidgetPredicate(
+                    (widget) =>
+                        widget is Semantics &&
+                        widget.properties.label?.startsWith('kimi') == true,
+                  ),
+                  matching: find.byType(CustomPaint),
+                )
+                .first
+          : null;
+      final earlyReading = readingPaint == null
+          ? null
+          : await _pixels(tester, '', target: readingPaint);
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        await _pixels(tester, 'Halo dunia'),
+        early,
+        reason: 'paused translation holds its highlight',
+      );
+      if (readingPaint != null) {
+        expect(await _pixels(tester, '', target: readingPaint), earlyReading);
+      }
+      preview.value = const Duration(seconds: 12);
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester, 'Halo dunia'), isNot(early));
+      if (readingPaint != null) {
         expect(
-          await _pixels(tester, 'Halo dunia'),
-          early,
-          reason: 'paused translation holds its highlight',
+          await _pixels(tester, '', target: readingPaint),
+          isNot(earlyReading),
         );
-        if (readingPaint != null) {
-          expect(await _pixels(tester, '', target: readingPaint), earlyReading);
-        }
-        preview.value = const Duration(seconds: 12);
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester, 'Halo dunia'), isNot(early));
-        if (readingPaint != null) {
-          expect(
-            await _pixels(tester, '', target: readingPaint),
-            isNot(earlyReading),
-          );
-        }
-        expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is Semantics &&
-                widget.properties.label?.contains(aiRomaji ? 'kimi' : 'One') ==
-                    true,
-          ),
-          findsAtLeastNWidgets(1),
-          reason: 'translation does not replace pronunciation',
-        );
-        preview.value = const Duration(seconds: 2);
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester, 'Halo dunia'), early);
-        if (readingPaint != null) {
-          expect(await _pixels(tester, '', target: readingPaint), earlyReading);
-        }
-        expect(tester.takeException(), isNull);
-      });
-    }
+      }
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label?.contains(aiRomaji ? 'kimi' : 'One') ==
+                  true,
+        ),
+        findsAtLeastNWidgets(1),
+        reason: 'translation does not replace pronunciation',
+      );
+      preview.value = const Duration(seconds: 2);
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester, 'Halo dunia'), early);
+      if (readingPaint != null) {
+        expect(await _pixels(tester, '', target: readingPaint), earlyReading);
+      }
+      expect(tester.takeException(), isNull);
+    });
   }
 }

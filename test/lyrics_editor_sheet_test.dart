@@ -9,7 +9,7 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
-import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
 
@@ -76,7 +76,7 @@ void main() {
           musicPlayerControllerProvider.overrideWithValue(player),
         ],
         child: MaterialApp(
-          theme: AppTheme.dark(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(

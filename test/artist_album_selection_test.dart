@@ -6,7 +6,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
@@ -27,7 +26,6 @@ final _albums = [
 
 Future<void> _pumpArtist(
   WidgetTester tester, {
-  required bool mornye,
   List<ArtistAlbum>? albums,
 }) async {
   SharedPreferences.setMockInitialValues({});
@@ -41,7 +39,7 @@ Future<void> _pumpArtist(
   await tester.pumpWidget(
     ProviderScope(
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: ArtistScreen(
@@ -94,40 +92,36 @@ Future<void> _disposeArtist(WidgetTester tester) async {
 void main() {
   tearDown(() {});
 
-  for (final mornye in [false, true]) {
-    final style = mornye ? 'Mornye' : 'Material';
+  final style = 'Mornye';
 
-    testWidgets('$style: touch long press still selects albums', (
-      tester,
-    ) async {
-      await _pumpArtist(tester, mornye: mornye);
-      await tester.longPress(_card(2));
-      await tester.pumpAndSettle();
-      _expectSelection(tester, {2});
-      await tester.tap(_card(3));
-      await tester.pumpAndSettle();
-      _expectSelection(tester, {2, 3});
-      await _disposeArtist(tester);
-    });
+  testWidgets('$style: touch long press still selects albums', (tester) async {
+    await _pumpArtist(tester);
+    await tester.longPress(_card(2));
+    await tester.pumpAndSettle();
+    _expectSelection(tester, {2});
+    await tester.tap(_card(3));
+    await tester.pumpAndSettle();
+    _expectSelection(tester, {2, 3});
+    await _disposeArtist(tester);
+  });
 
-    testWidgets('$style: select all toggle clears but keeps selection mode', (
-      tester,
-    ) async {
-      await _pumpArtist(tester, mornye: mornye);
-      await tester.longPress(_card(2));
-      await tester.pumpAndSettle();
-      SelectionBottomBar bar() =>
-          tester.widget<SelectionBottomBar>(find.byType(SelectionBottomBar));
-      expect(bar().allSelected, isFalse);
-      bar().onToggleSelectAll();
-      await tester.pumpAndSettle();
-      _expectSelection(tester, {0, 1, 2, 3, 4});
-      expect(bar().allSelected, isTrue);
-      bar().onToggleSelectAll();
-      await tester.pumpAndSettle();
-      _expectSelection(tester, {});
-      expect(bar().allSelected, isFalse);
-      await _disposeArtist(tester);
-    });
-  }
+  testWidgets('$style: select all toggle clears but keeps selection mode', (
+    tester,
+  ) async {
+    await _pumpArtist(tester);
+    await tester.longPress(_card(2));
+    await tester.pumpAndSettle();
+    SelectionBottomBar bar() =>
+        tester.widget<SelectionBottomBar>(find.byType(SelectionBottomBar));
+    expect(bar().allSelected, isFalse);
+    bar().onToggleSelectAll();
+    await tester.pumpAndSettle();
+    _expectSelection(tester, {0, 1, 2, 3, 4});
+    expect(bar().allSelected, isTrue);
+    bar().onToggleSelectAll();
+    await tester.pumpAndSettle();
+    _expectSelection(tester, {});
+    expect(bar().allSelected, isFalse);
+    await _disposeArtist(tester);
+  });
 }

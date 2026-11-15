@@ -245,7 +245,6 @@ void main() {
       final theme = Theme.of(tester.element(page));
       final systemFamily = theme.textTheme.bodyLarge!.fontFamily;
       expect(systemFamily, isNot('Inter'));
-      expect(systemFamily, isNot('Google Sans Flex'));
       expect(prefs.getBool(kUseSystemFontKey), isTrue);
       final overlay = MornyeTheme.fromContext(
         tester.element(page),

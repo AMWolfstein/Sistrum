@@ -14,9 +14,7 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/services/library_mixes.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/library_mix_cover.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/mornye_mix_banner.dart';
 import 'package:sistrum/widgets/track_card.dart';
@@ -50,89 +48,76 @@ final _mix = LibraryMixView(
 );
 
 void main() {
-  for (final mornye in const [true]) {
-    testWidgets('Home lists the mixes and opens one '
-        '(Mornye: $mornye)', (tester) async {
-      tester.view.physicalSize = const Size(430, 932);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await _pumpHome(tester, mornye: mornye, mixes: [_mix]);
+  testWidgets('Home lists the mixes and opens one', (tester) async {
+    tester.view.physicalSize = const Size(430, 932);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pumpHome(tester, mixes: [_mix]);
 
-      final title = find.text('Hip-Hop Mix');
-      await tester.scrollUntilVisible(
-        title,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      // Rows take taps again once the scroll comes to rest.
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
-      if (mornye) {
-        expect(find.text('Top Picks for You'), findsOneWidget);
-        expect(find.text('Made for You'), findsOneWidget);
-        expect(find.byType(MornyeMixBanner), findsOneWidget);
-        expect(find.text('Mixes for you'), findsNothing);
-        // Music's Home has no tools.
-        expect(find.text('Shortcuts', skipOffstage: false), findsNothing);
-      } else {
-        expect(find.text('Mixes for you'), findsOneWidget);
-        expect(find.byType(LibraryMixCover), findsOneWidget);
-        expect(find.byType(MornyeMixBanner), findsNothing);
-      }
+    final title = find.text('Hip-Hop Mix');
+    await tester.scrollUntilVisible(
+      title,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    // Rows take taps again once the scroll comes to rest.
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
+    expect(find.text('Top Picks for You'), findsOneWidget);
+    expect(find.text('Made for You'), findsOneWidget);
+    expect(find.byType(MornyeMixBanner), findsOneWidget);
+    expect(find.text('Mixes for you'), findsNothing);
+    // Music's Home has no tools.
+    expect(find.text('Shortcuts', skipOffstage: false), findsNothing);
 
-      await tester.tap(title);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(find.byType(LibraryMixScreen), findsOneWidget);
-      expect(find.text('Hip-Hop Mix'), findsWidgets);
-      expect(find.textContaining('Made from your Library'), findsOneWidget);
-      expect(find.text('Song 0'), findsOneWidget);
-      expect(find.byType(TrackCard), findsWidgets);
-      expect(find.byTooltip('Save as playlist'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(title);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.byType(LibraryMixScreen), findsOneWidget);
+    expect(find.text('Hip-Hop Mix'), findsWidgets);
+    expect(find.textContaining('Made from your Library'), findsOneWidget);
+    expect(find.text('Song 0'), findsOneWidget);
+    expect(find.byType(TrackCard), findsWidgets);
+    expect(find.byTooltip('Save as playlist'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
-  for (final mornye in const [true]) {
-    testWidgets('a long press on a phone row selects songs for the Library '
-        'actions (Mornye: $mornye)', (tester) async {
-      tester.view.physicalSize = const Size(430, 932);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await _pumpMix(tester, mornye: mornye);
-      expect(find.byType(LibraryTrackSelectionBar), findsNothing);
+  testWidgets('a long press on a phone row selects songs for the Library '
+      'actions', (tester) async {
+    tester.view.physicalSize = const Size(430, 932);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pumpMix(tester);
+    expect(find.byType(LibraryTrackSelectionBar), findsNothing);
 
-      final first = find.text('Song 0');
-      await tester.scrollUntilVisible(
-        first,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pump(const Duration(seconds: 1));
-      await tester.longPress(first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.byType(LibraryTrackSelectionBar), findsOneWidget);
-      expect(find.text('1 selected'), findsOneWidget);
-      final cards = tester
-          .widgetList<TrackCard>(find.byType(TrackCard))
-          .toList();
-      expect(cards.first.isSelectionMode, isTrue);
-      expect(cards.first.isSelected, isTrue);
+    final first = find.text('Song 0');
+    await tester.scrollUntilVisible(
+      first,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await tester.longPress(first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(LibraryTrackSelectionBar), findsOneWidget);
+    expect(find.text('1 selected'), findsOneWidget);
+    final cards = tester.widgetList<TrackCard>(find.byType(TrackCard)).toList();
+    expect(cards.first.isSelectionMode, isTrue);
+    expect(cards.first.isSelected, isTrue);
 
-      // In selection mode a tap adds the song instead of playing it. The
-      // bar follows a frame later, from its overlay.
-      await tester.tap(find.text('Song 1'));
-      await tester.pump();
-      await tester.pump();
-      expect(find.text('2 selected'), findsOneWidget);
-      await tester.tap(find.text('Song 1'));
-      await tester.pump();
-      await tester.pump();
-      expect(find.text('1 selected'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    // In selection mode a tap adds the song instead of playing it. The
+    // bar follows a frame later, from its overlay.
+    await tester.tap(find.text('Song 1'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('2 selected'), findsOneWidget);
+    await tester.tap(find.text('Song 1'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('1 selected'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('mixes wait until startup settles', (tester) async {
     final container = ProviderContainer();
@@ -266,7 +251,7 @@ void main() {
   });
 }
 
-Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
+Future<void> _pumpMix(WidgetTester tester) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -276,7 +261,7 @@ Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
         downloadHistoryProvider.overrideWith(_History.new),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+        theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: LibraryMixScreen(view: _mix),
@@ -289,7 +274,6 @@ Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
 
 Future<void> _pumpHome(
   WidgetTester tester, {
-  required bool mornye,
   List<LibraryMixView> mixes = const [],
   Future<List<LibraryMixView>> Function(Ref ref)? mixesProvider,
   void Function(ProviderContainer container)? onContainer,
@@ -320,7 +304,7 @@ Future<void> _pumpHome(
           return child!;
         },
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: HomeTab(mode: HomeTabMode.browse),

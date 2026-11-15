@@ -197,7 +197,7 @@ class _MonthlyRewindBanner extends StatelessWidget {
 }
 
 /// The once-a-year invitation: a gradient poster with the year set large
-/// behind the title and expressive shapes scattered around it.
+/// behind the title and shapes scattered around it.
 class _YearlyRewindBanner extends StatelessWidget {
   const _YearlyRewindBanner({this.margin});
 

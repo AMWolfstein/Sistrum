@@ -5,7 +5,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/duplicate_review_sheet.dart';
 
@@ -37,7 +36,9 @@ void main() {
             }),
           ],
           child: MaterialApp(
-            theme: AppTheme.dark().copyWith(platform: platform),
+            theme: MornyeTheme.build(
+              Brightness.dark,
+            ).copyWith(platform: platform),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: const Scaffold(body: DuplicateReviewSheet()),
@@ -58,75 +59,68 @@ void main() {
       debugPrint = previousDebugPrint;
     });
 
-    for (final mornye in [false, true]) {
-      for (final brightness in Brightness.values) {
-        testWidgets(
-          'duplicate rows with percent paths render on $platform ($mornye, $brightness)',
-          (tester) async {
-            tester.view.physicalSize = const Size(1280, 720);
-            tester.view.devicePixelRatio = 1;
-            addTearDown(tester.view.reset);
-            final theme = mornye
-                ? MornyeTheme.build(brightness)
-                : brightness == Brightness.dark
-                ? AppTheme.dark()
-                : AppTheme.light();
-            final count = brightness == Brightness.dark ? 10 : 24;
-            await tester.pumpWidget(
-              ProviderScope(
-                overrides: [
-                  settingsProvider.overrideWith(FixedSettingsNotifier.new),
-                  localLibraryProvider.overrideWith(_Library.new),
-                  duplicateReviewGroupsLoaderProvider.overrideWithValue(
-                    () async => _groups(platform, count: count),
-                  ),
-                ],
-                child: MaterialApp(
-                  theme: theme.copyWith(platform: platform),
-                  localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  home: Scaffold(
-                    body: Builder(
-                      builder: (context) => TextButton(
-                        onPressed: () => DuplicateReviewSheet.show(context),
-                        child: const Text('Review'),
-                      ),
+    for (final brightness in Brightness.values) {
+      testWidgets(
+        'duplicate rows with percent paths render on $platform ($brightness)',
+        (tester) async {
+          tester.view.physicalSize = const Size(1280, 720);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final theme = MornyeTheme.build(brightness);
+          final count = brightness == Brightness.dark ? 10 : 24;
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                settingsProvider.overrideWith(FixedSettingsNotifier.new),
+                localLibraryProvider.overrideWith(_Library.new),
+                duplicateReviewGroupsLoaderProvider.overrideWithValue(
+                  () async => _groups(platform, count: count),
+                ),
+              ],
+              child: MaterialApp(
+                theme: theme.copyWith(platform: platform),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: Scaffold(
+                  body: Builder(
+                    builder: (context) => TextButton(
+                      onPressed: () => DuplicateReviewSheet.show(context),
+                      child: const Text('Review'),
                     ),
                   ),
                 ),
               ),
+            ),
+          );
+          await tester.tap(find.text('Review'));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          expect(find.text('Track 0').hitTestable(), findsOneWidget);
+          if (count > 12) {
+            await tester.scrollUntilVisible(
+              find.text('Track ${count - 1}'),
+              300,
             );
-            await tester.tap(find.text('Review'));
             await tester.pumpAndSettle();
-            expect(tester.takeException(), isNull);
-            expect(find.text('Track 0').hitTestable(), findsOneWidget);
-            if (count > 12) {
-              await tester.scrollUntilVisible(
-                find.text('Track ${count - 1}'),
-                300,
-              );
-              await tester.pumpAndSettle();
-              expect(
-                find.text('Track ${count - 1}').hitTestable(),
-                findsOneWidget,
-              );
-              tester
-                  .state<ScrollableState>(find.byType(Scrollable).last)
-                  .position
-                  .jumpTo(0);
-              await tester.pumpAndSettle();
-            }
-            await tester.tap(find.text('Keep best for all'));
-            await tester.pump(const Duration(milliseconds: 400));
-            expect(find.textContaining('$count tracks'), findsOneWidget);
-            expect(tester.takeException(), isNull);
-            await tester.tap(find.text('Cancel'));
+            expect(
+              find.text('Track ${count - 1}').hitTestable(),
+              findsOneWidget,
+            );
+            tester
+                .state<ScrollableState>(find.byType(Scrollable).last)
+                .position
+                .jumpTo(0);
             await tester.pumpAndSettle();
-            expect(find.text('Track 0').hitTestable(), findsOneWidget);
-          },
-        );
-      }
+          }
+          await tester.tap(find.text('Keep best for all'));
+          await tester.pump(const Duration(milliseconds: 400));
+          expect(find.textContaining('$count tracks'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+          await tester.tap(find.text('Cancel'));
+          await tester.pumpAndSettle();
+          expect(find.text('Track 0').hitTestable(), findsOneWidget);
+        },
+      );
     }
   }
 }

@@ -370,7 +370,7 @@ class _BackgroundPicker extends StatelessWidget {
                       height: 52,
                       child: Center(
                         // The chosen swatch morphs from a circle into a larger
-                        // rounded square, the Expressive selection cue.
+                        // rounded square.
                         child: AnimatedContainer(
                           duration: reduceMotion
                               ? Duration.zero

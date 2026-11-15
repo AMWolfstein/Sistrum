@@ -36,7 +36,6 @@ void main() {
     WidgetTester tester, {
     required List<UnifiedLibraryItem> items,
     required List<NetworkConnection> writable,
-    bool mornye = false,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -46,7 +45,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -63,21 +62,16 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('songs on this device offer the upload ($mornye)', (
+  testWidgets('songs on this device offer the upload', (tester) async {
+    await pump(
       tester,
-    ) async {
-      await pump(
-        tester,
-        items: [song('/music/a.flac'), song('network://nas/b.flac')],
-        writable: [nas],
-        mornye: mornye,
-      );
-      expect(find.text(label), findsOneWidget);
-      expect(find.byTooltip(label), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+      items: [song('/music/a.flac'), song('network://nas/b.flac')],
+      writable: [nas],
+    );
+    expect(find.text(label), findsOneWidget);
+    expect(find.byTooltip(label), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('network songs never offer the upload', (tester) async {
     await pump(
@@ -95,48 +89,44 @@ void main() {
     expect(find.byTooltip(label), findsNothing);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('the folder browser returns the chosen folder ($mornye)', (
-      tester,
-    ) async {
-      final service = _Folders();
-      String? picked;
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) => TextButton(
-                onPressed: () async => picked = await browseNetworkUploadFolder(
-                  context,
-                  nas,
-                  service: service,
-                ),
-                child: const Text('Open'),
+  testWidgets('the folder browser returns the chosen folder', (tester) async {
+    final service = _Folders();
+    String? picked;
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async => picked = await browseNetworkUploadFolder(
+                context,
+                nas,
+                service: service,
               ),
+              child: const Text('Open'),
             ),
           ),
         ),
-      );
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-      // Folders only, and none of the Library or download actions.
-      expect(find.text('Rock'), findsOneWidget);
-      expect(find.text('Song.flac'), findsNothing);
-      expect(find.text('Add folder to Library'), findsNothing);
-      expect(find.text('Download to this folder'), findsNothing);
-      await tester.tap(find.text('Rock'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Upload to this folder'));
-      await tester.pumpAndSettle();
-      expect(service.checked, ['network://nas/Rock/']);
-      expect(picked, 'network://nas/Rock/');
-      expect(find.text('Open'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    // Folders only, and none of the Library or download actions.
+    expect(find.text('Rock'), findsOneWidget);
+    expect(find.text('Song.flac'), findsNothing);
+    expect(find.text('Add folder to Library'), findsNothing);
+    expect(find.text('Download to this folder'), findsNothing);
+    await tester.tap(find.text('Rock'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload to this folder'));
+    await tester.pumpAndSettle();
+    expect(service.checked, ['network://nas/Rock/']);
+    expect(picked, 'network://nas/Rock/');
+    expect(find.text('Open'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   test('the offer waits for the connections to load', () {
     expect(networkUploadOffered(null, [song('/music/a.flac')]), isFalse);

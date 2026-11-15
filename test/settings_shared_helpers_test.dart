@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -55,18 +54,14 @@ Future<bool?> _legacyOpenSettings(BuildContext context) => showAppDialog<bool>(
   ),
 );
 
-ThemeData _theme(bool mornye) =>
-    mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light();
-
 Future<void> _pumpLauncher(
   WidgetTester tester, {
-  required bool mornye,
   required void Function(BuildContext context) onOpen,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       child: MaterialApp(
-        theme: _theme(mornye),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
@@ -108,14 +103,12 @@ List<Object?> _dialogSnapshot(WidgetTester tester) {
 
 Future<(List<Object?>, Object?)> _runDialog<T>(
   WidgetTester tester, {
-  required bool mornye,
   required Future<T> Function(BuildContext context) open,
   required Future<void> Function() close,
 }) async {
   Object? result = #pending;
   await _pumpLauncher(
     tester,
-    mornye: mornye,
     onOpen: (context) async => result = await open(context),
   );
   await tester.tap(find.text('Open'));
@@ -197,308 +190,288 @@ List<Object?> _sheetSnapshot(WidgetTester tester) {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
-    final style = mornye ? 'Mornye' : 'Material';
-
-    group('showAppConfirmDialog ($style)', () {
-      for (final (name, legacy, helper) in [
-        (
-          'discard changes',
-          _legacyDiscard,
-          (BuildContext context) => showDiscardChangesDialog(context),
+  group('showAppConfirmDialog', () {
+    for (final (name, legacy, helper) in [
+      (
+        'discard changes',
+        _legacyDiscard,
+        (BuildContext context) => showDiscardChangesDialog(context),
+      ),
+      (
+        'open settings',
+        _legacyOpenSettings,
+        (BuildContext context) => showAppConfirmDialog(
+          context,
+          title: context.l10n.setupStorageAccessRequired,
+          message: context.l10n.allFilesAccessDeniedMessage,
+          confirmLabel: context.l10n.setupOpenSettings,
+          confirmIsDefault: true,
         ),
-        (
-          'open settings',
-          _legacyOpenSettings,
-          (BuildContext context) => showAppConfirmDialog(
-            context,
-            title: context.l10n.setupStorageAccessRequired,
-            message: context.l10n.allFilesAccessDeniedMessage,
-            confirmLabel: context.l10n.setupOpenSettings,
-            confirmIsDefault: true,
-          ),
-        ),
-      ]) {
-        testWidgets('$name matches the hand-written dialog', (tester) async {
-          // Mornye lists the filled confirm action first.
-          Finder action({required bool filled}) => find.byWidgetPredicate(
-            (widget) => widget is AppDialogAction && widget.filled == filled,
-          );
-          final closes = <String, Future<void> Function()>{
-            'confirm': () => tester.tap(action(filled: true)),
-            'cancel': () => tester.tap(action(filled: false)),
-            'barrier': () => tester.tapAt(const Offset(4, 4)),
-          };
-          for (final MapEntry(key: how, value: close) in closes.entries) {
-            final (before, legacyResult) = await _runDialog(
-              tester,
-              mornye: mornye,
-              open: legacy,
-              close: close,
-            );
-            final (after, helperResult) = await _runDialog(
-              tester,
-              mornye: mornye,
-              open: helper,
-              close: close,
-            );
-            expect(after, before, reason: how);
-            // Callers only acted on true; the helper reports null as false.
-            expect(helperResult, legacyResult == true, reason: how);
-          }
-          expect(tester.takeException(), isNull);
-        });
-      }
-
-      for (final flags in [
-        (destructive: true, filled: true, cancel: true, confirm: false),
-        (destructive: false, filled: true, cancel: false, confirm: true),
-        (destructive: false, filled: false, cancel: false, confirm: false),
-        (destructive: true, filled: false, cancel: false, confirm: true),
-      ]) {
-        testWidgets('maps $flags onto the two actions', (tester) async {
-          final errorStyle = FilledButton.styleFrom(
-            backgroundColor: Colors.red,
-          );
-          await _pumpLauncher(
+      ),
+    ]) {
+      testWidgets('$name matches the hand-written dialog', (tester) async {
+        // Mornye lists the filled confirm action first.
+        Finder action({required bool filled}) => find.byWidgetPredicate(
+          (widget) => widget is AppDialogAction && widget.filled == filled,
+        );
+        final closes = <String, Future<void> Function()>{
+          'confirm': () => tester.tap(action(filled: true)),
+          'cancel': () => tester.tap(action(filled: false)),
+          'barrier': () => tester.tapAt(const Offset(4, 4)),
+        };
+        for (final MapEntry(key: how, value: close) in closes.entries) {
+          final (before, legacyResult) = await _runDialog(
             tester,
-            mornye: mornye,
-            onOpen: (context) => showAppConfirmDialog(
-              context,
-              title: 'Title',
-              content: const Text('Body'),
-              confirmLabel: 'Go',
-              cancelLabel: 'Back',
-              destructive: flags.destructive,
-              filled: flags.filled,
-              cancelIsDefault: flags.cancel,
-              confirmIsDefault: flags.confirm,
-              confirmStyle: errorStyle,
-            ),
+            open: legacy,
+            close: close,
           );
-          await tester.tap(find.text('Open'));
-          await tester.pumpAndSettle();
-          final actions = {
-            for (final action in tester.widgetList<AppDialogAction>(
-              find.byType(AppDialogAction),
-            ))
-              (action.child as Text).data: action,
-          };
-          expect(actions.keys.toSet(), {'Back', 'Go'});
-          final cancel = actions['Back']!;
-          final confirm = actions['Go']!;
-          expect(
-            (cancel.isDefault, cancel.filled, cancel.isDestructive),
-            (flags.cancel, false, false),
+          final (after, helperResult) = await _runDialog(
+            tester,
+            open: helper,
+            close: close,
           );
-          expect(cancel.style, isNull);
-          expect(
-            (confirm.isDefault, confirm.filled, confirm.isDestructive),
-            (flags.confirm, flags.filled, flags.destructive),
-          );
-          expect(confirm.style, errorStyle);
-          expect(find.text('Body'), findsOneWidget);
-        });
-      }
+          expect(after, before, reason: how);
+          // Callers only acted on true; the helper reports null as false.
+          expect(helperResult, legacyResult == true, reason: how);
+        }
+        expect(tester.takeException(), isNull);
+      });
+    }
 
-      for (final filled in [true, false]) {
-        testWidgets('errorConfirm follows the dialog theme (filled=$filled)', (
+    for (final flags in [
+      (destructive: true, filled: true, cancel: true, confirm: false),
+      (destructive: false, filled: true, cancel: false, confirm: true),
+      (destructive: false, filled: false, cancel: false, confirm: false),
+      (destructive: true, filled: false, cancel: false, confirm: true),
+    ]) {
+      testWidgets('maps $flags onto the two actions', (tester) async {
+        final errorStyle = FilledButton.styleFrom(backgroundColor: Colors.red);
+        await _pumpLauncher(
           tester,
-        ) async {
-          final base = _theme(mornye);
-          final theme = ValueNotifier(base);
-          addTearDown(theme.dispose);
-          await tester.pumpWidget(
-            ProviderScope(
-              child: ValueListenableBuilder(
-                valueListenable: theme,
-                builder: (context, data, _) => MaterialApp(
-                  theme: data,
-                  localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  home: Builder(
-                    builder: (context) => Scaffold(
-                      body: TextButton(
-                        onPressed: () => showAppConfirmDialog(
-                          context,
-                          title: 'Title',
-                          confirmLabel: 'Go',
-                          filled: filled,
-                          errorConfirm: true,
-                        ),
-                        child: const Text('Open'),
+          onOpen: (context) => showAppConfirmDialog(
+            context,
+            title: 'Title',
+            content: const Text('Body'),
+            confirmLabel: 'Go',
+            cancelLabel: 'Back',
+            destructive: flags.destructive,
+            filled: flags.filled,
+            cancelIsDefault: flags.cancel,
+            confirmIsDefault: flags.confirm,
+            confirmStyle: errorStyle,
+          ),
+        );
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        final actions = {
+          for (final action in tester.widgetList<AppDialogAction>(
+            find.byType(AppDialogAction),
+          ))
+            (action.child as Text).data: action,
+        };
+        expect(actions.keys.toSet(), {'Back', 'Go'});
+        final cancel = actions['Back']!;
+        final confirm = actions['Go']!;
+        expect(
+          (cancel.isDefault, cancel.filled, cancel.isDestructive),
+          (flags.cancel, false, false),
+        );
+        expect(cancel.style, isNull);
+        expect(
+          (confirm.isDefault, confirm.filled, confirm.isDestructive),
+          (flags.confirm, flags.filled, flags.destructive),
+        );
+        expect(confirm.style, errorStyle);
+        expect(find.text('Body'), findsOneWidget);
+      });
+    }
+
+    for (final filled in [true, false]) {
+      testWidgets('errorConfirm follows the dialog theme (filled=$filled)', (
+        tester,
+      ) async {
+        final base = MornyeTheme.build(Brightness.light);
+        final theme = ValueNotifier(base);
+        addTearDown(theme.dispose);
+        await tester.pumpWidget(
+          ProviderScope(
+            child: ValueListenableBuilder(
+              valueListenable: theme,
+              builder: (context, data, _) => MaterialApp(
+                theme: data,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: Builder(
+                  builder: (context) => Scaffold(
+                    body: TextButton(
+                      onPressed: () => showAppConfirmDialog(
+                        context,
+                        title: 'Title',
+                        confirmLabel: 'Go',
+                        filled: filled,
+                        errorConfirm: true,
                       ),
+                      child: const Text('Open'),
                     ),
                   ),
                 ),
               ),
             ),
-          );
-          await tester.tap(find.text('Open'));
-          await tester.pumpAndSettle();
-          Color? errorColor() {
-            final style = tester
-                .widget<AppDialogAction>(
-                  find.widgetWithText(AppDialogAction, 'Go'),
-                )
-                .style!;
-            return (filled ? style.backgroundColor : style.foregroundColor)
-                ?.resolve(const {});
-          }
-
-          expect(errorColor(), base.colorScheme.error);
-          const changed = Color(0xFF00AA00);
-          theme.value = base.copyWith(
-            colorScheme: base.colorScheme.copyWith(error: changed),
-          );
-          await tester.pumpAndSettle();
-          expect(errorColor(), changed);
-        });
-      }
-
-      testWidgets('barrierDismissible false keeps the dialog open', (
-        tester,
-      ) async {
-        bool? result;
-        await _pumpLauncher(
-          tester,
-          mornye: mornye,
-          onOpen: (context) async => result = await showAppConfirmDialog(
-            context,
-            title: 'Title',
-            confirmLabel: 'Go',
-            barrierDismissible: false,
           ),
         );
         await tester.tap(find.text('Open'));
         await tester.pumpAndSettle();
-        await tester.tapAt(const Offset(4, 4));
+        Color? errorColor() {
+          final style = tester
+              .widget<AppDialogAction>(
+                find.widgetWithText(AppDialogAction, 'Go'),
+              )
+              .style!;
+          return (filled ? style.backgroundColor : style.foregroundColor)
+              ?.resolve(const {});
+        }
+
+        expect(errorColor(), base.colorScheme.error);
+        const changed = Color(0xFF00AA00);
+        theme.value = base.copyWith(
+          colorScheme: base.colorScheme.copyWith(error: changed),
+        );
         await tester.pumpAndSettle();
-        expect(find.byType(AppAlertDialog), findsOneWidget);
-        await tester.tap(find.text('Go'));
-        await tester.pumpAndSettle();
-        expect(result, isTrue);
+        expect(errorColor(), changed);
       });
+    }
+
+    testWidgets('barrierDismissible false keeps the dialog open', (
+      tester,
+    ) async {
+      bool? result;
+      await _pumpLauncher(
+        tester,
+        onOpen: (context) async => result = await showAppConfirmDialog(
+          context,
+          title: 'Title',
+          confirmLabel: 'Go',
+          barrierDismissible: false,
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(4, 4));
+      await tester.pumpAndSettle();
+      expect(find.byType(AppAlertDialog), findsOneWidget);
+      await tester.tap(find.text('Go'));
+      await tester.pumpAndSettle();
+      expect(result, isTrue);
     });
+  });
 
-    group('showAppChoiceSheet ($style)', () {
-      for (final shape in const [
-        _ChoiceCase('centered rows, 8 gap', false, 8),
-        _ChoiceCase('start rows, 16 gap', true, 16),
-        _ChoiceCase('start rows, no gap', true, 0),
-      ]) {
-        testWidgets('${shape.name} matches the hand-written sheet', (
-          tester,
-        ) async {
-          Future<(List<Object?>, String?)> run(bool useHelper) async {
-            String? picked;
-            await _pumpLauncher(
-              tester,
-              mornye: mornye,
-              onOpen: (context) => useHelper
-                  ? showAppChoiceSheet(
-                      context: context,
-                      title: 'Pick',
-                      subtitle: 'One of three',
-                      selected: 'b',
-                      choices: _choices,
-                      bottomSpacing: shape.bottomSpacing,
-                      onSelected: (value) => picked = value,
-                    )
-                  : _legacySheet(
-                      context,
-                      shape,
-                      'b',
-                      (value) => picked = value,
-                    ),
-            );
-            await tester.tap(find.text('Open'));
-            await tester.pumpAndSettle();
-            final snapshot = _sheetSnapshot(tester);
-            await tester.tap(find.text('Gamma'));
-            await tester.pumpAndSettle();
-            expect(find.byType(AppSheetOption), findsNothing);
-            return (snapshot, picked);
-          }
+  group('showAppChoiceSheet', () {
+    for (final shape in const [
+      _ChoiceCase('centered rows, 8 gap', false, 8),
+      _ChoiceCase('start rows, 16 gap', true, 16),
+      _ChoiceCase('start rows, no gap', true, 0),
+    ]) {
+      testWidgets('${shape.name} matches the hand-written sheet', (
+        tester,
+      ) async {
+        Future<(List<Object?>, String?)> run(bool useHelper) async {
+          String? picked;
+          await _pumpLauncher(
+            tester,
+            onOpen: (context) => useHelper
+                ? showAppChoiceSheet(
+                    context: context,
+                    title: 'Pick',
+                    subtitle: 'One of three',
+                    selected: 'b',
+                    choices: _choices,
+                    bottomSpacing: shape.bottomSpacing,
+                    onSelected: (value) => picked = value,
+                  )
+                : _legacySheet(context, shape, 'b', (value) => picked = value),
+          );
+          await tester.tap(find.text('Open'));
+          await tester.pumpAndSettle();
+          final snapshot = _sheetSnapshot(tester);
+          await tester.tap(find.text('Gamma'));
+          await tester.pumpAndSettle();
+          expect(find.byType(AppSheetOption), findsNothing);
+          return (snapshot, picked);
+        }
 
-          final legacy = await run(false);
-          final helper = await run(true);
-          expect(helper.$1, legacy.$1);
-          expect(helper.$2, 'c');
-          expect(legacy.$2, 'c');
-          expect(tester.takeException(), isNull);
-        });
-      }
-    });
+        final legacy = await run(false);
+        final helper = await run(true);
+        expect(helper.$1, legacy.$1);
+        expect(helper.$2, 'c');
+        expect(legacy.$2, 'c');
+        expect(tester.takeException(), isNull);
+      });
+    }
+  });
 
-    testWidgets('settings groups keep their insets ($style)', (tester) async {
-      for (final width in [390.0, 1400.0]) {
-        tester.view.physicalSize = Size(width, 900);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        for (final reduceMotion in [false, true]) {
-          for (final glass in [false, true]) {
-            for (final rows in <List<Widget>>[
-              [const SettingsItem(title: 'Row')],
-              [const SizedBox(width: double.infinity, height: 40)],
-            ]) {
-              for (final margin in [null, const EdgeInsets.all(10)]) {
-                await tester.pumpWidget(
-                  ProviderScope(
-                    child: MaterialApp(
-                      theme: _theme(mornye),
-                      home: MediaQuery(
-                        data: MediaQueryData(
-                          size: Size(width, 900),
-                          disableAnimations: reduceMotion,
-                        ),
-                        child: Scaffold(
-                          body: Align(
-                            alignment: Alignment.topLeft,
-                            child: SettingsGroup(
-                              key: const ValueKey('group'),
-                              glass: glass,
-                              margin: margin,
-                              children: rows,
-                            ),
+  testWidgets('settings groups keep their insets', (tester) async {
+    for (final width in [390.0, 1400.0]) {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      for (final reduceMotion in [false, true]) {
+        for (final glass in [false, true]) {
+          for (final rows in <List<Widget>>[
+            [const SettingsItem(title: 'Row')],
+            [const SizedBox(width: double.infinity, height: 40)],
+          ]) {
+            for (final margin in [null, const EdgeInsets.all(10)]) {
+              await tester.pumpWidget(
+                ProviderScope(
+                  child: MaterialApp(
+                    theme: MornyeTheme.build(Brightness.light),
+                    home: MediaQuery(
+                      data: MediaQueryData(
+                        size: Size(width, 900),
+                        disableAnimations: reduceMotion,
+                      ),
+                      child: Scaffold(
+                        body: Align(
+                          alignment: Alignment.topLeft,
+                          child: SettingsGroup(
+                            key: const ValueKey('group'),
+                            glass: glass,
+                            margin: margin,
+                            children: rows,
                           ),
                         ),
                       ),
                     ),
                   ),
-                );
-                final outer = tester.getRect(
-                  find.byKey(const ValueKey('group')),
-                );
-                final inset =
-                    margin ??
-                    EdgeInsets.symmetric(
-                      horizontal: settingsHorizontalInset(
-                        tester.element(find.byKey(const ValueKey('group'))),
-                        width,
-                      ),
-                      vertical: 4,
-                    );
-                final surface = find
-                    .descendant(
-                      of: find.byKey(const ValueKey('group')),
-                      matching: find.byWidgetPredicate(
-                        (widget) =>
-                            widget is Padding && widget.padding == inset,
-                      ),
-                    )
-                    .first;
-                expect(tester.getRect(surface), outer);
-                expect(outer.width, width);
-              }
+                ),
+              );
+              final outer = tester.getRect(find.byKey(const ValueKey('group')));
+              final inset =
+                  margin ??
+                  EdgeInsets.symmetric(
+                    horizontal: settingsHorizontalInset(
+                      tester.element(find.byKey(const ValueKey('group'))),
+                      width,
+                    ),
+                    vertical: 4,
+                  );
+              final surface = find
+                  .descendant(
+                    of: find.byKey(const ValueKey('group')),
+                    matching: find.byWidgetPredicate(
+                      (widget) => widget is Padding && widget.padding == inset,
+                    ),
+                  )
+                  .first;
+              expect(tester.getRect(surface), outer);
+              expect(outer.width, width);
             }
           }
         }
       }
-      expect(tester.takeException(), isNull);
-    });
-  }
+    }
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('Sistrum glass groups skip the backdrop pass', (tester) async {
     await tester.pumpWidget(

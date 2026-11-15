@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 
 /// Finds [icon] whether it is drawn by a plain [Icon] or by an [AppIcon],
-/// which may render a Material Symbol in its place.
+/// which may draw its Cupertino counterpart in its place.
 Finder findAppIcon(IconData icon) => find.byElementPredicate((element) {
   final widget = element.widget;
   if (widget is AppIcon) return widget.icon == icon;

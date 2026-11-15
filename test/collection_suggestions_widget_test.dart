@@ -8,7 +8,6 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/collection_suggestions.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/collection_suggestions_section.dart';
 
@@ -45,19 +44,16 @@ class _Collections extends LibraryCollectionsNotifier {
   }
 }
 
-Widget _app(
-  ProviderContainer container,
-  Widget child, {
-  required bool mornye,
-}) => UncontrolledProviderScope(
-  container: container,
-  child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: Scaffold(body: child),
-  ),
-);
+Widget _app(ProviderContainer container, Widget child) =>
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(body: child),
+      ),
+    );
 
 void main() {
   {
@@ -94,7 +90,6 @@ void main() {
             ),
           ],
         ),
-        mornye: false,
       ),
     );
     await tester.pumpAndSettle();

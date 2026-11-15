@@ -222,7 +222,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                         decoration: BoxDecoration(
                           color: isActive
                               ? colorScheme.primary
-                              // Visible on AMOLED black, unlike
+                              // Visible on a black surface, unlike
                               // surfaceContainerHighest.
                               : colorScheme.onSurfaceVariant.withValues(
                                   alpha: 0.4,

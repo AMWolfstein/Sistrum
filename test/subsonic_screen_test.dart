@@ -33,105 +33,92 @@ class _Server extends NetworkStorageService {
 
 void main() {
   for (final platform in [TargetPlatform.android]) {
-    for (final mornye in [false, true]) {
-      for (final largeText in [false, true]) {
-        testWidgets(
-          'Subsonic form and browsing on $platform Sistrum=$mornye largeText=$largeText',
-          (tester) async {
-            tester.view.physicalSize = const Size(360, 800);
-            tester.view.devicePixelRatio = 1;
-            addTearDown(tester.view.resetPhysicalSize);
-            addTearDown(tester.view.resetDevicePixelRatio);
-            final service = _Server();
-            addTearDown(service.dispose);
-            final theme =
-                (mornye
-                        ? MornyeTheme.build(Brightness.dark)
-                        : ThemeData.dark(useMaterial3: true))
-                    .copyWith(platform: platform);
-            await tester.pumpWidget(
-              ProviderScope(
-                child: MaterialApp(
-                  theme: theme,
-                  localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  builder: (context, child) => MediaQuery(
-                    data: MediaQuery.of(context).copyWith(
-                      textScaler: TextScaler.linear(largeText ? 1.5 : 1),
-                    ),
-                    child: child!,
+    for (final largeText in [false, true]) {
+      testWidgets(
+        'Subsonic form and browsing on $platform Sistrum largeText=$largeText',
+        (tester) async {
+          tester.view.physicalSize = const Size(360, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          final service = _Server();
+          addTearDown(service.dispose);
+          final theme = (MornyeTheme.build(
+            Brightness.dark,
+          )).copyWith(platform: platform);
+          await tester.pumpWidget(
+            ProviderScope(
+              child: MaterialApp(
+                theme: theme,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(largeText ? 1.5 : 1),
                   ),
-                  home: NetworkStorageScreen(service: service),
+                  child: child!,
                 ),
+                home: NetworkStorageScreen(service: service),
               ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(find.byTooltip('Add connection'));
+          await tester.pumpAndSettle();
+          await tester.tap(find.widgetWithText(SettingsChoiceChip, 'Subsonic'));
+          await tester.pumpAndSettle();
+          Future<void> field(String label, String value) async {
+            final finder = find.byKey(ValueKey(label));
+            await tester.ensureVisible(finder);
+            await tester.pumpAndSettle();
+            await tester.enterText(
+              find.descendant(of: finder, matching: find.byType(EditableText)),
+              value,
             );
-            await tester.pumpAndSettle();
-            await tester.tap(find.byTooltip('Add connection'));
-            await tester.pumpAndSettle();
-            await tester.tap(
-              find.widgetWithText(SettingsChoiceChip, 'Subsonic'),
-            );
-            await tester.pumpAndSettle();
-            Future<void> field(String label, String value) async {
-              final finder = find.byKey(ValueKey(label));
-              await tester.ensureVisible(finder);
-              await tester.pumpAndSettle();
-              await tester.enterText(
-                find.descendant(
-                  of: finder,
-                  matching: find.byType(EditableText),
-                ),
-                value,
-              );
-            }
+          }
 
-            await field('Name', 'Personal music');
-            await field('Server or audio URL', 'https://example.test/music/');
-            final apiKey = find.widgetWithText(SettingsChoiceChip, 'API key');
-            await tester.ensureVisible(apiKey);
-            await tester.pumpAndSettle();
-            await tester.tap(apiKey);
-            await tester.pumpAndSettle();
-            expect(find.byKey(const ValueKey('Username')), findsNothing);
-            await field('API key', 'test-secret');
-            final save = find.widgetWithText(
-              AppActionButton,
-              'Connect and save',
-            );
-            await tester.ensureVisible(save);
-            await tester.pumpAndSettle();
-            await tester.tap(save);
-            await tester.pumpAndSettle();
-            expect(service.attempted!.subsonicAuth, SubsonicAuth.apiKey);
-            expect(service.attempted!.apiKey, 'test-secret');
-            expect(service.attempted!.username, isEmpty);
-            expect(service.attempted!.password, isEmpty);
-            expect((await service.connections()).single.name, 'Personal music');
-            await tester.scrollUntilVisible(
-              find.text('Personal music'),
-              200,
-              scrollable: find.byType(Scrollable).last,
-            );
-            await tester.pumpAndSettle();
-            await tester.tap(find.text('Personal music'));
-            await tester.pumpAndSettle();
-            expect(find.text('Add server to Library'), findsOneWidget);
-            expect(find.text('Download to this folder'), findsNothing);
-            expect(find.text('Search server music...'), findsOneWidget);
-            final artists = find.widgetWithText(SettingsItem, 'Artists');
-            await tester.ensureVisible(artists);
-            await tester.pumpAndSettle();
-            await tester.tap(artists);
-            await tester.pumpAndSettle();
-            expect(find.text('Song title'), findsOneWidget);
-            expect(find.text('Song artist · FLAC'), findsOneWidget);
-            expect(find.text('Add folder to Library'), findsNothing);
-            expect(find.textContaining('subsonic/'), findsNothing);
-            expect(tester.takeException(), isNull);
-          },
-        );
-      }
+          await field('Name', 'Personal music');
+          await field('Server or audio URL', 'https://example.test/music/');
+          final apiKey = find.widgetWithText(SettingsChoiceChip, 'API key');
+          await tester.ensureVisible(apiKey);
+          await tester.pumpAndSettle();
+          await tester.tap(apiKey);
+          await tester.pumpAndSettle();
+          expect(find.byKey(const ValueKey('Username')), findsNothing);
+          await field('API key', 'test-secret');
+          final save = find.widgetWithText(AppActionButton, 'Connect and save');
+          await tester.ensureVisible(save);
+          await tester.pumpAndSettle();
+          await tester.tap(save);
+          await tester.pumpAndSettle();
+          expect(service.attempted!.subsonicAuth, SubsonicAuth.apiKey);
+          expect(service.attempted!.apiKey, 'test-secret');
+          expect(service.attempted!.username, isEmpty);
+          expect(service.attempted!.password, isEmpty);
+          expect((await service.connections()).single.name, 'Personal music');
+          await tester.scrollUntilVisible(
+            find.text('Personal music'),
+            200,
+            scrollable: find.byType(Scrollable).last,
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Personal music'));
+          await tester.pumpAndSettle();
+          expect(find.text('Add server to Library'), findsOneWidget);
+          expect(find.text('Download to this folder'), findsNothing);
+          expect(find.text('Search server music...'), findsOneWidget);
+          final artists = find.widgetWithText(SettingsItem, 'Artists');
+          await tester.ensureVisible(artists);
+          await tester.pumpAndSettle();
+          await tester.tap(artists);
+          await tester.pumpAndSettle();
+          expect(find.text('Song title'), findsOneWidget);
+          expect(find.text('Song artist · FLAC'), findsOneWidget);
+          expect(find.text('Add folder to Library'), findsNothing);
+          expect(find.textContaining('subsonic/'), findsNothing);
+          expect(tester.takeException(), isNull);
+        },
+      );
     }
   }
 }

@@ -12,7 +12,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/services/library_directory_index.dart';
 import 'package:sistrum/services/playable_media.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/library_directory_view.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
@@ -69,7 +68,6 @@ Future<_Playback> _pump(
   LibraryDirectoryIndex? index,
   UnifiedLibraryItem Function(String id) song = _item,
   Widget? home,
-  bool mornye = false,
 }) async {
   tester.view.physicalSize = const Size(1000, 1600);
   tester.view.devicePixelRatio = 1;
@@ -93,7 +91,7 @@ Future<_Playback> _pump(
         playbackProvider.overrideWith(() => playback),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: home ?? const LibraryDirectoryScreen(),
@@ -207,7 +205,7 @@ void main() {
   });
 
   testWidgets('Sistrum lists folders and songs as flat rows', (tester) async {
-    await _pump(tester, mornye: true);
+    await _pump(tester);
 
     final rows = tester.widgetList<TrackCard>(find.byType(TrackCard));
     expect(rows, isNotEmpty);

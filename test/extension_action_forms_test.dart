@@ -21,14 +21,13 @@ void main() {
 
   Future<void> showHost(
     WidgetTester tester,
-    Future<void> Function(BuildContext) action, {
-    bool mornye = false,
-  }) {
+    Future<void> Function(BuildContext) action,
+  ) {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [settingsProvider.overrideWith(FixedSettingsNotifier.new)],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -44,112 +43,107 @@ void main() {
     );
   }
 
-  for (final mornye in const [true]) {
-    testWidgets('empty cancel action allows account setup ($mornye)', (
-      tester,
-    ) async {
-      final actions = <String>[];
-      final inputs = <Map<String, dynamic>>[];
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (call) async {
-            final args = call.arguments as Map;
-            actions.add(args['action'] as String);
-            if (args['arguments_json'] != null) {
-              inputs.add(
-                Map<String, dynamic>.from(
-                  (jsonDecode(args['arguments_json'] as String) as List).single
-                      as Map,
-                ),
-              );
-              return '{"success":true,"state":"active"}';
-            }
-            return jsonEncode({
+  testWidgets('empty cancel action allows account setup', (tester) async {
+    final actions = <String>[];
+    final inputs = <Map<String, dynamic>>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          final args = call.arguments as Map;
+          actions.add(args['action'] as String);
+          if (args['arguments_json'] != null) {
+            inputs.add(
+              Map<String, dynamic>.from(
+                (jsonDecode(args['arguments_json'] as String) as List).single
+                    as Map,
+              ),
+            );
+            return '{"success":true,"state":"active"}';
+          }
+          return jsonEncode({
+            'success': true,
+            'result': {
               'success': true,
-              'result': {
-                'success': true,
-                'byoa_form': {
-                  'version': 1,
-                  'title': 'Connect your account',
-                  'submit_action': 'connectAccount',
-                  'cancel_action': '',
-                  'fields': [
-                    {
-                      'key': 'region',
-                      'label': 'Account region',
-                      'type': 'select',
-                      'options': ['Europe', 'Asia'],
-                    },
-                    {
-                      'key': 'port',
-                      'label': 'Port',
-                      'type': 'number',
-                      'required': true,
-                    },
-                    {
-                      'key': 'password',
-                      'label': 'Password',
-                      'type': 'password',
-                      'required': true,
-                    },
-                  ],
-                },
+              'byoa_form': {
+                'version': 1,
+                'title': 'Connect your account',
+                'submit_action': 'connectAccount',
+                'cancel_action': '',
+                'fields': [
+                  {
+                    'key': 'region',
+                    'label': 'Account region',
+                    'type': 'select',
+                    'options': ['Europe', 'Asia'],
+                  },
+                  {
+                    'key': 'port',
+                    'label': 'Port',
+                    'type': 'number',
+                    'required': true,
+                  },
+                  {
+                    'key': 'password',
+                    'label': 'Password',
+                    'type': 'password',
+                    'required': true,
+                  },
+                ],
               },
-            });
+            },
           });
-      Map<String, dynamic>? result;
-      await showHost(tester, (context) async {
-        result = await runExtensionActionWithForms(
-          context,
-          'example.account',
-          'connectAccount',
-        );
-      }, mornye: mornye);
-      await tester.tap(find.text('Connect'));
-      await tester.pumpAndSettle();
-      expect(find.text('Connect your account'), findsOneWidget);
-      expect(result, isNull);
-
-      final fields = find.byType(CupertinoTextField);
-      await tester.enterText(fields.first, 'invalid');
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(find.text('Enter a valid number.'), findsOneWidget);
-      expect(find.text('Enter a value.'), findsOneWidget);
-      expect(actions, ['connectAccount']);
-
-      await tester.enterText(fields.first, '443');
-      await tester.enterText(fields.last, 'fixture-password');
-      if (mornye) {
-        final text = tester.widget<CupertinoTextField>(fields.last);
-        expect(text.obscureText, isTrue);
-        expect(text.enableIMEPersonalizedLearning, isFalse);
-      }
-      await tester.tap(find.text('Europe'));
-      await tester.pumpAndSettle();
-      expect(find.byType(AppBottomSheet), findsOneWidget);
-      expect(find.byType(AppSheetOption), findsNWidgets(2));
-      expect(tester.testTextInput.isVisible, isFalse);
-
-      // Dismissing the picker must leave both the choice and typed fields intact.
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Europe'), findsOneWidget);
-      await tester.tap(find.text('Europe'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Asia'));
-      await tester.pumpAndSettle();
-      expect(find.byType(AppBottomSheet), findsNothing);
-      expect(find.text('Asia'), findsOneWidget);
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-      expect(result!['state'], 'active');
-      expect(inputs, [
-        {'region': 'Asia', 'port': 443, 'password': 'fixture-password'},
-      ]);
-      expect(actions, ['connectAccount', 'connectAccount']);
-      expect(tester.takeException(), isNull);
+        });
+    Map<String, dynamic>? result;
+    await showHost(tester, (context) async {
+      result = await runExtensionActionWithForms(
+        context,
+        'example.account',
+        'connectAccount',
+      );
     });
-  }
+    await tester.tap(find.text('Connect'));
+    await tester.pumpAndSettle();
+    expect(find.text('Connect your account'), findsOneWidget);
+    expect(result, isNull);
+
+    final fields = find.byType(CupertinoTextField);
+    await tester.enterText(fields.first, 'invalid');
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter a valid number.'), findsOneWidget);
+    expect(find.text('Enter a value.'), findsOneWidget);
+    expect(actions, ['connectAccount']);
+
+    await tester.enterText(fields.first, '443');
+    await tester.enterText(fields.last, 'fixture-password');
+    final text = tester.widget<CupertinoTextField>(fields.last);
+    expect(text.obscureText, isTrue);
+    expect(text.enableIMEPersonalizedLearning, isFalse);
+
+    await tester.tap(find.text('Europe'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBottomSheet), findsOneWidget);
+    expect(find.byType(AppSheetOption), findsNWidgets(2));
+    expect(tester.testTextInput.isVisible, isFalse);
+
+    // Dismissing the picker must leave both the choice and typed fields intact.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Europe'), findsOneWidget);
+    await tester.tap(find.text('Europe'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Asia'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBottomSheet), findsNothing);
+    expect(find.text('Asia'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(result!['state'], 'active');
+    expect(inputs, [
+      {'region': 'Asia', 'port': 443, 'password': 'fixture-password'},
+    ]);
+    expect(actions, ['connectAccount', 'connectAccount']);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('empty cancel action does not invoke an unnamed action', (
     tester,

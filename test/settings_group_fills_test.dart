@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
-Widget _host(Widget child, {ThemeData? theme, bool reduceMotion = false}) {
+Widget _host(Widget child, {ThemeData? theme}) {
   return MaterialApp(
-    theme: theme ?? AppTheme.light(),
+    theme: theme ?? MornyeTheme.build(Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    builder: (context, child) => MediaQuery(
-      data: MediaQuery.of(context).copyWith(disableAnimations: reduceMotion),
-      child: child!,
-    ),
     home: Scaffold(body: child),
   );
 }

@@ -81,7 +81,7 @@ void main() {
       // Level with the round back button.
       final back = tester.getRect(find.byTooltip('Back'));
       expect(bounds.center.dy, back.center.dy);
-      // Material keeps a 48 dp touch target inside the shared glass capsule.
+      // A 48 dp touch target fits inside the shared glass capsule.
       expect(bounds.height, kMinInteractiveDimension);
       final share = tester.getRect(find.byTooltip('Share'));
       final more = tester.getRect(

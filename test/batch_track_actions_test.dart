@@ -11,46 +11,42 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 
 void main() {
-  for (final mornye in const [true]) {
-    testWidgets('mixed batch retains the 48 kHz option ($mornye)', (
-      tester,
-    ) async {
-      final items = [
-        for (final (depth, rate) in [(16, 44100), (24, 96000)])
-          UnifiedLibraryItem.fromLocalLibrary(
-            LocalLibraryItem(
-              id: '$rate',
-              trackName: 'Track',
-              artistName: 'Artist',
-              albumName: 'Album',
-              filePath: '/music/$rate.flac',
-              format: 'flac',
-              bitDepth: depth,
-              sampleRate: rate,
-              scannedAt: DateTime(2026),
-            ),
-          ),
-      ];
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.light) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: _BatchConvertHarness(items: items),
+  testWidgets('mixed batch retains the 48 kHz option', (tester) async {
+    final items = [
+      for (final (depth, rate) in [(16, 44100), (24, 96000)])
+        UnifiedLibraryItem.fromLocalLibrary(
+          LocalLibraryItem(
+            id: '$rate',
+            trackName: 'Track',
+            artistName: 'Artist',
+            albumName: 'Album',
+            filePath: '/music/$rate.flac',
+            format: 'flac',
+            bitDepth: depth,
+            sampleRate: rate,
+            scannedAt: DateTime(2026),
           ),
         ),
-      );
-      await tester.tap(find.byKey(const Key('open-batch-convert')));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('48 kHz'));
-      await tester.tap(find.text('48 kHz'));
-      await tester.pumpAndSettle();
-      expect(find.text('48 kHz'), findsOneWidget);
-      expect(find.text('16-bit'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    ];
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: _BatchConvertHarness(items: items),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('open-batch-convert')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('48 kHz'));
+    await tester.tap(find.text('48 kHz'));
+    await tester.pumpAndSettle();
+    expect(find.text('48 kHz'), findsOneWidget);
+    expect(find.text('16-bit'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'batch conversion keeps a valid context after its launcher is removed',

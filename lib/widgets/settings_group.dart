@@ -11,7 +11,7 @@ import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 
-/// The neutral grouped fill used in Settings, including AMOLED themes.
+/// The neutral grouped fill used in Settings, in light and dark themes.
 Color settingsGroupColor(BuildContext context) {
   final colorScheme = Theme.of(context).colorScheme;
   return colorScheme.surfaceContainer;

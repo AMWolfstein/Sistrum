@@ -4,71 +4,65 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/screens/settings/log_screen.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/logger.dart';
 
 import 'support/app_icon_finder.dart';
 
 void main() {
-  for (final mornye in [false, true]) {
-    final style = mornye ? 'Mornye' : 'Material';
-    testWidgets(
-      '$style logs build only nearby entries and filter the full buffer',
-      (tester) async {
-        final buffer = LogBuffer()..clear();
-        addTearDown(buffer.clear);
-        buffer.addAll([
-          for (var index = 0; index < LogBuffer.maxEntries; index++)
-            LogEntry(
-              timestamp: DateTime(2026),
-              level: 'ERROR',
-              tag: 'Fixture',
-              message: 'fixture log $index',
-            ),
-        ]);
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.light)
-                  : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const LogScreen(),
-            ),
+  testWidgets(
+    'Mornye logs build only nearby entries and filter the full buffer',
+    (tester) async {
+      final buffer = LogBuffer()..clear();
+      addTearDown(buffer.clear);
+      buffer.addAll([
+        for (var index = 0; index < LogBuffer.maxEntries; index++)
+          LogEntry(
+            timestamp: DateTime(2026),
+            level: 'ERROR',
+            tag: 'Fixture',
+            message: 'fixture log $index',
           ),
-        );
-        await tester.pump();
+      ]);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const LogScreen(),
+          ),
+        ),
+      );
+      await tester.pump();
 
-        final entries = find.byWidgetPredicate(
-          (widget) =>
-              widget is Text && widget.data?.startsWith('fixture log ') == true,
-        );
-        expect(entries.evaluate().length, lessThan(30));
-        expect(find.text('fixture log 499'), findsNothing);
-        final scroll = tester.widget<CustomScrollView>(
-          find.byType(CustomScrollView),
-        );
-        scroll.controller!.jumpTo(scroll.controller!.position.maxScrollExtent);
-        await tester.pumpAndSettle();
-        expect(entries, findsWidgets);
-        expect(entries.evaluate().length, lessThan(30));
-        scroll.controller!.jumpTo(0);
-        await tester.pumpAndSettle();
+      final entries = find.byWidgetPredicate(
+        (widget) =>
+            widget is Text && widget.data?.startsWith('fixture log ') == true,
+      );
+      expect(entries.evaluate().length, lessThan(30));
+      expect(find.text('fixture log 499'), findsNothing);
+      final scroll = tester.widget<CustomScrollView>(
+        find.byType(CustomScrollView),
+      );
+      scroll.controller!.jumpTo(scroll.controller!.position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      expect(entries, findsWidgets);
+      expect(entries.evaluate().length, lessThan(30));
+      scroll.controller!.jumpTo(0);
+      await tester.pumpAndSettle();
 
-        await tester.enterText(find.byType(EditableText), 'fixture log 499');
-        await tester.pumpAndSettle();
-        scroll.controller!.jumpTo(scroll.controller!.position.maxScrollExtent);
-        await tester.pumpAndSettle();
-        expect(entries, findsOneWidget);
-        expect(entries.evaluate().length, 1);
-        expect(tester.takeException(), isNull);
+      await tester.enterText(find.byType(EditableText), 'fixture log 499');
+      await tester.pumpAndSettle();
+      scroll.controller!.jumpTo(scroll.controller!.position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      expect(entries, findsOneWidget);
+      expect(entries.evaluate().length, 1);
+      expect(tester.takeException(), isNull);
 
-        await tester.pumpWidget(const SizedBox.shrink());
-      },
-    );
-  }
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets('log bursts follow the final multiline entry in a lazy list', (
     tester,
@@ -86,7 +80,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: const LogScreen(),

@@ -108,144 +108,131 @@ void main() {
     });
   }
 
-  for (final mornye in const [true]) {
-    testWidgets(
-      'new messages replace old ones and still dismiss (Mornye: $mornye)',
-      (tester) async {
-        late BuildContext messageContext;
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              builder: (_, child) => AppScaffoldMessenger(child: child!),
-              home: Builder(
-                builder: (context) {
-                  messageContext = context;
-                  return const Scaffold(body: SizedBox.expand());
-                },
-              ),
-            ),
+  testWidgets('new messages replace old ones and still dismiss', (
+    tester,
+  ) async {
+    late BuildContext messageContext;
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          builder: (_, child) => AppScaffoldMessenger(child: child!),
+          home: Builder(
+            builder: (context) {
+              messageContext = context;
+              return const Scaffold(body: SizedBox.expand());
+            },
           ),
-        );
-        final first = showAppSnackBar(
-          messageContext,
-          content: const Text('First'),
-          duration: const Duration(seconds: 1),
-        );
-        await tester.pumpAndSettle();
-        expect(find.text('First'), findsOneWidget);
-        final second = showAppSnackBar(
-          messageContext,
-          content: const Text('Second'),
-        );
-        await tester.pumpAndSettle();
-        expect(await first.closed, SnackBarClosedReason.remove);
-        expect(find.text('First'), findsNothing);
-        expect(find.text('Second'), findsOneWidget);
-        await tester.drag(find.text('Second'), const Offset(0, 300));
-        await tester.pumpAndSettle();
-        expect(await second.closed, SnackBarClosedReason.swipe);
-        expect(find.text('Second'), findsNothing);
-        expect(tester.takeException(), isNull);
-      },
+        ),
+      ),
     );
+    final first = showAppSnackBar(
+      messageContext,
+      content: const Text('First'),
+      duration: const Duration(seconds: 1),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('First'), findsOneWidget);
+    final second = showAppSnackBar(
+      messageContext,
+      content: const Text('Second'),
+    );
+    await tester.pumpAndSettle();
+    expect(await first.closed, SnackBarClosedReason.remove);
+    expect(find.text('First'), findsNothing);
+    expect(find.text('Second'), findsOneWidget);
+    await tester.drag(find.text('Second'), const Offset(0, 300));
+    await tester.pumpAndSettle();
+    expect(await second.closed, SnackBarClosedReason.swipe);
+    expect(find.text('Second'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('View Queue times out and has a close button ($mornye)', (
-      tester,
-    ) async {
-      late BuildContext messageContext;
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            builder: (_, child) => AppScaffoldMessenger(child: child!),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) {
-                messageContext = context;
-                return const Scaffold(body: SizedBox.expand());
-              },
-            ),
+  testWidgets('View Queue times out and has a close button', (tester) async {
+    late BuildContext messageContext;
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          builder: (_, child) => AppScaffoldMessenger(child: child!),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) {
+              messageContext = context;
+              return const Scaffold(body: SizedBox.expand());
+            },
           ),
         ),
-      );
-      showAddedToQueueSnackBar(messageContext, 'Track');
-      await tester.pumpAndSettle();
-      expect(find.text('View Queue'), findsOneWidget);
-      expect(find.byTooltip('Close'), findsOneWidget);
-      expect(
-        find.byType(MornyeGlassPanel),
-        mornye ? findsOneWidget : findsNothing,
-      );
-      await tester.pump(const Duration(seconds: 3));
-      await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      ),
+    );
+    showAddedToQueueSnackBar(messageContext, 'Track');
+    await tester.pumpAndSettle();
+    expect(find.text('View Queue'), findsOneWidget);
+    expect(find.byTooltip('Close'), findsOneWidget);
+    expect(find.byType(MornyeGlassPanel), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsNothing);
 
-      showAddedToQueueSnackBar(messageContext, 'Another track');
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Close'));
-      await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
+    showAddedToQueueSnackBar(messageContext, 'Another track');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('queue confirmation keeps its View action ($mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(320, 780);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      late BuildContext messageContext;
-      ShellTab? requestedTab;
-      final owner = Object();
-      ShellNavigationService.registerTabSelectionHandler(
-        owner: owner,
-        handler: (tab) => requestedTab = tab,
-      );
-      addTearDown(
-        () => ShellNavigationService.unregisterTabSelectionHandler(owner),
-      );
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.light) : ThemeData(),
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: TextScaler.linear(mornye ? 2 : 1)),
-              child: AppScaffoldMessenger(child: child!),
-            ),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) {
-                messageContext = context;
-                return const Scaffold(body: SizedBox.expand());
-              },
-            ),
+  testWidgets('queue confirmation keeps its View action', (tester) async {
+    tester.view.physicalSize = const Size(320, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    late BuildContext messageContext;
+    ShellTab? requestedTab;
+    final owner = Object();
+    ShellNavigationService.registerTabSelectionHandler(
+      owner: owner,
+      handler: (tab) => requestedTab = tab,
+    );
+    addTearDown(
+      () => ShellNavigationService.unregisterTabSelectionHandler(owner),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(2)),
+            child: AppScaffoldMessenger(child: child!),
+          ),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) {
+              messageContext = context;
+              return const Scaffold(body: SizedBox.expand());
+            },
           ),
         ),
-      );
-      showAddedToQueueSnackBar(messageContext, 'Track');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('View Queue'));
-      await tester.pumpAndSettle();
-      expect(requestedTab, ShellTab.library);
-      expect(find.byType(SnackBar), findsNothing);
-      showQueuedSnackbar(messageContext, 3, 0);
-      await tester.pumpAndSettle();
-      expect(
-        find.text(messageContext.l10n.snackbarAddedTracksToQueue(3)),
-        findsOneWidget,
-      );
-      expect(
-        find.byType(MornyeGlassPanel),
-        mornye ? findsOneWidget : findsNothing,
-      );
-      expect(tester.takeException(), isNull);
-    });
-  }
+      ),
+    );
+    showAddedToQueueSnackBar(messageContext, 'Track');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View Queue'));
+    await tester.pumpAndSettle();
+    expect(requestedTab, ShellTab.library);
+    expect(find.byType(SnackBar), findsNothing);
+    showQueuedSnackbar(messageContext, 3, 0);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(messageContext.l10n.snackbarAddedTracksToQueue(3)),
+      findsOneWidget,
+    );
+    expect(find.byType(MornyeGlassPanel), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('rapid messages never leave a backlog or persist an action', (
     tester,

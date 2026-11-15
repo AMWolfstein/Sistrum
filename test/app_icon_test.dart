@@ -4,13 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 
-Widget _host(Widget child, {bool mornye = false, bool reduceMotion = false}) {
+Widget _host(Widget child) {
   return MaterialApp(
-    theme: ThemeData(extensions: [if (mornye) const MornyeTheme()]),
-    home: MediaQuery(
-      data: MediaQueryData(disableAnimations: reduceMotion),
-      child: Scaffold(body: Center(child: child)),
-    ),
+    theme: ThemeData(extensions: const [MornyeTheme()]),
+    home: Scaffold(body: Center(child: child)),
   );
 }
 
@@ -21,14 +18,10 @@ void main() {
   testWidgets('Sistrum keeps the original glyph or its Cupertino mapping', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      _host(const AppIcon(Icons.favorite_border), mornye: true),
-    );
+    await tester.pumpWidget(_host(const AppIcon(Icons.favorite_border)));
     expect(_drawnIcon(tester).icon, Icons.favorite_border);
 
-    await tester.pumpWidget(
-      _host(const AppIcon.adaptive(Icons.favorite), mornye: true),
-    );
+    await tester.pumpWidget(_host(const AppIcon.adaptive(Icons.favorite)));
     await tester.pumpAndSettle();
     expect(_drawnIcon(tester).icon, CupertinoIcons.heart_fill);
   });

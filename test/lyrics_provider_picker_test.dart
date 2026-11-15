@@ -56,73 +56,69 @@ void main() {
     expect(kind({'lyrics': '[ar:Only tags]'}), LyricsResultKind.none);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('lists each provider in order and returns the chosen lyrics '
-        '(${mornye ? 'Mornye' : 'Material'})', (tester) async {
-      final slow = Completer<Map<String, dynamic>>();
-      String? chosen;
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [extensionProvider.overrideWith(_NoExtensions.new)],
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) => Scaffold(
-                body: TextButton(
-                  onPressed: () async {
-                    chosen = await showLyricsProviderPicker(
-                      context,
-                      title: 'Song',
-                      artist: 'Artist',
-                      loadProviders: () async => [
-                        'lrclib',
-                        'netease',
-                        'extension:example.lyrics',
-                      ],
-                      fetch: (provider) => switch (provider) {
-                        'lrclib' => Future.value({
-                          'lyrics': '[00:01.00]From LRCLIB',
-                          'sync_type': 'LINE_SYNCED',
-                        }),
-                        'netease' => Future.error(
-                          Exception('lyrics not found'),
-                        ),
-                        _ => slow.future,
-                      },
-                    );
-                  },
-                  child: const Text('open'),
-                ),
+  testWidgets('lists each provider in order and returns the chosen lyrics '
+      '(${'Mornye'})', (tester) async {
+    final slow = Completer<Map<String, dynamic>>();
+    String? chosen;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [extensionProvider.overrideWith(_NoExtensions.new)],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async {
+                  chosen = await showLyricsProviderPicker(
+                    context,
+                    title: 'Song',
+                    artist: 'Artist',
+                    loadProviders: () async => [
+                      'lrclib',
+                      'netease',
+                      'extension:example.lyrics',
+                    ],
+                    fetch: (provider) => switch (provider) {
+                      'lrclib' => Future.value({
+                        'lyrics': '[00:01.00]From LRCLIB',
+                        'sync_type': 'LINE_SYNCED',
+                      }),
+                      'netease' => Future.error(Exception('lyrics not found')),
+                      _ => slow.future,
+                    },
+                  );
+                },
+                child: const Text('open'),
               ),
             ),
           ),
         ),
-      );
-      await tester.tap(find.text('open'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 500));
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.text('LRCLIB'), findsOneWidget);
-      expect(find.text('Netease'), findsOneWidget);
-      expect(find.text('example.lyrics'), findsOneWidget);
-      expect(find.text('From LRCLIB'), findsOneWidget);
-      expect(find.textContaining('Synced'), findsOneWidget);
-      expect(find.text('No lyrics found'), findsOneWidget);
+    expect(find.text('LRCLIB'), findsOneWidget);
+    expect(find.text('Netease'), findsOneWidget);
+    expect(find.text('example.lyrics'), findsOneWidget);
+    expect(find.text('From LRCLIB'), findsOneWidget);
+    expect(find.textContaining('Synced'), findsOneWidget);
+    expect(find.text('No lyrics found'), findsOneWidget);
 
-      // A provider that has not answered yet cannot be chosen.
-      await tester.tap(find.text('example.lyrics'));
-      await tester.pump();
-      expect(chosen, isNull);
+    // A provider that has not answered yet cannot be chosen.
+    await tester.tap(find.text('example.lyrics'));
+    await tester.pump();
+    expect(chosen, isNull);
 
-      slow.complete({'lyrics': 'Plain words', 'sync_type': 'UNSYNCED'});
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(find.textContaining('Plain text'), findsOneWidget);
+    slow.complete({'lyrics': 'Plain words', 'sync_type': 'UNSYNCED'});
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.textContaining('Plain text'), findsOneWidget);
 
-      await tester.tap(find.text('From LRCLIB'));
-      await tester.pumpAndSettle();
-      expect(chosen, '[00:01.00]From LRCLIB');
-    });
-  }
+    await tester.tap(find.text('From LRCLIB'));
+    await tester.pumpAndSettle();
+    expect(chosen, '[00:01.00]From LRCLIB');
+  });
 }

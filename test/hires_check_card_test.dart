@@ -8,7 +8,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/hires_check_card.dart';
 
@@ -31,7 +30,6 @@ void main() {
   setUpAll(() async {
     for (final (family, asset) in [
       ('MaterialIcons', 'fonts/MaterialIcons-Regular.otf'),
-      ('Google Sans Flex', 'assets/fonts/GoogleSansFlex.ttf'),
       ('Inter', 'assets/fonts/InterVariable.ttf'),
       (
         'packages/cupertino_icons/CupertinoIcons',
@@ -59,7 +57,6 @@ void main() {
 
   Future<void> openCard(
     WidgetTester tester, {
-    bool mornye = true,
     Brightness brightness = Brightness.light,
     double textScale = 1,
     String path = '/music/track.flac',
@@ -69,11 +66,7 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       MaterialApp(
-        theme: mornye
-            ? MornyeTheme.build(brightness)
-            : brightness == Brightness.light
-            ? AppTheme.light()
-            : AppTheme.dark(),
+        theme: MornyeTheme.build(brightness),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
@@ -108,58 +101,54 @@ void main() {
     });
   }
 
-  for (final mornye in const [true]) {
-    for (final brightness in Brightness.values) {
-      final name = '${mornye ? 'mornye' : 'material'}-${brightness.name}';
-      testWidgets('centered action and neutral bandwidth result ($name)', (
-        tester,
-      ) async {
-        await openCard(tester, mornye: mornye, brightness: brightness);
-        await tester.pumpAndSettle();
-        final button = find.ancestor(
-          of: find.text('Check'),
-          matching: find.byType(CupertinoButton),
-        );
-        expect(button, findsOneWidget);
-        expect(tester.getSize(button).width, greaterThan(300));
-        expect(tester.getCenter(button).dx, closeTo(195, 1));
-        await captureCard(tester, '$name-idle');
+  for (final brightness in Brightness.values) {
+    final name = '${'mornye'}-${brightness.name}';
+    testWidgets('centered action and neutral bandwidth result ($name)', (
+      tester,
+    ) async {
+      await openCard(tester, brightness: brightness);
+      await tester.pumpAndSettle();
+      final button = find.ancestor(
+        of: find.text('Check'),
+        matching: find.byType(CupertinoButton),
+      );
+      expect(button, findsOneWidget);
+      expect(tester.getSize(button).width, greaterThan(300));
+      expect(tester.getCenter(button).dx, closeTo(195, 1));
+      await captureCard(tester, '$name-idle');
 
-        await tester.tap(find.text('Check'));
-        await tester.pumpAndSettle();
-        expect(calls, 1);
-        expect(find.text('Limited bandwidth'), findsOneWidget);
-        expect(find.text('Fake Hi-Res'), findsNothing);
-        expect(find.text('96.0 kHz'), findsOneWidget);
-        expect(find.text('48.0 kHz'), findsOneWidget);
-        expect(find.text('~27.2 kHz'), findsOneWidget);
-        expect(find.text('24 / 24'), findsOneWidget);
-        final rowValue = tester.getRect(find.text('~27.2 kHz'));
-        final rowLabel = tester.getRect(find.text('Estimated cutoff'));
-        expect(rowValue.top, closeTo(rowLabel.top, 1));
-        expect(rowValue.left, greaterThan(rowLabel.right));
-        expect(rowValue.right, closeTo(354, 1));
-        expect(tester.takeException(), isNull);
-        await captureCard(tester, '$name-result');
-        await tester.tap(find.byTooltip('Re-analyze'));
-        await tester.pumpAndSettle();
-        expect(calls, 2);
-      });
-    }
-  }
-
-  for (final mornye in const [true]) {
-    testWidgets('large text stays readable ($mornye)', (tester) async {
-      await openCard(tester, mornye: mornye, textScale: 2);
       await tester.tap(find.text('Check'));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.textContaining('Based on 30.0 seconds'),
-        180,
-      );
+      expect(calls, 1);
+      expect(find.text('Limited bandwidth'), findsOneWidget);
+      expect(find.text('Fake Hi-Res'), findsNothing);
+      expect(find.text('96.0 kHz'), findsOneWidget);
+      expect(find.text('48.0 kHz'), findsOneWidget);
+      expect(find.text('~27.2 kHz'), findsOneWidget);
+      expect(find.text('24 / 24'), findsOneWidget);
+      final rowValue = tester.getRect(find.text('~27.2 kHz'));
+      final rowLabel = tester.getRect(find.text('Estimated cutoff'));
+      expect(rowValue.top, closeTo(rowLabel.top, 1));
+      expect(rowValue.left, greaterThan(rowLabel.right));
+      expect(rowValue.right, closeTo(354, 1));
       expect(tester.takeException(), isNull);
+      await captureCard(tester, '$name-result');
+      await tester.tap(find.byTooltip('Re-analyze'));
+      await tester.pumpAndSettle();
+      expect(calls, 2);
     });
   }
+
+  testWidgets('large text stays readable', (tester) async {
+    await openCard(tester, textScale: 2);
+    await tester.tap(find.text('Check'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Based on 30.0 seconds'),
+      180,
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'a result from the previous track cannot overwrite the new track',

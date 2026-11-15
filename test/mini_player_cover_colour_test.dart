@@ -12,7 +12,6 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
@@ -24,7 +23,6 @@ import 'support/fixed_settings.dart';
 Widget _player(
   Stream<MediaItem?> items, {
   ValueListenable<bool>? shown,
-  bool mornye = true,
   String coverStyle = 'default',
 }) => ProviderScope(
   overrides: [
@@ -37,7 +35,7 @@ Widget _player(
     ),
   ],
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.dark),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(

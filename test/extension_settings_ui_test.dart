@@ -112,111 +112,99 @@ void main() {
     }
   });
 
-  for (final mornye in const [true]) {
-    testWidgets(
-      'account settings work at narrow width and large text ($mornye)',
-      (tester) async {
-        tester.view.physicalSize = const Size(320, 800);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        final updates = <Map<String, dynamic>>[];
-        final actions = <String>[];
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(channel, (call) async {
-              if (call.method == 'getExtensionSettings') return '{}';
-              if (call.method == 'setExtensionSettings') {
-                updates.add(
-                  jsonDecode((call.arguments as Map)['settings'] as String)
-                      as Map<String, dynamic>,
-                );
-                return null;
-              }
-              if (call.method == 'invokeExtensionAction') {
-                actions.add((call.arguments as Map)['action'] as String);
-                return jsonEncode({
-                  'success': true,
-                  'action_form': {
-                    'version': 1,
-                    'title': 'Account login',
-                    'submit_action': 'submitAccount',
-                    'cancel_action': '',
-                    'fields': [
-                      {
-                        'key': 'password',
-                        'label': 'Password',
-                        'type': 'password',
-                      },
-                    ],
-                  },
-                });
-              }
-              return null;
+  testWidgets('account settings work at narrow width and large text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final updates = <Map<String, dynamic>>[];
+    final actions = <String>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          if (call.method == 'getExtensionSettings') return '{}';
+          if (call.method == 'setExtensionSettings') {
+            updates.add(
+              jsonDecode((call.arguments as Map)['settings'] as String)
+                  as Map<String, dynamic>,
+            );
+            return null;
+          }
+          if (call.method == 'invokeExtensionAction') {
+            actions.add((call.arguments as Map)['action'] as String);
+            return jsonEncode({
+              'success': true,
+              'action_form': {
+                'version': 1,
+                'title': 'Account login',
+                'submit_action': 'submitAccount',
+                'cancel_action': '',
+                'fields': [
+                  {'key': 'password', 'label': 'Password', 'type': 'password'},
+                ],
+              },
             });
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              settingsProvider.overrideWith(FixedSettingsNotifier.new),
-              extensionProvider.overrideWith(_Extensions.new),
-            ],
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(textScaler: const TextScaler.linear(1.3)),
-                child: child!,
-              ),
-              home: const ExtensionDetailPage(extensionId: 'example.account'),
-            ),
+          }
+          return null;
+        });
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(FixedSettingsNotifier.new),
+          extensionProvider.overrideWith(_Extensions.new),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(1.3)),
+            child: child!,
           ),
-        );
-        await tester.pumpAndSettle();
-        final mode = find.byWidgetPredicate(
-          (widget) =>
-              widget is SettingsItem && widget.title == 'Download account',
-        );
-        await tester.scrollUntilVisible(mode, 150);
-        await tester.tap(find.text('Download account'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Personal account with extended access'));
-        await tester.pumpAndSettle();
-        expect(updates, [
-          {'mode': 'Personal account with extended access'},
-        ]);
-
-        final connect = find.byWidgetPredicate(
-          (widget) =>
-              widget is SettingsItem &&
-              widget.title ==
-                  'Connect my music account and complete verification',
-        );
-        await tester.scrollUntilVisible(connect, 150);
-        await tester.tap(
-          find.text('Connect my music account and complete verification'),
-        );
-        // The action row remains busy while its account dialog is open.
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-        expect(find.text('Account login'), findsOneWidget);
-        expect(
-          find.byType(mornye ? CupertinoTextField : TextFormField),
-          findsOneWidget,
-        );
-        expect(
-          find.text('The extension returned an invalid account form.'),
-          findsNothing,
-        );
-        await tester.tap(find.text('Cancel'));
-        await tester.pumpAndSettle();
-        expect(actions, ['connectAccount']);
-        expect(updates.single.containsKey('password'), isFalse);
-        expect(tester.takeException(), isNull);
-      },
+          home: const ExtensionDetailPage(extensionId: 'example.account'),
+        ),
+      ),
     );
-  }
+    await tester.pumpAndSettle();
+    final mode = find.byWidgetPredicate(
+      (widget) => widget is SettingsItem && widget.title == 'Download account',
+    );
+    await tester.scrollUntilVisible(mode, 150);
+    await tester.tap(find.text('Download account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Personal account with extended access'));
+    await tester.pumpAndSettle();
+    expect(updates, [
+      {'mode': 'Personal account with extended access'},
+    ]);
+
+    final connect = find.byWidgetPredicate(
+      (widget) =>
+          widget is SettingsItem &&
+          widget.title == 'Connect my music account and complete verification',
+    );
+    await tester.scrollUntilVisible(connect, 150);
+    await tester.tap(
+      find.text('Connect my music account and complete verification'),
+    );
+    // The action row remains busy while its account dialog is open.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Account login'), findsOneWidget);
+    expect(find.byType(CupertinoTextField), findsOneWidget);
+    expect(
+      find.text('The extension returned an invalid account form.'),
+      findsNothing,
+    );
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(actions, ['connectAccount']);
+    expect(updates.single.containsKey('password'), isFalse);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final page in [
     const ExtensionDetailPage(extensionId: 'example.account'),

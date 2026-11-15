@@ -338,3 +338,138 @@ Baseline checks on `5edaaac`: `flutter analyze` no issues; full `flutter test`
   fewer are the deleted M3E/symbol/motion/expressive-transport/Material-control tests,
   plus one new setup test). `rg -n "material_3_expressive|material_ui|material_symbols_icons|M3E|materialExpressive" lib test pubspec.yaml`
   and `rg -n "class (Expressive|Material)[A-Z]" lib` return nothing. `work.py validate` PASS.
+
+## M001-T005
+
+- **Map refresh (first action):** `python3 workflow/codegraph/code_tools.py update`:
+  34669 symbols, 1716 sources, 0 partial, 0 unindexed, 0 rejected cross-language calls.
+  Queries: the `AppTheme` users (76 test files before; `integration_test` 2), font and
+  `context.tokens` readers, `GoogleSansFlex` references (pubspec, `lib/main.dart`, 4 tests).
+- **Deleted:** `lib/theme/app_theme.dart`, `assets/fonts/GoogleSansFlex.ttf`,
+  `assets/fonts/GoogleSansFlex-LICENSE.txt`, `test/material_rounded_type_test.dart`
+  (asserted Google Sans Flex/brand roundness, Material only). Their `pubspec.yaml`
+  asset/font entries and the licence registration in `lib/main.dart` are gone.
+- **Tokens:** `context.tokens` falls back to `MornyeTheme.tokens`.
+  `AppTokens.standard` stays: `MornyeTheme.tokens` is `AppTokens.standard.copyWith(...)`
+  and `app_sliver_header.dart` reads it. `design_system_test.dart` fallback and
+  title/sheet-radius expectations now use `MornyeTheme.tokens`; the dead
+  `app_theme.dart` allowlist in the sheet-shape scan is removed.
+- **Tests:** every `AppTheme.light()/dark()` in 59 test files and 2 `integration_test`
+  files became `MornyeTheme.build(Brightness.light/dark)` (with `fontFamily`/
+  `useSystemFont` where asked) keeping assertions; the Material-arm half of
+  `mornye ? Mornye : Material` theme ternaries (62) and the `false` iteration of
+  `[false, true]` style loops (56) were removed. `test/material_theme_roles_test.dart`
+  (already Mornye only) is renamed `test/settings_group_fills_test.dart`. The
+  Material-only `if (!configuration.mornye)` cases in `mini_player_gestures_test.dart`
+  and unused `mornye` parameters/locals are gone. Font preloads of Google Sans Flex in
+  three tests (`album_completeness_query_test`, `hires_check_card_test`,
+  `appearance_settings_test`) are removed.
+- **Docs:** `lib/theme/README.md` rewritten for one Mornye theme; `README.md` "Your
+  look" feature text; `CONTRIBUTING.md` theme row, tooltip scan note and the sheet-shape
+  allowlist note. `pubspec.yaml` comments mention no removed package. Leftover
+  comments in `listening_rewind_screen.dart`, `lyrics_share_screen.dart` and
+  `app_tokens.dart` rewritten.
+- **Checks (before review round 1):** `flutter analyze` (whole repo incl. `integration_test`): no issues. Full
+  `flutter test`: 3931 passed, 10 skipped (superseded by the round 2 run: 3920 passed + 10 skipped = 3930 cases; the human reporter total of 3931 included a `loading` entry), 0 failed, exit 0. `rg -n "isMornye|AppTheme\b|AppTheme\.|GoogleSansFlex|Google Sans Flex" lib test integration_test pubspec.yaml README.md CONTRIBUTING.md lib/theme/README.md`
+  returns nothing. `work.py validate` PASS. Not checked on a device.
+
+### Review round 1 (NEEDS_FIXES) and fixes
+
+- **Restored coverage:** the Mornye test `paused swipes keep track navigation` of
+  `mini_player_gestures_test.dart` (it lived in the `else` arm of the removed
+  `if (!configuration.mornye)`) is back, unconditional, once per configuration (+2
+  tests); the Mornye property of the deleted `material_rounded_type_test.dart`
+  (`Sistrum type does not change`: no `fontVariations` on any text role, light and dark)
+  is now `Sistrum type has no font variations` in `design_system_test.dart`.
+- **Dead leftovers:** the unused `mornye` parameters/loops in
+  `settings_shared_helpers_test.dart`, `selection_bottom_bar_drag_test.dart`,
+  `integration_test/logs_performance_test.dart` and `artist_concerts_test.dart` (its
+  `[true, false]` loop ran the false case on a plain `ThemeData()`; Mornye only now,
+  every assertion kept) are gone.
+- **Test-local style flags (SC-001/FR-006):** every `for (final mornye in ...)` loop (the reviewer counted 102 in more than 80
+  files: 80 test files plus `integration_test/logs_performance_test.dart` by my scan) is removed with a
+  script (loop and `mornye` variable dropped, `mornye ? Mornye : ThemeData()/null`
+  ternaries folded to the Mornye arm, `if (mornye)` blocks kept and `if (!mornye)`
+  blocks deleted, `mornye:` parameters and `($mornye)` / `(Mornye: $mornye)` /
+  `Sistrum=$mornye` name suffixes removed); the leftovers (helper parameters, `final
+  style = 'Mornye'` constants, the `[(mornye, result)]` tuple loops, tests that called
+  helpers with `mornye: false` on a plain theme) were edited by hand. Tests that ran with a
+  plain `ThemeData()` (`mornye: false`) now use the Mornye theme. The script mangled one
+  `!mornye && ...` expectation in `home_search_tabs_test.dart`; the full run caught it
+  and it is fixed (Mornye shows neither the setup prompt nor the Shortcuts shelf).
+  `rg "for \(final mornye"` over `test integration_test` returns nothing.
+- **Checks after the fixes (round 1):** `flutter analyze` (whole repo incl.
+  `integration_test`): no issues. Full `flutter test`: 3931 passed, 10 skipped (superseded, see round 2: 3920 passed + 10 skipped = 3930 cases), 0
+  failed, exit 0. The T005 `rg` over `lib test integration_test pubspec.yaml README.md
+  CONTRIBUTING.md lib/theme/README.md` returns nothing. `work.py validate` PASS.
+  (The earlier note that the count "equals the pre-review run because duplicates
+  offset the +3" was not an accounting; the real accounting is below.)
+
+### Review round 2 (NEEDS_FIXES) and fixes
+
+- **Dead code:** `final searchRect = null;` and its `if (searchRect != null)` block are
+  removed from `home_search_tabs_test.dart`.
+- **Docs:** `test/README.md` no longer says only `app_theme.dart` sets a modal sheet
+  shape; it says no file sets one and the scan has no allowlist (the allowlist exception
+  is also gone from `design_system_test.dart`). A scan of every `*.md`, `*.yml`,
+  `*.yaml` and `*.json` outside `specs/`, `.specify/`, `workflow/`, `third_party/`,
+  `rust_backend/` and the ARB files for `app_theme`, Material theme/style, `AppThemeStyle`,
+  dynamic color, Google Sans Flex, Expressive and `isMornye` finds only `TASK_HISTORY.md`
+  (task names) and the historical sentence in `lib/theme/README.md` that says Mornye
+  maps onto Material 3 `ColorScheme` roles (true: Mornye's `ThemeData` uses them).
+- **Keyboard-resume integration test:** `android_keyboard_resume_driver.dart` loops the
+  same cycle count and parses the `KEYBOARD_RESUME_*_$cycle` markers the test prints, so
+  both were changed together from 4 to 2 cycles. Before, cycles 0-1 and 2-3 differed only
+  by the removed style (the odd cycle opens the sheet, the even one the page); two cycles
+  keep both shapes. Not run (it needs a dedicated emulator).
+- **Test names:** the five names that ended in a stray `''` piece (`library_mix_ui_test`,
+  `now_playing_lyrics_transition_test` x2, `library_toolbar_test` x2, `cache_management_page_test`,
+  `home_search_tabs_test` x2) lost the trailing space; the leftover `(Sistrum)` /
+  `(Mornye)` suffixes in `settings_shared_helpers_test`, `track_metadata_network_analysis_test`,
+  `track_metadata_wide_layout_test`, `track_metadata_file_access_test`, `home_search_tabs_test`
+  are gone. A script over every `test()`/`testWidgets()` literal finds no duplicate
+  non-interpolated name in any file.
+- **Proactive scan, fixed:** the `[('material', false), ('mornye', false), ('material',
+  true)]` loop in `music_recognition_test.dart` (its `material` runs used a plain
+  `ThemeData()`) is now a `reduceMotion` loop on the Mornye theme; the unused Material
+  fingerprints and their comment in `home_search_narrow_layout_test.dart`; test names
+  that said "Material" (`library_playlist_drag_test`, `loading_layout_regression_test`,
+  `music_player_automix_test` x2); stale Material comments in tests
+  (`now_playing_lyrics_transition_test`, `mornye_artist_capsule_test`,
+  `slider_value_header_test`, `support/app_icon_finder`, `settled_blur_test`) and in lib
+  (`settings_group.dart` and `tutorial_screen.dart` "AMOLED", `home_tab_intro.dart`,
+  `now_playing_screen.dart`); the stale `'amoled'` search keyword of the Appearance
+  entry in `settings_tab.dart`; the `reduceMotion` helper parameters nobody passed
+  (`app_icon_test`, `settings_group_fills_test`, `library_toolbar_test`);
+  `loading_layout_regression_test` theme ternary. Left on purpose: `ThemeData()` in
+  `design_system_test.dart` (the bare-theme token fallback) and `adaptive_overlay_test.dart`
+  (an inherited-theme probe); `mornyeSurface` (a real Card-vs-Mornye-surface flag, not a
+  style switch); other never-passed helper knobs that predate this task (`lowEnd`, `dates`,
+  `holdRow`, `pages`, ...).
+- **Test count, accounted:** per-file counts from `flutter test --reporter json` on
+  `HEAD` (a detached worktree with `flutter gen-l10n` run) and on this tree:
+  4103 -> 3930 test cases (-173; this counter excludes `loading ...` entries and counts
+  the 10 skipped). By file: `material_rounded_type_test.dart` deleted (-6);
+  `material_theme_roles_test.dart` renamed `settings_group_fills_test.dart` (2 -> 2);
+  `design_system_test.dart` +1 (the restored type test, a -0 for the other edits);
+  `mini_player_gestures_test.dart` 0 (the Material-only cases deleted, the Mornye test
+  restored); every other change (-168 over 51 files) is a removed duplicate iteration of
+  the old two-style loops (`[false, true]`, `(count, mornye)` tuples, `[true, false]`),
+  for example `settings_shared_helpers_test` -13, `extension_priority_links_test` -12,
+  `selection_bottom_bar_drag_test` -12, `playlist_playback_test` -11,
+  `library_settings_cleanup_test` -9, `track_metadata_network_analysis_test` -7, and 46
+  files between -1 and -6. Not accounted: the two human-readable reporters disagree with
+  the JSON counter by a few tests (HEAD 4096 and now 3931 by the human reporter, which counts a `loading` entry; the JSON counter gives 3920 passed + 10 skipped, 4103 and 3930
+  by JSON) because of how setup/hidden entries are counted, and the HEAD worktree run had
+  one failure in `custom_font_test.dart` that I did not investigate (it does not exist
+  in the real tree: this tree passes it).
+- **Checks after round 2:** `flutter analyze` (whole repo incl. `integration_test`): no
+  issues. Full `flutter test` (JSON reporter, `t005-now.json`): 3920 passed, 10 skipped,
+  0 failed, exit 0. The T005 `rg` returns nothing. `work.py validate` PASS.
+
+### Review round 3 (NEEDS_FIXES, log only)
+
+Independent round 3 verified all code and test changes (keyboard-resume cycles in test and
+driver, music_recognition loop, amoled keyword, per-file assertion counts, JSON counts
+4103 -> 3930); its only finding was that the earlier 3931 lines were not marked superseded.
+Marked above. The third result was NEEDS_FIXES, so a further review needs owner permission.

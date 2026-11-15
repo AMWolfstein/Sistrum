@@ -163,7 +163,7 @@ searches below.
     and `rg -n "class (Expressive|Material)[A-Z]" lib` return nothing.
   - Dependencies: M001-T003.
 
-- [ ] M001-T005 Delete AppTheme, move tests to Mornye and update docs
+- [x] M001-T005 Delete AppTheme, move tests to Mornye and update docs
   - Start: refresh the map.
   - Acceptance: FR-006, FR-008, FR-009. `lib/theme/app_theme.dart` is deleted;
     tests that pumped `AppTheme.light/dark` use `MornyeTheme.build` and keep their

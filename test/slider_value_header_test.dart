@@ -42,7 +42,7 @@ void main() {
     return container;
   }
 
-  /// The tonal pill around [value], if Material drew one.
+  /// The tonal pill around [value], if one is drawn.
   ShapeDecoration? pill(WidgetTester tester, String value) {
     final boxes = find.ancestor(
       of: find.text(value),

@@ -365,64 +365,61 @@ void main() {
     },
   );
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'freshly discovered release opens the update dialog ($mornye)',
-      (tester) async {
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        final checker = UpdateChecker(
-          installedVersion: '5.0.0',
-          client: MockClient(
-            (_) async => http.Response(jsonEncode([release('5.0.5')]), 200),
-          ),
-        );
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [lowEndDeviceProvider.overrideWithValue(false)],
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : null,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: Scaffold(
-                body: Builder(
-                  builder: (context) => TextButton(
-                    onPressed: () async {
-                      final update = await checker.checkForUpdate();
-                      if (context.mounted && update != null) {
-                        await showUpdateDialog(
-                          context,
-                          updateInfo: update,
-                          onDisableUpdates: () {},
-                        );
-                      }
-                    },
-                    child: const Text('Check now'),
-                  ),
-                ),
+  testWidgets('freshly discovered release opens the update dialog', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final checker = UpdateChecker(
+      installedVersion: '5.0.0',
+      client: MockClient(
+        (_) async => http.Response(jsonEncode([release('5.0.5')]), 200),
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [lowEndDeviceProvider.overrideWithValue(false)],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async {
+                  final update = await checker.checkForUpdate();
+                  if (context.mounted && update != null) {
+                    await showUpdateDialog(
+                      context,
+                      updateInfo: update,
+                      onDisableUpdates: () {},
+                    );
+                  }
+                },
+                child: const Text('Check now'),
               ),
             ),
           ),
-        );
-        await tester.runAsync(() async {
-          await tester.tap(find.text('Check now'));
-          for (var i = 0; i < 100; i++) {
-            await Future<void>.delayed(const Duration(milliseconds: 10));
-            await tester.pump();
-            if (find.byType(UpdateDialog).evaluate().isNotEmpty) return;
-          }
-        });
-        await tester.pumpAndSettle();
-        expect(find.byType(UpdateDialog), findsOneWidget);
-        expect(find.text('v5.0.5'), findsOneWidget);
-        expect(find.textContaining('Release notes'), findsOneWidget);
-        expect(find.text('Download & Install').hitTestable(), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
+        ),
+      ),
     );
-  }
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Check now'));
+      for (var i = 0; i < 100; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await tester.pump();
+        if (find.byType(UpdateDialog).evaluate().isNotEmpty) return;
+      }
+    });
+    await tester.pumpAndSettle();
+    expect(find.byType(UpdateDialog), findsOneWidget);
+    expect(find.text('v5.0.5'), findsOneWidget);
+    expect(find.textContaining('Release notes'), findsOneWidget);
+    expect(find.text('Download & Install').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('a release without an arm64 APK offers the release page', (
     tester,

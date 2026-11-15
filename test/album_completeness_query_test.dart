@@ -82,11 +82,6 @@ print(json.dumps([dict(row) for row in db.execute(data['sql'], data['args'])]))
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  setUpAll(() async {
-    final font = FontLoader('Google Sans Flex')
-      ..addFont(rootBundle.load('assets/fonts/GoogleSansFlex.ttf'));
-    await font.load();
-  });
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     final previousFactory = databaseFactoryOrNull;

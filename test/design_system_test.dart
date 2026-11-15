@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
@@ -69,31 +68,27 @@ class _IconButtonTooltipVisitor extends RecursiveAstVisitor<void> {
 
 Widget _hostSliver(Widget sliver) {
   return MaterialApp(
-    theme: AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     home: Scaffold(body: CustomScrollView(slivers: [sliver])),
   );
 }
 
 void main() {
   group('AppTokens', () {
-    test('is registered on both themes', () {
-      expect(AppTheme.light().extension<AppTokens>(), AppTokens.standard);
-      expect(AppTheme.dark().extension<AppTokens>(), AppTokens.standard);
-      expect(
-        AppTheme.dark(isAmoled: true).extension<AppTokens>(),
-        AppTokens.standard,
-      );
-      expect(
-        MornyeTheme.build(Brightness.light).extension<AppTokens>(),
-        MornyeTheme.tokens,
-      );
+    test('is registered on the light and dark Mornye themes', () {
+      for (final brightness in Brightness.values) {
+        expect(
+          MornyeTheme.build(brightness).extension<AppTokens>(),
+          MornyeTheme.tokens,
+        );
+      }
       expect(
         MornyeTheme.build(Brightness.dark).colorScheme.primary,
         MornyeTheme.accentColor(MornyeAccent.blue, Brightness.dark),
       );
     });
 
-    testWidgets('context.tokens falls back to the standard scale', (
+    testWidgets('context.tokens falls back to the Mornye scale', (
       tester,
     ) async {
       AppTokens? seen;
@@ -110,7 +105,7 @@ void main() {
         ),
       );
 
-      expect(seen, AppTokens.standard);
+      expect(seen, MornyeTheme.tokens);
     });
 
     test('lerp interpolates the scale instead of snapping', () {
@@ -119,6 +114,31 @@ void main() {
       final mid = other.lerp(doubled, 0.5);
 
       expect(mid.radiusCard, (other.radiusCard + 40) / 2);
+    });
+
+    test('Sistrum type has no font variations', () {
+      for (final brightness in Brightness.values) {
+        final t = MornyeTheme.build(brightness).textTheme;
+        for (final style in [
+          t.displayLarge,
+          t.displayMedium,
+          t.displaySmall,
+          t.headlineLarge,
+          t.headlineMedium,
+          t.headlineSmall,
+          t.titleLarge,
+          t.titleMedium,
+          t.titleSmall,
+          t.bodyLarge,
+          t.bodyMedium,
+          t.bodySmall,
+          t.labelLarge,
+          t.labelMedium,
+          t.labelSmall,
+        ]) {
+          expect(style!.fontVariations, isNull);
+        }
+      }
     });
 
     test('badge text stays legible', () {
@@ -415,7 +435,7 @@ void main() {
       );
 
       final style = tester.widget<Text>(find.text('Home')).style!;
-      expect(style.fontSize, AppTokens.standard.headerExpandedTitleSize);
+      expect(style.fontSize, MornyeTheme.tokens.headerExpandedTitleSize);
     });
 
     test('is the only collapsing header implementation left', () {
@@ -472,10 +492,11 @@ void main() {
 
     testWidgets('sheet shape comes from the token scale', (tester) async {
       final shape =
-          AppTheme.light().bottomSheetTheme.shape! as RoundedRectangleBorder;
+          MornyeTheme.build(Brightness.light).bottomSheetTheme.shape!
+              as RoundedRectangleBorder;
       final radius = shape.borderRadius.resolve(TextDirection.ltr).topLeft.x;
 
-      expect(radius, AppTokens.standard.radiusSheet);
+      expect(radius, MornyeTheme.tokens.radiusSheet);
     });
 
     test('no screen hand-rolls a drag handle any more', () {
@@ -504,11 +525,7 @@ void main() {
         r'(?:const\s+)?BorderRadius\.vertical\(',
       );
       final offenders = _libSources()
-          .where(
-            (file) =>
-                shapeOverride.hasMatch(file.readAsStringSync()) &&
-                _basename(file) != 'app_theme.dart',
-          )
+          .where((file) => shapeOverride.hasMatch(file.readAsStringSync()))
           .map(_basename)
           .toList();
 
@@ -524,7 +541,7 @@ void main() {
 
   group('TrackCard', () {
     Widget host(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
+      theme: MornyeTheme.build(Brightness.light),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: child),
@@ -772,7 +789,7 @@ void main() {
       tester,
     ) async {
       Widget host({required bool selecting}) => MaterialApp(
-        theme: AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         home: CollectionScaffold(
           scrollController: ScrollController(),
           isSelectionMode: selecting,
@@ -802,7 +819,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: CollectionScaffold(
             scrollController: ScrollController(),
             isSelectionMode: true,
@@ -868,7 +885,7 @@ void main() {
     testWidgets('choice chip meets the minimum touch target', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: Scaffold(
             body: Row(
               children: [
@@ -894,7 +911,7 @@ void main() {
     testWidgets('info card renders title, message and action', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: Scaffold(
             body: SettingsInfoCard(
               icon: Icons.warning_amber_outlined,

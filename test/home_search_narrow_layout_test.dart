@@ -51,22 +51,17 @@ String _paintFingerprint(WidgetTester tester) {
 
 /// SHA-1 of each fingerprint, recorded on the base layout (commit 44cbb57b)
 /// before search results gained cover grids and shelves on wide screens, with
-/// the Material values re-recorded when sort and view became a grouped
-/// margin, and the Mornye values when blue became the default accent and the
-/// filter chips gained their glass press layer, and the Mornye values again when Glass
+/// the values re-recorded when blue became the default accent and the
+/// filter chips gained their glass press layer, and again when Glass
 /// became fixed at Clear (the retired Glass Quality slider's old default 0.75 painted a
 /// different tint). A narrow layout must paint
 /// exactly these.
 /// A deliberate change to
 /// the phone rows records new values; the failure prints the fingerprint.
 const _baseFingerprints = {
-  'phone Material': 'c975d61edc1fef90079a8ac06bf1a8c5307ac43b',
   'phone Mornye': '6e6783cff8e10e3318183c51b4e1c54f6c734f63',
-  'landscape phone Material': '88fd46463538cd4b3d728743a1174612da7a9731',
   'landscape phone Mornye': '9e4af5fa611040bf6c9e5edbca78e137611f034e',
-  'portrait tablet Material': '94d41e2ff5146d50d53d7b50f33ec371b88fc11f',
   'portrait tablet Mornye': '1b2ccb077d7103aed1931696bc748fb42a26636c',
-  'narrow tablet window Material': 'b6100a1f1a4c5b744139bc06e924b7a12d498ac5',
   'narrow tablet window Mornye': '793c650e24e620c3e58b6be284549a938a05462b',
 };
 
@@ -77,22 +72,20 @@ void main() {
     ('portrait tablet', const Size(800, 1280)),
     ('narrow tablet window', const Size(820, 1400)),
   ]) {
-    for (final mornye in const [true]) {
-      final key = '$name ${mornye ? 'Mornye' : 'Material'}';
-      testWidgets('Search results on a $key paint the base layout', (
-        tester,
-      ) async {
-        await pumpSearchFixture(tester, size: size, mornye: mornye);
-        expect(find.text('Found artist 0'), findsOneWidget);
-        expect(find.byType(SliverGrid), findsNothing);
+    final key = '$name Mornye';
+    testWidgets('Search results on a $key paint the base layout', (
+      tester,
+    ) async {
+      await pumpSearchFixture(tester, size: size);
+      expect(find.text('Found artist 0'), findsOneWidget);
+      expect(find.byType(SliverGrid), findsNothing);
 
-        final fingerprint = _paintFingerprint(tester);
-        final hash = sha1.convert(utf8.encode(fingerprint)).toString();
-        final expected = _baseFingerprints[key];
-        if (hash != expected) debugPrint('$key: $hash\n$fingerprint');
-        expect(hash, expected);
-        expect(tester.takeException(), isNull);
-      });
-    }
+      final fingerprint = _paintFingerprint(tester);
+      final hash = sha1.convert(utf8.encode(fingerprint)).toString();
+      final expected = _baseFingerprints[key];
+      if (hash != expected) debugPrint('$key: $hash\n$fingerprint');
+      expect(hash, expected);
+      expect(tester.takeException(), isNull);
+    });
   }
 }

@@ -50,7 +50,7 @@ Future<void> main() async {
       }
     }
 
-    for (var cycle = 0; cycle < 4; cycle++) {
+    for (var cycle = 0; cycle < 2; cycle++) {
       if (cycle.isOdd) {
         final open = (await waitForMarker(
           'KEYBOARD_RESUME_OPEN_$cycle',

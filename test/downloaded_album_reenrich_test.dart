@@ -15,7 +15,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
@@ -210,148 +209,144 @@ void main() {
     );
   }
 
-  for (final mornye in const [true]) {
-    testWidgets(
-      'downloaded album re-enrich restores selection on cancel and updates only selected files ($mornye)',
-      (tester) async {
-        SharedPreferences.setMockInitialValues({});
-        final cache = Directory.systemTemp.createTempSync('album_reenrich_');
-        DownloadedEmbeddedCoverResolver.setPersistentCacheDirectoryForTesting(
-          cache,
-        );
-        addTearDown(() async {
-          await tester.pumpWidget(const SizedBox.shrink());
-          await tester.runAsync(() async {
-            await DownloadedEmbeddedCoverResolver.resetMemoryStateForTesting();
-            DownloadedEmbeddedCoverResolver.setPersistentCacheDirectoryForTesting(
-              null,
-            );
-            await cache.delete(recursive: true);
-          });
+  testWidgets(
+    'downloaded album re-enrich restores selection on cancel and updates only selected files',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final cache = Directory.systemTemp.createTempSync('album_reenrich_');
+      DownloadedEmbeddedCoverResolver.setPersistentCacheDirectoryForTesting(
+        cache,
+      );
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.runAsync(() async {
+          await DownloadedEmbeddedCoverResolver.resetMemoryStateForTesting();
+          DownloadedEmbeddedCoverResolver.setPersistentCacheDirectoryForTesting(
+            null,
+          );
+          await cache.delete(recursive: true);
         });
-        const path = 'content://library/document/track.flac';
-        final requests = <Map<String, dynamic>>[];
-        messenger.setMockMethodCallHandler(channel, (call) async {
-          if (call.method == 'reEnrichFile') {
-            final request = Map<String, dynamic>.from(
-              jsonDecode((call.arguments as Map)['request_json'] as String)
-                  as Map,
-            );
-            requests.add(request);
-            return request['preview_only'] == true
-                ? {
-                    'method': 'preview',
-                    'enriched_metadata': {'isrc': 'USABC2600001'},
-                  }
-                : {'method': 'native'};
-          }
-          if (call.method == 'readAudioMetadata') {
-            return {
-              'trackName': 'Track',
-              'artistName': 'Artist',
-              'albumName': 'Album',
-              'isrc': 'USABC2600001',
-              'hasLyrics': true,
-            };
-          }
-          return null;
-        });
-        addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        final history = _History();
-        final navigator = GlobalKey<NavigatorState>();
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              settingsProvider.overrideWith(ReEnrichTestSettings.new),
-              downloadHistoryProvider.overrideWith(() => history),
-              downloadedAlbumTracksProvider(
-                const DownloadedAlbumTracksRequest(
-                  albumName: 'Album',
-                  artistName: 'Artist',
-                ),
-              ).overrideWith(
-                (ref) async => [
-                  for (final id in ['track', 'other'])
-                    DownloadHistoryItem(
-                      id: id,
-                      trackName: id == 'track' ? 'Track' : 'Other',
-                      artistName: 'Artist',
-                      albumName: 'Album',
-                      filePath: id == 'track' ? path : '/music/other.flac',
-                      service: 'example-provider',
-                      downloadedAt: DateTime(2026),
-                      duration: 180,
-                    ),
-                ],
+      });
+      const path = 'content://library/document/track.flac';
+      final requests = <Map<String, dynamic>>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'reEnrichFile') {
+          final request = Map<String, dynamic>.from(
+            jsonDecode((call.arguments as Map)['request_json'] as String)
+                as Map,
+          );
+          requests.add(request);
+          return request['preview_only'] == true
+              ? {
+                  'method': 'preview',
+                  'enriched_metadata': {'isrc': 'USABC2600001'},
+                }
+              : {'method': 'native'};
+        }
+        if (call.method == 'readAudioMetadata') {
+          return {
+            'trackName': 'Track',
+            'artistName': 'Artist',
+            'albumName': 'Album',
+            'isrc': 'USABC2600001',
+            'hasLyrics': true,
+          };
+        }
+        return null;
+      });
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      final history = _History();
+      final navigator = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            settingsProvider.overrideWith(ReEnrichTestSettings.new),
+            downloadHistoryProvider.overrideWith(() => history),
+            downloadedAlbumTracksProvider(
+              const DownloadedAlbumTracksRequest(
+                albumName: 'Album',
+                artistName: 'Artist',
               ),
-            ],
-            child: MaterialApp(
-              navigatorKey: navigator,
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.light)
-                  : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const SelectionOverlayHost(
-                child: DownloadedAlbumScreen(
-                  albumName: 'Album',
-                  artistName: 'Artist',
-                ),
+            ).overrideWith(
+              (ref) async => [
+                for (final id in ['track', 'other'])
+                  DownloadHistoryItem(
+                    id: id,
+                    trackName: id == 'track' ? 'Track' : 'Other',
+                    artistName: 'Artist',
+                    albumName: 'Album',
+                    filePath: id == 'track' ? path : '/music/other.flac',
+                    service: 'example-provider',
+                    downloadedAt: DateTime(2026),
+                    duration: 180,
+                  ),
+              ],
+            ),
+          ],
+          child: MaterialApp(
+            navigatorKey: navigator,
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SelectionOverlayHost(
+              child: DownloadedAlbumScreen(
+                albumName: 'Album',
+                artistName: 'Artist',
               ),
             ),
           ),
-        );
-        await tester.pumpAndSettle();
-        await tester.scrollUntilVisible(find.text('Track'), 200);
-        await tester.longPress(find.text('Track'));
-        await tester.pumpAndSettle();
-        final l10n = AppLocalizations.of(
-          tester.element(find.byType(SelectionBottomBar)),
-        );
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Track'), 200);
+      await tester.longPress(find.text('Track'));
+      await tester.pumpAndSettle();
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(SelectionBottomBar)),
+      );
 
-        Future<void> openReEnrich() async {
-          await tester.tap(find.text('${l10n.trackReEnrich} (1)'));
-          await tester.pumpAndSettle();
-          expect(find.byType(SelectionBottomBar), findsNothing);
-          expect(find.text('Review changes'), findsOneWidget);
-        }
-
-        await openReEnrich();
-        navigator.currentState!.pop();
+      Future<void> openReEnrich() async {
+        await tester.tap(find.text('${l10n.trackReEnrich} (1)'));
         await tester.pumpAndSettle();
-        expect(find.byType(SelectionBottomBar), findsOneWidget);
-        expect(requests, isEmpty);
-
-        await openReEnrich();
-        await tester.ensureVisible(find.text('Review changes'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Review changes'));
-        await tester.pumpAndSettle();
-        expect(requests, hasLength(1));
-        expect(requests.single['file_path'], path);
-        expect(requests.single['duration_ms'], 180000);
-        await tester.ensureVisible(find.text('Apply changes'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Apply changes'));
-        // The history refresh also invalidates the disk-backed cover cache.
-        for (
-          var attempt = 0;
-          attempt < 50 && history._updates.isEmpty;
-          attempt++
-        ) {
-          await tester.pump(const Duration(milliseconds: 100));
-          await tester.runAsync(() async {
-            await Future<void>.delayed(const Duration(milliseconds: 10));
-          });
-        }
-        await tester.pumpAndSettle();
-        expect(requests, hasLength(2));
-        expect(requests.last['file_path'], path);
-        expect(history._updates, {'track': 'USABC2600001'});
         expect(find.byType(SelectionBottomBar), findsNothing);
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox.shrink());
-      },
-    );
-  }
+        expect(find.text('Review changes'), findsOneWidget);
+      }
+
+      await openReEnrich();
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(SelectionBottomBar), findsOneWidget);
+      expect(requests, isEmpty);
+
+      await openReEnrich();
+      await tester.ensureVisible(find.text('Review changes'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Review changes'));
+      await tester.pumpAndSettle();
+      expect(requests, hasLength(1));
+      expect(requests.single['file_path'], path);
+      expect(requests.single['duration_ms'], 180000);
+      await tester.ensureVisible(find.text('Apply changes'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Apply changes'));
+      // The history refresh also invalidates the disk-backed cover cache.
+      for (
+        var attempt = 0;
+        attempt < 50 && history._updates.isEmpty;
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        });
+      }
+      await tester.pumpAndSettle();
+      expect(requests, hasLength(2));
+      expect(requests.last['file_path'], path);
+      expect(history._updates, {'track': 'USABC2600001'});
+      expect(find.byType(SelectionBottomBar), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

@@ -33,16 +33,13 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final handle = tester.ensureSemantics();
-        final mornye = theme.key.startsWith('Sistrum');
         await tester.pumpWidget(
           ProviderScope(
             child: MaterialApp(
               theme: theme.value(),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              home: mornye
-                  ? MornyeSettingsTheme(child: page.value())
-                  : page.value(),
+              home: MornyeSettingsTheme(child: page.value()),
             ),
           ),
         );

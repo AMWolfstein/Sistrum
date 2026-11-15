@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,8 +41,8 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   for (final configuration in [
-    (name: 'Sistrum', mornye: true, compact: false),
-    (name: 'Sistrum compact', mornye: true, compact: true),
+    (name: 'Sistrum', compact: false),
+    (name: 'Sistrum compact', compact: true),
   ]) {
     Future<_Controller> pumpPlayer(
       WidgetTester tester, {
@@ -76,9 +75,7 @@ void main() {
             backdropBlurEnabledProvider.overrideWithValue(false),
           ],
           child: MaterialApp(
-            theme: configuration.mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
@@ -224,74 +221,22 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    if (!configuration.mornye) {
+    testWidgets('${configuration.name}: paused swipes keep track navigation', (
+      tester,
+    ) async {
+      final controller = await pumpPlayer(tester);
       for (final dx in [-100.0, 100.0]) {
-        testWidgets('Material: paused swipe $dx closes the player and a new '
-            'song shows it again', (tester) async {
-          final mediaItems = StreamController<MediaItem?>();
-          addTearDown(mediaItems.close);
-          final controller = await pumpPlayer(
-            tester,
-            mediaItems: mediaItems.stream,
-            onDismiss: () => mediaItems.add(null),
-          );
-          mediaItems.add(const MediaItem(id: 'song', title: 'Song'));
-          await tester.pumpAndSettle();
-
-          expect(find.byTooltip('Dismiss'), findsNothing);
-          await tester.timedDrag(
-            find.text('Song'),
-            Offset(dx, 0),
-            const Duration(milliseconds: 600),
-          );
-          await tester.pumpAndSettle();
-          expect(controller.calls, ['dismiss']);
-          expect(find.text('Song'), findsNothing);
-          expect(tester.getSize(find.byType(MiniPlayer)).height, 0);
-
-          mediaItems.add(const MediaItem(id: 'next', title: 'Next song'));
-          await tester.pumpAndSettle();
-          expect(find.text('Next song'), findsOneWidget);
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox.shrink());
-        });
+        await tester.timedDrag(
+          find.text('Song'),
+          Offset(dx, 0),
+          const Duration(milliseconds: 600),
+        );
+        await tester.pumpAndSettle();
       }
-
-      testWidgets('Material: loading swipes leave the player open', (
-        tester,
-      ) async {
-        final controller = await pumpPlayer(tester, loading: true);
-        for (final dx in [-100.0, 100.0]) {
-          await tester.timedDrag(
-            find.text('Song'),
-            Offset(dx, 0),
-            const Duration(milliseconds: 600),
-          );
-          await tester.pump(const Duration(milliseconds: 300));
-        }
-        expect(controller.calls, isEmpty);
-        expect(find.text('Song'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
-    } else {
-      testWidgets(
-        '${configuration.name}: paused swipes keep track navigation',
-        (tester) async {
-          final controller = await pumpPlayer(tester);
-          for (final dx in [-100.0, 100.0]) {
-            await tester.timedDrag(
-              find.text('Song'),
-              Offset(dx, 0),
-              const Duration(milliseconds: 600),
-            );
-            await tester.pumpAndSettle();
-          }
-          expect(controller.calls, ['next', 'previous']);
-          expect(find.text('Song'), findsOneWidget);
-          expect(tester.takeException(), isNull);
-        },
-      );
-    }
+      expect(controller.calls, ['next', 'previous']);
+      expect(find.text('Song'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
 
     testWidgets('${configuration.name}: short and cancelled drags do not act', (
       tester,
@@ -323,7 +268,7 @@ void main() {
         frequency: 120,
       );
       await tester.pumpAndSettle();
-      expect(controller.calls, [configuration.mornye ? 'next' : 'dismiss']);
+      expect(controller.calls, ['next']);
     });
 
     testWidgets('${configuration.name}: Home carousel and playback buttons '

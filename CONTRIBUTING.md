@@ -183,7 +183,7 @@ ones.
 | `services/` | `PlatformBridge`, SQLite stores, the music player, FFmpeg, network storage, notifications | services, models, utils, constants; exceptions: re-export stubs into `providers/` and `controllers/`, and `notification_service.dart` imports `l10n/` |
 | `models/` | Data classes and their `json_serializable` output (`*.g.dart`) | models, utils; `library_database_models.dart` imports `sqlite_helpers.dart` from `services/` |
 | `utils/` | Small helpers, pure policies, and the settings search catalog | utils, models, constants, l10n; seven files import `services/` (for example `file_access.dart`, `logger.dart`), `saf_download_tree.dart` imports `providers/`, three re-export stubs point into `controllers/` |
-| `theme/` | `AppTheme`, `AppTokens`, motion, icons, and the Mornye theme | theme, models; `dynamic_color_wrapper.dart` imports `providers/`, `cover_palette.dart` imports `widgets/` and `services/` |
+| `theme/` | `AppTokens`, motion, icons, and the Mornye theme | theme, models; `mornye_theme_wrapper.dart` imports `providers/`, `cover_palette.dart` imports `widgets/` and `services/` |
 | `l10n/` | ARB sources in `arb/`, the `context.l10n` extension in `l10n.dart`, and `supported_locales.dart`; `app_localizations*.dart` is generated | utils |
 | `constants/` | App info, language choices, `MusicServices` IDs | l10n |
 | `routes/` | `now_playing_route.dart` | services, theme |
@@ -352,10 +352,11 @@ in `handleDownloadByStrategy`.
   and its file name joins the `screens` list in the "every collection screen
   goes through the shared shell" test.
 - `test/design_system_test.dart` scans every file in `lib/`: each `IconButton`
-  and `AppIconButton` passes `tooltip`, and only allowlisted files may contain
+  passes `tooltip`, and only allowlisted files may contain
   `expandedTitleScale` (`app_sliver_header.dart`), a hand-built drag handle
-  (`app_bottom_sheet.dart`), a modal sheet shape (`app_theme.dart`), or
-  `OverlayEntry(` (`selection_bottom_bar.dart`, `app_menu_button.dart`).
+  (`app_bottom_sheet.dart`), or `OverlayEntry(` (`selection_bottom_bar.dart`,
+  `app_menu_button.dart`). No file may override the modal sheet shape, which
+  belongs to the theme.
 
 ### A Platform Channel Method
 

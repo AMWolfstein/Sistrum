@@ -243,7 +243,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     final fullBleed = (motionArtwork != null || fullScreenCover);
     final screen = MediaQuery.sizeOf(context);
     // A still cover is cropped at the sides to reach down to the title, as
-    // in the Material full-screen style; landscape keeps the square card.
+    // in the full-screen style; landscape keeps the square card.
     final stillFullBleed = fullBleed && motionArtwork == null;
     final artworkRatio = stillFullBleed
         ? _landscape || screen.height <= 0

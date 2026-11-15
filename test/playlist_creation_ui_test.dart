@@ -66,19 +66,18 @@ class _Collections extends LibraryCollectionsNotifier {
   }
 }
 
-Widget _app(Widget home, _Collections collections, {required bool mornye}) =>
-    ProviderScope(
-      overrides: [
-        settingsProvider.overrideWith(_Settings.new),
-        libraryCollectionsProvider.overrideWith(() => collections),
-      ],
-      child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.light) : ThemeData(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: home,
-      ),
-    );
+Widget _app(Widget home, _Collections collections) => ProviderScope(
+  overrides: [
+    settingsProvider.overrideWith(_Settings.new),
+    libraryCollectionsProvider.overrideWith(() => collections),
+  ],
+  child: MaterialApp(
+    theme: MornyeTheme.build(Brightness.light),
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: home,
+  ),
+);
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -89,41 +88,36 @@ void main() {
         .load();
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('create playlist offers three sources (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final collections = _Collections();
-      await tester.pumpWidget(
-        _app(
-          Consumer(
-            builder: (context, ref, _) => Scaffold(
-              body: TextButton(
-                onPressed: () => showCreatePlaylistSheet(context, ref),
-                child: const Text('create'),
-              ),
+  testWidgets('create playlist offers three sources', (tester) async {
+    final collections = _Collections();
+    await tester.pumpWidget(
+      _app(
+        Consumer(
+          builder: (context, ref, _) => Scaffold(
+            body: TextButton(
+              onPressed: () => showCreatePlaylistSheet(context, ref),
+              child: const Text('create'),
             ),
           ),
-          collections,
-          mornye: mornye,
         ),
-      );
-      await tester.tap(find.text('create'));
-      await tester.pumpAndSettle();
-      for (final title in [
-        'Empty playlist',
-        'From a folder',
-        'Import playlist file',
-      ]) {
-        expect(find.text(title), findsOneWidget);
-      }
+        collections,
+      ),
+    );
+    await tester.tap(find.text('create'));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Empty playlist',
+      'From a folder',
+      'Import playlist file',
+    ]) {
+      expect(find.text(title), findsOneWidget);
+    }
 
-      await tester.tap(find.text('Empty playlist'));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(EditableText), 'Evening');
-      await tester.tap(find.text('Create'));
-      await tester.pumpAndSettle();
-      expect(collections.createdNames, ['Evening']);
-    });
-  }
+    await tester.tap(find.text('Empty playlist'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(EditableText), 'Evening');
+    await tester.tap(find.text('Create'));
+    await tester.pumpAndSettle();
+    expect(collections.createdNames, ['Evening']);
+  });
 }

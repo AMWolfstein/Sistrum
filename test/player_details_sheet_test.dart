@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_player_details_sheet.dart';
 import 'package:sistrum/widgets/player_details_sheet.dart';
@@ -21,11 +20,7 @@ const _item = MediaItem(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  Future<void> open(
-    WidgetTester tester, {
-    required bool mornye,
-    MediaItem item = _item,
-  }) async {
+  Future<void> open(WidgetTester tester, {MediaItem item = _item}) async {
     final metadata = PlayerMetadataController(
       readMetadata: (_) async => const {},
     );
@@ -33,9 +28,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
@@ -57,14 +50,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  {}
-
   testWidgets('Sistrum decodes the cover at its thumbnail size', (
     tester,
   ) async {
     await open(
       tester,
-      mornye: true,
       item: _item.copyWith(artUri: Uri.file('/covers/song.jpg')),
     );
     final image = tester.widget<Image>(
