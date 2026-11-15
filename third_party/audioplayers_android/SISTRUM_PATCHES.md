@@ -116,7 +116,7 @@ Compared against the pub.dev 5.3.0 package in the local pub cache:
 - `android/src/main/kotlin/xyz/luan/audioplayers/player/PlaybackEqualizer.kt` (new)
 - `android/src/main/kotlin/xyz/luan/audioplayers/player/WrappedPlayer.kt`
 - `android/src/main/kotlin/xyz/luan/audioplayers/source/UrlSource.kt`
-- `README.md` (the "Mornye local changes" section), `CHANGELOG.md`
+- `README.md` (the "Sistrum local changes" section), `CHANGELOG.md`
 
 ## Upgrading
 

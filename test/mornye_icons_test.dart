@@ -15,7 +15,6 @@ void main() {
       Icons.folder_open: CupertinoIcons.folder,
       Icons.drive_file_move_outlined: CupertinoIcons.folder,
       Icons.campaign_outlined: CupertinoIcons.speaker_2,
-      Icons.telegram: CupertinoIcons.paperplane,
       // Unmapped Material and Cupertino icons pass through.
       Icons.ac_unit: Icons.ac_unit,
       Icons.filter_9_plus: Icons.filter_9_plus,

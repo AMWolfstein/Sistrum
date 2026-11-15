@@ -18,3 +18,4 @@
 - M002-T009 — Remove the Zarz-LRC lyrics provider
 - M002-T007 — Cumulative review
 - TOR009 — Remove the stored-list filters, refusal tests and removed-provider comments
+- TOR010 — Full audit of M002 tasks, owner extras and final review

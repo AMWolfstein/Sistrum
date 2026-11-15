@@ -16,7 +16,7 @@
 
 The Android implementation of [`audioplayers`](https://pub.dev/packages/audioplayers).
 
-## Mornye local changes
+## Sistrum local changes
 
 Player commands and native callbacks run on one owned playback Looper, so a slow
 MediaPlayer reset/release cannot hold Android's input thread. Flutter channel

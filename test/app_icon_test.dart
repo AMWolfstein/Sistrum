@@ -43,7 +43,7 @@ void main() {
 
   test('unmapped and non-Material icons have no symbol', () {
     expect(materialSymbolFor(null), isNull);
-    expect(materialSymbolFor(Icons.telegram), isNull);
+    expect(materialSymbolFor(Icons.send), isNull);
     expect(materialSymbolFor(CupertinoIcons.heart), isNull);
   });
 

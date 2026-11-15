@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 19,
+  "next_completion": 20,
   "next_mission": 3,
-  "next_tor": 10,
+  "next_tor": 11,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -374,6 +374,22 @@
       "record": ".specify/quick-tasks/TOR009.md",
       "status": "complete",
       "title": "Remove the stored-list filters, refusal tests and removed-provider comments"
+    },
+    "TOR010": {
+      "completion": 19,
+      "evidence": {
+        "checks": "Review history: round 1 NEEDS_FIXES (config.rs removed ids in test; full flutter result missing); round 2 NEEDS_FIXES (only the missing full flutter result); round 3 PASS. The helper accepts rounds 1-3 only, so --round 3 is the final round. Checks: flutter analyze no issues; targeted test/mornye_icons_test.dart and test/app_icon_test.dart passed; full flutter test +4407 ~10 all passed exit 0; cargo test --locked --workspace all suites passed (before the config.rs test rename); cargo test --locked -p sistrum-core stored_order_drops_unknown_provider_ids ok; M002 validation greps clean except the recorded owner decisions; work.py validate PASS.",
+        "result": "PASS",
+        "reviewer": "independent general-purpose reviewer following .agents/reviewers/task-reviewer.md",
+        "round": 3
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "1007e7da2f27486abba9b68636e10445",
+      "record": ".specify/quick-tasks/TOR010.md",
+      "status": "complete",
+      "title": "Full audit of M002 tasks, owner extras and final review"
     }
   },
   "version": 1

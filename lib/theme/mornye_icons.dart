@@ -195,7 +195,6 @@ IconData _cupertinoFor(IconData icon) {
     Icons.add => CupertinoIcons.add,
     Icons.code => CupertinoIcons.chevron_left_slash_chevron_right,
     Icons.lightbulb_outline => CupertinoIcons.lightbulb,
-    Icons.telegram => CupertinoIcons.paperplane,
     Icons.album || Icons.album_outlined => CupertinoIcons.square_stack,
     Icons.playlist_play => CupertinoIcons.music_note_list,
     Icons.video_library ||

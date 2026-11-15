@@ -41,7 +41,7 @@ class AudioplayersPlugin : FlutterPlugin {
         binaryMessenger = binding.binaryMessenger
         generation++
         players = ConcurrentHashMap()
-        playbackThread = HandlerThread("mornye-audioplayers").apply { start() }
+        playbackThread = HandlerThread("sistrum-audioplayers").apply { start() }
         playbackHandler = Handler(requireNotNull(playbackThread).looper)
         soundPoolManager = SoundPoolManager(this)
         methods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")

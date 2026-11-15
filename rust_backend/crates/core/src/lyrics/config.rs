@@ -226,18 +226,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn removed_zarz_lrc_provider_ids_are_dropped_from_stored_order() {
+    fn stored_order_drops_unknown_provider_ids() {
         let configured = vec![
-            " SPOTIFLAC_LYRICS ".into(),
-            "mornye_lyrics".into(),
+            " RETIRED_PROVIDER ".into(),
+            "retired_provider".into(),
             "lrclib".into(),
         ];
         assert_eq!(normalize_provider_order(&configured), ["lrclib"]);
-        assert!(resolve_order(&["spotiflac_lyrics".into(), "mornye_lyrics".into()], &[]).is_empty());
+        assert!(resolve_order(&["retired_a".into(), "retired_b".into()], &[]).is_empty());
         assert!(
             !available_providers()
                 .iter()
-                .any(|p| p.id == "mornye_lyrics")
+                .any(|p| p.id == "retired_provider")
         );
     }
 }

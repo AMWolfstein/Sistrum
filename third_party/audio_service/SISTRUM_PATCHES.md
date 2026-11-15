@@ -34,12 +34,12 @@ sources are not vendored; this copy is Android only.
   `AudioService.handleCustomNotificationAction` and so the session's
   `onCustomAction`.
 - Android: allow a custom action to supply an explicit in-app activity class
-  using the `mornye.activity` extra. Its notification PendingIntent opens the
+  using the `sistrum.activity` extra. Its notification PendingIntent opens the
   output picker directly. These activity controls are excluded from
   PlaybackState custom actions: background launches from media-session binder
   callbacks are blocked on newer Android. Use its native output switcher.
   This is only for app-owned controls, not extension input. No app code
-  (Dart or Kotlin) currently sets `mornye.activity`.
+  (Dart or Kotlin) currently sets `sistrum.activity`.
 - Android: bound retained browser metadata to 256 recent items with
   `PinnedMetadataCache`. The active queue and current item stay pinned so
   notification, Android Auto and browser lookups survive recent-item eviction.

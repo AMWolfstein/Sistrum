@@ -174,13 +174,15 @@ announcement or tour.
   (settings, queue, secure storage, backups, database schemas) is outside this
   mission; the owner is offered a separate cleanup mission. This mission only
   stops accepting the old backup and extension formats (FR-011).
-- Internal build and native names stay: Rust crates `mornye-*`, native libraries
-  such as `mornye_audio`, the `MORNYE_ALLOW_DEBUG_SIGNING` build variable,
-  `third_party/*/MORNYE_PATCHES.md` file names. Only their docs' app name changes.
+- Internal build and native names follow the Sistrum name (TOR006 and TOR008):
+  Rust crates `sistrum-*`, native libraries such as `sistrum_audio`, the
+  `SISTRUM_ALLOW_DEBUG_SIGNING` build variable, `third_party/*/SISTRUM_PATCHES.md`
+  file names. The workflow tooling and the Mornye theme names are not app names.
 - Sistrum's own workflow records (`TASK_HISTORY.md`, `.specify/quick-tasks/`,
   completed task titles) are this repository's history, not Mornye's, and keep
   their wording. Third-party changelogs (`third_party/*/CHANGELOG.md`,
-  `rust_backend/vendor/**`) belong to those packages and stay. The portable `workflow/` folder is out of scope.
+  `rust_backend/vendor/**` package source) belong to those packages and stay; the
+  vendor README's own commands follow the Sistrum crate names. The portable `workflow/` folder is out of scope.
 - Releases on `AMWolfstein/Sistrum` need the signing secrets the release
   workflow reads (`KEYSTORE_BASE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`,
   `KEY_PASSWORD`); the owner adds them in GitHub before the 1.0.0 update test.

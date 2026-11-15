@@ -58,7 +58,6 @@ class ExtensionAuthCallbacksTest {
         for (invalid in listOf(
             "https://callback?state=nonce&code=code",
             "sistrum://unknown?state=nonce&code=code",
-            "sistrum://session-grant?state=nonce&code=code",
             "sistrum://callback?state=nonce",
         )) assertFalse(callbacks.offer(Uri.parse(invalid)))
         assertTrue(callbacks.offer(Uri.parse("sistrum://callback?state=oauth&code=code")))

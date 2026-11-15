@@ -67,17 +67,17 @@ downloads on Windows, instead of depending on filesystem hard-link support.
 It gets both verbatim paths from the opened parent directory and retains the
 existing cancellation, collision, and staging cleanup behavior.
 
-Run `cargo test -p mornye-extensions --test windows_path_prefix` on any host for
+Run `cargo test -p sistrum-extensions --test windows_path_prefix` on any host for
 the production prefix conversion tests, and
-`cargo test -p mornye-extensions --lib files::tests` for file lifecycle tests.
+`cargo test -p sistrum-extensions --lib files::tests` for file lifecycle tests.
 Windows additionally exercises paths beyond `MAX_PATH`. For a real SMB share,
 run these commands in PowerShell from `rust_backend`:
 
 ```powershell
-$env:MORNYE_TEST_SMB_ROOT = '\\server\share\writable-test-folder'
-cargo test -p mornye-extensions windows_network_share_directory_operations -- --ignored
-$env:MORNYE_TEST_SMB_ROOT = 'Z:\writable-test-folder'
-cargo test -p mornye-extensions windows_network_share_directory_operations -- --ignored
+$env:SISTRUM_TEST_SMB_ROOT = '\\server\share\writable-test-folder'
+cargo test -p sistrum-extensions windows_network_share_directory_operations -- --ignored
+$env:SISTRUM_TEST_SMB_ROOT = 'Z:\writable-test-folder'
+cargo test -p sistrum-extensions windows_network_share_directory_operations -- --ignored
 ```
 
 The test creates and removes its own temporary directory within the supplied
