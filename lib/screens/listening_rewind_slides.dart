@@ -1,21 +1,14 @@
 part of 'listening_rewind_screen.dart';
 
-/// Colors of one slide. Material cycles through the tonal containers;
-/// Mornye stays dark over blurred artwork.
+/// Colors of one slide: dark over blurred artwork.
 class _RewindPalette {
   const _RewindPalette(this.background, this.foreground, this.accent);
 
-  factory _RewindPalette.of(
-    BuildContext context,
-    int index,
-    ListeningRewind rewind,
-  ) {
-    return _RewindPalette(
-      Colors.black,
-      Colors.white,
-      Theme.of(context).colorScheme.primary,
-    );
-  }
+  factory _RewindPalette.of(BuildContext context) => _RewindPalette(
+    Colors.black,
+    Colors.white,
+    Theme.of(context).colorScheme.primary,
+  );
 
   final Color background;
   final Color foreground;

@@ -122,7 +122,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // The glass carries the handle that Material's sheet draws.
+                // The sheet draws its own handle.
                 const AppSheetHandle(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),

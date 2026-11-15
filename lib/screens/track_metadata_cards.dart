@@ -4,10 +4,11 @@ part of 'track_metadata_screen.dart';
 /// columns of about 470 or more each.
 const double _trackMetadataTwoColumnMinWidth = 960;
 
-/// The content width for a window [width]: the reading width on phones and
+/// The content width for a window [width]: the reading width on phones and the
+/// wider two-column width on large windows.
 double _trackMetadataContentMaxWidth(double width) =>
     width >= _trackMetadataTwoColumnMinWidth + 32
-    ? math.min(width, materialContentMaxWidth)
+    ? math.min(width, largeContentMaxWidth)
     : adaptiveContentMaxWidth(width);
 
 extension _TrackMetadataCards on _TrackMetadataScreenState {
@@ -594,8 +595,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
             InkWell(
               onTap: () => _copyToClipboard(context, cleanFilePath),
               borderRadius: BorderRadius.circular(12),
-              // Material keeps the path as a flat copy row like the metadata
-              // rows above, instead of a filled box inside the card.
               child: Container(
                 constraints: BoxConstraints(
                   minHeight: context.tokens.minTouchTarget,

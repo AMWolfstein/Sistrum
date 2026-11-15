@@ -73,8 +73,8 @@ class TrackCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final borderRadius = tokens.borderRadiusCover;
-    // The two styles carry their own outer margin so no call site has to
-    // repeat it: flat rows sit tight inside a collection list.
+    // Each style carries its own outer margin so no call site has to repeat
+    // it: flat rows sit tight inside a collection list.
     final cardMargin =
         margin ??
         (style == TrackCardStyle.flat

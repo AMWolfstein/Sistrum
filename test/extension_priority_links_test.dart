@@ -108,8 +108,8 @@ void main() {
           of: target,
           matching: find.byType(SettingsItem),
         );
-        // Both styles use the standard row, so the link lines up with the
-        // other rows of its group.
+        // The standard row keeps the link in line with the other rows of its
+        // group.
         expect(settingsItem, findsOneWidget);
         final opacity = find.ancestor(
           of: settingsItem,

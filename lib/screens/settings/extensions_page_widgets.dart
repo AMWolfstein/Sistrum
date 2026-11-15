@@ -118,7 +118,7 @@ class _ExtensionPriorityLink extends ConsumerWidget {
     };
 
     // The standard row keeps these links in line with the other settings
-    // rows of the group in both styles.
+    // rows of the group.
     return Opacity(
       opacity: enabled ? 1 : 0.5,
       child: SettingsItem(

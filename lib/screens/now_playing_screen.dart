@@ -54,8 +54,7 @@ class NowPlayingScreen extends ConsumerStatefulWidget {
 
   final PlayerMetadataController Function()? metadataControllerFactory;
 
-  /// The page shown first: 0 is the player, 1 the lyrics and 2 Up Next
-  /// (Mornye only).
+  /// The page shown first: 0 is the player, 1 the lyrics and 2 Up Next.
   final int initialPage;
 
   @override

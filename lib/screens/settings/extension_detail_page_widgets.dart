@@ -639,7 +639,6 @@ class _PostProcessingHookItem extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return _ExtensionFeatureRow(
       cupertinoIcon: CupertinoIcons.wand_stars,
-      materialIcon: Icons.auto_fix_high,
       title: hook.name,
       description: hook.description,
       extra: hook.supportedFormats.isEmpty
@@ -676,7 +675,6 @@ class _PostProcessingHookItem extends StatelessWidget {
 class _ExtensionFeatureRow extends StatelessWidget {
   const _ExtensionFeatureRow({
     required this.cupertinoIcon,
-    required this.materialIcon,
     required this.title,
     this.description,
     this.extra,
@@ -687,7 +685,6 @@ class _ExtensionFeatureRow extends StatelessWidget {
   });
 
   final IconData cupertinoIcon;
-  final IconData materialIcon;
   final String title;
   final String? description;
   final Widget? extra;
@@ -901,7 +898,6 @@ class _QualityOptionItem extends StatelessWidget {
     final description = quality.description;
     return _ExtensionFeatureRow(
       cupertinoIcon: CupertinoIcons.waveform,
-      materialIcon: Icons.high_quality,
       title: quality.label,
       description: description?.isNotEmpty == true ? description : null,
       extra: null,

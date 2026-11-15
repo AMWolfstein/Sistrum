@@ -62,7 +62,6 @@ Future<void> openLyricsEditor(
     // A swipe would skip the unsaved changes check; Cancel and the close
     // button ask first.
     enableDrag: false,
-    dialogSize: AppDialogSize.wide,
     builder: (_) => LyricsEditorSheet(metadata: metadata, item: item),
   );
   if (saved == true && context.mounted) {

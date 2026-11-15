@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/quantize/quantizer_celebi.dart';
 import 'package:material_color_utilities/score/score.dart';
 import 'package:sistrum/services/platform_bridge.dart';
@@ -52,12 +51,6 @@ Future<(int, Color?)> _seedAndSourceColor(
 Color? _sourceColorOf(Uint8List? straight) =>
     straight == null ? null : coverSourceColor(ByteData.sublistView(straight));
 
-/// Whether a cover whose [coverSourceColor] is [source] reads as black and
-/// white: its HCT chroma is at most 12. Score would still pick a seed hue for
-/// it (or Material's blue fallback), which tints the whole scheme.
-bool isNearGrayscaleCover(Color source) =>
-    Hct.fromInt(source.toARGB32()).chroma <= 12;
-
 /// Colour scheme derived from cover art, used to theme detail-screen headers.
 ///
 /// The generated scheme follows app brightness and supplies contrasting
@@ -80,10 +73,6 @@ class CoverPalette {
   static final Map<String, Color?> _coverColors = {};
   static final Map<String, String> _coverVersions = {};
   static final Map<String, Future<Color?>> _pendingCoverColors = {};
-
-  /// The neutral scheme of a near-grayscale cover, keyed by its cached tonal
-  /// scheme so both leave the cache together.
-  static final Expando<ColorScheme> _neutralSchemes = Expando();
 
   /// Every form of one cover, such as a path and its `file://` URI, shares
   /// the entries of its [coverImageSource].
@@ -111,21 +100,8 @@ class CoverPalette {
   }
 
   /// Cached scheme for [source], or null when it has not been resolved yet.
-  ///
-  /// With [neutralGrayscale], a near-grayscale cover ([isNearGrayscaleCover])
-  /// gets a monochrome scheme instead of a tinted one. Material surfaces opt
-  /// in; Mornye derives its own neutral shading from [sourceColor].
-  static ColorScheme? peek(
-    String source,
-    Brightness brightness, {
-    bool neutralGrayscale = false,
-  }) {
-    final scheme = _cache[_sourceKeys['${_source(source)}|${brightness.name}']];
-    return neutralGrayscale ? _neutralFor(scheme) : scheme;
-  }
-
-  static ColorScheme? _neutralFor(ColorScheme? scheme) =>
-      scheme == null ? null : _neutralSchemes[scheme] ?? scheme;
+  static ColorScheme? peek(String source, Brightness brightness) =>
+      _cache[_sourceKeys['${_source(source)}|${brightness.name}']];
 
   /// Average cover colour before Material's accent selection or tonal mapping.
   /// Near-monochrome covers stay neutral instead of acquiring a seed hue.
@@ -139,16 +115,9 @@ class CoverPalette {
 
   /// Resolves the scheme for [source], a cover string in any form
   /// [coverImageSource] reads. Returns null when the image cannot be
-  /// decoded. [neutralGrayscale] works as in [peek] and shares the same
-  /// palette job.
-  static Future<ColorScheme?> resolve(
-    String source,
-    Brightness brightness, {
-    bool neutralGrayscale = false,
-  }) {
-    final scheme = _resolveTonal(_source(source), brightness);
-    return neutralGrayscale ? scheme.then(_neutralFor) : scheme;
-  }
+  /// decoded.
+  static Future<ColorScheme?> resolve(String source, Brightness brightness) =>
+      _resolveTonal(_source(source), brightness);
 
   static Future<ColorScheme?> _resolveTonal(
     String source,
@@ -294,13 +263,6 @@ class CoverPalette {
       _storeSourceColor(version, sourceColor);
       if (sourceColor != null) {
         _sourceColors[key] = sourceColor;
-        if (isNearGrayscaleCover(sourceColor)) {
-          _neutralSchemes[scheme] = ColorScheme.fromSeed(
-            seedColor: sourceColor,
-            brightness: brightness,
-            dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
-          );
-        }
       }
       _cache[key] = scheme;
       _cacheOrder.add(key);

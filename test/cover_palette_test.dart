@@ -349,21 +349,6 @@ void main() {
               reason: name,
             );
           }
-          expect(
-            await CoverPalette.resolve(
-              path,
-              Brightness.dark,
-              neutralGrayscale: true,
-            ),
-            isNearGrayscaleCover(Color(source))
-                ? ColorScheme.fromSeed(
-                    seedColor: Color(source),
-                    brightness: Brightness.dark,
-                    dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
-                  )
-                : same(CoverPalette.peek(path, Brightness.dark)),
-            reason: name,
-          );
           expect(paletteJobs, 2, reason: name);
           paletteJobs = 0;
         }

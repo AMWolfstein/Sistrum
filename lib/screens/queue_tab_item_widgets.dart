@@ -989,8 +989,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
     return Semantics(
       label: context.l10n.a11yTrackByArtist(item.trackName, item.artistName),
       selected: isSelected,
-      // Material rows follow their own file, so a track change rebuilds only
-      // the rows involved. Mornye rows show no current-track state.
+      // Rows show no current-track state.
       child: card(),
     );
   }

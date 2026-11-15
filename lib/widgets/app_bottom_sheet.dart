@@ -151,7 +151,7 @@ class AppBottomSheet extends StatelessWidget {
 ///
 /// The shape comes from `ThemeData.bottomSheetTheme`, which is derived from
 /// [AppTokens.radiusSheet]; call sites no longer pass a `shape` and therefore
-/// cannot drift from the scale. [dialogSize] picks the width of the dialog
+/// cannot drift from the scale.
 Future<T?> showAppBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -159,13 +159,11 @@ Future<T?> showAppBottomSheet<T>({
   String? subtitle,
   double? maxHeightFactor,
   bool useRootNavigator = false,
-  AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
   return showAppModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     useRootNavigator: useRootNavigator,
-    dialogSize: dialogSize,
     builder: (sheetContext) => AppBottomSheet(
       title: title,
       subtitle: subtitle,
@@ -286,12 +284,10 @@ Future<T?> showAppScrollableBottomSheet<T>({
   required ScrollableWidgetBuilder builder,
   required String title,
   String? subtitle,
-  AppDialogSize dialogSize = AppDialogSize.medium,
 }) => showAppModalBottomSheet<T>(
   context: context,
   useRootNavigator: true,
   isScrollControlled: true,
-  dialogSize: dialogSize,
   builder: (context) => AppScrollableSheet(
     builder: (context, controller) => AppBottomSheet(
       title: title,
@@ -350,9 +346,8 @@ Future<void> showAppChoiceSheet<T>({
 
 /// Adaptive surface for sheets which already supply their own header/layout.
 ///
-/// ([showAppSheetDialog]) of [dialogSize]; there is no edge to slide from or
-/// drag to. Mornye draws the sheet on overlay glass unless [mornyeGlass] is
-/// false for content that brings its own.
+/// Mornye draws the sheet on overlay glass unless [mornyeGlass] is false for
+/// content that brings its own.
 Future<T?> showAppModalBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -364,7 +359,6 @@ Future<T?> showAppModalBottomSheet<T>({
   bool? showDragHandle,
   bool mornyeGlass = true,
   BoxConstraints? constraints,
-  AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -385,83 +379,6 @@ Future<T?> showAppModalBottomSheet<T>({
         ? MornyeGlassPanel.overlay(child: Builder(builder: builder))
         : builder(context),
   );
-}
-
-/// widest the dialog grows; a narrower window shrinks it.
-enum AppDialogSize {
-  /// A confirmation or a single field.
-  compact(440),
-
-  /// A list or a picker.
-  medium(560),
-
-  /// An editor or a reference page.
-  wide(720);
-
-  const AppDialogSize(this.width);
-
-  final double width;
-}
-
-/// A dialog surface that lays out sheet content within a bounded window.
-class AppSheetDialog extends StatelessWidget {
-  const AppSheetDialog({
-    super.key,
-    required this.child,
-    this.isScrollControlled = false,
-    this.topInset = false,
-    this.mornyeGlass = true,
-    this.dialogSize = AppDialogSize.medium,
-  });
-
-  final Widget child;
-  final bool isScrollControlled;
-  final bool topInset;
-  final bool mornyeGlass;
-  final AppDialogSize dialogSize;
-
-  /// the corner they have always had.
-  static const double _mornyeRadius = 28;
-  static const double _margin = 24;
-
-  @override
-  Widget build(BuildContext context) {
-    final radius = _mornyeRadius;
-    final window = MediaQuery.sizeOf(context);
-    final width = (window.width - _margin * 2).clamp(0.0, dialogSize.width);
-    final maxHeight =
-        (window.height - _margin * 2) * (isScrollControlled ? 0.85 : 0.6);
-    Widget content = MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      removeBottom: true,
-      child: Padding(
-        padding: EdgeInsets.only(top: topInset ? context.tokens.gapLg : 0),
-        child: child,
-      ),
-    );
-    if (mornyeGlass) {
-      content = MornyeGlassPanel.overlay(radius: radius, child: content);
-    }
-    return Dialog(
-      key: const ValueKey('app-sheet-dialog'),
-      insetPadding: const EdgeInsets.all(_margin),
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radius),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: SizedBox(
-        width: width,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: content,
-        ),
-      ),
-    );
-  }
 }
 
 /// Flat rows sit directly on a sheet's glass.

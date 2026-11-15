@@ -145,8 +145,7 @@ class _MonthlyRewindBanner extends StatelessWidget {
     final l10n = context.l10n;
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    // Mornye keeps its neutral control fill and accent tint. Material keeps
-    // the card neutral too: the statistics hero is the strong container.
+    // The card keeps the neutral control fill and the accent tint.
     final foreground = colors.onSurface;
     final accent = colors.primary;
     final onAccent = colors.onPrimary;

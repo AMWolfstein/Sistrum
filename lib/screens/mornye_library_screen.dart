@@ -414,7 +414,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                         ),
                       ),
                     ]) ...[
-                      // Material, which would hide the row's ink.
+                      // A transparent Material keeps the row's ink visible.
                       Material(
                         type: MaterialType.transparency,
                         child: ListTile(

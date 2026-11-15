@@ -163,7 +163,7 @@ class _AppHeaderCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Material sits on the settings group tier beside the groups below.
+    // The card sits on the settings group tier beside the groups below.
     final cardColor = isDark
         ? Color.alphaBlend(
             Colors.white.withValues(alpha: 0.08),

@@ -158,7 +158,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Release 1'), findsOneWidget);
       expect(find.text('Release 10'), findsNothing);
-      // The expressive segmented group also lays out a measuring copy.
+      // The segmented group also lays out a measuring copy.
       await tester.tap(find.text('30 days').first);
       await tester.pumpAndSettle();
       expect(find.text('Release 10'), findsOneWidget);

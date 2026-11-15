@@ -278,8 +278,6 @@ class _ListeningStatisticsScreenState
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AppContentCard(
             mornyeSurface: false,
-            // Material leads with the total as an emphasized hero figure.
-            color: null,
             child: Padding(
               padding: EdgeInsets.all(20),
               child: Column(

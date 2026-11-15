@@ -43,8 +43,6 @@ class _LoadingOrErrorScaffold extends StatelessWidget {
   final String? error;
   final Widget loadingBody;
   final VoidCallback onRetry;
-  final bool collectionHeader;
-  final String? coverUrl;
 
   const _LoadingOrErrorScaffold({
     required this.title,
@@ -52,8 +50,6 @@ class _LoadingOrErrorScaffold extends StatelessWidget {
     required this.error,
     required this.loadingBody,
     required this.onRetry,
-    this.collectionHeader = false,
-    this.coverUrl,
   });
 
   @override
@@ -351,8 +347,6 @@ class _ExtensionAlbumScreenState extends ConsumerState<ExtensionAlbumScreen> {
     if (_isLoading || _error != null) {
       return _LoadingOrErrorScaffold(
         title: widget.albumName,
-        collectionHeader: true,
-        coverUrl: widget.coverUrl,
         isLoading: _isLoading,
         error: _error,
         loadingBody: const AlbumTrackListSkeleton(
@@ -481,8 +475,6 @@ class _ExtensionPlaylistScreenState
       return SkeletonCrossfade(
         child: _LoadingOrErrorScaffold(
           title: widget.playlistName,
-          collectionHeader: true,
-          coverUrl: widget.coverUrl,
           isLoading: _isLoading,
           error: _error,
           loadingBody: const TrackListSkeleton(

@@ -602,8 +602,7 @@ class _ResultStageState extends ConsumerState<_ResultStage> {
           ),
         ),
         SizedBox(height: tokens.gapXl),
-        // Apple stacks full-width actions; Material keeps a centered row
-        // that wraps.
+        // The actions stack at full width.
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: Column(

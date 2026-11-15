@@ -380,7 +380,6 @@ Future<String?> _showTextSheet(
   context: context,
   title: title,
   subtitle: subtitle,
-  dialogSize: AppDialogSize.compact,
   builder: (sheetContext, scrollController) => _TextSheetBody(
     scrollController: scrollController,
     initial: initial,
@@ -504,7 +503,7 @@ class _TextSheetBodyState extends State<_TextSheetBody> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           field,
-          // Material fields show the error themselves.
+          // The error shows under the field.
           if (_error != null)
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 4, top: 6),

@@ -28,3 +28,4 @@
 - M001-T005 — Delete AppTheme, move tests to Mornye and update docs
 - M001-TOR004 — Remove the Android home-screen widgets
 - M001-T006 — Cumulative review
+- TOR013 — Audit the M001 Material theme removal

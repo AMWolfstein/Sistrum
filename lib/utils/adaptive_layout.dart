@@ -91,21 +91,19 @@ double wideInsetForWidth(
 }) => maxWidth > contentMaxWidth ? (maxWidth - contentMaxWidth) / 2 : 0;
 
 /// Horizontal inset that centers full-width list content on tablets/landscape;
-/// zero on phones, so rows stop stretching across the whole screen. Mornye
-/// instead of stretching across a wide window.
+/// zero on phones, so rows stop stretching across the whole screen.
 double wideListInset(BuildContext context, {double? contentMaxWidth}) =>
     wideInsetForWidth(
       MediaQuery.sizeOf(context).width,
       contentMaxWidth: contentMaxWidth ?? defaultWideContentMaxWidth,
     );
 
-/// whole pane, as M3 panes do, with the 24dp margin of expanded and larger
-/// edge; elsewhere Home centers with [wideListInset].
+/// Horizontal inset of Home's content: it centers with [wideListInset].
 double homeContentInset(BuildContext context) => wideListInset(context);
 
-/// The M3 large window class starts at 1200dp; the extra 80dp leaves room
-/// for the navigation rail, since the inset is measured on the window width.
-const double materialContentMaxWidth = 1280;
+/// The large window class starts at 1200dp; the extra 80dp leaves room for the
+/// navigation rail, since the inset is measured on the window width.
+const double largeContentMaxWidth = 1280;
 
 /// Discography cover geometry shared by loaded cards and loading placeholders.
 double artistAlbumTileSize(BuildContext context) {

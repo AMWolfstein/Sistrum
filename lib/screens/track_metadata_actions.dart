@@ -33,7 +33,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      dialogSize: AppDialogSize.wide,
       builder: (sheetContext) => EditMetadataSheet(
         colorScheme: colorScheme,
         initialValues: initialValues,

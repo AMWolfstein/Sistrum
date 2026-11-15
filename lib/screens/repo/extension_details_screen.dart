@@ -681,7 +681,7 @@ class _MetadataRow extends StatelessWidget {
             ],
           ),
         ),
-        // Material groups rows by the card alone; dividers are Mornye's.
+        // Dividers separate the rows of the card.
         if (!isLast)
           Divider(
             height: 1,

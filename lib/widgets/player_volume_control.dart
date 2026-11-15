@@ -16,7 +16,7 @@ export 'package:sistrum/providers/system_volume_provider.dart';
 class PlayerVolumeControl extends ConsumerStatefulWidget {
   const PlayerVolumeControl({super.key, this.foreground = Colors.white});
 
-  /// Mornye only: the tint of the slider and glyphs over the player artwork.
+  /// The tint of the slider and glyphs over the player artwork.
   final Color foreground;
 
   @override

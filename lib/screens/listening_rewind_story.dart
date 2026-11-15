@@ -222,8 +222,7 @@ class _RewindStoryState extends State<_RewindStory>
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final palettes = [
-      for (var i = 0; i < _slides.length; i++)
-        _RewindPalette.of(context, i, widget.rewind),
+      for (var i = 0; i < _slides.length; i++) _RewindPalette.of(context),
     ];
     final palette = palettes[_index];
     final lastSlide = _index == _slides.length - 1;

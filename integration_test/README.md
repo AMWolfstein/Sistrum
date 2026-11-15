@@ -114,7 +114,7 @@ Suites:
 | `library_collections_workers_test.dart` | Large playlist search pages and metadata-only playlist copies |
 | `library_paging_performance_test.dart` | Long-scroll Library paging on real SQLite (performance) |
 | `library_pipeline_performance_test.dart` | Native SQLite startup, retained Library pages, artwork scrolling, scan ingestion and large collections with isolated fixtures |
-| `logs_performance_test.dart` | Production logs scrolling, log bursts and idle in both styles with 500 synthetic entries (performance) |
+| `logs_performance_test.dart` | Production logs scrolling, log bursts and idle with 500 synthetic entries (performance) |
 | `playback_pipeline_performance_test.dart` | Native local and HTTP playback, metadata, seek, rapid source replacement, cancellation and paused idle with private storage |
 | `loved_batch_write_test.dart` | Love All add and remove on real SQLite |
 | `lyrics_file_access_test.dart` | Embedding, sidecar and export of lyrics outside Downloads |

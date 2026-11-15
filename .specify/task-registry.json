@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 29,
+  "next_completion": 30,
   "next_mission": 3,
-  "next_tor": 13,
+  "next_tor": 14,
   "tasks": {
     "M001-T001": {
       "completion": 22,
@@ -464,6 +464,22 @@
       "record": ".specify/quick-tasks/TOR012.md",
       "status": "complete",
       "title": "Sort Cargo.lock after the crate rename"
+    },
+    "TOR013": {
+      "completion": 29,
+      "evidence": {
+        "checks": "Real review history: round 1 NEEDS_FIXES, round 2 NEEDS_FIXES (record numbers), round 3 PASS; flutter analyze no issues; full flutter test exit 0, 0 failed, 10 skipped, passed 3910 (hidden/loading excluded); Kotlin/Gradle and device not verified",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-ab292610",
+        "round": 3
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "e260ad0074c347f2923497a404ff07a3",
+      "record": ".specify/quick-tasks/TOR013.md",
+      "status": "complete",
+      "title": "Audit the M001 Material theme removal"
     }
   },
   "version": 1

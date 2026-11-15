@@ -369,8 +369,7 @@ class _WordHighlightedLyricLineState
       pendingColor: pendingColor,
       highlightedColor: highlightedColor,
       semanticsLabel: text,
-      // Sung words rise in both styles; the glow behind held words belongs
-      // to Mornye's look.
+      // Sung words rise, and a glow sits behind held words.
       liftEnabled: lift && !MediaQuery.disableAnimationsOf(context),
       glowEnabled: true,
       maxLines: widget.maxLines,

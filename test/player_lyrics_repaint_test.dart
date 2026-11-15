@@ -310,9 +310,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('sung words rise in both styles, glow only in Sistrum', (
-    tester,
-  ) async {
+  testWidgets('sung words rise and held words glow', (tester) async {
     final playback = StreamController<PlaybackState>.broadcast();
     final preview = ValueNotifier<Duration?>(null);
     addTearDown(playback.close);

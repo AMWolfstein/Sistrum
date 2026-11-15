@@ -676,9 +676,6 @@ class _SearchSongCoverCell extends ConsumerWidget {
         ),
         onLongPress: showOptions,
         borderRadius: radius,
-        // The M3 hover state layer; a pointer press shows as a state
-        // layer rather than a ripple.
-        hoverColor: null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -804,9 +801,6 @@ class _SearchCoverCell extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
-        // The M3 hover state layer; a pointer press shows as a state
-        // layer rather than a ripple.
-        hoverColor: null,
         child: Column(
           crossAxisAlignment: isArtist
               ? CrossAxisAlignment.center

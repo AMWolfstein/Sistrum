@@ -42,7 +42,7 @@ extension _ArtistScreenDiscography on _ArtistScreenState {
                 ],
               ),
             ),
-            // Material sheets separate the header by space; dividers are Mornye's.
+            // A divider separates the header from the options.
             const Divider(height: 1),
             if (albums.isNotEmpty)
               _DiscographyOptionTile(

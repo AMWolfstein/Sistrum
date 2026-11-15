@@ -9,24 +9,12 @@ import 'package:sistrum/theme/mornye_theme.dart';
 
 double _chroma(Color color) => Hct.fromInt(color.toARGB32()).chroma;
 
-/// Neutral grays still measure a little HCT chroma, so compare channels.
-bool _isGray(Color color) => color.r == color.g && color.g == color.b;
-
 void main() {
-  test('only covers that read as gray count as grayscale', () {
-    expect(isNearGrayscaleCover(const Color(0xff808080)), isTrue);
-    expect(isNearGrayscaleCover(const Color(0xff141414)), isTrue);
-    expect(isNearGrayscaleCover(const Color(0xff7d8085)), isTrue);
-    expect(isNearGrayscaleCover(const Color(0xffd4ddac)), isFalse);
-    expect(isNearGrayscaleCover(Colors.blue), isFalse);
-  });
-
-  testWidgets('a black and white cover gets a neutral scheme on request', (
+  testWidgets('a black and white cover keeps its tonal scheme in headers', (
     tester,
   ) async {
     late String gray;
     late ColorScheme tonal;
-    late ColorScheme neutral;
     final cache = PaintingBinding.instance.imageCache;
     final directory = await tester.runAsync(
       () => Directory.systemTemp.createTemp('palette-gray-'),
@@ -62,48 +50,15 @@ void main() {
         Color(0xff8a8a8a),
         Color(0xfff2f2f2),
       ]);
-      final blue = await write('blue.png', const [Colors.blue]);
 
       // No pixel clears Score's chroma filter, so the tonal scheme takes
-      // Material's fallback hue. Mornye keeps it and shades from the source
-      // colour instead.
+      // Material's fallback hue; headers keep it.
       tonal = (await CoverPalette.resolve(gray, Brightness.dark))!;
       expect(_chroma(tonal.primary), greaterThan(12));
-      neutral = (await CoverPalette.resolve(
-        gray,
-        Brightness.dark,
-        neutralGrayscale: true,
-      ))!;
-      for (final role in [
-        neutral.primary,
-        neutral.primaryContainer,
-        neutral.secondaryContainer,
-        neutral.surface,
-        neutral.surfaceContainer,
-        neutral.onSurfaceVariant,
-      ]) {
-        expect(_isGray(role), isTrue, reason: '$role');
-      }
       expect(CoverPalette.peek(gray, Brightness.dark), same(tonal));
-      expect(
-        CoverPalette.peek(gray, Brightness.dark, neutralGrayscale: true),
-        same(neutral),
-      );
-
-      // A colourful cover keeps its tonal scheme either way.
-      final colourful = await CoverPalette.resolve(blue, Brightness.dark);
-      expect(
-        await CoverPalette.resolve(
-          blue,
-          Brightness.dark,
-          neutralGrayscale: true,
-        ),
-        same(colourful),
-      );
     });
 
-    // Headers keep the tonal scheme; Mornye shades neutral covers from the
-    // source colour instead.
+    // Headers keep the tonal scheme.
     ColorScheme? built;
     await tester.pumpWidget(
       MaterialApp(
