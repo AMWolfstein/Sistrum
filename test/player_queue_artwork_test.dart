@@ -13,7 +13,6 @@ import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/widgets/mornye_player_queue.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/player_queue_artwork.dart';
-import 'package:sistrum/widgets/player_queue_sheet.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -66,8 +65,8 @@ void main() {
     expect(ready(), isTrue);
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('queued phone files recover covers before playback ($mornye)', (
+  {
+    testWidgets('queued phone files recover covers before playback', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(600, 1000);
@@ -94,8 +93,6 @@ void main() {
           extras: {'source': first.path},
         ),
       ];
-      final scroll = ScrollController();
-      addTearDown(scroll.dispose);
       final scheme = ColorScheme.fromSeed(seedColor: Colors.teal);
       final app = ProviderScope(
         overrides: [
@@ -111,15 +108,7 @@ void main() {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: mornye
-                ? MornyePlayerQueue(colorScheme: scheme)
-                : PlayerQueueSheet(
-                    colorScheme: scheme,
-                    scrollController: scroll,
-                    embedded: true,
-                  ),
-          ),
+          home: Scaffold(body: MornyePlayerQueue(colorScheme: scheme)),
         ),
       );
       await tester.runAsync(() async {

@@ -179,35 +179,10 @@ class _FilenameFormatEditorSheetState
   }
 
   Widget _tagChip(ColorScheme colorScheme, String tag) {
-    if (context.isMornye) {
-      return AppChoiceChip(
-        label: Text(tag),
-        selected: false,
-        onSelected: (_) => _insertTag(tag),
-      );
-    }
-    if (materialExpressiveEnabled(context)) {
-      // Inserting a tag is an action, not a selection: an assist chip.
-      return MaterialExpressiveScope(
-        child: M3EChip(
-          label: tag,
-          type: M3EChipType.assist,
-          onPressed: () => _insertTag(tag),
-        ),
-      );
-    }
-    return ActionChip(
+    return AppChoiceChip(
       label: Text(tag),
-      onPressed: () => _insertTag(tag),
-      backgroundColor: colorScheme.surfaceContainerHighest.withValues(
-        alpha: 0.5,
-      ),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      labelStyle: TextStyle(
-        color: colorScheme.onSurface,
-        fontWeight: FontWeight.w500,
-      ),
+      selected: false,
+      onSelected: (_) => _insertTag(tag),
     );
   }
 

@@ -292,9 +292,7 @@ class _TrackItemWithStatus extends ConsumerWidget {
                       Text(
                         track.name,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: context.isMornye
-                              ? FontWeight.w600
-                              : FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -491,9 +489,7 @@ class _CollectionItemWidget extends StatelessWidget {
                       Text(
                         item.name,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: context.isMornye
-                              ? FontWeight.w600
-                              : FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -510,12 +506,6 @@ class _CollectionItemWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (!context.isMornye)
-                  Icon(
-                    Icons.chevron_right,
-                    color: colorScheme.onSurfaceVariant,
-                    size: 24,
-                  ),
               ],
             ),
           ),

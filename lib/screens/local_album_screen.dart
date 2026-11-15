@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter/material.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/cover_palette.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -231,15 +229,11 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           ? albumCover
           : artworkTrack?.coverPath,
       filePath: artworkTrack?.filePath,
-      builder: (context, coverPath) => context.isMornye
-          ? MornyeArtistSurface(
-              imageSource: coverPath,
-              neutralActions: true,
-              child: Builder(
-                builder: (context) => _buildPage(context, coverPath),
-              ),
-            )
-          : _buildPage(context, coverPath),
+      builder: (context, coverPath) => MornyeArtistSurface(
+        imageSource: coverPath,
+        neutralActions: true,
+        child: Builder(builder: (context) => _buildPage(context, coverPath)),
+      ),
     );
   }
 
@@ -316,8 +310,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
     String qualityLabelMode,
     String? coverPath,
   ) {
-    final expandedHeight = calculateExpandedHeight(context);
-    final motion = context.isMornye && !MediaQuery.disableAnimationsOf(context)
+    final motion = !MediaQuery.disableAnimationsOf(context)
         ? ref
               .watch(
                 playerMotionArtworkProvider((
@@ -348,16 +341,13 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
 
     return AlbumDetailHeader(
       title: widget.albumName,
-      immersive: context.isMornye,
+      immersive: true,
       squareArtwork: motion == null,
-      expandedHeight: expandedHeight,
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
       background: motion == null
           ? background
           : MotionHeaderBanner(videoUrl: motion.source, fallback: background),
-      paletteSource: coverPath,
-      blurAndScrimBackground: coverPath != null,
       coverBuilder: (context, coverSize) => coverPath != null
           ? Image.file(
               File(coverPath),
@@ -387,11 +377,9 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
         builder: (header) => Text(
           widget.artistName,
           style: TextStyle(
-            color: context.isMornye
-                ? colorScheme.primary
-                : HeaderPalette.of(context).onSurfaceVariant,
+            color: colorScheme.primary,
             fontSize: context.tokens.headerSubtitleSize,
-            fontWeight: context.isMornye ? FontWeight.w400 : FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
           textAlign: TextAlign.center,
           maxLines: 1,

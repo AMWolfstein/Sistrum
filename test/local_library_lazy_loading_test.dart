@@ -24,7 +24,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(defaultLibraryView: 'all');
+  AppSettings build() => const AppSettings();
 
   @override
   void setLocalLibraryEnabled(bool enabled) {
@@ -77,7 +77,6 @@ class _Queue extends DownloadQueueNotifier {
 class _DownloadSettings extends SettingsNotifier {
   @override
   AppSettings build() => const AppSettings(
-    defaultLibraryView: 'all',
     defaultService: 'example',
     askQualityBeforeDownload: false,
   );

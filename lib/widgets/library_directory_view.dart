@@ -48,16 +48,9 @@ import 'package:sistrum/widgets/track_card.dart';
 /// selection bar on phones, the song table with click selection and the
 /// pages' header and shows the folders inside it as a grid of covers.
 class LibraryDirectoryView extends ConsumerStatefulWidget {
-  const LibraryDirectoryView({
-    super.key,
-    this.folderKey,
-    this.showHeader = true,
-  });
+  const LibraryDirectoryView({super.key, this.folderKey});
 
   final String? folderKey;
-
-  /// False inside the Material Library pager, which has its own header.
-  final bool showHeader;
 
   @override
   ConsumerState<LibraryDirectoryView> createState() =>
@@ -333,7 +326,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       key: PageStorageKey('library-folder:${key ?? ''}'),
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        if (widget.showHeader) AppSliverHeader.page(title: title),
+        AppSliverHeader.page(title: title),
         ...body,
         // Same reserve as the Library list, so the last rows can scroll
         // floating player.
@@ -417,7 +410,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           child: Padding(
             padding: EdgeInsetsDirectional.fromSTEB(
               gutter,
-              widget.showHeader ? 0 : tokens.gapMd,
+              0,
               gutter,
               tokens.gapMd,
             ),

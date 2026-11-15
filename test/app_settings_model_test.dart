@@ -28,7 +28,29 @@ void main() {
       final settings = const AppSettings().copyWith(historySortMode: sort);
       final restored = AppSettings.fromJson(settings.toJson());
       expect(restored.historySortMode, sort);
-      expect(restored.copyWith(historyViewMode: 'list').historySortMode, sort);
+      expect(restored.copyWith().historySortMode, sort);
+    }
+  });
+
+  test('retired Material-only settings in saved JSON are ignored', () {
+    final restored = AppSettings.fromJson({
+      'landscapeLyricsArtwork': true,
+      'compactPlayer': true,
+      'historyViewMode': 'list',
+      'historyFilterMode': 'albums',
+      'defaultLibraryView': 'folders',
+      'historySortMode': 'oldest',
+    });
+    expect(restored.historySortMode, 'oldest');
+    final saved = restored.toJson();
+    for (final key in [
+      'landscapeLyricsArtwork',
+      'compactPlayer',
+      'historyViewMode',
+      'historyFilterMode',
+      'defaultLibraryView',
+    ]) {
+      expect(saved.containsKey(key), isFalse, reason: key);
     }
   });
 

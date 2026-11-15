@@ -29,14 +29,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Albums",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Singles",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "settingsTitle": "Settings",
   "@settingsTitle": {
     "description": "Settings screen title"
@@ -88,10 +80,6 @@
   "appearanceThemeDark": "Dark",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "History View",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "List",
   "@appearanceHistoryViewList": {
@@ -193,15 +181,6 @@
   "extensionsDisabled": "Disabled",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "Version {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "Uninstall",
   "@extensionsUninstall": {
@@ -944,10 +923,6 @@
   },
   "sectionTheme": "Theme",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Layout",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Language",

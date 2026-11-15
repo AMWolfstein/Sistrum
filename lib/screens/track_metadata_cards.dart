@@ -1,11 +1,5 @@
 part of 'track_metadata_screen.dart';
 
-const _trackMetadataHeroScheme = ColorScheme.dark(
-  surface: Colors.black,
-  onSurface: Colors.white,
-  onSurfaceVariant: Colors.white70,
-);
-
 /// Content width, inside the page padding, at which the cards split into two
 /// columns of about 470 or more each.
 const double _trackMetadataTwoColumnMinWidth = 960;
@@ -16,11 +10,6 @@ double _trackMetadataContentMaxWidth(double width) =>
     ? math.min(width, materialContentMaxWidth)
     : adaptiveContentMaxWidth(width);
 
-final ImageFilter _trackMetadataBackdropBlur = ImageFilter.blur(
-  sigmaX: 32,
-  sigmaY: 32,
-);
-
 extension _TrackMetadataCards on _TrackMetadataScreenState {
   List<Widget> _headerMetadataItems(BuildContext context) => [
     if (_displayAudioQuality != null && _displayAudioQuality!.isNotEmpty)
@@ -29,7 +18,7 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
     if (_service == 'local')
       HeaderMetaItem(
         context.l10n.librarySourceLocal,
-        icon: context.isMornye ? CupertinoIcons.folder : Icons.folder,
+        icon: CupertinoIcons.folder,
       )
     else if (_service.isNotEmpty)
       HeaderMetaItem(_service[0].toUpperCase() + _service.substring(1)),
@@ -117,15 +106,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_fileAccessMessage(context) case final message?
-                    when !context.isMornye)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Text(
-                      message,
-                      style: TextStyle(color: colorScheme.error),
-                    ),
-                  ),
                 // analysis instead of one long column of stretched rows.
                 if (twoColumns)
                   Row(
@@ -139,213 +119,11 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                 else
                   column([...details, const SizedBox(height: 16), ...media]),
 
-                if (!context.isMornye) ...[
-                  const SizedBox(height: 24),
-                  _buildActionButtons(context, ref, colorScheme, _fileExists),
-                ],
-
                 const SizedBox(height: 32),
               ],
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderBackground(
-    BuildContext context,
-    ColorScheme colorScheme,
-    double expandedHeight,
-    bool showContent,
-  ) {
-    final coverCacheWidth = coverCacheWidthForViewport(context);
-    final backdropCacheWidth = metadataBackdropCacheExtent(context);
-    // Downloaded-item entry points must await resolveOrExtract before pushing
-    // this route. That precondition keeps the Hero, foreground, and backdrop
-    // on one source from the first frame; this synchronous lookup also covers
-    // cached rebuilds and in-screen swipe navigation.
-    final sharedEmbeddedCoverPath = _hasPath(_embeddedCoverPreviewPath)
-        ? _embeddedCoverPreviewPath
-        : DownloadedEmbeddedCoverResolver.resolve(_filePath);
-    final artworkSource = resolveMetadataArtworkSource(
-      embeddedCoverPath: sharedEmbeddedCoverPath,
-      localCoverPath: _localCoverPath,
-      remoteCoverUrl: _coverUrl,
-    );
-
-    Widget artworkImage({required int cacheWidth, int? cacheHeight}) {
-      final source = artworkSource;
-      if (source == null) {
-        return Container(
-          color: colorScheme.surfaceContainerHighest,
-          child: Icon(
-            Icons.music_note,
-            size: 80,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        );
-      }
-
-      if (isHttpCoverUrl(source)) {
-        return CachedCoverImage(
-          imageUrl: source,
-          fit: BoxFit.cover,
-          memCacheWidth: cacheWidth,
-          memCacheHeight: cacheHeight,
-          placeholder: (_, _) => Container(color: colorScheme.surface),
-          errorWidget: (_, _, _) => Container(color: colorScheme.surface),
-        );
-      }
-
-      final filePath = coverFilePath(source);
-      if (filePath == null) return Container(color: colorScheme.surface);
-      return Image.file(
-        File(filePath),
-        fit: BoxFit.cover,
-        cacheWidth: cacheWidth,
-        cacheHeight: cacheHeight,
-        gaplessPlayback: true,
-        filterQuality: FilterQuality.low,
-        errorBuilder: (_, _, _) => Container(color: colorScheme.surface),
-      );
-    }
-
-    Widget coverImage() => artworkImage(cacheWidth: coverCacheWidth);
-    Widget backdropImage() => artworkImage(
-      cacheWidth: backdropCacheWidth,
-      cacheHeight: backdropCacheWidth,
-    );
-
-    // Centered square cover over a blurred backdrop (same layout as the album
-    // header) so the Hero flight from a list thumbnail keeps its square shape.
-    // Landscape headers are short: the cover also yields to the height left
-    // below the toolbar after the title block, so nothing rises into it.
-    final toolbarBottom = MediaQuery.paddingOf(context).top + kToolbarHeight;
-    const textBlockHeight = 190.0;
-    final coverSize = math.min(
-      (MediaQuery.sizeOf(context).width * 0.5).clamp(150.0, 210.0),
-      math.max(96.0, expandedHeight - toolbarBottom - textBlockHeight),
-    );
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        RepaintBoundary(
-          key: ValueKey<String>('metadata_backdrop_$_itemId'),
-          child: ImageFiltered(
-            imageFilter: _trackMetadataBackdropBlur,
-            child: backdropImage(),
-          ),
-        ),
-        Container(color: Colors.black.withValues(alpha: 0.35)),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: expandedHeight * 0.65,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.85),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          left: 20,
-          right: 20,
-          bottom: 40,
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 150),
-            opacity: showContent ? 1.0 : 0.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Hero(
-                  tag: _coverHeroTag,
-                  child: Container(
-                    width: coverSize,
-                    height: coverSize,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.45),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: SizedBox(
-                        width: coverSize,
-                        height: coverSize,
-                        child: coverImage(),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ExplicitTrackTitle(
-                  title: trackName,
-                  explicit: isExplicit,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  colorScheme: _trackMetadataHeroScheme,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  artistName,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  albumName,
-                  style: const TextStyle(color: Colors.white54, fontSize: 14),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                HeaderPalette(
-                  scheme: _trackMetadataHeroScheme,
-                  child: HeaderMetaRow(items: _headerMetadataItems(context)),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  RoundedRectangleBorder _sectionCardShape(ColorScheme colorScheme) {
-    return RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-      side: BorderSide(
-        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
       ),
     );
   }
@@ -405,27 +183,10 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                   } else {
                     buttonLabel = context.l10n.trackOpenInSpotify;
                   }
-                  if (context.isMornye) {
-                    return HeaderFilledButton(
-                      icon: CupertinoIcons.arrow_up_right_square,
-                      label: buttonLabel,
-                      onPressed: () => _openServiceUrl(context),
-                    );
-                  }
-                  return ExpressiveButton(
-                    outlined: true,
+                  return HeaderFilledButton(
+                    icon: CupertinoIcons.arrow_up_right_square,
+                    label: buttonLabel,
                     onPressed: () => _openServiceUrl(context),
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(buttonLabel),
                   );
                 },
               ),
@@ -612,29 +373,17 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
             metadata.label == 'Amazon ASIN' ||
             metadata.label == 'Tidal ID' ||
             metadata.label == 'Qobuz ID';
-        if (context.isMornye) {
-          return MornyeMetadataRow(
-            label: metadata.label,
-            value: metadata.value,
-            showDivider: metadata != items.last,
-            trailing: isCopyable
-                ? Icon(
-                    CupertinoIcons.doc_on_doc,
-                    size: 16,
-                    color: colorScheme.onSurfaceVariant,
-                  )
-                : null,
-            onTap: isCopyable
-                ? () => _copyToClipboard(context, metadata.rawValue)
-                : null,
-            onLongPress: () => _showMetadataCopySheet(
-              context,
-              metadata: metadata,
-              allMetadata: items,
-            ),
-          );
-        }
-        return InkWell(
+        return MornyeMetadataRow(
+          label: metadata.label,
+          value: metadata.value,
+          showDivider: metadata != items.last,
+          trailing: isCopyable
+              ? Icon(
+                  CupertinoIcons.doc_on_doc,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                )
+              : null,
           onTap: isCopyable
               ? () => _copyToClipboard(context, metadata.rawValue)
               : null,
@@ -642,44 +391,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
             context,
             metadata: metadata,
             allMetadata: items,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          // Copyable rows keep the 48dp minimum touch target.
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: context.tokens.minTouchTarget,
-            ),
-            alignment: AlignmentDirectional.centerStart,
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                SizedBox(
-                  width: 100,
-                  child: Text(
-                    metadata.label,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    metadata.value,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                if (isCopyable)
-                  Icon(
-                    Icons.copy,
-                    size: 14,
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  ),
-              ],
-            ),
           ),
         );
       }).toList(),
@@ -889,15 +600,11 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                 constraints: BoxConstraints(
                   minHeight: context.tokens.minTouchTarget,
                 ),
-                padding: context.isMornye
-                    ? const EdgeInsets.all(12)
-                    : const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                decoration: context.isMornye
-                    ? BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                      )
-                    : null,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -913,7 +620,7 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                     ),
                     const SizedBox(width: 8),
                     Icon(
-                      context.isMornye ? CupertinoIcons.doc_on_doc : Icons.copy,
+                      CupertinoIcons.doc_on_doc,
                       size: 18,
                       color: colorScheme.onSurfaceVariant,
                     ),

@@ -262,14 +262,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "앨범",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "싱글",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "최근 추가됨",
   "libraryDownloads": "다운로드",
   "libraryNoActiveDownloads": "진행 중인 다운로드가 없습니다",
@@ -387,10 +379,6 @@
   "appearanceThemeDark": "어두운",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "기록 정렬 방식",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "리스트",
   "@appearanceHistoryViewList": {
@@ -640,15 +628,6 @@
   "extensionsDisabled": "비활성화됨",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "버전 {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "제거",
   "@extensionsUninstall": {
@@ -1714,10 +1693,6 @@
   },
   "sectionTheme": "테마",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "레이아웃",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "언어",
@@ -4972,14 +4947,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "기본 보기",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "최근 사용",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "다운로드 기록이 없음",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6503,10 +6470,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "현재 재생 중",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "재생 중인 노래가 없음",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6907,19 +6870,6 @@
   "lyricsAiErrorNoLyrics": "These lyrics have nothing to translate",
   "@lyricsAiErrorNoLyrics": {
     "description": "AI translation error when the lyrics have no translatable lines"
-  },
-  "nowPlayingLibraryEmpty": "라이브러리가 비어 있음",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "라이브러리에서 셔플을 사용할 수 없음: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "셔플 켜기",
   "@nowPlayingShuffleOn": {
@@ -7344,22 +7294,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "소형 플레이어",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
-  },
   "playerCoverStyleCard": "카드",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7479,39 +7413,6 @@
   "profileRemovePhoto": "사진 삭제",
   "profilePhotoError": "20MB보다 작은 유효한 이미지를 선택하세요",
   "profileSaveError": "프로필을 저장할 수 없습니다. 다시 시도하세요",
-  "homeGreetingMorning1": "좋은 아침이에요",
-  "homeGreetingMorning2": "활기차게 하루를 시작해요",
-  "homeGreetingMorning3": "새로운 하루를 시작해요",
-  "homeGreetingAfternoon1": "좋은 오후예요",
-  "homeGreetingAfternoon2": "기분 좋은 오후예요",
-  "homeGreetingAfternoon3": "좋은 분위기 그대로 이어가요",
-  "homeGreetingEvening1": "좋은 저녁이에요",
-  "homeGreetingEvening2": "편안한 시간 보내세요",
-  "homeGreetingEvening3": "아름다운 저녁이에요",
-  "homeGreetingNight1": "좋은 밤이에요",
-  "homeGreetingNight2": "깊어가는 밤, 함께해요",
-  "homeGreetingNight3": "평온한 밤 보내세요",
-  "homeGreetingNamed": "{greeting}, {name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "무엇을 듣고 있나요?",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "링크가 있으신가요? 검색창에 넣어주세요",
-  "homeTaglineDiscover": "다음으로 좋아하는 앨범을 찾아보세요",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "계속 듣기",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7523,11 +7424,6 @@
   "homeOnRepeat": "반복 재생",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
-  },
-  "homeShortcuts": "바로가기",
-  "homeMixesForYou": "Mixes for you",
-  "@homeMixesForYou": {
-    "description": "Home section header for daily mixes made from the user's own Library songs"
   },
   "homeMixFavoritesTitle": "Favorites Mix",
   "@homeMixFavoritesTitle": {
@@ -7748,7 +7644,6 @@
   "listeningStatsClear": "청취 통계 지우기",
   "listeningStatsClearError": "청취 통계 지울 수 없습니다. 다시 시도하세요",
   "listeningStatsClearDescription": "이 기기에서 모든 청취 통계를 삭제하시겠습니까? 음악과 재생목록은 유지됩니다",
-  "libraryArtistsEmpty": "음악을 다운로드하거나 로컬 라이브러리를 검색하면 여기에 아티스트가 표시됩니다",
   "listeningRewind": "되감기",
   "listeningRewindDescription": "최근 몇 주, 몇 달 동안의 하이라이트를 다시 경험하세요",
   "listeningRewindChoosePeriod": "기간 선택",
@@ -8031,7 +7926,6 @@
   "equalizerEffectivePreamp": "헤드룸 후 입력 게인",
   "equalizerDeletePreset": "프레셋 삭제",
   "equalizerCustom": "사용자 정의",
-  "equalizerManagePresets": "프리셋 관리",
   "lyricsShareTitle": "가사 공유",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

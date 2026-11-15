@@ -7,15 +7,12 @@ import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EShapeKind;
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/listening_rewind_provider.dart';
 import 'package:sistrum/services/listening_rewind.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/widget_capture.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -149,12 +146,11 @@ class _MonthlyRewindBanner extends StatelessWidget {
     final l10n = context.l10n;
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final mornye = context.isMornye;
     // Mornye keeps its neutral control fill and accent tint. Material keeps
     // the card neutral too: the statistics hero is the strong container.
     final foreground = colors.onSurface;
-    final accent = mornye ? colors.primary : colors.tertiary;
-    final onAccent = mornye ? colors.onPrimary : colors.onTertiary;
+    final accent = colors.primary;
+    final onAccent = colors.onPrimary;
     return AppContentCard(
       margin: margin,
       color: colors.surfaceContainerHigh,
@@ -216,9 +212,7 @@ class _YearlyRewindBanner extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final year = '${DateTime.now().year}';
     final foreground = colors.onPrimary;
-    final radius = context.isMornye
-        ? BorderRadius.circular(28)
-        : context.tokens.borderRadiusCard;
+    final radius = BorderRadius.circular(28);
     return Padding(
       padding: margin ?? EdgeInsets.zero,
       child: Material(
@@ -344,10 +338,8 @@ class ListeningRewindScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rewind = ref.watch(listeningRewindProvider(period));
-    final mornye = context.isMornye;
-    final colors = Theme.of(context).colorScheme;
-    final background = mornye ? Colors.black : colors.surface;
-    final foreground = mornye ? Colors.white : colors.onSurface;
+    final background = Colors.black;
+    final foreground = Colors.white;
     Widget message(String text) =>
         _RewindMessage(text: text, foreground: foreground);
     return Scaffold(

@@ -3,46 +3,19 @@ part of 'home_tab.dart';
 extension _HomeTabExploreUI on _HomeTabState {
   List<Widget> _buildExploreSections(
     List<ExploreSection> sections,
-    String? greeting,
     ColorScheme colorScheme,
   ) {
-    final hasGreeting =
-        !context.isMornye && greeting != null && greeting.isNotEmpty;
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
-    final sectionOffset = hasGreeting ? 1 : 0;
-    final totalCount = sections.length + sectionOffset + 1;
-
+    final totalCount = sections.length + 1;
     return [
       SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          if (hasGreeting && index == 0) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                16 + homeContentInset(context),
-                12,
-                16 + homeContentInset(context),
-                4,
-              ),
-              child: Text(
-                greeting,
-                style:
-                    (isTablet
-                            ? Theme.of(context).textTheme.headlineMedium
-                            : Theme.of(context).textTheme.headlineSmall)
-                        ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            );
-          }
-
-          final sectionIndex = index - sectionOffset;
-          if (sectionIndex < sections.length) {
-            final section = sections[sectionIndex];
+          if (index < sections.length) {
+            final section = sections[index];
             return KeyedSubtree(
               key: ValueKey('explore-section-${section.uri}-${section.title}'),
               child: _buildExploreSection(section, colorScheme),
             );
           }
-
           return const SizedBox(height: 24);
         }, childCount: totalCount),
       ),
@@ -385,7 +358,7 @@ extension _HomeTabExploreUI on _HomeTabState {
   }
 
   void _showTrackBottomSheet(ExploreItem item, BuildContext itemContext) {
-    if (context.isMornye) {
+    {
       final box = itemContext.findRenderObject();
       final anchor = box is RenderBox && box.hasSize
           ? box.localToGlobal(Offset.zero) & box.size
@@ -419,94 +392,6 @@ extension _HomeTabExploreUI on _HomeTabState {
       );
       return;
     }
-
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showAppModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const AppSheetHandle(),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  DownloadableCover(
-                    coverUrl: item.coverUrl,
-                    baseName: '${item.artists} - ${item.name}',
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: item.coverUrl != null && item.coverUrl!.isNotEmpty
-                          ? CachedCoverImage(
-                              imageUrl: item.coverUrl!,
-                              width: 64,
-                              height: 64,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: 64,
-                              height: 64,
-                              color: colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.music_note,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ExplicitTrackTitle(
-                          title: item.name,
-                          explicit: item.explicit == true,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        ClickableArtistName(
-                          artistName: item.artists,
-                          coverUrl: item.coverUrl,
-                          extensionId: item.providerId,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: colorScheme.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Material sheets separate the header by space alone.
-            if (context.isMornye) const Divider(height: 1),
-            ListTile(
-              leading: Icon(Icons.download, color: colorScheme.primary),
-              title: Text(context.l10n.downloadTitle),
-              onTap: () {
-                Navigator.pop(context);
-                _handleExploreTrackPrimaryAction(item);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.album, color: colorScheme.onSurfaceVariant),
-              title: Text(context.l10n.homeGoToAlbum),
-              onTap: () {
-                Navigator.pop(context);
-                _navigateToTrackAlbum(item);
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
   }
 
   Future<void> _handleExploreTrackPrimaryAction(ExploreItem item) async {

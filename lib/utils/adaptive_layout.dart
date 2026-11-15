@@ -3,18 +3,13 @@ import 'package:flutter/material.dart';
 /// Keeps touch-first tablets on the bottom navigation used by phones. A rail
 const double navigationRailBreakpoint = 1440;
 
-/// Material's expanded window class. Landscape tablets switch the Material
-/// theme to a navigation rail and Mornye to compact, centered chrome; portrait
-/// tablets stay below it.
+/// The expanded window class: landscape tablets switch Mornye to compact,
+/// centered chrome; portrait tablets stay below it.
 const double expandedLayoutBreakpoint = 840;
 const double defaultWideContentMaxWidth = 840;
 
 bool useNavigationRailForWidth(double width) =>
     width >= navigationRailBreakpoint;
-
-/// The Material theme follows Material's expanded window class.
-bool useMaterialNavigationRailForWidth(double width) =>
-    width >= expandedLayoutBreakpoint;
 
 /// Explicit horizontal safe spacing for controls drawn in full-bleed detail
 /// headers. Filled expressive circles need breathing room from the device edge.
@@ -125,7 +120,7 @@ double artistAlbumSectionHeight(BuildContext context) =>
     ((effectiveTextScale(context) - 1) * 14);
 
 /// Search results trade phone rows for cover grids and shelves once their
-/// content is this wide (Material's expanded window class).
+/// content is this wide (the expanded window class).
 const double searchCoverLayoutMinWidth = 840;
 
 /// The smallest cover of a search result grid: a wider pane adds columns

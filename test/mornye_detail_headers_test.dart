@@ -175,7 +175,6 @@ void main() {
                   bottomInset: 0,
                   appBar: AlbumDetailHeader(
                     title: 'Monochrome album',
-                    expandedHeight: 400,
                     showTitleInAppBar: false,
                     immersive: true,
                     background: const ColoredBox(color: Colors.white),
@@ -486,7 +485,6 @@ void main() {
                     immersive: true,
                     squareArtwork: squareArtwork,
                     title: 'Album',
-                    expandedHeight: 400,
                     showTitleInAppBar: false,
                     background: const ColoredBox(
                       key: artworkKey,
@@ -582,7 +580,6 @@ void main() {
                     immersive: true,
                     title:
                         'A long album title that must wrap without hiding any of its controls',
-                    expandedHeight: 400,
                     showTitleInAppBar: false,
                     background: const ColoredBox(
                       key: ValueKey('album-artwork'),
@@ -665,7 +662,6 @@ void main() {
             bottomInset: 0,
             appBar: AlbumDetailHeader(
               title: 'Album title',
-              expandedHeight: 400,
               showTitleInAppBar: false,
               immersive: true,
               squareArtwork: false,

@@ -152,7 +152,6 @@ class ExploreSection {
 class ExploreState {
   final bool isLoading;
   final String? error;
-  final String? greeting;
   final String? providerId;
   final List<ExploreSection> sections;
   final DateTime? lastFetched;
@@ -160,7 +159,6 @@ class ExploreState {
   const ExploreState({
     this.isLoading = false,
     this.error,
-    this.greeting,
     this.providerId,
     this.sections = const [],
     this.lastFetched,
@@ -171,7 +169,6 @@ class ExploreState {
   ExploreState copyWith({
     bool? isLoading,
     String? error,
-    String? greeting,
     String? providerId,
     bool clearProviderId = false,
     List<ExploreSection>? sections,
@@ -180,24 +177,10 @@ class ExploreState {
     return ExploreState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
-      greeting: greeting ?? this.greeting,
       providerId: clearProviderId ? null : (providerId ?? this.providerId),
       sections: sections ?? this.sections,
       lastFetched: lastFetched ?? this.lastFetched,
     );
-  }
-}
-
-String _getLocalGreeting() {
-  final hour = DateTime.now().hour;
-  if (hour >= 5 && hour < 12) {
-    return 'Good morning';
-  } else if (hour >= 12 && hour < 17) {
-    return 'Good afternoon';
-  } else if (hour >= 17 && hour < 21) {
-    return 'Good evening';
-  } else {
-    return 'Good night';
   }
 }
 
@@ -402,7 +385,6 @@ class ExploreNotifier extends Notifier<ExploreState> {
       // active request still owns refresh completion and deduplication.
       state = ExploreState(
         error: state.error,
-        greeting: _getLocalGreeting(),
         providerId: resolvedProviderId,
         sections: sections,
         lastFetched: lastFetched,
@@ -549,7 +531,6 @@ class ExploreNotifier extends Notifier<ExploreState> {
         normalizedSections,
       );
 
-      final localGreeting = _getLocalGreeting();
       _log.i(
         'Home feed updated: provider=${targetExt.id}, '
         'sections=${sections.length}',
@@ -558,7 +539,6 @@ class ExploreNotifier extends Notifier<ExploreState> {
       _cacheRestoreGeneration++;
       state = ExploreState(
         isLoading: false,
-        greeting: localGreeting,
         providerId: targetExt.id,
         sections: sections,
         lastFetched: DateTime.now(),

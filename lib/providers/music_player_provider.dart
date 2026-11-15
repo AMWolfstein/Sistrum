@@ -2,14 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/history_row_mapper.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_media_identity.dart';
 import 'package:sistrum/services/music_player_service.dart';
@@ -213,128 +210,6 @@ final mediaItemPlaybackUiProvider = Provider.autoDispose
       final isCurrent = ref.watch(
         currentMediaItemProvider.select(
           (state) => mediaItemPlaysRow(state.value, row),
-        ),
-      );
-      return isCurrent ? _currentPlaybackUi(ref) : _notCurrent;
-    });
-
-/// A catalog track row (an online album, a playlist, a Library folder) by
-/// the values its downloaded file can be matched on: its catalog [id], its
-/// normalized [isrc] and its title and artist [matchKey].
-typedef CatalogTrackKey = ({String id, String isrc, String matchKey});
-
-CatalogTrackKey catalogTrackKey(Track track) => (
-  id: track.id.trim(),
-  isrc: HistoryDatabase.normalizeIsrc(track.isrc),
-  matchKey: HistoryDatabase.matchKeyFor(track.name, track.artistName),
-);
-
-/// The records behind the current media item, for marking catalog rows,
-/// which carry no media id or file path of their own.
-@immutable
-class CurrentTrackIdentity {
-  const CurrentTrackIdentity({
-    this.recordIds = const {},
-    this.catalogIds = const {},
-    this.isrc = '',
-    this.matchKey = '',
-  });
-
-  factory CurrentTrackIdentity.of({
-    required String mediaId,
-    UnifiedLibraryItem? record,
-  }) {
-    final history = record?.historyItem;
-    final local = record?.localItem;
-    return CurrentTrackIdentity(
-      recordIds: {mediaId, ?history?.id, ?local?.id},
-      catalogIds: {
-        for (final id in HistoryDatabase.spotifyLookupCandidates(
-          history?.spotifyId,
-        ))
-          HistoryRowMapper.normalizeSpotifyId(id),
-      },
-      isrc: HistoryDatabase.normalizeIsrc(history?.isrc ?? local?.isrc),
-      matchKey: record == null
-          ? ''
-          : HistoryDatabase.matchKeyFor(record.trackName, record.artistName),
-    );
-  }
-
-  /// Ids that name this one file: the media id and its download and Library
-  /// rows. Library playlists store these for downloaded and local tracks.
-  final Set<String> recordIds;
-
-  /// The catalog ids the file was downloaded as, normalized.
-  final Set<String> catalogIds;
-  final String isrc;
-  final String matchKey;
-
-  /// Whether [row] is this track. A record id is exact. Otherwise two ISRCs
-  /// decide, and without one on both sides the catalog id must match along
-  /// with the title and artist: providers number their catalogs
-  /// independently, so an id alone can name another song. A title and artist
-  /// alone never match.
-  bool matches(CatalogTrackKey row) {
-    if (row.id.isNotEmpty && recordIds.contains(row.id)) return true;
-    if (isrc.isNotEmpty && row.isrc.isNotEmpty) return isrc == row.isrc;
-    return row.id.isNotEmpty &&
-        catalogIds.contains(HistoryRowMapper.normalizeSpotifyId(row.id)) &&
-        matchKey.isNotEmpty &&
-        matchKey == row.matchKey;
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      other is CurrentTrackIdentity &&
-      setEquals(other.recordIds, recordIds) &&
-      setEquals(other.catalogIds, catalogIds) &&
-      other.isrc == isrc &&
-      other.matchKey == matchKey;
-
-  @override
-  int get hashCode => Object.hash(
-    Object.hashAllUnordered(recordIds),
-    Object.hashAllUnordered(catalogIds),
-    isrc,
-    matchKey,
-  );
-}
-
-/// The identity of the current media item, resolved once per track change.
-final currentTrackIdentityProvider =
-    FutureProvider.autoDispose<CurrentTrackIdentity?>((ref) async {
-      final current = ref.watch(
-        currentMediaItemProvider.select((state) {
-          final item = state.value;
-          if (item == null) return null;
-          return (
-            id: item.id,
-            source: item.extras?['source']?.toString() ?? '',
-            title: item.title,
-            artist: item.artist ?? '',
-          );
-        }),
-      );
-      if (current == null) return null;
-      final record = await _libraryItemForMedia(
-        ref,
-        id: current.id,
-        source: current.source,
-        title: current.title,
-        artist: current.artist,
-      );
-      return CurrentTrackIdentity.of(mediaId: current.id, record: record);
-    });
-
-/// Transport state for one catalog track row. Rows stay unmarked while the
-/// current item's identity resolves, so a track change never marks the row
-/// of the previous track.
-final catalogTrackPlaybackUiProvider = Provider.autoDispose
-    .family<MediaPlaybackUi, CatalogTrackKey>((ref, row) {
-      final isCurrent = ref.watch(
-        currentTrackIdentityProvider.select(
-          (state) => !state.isLoading && (state.value?.matches(row) ?? false),
         ),
       );
       return isCurrent ? _currentPlaybackUi(ref) : _notCurrent;

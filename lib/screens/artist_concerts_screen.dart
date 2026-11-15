@@ -4,7 +4,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/artist_concert.dart';
 import 'package:sistrum/screens/concert_detail_screen.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
@@ -39,7 +38,7 @@ class _ArtistConcertsScreenState extends State<ArtistConcertsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
+    {
       final theme = Theme.of(context);
       final route = ModalRoute.of(context);
       if (route != null) {

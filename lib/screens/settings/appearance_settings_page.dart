@@ -117,18 +117,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
               ],
             ),
 
-            ...settingsSectionSlivers(
-              title: context.l10n.sectionLayout,
-              children: [
-                _HistoryViewSelector(
-                  currentMode: settings.historyViewMode,
-                  onChanged: (mode) => ref
-                      .read(settingsProvider.notifier)
-                      .setHistoryViewMode(mode),
-                ),
-              ],
-            ),
-
             const SliverToBoxAdapter(child: SizedBox(height: 32)),
             const NavBarSliverSpacer(),
           ],

@@ -785,7 +785,6 @@ void main() {
               onExitSelectionMode: () {},
               appBar: const AlbumDetailHeader(
                 title: 'Album',
-                expandedHeight: 400,
                 immersive: true,
                 showTitleInAppBar: false,
                 background: ColoredBox(color: Colors.blue),

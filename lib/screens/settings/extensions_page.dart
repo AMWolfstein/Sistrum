@@ -16,7 +16,6 @@ import 'package:sistrum/screens/settings/download_fallback_extensions_page.dart'
 import 'package:sistrum/screens/settings/extension_detail_page.dart';
 import 'package:sistrum/screens/settings/metadata_provider_priority_page.dart';
 import 'package:sistrum/screens/settings/provider_priority_page.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -65,7 +64,7 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
       onPressed: _installExtension,
       icon: const AppIcon(Icons.add),
       label: Text(context.l10n.extensionsInstallButton),
-      outlined: context.isMornye,
+      outlined: true,
       glass: false,
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -217,13 +216,11 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
                     );
                     return Padding(
                       padding: EdgeInsets.fromLTRB(inset, 16, inset, 16),
-                      child: context.isMornye
-                          ? MornyeGlassPanel.overlay(
-                              radius: 28,
-                              samplesBackdrop: false,
-                              child: installButton,
-                            )
-                          : installButton,
+                      child: MornyeGlassPanel.overlay(
+                        radius: 28,
+                        samplesBackdrop: false,
+                        child: installButton,
+                      ),
                     );
                   },
                 ),

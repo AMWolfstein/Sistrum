@@ -25,7 +25,6 @@ import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/collection_suggestions_section.dart';
 import 'package:sistrum/widgets/downloadable_cover.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 class PlaylistScreen extends ConsumerStatefulWidget {
@@ -241,14 +240,11 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource: _coverUrl,
-        neutralActions: true,
-        child: Builder(builder: _buildPage),
-      );
-    }
-    return _buildPage(context);
+    return MornyeArtistSurface(
+      imageSource: _coverUrl,
+      neutralActions: true,
+      child: Builder(builder: _buildPage),
+    );
   }
 
   Widget _buildPage(BuildContext context) {
@@ -289,7 +285,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
   }
 
   Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
-    final expandedHeight = calculateExpandedHeight(context);
     final cacheWidth = coverCacheWidthForViewport(context);
     final motionUrl = _headerVideoUrl;
     final hasMotion =
@@ -319,16 +314,13 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
 
     return AlbumDetailHeader(
       title: _playlistName,
-      immersive: context.isMornye,
+      immersive: true,
       squareArtwork: !hasMotion,
-      expandedHeight: expandedHeight,
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
       background: hasMotion
           ? MotionHeaderBanner(videoUrl: motionUrl, fallback: coverImage)
           : coverImage,
-      paletteSource: _coverUrl,
-      blurAndScrimBackground: !hasMotion && _coverUrl != null,
       coverBuilder: hasMotion
           ? null
           : (context, coverSize) => _coverUrl != null

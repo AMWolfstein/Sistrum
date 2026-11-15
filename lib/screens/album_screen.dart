@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -275,35 +274,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
     return stripPrefixedResourceId(widget.albumId);
   }
 
-  static final _qualitySeparators = RegExp(r'[\s_-]+');
-  static final _releaseYearPattern = RegExp(r'(\d{4})');
-
-  static (String, bool?) _qualitySignature(Track track) => (
-    (track.audioQuality ?? '').trim().toLowerCase().replaceAll(
-      _qualitySeparators,
-      '',
-    ),
-    (track.audioModes?.trim().isEmpty ?? true) ? null : track.isDolbyAtmos,
-  );
-
-  Track? _commonQualityTrack(List<Track> tracks) {
-    final counts = <(String, bool?), int>{};
-    for (final track in tracks) {
-      final signature = _qualitySignature(track);
-      if (signature.$1.isEmpty && signature.$2 != true) continue;
-      counts.update(signature, (count) => count + 1, ifAbsent: () => 1);
-    }
-    // A strict majority avoids choosing an arbitrary baseline for mixed albums.
-    // Unknown metadata counts towards the total, but never implies a quality.
-    for (final track in tracks) {
-      if ((counts[_qualitySignature(track)] ?? 0) > tracks.length / 2) {
-        return track;
-      }
-    }
-    return null;
-  }
-
-  List<Widget> _audioTraitInline({Track? commonQualityTrack}) {
+  List<Widget> _audioTraitInline() {
     final traits = _audioTraits
         .map((t) => t.toLowerCase().trim())
         .where((t) => t.isNotEmpty)
@@ -311,10 +282,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
     bool has(List<String> keys) => keys.any(traits.contains);
 
     final items = <Widget>[];
-    if ((commonQualityTrack == null
-            ? null
-            : _qualitySignature(commonQualityTrack).$2) ??
-        has(['atmos', 'dolby_atmos', 'dolby-atmos'])) {
+    if (has(['atmos', 'dolby_atmos', 'dolby-atmos'])) {
       items.add(
         Builder(
           builder: (context) => DolbyAtmosLogo(
@@ -333,38 +301,27 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
       items.add(HeaderMetaItem('Lossless', icon: Icons.graphic_eq));
     }
 
-    final quality = commonQualityTrack?.audioQuality?.trim();
-    if (quality != null &&
-        quality.isNotEmpty &&
-        !items.whereType<HeaderMetaItem>().any(
-          (item) => item.label.toLowerCase() == quality.toLowerCase(),
-        )) {
-      items.add(HeaderMetaItem(quality));
-    }
-
     return items;
   }
 
-  Widget _buildHeaderMeta(
-    BuildContext context,
-    String? releaseDate,
-    Track? commonQualityTrack,
-  ) {
+  Widget _buildHeaderMeta(BuildContext context, String? releaseDate) {
     final items = <Widget>[];
 
     final genre = _tracks?.firstOrNull?.genre?.trim();
-    if (context.isMornye && genre != null && genre.isNotEmpty) {
+    if (genre != null && genre.isNotEmpty) {
       items.add(HeaderMetaItem(genre));
     }
     final year = _releaseYear(releaseDate);
     if (year != null) items.add(HeaderMetaItem(year));
-    items.addAll(_audioTraitInline(commonQualityTrack: commonQualityTrack));
+    items.addAll(_audioTraitInline());
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 20),
       child: HeaderMetaRow(items: items),
     );
   }
+
+  static final _releaseYearPattern = RegExp(r'(\d{4})');
 
   String? _releaseYear(String? date) {
     if (date == null || date.isEmpty) return null;
@@ -422,23 +379,16 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource:
-            widget.coverUrl ?? _headerImageUrl ?? widget.headerImageUrl,
-        neutralActions: true,
-        child: Builder(builder: _buildPage),
-      );
-    }
-    return _buildPage(context);
+    return MornyeArtistSurface(
+      imageSource: widget.coverUrl ?? _headerImageUrl ?? widget.headerImageUrl,
+      neutralActions: true,
+      child: Builder(builder: _buildPage),
+    );
   }
 
   Widget _buildPage(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final tracks = _tracks ?? [];
-    final commonQualityTrack = context.isMornye
-        ? null
-        : _commonQualityTrack(tracks);
     final pageBackgroundColor = colorScheme.surface;
     final bottomPadding = isSelectionMode
         ? MediaQuery.paddingOf(context).bottom
@@ -462,12 +412,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
         ids,
         bottomPadding,
       ),
-      appBar: _buildAppBar(
-        context,
-        colorScheme,
-        pageBackgroundColor,
-        commonQualityTrack,
-      ),
+      appBar: _buildAppBar(context, colorScheme, pageBackgroundColor),
       slivers: [
         if (_description != null)
           SliverToBoxAdapter(
@@ -493,7 +438,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
             ),
           ),
         if (!_isLoading && _error == null && tracks.isNotEmpty) ...[
-          _buildTrackList(context, colorScheme, tracks, commonQualityTrack),
+          _buildTrackList(context, colorScheme, tracks),
           _buildAlbumFooter(context, colorScheme, tracks),
           if (!isSelectionMode)
             CollectionSuggestionsSliver(
@@ -510,7 +455,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
     BuildContext context,
     ColorScheme colorScheme,
     Color pageBackgroundColor,
-    Track? commonQualityTrack,
   ) {
     final tracks = _tracks ?? [];
     final artistName =
@@ -519,15 +463,12 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
             ? (tracks.first.albumArtist ?? tracks.first.artistName)
             : null);
     final releaseDate = tracks.isNotEmpty ? tracks.first.releaseDate : null;
-
     final motionUrl = _headerVideoUrl ?? widget.headerVideoUrl;
     final hasMotion =
         motionUrl != null &&
         motionUrl.trim().isNotEmpty &&
         Uri.tryParse(motionUrl)?.hasAuthority == true;
     final coverThumbUrl = widget.coverUrl ?? _headerImageUrl;
-    final showSquareCover = context.isMornye || !hasMotion;
-    final expandedHeight = calculateExpandedHeight(context);
     final cacheWidth = coverCacheWidthForViewport(context);
     final headerBgUrl =
         _headerImageUrl ?? widget.headerImageUrl ?? widget.coverUrl;
@@ -548,61 +489,52 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
               color: colorScheme.onSurfaceVariant,
             ),
           );
-
     final Widget background = hasMotion
         ? MotionHeaderBanner(videoUrl: motionUrl, fallback: headerBgImage())
         : headerBgImage();
-
     return AlbumDetailHeader(
       title: widget.albumName,
-      immersive: context.isMornye,
+      immersive: true,
       squareArtwork: !hasMotion && headerBgUrl == coverThumbUrl,
-      expandedHeight: expandedHeight,
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
-      backgroundColor: pageBackgroundColor,
       background: background,
-      paletteSource: coverThumbUrl,
-      blurAndScrimBackground: showSquareCover,
-      coverBuilder: showSquareCover
-          ? (context, coverSize) => context.isMornye && hasMotion
-                ? background
-                : coverThumbUrl != null
-                ? DownloadableCover(
-                    coverUrl: highResCoverUrl(coverThumbUrl) ?? coverThumbUrl,
-                    baseName: [
-                      if (artistName != null && artistName.isNotEmpty)
-                        artistName,
-                      widget.albumName,
-                    ].join(' - '),
-                    child: CachedNetworkImage(
-                      imageUrl: highResCoverUrl(coverThumbUrl) ?? coverThumbUrl,
-                      fit: BoxFit.cover,
-                      width: coverSize,
-                      height: coverSize,
-                      memCacheWidth: cacheWidth,
-                      cacheManager: CoverCacheManager.instance,
-                      placeholder: (_, _) =>
-                          Container(color: colorScheme.surfaceContainerHighest),
-                      errorWidget: (_, _, _) => Container(
-                        color: colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          Icons.album,
-                          size: 48,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(
-                    color: colorScheme.surfaceContainerHighest,
-                    child: Icon(
-                      Icons.album,
-                      size: 48,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  )
-          : null,
+      coverBuilder: (context, coverSize) => hasMotion
+          ? background
+          : coverThumbUrl != null
+          ? DownloadableCover(
+              coverUrl: highResCoverUrl(coverThumbUrl) ?? coverThumbUrl,
+              baseName: [
+                if (artistName != null && artistName.isNotEmpty) artistName,
+                widget.albumName,
+              ].join(' - '),
+              child: CachedNetworkImage(
+                imageUrl: highResCoverUrl(coverThumbUrl) ?? coverThumbUrl,
+                fit: BoxFit.cover,
+                width: coverSize,
+                height: coverSize,
+                memCacheWidth: cacheWidth,
+                cacheManager: CoverCacheManager.instance,
+                placeholder: (_, _) =>
+                    Container(color: colorScheme.surfaceContainerHighest),
+                errorWidget: (_, _, _) => Container(
+                  color: colorScheme.surfaceContainerHighest,
+                  child: Icon(
+                    Icons.album,
+                    size: 48,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            )
+          : Container(
+              color: colorScheme.surfaceContainerHighest,
+              child: Icon(
+                Icons.album,
+                size: 48,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
       subtitle: (artistName != null && artistName.isNotEmpty)
           ? Builder(
               builder: (header) => ClickableArtistName(
@@ -613,15 +545,13 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
                 style: TextStyle(
                   color: colorScheme.primary,
                   fontSize: context.tokens.headerSubtitleSize,
-                  fontWeight: context.isMornye
-                      ? FontWeight.w400
-                      : FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
                 textAlign: TextAlign.center,
               ),
             )
           : null,
-      meta: _buildHeaderMeta(context, releaseDate, commonQualityTrack),
+      meta: _buildHeaderMeta(context, releaseDate),
       actions: isSelectionMode
           ? null
           : CollectionHeaderActions(
@@ -664,7 +594,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
     BuildContext context,
     ColorScheme colorScheme,
     List<Track> tracks,
-    Track? commonQualityTrack,
   ) {
     _historySnapshot.update(tracks);
     final historyKeys = _historySnapshot.lookupKeys;
@@ -700,13 +629,9 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
                       forceQualityPicker: forceQualityPicker,
                     ),
                 clickableArtist: true,
-                showQualityBadges: context.isMornye
-                    ? !_audioTraits.any(
-                        (trait) => trait.toLowerCase().contains('lossless'),
-                      )
-                    : commonQualityTrack == null ||
-                          _qualitySignature(track) !=
-                              _qualitySignature(commonQualityTrack),
+                showQualityBadges: !_audioTraits.any(
+                  (trait) => trait.toLowerCase().contains('lossless'),
+                ),
                 isSelectionMode: isSelectionMode,
                 isSelected: selectedIds.contains(selectionId),
                 onToggleSelection: () => toggleSelection(selectionId),

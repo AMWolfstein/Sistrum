@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:sistrum/widgets/open_audio_button.dart';
 import 'package:flutter/foundation.dart'
     show ValueListenable, listEquals, setEquals;
 import 'package:flutter/material.dart';
@@ -13,13 +12,9 @@ import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/swipe_delete_dismissible.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/pinned_section_sliver_list.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
@@ -27,7 +22,6 @@ import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/library_directory_view.dart';
 import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
@@ -35,22 +29,11 @@ import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/library_playlist_drag_source.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/create_playlist_sheet.dart';
-import 'package:sistrum/widgets/tool_button_group.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show
-        M3EButtonGroup,
-        M3EButtonGroupAction,
-        M3EButtonGroupType,
-        M3EButtonSize,
-        M3EButtonStyle;
-import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_counts_provider.dart';
-import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/library_fast_scroller.dart';
-import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
@@ -77,7 +60,6 @@ import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
-import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/screens/favorite_artists_screen.dart';
 import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
@@ -95,7 +77,6 @@ import 'package:sistrum/widgets/animated_library_sliver_grid.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/smoothed_progress.dart';
-import 'package:sistrum/widgets/two_finger_pinch_listener.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 
 part 'queue_tab_helpers.dart';
@@ -114,10 +95,9 @@ part 'queue_tab_filter_sheet.dart';
 const _historyItemForCompletionBridge = CompletionBridgeTracker.historyItemFor;
 
 class QueueTab extends ConsumerStatefulWidget {
-  final String? librarySection;
-  final bool isTabActive;
+  final String librarySection;
 
-  const QueueTab({super.key, this.librarySection, this.isTabActive = true});
+  const QueueTab({super.key, required this.librarySection});
 
   @override
   ConsumerState<QueueTab> createState() => _QueueTabState();
@@ -128,10 +108,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   final LibraryFileAvailabilityCache _fileExistsCache =
       LibraryFileAvailabilityCache();
   late final CompletionBridgePlayableProbeCache _completionBridgePlayableProbe;
-  // there; pinching (or a trackpad pinch) resizes within the range.
-  static double get _libraryGridMinExtent => 92;
   static double get _libraryGridDefaultExtent => 126;
-  static double get _libraryGridMaxExtent => 190;
   bool _embeddedCoverRefreshScheduled = false;
   // Version counter to trigger targeted cover image rebuilds
   // without rebuilding the entire widget tree via setState.
@@ -160,31 +137,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   List<UserPlaylistCollection> _playlistSelectionOverlayItems = const [];
   double _playlistSelectionOverlayBottomPadding = 0;
 
-  PageController? _filterPageController;
-
-  /// Pages of the Library pager: Songs, Albums, Artists, Playlists and
-  /// Folders. Singles share the Albums page behind [_albumsShowSingles].
-  final List<String> _filterModes = [
-    'all',
-    'albums',
-    'artists',
-    'playlists',
-    'folders',
-  ];
-  bool _albumsShowSingles = false;
-
-  int _pageIndexFor(String mode) =>
-      _filterModes.indexOf(mode == 'singles' ? 'albums' : mode);
-
-  /// Data mode of the page at [index], resolving Albums to Singles when the
-  /// Albums page shows singles.
-  String _modeForPage(int index) {
-    final mode = _filterModes[index];
-    return mode == 'albums' && _albumsShowSingles ? 'singles' : mode;
-  }
-
-  bool _isPageControllerInitialized = false;
-  bool _wasTabVisible = false;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
@@ -204,18 +156,13 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   String get _sortMode {
     final settings = ref.read(settingsProvider);
     final mode = settings.historySortMode;
-    final section = widget.librarySection ?? settings.historyFilterMode;
+    final section = widget.librarySection;
     // Playlists have no file size. Keep the saved song order for returning.
     return section == 'playlists' && mode.startsWith('size-') ? 'latest' : mode;
   }
 
   String _libraryQualityLabelMode = AppSettings.libraryQualityLabelBitDepthOnly;
   final _libraryGridExtent = ValueNotifier(_libraryGridDefaultExtent);
-  double? _libraryGridPinchStartExtent;
-  List<UnifiedLibraryItem>? _sectionItems;
-  String? _sectionSort;
-  String? _sectionLocale;
-  List<_LibrarySection> _cachedTrackSections = const [];
 
   /// In-memory History snapshots and counts, regrouped only when the
   /// (immutable) History list changes.
@@ -259,87 +206,12 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   /// through this forwarder.
   void _setState(VoidCallback fn) => setState(fn);
 
-  void _handleLibraryGridPinchStart() {
-    _libraryGridPinchStartExtent = _libraryGridExtent.value;
-  }
-
-  void _handleLibraryGridPinchUpdate(double scale) {
-    final startExtent = _libraryGridPinchStartExtent;
-    if (startExtent == null) return;
-
-    final nextExtent = (startExtent * scale).clamp(
-      _libraryGridMinExtent,
-      _libraryGridMaxExtent,
-    );
-    if ((nextExtent - _libraryGridExtent.value).abs() < 0.5) return;
-    _libraryGridExtent.value = nextExtent;
-  }
-
-  void _handleLibraryGridPinchEnd() {
-    _libraryGridPinchStartExtent = null;
-  }
-
   @override
   void initState() {
     super.initState();
     _completionBridgePlayableProbe = CompletionBridgePlayableProbeCache(
       onPlayable: _fileExistsCache.markExists,
     );
-  }
-
-  void _initializePageController() {
-    if (_isPageControllerInitialized) return;
-    _isPageControllerInitialized = true;
-    final settings = ref.read(settingsProvider);
-    final initialFilter =
-        widget.librarySection ??
-        (settings.defaultLibraryView == 'last'
-            ? settings.historyFilterMode
-            : settings.defaultLibraryView);
-    final initialPage = _pageIndexFor(
-      initialFilter,
-    ).clamp(0, _filterModes.length - 1);
-    _albumsShowSingles = initialFilter == 'singles';
-    final initialMode = _modeForPage(initialPage);
-    if (widget.librarySection == null &&
-        settings.historyFilterMode != initialMode) {
-      Future.microtask(() {
-        if (!mounted) return;
-        ref.read(settingsProvider.notifier).setHistoryFilterMode(initialMode);
-      });
-    }
-    _filterPageController = PageController(initialPage: initialPage);
-  }
-
-  /// When the shell switches back to this tab and a fixed default view is
-  /// configured, jump the filter pager to it.
-  void _applyDefaultLibraryViewOnTabVisible() {
-    if (widget.librarySection != null) return;
-    // Route transitions also disable TickerMode. Only a shell tab change
-    // should reset the user's current album/single view.
-    final isVisible = widget.isTabActive;
-    final becameVisible = isVisible && !_wasTabVisible;
-    _wasTabVisible = isVisible;
-    if (!becameVisible) return;
-    final defaultView = ref.read(settingsProvider).defaultLibraryView;
-    if (defaultView == 'last') return;
-    final index = _pageIndexFor(defaultView);
-    if (index < 0) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (_filterModes[index] == 'albums') {
-        _setState(() => _albumsShowSingles = defaultView == 'singles');
-      }
-      if (ref.read(settingsProvider).historyFilterMode != defaultView) {
-        ref.read(settingsProvider.notifier).setHistoryFilterMode(defaultView);
-      }
-      final controller = _filterPageController;
-      if (controller != null &&
-          controller.hasClients &&
-          controller.page?.round() != index) {
-        controller.jumpToPage(index);
-      }
-    });
   }
 
   @override
@@ -350,7 +222,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     _completionBridgePlayableProbe.dispose();
     _embeddedCoverVersion.dispose();
     _libraryGridExtent.dispose();
-    _filterPageController?.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
     _searchDebounce?.cancel();
@@ -417,41 +288,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     );
   }
 
-  void _onFilterPageChanged(int index) {
-    if (widget.librarySection != null) return;
-    HapticFeedback.selectionClick();
-    ref
-        .read(settingsProvider.notifier)
-        .setHistoryFilterMode(_modeForPage(index));
-  }
-
-  void _animateToFilterPage(int index) {
-    if (index >= 0 && index < _filterModes.length) {
-      final filterMode = _modeForPage(index);
-      if (ref.read(settingsProvider).historyFilterMode != filterMode) {
-        ref.read(settingsProvider.notifier).setHistoryFilterMode(filterMode);
-      }
-    }
-    final motion = AppMotion.spatialSlow(
-      context,
-      const AppMotionSpec(Duration(milliseconds: 300), Curves.easeOutCubic),
-    );
-    _filterPageController?.animateToPage(
-      index,
-      duration: motion.duration,
-      curve: motion.curve,
-    );
-  }
-
-  void _setAlbumsShowSingles(bool singles) {
-    if (_albumsShowSingles == singles) return;
-    HapticFeedback.selectionClick();
-    setState(() => _albumsShowSingles = singles);
-    ref
-        .read(settingsProvider.notifier)
-        .setHistoryFilterMode(singles ? 'singles' : 'albums');
-  }
-
   void _onEmbeddedCoverChanged() {
     if (!mounted || _embeddedCoverRefreshScheduled) return;
     _embeddedCoverRefreshScheduled = true;
@@ -514,16 +350,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye && widget.librarySection == null) {
-      return MornyeLibraryScreen(
-        onOpenSection: (section) => pushPage<void>(
-          context,
-          (_) => Scaffold(body: QueueTab(librarySection: section)),
-        ),
-      );
-    }
-    _initializePageController();
-    _applyDefaultLibraryViewOnTabVisible();
     ref.watch(settingsProvider.select((s) => s.historySortMode));
     final localLibraryEnabled = ref.watch(
       settingsProvider.select((s) => s.localLibraryEnabled),
@@ -628,12 +454,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
       ),
     );
     final collectionState = ref.read(libraryCollectionsProvider);
-    final historyViewMode = ref.watch(
-      settingsProvider.select((s) => s.historyViewMode),
-    );
-    final String historyFilterMode =
-        widget.librarySection ??
-        ref.watch<String>(settingsProvider.select((s) => s.historyFilterMode));
+    final String historyFilterMode = widget.librarySection;
     // Keep this mode out of the page-provider request: changing only badge
     // text must not re-query the database or reset Library pagination.
     _libraryQualityLabelMode = ref.watch(
@@ -873,18 +694,11 @@ class _QueueTabState extends ConsumerState<QueueTab> {
             ).copyWith(overscroll: false),
             child: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                if (widget.librarySection == null)
-                  AppSliverHeader.tabRoot(
-                    title: context.l10n.navLibrary,
-                    alignToContent: true,
-                    actions: const [OpenAudioButton()],
-                  )
-                else
-                  AppSliverHeader.page(
-                    title: widget.librarySection == 'playlists'
-                        ? context.l10n.searchPlaylists
-                        : context.l10n.searchSongs,
-                  ),
+                AppSliverHeader.page(
+                  title: widget.librarySection == 'playlists'
+                      ? context.l10n.searchPlaylists
+                      : context.l10n.searchSongs,
+                ),
 
                 if (shouldShowLibraryControls || hasQueueItems)
                   SliverToBoxAdapter(
@@ -912,41 +726,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                       ),
                     ),
                   ),
-
-                // Playlists can contain online tracks or be empty. Navigation
-                // must stay reachable before any songs are downloaded or scanned.
-                if (!searchingLibrary && widget.librarySection == null)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        16 + listInset,
-                        12,
-                        16 + listInset,
-                        4,
-                      ),
-                      child: _LibraryPageTabs(
-                        selectedIndex: _pageIndexFor(historyFilterMode),
-                        onSelected: _animateToFilterPage,
-                        tabs: [
-                          (context.l10n.searchSongs, queueCounts.allTrackCount),
-                          (
-                            context.l10n.historyFilterAlbums,
-                            queueCounts.albumCount,
-                          ),
-                          // Artist totals need a full scan; the tab shows
-                          // none rather than a guess.
-                          (context.l10n.searchArtists, null),
-                          (
-                            context.l10n.searchPlaylists,
-                            _getVisibleCollectionEntries(
-                              collectionState,
-                            ).length,
-                          ),
-                          (context.l10n.libraryFolders, null),
-                        ],
-                      ),
-                    ),
-                  ),
               ],
               body: searchingLibrary
                   ? CustomScrollView(
@@ -968,48 +747,16 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                         const NavBarSliverSpacer(),
                       ],
                     )
-                  : widget.librarySection != null
-                  ? _buildFilterContent(
+                  : _buildFilterContent(
                       context: context,
                       colorScheme: colorScheme,
                       filterMode: historyFilterMode,
-                      historyViewMode: 'list',
                       hasQueueItems: false,
                       filterData: getFilterData(historyFilterMode),
                       collectionState: collectionState,
                       hasMoreLibrary: hasMoreLibrary,
                       isPageLoading: isLibraryPageLoading,
                       inMemoryHistoryItems: inMemoryHistoryItems,
-                    )
-                  : PageView.builder(
-                      controller: _filterPageController!,
-                      physics: const ClampingScrollPhysics(),
-                      onPageChanged: _onFilterPageChanged,
-                      itemCount: _filterModes.length,
-                      itemBuilder: (context, index) {
-                        if (_filterModes[index] == 'artists') {
-                          return _buildArtistsPage(context, colorScheme);
-                        }
-                        if (_filterModes[index] == 'folders') {
-                          return const LibraryDirectoryView(showHeader: false);
-                        }
-                        final filterMode = _modeForPage(index);
-                        final filterData = getFilterData(filterMode);
-                        return _buildFilterContent(
-                          context: context,
-                          colorScheme: colorScheme,
-                          filterMode: filterMode,
-                          historyViewMode: historyViewMode,
-                          hasQueueItems: hasQueueItems,
-                          filterData: filterData,
-                          collectionState: collectionState,
-                          hasMoreLibrary: filterMode == historyFilterMode
-                              ? hasMoreLibrary
-                              : false,
-                          isPageLoading: isLibraryPageLoading,
-                          inMemoryHistoryItems: inMemoryHistoryItems,
-                        );
-                      },
                     ),
             ),
           ),

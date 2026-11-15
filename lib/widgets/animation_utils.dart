@@ -411,53 +411,6 @@ class _CollectionHeaderSkeleton extends StatelessWidget {
   }
 }
 
-/// Placeholders for the collection header's unloaded rows: artist,
-/// meta and the action group (two circular buttons around the wide primary
-/// action), sized like the real [AlbumDetailHeader] content.
-class CollectionHeaderSkeletonRows {
-  const CollectionHeaderSkeletonRows._();
-
-  static Widget subtitle(BuildContext context) => ShimmerLoading(
-    child: SkeletonBox(
-      width: 140,
-      height: MediaQuery.textScalerOf(context).scale(18),
-      borderRadius: 4,
-    ),
-  );
-
-  static Widget meta() => const ShimmerLoading(
-    child: Wrap(
-      spacing: 10,
-      runSpacing: 6,
-      children: [
-        SkeletonBox(width: 40, height: 14, borderRadius: 6),
-        SkeletonBox(width: 76, height: 14, borderRadius: 6),
-        SkeletonBox(width: 84, height: 14, borderRadius: 6),
-      ],
-    ),
-  );
-
-  static Widget actions(BuildContext context) {
-    final target = context.tokens.minTouchTarget;
-    return ShimmerLoading(
-      child: Row(
-        spacing: 12,
-        children: [
-          SkeletonBox(width: target, height: target, borderRadius: target / 2),
-          Expanded(
-            child: SkeletonBox(
-              width: double.infinity,
-              height: target,
-              borderRadius: target / 2,
-            ),
-          ),
-          SkeletonBox(width: target, height: target, borderRadius: target / 2),
-        ],
-      ),
-    );
-  }
-}
-
 /// Mirrors the larger primary action and two smaller artist header actions.
 class ArtistHeaderActionsSkeleton extends StatelessWidget {
   const ArtistHeaderActionsSkeleton({super.key});

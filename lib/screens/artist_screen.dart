@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
@@ -12,7 +11,6 @@ import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,11 +55,7 @@ import 'package:sistrum/widgets/cross_extension_share_sheet.dart';
 import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/downloadable_cover.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
-import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 
 part 'artist_screen_widgets.dart';
 part 'artist_screen_discography.dart';
@@ -615,15 +609,11 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource:
-            _headerImageUrl ?? widget.headerImageUrl ?? widget.coverUrl,
-        logoSource: _headerLogoUrl ?? widget.headerLogoUrl,
-        child: Builder(builder: _buildPage),
-      );
-    }
-    return _buildPage(context);
+    return MornyeArtistSurface(
+      imageSource: _headerImageUrl ?? widget.headerImageUrl ?? widget.coverUrl,
+      logoSource: _headerLogoUrl ?? widget.headerLogoUrl,
+      child: Builder(builder: _buildPage),
+    );
   }
 
   Widget _buildPage(BuildContext context) {
@@ -676,12 +666,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
                         if (_isLoadingDiscography)
                           SliverToBoxAdapter(
                             child: ArtistScreenSkeleton(
-                              showCoverHeader:
-                                  !context.isMornye &&
-                                  (_headerImageUrl ??
-                                          widget.headerImageUrl ??
-                                          widget.coverUrl) ==
-                                      null,
+                              showCoverHeader: false,
                               showPopularSection:
                                   !widget.artistId.startsWith('deezer:') &&
                                   !widget.artistId.startsWith('qobuz:') &&
@@ -701,9 +686,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
                           ),
                         if (!_isLoadingDiscography && _error == null) ...[
                           ...[
-                            if (context.isMornye &&
-                                albums.isNotEmpty &&
-                                !isSelectionMode)
+                            if (albums.isNotEmpty && !isSelectionMode)
                               SliverToBoxAdapter(
                                 child: ArtistFeaturedAlbumCard(
                                   album: albums.first,

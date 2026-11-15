@@ -10,24 +10,11 @@ class _RewindPalette {
     int index,
     ListeningRewind rewind,
   ) {
-    if (context.isMornye) {
-      return _RewindPalette(
-        Colors.black,
-        Colors.white,
-        Theme.of(context).colorScheme.primary,
-      );
-    }
-    final c = Theme.of(context).colorScheme;
-    final pairs = [
-      (c.primaryContainer, c.onPrimaryContainer, c.primary),
-      (c.tertiaryContainer, c.onTertiaryContainer, c.tertiary),
-      (c.secondaryContainer, c.onSecondaryContainer, c.secondary),
-      (c.primary, c.onPrimary, c.primaryContainer),
-      (c.tertiary, c.onTertiary, c.tertiaryContainer),
-      (c.surfaceContainerHighest, c.onSurface, c.primary),
-    ];
-    final (background, foreground, accent) = pairs[index % pairs.length];
-    return _RewindPalette(background, foreground, accent);
+    return _RewindPalette(
+      Colors.black,
+      Colors.white,
+      Theme.of(context).colorScheme.primary,
+    );
   }
 
   final Color background;
@@ -500,95 +487,11 @@ class _RewindBackdropState extends State<_RewindBackdrop> {
           final to = math.min(from + 1, last);
           final blend = page - from;
           final t = _ambient.value * 2 * math.pi;
-          return context.isMornye
-              ? _mornye(from, to, blend, t)
-              : _material(from, to, blend, page, t);
+          return _mornye(from, to, blend, t);
         },
       ),
     ),
   );
-
-  Widget _material(int from, int to, double blend, double page, double t) {
-    final a = widget.palettes[from];
-    final b = widget.palettes[to];
-    final foreground = Color.lerp(a.foreground, b.foreground, blend)!;
-    final accent = Color.lerp(a.accent, b.accent, blend)!;
-    // Each shape drifts on its own orbit, turns slowly, and leans into the
-    // swipe so the background feels continuous across slides.
-    Widget shape({
-      required M3EShapeKind kind,
-      required double size,
-      required Alignment alignment,
-      required Offset orbit,
-      required double speed,
-      required double spin,
-      required Color color,
-    }) => Align(
-      alignment: alignment,
-      child: Transform.translate(
-        offset: Offset(
-          math.sin(t * speed) * orbit.dx - page * size * 0.12,
-          math.cos(t * speed) * orbit.dy,
-        ),
-        child: Transform.rotate(
-          angle: t * spin + page * 0.5,
-          child: Transform.scale(
-            scale: 1 + 0.05 * math.sin(t * speed * 2),
-            child: AppShapeBadge(
-              kind: kind,
-              size: size,
-              color: color,
-              child: const SizedBox(),
-            ),
-          ),
-        ),
-      ),
-    );
-    return ColoredBox(
-      color: Color.lerp(a.background, b.background, blend)!,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          shape(
-            kind: AppShapes.badge,
-            size: 340,
-            alignment: const Alignment(1.6, -1.1),
-            orbit: const Offset(18, 14),
-            speed: 1,
-            spin: 0.25,
-            color: foreground.withValues(alpha: 0.07),
-          ),
-          shape(
-            kind: AppShapes.brand,
-            size: 260,
-            alignment: const Alignment(-1.7, 1.15),
-            orbit: const Offset(14, 20),
-            speed: 1.3,
-            spin: -0.2,
-            color: foreground.withValues(alpha: 0.07),
-          ),
-          shape(
-            kind: AppShapes.artist,
-            size: 96,
-            alignment: const Alignment(0.95, 0.72),
-            orbit: const Offset(10, 16),
-            speed: 2,
-            spin: 0.6,
-            color: accent.withValues(alpha: 0.35),
-          ),
-          shape(
-            kind: AppShapes.badge,
-            size: 56,
-            alignment: const Alignment(-0.85, -0.55),
-            orbit: const Offset(12, 8),
-            speed: 1.7,
-            spin: -0.8,
-            color: accent.withValues(alpha: 0.3),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _mornye(int from, int to, double blend, double t) {
     Widget artwork(String? uri, double opacity) => uri == null || opacity <= 0

@@ -16,13 +16,11 @@ import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_autofill_service.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
@@ -110,7 +108,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      showDragHandle: !context.isMornye,
+      showDragHandle: false,
       builder: (sheetContext) {
         final cs = Theme.of(sheetContext).colorScheme;
         final items = options(sheetContext);
@@ -126,7 +124,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // The glass carries the handle that Material's sheet draws.
-                if (sheetContext.isMornye) const AppSheetHandle(),
+                const AppSheetHandle(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                   child: Text(
@@ -165,14 +163,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                                 selected: isSelected(items[index]),
                                 selectedColor: cs.primary,
                                 trailing: isSelected(items[index])
-                                    ? Icon(
-                                        (checkInSheetTheme
-                                                    ? sheetContext
-                                                    : context)
-                                                .isMornye
-                                            ? CupertinoIcons.checkmark
-                                            : Icons.check_rounded,
-                                      )
+                                    ? Icon(CupertinoIcons.checkmark)
                                     : null,
                                 onTap: () =>
                                     Navigator.pop(sheetContext, items[index]),
@@ -394,12 +385,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                           child: SizedBox(
                             width: 22,
                             height: 22,
-                            child: context.isMornye
-                                ? const CupertinoActivityIndicator()
-                                : const AppLoadingIndicator(
-                                    size: 22,
-                                    strokeWidth: 2,
-                                  ),
+                            child: const CupertinoActivityIndicator(),
                           ),
                         )
                       else

@@ -2,8 +2,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/cover_palette.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sistrum/services/cover_cache_manager.dart';
@@ -186,27 +184,14 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen>
     required int navigationIndex,
   }) async {
     final navigator = Navigator.of(context);
-    final embeddedCoverPath = context.isMornye
-        ? DownloadedEmbeddedCoverResolver.resolve(item.filePath)
-        : await DownloadedEmbeddedCoverResolver.resolveOrExtract(
-            item.filePath,
-            onChanged: _onEmbeddedCoverChanged,
-          );
     if (!mounted) return;
-    final artworkSource = embeddedCoverPath ?? item.coverUrl;
-    if (embeddedCoverPath == null && !context.isMornye) {
-      precacheCoverImage(context, item.coverUrl);
-    }
-    final backdropReady = context.isMornye
-        ? Future<void>.value()
-        : precacheMetadataBackdrop(context, artworkSource);
+    final backdropReady = Future<void>.value();
     final beforeModTime =
         await DownloadedEmbeddedCoverResolver.readFileModTimeMillis(
           item.filePath,
         );
     await backdropReady;
     if (!mounted) return;
-
     final route = slidePageRoute<bool>(
       page: TrackMetadataScreen(
         item: item,
@@ -240,7 +225,6 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen>
       data: (items) => _getAlbumOrder(items),
       orElse: () => null,
     );
-
     if (order == null || order.tracks.isEmpty) {
       if (tracksValue.isLoading) {
         return Scaffold(
@@ -253,18 +237,13 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen>
         body: Center(child: Text(context.l10n.noTracksFoundForAlbum)),
       );
     }
-
     final tracks = order.tracks;
     pruneSelection(tracks.map((t) => t.id).toSet());
-
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource: _resolveAlbumEmbeddedCoverPath(tracks) ?? widget.coverUrl,
-        neutralActions: true,
-        child: Builder(builder: (context) => _buildPage(context, order)),
-      );
-    }
-    return _buildPage(context, order);
+    return MornyeArtistSurface(
+      imageSource: _resolveAlbumEmbeddedCoverPath(tracks) ?? widget.coverUrl,
+      neutralActions: true,
+      child: Builder(builder: (context) => _buildPage(context, order)),
+    );
   }
 
   Widget _buildPage(
@@ -337,10 +316,9 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen>
     List<DownloadHistoryItem> tracks,
     String qualityLabelMode,
   ) {
-    final expandedHeight = calculateExpandedHeight(context);
     final embeddedCoverPath = _resolveAlbumEmbeddedCoverPath(tracks);
     final commonQuality = _getCommonQuality(tracks, qualityLabelMode);
-    final motion = context.isMornye && !MediaQuery.disableAnimationsOf(context)
+    final motion = !MediaQuery.disableAnimationsOf(context)
         ? ref
               .watch(
                 playerMotionArtworkProvider((
@@ -380,17 +358,13 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen>
 
     return AlbumDetailHeader(
       title: widget.albumName,
-      immersive: context.isMornye,
+      immersive: true,
       squareArtwork: motion == null,
-      expandedHeight: expandedHeight,
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
       background: motion == null
           ? background
           : MotionHeaderBanner(videoUrl: motion.source, fallback: background),
-      paletteSource: embeddedCoverPath ?? widget.coverUrl,
-      blurAndScrimBackground:
-          embeddedCoverPath != null || widget.coverUrl != null,
       coverBuilder: (context, coverSize) => _buildSquareCover(
         context,
         colorScheme,
@@ -402,11 +376,9 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen>
         builder: (header) => Text(
           widget.artistName,
           style: TextStyle(
-            color: context.isMornye
-                ? colorScheme.primary
-                : HeaderPalette.of(context).onSurfaceVariant,
+            color: colorScheme.primary,
             fontSize: context.tokens.headerSubtitleSize,
-            fontWeight: context.isMornye ? FontWeight.w400 : FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
           textAlign: TextAlign.center,
           maxLines: 1,

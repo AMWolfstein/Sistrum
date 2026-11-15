@@ -14,7 +14,6 @@ import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_provider_names.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
@@ -48,7 +47,7 @@ class LyricsSettingsPage extends ConsumerWidget {
               children: [
                 const LyricsSizeSetting(),
                 // Lyrics blur only where the player draws it.
-                if (context.isMornye && ref.watch(mornyeLiquidGlassProvider))
+                if (ref.watch(mornyeLiquidGlassProvider))
                   const LyricsBlurSetting(),
                 const LyricsOffsetSetting(),
                 SettingsSwitchItem(
@@ -293,23 +292,12 @@ class LyricsSettingsPage extends ConsumerWidget {
                     child: Text(context.l10n.dialogSave),
                   ),
                 ];
-                return context.isMornye
-                    ? Wrap(
-                        alignment: WrapAlignment.end,
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: actions,
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          actions[0],
-                          const SizedBox(width: 8),
-                          actions[1],
-                          const SizedBox(width: 8),
-                          actions[2],
-                        ],
-                      );
+                return Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: actions,
+                );
               },
             ),
           ],

@@ -213,18 +213,10 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
                     spacing: 8,
                     runSpacing: 8,
                     children: HomeSearchSortOption.values.map((option) {
-                      if (context.isMornye) {
-                        return MornyeFilterChip(
-                          label: _sortOptionLabel(option),
-                          selected: tempSort == option,
-                          onTap: () => setSheetState(() => tempSort = option),
-                        );
-                      }
-                      return AppChoiceChip(
-                        label: Text(_sortOptionLabel(option)),
+                      return MornyeFilterChip(
+                        label: _sortOptionLabel(option),
                         selected: tempSort == option,
-                        onSelected: (_) =>
-                            setSheetState(() => tempSort = option),
+                        onTap: () => setSheetState(() => tempSort = option),
                       );
                     }).toList(),
                   ),
@@ -486,10 +478,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     required Widget Function(int index, bool showDivider) itemBuilder,
     bool showSortButton = false,
   }) {
-    // Material result groups are grouped rows, on the settings group tier.
-    final sectionColor = colorScheme.surfaceContainer;
-    final mornye = context.isMornye;
-
     return [
       _buildResultSectionHeader(
         title: title,
@@ -502,37 +490,14 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
           delegate: SliverChildBuilderDelegate((context, index) {
             final isFirst = index == 0;
             final isLast = index == itemCount - 1;
-            if (mornye) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: MornyeGlassPanel.overlay(
-                  blurEnabled: false,
-                  radius: 24,
-                  firstInGroup: isFirst,
-                  lastInGroup: isLast,
-                  child: itemBuilder(index, !isLast),
-                ),
-              );
-            }
-            // Connected list: each result is its own surface, separated by a
-            // 2dp gap with tight inner corners instead of row dividers.
-            const inner = Radius.circular(4);
-            return StaggeredListItem(
-              index: index,
-              child: Container(
-                margin: EdgeInsets.fromLTRB(16, 0, 16, isLast ? 0 : 2),
-                decoration: BoxDecoration(
-                  color: sectionColor,
-                  borderRadius: BorderRadius.vertical(
-                    top: isFirst ? const Radius.circular(20) : inner,
-                    bottom: isLast ? const Radius.circular(20) : inner,
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Material(
-                  color: Colors.transparent,
-                  child: itemBuilder(index, false),
-                ),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: MornyeGlassPanel.overlay(
+                blurEnabled: false,
+                radius: 24,
+                firstInGroup: isFirst,
+                lastInGroup: isLast,
+                child: itemBuilder(index, !isLast),
               ),
             );
           }, childCount: itemCount),
@@ -548,26 +513,13 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     required bool showSortButton,
     ToolButton? viewToggle,
   }) {
-    final mornye = context.isMornye;
     final sorted = _searchSortOption != HomeSearchSortOption.defaultOrder;
     final sortLabel = sorted
         ? _sortOptionLabel(_searchSortOption)
         : context.l10n.libraryFilterSort;
     return [
-      if (!mornye && (showSortButton || viewToggle != null))
-        ToolButtonGroup(
-          tools: [
-            if (showSortButton)
-              ToolButton(
-                icon: const AppIcon(Icons.sort),
-                label: sortLabel,
-                onPressed: (_) => _showSortOptions(colorScheme),
-              ),
-            ?viewToggle,
-          ],
-        ),
       // Keeps ExpressiveButton's 48dp minimum touch target.
-      if (mornye && showSortButton)
+      if (showSortButton)
         ExpressiveButton(
           text: true,
           onPressed: () => _showSortOptions(colorScheme),
@@ -583,7 +535,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
             ),
           ),
         ),
-      if (mornye && viewToggle != null)
+      if (viewToggle != null)
         AppIconButton(
           tooltip: viewToggle.tooltip,
           icon: IconTheme(
@@ -604,9 +556,8 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     required bool showSortButton,
     VoidCallback? onShowAll,
   }) {
-    final mornye = context.isMornye;
     // The title and chevron both open the section's complete results.
-    if (mornye && onShowAll != null) {
+    if (onShowAll != null) {
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(
@@ -660,27 +611,22 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     return SliverToBoxAdapter(
       child: Padding(
         // Aligned with the clamped result list below on wide screens.
-        padding:
-            (mornye
-                    ? const EdgeInsetsDirectional.fromSTEB(20, 16, 12, 10)
-                    : const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 8))
-                .add(
-                  EdgeInsets.symmetric(horizontal: homeContentInset(context)),
-                ),
+        padding: (const EdgeInsetsDirectional.fromSTEB(
+          20,
+          16,
+          12,
+          10,
+        )).add(EdgeInsets.symmetric(horizontal: homeContentInset(context))),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 title,
-                style: mornye
-                    ? Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
-                      )
-                    : Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
+                ),
               ),
             ),
             if (onShowAll != null) _buildShowAllButton(title, onShowAll),
@@ -849,23 +795,16 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     Widget filterChip(String id, String label, {IconData? icon}) {
       void select() => _selectSearchFilter(id);
 
-      return context.isMornye
-          ? MornyeGlassPanel.overlay(
-              radius: 24,
-              child: MornyeFilterChip(
-                label: label,
-                selected: selectedFilter == id,
-                icon: icon == null ? null : mornyeIconFor(icon),
-                tonal: selectedFilter == id,
-                onTap: select,
-              ),
-            )
-          : AppChoiceChip(
-              label: Text(label),
-              selected: selectedFilter == id,
-              onSelected: (_) => select(),
-              icon: icon == null ? null : Icon(icon, size: 18),
-            );
+      return MornyeGlassPanel.overlay(
+        radius: 24,
+        child: MornyeFilterChip(
+          label: label,
+          selected: selectedFilter == id,
+          icon: icon == null ? null : mornyeIconFor(icon),
+          tonal: selectedFilter == id,
+          onTap: select,
+        ),
+      );
     }
 
     final chips = [
@@ -937,13 +876,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
 
   Widget _buildSearchBar() {
     final hasText = _urlController.text.isNotEmpty;
-    // The Material Home keeps the resting field clean; import and paste
-    // appear once it is focused.
-    final showInputActions =
-        context.isMornye ||
-        widget.mode == HomeTabMode.search ||
-        _searchFocusNode.hasFocus;
-
     return AppSearchField(
       controller: _urlController,
       samplesBackdrop: false,
@@ -972,7 +904,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
               onPressed: _clearAndRefresh,
               tooltip: context.l10n.dialogClear,
             )
-          else if (showInputActions) ...[
+          else ...[
             AppIconButton(
               icon: const Icon(Icons.file_upload_outlined),
               onPressed: _isCsvImporting

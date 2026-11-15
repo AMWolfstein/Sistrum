@@ -344,46 +344,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
             ref.read(settingsProvider.notifier).setLocalLibraryAutoScan(mode),
       );
 
-  String _getDefaultViewLabel(BuildContext context, String view) {
-    switch (view) {
-      case 'all':
-        return context.l10n.searchSongs;
-      case 'albums':
-        return context.l10n.historyFilterAlbums;
-      case 'singles':
-        return context.l10n.historyFilterSingles;
-      case 'artists':
-        return context.l10n.searchArtists;
-      case 'playlists':
-        return context.l10n.searchPlaylists;
-      case 'folders':
-        return context.l10n.libraryFolders;
-      default:
-        return context.l10n.libraryDefaultViewLastUsed;
-    }
-  }
-
-  void _showDefaultViewPicker(BuildContext context, String current) =>
-      showAppChoiceSheet(
-        context: context,
-        title: context.l10n.libraryDefaultView,
-        selected: current,
-        choices: [
-          for (final (value, icon) in const [
-            ('last', Icons.history),
-            ('all', Icons.music_note),
-            ('albums', Icons.album),
-            ('singles', Icons.audiotrack),
-            ('artists', Icons.person),
-            ('playlists', Icons.queue_music),
-            ('folders', Icons.folder_outlined),
-          ])
-            AppChoice(value, icon, _getDefaultViewLabel(context, value)),
-        ],
-        onSelected: (view) =>
-            ref.read(settingsProvider.notifier).setDefaultLibraryView(view),
-      );
-
   String _getQualityLabelModeLabel(BuildContext context, String mode) {
     if (mode == AppSettings.libraryQualityLabelFileFormat) {
       return context.l10n.libraryQualityLabelFileFormat;
@@ -465,17 +425,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
           SliverToBoxAdapter(
             child: SettingsGroup(
               children: [
-                SettingsItem(
-                  title: context.l10n.libraryDefaultView,
-                  subtitle: _getDefaultViewLabel(
-                    context,
-                    settings.defaultLibraryView,
-                  ),
-                  onTap: () => _showDefaultViewPicker(
-                    context,
-                    settings.defaultLibraryView,
-                  ),
-                ),
                 SettingsItem(
                   title: context.l10n.trackAudioQuality,
                   subtitle: _getQualityLabelModeLabel(

@@ -18,8 +18,6 @@ import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
-import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
@@ -120,14 +118,11 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource: _paletteSource,
-        neutralActions: true,
-        child: Builder(builder: _buildPage),
-      );
-    }
-    return _buildPage(context);
+    return MornyeArtistSurface(
+      imageSource: _paletteSource,
+      neutralActions: true,
+      child: Builder(builder: _buildPage),
+    );
   }
 
   Widget _buildTrackList(BuildContext context) {
@@ -145,9 +140,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                 mediaItemPlaybackUiProvider(_rowKey(item)),
               );
               return TrackCard(
-                style: context.isMornye
-                    ? TrackCardStyle.flat
-                    : TrackCardStyle.filled,
+                style: TrackCardStyle.flat,
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(tokens.radiusThumb),
                   child: LibraryItemArtwork(
@@ -299,27 +292,21 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
           (sum, item) => sum + max(0, _durationSeconds(item) ?? 0),
         ) ~/
         60;
-    final cover = _paletteSource;
     return AlbumDetailHeader(
       title: title,
-      immersive: context.isMornye,
-      expandedHeight: calculateExpandedHeight(context),
+      immersive: true,
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
       background: LibraryMixCover(items: _items, size: 400),
-      paletteSource: cover,
-      blurAndScrimBackground: cover != null,
       coverBuilder: (context, coverSize) =>
           LibraryMixCover(items: _items, size: coverSize),
       subtitle: Builder(
         builder: (header) => Text(
           libraryMixSubtitle(l10n, mix),
           style: TextStyle(
-            color: context.isMornye
-                ? colorScheme.primary
-                : HeaderPalette.of(header).onSurfaceVariant,
+            color: colorScheme.primary,
             fontSize: context.tokens.headerSubtitleSize,
-            fontWeight: context.isMornye ? FontWeight.w400 : FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
           textAlign: TextAlign.center,
           maxLines: 2,

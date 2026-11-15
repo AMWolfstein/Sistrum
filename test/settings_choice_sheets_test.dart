@@ -30,7 +30,6 @@ class _Extensions extends ExtensionNotifier {
 const _settings = AppSettings(
   localLibraryEnabled: true,
   localLibraryAutoScan: 'daily',
-  defaultLibraryView: 'albums',
   libraryQualityLabelMode: 'bit_depth',
   lyricsMode: 'both',
 );
@@ -49,20 +48,6 @@ final List<_Sheet> _library = [
     ['off', 'on_open', 'daily', 'weekly'],
     [Icons.block, Icons.open_in_new, Icons.today, Icons.date_range],
     (s) => s.localLibraryAutoScan,
-  ),
-  (
-    (l) => l.libraryDefaultView,
-    ['last', 'all', 'albums', 'singles', 'artists', 'playlists', 'folders'],
-    [
-      Icons.history,
-      Icons.music_note,
-      Icons.album,
-      Icons.audiotrack,
-      Icons.person,
-      Icons.queue_music,
-      Icons.folder_outlined,
-    ],
-    (s) => s.defaultLibraryView,
   ),
   (
     (l) => l.trackAudioQuality,

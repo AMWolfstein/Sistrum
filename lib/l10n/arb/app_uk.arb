@@ -262,14 +262,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Альбоми",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Сингли",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "Нещодавно додані",
   "libraryDownloads": "Завантаження",
   "libraryNoActiveDownloads": "Немає активних завантажень",
@@ -387,10 +379,6 @@
   "appearanceThemeDark": "Темна",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Історія переглядів",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Список",
   "@appearanceHistoryViewList": {
@@ -640,15 +628,6 @@
   "extensionsDisabled": "Вимкнені",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "Версія {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "Видалити",
   "@extensionsUninstall": {
@@ -1714,10 +1693,6 @@
   },
   "sectionTheme": "Тема",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Макет",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Мова",
@@ -4972,14 +4947,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "Вигляд за замовчуванням",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Останнє використання",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "Немає історії завантажень",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6503,10 +6470,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "Зараз відтворюється",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "Нічого не відтворюється",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6907,19 +6870,6 @@
   "lyricsAiErrorNoLyrics": "These lyrics have nothing to translate",
   "@lyricsAiErrorNoLyrics": {
     "description": "AI translation error when the lyrics have no translatable lines"
-  },
-  "nowPlayingLibraryEmpty": "Ваша бібліотека порожня",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "Не вдалося перемішати бібліотеку: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "Увімкнути перемішування",
   "@nowPlayingShuffleOn": {
@@ -7344,22 +7294,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
-  },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7479,39 +7413,6 @@
   "profileRemovePhoto": "Видалити фото",
   "profilePhotoError": "Виберіть коректне зображення менш як 20 Mb.",
   "profileSaveError": "Не вдалося зберегти ваш профіль. Будь ласка, спробуйте ще раз.",
-  "homeGreetingMorning1": "Доброго ранку",
-  "homeGreetingMorning2": "Прокидайся і співай",
-  "homeGreetingMorning3": "Почати спочатку",
-  "homeGreetingAfternoon1": "Доброго дня",
-  "homeGreetingAfternoon2": "Денний ритм",
-  "homeGreetingAfternoon3": "Не збавляй обертів",
-  "homeGreetingEvening1": "Доброго вечора",
-  "homeGreetingEvening2": "Час відпочити",
-  "homeGreetingEvening3": "Золотий час",
-  "homeGreetingNight1": "Доброї ночі",
-  "homeGreetingNight2": "Нічний сеанс",
-  "homeGreetingNight3": "Режим тиші",
-  "homeGreetingNamed": "{greeting}, {name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "Що слухаємо?",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "Маєте посилання? Вставте його в пошук",
-  "homeTaglineDiscover": "Шукайте наступний улюблений альбом",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "Продовжити відтворення",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7523,11 +7424,6 @@
   "homeOnRepeat": "На повторі",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
-  },
-  "homeShortcuts": "Швидкі команди",
-  "homeMixesForYou": "Mixes for you",
-  "@homeMixesForYou": {
-    "description": "Home section header for daily mixes made from the user's own Library songs"
   },
   "homeMixFavoritesTitle": "Favorites Mix",
   "@homeMixFavoritesTitle": {
@@ -7748,7 +7644,6 @@
   "listeningStatsClear": "Очистити статистику прослуховувань",
   "listeningStatsClearError": "Не вдалося очистити статистику прослуховування. Будь ласка, спробуйте ще раз.",
   "listeningStatsClearDescription": "Видалити всю статистику прослуховувань на цьому пристрої? Ваша музика та списки треків збережуться.",
-  "libraryArtistsEmpty": "Виконавці з’являться тут, щойно ви завантажите музику або проскануєте локальну бібліотеку.",
   "listeningRewind": "Перемотати назад",
   "listeningRewindDescription": "Найцікавіше за останні місяці",
   "listeningRewindChoosePeriod": "Оберіть період",
@@ -8031,7 +7926,6 @@
   "equalizerEffectivePreamp": "Вхідне підсилення після автозапасу",
   "equalizerDeletePreset": "Видалити шаблон",
   "equalizerCustom": "Власний",
-  "equalizerManagePresets": "Керування шаблонами",
   "lyricsShareTitle": "Поділитися текстом пісні",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

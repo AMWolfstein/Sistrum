@@ -1,109 +1,6 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabCollectionItemWidgets on _QueueTabState {
-  Widget _buildDownloadGridItem(
-    BuildContext context,
-    DownloadItem item,
-    ColorScheme colorScheme,
-  ) {
-    final radius = context.tokens.borderRadiusThumb;
-    final isDownloading = item.status == DownloadStatus.downloading;
-    final isFinalizing = item.status == DownloadStatus.finalizing;
-    final isQueued = item.status == DownloadStatus.queued;
-    final isFailed = item.status == DownloadStatus.failed;
-    final progress = item.progress.clamp(0.0, 1.0);
-
-    final cover = item.track.coverUrl != null
-        ? CachedCoverImage(
-            imageUrl: item.track.coverUrl!,
-            borderRadius: radius,
-            fadeInDuration: const Duration(milliseconds: 180),
-          )
-        : const TrackCoverPlaceholder();
-
-    final onTap = isFailed || item.status == DownloadStatus.skipped
-        ? () => _showDownloadErrorDialog(context, item)
-        : () => _confirmCancelDownload(context, item);
-
-    return SmoothedProgressScope(
-      value: item.progress,
-      animate: _shouldAnimateDownloadProgress(context, item),
-      child: TrackGridCard(
-        onTap: onTap,
-        semanticLabel: context.l10n.a11yTrackByArtist(
-          item.track.name,
-          item.track.artistName,
-        ),
-        cover: cover,
-        overlays: [
-          if (isDownloading || isFinalizing || isQueued)
-            ClipRRect(
-              borderRadius: radius,
-              child: ColoredBox(color: Colors.black.withValues(alpha: 0.45)),
-            ),
-          if (isDownloading || isFinalizing || isQueued)
-            Center(
-              child: isDownloading && progress > 0
-                  ? SmoothedProgressBuilder(
-                      builder: (context, visualProgress, child) => Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 34,
-                            height: 34,
-                            child: AppProgressIndicator.circular(
-                              value: visualProgress,
-                              strokeWidth: 3,
-                              color: Colors.white,
-                              trackColor: Colors.white.withValues(alpha: 0.25),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            '${(visualProgress * 100).round()}%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : SizedBox(
-                      width: 34,
-                      height: 34,
-                      child: AppProgressIndicator.circular(
-                        strokeWidth: 3,
-                        color: Colors.white,
-                        trackColor: Colors.white.withValues(alpha: 0.25),
-                      ),
-                    ),
-            ),
-          if (isFailed)
-            PositionedDirectional(
-              end: 4,
-              top: 4,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: colorScheme.errorContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: AppIcon(
-                  Icons.error_outline,
-                  color: colorScheme.error,
-                  size: 14,
-                ),
-              ),
-            ),
-        ],
-        title: item.track.name,
-        subtitle: Text(item.track.artistName),
-      ),
-    );
-  }
-
   /// A completed download pinned above the Library until its row lands.
   Widget _buildBridgeItem(
     BuildContext context,
@@ -375,18 +272,10 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: context.isMornye
-                ? iconBgColor ?? colorScheme.surfaceContainerHighest
-                : colorScheme.secondaryContainer,
+            color: iconBgColor ?? colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: AppIcon(
-            icon ?? Icons.folder,
-            color: context.isMornye
-                ? Colors.white
-                : colorScheme.onSecondaryContainer,
-            size: 28,
-          ),
+          child: AppIcon(icon ?? Icons.folder, color: Colors.white, size: 28),
         );
 
     final card = AppContentCard(
@@ -506,18 +395,10 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
         coverWidget ??
         Container(
           decoration: BoxDecoration(
-            color: context.isMornye
-                ? iconBgColor ?? colorScheme.surfaceContainerHighest
-                : colorScheme.secondaryContainer,
+            color: iconBgColor ?? colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: AppIcon(
-            icon ?? Icons.folder,
-            color: context.isMornye
-                ? Colors.white
-                : colorScheme.onSecondaryContainer,
-            size: 40,
-          ),
+          child: AppIcon(icon ?? Icons.folder, color: Colors.white, size: 40),
         );
 
     return _buildCollectionGridCell(

@@ -248,10 +248,6 @@ extension _QueueTabFilterSheet on _QueueTabState {
                               .setHistorySortMode(tempSortMode);
                         }
                         Navigator.pop(context);
-                        if (widget.librarySection == null &&
-                            isAlbumCompletenessFilter(tempMetadata)) {
-                          _animateToFilterPage(_filterModes.indexOf('albums'));
-                        }
                       },
                       child: Text(context.l10n.libraryFilterApply),
                     ),

@@ -19,6 +19,7 @@ import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/queue_tab.dart';
+import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/user_profile_store.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -321,11 +322,17 @@ class _Tabs extends StatelessWidget {
       body: LazyTabView(
         index: value,
         preloadKeys: {const ValueKey('search')},
-        children: const [
-          HomeTab(key: ValueKey('home'), mode: HomeTabMode.browse),
-          QueueTab(key: ValueKey('library')),
-          HomeTab(key: ValueKey('search'), mode: HomeTabMode.search),
-          QueueTab(key: ValueKey('downloads'), librarySection: 'downloads'),
+        children: [
+          const HomeTab(key: ValueKey('home'), mode: HomeTabMode.browse),
+          MornyeLibraryScreen(
+            key: const ValueKey('library'),
+            onOpenSection: (_) {},
+          ),
+          const HomeTab(key: ValueKey('search'), mode: HomeTabMode.search),
+          const QueueTab(
+            key: ValueKey('downloads'),
+            librarySection: 'downloads',
+          ),
         ],
       ),
       bottomNavigationBar: MornyeTabBar(
@@ -351,16 +358,8 @@ class _Tabs extends StatelessWidget {
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(
-    searchProvider: 'example',
-    hasSearchedBefore: true,
-    defaultLibraryView: 'all',
-  );
-
-  @override
-  void setHistoryFilterMode(String mode) {
-    state = state.copyWith(historyFilterMode: mode);
-  }
+  AppSettings build() =>
+      const AppSettings(searchProvider: 'example', hasSearchedBefore: true);
 
   @override
   void setHasSearchedBefore() {

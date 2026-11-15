@@ -58,8 +58,7 @@ Color? _sourceColorOf(Uint8List? straight) =>
 bool isNearGrayscaleCover(Color source) =>
     Hct.fromInt(source.toARGB32()).chroma <= 12;
 
-/// Colour scheme derived from cover art, used to theme detail-screen headers
-/// and the Material player surfaces (`PlayerArtworkTheme`).
+/// Colour scheme derived from cover art, used to theme detail-screen headers.
 ///
 /// The generated scheme follows app brightness and supplies contrasting
 /// on-colours for the artwork-derived surface.

@@ -1,35 +1,6 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabDownloadDialogs on _QueueTabState {
-  Future<void> _confirmCancelDownload(
-    BuildContext context,
-    DownloadItem item,
-  ) async {
-    final confirmed = await showAppDialog<bool>(
-      context: context,
-      builder: (ctx) => AppAlertDialog(
-        title: Text(context.l10n.cancelDownloadTitle),
-        content: Text(context.l10n.cancelDownloadContent(item.track.name)),
-        actions: [
-          AppDialogAction(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(context.l10n.cancelDownloadKeep),
-          ),
-          AppDialogAction(
-            isDestructive: true,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(context.l10n.dialogCancel),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) {
-      // cancelItem (not dismissItem): the item stays in the queue as
-      // cancelled so it can be retried without re-searching the track.
-      ref.read(downloadQueueProvider.notifier).cancelItem(item.id);
-    }
-  }
-
   Future<void> _showDownloadErrorDialog(
     BuildContext context,
     DownloadItem item,

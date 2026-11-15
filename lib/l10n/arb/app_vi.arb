@@ -262,14 +262,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Album",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Đĩa đơn",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "Mới thêm gần đây",
   "libraryDownloads": "Tải xuống",
   "libraryNoActiveDownloads": "Không có lượt tải nào đang chạy",
@@ -387,10 +379,6 @@
   "appearanceThemeDark": "Tối",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Kiểu xem lịch sử",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Danh sách",
   "@appearanceHistoryViewList": {
@@ -640,15 +628,6 @@
   "extensionsDisabled": "Đã tắt",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "Phiên bản {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "Gỡ cài đặt",
   "@extensionsUninstall": {
@@ -1714,10 +1693,6 @@
   },
   "sectionTheme": "Giao diện",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Bố cục",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Ngôn ngữ",
@@ -4972,14 +4947,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "Chế độ xem mặc định",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Dùng gần nhất",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "Chưa có lịch sử tải xuống",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6503,10 +6470,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "Đang phát",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "Hiện không có bài hát nào đang phát",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6907,19 +6870,6 @@
   "lyricsAiErrorNoLyrics": "Bài này không có gì để dịch",
   "@lyricsAiErrorNoLyrics": {
     "description": "AI translation error when the lyrics have no translatable lines"
-  },
-  "nowPlayingLibraryEmpty": "Thư viện của bạn đang trống",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "Không thể phát trộn thư viện: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "Phát trộn bài: Bật",
   "@nowPlayingShuffleOn": {
@@ -7344,22 +7294,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
-  },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7479,39 +7413,6 @@
   "profileRemovePhoto": "Xóa ảnh",
   "profilePhotoError": "Vui lòng chọn một tệp ảnh hợp lệ có dung lượng nhỏ hơn 20 MB.",
   "profileSaveError": "Không thể lưu hồ sơ của bạn. Vui lòng thử lại.",
-  "homeGreetingMorning1": "Chào buổi sáng",
-  "homeGreetingMorning2": "Đón chào ngày mới",
-  "homeGreetingMorning3": "Khởi đầu ngày mới",
-  "homeGreetingAfternoon1": "Chào buổi chiều",
-  "homeGreetingAfternoon2": "Giai điệu buổi chiều",
-  "homeGreetingAfternoon3": "Giữ trọn mạch cảm xúc",
-  "homeGreetingEvening1": "Chào buổi tối",
-  "homeGreetingEvening2": "Phút giây thư giãn",
-  "homeGreetingEvening3": "Khoảnh khắc hoàng hôn",
-  "homeGreetingNight1": "Chúc ngủ ngon",
-  "homeGreetingNight2": "Giai điệu đêm khuya",
-  "homeGreetingNight3": "Khung giờ yên tĩnh",
-  "homeGreetingNamed": "{greeting}, {name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "Hôm nay nghe gì nào?",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "Có sẵn liên kết nhạc? Dán ngay vào ô tìm kiếm nhé",
-  "homeTaglineDiscover": "Khám phá album yêu thích tiếp theo của bạn",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "Tiếp tục thưởng thức",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7523,11 +7424,6 @@
   "homeOnRepeat": "Nghe lặp lại nhiều nhất",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
-  },
-  "homeShortcuts": "Phím tắt",
-  "homeMixesForYou": "Mixes for you",
-  "@homeMixesForYou": {
-    "description": "Home section header for daily mixes made from the user's own Library songs"
   },
   "homeMixFavoritesTitle": "Favorites Mix",
   "@homeMixFavoritesTitle": {
@@ -7748,7 +7644,6 @@
   "listeningStatsClear": "Xóa thống kê nghe nhạc",
   "listeningStatsClearError": "Không thể xóa thống kê nghe nhạc. Vui lòng thử lại.",
   "listeningStatsClearDescription": "Xóa toàn bộ thống kê nghe nhạc trên thiết bị này? Các tệp nhạc và danh sách phát của bạn vẫn được giữ nguyên.",
-  "libraryArtistsEmpty": "Nghệ sĩ sẽ xuất hiện tại đây sau khi bạn tải nhạc hoặc quét thư viện trên máy.",
   "listeningRewind": "Tua lại",
   "listeningRewindDescription": "Sống lại những khoảnh khắc âm nhạc đáng nhớ trong các tuần và tháng gần đây",
   "listeningRewindChoosePeriod": "Chọn khoảng thời gian",
@@ -8031,7 +7926,6 @@
   "equalizerEffectivePreamp": "Mức khuếch đại đầu vào sau Headroom",
   "equalizerDeletePreset": "Xóa cấu hình",
   "equalizerCustom": "Tùy chỉnh",
-  "equalizerManagePresets": "Quản lý cấu hình",
   "lyricsShareTitle": "Chia sẻ lời bài hát",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

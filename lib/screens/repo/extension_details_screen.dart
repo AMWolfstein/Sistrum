@@ -7,7 +7,6 @@ import 'package:sistrum/providers/repo_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/extension_repo_card.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
@@ -142,7 +141,7 @@ class _ExtensionDetailsScreenState
         padding: EdgeInsetsDirectional.only(start: edgeInset),
         child: AppIconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          icon: Icon(context.isMornye ? CupertinoIcons.back : Icons.arrow_back),
+          icon: Icon(CupertinoIcons.back),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -157,9 +156,7 @@ class _ExtensionDetailsScreenState
     return Container(
       color: colorScheme.surfaceContainerHighest,
       child: Icon(
-        context.isMornye
-            ? mornyeIconFor(_getCategoryIcon(ext.category))
-            : _getCategoryIcon(ext.category),
+        mornyeIconFor(_getCategoryIcon(ext.category)),
         size: size,
         color: colorScheme.onSurfaceVariant,
       ),
@@ -239,11 +236,7 @@ class _ExtensionDetailsScreenState
                   if (ext.hasUpdate)
                     ExpressiveButton(
                       onPressed: () => _updateExtension(ext),
-                      icon: Icon(
-                        context.isMornye
-                            ? CupertinoIcons.arrow_clockwise
-                            : Icons.update,
-                      ),
+                      icon: Icon(CupertinoIcons.arrow_clockwise),
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(52),
                         shape: RoundedRectangleBorder(
@@ -261,11 +254,7 @@ class _ExtensionDetailsScreenState
                           child: ExpressiveButton(
                             outlined: true,
                             onPressed: null,
-                            icon: Icon(
-                              context.isMornye
-                                  ? CupertinoIcons.check_mark
-                                  : Icons.check,
-                            ),
+                            icon: Icon(CupertinoIcons.check_mark),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size(0, 52),
                               shape: RoundedRectangleBorder(
@@ -278,11 +267,7 @@ class _ExtensionDetailsScreenState
                         const SizedBox(width: 12),
                         AppIconButton.filled(
                           onPressed: () => _uninstallExtension(ext),
-                          icon: Icon(
-                            context.isMornye
-                                ? CupertinoIcons.trash
-                                : Icons.delete_outline,
-                          ),
+                          icon: Icon(CupertinoIcons.trash),
                           style: IconButton.styleFrom(
                             backgroundColor: colorScheme.errorContainer,
                             foregroundColor: colorScheme.onErrorContainer,
@@ -298,11 +283,7 @@ class _ExtensionDetailsScreenState
                   else
                     ExpressiveButton(
                       onPressed: () => _installExtension(ext),
-                      icon: Icon(
-                        context.isMornye
-                            ? CupertinoIcons.arrow_down_circle
-                            : Icons.download,
-                      ),
+                      icon: Icon(CupertinoIcons.arrow_down_circle),
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(52),
                         shape: RoundedRectangleBorder(
@@ -388,30 +369,19 @@ class _ExtensionDetailsScreenState
           runSpacing: 8,
           children: ext.tags
               .map(
-                (tag) => context.isMornye
-                    ? ExtensionRepoCard(
-                        margin: EdgeInsets.zero,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            tag,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      )
-                    : Chip(
-                        label: Text(tag),
-                        backgroundColor: colorScheme.surfaceContainer,
-                        labelStyle: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: colorScheme.onSurfaceVariant),
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
+                (tag) => ExtensionRepoCard(
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      tag,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ),
               )
               .toList(),
         ),
@@ -715,7 +685,7 @@ class _MetadataRow extends StatelessWidget {
           ),
         ),
         // Material groups rows by the card alone; dividers are Mornye's.
-        if (!isLast && context.isMornye)
+        if (!isLast)
           Divider(
             height: 1,
             thickness: 1,
@@ -764,18 +734,16 @@ class _CapabilityRow extends StatelessWidget {
                 ),
               ),
               Icon(
-                context.isMornye
-                    ? (enabled
-                          ? CupertinoIcons.check_mark_circled
-                          : CupertinoIcons.clear_circled)
-                    : (enabled ? Icons.check_circle : Icons.cancel_outlined),
+                (enabled
+                    ? CupertinoIcons.check_mark_circled
+                    : CupertinoIcons.clear_circled),
                 size: 20,
                 color: enabled ? colorScheme.primary : colorScheme.outline,
               ),
             ],
           ),
         ),
-        if (!isLast && context.isMornye)
+        if (!isLast)
           Divider(
             height: 1,
             thickness: 1,

@@ -176,7 +176,6 @@ void main() {
                 slivers: [
                   const AlbumDetailHeader(
                     title: 'Album title',
-                    expandedHeight: 400,
                     showTitleInAppBar: false,
                     immersive: true,
                     background: ColoredBox(color: Colors.orange),

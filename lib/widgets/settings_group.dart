@@ -191,21 +191,6 @@ double settingsHorizontalInset(BuildContext context, double maxWidth) =>
         ? min(wideInsetForWidth(maxWidth), wideListInset(context))
         : 0);
 
-/// Corners of one row in an expressive connected list: the card radius at the
-/// [first] and [last] ends of the run, tight corners between rows.
-BorderRadius connectedRowRadius(
-  BuildContext context, {
-  required bool first,
-  required bool last,
-}) {
-  final outer = Radius.circular(context.tokens.radiusCard);
-  const inner = Radius.circular(4);
-  return BorderRadius.vertical(
-    top: first ? outer : inner,
-    bottom: last ? outer : inner,
-  );
-}
-
 class SettingsGroup extends StatelessWidget {
   final List<Widget> children;
   final EdgeInsetsGeometry? margin;

@@ -103,22 +103,9 @@ extension _QueueTabNavigation on _QueueTabState {
             service: item.service,
           ),
         );
-
     final navigator = Navigator.of(context);
-    final embeddedCoverPath = context.isMornye
-        ? DownloadedEmbeddedCoverResolver.resolve(historyItem.filePath)
-        : await DownloadedEmbeddedCoverResolver.resolveOrExtract(
-            historyItem.filePath,
-            onChanged: _onEmbeddedCoverChanged,
-          );
     if (!mounted) return;
-    final artworkSource = embeddedCoverPath ?? historyItem.coverUrl;
-    if (embeddedCoverPath == null && !context.isMornye) {
-      precacheCoverImage(context, historyItem.coverUrl);
-    }
-    final backdropReady = context.isMornye
-        ? Future<void>.value()
-        : precacheMetadataBackdrop(context, artworkSource);
+    final backdropReady = Future<void>.value();
     _searchFocusNode.unfocus();
     final beforeModTime = await _readFileModTimeMillis(historyItem.filePath);
     await backdropReady;
@@ -150,20 +137,8 @@ extension _QueueTabNavigation on _QueueTabState {
     int? navigationIndex,
   }) async {
     final navigator = Navigator.of(context);
-    final embeddedCoverPath = context.isMornye
-        ? DownloadedEmbeddedCoverResolver.resolve(item.filePath)
-        : await DownloadedEmbeddedCoverResolver.resolveOrExtract(
-            item.filePath,
-            onChanged: _onEmbeddedCoverChanged,
-          );
     if (!mounted) return;
-    final artworkSource = embeddedCoverPath ?? item.coverUrl;
-    if (embeddedCoverPath == null && !context.isMornye) {
-      precacheCoverImage(context, item.coverUrl);
-    }
-    final backdropReady = context.isMornye
-        ? Future<void>.value()
-        : precacheMetadataBackdrop(context, artworkSource);
+    final backdropReady = Future<void>.value();
     _searchFocusNode.unfocus();
     final beforeModTime = await _readFileModTimeMillis(item.filePath);
     await backdropReady;
@@ -200,9 +175,6 @@ extension _QueueTabNavigation on _QueueTabState {
     int? navigationIndex,
   }) async {
     _searchFocusNode.unfocus();
-    if (!context.isMornye) {
-      await precacheMetadataBackdrop(context, item.coverPath);
-    }
     if (!mounted) return;
     await Navigator.push(
       context,

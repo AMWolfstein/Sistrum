@@ -13,17 +13,14 @@ import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/repo_provider.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/screens/repo/extension_details_screen.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/extension_repo_card.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
@@ -112,9 +109,7 @@ class _RepoTabState extends ConsumerState<RepoTab> {
               actions: [
                 if (hasRegistryUrl)
                   AppIconButton(
-                    icon: Icon(
-                      context.isMornye ? CupertinoIcons.link : Icons.link,
-                    ),
+                    icon: Icon(CupertinoIcons.link),
                     tooltip: context.l10n.storeChangeRepoTooltip,
                     onPressed: () => _showChangeRepoDialog(registryUrl),
                   ),
@@ -200,35 +195,11 @@ class _RepoTabState extends ConsumerState<RepoTab> {
                   ),
                 ),
 
-                if (context.isMornye)
-                  SliverToBoxAdapter(
-                    child: ExtensionRepoCard(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: edge,
-                        vertical: 4,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: filteredExtensions.asMap().entries.map((
-                          entry,
-                        ) {
-                          final index = entry.key;
-                          final ext = entry.value;
-                          return _ExtensionItem(
-                            extension: ext,
-                            showDivider: index < filteredExtensions.length - 1,
-                            isDownloading: downloadingId == ext.id,
-                            onInstall: () => _installExtension(ext),
-                            onUpdate: () => _updateExtension(ext),
-                            onTap: () => _showExtensionDetails(ext),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  )
-                else
-                  SliverToBoxAdapter(
-                    child: SettingsGroup(
+                SliverToBoxAdapter(
+                  child: ExtensionRepoCard(
+                    margin: EdgeInsets.symmetric(horizontal: edge, vertical: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: filteredExtensions.asMap().entries.map((entry) {
                         final index = entry.key;
                         final ext = entry.value;
@@ -243,6 +214,7 @@ class _RepoTabState extends ConsumerState<RepoTab> {
                       }).toList(),
                     ),
                   ),
+                ),
 
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
               ],
@@ -398,56 +370,13 @@ class _RepoTabState extends ConsumerState<RepoTab> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 16),
-            if (context.isMornye)
-              CupertinoTextField(
-                controller: changeUrlController,
-                placeholder: context.l10n.storeNewRepoUrlLabel,
-                keyboardType: TextInputType.url,
-                autocorrect: false,
-                padding: const EdgeInsets.all(12),
-              )
-            else
-              AppTextField(
-                controller: changeUrlController,
-                outlined: true,
-                label: context.l10n.storeNewRepoUrlLabel,
-                hint: context.l10n.storeRepoUrlHint,
-                leading: const Icon(Icons.link),
-                decoration: InputDecoration(
-                  hintText: context.l10n.storeRepoUrlHint,
-                  labelText: context.l10n.storeNewRepoUrlLabel,
-                  prefixIcon: const Icon(Icons.link),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                ),
-                keyboardType: TextInputType.url,
-                autocorrect: false,
-              ),
+            CupertinoTextField(
+              controller: changeUrlController,
+              placeholder: context.l10n.storeNewRepoUrlLabel,
+              keyboardType: TextInputType.url,
+              autocorrect: false,
+              padding: const EdgeInsets.all(12),
+            ),
           ],
         ),
         actions: [
@@ -636,67 +565,56 @@ class _CategoryChip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    if (context.isMornye) {
-      return Semantics(
-        button: true,
-        selected: isSelected,
-        label: label,
-        onTap: onTap,
-        excludeSemantics: true,
-        // Scrolls with the list over the plain page: see ExtensionRepoCard.
-        child: MornyeGlass.navigation(
-          radius: 24,
-          blurEnabled: ref.watch(mornyeBlurEnabledProvider),
-          samplesBackdrop: false,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(24),
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 44),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                color: isSelected
-                    ? colorScheme.primary.withValues(alpha: 0.10)
-                    : Colors.transparent,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      mornyeIconFor(icon),
-                      size: 18,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
+      onTap: onTap,
+      excludeSemantics: true,
+      // Scrolls with the list over the plain page: see ExtensionRepoCard.
+      child: MornyeGlass.navigation(
+        radius: 24,
+        blurEnabled: ref.watch(mornyeBlurEnabledProvider),
+        samplesBackdrop: false,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(24),
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 44),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: isSelected
+                  ? colorScheme.primary.withValues(alpha: 0.10)
+                  : Colors.transparent,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    mornyeIconFor(icon),
+                    size: 18,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: isSelected
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
+                          : colorScheme.onSurface,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      label,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isSelected
-                            ? colorScheme.primary
-                            : colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      );
-    }
-    return AppChoiceChip(
-      label: Text(label),
-      icon: Icon(icon, size: 18),
-      selected: isSelected,
-      onSelected: (_) => onTap(),
+      ),
     );
   }
 }
@@ -714,15 +632,12 @@ class _RepoListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    // Placeholders keep their contrast on the Material group surface.
-    final surface = context.isMornye ? null : settingsGroupColor(context);
     final buttonWidth = _storeButtonWidth(context);
     final rows = [
       for (var index = 0; index < _count; index++)
         ExtensionRow(
           showDivider: index < _count - 1,
           avatar: ShimmerLoading(
-            surface: surface,
             child: const SkeletonBox(
               width: ExtensionAvatar.size,
               height: ExtensionAvatar.size,
@@ -730,7 +645,6 @@ class _RepoListSkeleton extends StatelessWidget {
             ),
           ),
           title: ShimmerLoading(
-            surface: surface,
             child: Row(
               children: [
                 Expanded(
@@ -749,7 +663,6 @@ class _RepoListSkeleton extends StatelessWidget {
             ),
           ),
           subtitle: ShimmerLoading(
-            surface: surface,
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -773,7 +686,6 @@ class _RepoListSkeleton extends StatelessWidget {
           ),
           trailingWidth: buttonWidth,
           trailing: ShimmerLoading(
-            surface: surface,
             child: SkeletonBox(
               width: 108,
               height: tokens.minTouchTarget,
@@ -782,15 +694,9 @@ class _RepoListSkeleton extends StatelessWidget {
           ),
         ),
     ];
-    if (context.isMornye) {
-      return ExtensionRepoCard(
-        margin: EdgeInsets.fromLTRB(edge, 12, edge, 4),
-        child: Column(mainAxisSize: MainAxisSize.min, children: rows),
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: SettingsGroup(children: rows),
+    return ExtensionRepoCard(
+      margin: EdgeInsets.fromLTRB(edge, 12, edge, 4),
+      child: Column(mainAxisSize: MainAxisSize.min, children: rows),
     );
   }
 }
@@ -869,9 +775,7 @@ class _ExtensionItem extends StatelessWidget {
       onTap: onTap,
       avatar: ExtensionAvatar(
         imageUrl: extension.iconUrl,
-        fallbackIcon: context.isMornye
-            ? mornyeIconFor(_getCategoryIcon(extension.category))
-            : _getCategoryIcon(extension.category),
+        fallbackIcon: mornyeIconFor(_getCategoryIcon(extension.category)),
         background: extension.isInstalled
             ? colorScheme.primaryContainer
             : colorScheme.surfaceContainerHighest,
@@ -936,34 +840,11 @@ class _ExtensionItem extends StatelessWidget {
       trailingWidth: _storeButtonWidth(context),
       trailing: isDownloading
           ? const AppLoadingIndicator(size: 24)
-          : !context.isMornye
-          ? ExpressiveButton(
-              onPressed: extension.hasUpdate
-                  ? onUpdate
-                  : extension.isInstalled
-                  ? null
-                  : onInstall,
-              outlined: extension.isInstalled && !extension.hasUpdate,
-              tonal: extension.hasUpdate,
-              icon: extension.isInstalled && !extension.hasUpdate
-                  ? const Icon(Icons.check, size: 16)
-                  : null,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              child: Text(
-                extension.hasUpdate
-                    ? context.l10n.storeUpdate
-                    : extension.isInstalled
-                    ? context.l10n.storeInstalled
-                    : context.l10n.storeInstall,
-              ),
-            )
           : extension.hasUpdate
           ? FilledButton.tonal(
               onPressed: onUpdate,
               style: FilledButton.styleFrom(
-                shape: context.isMornye ? const StadiumBorder() : null,
+                shape: const StadiumBorder(),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 minimumSize: Size(0, context.tokens.minTouchTarget),
               ),
@@ -973,7 +854,7 @@ class _ExtensionItem extends StatelessWidget {
           ? OutlinedButton(
               onPressed: null,
               style: OutlinedButton.styleFrom(
-                shape: context.isMornye ? const StadiumBorder() : null,
+                shape: const StadiumBorder(),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 minimumSize: Size(0, context.tokens.minTouchTarget),
               ),
@@ -981,7 +862,7 @@ class _ExtensionItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    context.isMornye ? CupertinoIcons.check_mark : Icons.check,
+                    CupertinoIcons.check_mark,
                     size: 16,
                     color: colorScheme.outline,
                   ),
@@ -996,11 +877,9 @@ class _ExtensionItem extends StatelessWidget {
           : FilledButton(
               onPressed: onInstall,
               style: FilledButton.styleFrom(
-                shape: context.isMornye ? const StadiumBorder() : null,
-                backgroundColor: context.isMornye
-                    ? colorScheme.primary.withValues(alpha: 0.12)
-                    : null,
-                foregroundColor: context.isMornye ? colorScheme.primary : null,
+                shape: const StadiumBorder(),
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+                foregroundColor: colorScheme.primary,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 minimumSize: Size(0, context.tokens.minTouchTarget),
               ),

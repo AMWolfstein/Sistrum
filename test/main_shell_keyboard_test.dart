@@ -14,13 +14,11 @@ import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/routes/now_playing_route.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/main_shell.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/app_theme.dart';
-import 'package:sistrum/widgets/expressive_navigation_bar.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -114,74 +112,6 @@ void main() {
 
   bool collapsed(WidgetTester tester) =>
       tester.widget<MornyeBottomBar>(find.byType(MornyeBottomBar)).collapsed;
-
-  testWidgets(
-    'Material Home restores its viewport and navigation after the player',
-    (tester) async {
-      Future<void> settleFrames() async {
-        for (var i = 0; i < 30; i++) {
-          await tester.pump(const Duration(milliseconds: 20));
-        }
-      }
-
-      final media = StreamController<MediaItem?>();
-      addTearDown(media.close);
-      await pumpShell(tester, mornye: false, search: true, media: media.stream);
-      tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
-      tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 24);
-      media.add(
-        const MediaItem(id: 'song', title: 'Current song', artist: 'Artist'),
-      );
-      await settleFrames();
-      final scroll = find.descendant(
-        of: find.byType(HomeTab),
-        matching: find.byType(CustomScrollView),
-      );
-      expect(find.text('Continue listening'), findsOneWidget);
-      expect(find.text('Shortcuts'), findsOneWidget);
-      expect(tester.getRect(scroll).bottom, 932);
-      await tester.tap(find.byType(TextField));
-      await tester.pump();
-      expect(tester.testTextInput.isVisible, isTrue);
-      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
-      await tester.pump();
-      expect(tester.getRect(scroll).bottom, 632);
-      final home = tester.element(find.byType(HomeTab));
-      final navigator = Navigator.of(home, rootNavigator: true);
-      unawaited(navigator.push(NowPlayingRoute(child: const Scaffold())));
-      await settleFrames();
-      tester.view.viewInsets = FakeViewPadding.zero;
-      await tester.pump();
-      navigator.pop();
-      await settleFrames();
-      expect(tester.testTextInput.isVisible, isFalse);
-      final bar = find.byType(ExpressiveNavigationBar);
-      Finder destination(String label) =>
-          find.descendant(of: bar, matching: find.text(label));
-      await tester.tap(destination('Home'));
-      await settleFrames();
-      expect(find.text('Shortcuts'), findsOneWidget);
-      expect(tester.getRect(scroll).bottom, 932);
-      final player = tester.getRect(find.byType(MiniPlayer));
-      final viewport = tester.state<ScrollableState>(
-        find.descendant(of: scroll, matching: find.byType(Scrollable)).first,
-      );
-      await tester.dragFrom(
-        Offset(player.center.dx, player.top - 20),
-        const Offset(0, -120),
-      );
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(viewport.position.pixels, greaterThan(0));
-      await tester.tap(destination('Settings'));
-      await settleFrames();
-      expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 3);
-      await tester.tap(destination('Home'));
-      await settleFrames();
-      expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 0);
-      expect(tester.getRect(scroll).bottom, 932);
-      expect(tester.takeException(), isNull);
-    },
-  );
 
   for (final mornye in [false, true]) {
     testWidgets('external mode hides Home playback and mini player ($mornye)', (

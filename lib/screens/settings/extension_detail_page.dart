@@ -6,7 +6,6 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -128,11 +127,7 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                               width: 56,
                               height: 56,
                               decoration: BoxDecoration(
-                                color: context.isMornye
-                                    ? MornyeTheme.controlFill(context)
-                                    : hasError
-                                    ? colorScheme.errorContainer
-                                    : colorScheme.primaryContainer,
+                                color: MornyeTheme.controlFill(context),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child:
@@ -159,15 +154,11 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                                               error,
                                               stackTrace,
                                             ) => AppIcon(
-                                              context.isMornye
-                                                  ? (hasError
-                                                        ? CupertinoIcons
-                                                              .exclamationmark_circle
-                                                        : CupertinoIcons
-                                                              .square_grid_2x2)
-                                                  : hasError
-                                                  ? Icons.error_outline
-                                                  : Icons.extension,
+                                              (hasError
+                                                  ? CupertinoIcons
+                                                        .exclamationmark_circle
+                                                  : CupertinoIcons
+                                                        .square_grid_2x2),
                                               size: 28,
                                               color: hasError
                                                   ? colorScheme.error
@@ -177,15 +168,10 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                                       ),
                                     )
                                   : AppIcon(
-                                      context.isMornye
-                                          ? (hasError
-                                                ? CupertinoIcons
-                                                      .exclamationmark_circle
-                                                : CupertinoIcons
-                                                      .square_grid_2x2)
-                                          : hasError
-                                          ? Icons.error_outline
-                                          : Icons.extension,
+                                      (hasError
+                                          ? CupertinoIcons
+                                                .exclamationmark_circle
+                                          : CupertinoIcons.square_grid_2x2),
                                       size: 28,
                                       color: hasError
                                           ? colorScheme.error
@@ -239,21 +225,13 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                           ),
                         ],
                         const SizedBox(height: 16),
-                        if (context.isMornye)
-                          Divider(
-                            color: MornyeTheme.metadataDividerColor(context),
-                          ),
+                        Divider(
+                          color: MornyeTheme.metadataDividerColor(context),
+                        ),
                         _InfoRow(
                           label: context.l10n.extensionId,
                           value: extension.id,
                         ),
-                        if (!context.isMornye)
-                          _InfoRow(
-                            label: context.l10n.extensionsVersion(
-                              extension.version,
-                            ),
-                            value: '',
-                          ),
                         if (hasError && extension.errorMessage != null)
                           _InfoRow(
                             label: context.l10n.extensionError,
@@ -472,11 +450,7 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AppIcon(
-                        context.isMornye
-                            ? CupertinoIcons.trash
-                            : Icons.delete_outline,
-                      ),
+                      AppIcon(CupertinoIcons.trash),
                       const SizedBox(width: 8),
                       Flexible(child: Text(context.l10n.extensionRemoveButton)),
                     ],

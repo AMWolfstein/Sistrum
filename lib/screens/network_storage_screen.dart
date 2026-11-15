@@ -19,10 +19,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
 class NetworkStorageScreen extends ConsumerStatefulWidget {
@@ -477,9 +474,7 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                 if (_failed)
                   SliverToBoxAdapter(
                     child: _NetworkMessage(
-                      icon: context.isMornye
-                          ? CupertinoIcons.wifi_exclamationmark
-                          : Icons.wifi_off_rounded,
+                      icon: CupertinoIcons.wifi_exclamationmark,
                       message: _networkErrorMessage(context, _failure),
                       action: AppActionButton(
                         onPressed: _load,
@@ -492,9 +487,7 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                 if (!_loading && !_failed && connection == null) ...[
                   SliverToBoxAdapter(
                     child: _NetworkMessage(
-                      icon: context.isMornye
-                          ? CupertinoIcons.cloud
-                          : Icons.dns_outlined,
+                      icon: CupertinoIcons.cloud,
                       message: context.l10n.networkStorageDescription,
                       action: AppActionButton(
                         onPressed: () => _edit(),
@@ -516,9 +509,7 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                       return SettingsGroup(
                         children: [
                           SettingsItem(
-                            icon: context.isMornye
-                                ? CupertinoIcons.cloud
-                                : Icons.dns_outlined,
+                            icon: CupertinoIcons.cloud,
                             title: c.name,
                             subtitle: '${_kindLabel(c)} · ${c.root.host}',
                             onTap: () => _open(c),
@@ -551,9 +542,7 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                   if (visible.isEmpty)
                     SliverToBoxAdapter(
                       child: _NetworkMessage(
-                        icon: context.isMornye
-                            ? CupertinoIcons.folder
-                            : Icons.folder_open_rounded,
+                        icon: CupertinoIcons.folder,
                         message: context.l10n.networkNoFiles,
                       ),
                     ),
@@ -566,19 +555,9 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                         child: Material(
                           color: settingsGroupColor(context),
                           borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(
-                              index == 0
-                                  ? (context.isMornye
-                                        ? 28
-                                        : context.tokens.radiusCard)
-                                  : 0,
-                            ),
+                            top: Radius.circular(index == 0 ? 28 : 0),
                             bottom: Radius.circular(
-                              index == visible.length - 1
-                                  ? (context.isMornye
-                                        ? 28
-                                        : context.tokens.radiusCard)
-                                  : 0,
+                              index == visible.length - 1 ? 28 : 0,
                             ),
                           ),
                           clipBehavior: Clip.antiAlias,
@@ -764,94 +743,31 @@ class _NetworkConnectionFormState extends State<_NetworkConnectionForm> {
         required && (value == null || value.trim().isEmpty)
         ? context.l10n.extensionAccountRequiredValue
         : null;
-    if (context.isMornye) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            CupertinoTextFormFieldRow(
-              key: ValueKey(label),
-              controller: controller,
-              enabled: !_busy,
-              obscureText: secret,
-              autocorrect: false,
-              enableSuggestions: false,
-              placeholder: hint,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              style: Theme.of(context).textTheme.bodyLarge,
-              validator: validate,
-              textInputAction: TextInputAction.next,
-            ),
-            const Divider(height: 0.5),
-          ],
-        ),
-      );
-    }
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide.none,
-    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
-            child: Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.1,
-              ),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          Semantics(
-            label: label,
-            child: TextFormField(
-              key: ValueKey(label),
-              controller: controller,
-              enabled: !_busy,
-              obscureText: secret,
-              autocorrect: false,
-              enableSuggestions: false,
-              cursorColor: colors.primary,
-              style: theme.textTheme.bodyLarge,
-              decoration: InputDecoration(
-                hintText: hint,
-                filled: true,
-                fillColor: theme.brightness == Brightness.dark
-                    ? Color.alphaBlend(
-                        Colors.white.withValues(alpha: 0.05),
-                        colors.surface,
-                      )
-                    : colors.surface,
-                isDense: true,
-                border: border,
-                enabledBorder: border,
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: colors.primary, width: 1.5),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 15,
-                ),
-              ),
-              validator: validate,
-              textInputAction: TextInputAction.next,
-            ),
+          CupertinoTextFormFieldRow(
+            key: ValueKey(label),
+            controller: controller,
+            enabled: !_busy,
+            obscureText: secret,
+            autocorrect: false,
+            enableSuggestions: false,
+            placeholder: hint,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            style: Theme.of(context).textTheme.bodyLarge,
+            validator: validate,
+            textInputAction: TextInputAction.next,
           ),
+          const Divider(height: 0.5),
         ],
       ),
     );
@@ -989,9 +905,7 @@ class _NetworkConnectionFormState extends State<_NetworkConnectionForm> {
                   ),
                   if (_failed)
                     _NetworkMessage(
-                      icon: context.isMornye
-                          ? CupertinoIcons.exclamationmark_circle
-                          : Icons.error_outline,
+                      icon: CupertinoIcons.exclamationmark_circle,
                       message: switch (_pendingCertificate) {
                         final certificate? =>
                           '${context.l10n.networkCertificatePrompt}\n\n'
@@ -1028,27 +942,15 @@ class _NetworkConnectionFormState extends State<_NetworkConnectionForm> {
                   if (widget.connection != null)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      child: context.isMornye
-                          ? CupertinoButton(
-                              onPressed: _busy ? null : _remove,
-                              child: Text(
-                                context.l10n.networkRemoveConnection,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                              ),
-                            )
-                          : ExpressiveButton(
-                              text: true,
-                              onPressed: _busy ? null : _remove,
-                              icon: const Icon(Icons.link_off),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.error,
-                              ),
-                              child: Text(context.l10n.networkRemoveConnection),
-                            ),
+                      child: CupertinoButton(
+                        onPressed: _busy ? null : _remove,
+                        child: Text(
+                          context.l10n.networkRemoveConnection,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -1064,9 +966,7 @@ class _NetworkConnectionFormState extends State<_NetworkConnectionForm> {
 PageRoute<T> _networkRoute<T>(
   BuildContext context, {
   required WidgetBuilder builder,
-}) => context.isMornye
-    ? CupertinoPageRoute<T>(builder: builder)
-    : MaterialPageRoute<T>(builder: builder);
+}) => CupertinoPageRoute<T>(builder: builder);
 
 /// Browses [connection] for a folder to upload into: the folder's
 /// `network://` source, or null when the person goes back.
@@ -1128,38 +1028,28 @@ class _NetworkIconAction extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) => context.isMornye
-      ? Tooltip(
-          message: tooltip,
-          child: CupertinoButton(
-            onPressed: onPressed,
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              cupertinoIcon,
-              size: 24,
-              semanticLabel: tooltip,
-              color: onPressed == null
-                  ? Theme.of(context).disabledColor
-                  : Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        )
-      : ExpressiveIconButton(
-          icon: Icon(icon),
-          tooltip: tooltip,
-          onPressed: onPressed,
-        );
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: CupertinoButton(
+      onPressed: onPressed,
+      padding: const EdgeInsets.all(12),
+      child: Icon(
+        cupertinoIcon,
+        size: 24,
+        semanticLabel: tooltip,
+        color: onPressed == null
+            ? Theme.of(context).disabledColor
+            : Theme.of(context).colorScheme.primary,
+      ),
+    ),
+  );
 }
 
 class _NetworkProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.all(16),
-    child: Center(
-      child: context.isMornye
-          ? const CupertinoActivityIndicator()
-          : const AppLoadingIndicator(),
-    ),
+    child: Center(child: const CupertinoActivityIndicator()),
   );
 }
 
@@ -1187,22 +1077,12 @@ class _NetworkMessage extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: context.isMornye
-                        ? MornyeTheme.controlFill(context)
-                        : scheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(
-                      context.isMornye ? 16 : 24,
-                    ),
+                    color: MornyeTheme.controlFill(context),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Icon(
-                      icon,
-                      size: 32,
-                      color: context.isMornye
-                          ? scheme.primary
-                          : scheme.onSecondaryContainer,
-                    ),
+                    child: Icon(icon, size: 32, color: scheme.primary),
                   ),
                 ),
               ),

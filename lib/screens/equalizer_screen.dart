@@ -5,26 +5,19 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/equalizer_settings.dart';
 import 'package:sistrum/providers/equalizer_provider.dart';
 import 'package:sistrum/services/playback_equalizer.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_menu_button.dart';
-import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/beta_badge.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_level_slider.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -39,8 +32,6 @@ class EqualizerScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<EqualizerScreen> createState() => _EqualizerScreenState();
 }
-
-enum _PresetAction { manage, import, export }
 
 final _selectedEqualizerPresetProvider = Provider<EqualizerPreset?>(
   (ref) => _matchingPreset(ref.watch(equalizerProvider)),
@@ -121,7 +112,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
       builder: (context, ref, _) {
         final state = ref.watch(equalizerProvider);
         final selected = _matchingPreset(state);
-        final mornye = context.isMornye;
         return SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -133,18 +123,13 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                 AppSheetOption(
                   title: Text(preset.name),
                   selected: preset == selected,
-                  leading: mornye
-                      ? null
-                      : preset == selected
-                      ? const AppIcon(Icons.check)
-                      : const AppIcon(Icons.graphic_eq),
+                  leading: null,
                   trailing:
-                      (mornye && preset == selected) ||
-                          state.presets.contains(preset)
+                      (preset == selected) || state.presets.contains(preset)
                       ? Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (mornye && preset == selected)
+                            if (preset == selected)
                               AppIcon(
                                 Icons.check,
                                 color: Theme.of(context).colorScheme.primary,
@@ -219,7 +204,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
     );
     final notifier = ref.read(equalizerProvider.notifier);
     final l10n = context.l10n;
-    final mornye = context.isMornye;
     void update(EqualizerSettings next) => notifier.update(next);
     void setEnabled(bool v) =>
         update(ref.read(equalizerProvider).settings.copyWith(enabled: v));
@@ -244,7 +228,7 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
       body: CustomScrollView(
         slivers: [
           AppSliverHeader.page(title: l10n.equalizerTitle),
-          if (mornye) ...[
+          ...[
             section(
               SettingsGroup(
                 children: [
@@ -290,32 +274,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                     last: true,
                   ),
                 ],
-              ),
-            ),
-          ] else ...[
-            section(
-              SettingsGroup(
-                children: [_EqualizerOverview(onEnabledChanged: setEnabled)],
-              ),
-            ),
-            error,
-            section(
-              SettingsInfoCard(
-                message: l10n.equalizerBypass,
-                icon: Icons.info_outline,
-              ),
-            ),
-            section(SettingsSectionHeader(title: l10n.equalizerPresets)),
-            section(
-              _PresetBar(
-                busy: _busy,
-                onSave: _savePreset,
-                onReset: _reset,
-                onAction: (action) => switch (action) {
-                  _PresetAction.manage => _presets(),
-                  _PresetAction.import => _import(),
-                  _PresetAction.export => _export(),
-                },
               ),
             ),
           ],
@@ -406,7 +364,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                 if (settings.compressor) ...[
                   _SliderTile(
                     title: l10n.equalizerThreshold,
-                    indented: true,
                     control: _ToneControl.threshold,
                     min: -60,
                     max: 0,
@@ -415,7 +372,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                   _SliderTile(
                     title: l10n.equalizerRatio,
-                    indented: true,
                     control: _ToneControl.ratio,
                     min: 1,
                     max: 20,
@@ -425,7 +381,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                   _SliderTile(
                     title: l10n.equalizerAttack,
-                    indented: true,
                     control: _ToneControl.attack,
                     min: 1,
                     max: 100,
@@ -435,7 +390,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                   _SliderTile(
                     title: l10n.equalizerRelease,
-                    indented: true,
                     control: _ToneControl.release,
                     min: 20,
                     max: 1000,
@@ -448,7 +402,7 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
               ],
             ),
           ),
-          if (mornye) ...[
+          ...[
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
             section(
               SettingsGroup(

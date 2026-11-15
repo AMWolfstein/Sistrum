@@ -8,20 +8,9 @@ class _ExtensionOverviewSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(padding: const EdgeInsets.all(20), child: child);
-    if (context.isMornye) {
-      // The card scrolls over the plain page background, so a backdrop pass
-      // would only filter a flat color.
-      return MornyeGlassPanel(samplesBackdrop: false, child: content);
-    }
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: content,
-    );
+    // The card scrolls over the plain page background, so a backdrop pass
+    // would only filter a flat color.
+    return MornyeGlassPanel(samplesBackdrop: false, child: content);
   }
 }
 
@@ -35,9 +24,7 @@ class _ExtensionDivider extends StatelessWidget {
     height: 1,
     indent: indent,
     endIndent: 16,
-    color: context.isMornye
-        ? MornyeTheme.metadataDividerColor(context)
-        : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+    color: MornyeTheme.metadataDividerColor(context),
   );
 }
 
@@ -143,12 +130,7 @@ class _CapabilityItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              AppIcon(
-                context.adaptiveIcon(icon),
-                color: context.isMornye || enabled
-                    ? colorScheme.primary
-                    : colorScheme.outline,
-              ),
+              AppIcon(context.adaptiveIcon(icon), color: colorScheme.primary),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -168,14 +150,10 @@ class _CapabilityItem extends StatelessWidget {
                 ),
               ),
               AppIcon(
-                context.isMornye
-                    ? (enabled
-                          ? CupertinoIcons.check_mark_circled_solid
-                          : CupertinoIcons.xmark_circle)
-                    : (enabled ? Icons.check_circle : Icons.cancel_outlined),
-                color: context.isMornye || enabled
-                    ? colorScheme.primary
-                    : colorScheme.outline,
+                (enabled
+                    ? CupertinoIcons.check_mark_circled_solid
+                    : CupertinoIcons.xmark_circle),
+                color: colorScheme.primary,
               ),
             ],
           ),
@@ -263,11 +241,7 @@ class _HealthSummaryItem extends StatelessWidget {
                         strokeWidth: 2,
                         color: colorScheme.primary,
                       )
-                    : AppIcon(
-                        context.isMornye
-                            ? CupertinoIcons.refresh
-                            : Icons.refresh,
-                      ),
+                    : AppIcon(CupertinoIcons.refresh),
               ),
             ],
           ),
@@ -386,12 +360,7 @@ class _PermissionItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              AppIcon(
-                context.adaptiveIcon(icon),
-                color: context.isMornye
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
-              ),
+              AppIcon(context.adaptiveIcon(icon), color: colorScheme.primary),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -619,48 +588,23 @@ class _SettingItemState extends State<_SettingItem> {
     final controller = TextEditingController(
       text: widget.value?.toString() ?? '',
     );
-    final colorScheme = Theme.of(context).colorScheme;
 
     showAppDialog<void>(
       context: context,
       builder: (context) => AppAlertDialog(
         title: Text(widget.setting.label),
-        content: context.isMornye
-            ? Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: CupertinoTextField(
-                  controller: controller,
-                  keyboardType: widget.setting.type == 'number'
-                      ? TextInputType.number
-                      : TextInputType.text,
-                  placeholder:
-                      widget.setting.description ??
-                      context.l10n.extensionEnterValue,
-                  padding: const EdgeInsets.all(12),
-                ),
-              )
-            : AppTextField(
-                controller: controller,
-                keyboardType: widget.setting.type == 'number'
-                    ? TextInputType.number
-                    : TextInputType.text,
-                hint:
-                    widget.setting.description ??
-                    context.l10n.extensionEnterValue,
-                decoration: InputDecoration(
-                  hintText:
-                      widget.setting.description ??
-                      context.l10n.extensionEnterValue,
-                  filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.3,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
+            controller: controller,
+            keyboardType: widget.setting.type == 'number'
+                ? TextInputType.number
+                : TextInputType.text,
+            placeholder:
+                widget.setting.description ?? context.l10n.extensionEnterValue,
+            padding: const EdgeInsets.all(12),
+          ),
+        ),
         actions: [
           AppDialogAction(
             onPressed: () => Navigator.pop(context),
@@ -767,16 +711,12 @@ class _ExtensionFeatureRow extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: context.isMornye
-                      ? Colors.transparent
-                      : colorScheme.secondaryContainer,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: AppIcon(
-                  context.isMornye ? cupertinoIcon : materialIcon,
-                  color: context.isMornye
-                      ? colorScheme.primary
-                      : colorScheme.onSecondaryContainer,
+                  cupertinoIcon,
+                  color: colorScheme.primary,
                   size: 20,
                 ),
               ),
@@ -850,16 +790,12 @@ class _URLHandlerInfo extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: context.isMornye
-                      ? Colors.transparent
-                      : colorScheme.secondaryContainer,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: AppIcon(
-                  context.isMornye ? CupertinoIcons.link : Icons.link,
-                  color: context.isMornye
-                      ? colorScheme.primary
-                      : colorScheme.onSecondaryContainer,
+                  CupertinoIcons.link,
+                  color: colorScheme.primary,
                   size: 24,
                 ),
               ),
@@ -968,15 +904,7 @@ class _QualityOptionItem extends StatelessWidget {
       materialIcon: Icons.high_quality,
       title: quality.label,
       description: description?.isNotEmpty == true ? description : null,
-      extra: context.isMornye
-          ? null
-          : Text(
-              quality.id,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colorScheme.primary,
-                fontFamily: 'monospace',
-              ),
-            ),
+      extra: null,
       pill: quality.settingsCount > 0
           ? context.l10n.extensionSettingsCount(quality.settingsCount)
           : null,

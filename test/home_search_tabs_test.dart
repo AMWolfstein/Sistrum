@@ -26,7 +26,7 @@ import 'package:sistrum/widgets/mornye_context_menu.dart';
 
 void main() {
   {
-    for (final mornye in [false, true]) {
+    for (final mornye in const [true]) {
       testWidgets('Home keeps Resume without a player '
           '(Mornye: $mornye)', (tester) async {
         tester.platformDispatcher.accessibilityFeaturesTestValue =
@@ -121,53 +121,8 @@ void main() {
     });
   }
 
-  testWidgets('Home sections stay in place while Continue listening leaves', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(430, 932);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final showPlayer = ValueNotifier(true);
-    addTearDown(showPlayer.dispose);
-    await _pumpStartupHome(
-      tester,
-      _StartupExtensions(),
-      _StartupExplore(),
-      mornye: false,
-      feedDisabled: true,
-      resume: const (
-        media: PlayableMedia(
-          id: 'saved-song',
-          source: '/saved.flac',
-          title: 'Last session',
-          artist: 'Saved artist',
-          duration: Duration(minutes: 3),
-        ),
-        position: Duration(seconds: 23),
-      ),
-      showPlayer: showPlayer,
-    );
-    // Home keeps looping animations, so time passes in fixed steps.
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Continue listening'), findsOneWidget);
-
-    showPlayer.value = false;
-    await tester.pump();
-    final resting = tester.getTopLeft(find.text('Shortcuts')).dy;
-    // Midway through the space closing, the sections must not sink.
-    await tester.pump(const Duration(milliseconds: 120));
-    expect(tester.getTopLeft(find.text('Shortcuts')).dy, resting);
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Continue listening'), findsNothing);
-    expect(tester.getTopLeft(find.text('Shortcuts')).dy, resting);
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox());
-    await tester.pump(const Duration(seconds: 1));
-  });
-
   {
-    for (final mornye in [false, true]) {
+    for (final mornye in const [true]) {
       testWidgets('Home keeps its feed layout through slow startup '
           '(Mornye: $mornye)', (tester) async {
         tester.view.physicalSize = const Size(430, 932);
@@ -232,7 +187,7 @@ void main() {
   }
 
   for (final (mornye, result) in [
-    for (final mornye in [false, true])
+    for (final mornye in const [true])
       for (final result in [
         'no extensions',
         'initialization error',
@@ -283,7 +238,7 @@ void main() {
     });
   }
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'Home with its feed disabled skips startup loading (Sistrum=$mornye)',
       (tester) async {
@@ -323,60 +278,6 @@ void main() {
     expect(find.byType(ShimmerLoading), findsNothing);
     expect(tester.takeException(), isNull);
   });
-
-  {
-    testWidgets('first search extension collapses the empty Home prompt ', (tester) async {
-      tester.view.physicalSize = const Size(430, 932);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final extensions = _StartupExtensions();
-      final homeVisible = ValueNotifier(true);
-      addTearDown(homeVisible.dispose);
-      final pages = PageController();
-      addTearDown(pages.dispose);
-      await _pumpStartupHome(
-        tester,
-        extensions,
-        _StartupExplore(),
-        mornye: false,
-        homeVisible: homeVisible,
-        pages: pages,
-      );
-      extensions.update(const ExtensionState(isInitialized: true));
-      await tester.pumpAndSettle();
-      expect(find.byType(TextField), findsNothing);
-
-      homeVisible.value = false;
-      pages.jumpToPage(1);
-      await tester.pump();
-      extensions.update(
-        const ExtensionState(
-          isInitialized: true,
-          extensions: [
-            Extension(
-              id: 'example',
-              name: 'example',
-              displayName: 'Example',
-              version: '1.0.0',
-              description: '',
-              enabled: true,
-              status: 'loaded',
-              searchBehavior: SearchBehavior(enabled: true),
-            ),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-      homeVisible.value = true;
-      pages.jumpToPage(0);
-      await tester.pump();
-
-      expect(find.text('Shortcuts'), findsOneWidget);
-      expect(tester.getTopLeft(find.byType(TextField)).dy, lessThan(300));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   for (final (size, layout) in [
     for (final layout in ['shelf', 'featured', 'quick-pick', 'quick-pick-menu'])
@@ -486,7 +387,6 @@ void main() {
       },
     );
   }
-
 
   testWidgets(
     'Home keeps its feed while Search retains its query and results',
@@ -778,7 +678,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-
   for (final withSearchExtension in [false, true]) {
     testWidgets('Sistrum Home without a feed still shows local playback '
         '(search extension: $withSearchExtension)', (tester) async {
@@ -935,7 +834,7 @@ Future<void> _pumpStartupHome(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: homeVisible == null
-          ? HomeTab(mode: mornye ? HomeTabMode.browse : HomeTabMode.combined)
+          ? HomeTab(mode: HomeTabMode.browse)
           : ValueListenableBuilder(
               valueListenable: homeVisible,
               builder: (context, visible, _) => PageView(
@@ -945,7 +844,7 @@ Future<void> _pumpStartupHome(
                     enabled: visible,
                     child: HomeTab(
                       key: const ValueKey('home'),
-                      mode: mornye ? HomeTabMode.browse : HomeTabMode.combined,
+                      mode: HomeTabMode.browse,
                     ),
                   ),
                   const Scaffold(key: ValueKey('other')),

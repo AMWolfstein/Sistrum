@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -102,6 +103,7 @@ void main() {
           await tester.pumpWidget(
             ProviderScope(
               child: MaterialApp(
+                theme: MornyeTheme.build(Brightness.light),
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
                 home: TrackMetadataScreen(
@@ -227,6 +229,10 @@ void main() {
         }
       });
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      // Tall enough that the lazy list builds every card.
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       final item = DownloadHistoryItem(
         id: 'local-song',
         trackName: 'Song',
@@ -240,6 +246,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(item: item),

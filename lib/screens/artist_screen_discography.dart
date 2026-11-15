@@ -31,17 +31,11 @@ extension _ArtistScreenDiscography on _ArtistScreenState {
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Row(
                 children: [
-                  if (!context.isMornye) ...[
-                    Icon(Icons.download, color: colorScheme.primary),
-                    const SizedBox(width: 12),
-                  ],
                   Expanded(
                     child: Text(
                       context.l10n.discographyDownload,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: context.isMornye
-                            ? FontWeight.w600
-                            : FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -49,7 +43,7 @@ extension _ArtistScreenDiscography on _ArtistScreenState {
               ),
             ),
             // Material sheets separate the header by space; dividers are Mornye's.
-            if (context.isMornye) const Divider(height: 1),
+            const Divider(height: 1),
             if (albums.isNotEmpty)
               _DiscographyOptionTile(
                 icon: Icons.library_music,
@@ -111,18 +105,16 @@ extension _ArtistScreenDiscography on _ArtistScreenState {
       isScrollControlled: true,
       // The sheet forces the dark theme on its own glass.
       mornyeGlass: false,
-      builder: (sheetContext) => sheetContext.isMornye
-          ? Theme(
-              data: MornyeTheme.fromContext(
-                sheetContext,
-                brightness: Brightness.dark,
-              ),
-              child: MornyeGlassPanel(
-                tintOpacity: 0.78,
-                child: Builder(builder: buildSheet),
-              ),
-            )
-          : buildSheet(sheetContext),
+      builder: (sheetContext) => Theme(
+        data: MornyeTheme.fromContext(
+          sheetContext,
+          brightness: Brightness.dark,
+        ),
+        child: MornyeGlassPanel(
+          tintOpacity: 0.78,
+          child: Builder(builder: buildSheet),
+        ),
+      ),
     );
   }
 
@@ -372,7 +364,7 @@ class _DiscographyOptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    if (context.isMornye) {
+    {
       final textTheme = Theme.of(context).textTheme;
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -415,24 +407,6 @@ class _DiscographyOptionTile extends StatelessWidget {
         ),
       );
     }
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: colorScheme.onSecondaryContainer, size: 24),
-      ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
-      ),
-      trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-      onTap: onTap,
-    );
   }
 }
 

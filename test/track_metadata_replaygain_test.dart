@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,8 +10,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-
-import 'support/app_icon_finder.dart';
 
 class _History extends DownloadHistoryNotifier {
   _History(this._item);
@@ -111,12 +110,17 @@ void main() {
         sampleRate: 44100,
         format: 'flac',
       );
+      // Tall enough that the lazy list builds every card.
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             downloadHistoryProvider.overrideWith(() => _History(item)),
           ],
           child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(item: item),
@@ -148,7 +152,7 @@ void main() {
         expect(find.text(text), hasTags ? findsOneWidget : findsNothing);
       }
       Future<void> openRemoval() async {
-        await tester.tap(findAppIcon(Icons.more_vert));
+        await tester.tap(find.byTooltip('Show menu'));
         await tester.pumpAndSettle();
         expect(find.text('Edit audio file'), findsNothing);
         expect(find.text('Similar songs in Library'), findsNothing);

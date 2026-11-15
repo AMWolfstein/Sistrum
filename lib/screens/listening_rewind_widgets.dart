@@ -215,11 +215,7 @@ class _Artwork extends StatelessWidget {
             ),
     );
     if (artist) return AppShapeClip(kind: AppShapes.artist, child: image);
-    final radius = context.isMornye
-        ? size * 0.06
-        : size >= 120
-        ? 28.0
-        : 12.0;
+    final radius = size * 0.06;
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -10,7 +9,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 
 class AppSettingsPage extends ConsumerWidget {
@@ -211,10 +209,7 @@ class AppSettingsPage extends ConsumerWidget {
       builder: (context) => AppAlertDialog(
         content: Row(
           children: [
-            if (context.isMornye)
-              const CupertinoActivityIndicator()
-            else
-              const AppLoadingIndicator(),
+            const CupertinoActivityIndicator(),
             const SizedBox(width: 16),
             Expanded(child: Text(context.l10n.cleanupOrphanedDownloads)),
           ],
@@ -271,9 +266,7 @@ class _UpdateChannelSelector extends StatelessWidget {
             children: [
               AppIcon(
                 context.adaptiveIcon(Icons.new_releases),
-                color: context.isMornye
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
+                color: colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 16),
@@ -374,9 +367,7 @@ class _VerificationBrowserModeSelector extends StatelessWidget {
                 children: [
                   AppIcon(
                     context.adaptiveIcon(Icons.open_in_browser),
-                    color: context.isMornye
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
+                    color: colorScheme.primary,
                     size: 24,
                   ),
                   const SizedBox(width: 16),

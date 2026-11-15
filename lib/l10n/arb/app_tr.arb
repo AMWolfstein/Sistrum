@@ -262,14 +262,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Albümler",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Single'lar",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "Son eklenenler",
   "libraryDownloads": "İndirilenler",
   "libraryNoActiveDownloads": "Etkin indirme yok",
@@ -387,10 +379,6 @@
   "appearanceThemeDark": "Koyu",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Geçmiş Düzeni",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Liste",
   "@appearanceHistoryViewList": {
@@ -640,15 +628,6 @@
   "extensionsDisabled": "Devre Dışı",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "Versiyon {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "Kaldır",
   "@extensionsUninstall": {
@@ -1714,10 +1693,6 @@
   },
   "sectionTheme": "Tema",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Düzen",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Dil",
@@ -4972,14 +4947,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "Varsayılan görünüm",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Son kullanılan",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "İndirme geçmişi yok",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6503,10 +6470,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "Şimdi çalıyor",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "Hiçbir şey çalmıyor",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6907,19 +6870,6 @@
   "lyricsAiErrorNoLyrics": "Bu şarkı sözlerinde çevrilecek bir şey yok",
   "@lyricsAiErrorNoLyrics": {
     "description": "AI translation error when the lyrics have no translatable lines"
-  },
-  "nowPlayingLibraryEmpty": "Kitaplığınız boş",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "Kitaplık karıştırılamadı: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "Karıştırma açık",
   "@nowPlayingShuffleOn": {
@@ -7344,22 +7294,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Şarkı sözlerinin yanında albüm kapağı",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Material yatay oynatıcıda parça ayrıntıları yerine albüm kapağını göster",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Kompakt oynatıcı",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "Şarkı sözleri kendi hâline bırakıldığında, şarkı sözlerine daha fazla yer açmak için oynatıcıyı ince bir çubuğa küçült. Dokunmak tam oynatıcıyı geri getirir",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
-  },
   "playerCoverStyleCard": "Kart",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7479,39 +7413,6 @@
   "profileRemovePhoto": "Fotoğrafı kaldır",
   "profilePhotoError": "20 MB'tan küçük geçerli bir görsel seçin.",
   "profileSaveError": "Profiliniz kaydedilemedi. Lütfen tekrar deneyin.",
-  "homeGreetingMorning1": "Günaydın",
-  "homeGreetingMorning2": "Güne enerjik başla",
-  "homeGreetingMorning3": "Yeni bir başlangıç",
-  "homeGreetingAfternoon1": "İyi günler",
-  "homeGreetingAfternoon2": "Öğleden sonra ritmi",
-  "homeGreetingAfternoon3": "Keyfi sürdür",
-  "homeGreetingEvening1": "İyi akşamlar",
-  "homeGreetingEvening2": "Rahatlamanın zamanı",
-  "homeGreetingEvening3": "Altın saat",
-  "homeGreetingNight1": "İyi geceler",
-  "homeGreetingNight2": "Gece seansı",
-  "homeGreetingNight3": "Sessiz saatler",
-  "homeGreetingNamed": "{greeting}, {name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "Ne dinliyoruz?",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "Bir bağlantın mı var? Aramaya bırak",
-  "homeTaglineDiscover": "Bir sonraki favori albümünü bul",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "Dinlemeye devam et",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7523,11 +7424,6 @@
   "homeOnRepeat": "Sürekli çalanlar",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
-  },
-  "homeShortcuts": "Kısayollar",
-  "homeMixesForYou": "Size özel mix'ler",
-  "@homeMixesForYou": {
-    "description": "Home section header for daily mixes made from the user's own Library songs"
   },
   "homeMixFavoritesTitle": "Favoriler Mix'i",
   "@homeMixFavoritesTitle": {
@@ -7748,7 +7644,6 @@
   "listeningStatsClear": "Dinleme istatistiklerini temizle",
   "listeningStatsClearError": "Dinleme istatistikleri temizlenemedi. Lütfen tekrar deneyin.",
   "listeningStatsClearDescription": "Bu cihazdaki tüm dinleme istatistikleri silinsin mi? Müzikleriniz ve çalma listeleriniz korunur.",
-  "libraryArtistsEmpty": "Müzik indirdiğinizde veya yerel bir kitaplığı taradığınızda sanatçılar burada görünür.",
   "listeningRewind": "Geri Bakış",
   "listeningRewindDescription": "Son haftalarınızın ve aylarınızın öne çıkanlarını yeniden yaşayın",
   "listeningRewindChoosePeriod": "Bir dönem seçin",
@@ -8031,7 +7926,6 @@
   "equalizerEffectivePreamp": "Headroom sonrası giriş kazancı",
   "equalizerDeletePreset": "Ön ayarı sil",
   "equalizerCustom": "Özel",
-  "equalizerManagePresets": "Ön ayarları yönet",
   "lyricsShareTitle": "Şarkı sözlerini paylaş",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

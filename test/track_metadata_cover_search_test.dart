@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,9 +14,6 @@ import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
-
-import 'support/app_icon_finder.dart';
 
 class _Extensions extends ExtensionNotifier {
   @override
@@ -147,6 +146,7 @@ void main() {
         ProviderScope(
           overrides: [extensionProvider.overrideWith(_Extensions.new)],
           child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(
@@ -165,7 +165,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(findAppIcon(Icons.more_vert));
+      await tester.tap(find.byTooltip('Show menu'));
       await tester.pumpAndSettle();
       expect(find.text('Edit audio file'), findsNothing);
       expect(find.text('Similar songs in Library'), findsNothing);
@@ -176,7 +176,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('None'));
       await tester.pump();
-      await tester.tap(find.widgetWithText(AppChoiceChip, 'Cover Art'));
+      await tester.tap(find.widgetWithText(MornyeFilterChip, 'Cover Art'));
       await tester.pump();
       if (scenario == 'selected provider album') {
         await tester.tap(find.text('Automatic (provider priority)'));

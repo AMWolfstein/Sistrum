@@ -6,7 +6,6 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/screens/weekly_releases_screen.dart';
 import 'package:sistrum/services/cover_cache_manager.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -79,9 +78,7 @@ class FavoriteArtistsScreen extends ConsumerWidget {
               sliver: SliverList.separated(
                 itemCount: artists.length,
                 // Material lists separate rows by space; dividers are Mornye's.
-                separatorBuilder: (_, _) => context.isMornye
-                    ? const Divider(height: 1)
-                    : const SizedBox.shrink(),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final artist = artists[index];
                   return ListTile(

@@ -262,14 +262,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Álbumes",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Pistas",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "Agregados recientemente",
   "libraryDownloads": "Descargas",
   "libraryNoActiveDownloads": "No hay descargas activas",
@@ -387,10 +379,6 @@
   "appearanceThemeDark": "Oscuro",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Vista del Historial",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Lista",
   "@appearanceHistoryViewList": {
@@ -640,15 +628,6 @@
   "extensionsDisabled": "Desactivado",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "Versión {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "Desinstalar",
   "@extensionsUninstall": {
@@ -1714,10 +1693,6 @@
   },
   "sectionTheme": "Tema",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Diseño",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Idioma",
@@ -4972,14 +4947,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "Vista predeterminada",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Último uso",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "No hay historial de descargas",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6503,10 +6470,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "Ahora en pantalla",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "No se está reproduciendo nada",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6907,19 +6870,6 @@
   "lyricsAiErrorNoLyrics": "These lyrics have nothing to translate",
   "@lyricsAiErrorNoLyrics": {
     "description": "AI translation error when the lyrics have no translatable lines"
-  },
-  "nowPlayingLibraryEmpty": "Tu biblioteca está vacía",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "No se pudo mezclar la biblioteca: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "Sigue adelante",
   "@nowPlayingShuffleOn": {
@@ -7344,22 +7294,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
-  },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7479,39 +7413,6 @@
   "profileRemovePhoto": "Eliminar foto",
   "profilePhotoError": "Elige una imagen válida que no supere los 20 MB.",
   "profileSaveError": "No se pudo guardar tu perfil. Inténtalo de nuevo.",
-  "homeGreetingMorning1": "Buenos días",
-  "homeGreetingMorning2": "Arriba, a brillar",
-  "homeGreetingMorning3": "Un nuevo comienzo",
-  "homeGreetingAfternoon1": "Buenas tardes",
-  "homeGreetingAfternoon2": "Ritmo de tarde",
-  "homeGreetingAfternoon3": "Mantén el ambiente",
-  "homeGreetingEvening1": "Buenas noches",
-  "homeGreetingEvening2": "Hora de relajarse",
-  "homeGreetingEvening3": "Hora dorada",
-  "homeGreetingNight1": "Buenas noches",
-  "homeGreetingNight2": "Sesión de madrugada",
-  "homeGreetingNight3": "Horas tranquilas",
-  "homeGreetingNamed": "{greeting}, {name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "¿Qué escuchamos?",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "¿Tienes un enlace? Pégalo en la búsqueda",
-  "homeTaglineDiscover": "Encuentra tu próximo álbum favorito",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "Seguir escuchando",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7523,11 +7424,6 @@
   "homeOnRepeat": "En repetición",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
-  },
-  "homeShortcuts": "Accesos directos",
-  "homeMixesForYou": "Mixes for you",
-  "@homeMixesForYou": {
-    "description": "Home section header for daily mixes made from the user's own Library songs"
   },
   "homeMixFavoritesTitle": "Favorites Mix",
   "@homeMixFavoritesTitle": {
@@ -7748,7 +7644,6 @@
   "listeningStatsClear": "Estadísticas de escucha claras",
   "listeningStatsClearError": "No se pudieron borrar las estadísticas de escucha. Inténtalo de nuevo.",
   "listeningStatsClearDescription": "¿Deseas eliminar todas las estadísticas de escucha de este dispositivo? Tu música y tus listas de reproducción se conservarán.",
-  "libraryArtistsEmpty": "Los artistas aparecerán aquí cuando descargues música o analices una biblioteca local.",
   "listeningRewind": "Rewind",
   "listeningRewindDescription": "Revive lo más destacado de tus últimas semanas y meses",
   "listeningRewindChoosePeriod": "Elige un periodo",
@@ -8031,7 +7926,6 @@
   "equalizerEffectivePreamp": "Input gain after headroom",
   "equalizerDeletePreset": "Delete preset",
   "equalizerCustom": "Personalizado",
-  "equalizerManagePresets": "Manage presets",
   "lyricsShareTitle": "Share lyrics",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

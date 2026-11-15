@@ -135,3 +135,126 @@ Baseline checks on `5edaaac`: `flutter analyze` no issues; full `flutter test`
 - **Checks**: `flutter analyze`: no issues. Full `flutter test`: 4220 passed,
   10 skipped, 0 failed (exit 0; log
   `/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t002-test3.log`).
+
+## M001-T003 Collapse Material branches in screens and remove isMornye
+
+- **Map**: `python3 workflow/codegraph/code_tools.py update` was the first action:
+  35625 symbols, 122940 relationships, 1747 extracted sources, 0 partial,
+  0 unindexed. Scope: the 63 `lib/screens` files of plan.md's appendix and the
+  `isMornye` extension in `lib/theme/mornye_theme.dart`; callers read with `rg`
+  (the map does not resolve provider selects).
+- **Method**: the T002 AST tool (scratchpad, not committed; one fix for a dropped
+  trailing comma) folded `context.isMornye` in every `lib/screens` file except
+  `now_playing_screen.dart`, which was folded by hand. Results were formatted and
+  read; unused imports, locals and private declarations were removed with the
+  analyzer; then leftovers the analyzer does not report were searched for (named
+  arguments that every caller passes as one constant, `this.X` parameters and fields
+  with no reader, l10n keys with no reader).
+- **Shell**: `isMornye` getter and extension deleted. `shellTabAt`/`shellIndexOfTab`
+  and the live style-switch tab remap deleted (their test
+  `shell_tab_style_switch_test.dart` with them); the tab-jump fade controller and
+  `SingleTickerProviderStateMixin` deleted; `_KeepAliveTabPage` deleted; the Library tab builds
+  `MornyeLibraryScreen` directly (`_LibraryTabRoot`). `ShellNavigationService.syncState`
+  loses `showSearchTab` (the Search tab always exists).
+- **Library (FR-014)**: `QueueTab.librarySection` is required and `isTabActive` is gone;
+  the root page controller, filter pager, `_LibraryPageTabs` use, Albums/Singles
+  toggle, Artists page, `_buildLibraryTools`, sort/view buttons, sectioned track
+  slivers, `rootLibrary` and the `specialEntries` playlists lead are deleted.
+- **Home (FR-010)**: `HomeTabMode.combined` deleted (`mode` is required);
+  greeting, tagline, shortcuts and mixes-shelf widgets deleted with
+  `lib/utils/home_greeting.dart` and `ExploreState.greeting`;
+  `HomeSearchProviderPolicy.shouldShowSearchBar` deleted.
+- **Now Playing (FR-010)**: `material_player_layout.dart`, `material_player_backdrop.dart`,
+  `player_compact_bar.dart`, `lib/theme/player_artwork_theme.dart`, `_FadingAppBar` and
+  `PlayerLyricsControlsCollapse` deleted. `AlbumDetailHeader` lost its Material
+  app-bar path (`_buildAppBar`) and the parameters only it read (`expandedHeight`,
+  `paletteSource`, `blurAndScrimBackground`, `backgroundColor`).
+- **Material-only settings (earlier owner answer: remove every Material-only setting)**:
+  `landscapeLyricsArtwork` and `compactPlayer` had a permanently disabled row on
+  Mornye and no reader; their rows, setters, model fields, search entries and l10n keys
+  are deleted. Stored values are ignored on load.
+- **Other leftovers deleted**: `catalogTrackPlaybackUiProvider`, `catalogTrackKey`,
+  `CurrentTrackIdentity` and `currentTrackIdentityProvider` (their only reader was
+  that provider), `CollectionHeaderSkeletonRows`, `appSheetDialogMaxWidth` (inlined in
+  the enum), `_EqualizerOverview.onEnabledChanged`, the `greetsInHeader` argument.
+  l10n keys with no reader left in all 21 ARB files: `extensionsVersion`,
+  `nowPlayingTitle`, `homeShortcuts`, `homeMixesForYou`, `equalizerManagePresets`,
+  `libraryArtistsEmpty`, the 13 `homeGreeting*` keys, 3 `homeTagline*` keys,
+  `landscapeLyricsArtwork(+Description)`, `compactPlayer(+Description)`.
+  Kept: `backdropBlurEnabledProvider` (R7 expected it unread, but
+  `mornyeGlassLevelProvider` still reads it); `tool_button_group.dart` (the `ToolButtonGroup` widget
+  has no caller left, but the `ToolButton` data class in it is still used by Home
+  search results, so T004 must move `ToolButton` before deleting the widget).
+- **ExpressiveButton re-count**: 65 call sites in 36 files outside its own file
+  (plan said 71 in 38 on the probe tree); T004 inlines them.
+- **Integration tests**: `material_performance_test.dart` deleted; the seek scenario moved
+  to `player_performance_test.dart` (Mornye only); the artwork and lyrics suites lost
+  their `mornye:` parameter and Material arms; README updated.
+- **Tests**: Material-arm tests and files deleted (`material_player_backdrop`,
+  `player_compact_bar`, `player_artwork_theme`, `album_detail_header` (header blur of the
+  deleted app-bar path), `home_continue_listening`, `home_greeting`,
+  `shell_tab_style_switch`; Material cases inside `now_playing_lyrics_transition`,
+  `library_toolbar`, `album_track_metadata`, `home_search_tabs`, `library_mix_ui`,
+  `main_shell_keyboard`, `playback_automation_settings`, `player_presentation_settings`).
+  Shared-behaviour tests kept and moved to the Mornye theme and controls
+  (`track_metadata_lyrics/cover_search/replaygain`, the Now Playing menu and lyrics
+  share tests, `local_library_artwork`, `shell_navigation_service`).
+- **Checks**: `flutter gen-l10n` ok; `flutter analyze`: no issues (including
+  `integration_test`); full `flutter test`: 4132 passed, 10 skipped, 0 failed (exit 0;
+  the count is lower than T002's 4220 because the Material-arm tests above were
+  deleted); `rg -n "isMornye" lib test integration_test` returns only three prose lines
+  in `lib/theme/README.md` (25, 59, 79), which T005 rewrites.
+- **Not verified**: rendering on a device. Test files still carry local `mornye`
+  flags and `AppTheme` ternaries; T005 moves them to `MornyeTheme.build`.
+
+### M001-T003 Review round 1 (NEEDS_FIXES) and fixes
+
+- `now_playing_screen.dart`: `_compactPlayerTouched` and its comment, `compactTouch`
+  in `_endLyricsInteraction`, the stale Material doc of `_lyricsAutoHideLayout`,
+  the no-op `leading: null`, `actions: null` and `extendBodyBehindAppBar: false`
+  deleted; `_showQueueSheet(context, colorScheme)` replaced by `_setMornyePage(2)`.
+- `lib/widgets/player_queue_sheet.dart` deleted (`PlayerQueueDismissible` lives in
+  another file and stays); `player_queue_artwork_test.dart` keeps only its Mornye arm.
+- `connectedRowRadius`, `useMaterialNavigationRailForWidth` (with its test cases) and
+  the stale "Material theme" doc comments in `adaptive_layout.dart` deleted.
+- `main_shell.dart`: dead `_pageController` deleted (the `_currentIndex` reset stays).
+  `LibraryDirectoryView.showHeader` (always true) deleted.
+- Dead library view settings (all rg-confirmed to have no other reader: no backup or
+  export path, no provider, no startup logic): the `historyViewMode` plumbing in
+  `queue_tab.dart`, the unreachable songs-grid branch with its two-finger pinch
+  handlers (`_libraryGridPinchStartExtent`, three handlers, `TwoFingerPinchListener`
+  widget and its test, `_buildDownloadGridItem`, `_confirmCancelDownload`, other
+  grid-only helpers the analyzer then reported; `_libraryGridExtent` stays, the
+  album and playlist grids use it); settings `historyViewMode`, `historyFilterMode`
+  and `defaultLibraryView` with their setters, normalizer, Appearance "Layout"
+  section and `_HistoryViewSelector`, the Library "Default view" row and picker,
+  the two settings-search entries, model fields and `.g.dart` lines (edited by hand;
+  the file is tracked and the change is two removed fields per list). New test in
+  `app_settings_model_test.dart`: old JSON that still carries these keys and
+  `landscapeLyricsArtwork`/`compactPlayer` loads and does not write them back.
+  Tests for the removed rows deleted (`Folders is a default Library view`, the
+  Default view sheet case in `settings_choice_sheets_test.dart`).
+- l10n keys with no reader left in all 21 ARBs (320 entries): `historyFilterAlbums`,
+  `historyFilterSingles`, `appearanceHistoryView`, `sectionLayout`,
+  `libraryDefaultView`, `libraryDefaultViewLastUsed`, `nowPlayingLibraryEmpty`,
+  `nowPlayingShuffleLibraryFailed`.
+- Reader scan beyond identifiers (`this.X` parameters and fields of every changed lib
+  file with no reader): found `_SliderTile.indented` (Material-only), deleted with its
+  four callers. `QueueItemSliverRow` lost an unused `key` parameter.
+- Corrections: the earlier deviation note on `ToolButtonGroup` is fixed (the widget has
+  no caller; only the `ToolButton` data class is used) and `tasks.md` T004 now says
+  `ToolButton` must survive. `integration_test/player_performance_test.dart` no longer
+  says "both styles".
+- **Checks after the fixes**: `flutter gen-l10n` ok; `flutter analyze`: no issues;
+  full `flutter test`: 4126 passed, 10 skipped, 0 failed (exit 0; log in the
+  scratchpad `t003-test4.log`).
+
+### Review round 2 (NEEDS_FIXES) and round 3 (NEEDS_FIXES, documentation only)
+
+- Round 2 (independent): all round-1 fixes verified; one finding, the orphaned doc
+  comment of the deleted `defaultLibraryView` in `lib/models/settings.dart`. Deleted.
+  After it: `flutter analyze` no issues; `test/app_settings_model_test.dart` 8 passed;
+  full run unchanged at 4126 passed, 10 skipped, 0 failed.
+- Round 3 (independent): code clean, no stray comments, `work.py validate` PASS; one
+  finding, this log lacked the round 2/3 entries. Added here. Third result was
+  NEEDS_FIXES, so no further review is run without the owner's permission.

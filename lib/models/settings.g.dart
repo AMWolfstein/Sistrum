@@ -79,9 +79,7 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   playerCoverStyle: json['playerCoverStyle'] == null
       ? ''
       : playerCoverStyleFromJson(json['playerCoverStyle']),
-  landscapeLyricsArtwork: json['landscapeLyricsArtwork'] as bool? ?? false,
   autoHideLyricsControls: json['autoHideLyricsControls'] as bool? ?? true,
-  compactPlayer: json['compactPlayer'] as bool? ?? false,
   isFirstLaunch: json['isFirstLaunch'] as bool? ?? true,
   checkForUpdates: json['checkForUpdates'] as bool? ?? true,
   updateChannel: json['updateChannel'] as String? ?? 'stable',
@@ -94,12 +92,9 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   usePrimaryArtistOnly: json['usePrimaryArtistOnly'] as bool? ?? false,
   filterContributingArtistsInAlbumArtist:
       json['filterContributingArtistsInAlbumArtist'] as bool? ?? false,
-  historyViewMode: json['historyViewMode'] as String? ?? 'grid',
-  historyFilterMode: json['historyFilterMode'] as String? ?? 'all',
   historySortMode: json['historySortMode'] == null
       ? 'latest'
       : librarySortModeFromJson(json['historySortMode']),
-  defaultLibraryView: json['defaultLibraryView'] as String? ?? 'last',
   libraryQualityLabelMode:
       json['libraryQualityLabelMode'] as String? ??
       AppSettings.libraryQualityLabelBitDepthOnly,
@@ -229,9 +224,7 @@ Map<String, dynamic> _$AppSettingsToJson(
   'musicHapticsSensitivity': instance.musicHapticsSensitivity,
   'musicHapticsStrength': instance.musicHapticsStrength,
   'playerCoverStyle': instance.playerCoverStyle,
-  'landscapeLyricsArtwork': instance.landscapeLyricsArtwork,
   'autoHideLyricsControls': instance.autoHideLyricsControls,
-  'compactPlayer': instance.compactPlayer,
   'isFirstLaunch': instance.isFirstLaunch,
   'checkForUpdates': instance.checkForUpdates,
   'updateChannel': instance.updateChannel,
@@ -243,10 +236,7 @@ Map<String, dynamic> _$AppSettingsToJson(
   'usePrimaryArtistOnly': instance.usePrimaryArtistOnly,
   'filterContributingArtistsInAlbumArtist':
       instance.filterContributingArtistsInAlbumArtist,
-  'historyViewMode': instance.historyViewMode,
-  'historyFilterMode': instance.historyFilterMode,
   'historySortMode': instance.historySortMode,
-  'defaultLibraryView': instance.defaultLibraryView,
   'libraryQualityLabelMode': instance.libraryQualityLabelMode,
   'askQualityBeforeDownload': instance.askQualityBeforeDownload,
   'enableLogging': instance.enableLogging,

@@ -41,14 +41,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "专辑",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "单曲",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "settingsTitle": "设置",
   "@settingsTitle": {
     "description": "Settings screen title"
@@ -108,10 +100,6 @@
   "appearanceThemeDark": "深色",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "历史记录",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "列表",
   "@appearanceHistoryViewList": {
@@ -311,15 +299,6 @@
   "extensionsDisabled": "禁用",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "版本 {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "卸载",
   "@extensionsUninstall": {
@@ -1321,10 +1300,6 @@
   },
   "sectionTheme": "Theme",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Layout",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Language",
@@ -4359,14 +4334,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "Default view",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Last used",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "No download history",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -5728,10 +5695,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "Now Playing",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "Nothing is playing",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -5771,19 +5734,6 @@
   "nowPlayingNoLyrics": "No lyrics in this file",
   "@nowPlayingNoLyrics": {
     "description": "Empty state when the playing file has no embedded lyrics"
-  },
-  "nowPlayingLibraryEmpty": "Your library is empty",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "Could not shuffle library: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "Shuffle on",
   "@nowPlayingShuffleOn": {

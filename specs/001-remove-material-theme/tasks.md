@@ -88,7 +88,7 @@ searches below.
     returns only the getter's definition in `lib/theme/mornye_theme.dart`.
   - Dependencies: M001-T001.
 
-- [ ] M001-T003 Collapse Material branches in screens and remove isMornye
+- [x] M001-T003 Collapse Material branches in screens and remove isMornye
   - Start: refresh the map.
   - Acceptance: FR-002, FR-006 for `lib/screens`: all branches collapsed to the
     Mornye arm; Material-only screens, widgets and files left without callers are
@@ -138,7 +138,9 @@ searches below.
     Mornye `ExpressiveButton` sites use the framework button its fallback arm
     returned; the one `ExpressiveButtonGroup` site uses a `Row`;
     `ExpressiveIconButton`, `ToolButtonGroup`, `ExpressivePlaybackTransport` and
-    `AudioOutputButton.backgroundColor` are deleted. Re-run the probe's counts on
+    `AudioOutputButton.backgroundColor` are deleted; the `ToolButton` data class
+    in `tool_button_group.dart` is still used by Home search results and must
+    survive (move it out of the deleted file). Re-run the probe's counts on
     the real tree first and note any difference in `task-log.md`.
     Setup flow explicitly: `setup_screen.dart` and `setup_steps.dart` keep the
     standard `FloatingActionButton.extended` next/finish button (the M3E

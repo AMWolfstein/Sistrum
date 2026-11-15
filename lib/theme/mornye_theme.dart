@@ -469,10 +469,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   );
 }
 
-extension MornyeThemeContext on BuildContext {
-  bool get isMornye => Theme.of(this).extension<MornyeTheme>() != null;
-}
-
 /// its artwork-led, plain background.
 class MornyeSettingsTheme extends StatelessWidget {
   const MornyeSettingsTheme({super.key, required this.child});

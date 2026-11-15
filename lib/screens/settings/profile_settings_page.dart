@@ -40,9 +40,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
   Future<void> _pickPhoto() async {
     setState(() => _busy = true);
     try {
-      final picked = await FilePicker.pickFile(
-        type: FileType.image,
-      );
+      final picked = await FilePicker.pickFile(type: FileType.image);
       if (picked == null) return;
       if ((await picked.length() ?? 0) > 20 * 1024 * 1024) {
         throw const FormatException('Photo too large');

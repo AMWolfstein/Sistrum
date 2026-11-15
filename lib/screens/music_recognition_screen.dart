@@ -11,7 +11,6 @@ import 'package:sistrum/services/music_recognition.dart';
 import 'package:sistrum/services/music_recognition_library.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
@@ -246,12 +245,9 @@ class _MicrophoneButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
     final animate = !MediaQuery.disableAnimationsOf(context);
-    final fill = mornye || listening ? scheme.primary : scheme.primaryContainer;
-    final glyph = mornye || listening
-        ? scheme.onPrimary
-        : scheme.onPrimaryContainer;
+    final fill = scheme.primary;
+    final glyph = scheme.onPrimary;
     final button = Material(
       color: fill,
       shape: const CircleBorder(),
@@ -609,22 +605,14 @@ class _ResultStageState extends ConsumerState<_ResultStage> {
         SizedBox(height: tokens.gapXl),
         // Apple stacks full-width actions; Material keeps a centered row
         // that wraps.
-        if (context.isMornye)
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: tokens.gapSm,
-              children: actions,
-            ),
-          )
-        else
-          Wrap(
-            alignment: WrapAlignment.center,
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: tokens.gapSm,
-            runSpacing: tokens.gapSm,
             children: actions,
           ),
+        ),
         if (details.isNotEmpty) ...[
           SizedBox(height: tokens.gapXl),
           SettingsGroup(

@@ -108,15 +108,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     'album',
     'playlist',
   };
-  static const Set<String> _libraryViewValues = {
-    'last',
-    'all',
-    'albums',
-    'singles',
-    'artists',
-    'playlists',
-    'folders',
-  };
   static const Set<String> _extensionVerificationBrowserModeValues = {
     'external_first',
     'in_app_first',
@@ -197,9 +188,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
               loaded.downloadFallbackExtensionIds != null &&
               sanitizedDownloadFallbackExtensionIds == null,
           defaultSearchTab: sanitizedDefaultSearchTab,
-          defaultLibraryView: _normalizeDefaultLibraryView(
-            loaded.defaultLibraryView,
-          ),
           libraryQualityLabelMode: normalizeLibraryQualityLabelMode(
             loaded.libraryQualityLabelMode,
           ),
@@ -438,12 +426,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     return 'all';
   }
 
-  String _normalizeDefaultLibraryView(String value) {
-    final normalized = value.trim().toLowerCase();
-    if (_libraryViewValues.contains(normalized)) return normalized;
-    return 'last';
-  }
-
   String _normalizeExtensionVerificationBrowserMode(String value) {
     final normalized = value.trim().toLowerCase();
     if (_extensionVerificationBrowserModeValues.contains(normalized)) {
@@ -646,14 +628,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state.copyWith(playerCoverStyle: playerCoverStyleFromJson(style)),
   );
 
-  void setLandscapeLyricsArtwork(bool enabled) =>
-      _commit(state.copyWith(landscapeLyricsArtwork: enabled));
-
   void setAutoHideLyricsControls(bool enabled) =>
       _commit(state.copyWith(autoHideLyricsControls: enabled));
-
-  void setCompactPlayer(bool enabled) =>
-      _commit(state.copyWith(compactPlayer: enabled));
 
   void setUsbBitPerfect(bool enabled) =>
       _commit(state.copyWith(usbBitPerfect: enabled));
@@ -845,12 +821,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setFilterContributingArtistsInAlbumArtist(bool enabled) =>
       _commit(state.copyWith(filterContributingArtistsInAlbumArtist: enabled));
 
-  void setHistoryViewMode(String mode) =>
-      _commit(state.copyWith(historyViewMode: mode));
-
-  void setHistoryFilterMode(String mode) =>
-      _commit(state.copyWith(historyFilterMode: mode));
-
   void setHistorySortMode(String mode) =>
       _commit(state.copyWith(historySortMode: librarySortModeFromJson(mode)));
 
@@ -872,10 +842,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setSearchViewMode(String mode) =>
       _commit(state.copyWith(searchViewMode: mode));
-
-  void setDefaultLibraryView(String view) => _commit(
-    state.copyWith(defaultLibraryView: _normalizeDefaultLibraryView(view)),
-  );
 
   void setLibraryQualityLabelMode(String mode) => _commit(
     state.copyWith(

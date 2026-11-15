@@ -508,40 +508,22 @@ extension _EditMetadataSheetAutoFill on _EditMetadataSheetState {
             runSpacing: 8,
             children: MetadataEditorController.fieldKeys.map((key) {
               final selected = _form.autoFillFields.contains(key);
-              if (context.isMornye) {
-                return MornyeFilterChip(
-                  label: _fieldLabel(key),
-                  selected: selected,
-                  icon: selected
-                      ? CupertinoIcons.checkmark_circle_fill
-                      : CupertinoIcons.circle,
-                  onTap: _fetching
-                      ? null
-                      : () => _setState(() {
-                          _invalidateAutoFillPreview();
-                          if (selected) {
-                            _form.autoFillFields.remove(key);
-                          } else {
-                            _form.autoFillFields.add(key);
-                          }
-                        }),
-                );
-              }
-              return AppChoiceChip(
-                label: Text(_fieldLabel(key)),
+              return MornyeFilterChip(
+                label: _fieldLabel(key),
                 selected: selected,
-                onSelected: _fetching
+                icon: selected
+                    ? CupertinoIcons.checkmark_circle_fill
+                    : CupertinoIcons.circle,
+                onTap: _fetching
                     ? null
-                    : (val) {
-                        _setState(() {
-                          _invalidateAutoFillPreview();
-                          if (val) {
-                            _form.autoFillFields.add(key);
-                          } else {
-                            _form.autoFillFields.remove(key);
-                          }
-                        });
-                      },
+                    : () => _setState(() {
+                        _invalidateAutoFillPreview();
+                        if (selected) {
+                          _form.autoFillFields.remove(key);
+                        } else {
+                          _form.autoFillFields.add(key);
+                        }
+                      }),
               );
             }).toList(),
           ),
@@ -618,16 +600,8 @@ extension _EditMetadataSheetAutoFill on _EditMetadataSheetState {
 
     return Container(
       width: double.infinity,
-      padding: context.isMornye
-          ? const EdgeInsets.symmetric(vertical: 12)
-          : const EdgeInsets.all(12),
-      decoration: context.isMornye
-          ? null
-          : BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: cs.outlineVariant),
-            ),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -717,7 +691,7 @@ extension _EditMetadataSheetAutoFill on _EditMetadataSheetState {
           SizedBox(
             width: double.infinity,
             child: AppActionButton(
-              outlined: context.isMornye,
+              outlined: true,
               glass: false,
               onPressed: (_fetching || _saving) ? null : _applyAutoFillPreview,
               icon: const Icon(Icons.check),

@@ -15,7 +15,6 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -459,59 +458,28 @@ class _TextSheetBodyState extends State<_TextSheetBody> {
             onPressed: _paste,
           )
         : null;
-    final field = context.isMornye
-        ? CupertinoTextField(
-            controller: _controller,
-            autofocus: true,
-            obscureText: widget.secret,
-            autocorrect: !widget.secret,
-            enableSuggestions: !widget.secret,
-            enableIMEPersonalizedLearning: !widget.secret,
-            keyboardType: widget.multiline
-                ? TextInputType.multiline
-                : widget.keyboardType,
-            maxLines: widget.multiline ? 4 : 1,
-            maxLength: widget.multiline ? 500 : null,
-            placeholder: widget.hint,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MornyeTheme.controlFill(context),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            style: theme.textTheme.bodyLarge,
-            suffix: paste,
-            onSubmitted: widget.multiline ? null : (_) => _save(),
-          )
-        // A key keeps its dedicated field, as other credentials do.
-        : widget.secret
-        ? TextField(
-            controller: _controller,
-            autofocus: true,
-            obscureText: true,
-            autocorrect: false,
-            enableSuggestions: false,
-            enableIMEPersonalizedLearning: false,
-            keyboardType: widget.keyboardType,
-            decoration: InputDecoration(
-              hintText: widget.hint,
-              errorText: _error,
-              suffixIcon: paste,
-            ),
-            onSubmitted: (_) => _save(),
-          )
-        : AppTextField(
-            controller: _controller,
-            autofocus: true,
-            hint: widget.hint,
-            errorText: _error,
-            keyboardType: widget.multiline
-                ? TextInputType.multiline
-                : widget.keyboardType,
-            textInputAction: widget.multiline ? null : TextInputAction.done,
-            maxLines: widget.multiline ? 4 : 1,
-            maxLength: widget.multiline ? 500 : null,
-            onSubmitted: widget.multiline ? null : (_) => _save(),
-          );
+    final field = CupertinoTextField(
+      controller: _controller,
+      autofocus: true,
+      obscureText: widget.secret,
+      autocorrect: !widget.secret,
+      enableSuggestions: !widget.secret,
+      enableIMEPersonalizedLearning: !widget.secret,
+      keyboardType: widget.multiline
+          ? TextInputType.multiline
+          : widget.keyboardType,
+      maxLines: widget.multiline ? 4 : 1,
+      maxLength: widget.multiline ? 500 : null,
+      placeholder: widget.hint,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MornyeTheme.controlFill(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      style: theme.textTheme.bodyLarge,
+      suffix: paste,
+      onSubmitted: widget.multiline ? null : (_) => _save(),
+    );
     final actions = [
       if (widget.clearable)
         AppDialogAction(
@@ -538,7 +506,7 @@ class _TextSheetBodyState extends State<_TextSheetBody> {
         children: [
           field,
           // Material fields show the error themselves.
-          if (_error != null && context.isMornye)
+          if (_error != null)
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 4, top: 6),
               child: Text(
@@ -661,31 +629,20 @@ class _ModelSheetState extends State<_ModelSheet> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: context.isMornye
-                ? CupertinoTextField(
-                    controller: _controller,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    placeholder: widget.defaultModel ?? l10n.lyricsAiModelHint,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: MornyeTheme.controlFill(context),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    style: theme.textTheme.bodyLarge,
-                    onChanged: (_) => setState(() {}),
-                    onSubmitted: (_) => _save(),
-                  )
-                // Model ids keep keyboard correction off.
-                : AppTextField(
-                    controller: _controller,
-                    autocorrect: false,
-                    label: l10n.lyricsAiModelHint,
-                    hint: widget.defaultModel,
-                    textInputAction: TextInputAction.done,
-                    onChanged: (_) => setState(() {}),
-                    onSubmitted: (_) => _save(),
-                  ),
+            child: CupertinoTextField(
+              controller: _controller,
+              autocorrect: false,
+              enableSuggestions: false,
+              placeholder: widget.defaultModel ?? l10n.lyricsAiModelHint,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MornyeTheme.controlFill(context),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              style: theme.textTheme.bodyLarge,
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _save(),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),

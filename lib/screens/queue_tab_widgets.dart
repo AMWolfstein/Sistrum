@@ -6,7 +6,6 @@ class _QueueItemSliverRow extends ConsumerWidget {
   final Widget Function(BuildContext, DownloadItem, ColorScheme) itemBuilder;
 
   const _QueueItemSliverRow({
-    super.key,
     required this.itemId,
     required this.colorScheme,
     required this.itemBuilder,

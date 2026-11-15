@@ -15,7 +15,6 @@ import 'package:sistrum/services/music_player_service.dart'
 import 'package:sistrum/services/song_analysis.dart';
 import 'package:sistrum/screens/listening_statistics_screen.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/usb_output_status_label.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -374,15 +373,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   showDivider: true,
                 ),
               SettingsSwitchItem(
-                title: context.l10n.landscapeLyricsArtwork,
-                subtitle: context.l10n.landscapeLyricsArtworkDescription,
-                value: settings.landscapeLyricsArtwork,
-                enabled: !context.isMornye,
-                onChanged: (value) => ref
-                    .read(settingsProvider.notifier)
-                    .setLandscapeLyricsArtwork(value),
-              ),
-              SettingsSwitchItem(
                 key: const ValueKey('auto-hide-lyrics-controls'),
                 title: context.l10n.autoHideLyricsControls,
                 subtitle: context.l10n.autoHideLyricsControlsDescription,
@@ -390,14 +380,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 onChanged: ref
                     .read(settingsProvider.notifier)
                     .setAutoHideLyricsControls,
-              ),
-              SettingsSwitchItem(
-                title: context.l10n.compactPlayer,
-                subtitle: context.l10n.compactPlayerDescription,
-                value: settings.compactPlayer,
-                enabled: !context.isMornye,
-                onChanged: (value) =>
-                    ref.read(settingsProvider.notifier).setCompactPlayer(value),
                 showDivider: false,
               ),
             ],

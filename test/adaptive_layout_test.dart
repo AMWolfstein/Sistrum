@@ -9,18 +9,6 @@ void main() {
       expect(useNavigationRailForWidth(1032), isFalse);
       expect(useNavigationRailForWidth(1366), isFalse);
     });
-
-  });
-
-  group('adaptive navigation (Material)', () {
-    test('switches to the rail at the expanded window class', () {
-      expect(useMaterialNavigationRailForWidth(390), isFalse);
-      expect(useMaterialNavigationRailForWidth(683), isFalse);
-      expect(
-        useMaterialNavigationRailForWidth(expandedLayoutBreakpoint),
-        isTrue,
-      );
-    });
   });
 
   group('wide content', () {
@@ -46,7 +34,6 @@ void main() {
       expect(adaptiveUiScaleForSize(const Size(1024, 1366)), 1.2);
       expect(adaptiveUiScaleForSize(const Size(1366, 1024)), 1.2);
     });
-
 
     testWidgets('reflows the tablet viewport and preserves touch mapping', (
       tester,

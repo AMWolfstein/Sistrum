@@ -262,14 +262,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "专辑",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "单曲",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "最近添加",
   "libraryDownloads": "下载",
   "libraryNoActiveDownloads": "没有正在进行的下载",
@@ -387,10 +379,6 @@
   "appearanceThemeDark": "深色",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "历史记录",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "列表",
   "@appearanceHistoryViewList": {
@@ -640,15 +628,6 @@
   "extensionsDisabled": "禁用",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "版本 {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "卸载",
   "@extensionsUninstall": {
@@ -1714,10 +1693,6 @@
   },
   "sectionTheme": "主题",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "布局",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "语言",
@@ -4972,14 +4947,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "默认视图",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "上次使用",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "无下载历史",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6503,10 +6470,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "正在播放",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "未在播放",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6907,19 +6870,6 @@
   "lyricsAiErrorNoLyrics": "These lyrics have nothing to translate",
   "@lyricsAiErrorNoLyrics": {
     "description": "AI translation error when the lyrics have no translatable lines"
-  },
-  "nowPlayingLibraryEmpty": "你的乐库为空",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "无法随机播放乐库：{error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "随机开",
   "@nowPlayingShuffleOn": {
@@ -7344,22 +7294,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
-  },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {
     "description": "Cover art style: artwork as a card above the controls (full screen is the default)"
@@ -7479,39 +7413,6 @@
   "profileRemovePhoto": "删除照片",
   "profilePhotoError": "请选择小于20MB的有效图片。",
   "profileSaveError": "无法保存你的个人资料，请重试。",
-  "homeGreetingMorning1": "早上好",
-  "homeGreetingMorning2": "新的一天",
-  "homeGreetingMorning3": "全新开始",
-  "homeGreetingAfternoon1": "下午好",
-  "homeGreetingAfternoon2": "午后律动",
-  "homeGreetingAfternoon3": "保持氛围",
-  "homeGreetingEvening1": "晚上好",
-  "homeGreetingEvening2": "放松时刻",
-  "homeGreetingEvening3": "黄金时光",
-  "homeGreetingNight1": "晚安",
-  "homeGreetingNight2": "深夜时光",
-  "homeGreetingNight3": "安静时刻",
-  "homeGreetingNamed": "{greeting}，{name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "我们在听什么？",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "有链接？粘贴到搜索框",
-  "homeTaglineDiscover": "发现你的下一张最爱专辑",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "继续收听",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7523,11 +7424,6 @@
   "homeOnRepeat": "循环播放",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
-  },
-  "homeShortcuts": "快捷方式",
-  "homeMixesForYou": "Mixes for you",
-  "@homeMixesForYou": {
-    "description": "Home section header for daily mixes made from the user's own Library songs"
   },
   "homeMixFavoritesTitle": "Favorites Mix",
   "@homeMixFavoritesTitle": {
@@ -7748,7 +7644,6 @@
   "listeningStatsClear": "清除收听统计",
   "listeningStatsClearError": "无法清除收听统计，请重试。",
   "listeningStatsClearDescription": "删除此设备上的所有收听统计？你的音乐和播放列表将保留。",
-  "libraryArtistsEmpty": "下载音乐或扫描本地乐库后，艺术家将显示在这里。",
   "listeningRewind": "收听回顾",
   "listeningRewindDescription": "回顾你最近几周和几个月的精彩时刻",
   "listeningRewindChoosePeriod": "选择时间段",
@@ -8031,7 +7926,6 @@
   "equalizerEffectivePreamp": "净空后的输入增益",
   "equalizerDeletePreset": "删除预设",
   "equalizerCustom": "自定义",
-  "equalizerManagePresets": "管理预设",
   "lyricsShareTitle": "分享歌词",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

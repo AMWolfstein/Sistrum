@@ -107,7 +107,7 @@ void main() {
         expect(find.byType(AppBottomSheet), findsOneWidget);
         expect(find.byType(AppSheetOption), findsNWidgets(6));
         final context = tester.element(find.byType(AppBottomSheet));
-        expect(context.isMornye, mornye);
+        expect(Theme.of(context).extension<MornyeTheme>(), isNotNull);
         final selected = tester
             .widgetList<AppSheetOption>(find.byType(AppSheetOption))
             .singleWhere((option) => option.trailing != null);

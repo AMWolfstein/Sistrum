@@ -216,19 +216,4 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.widgetWithText(TrackCard, 'Album B'), findsOneWidget);
   });
-
-
-  test('Folders is a default Library view', () {
-    final container = ProviderContainer(
-      overrides: [
-        settingsProvider.overrideWith(
-          () => FixedSettingsNotifier(const AppSettings()),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    container.read(settingsProvider.notifier).setDefaultLibraryView('folders');
-    expect(container.read(settingsProvider).defaultLibraryView, 'folders');
-  });
 }

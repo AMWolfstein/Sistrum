@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' show ImageFilter;
 import 'package:sistrum/controllers/open_audio_controller.dart';
 import 'package:sistrum/services/audio_file_open_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -23,6 +22,8 @@ import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/providers/preview_player_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/repo_tab.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/screens/settings/settings_tab.dart';
 import 'package:sistrum/services/platform_bridge.dart';
@@ -37,7 +38,6 @@ import 'package:sistrum/widgets/download_queue_feedback.dart';
 import 'package:sistrum/widgets/update_dialog.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/nav_destination_icons.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/lazy_tab_view.dart';
 import 'package:sistrum/widgets/expressive_navigation_bar.dart';
@@ -46,7 +46,6 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -65,37 +64,6 @@ int _watchQueuedCount(WidgetRef ref) =>
 int _watchRepoUpdatesCount(WidgetRef ref) =>
     ref.watch(repoProvider.select((s) => s.updatesAvailableCount));
 
-/// The tab at [index] in a style's destination order.
-@visibleForTesting
-ShellTab shellTabAt(
-  int index, {
-  required bool mornye,
-  required bool showStore,
-}) {
-  if (index == 0) return ShellTab.home;
-  if (index == 1) return ShellTab.library;
-  if (showStore && index == 2) return ShellTab.repository;
-  if (mornye && index == (showStore ? 3 : 2)) return ShellTab.search;
-  return ShellTab.settings;
-}
-
-/// Where [tab] sits in a style's destination order, or null when that style
-/// has no such destination.
-@visibleForTesting
-int? shellIndexOfTab(
-  ShellTab tab, {
-  required bool mornye,
-  required bool showStore,
-}) => switch (tab) {
-  ShellTab.home => 0,
-  ShellTab.library => 1,
-  ShellTab.repository => showStore ? 2 : null,
-  // Material searches from Home.
-  ShellTab.search => mornye ? (showStore ? 3 : 2) : 0,
-  // Mornye phones open Settings as a page, not a destination.
-  ShellTab.settings => !mornye ? (showStore ? 3 : 2) : null,
-};
-
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -104,24 +72,12 @@ class MainShell extends ConsumerStatefulWidget {
 }
 
 class _MainShellState extends ConsumerState<MainShell>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with WidgetsBindingObserver {
   int _currentIndex = 0;
   final _mornyeChrome = MornyeChromeController();
   // Preserves the tab view element (and its kept-alive tabs) when the body
   // structure swaps between rail and bottom-bar layouts on rotation.
   final GlobalKey _pageViewKey = GlobalKey();
-  late final PageController _pageController;
-  late final AnimationController _tabJumpTransitionController;
-  // Transitions update their layers directly; no shell subtree rebuilds per
-  // animation frame.
-  late final CurvedAnimation _tabJumpOpacity = CurvedAnimation(
-    parent: _tabJumpTransitionController,
-    curve: Curves.easeOutCubic,
-  );
-  late final Animation<double> _tabJumpScale = Tween<double>(
-    begin: 0.985,
-    end: 1,
-  ).animate(_tabJumpOpacity);
   bool _hasCheckedUpdate = false;
   bool _initialSafRepairComplete = false;
   bool _safRepairDialogVisible = false;
@@ -143,36 +99,6 @@ class _MainShellState extends ConsumerState<MainShell>
   late final _PreviewStopNavigatorObserver _repoPreviewStopObserver;
   late final _PreviewStopNavigatorObserver _searchPreviewStopObserver;
 
-  /// The style the current tab index was chosen under.
-  bool? _indexStyleMornye;
-
-  /// The two styles order their destinations differently, so switching
-  /// styles keeps the same tab rather than the same index (Settings would
-  /// otherwise become Mornye's Search).
-  void _keepTabAcrossStyles() {
-    final mornye = context.isMornye;
-    final previous = _indexStyleMornye;
-    _indexStyleMornye = mornye;
-    if (previous == null || previous == mornye) return;
-    final showStore = ref.read(
-      settingsProvider.select((s) => s.showExtensionStore),
-    );
-    final tab = shellTabAt(
-      _currentIndex,
-      mornye: previous,
-      showStore: showStore,
-    );
-    final index =
-        shellIndexOfTab(tab, mornye: mornye, showStore: showStore) ?? 0;
-    if (index == _currentIndex) return;
-    _currentIndex = index;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _pageController.hasClients) {
-        _pageController.jumpToPage(_currentIndex);
-      }
-    });
-  }
-
   /// What the services below were last configured with. Theme and media
   /// query changes also reach [didChangeDependencies]; the services only
   /// need a new language.
@@ -182,7 +108,6 @@ class _MainShellState extends ConsumerState<MainShell>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _keepTabAcrossStyles();
     final l10n = context.l10n;
     final languageTag = Localizations.localeOf(context).toLanguageTag();
     if (identical(l10n, _servicesL10n) && languageTag == _servicesLanguageTag) {
@@ -220,12 +145,6 @@ class _MainShellState extends ConsumerState<MainShell>
     );
     _searchPreviewStopObserver = _PreviewStopNavigatorObserver(
       () => ref.read(previewPlayerProvider.notifier).stop(),
-    );
-    _pageController = PageController(initialPage: _currentIndex);
-    _tabJumpTransitionController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 180),
-      value: 1,
     );
     ShellNavigationService.registerTabSelectionHandler(
       owner: this,
@@ -334,9 +253,7 @@ class _MainShellState extends ConsumerState<MainShell>
 
     Navigator.of(context).popUntil((route) => route.isFirst);
     _onShellTabRequested(ShellTab.search);
-    final searchNavigator = context.isMornye
-        ? _searchTabNavigatorKey
-        : _homeTabNavigatorKey;
+    final searchNavigator = _searchTabNavigatorKey;
     searchNavigator.currentState?.popUntil((route) => route.isFirst);
     // Mount the lazy Search page before the metadata listener handles the link.
     await WidgetsBinding.instance.endOfFrame;
@@ -383,9 +300,6 @@ class _MainShellState extends ConsumerState<MainShell>
     ShellNavigationService.unregisterTabSelectionHandler(this);
     _shareSubscription?.cancel();
     _audioOpenSubscription?.cancel();
-    _pageController.dispose();
-    _tabJumpOpacity.dispose();
-    _tabJumpTransitionController.dispose();
     _mornyeChrome.dispose();
     super.dispose();
   }
@@ -400,16 +314,11 @@ class _MainShellState extends ConsumerState<MainShell>
     // Unfocus BEFORE clear so _onTrackStateChanged can properly
     // clear _urlController (it checks !_searchFocusNode.hasFocus)
     FocusManager.instance.primaryFocus?.unfocus();
-    if (!context.isMornye) ref.read(trackProvider.notifier).clear();
   }
-
-  /// Phones and tablets open it as a page instead.
-  int _settingsIndex(bool showStore) =>
-      context.isMornye ? (showStore ? 4 : 3) : (showStore ? 3 : 2);
 
   void _onShellTabRequested(ShellTab tab) {
     // Picking a destination returns from Now Playing to the content pane.
-    if (tab == ShellTab.settings && context.isMornye) {
+    if (tab == ShellTab.settings) {
       unawaited(_openProfileSettings());
       return;
     }
@@ -418,10 +327,10 @@ class _MainShellState extends ConsumerState<MainShell>
     );
     final index = switch (tab) {
       ShellTab.home => 0,
-      ShellTab.search => context.isMornye ? (showStore ? 3 : 2) : 0,
+      ShellTab.search => (showStore ? 3 : 2),
       ShellTab.library => 1,
       ShellTab.repository => showStore ? 2 : null,
-      ShellTab.settings => _settingsIndex(showStore),
+      ShellTab.settings => null,
     };
     if (index != null) _onNavTap(index, resetHome: tab != ShellTab.search);
   }
@@ -449,7 +358,7 @@ class _MainShellState extends ConsumerState<MainShell>
       settingsProvider.select((s) => s.showExtensionStore),
     );
     _mornyeChrome.expand();
-    if (index == 0 && resetHome && (context.isMornye || _currentIndex == 0)) {
+    if (index == 0 && resetHome) {
       _resetHomeToMain();
     }
     if (index == 0 && _currentIndex == 0) {
@@ -457,8 +366,6 @@ class _MainShellState extends ConsumerState<MainShell>
     }
 
     if (_currentIndex != index) {
-      final previousIndex = _currentIndex;
-      final isNonAdjacentJump = (previousIndex - index).abs() > 1;
       HapticFeedback.selectionClick();
       // Stop any preview snippet when leaving the current tab. (_onPageChanged
       // cannot do this because _currentIndex is already updated below.)
@@ -467,41 +374,6 @@ class _MainShellState extends ConsumerState<MainShell>
       ShellNavigationService.syncState(
         currentTabIndex: _currentIndex,
         showRepoTab: showStore,
-        showSearchTab: context.isMornye,
-      );
-      FocusManager.instance.primaryFocus?.unfocus();
-      // Jump directly when skipping intermediate tabs to avoid
-      // sliding through them. For those jumps, keep a short fade-in
-      // so the transition still feels intentional.
-      if (context.isMornye) {
-        // The glass pill owns the tab transition. Sliding/fading the whole
-        // page at the same time continuously invalidates its live backdrop.
-        _tabJumpTransitionController.value = 1;
-      } else if (isNonAdjacentJump) {
-        _pageController.jumpToPage(index);
-        _tabJumpTransitionController.forward(from: 0);
-      } else {
-        _pageController.animateToPage(
-          index,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-        );
-      }
-    }
-  }
-
-  void _onPageChanged(int index) {
-    _mornyeChrome.expand();
-    if (_currentIndex != index) {
-      ref.read(previewPlayerProvider.notifier).stop();
-      setState(() => _currentIndex = index);
-      final showStore = ref.read(
-        settingsProvider.select((s) => s.showExtensionStore),
-      );
-      ShellNavigationService.syncState(
-        currentTabIndex: _currentIndex,
-        showRepoTab: showStore,
-        showSearchTab: context.isMornye,
       );
       FocusManager.instance.primaryFocus?.unfocus();
     }
@@ -516,9 +388,7 @@ class _MainShellState extends ConsumerState<MainShell>
 
   /// Whether scrolling may collapse the Mornye tab bar at [width].
   bool _canMinimizeChromeAt(double width, TextScaler textScaler) =>
-      context.isMornye &&
-      !useNavigationRailForWidth(width) &&
-      textScaler.scale(15) <= 20;
+      !useNavigationRailForWidth(width) && textScaler.scale(15) <= 20;
 
   /// [_canMinimizeChromeAt] for the window now, read without depending on
   /// its size, so the tab pages' scroll listeners do not rebuild the shell.
@@ -549,8 +419,7 @@ class _MainShellState extends ConsumerState<MainShell>
     if (!mounted) return;
 
     final trackState = ref.read(trackProvider);
-    final isSearchTab =
-        _currentIndex == (context.isMornye ? (showStore ? 3 : 2) : 0);
+    final isSearchTab = _currentIndex == ((showStore ? 3 : 2));
 
     if (isSearchTab &&
         trackState.isShowingRecentAccess &&
@@ -618,7 +487,7 @@ class _MainShellState extends ConsumerState<MainShell>
     if (index == 0) return _homeTabNavigatorKey.currentState;
     if (index == 1) return _libraryTabNavigatorKey.currentState;
     if (showStore && index == 2) return _repoTabNavigatorKey.currentState;
-    if (context.isMornye && index == (showStore ? 3 : 2)) {
+    if (index == (showStore ? 3 : 2)) {
       return _searchTabNavigatorKey.currentState;
     }
     return null;
@@ -650,7 +519,6 @@ class _MainShellState extends ConsumerState<MainShell>
     ShellNavigationService.syncState(
       currentTabIndex: _currentIndex,
       showRepoTab: showStore,
-      showSearchTab: context.isMornye,
     );
 
     final tabs = <Widget>[
@@ -659,18 +527,14 @@ class _MainShellState extends ConsumerState<MainShell>
         navigatorKey: _homeTabNavigatorKey,
         observers: [_homePreviewStopObserver],
         heroAnimationsEnabled: heroAnimationsEnabled,
-        child: Builder(
-          builder: (context) => HomeTab(
-            mode: context.isMornye ? HomeTabMode.browse : HomeTabMode.combined,
-          ),
-        ),
+        child: Builder(builder: (context) => HomeTab(mode: HomeTabMode.browse)),
       ),
       _TabNavigator(
         key: const ValueKey('tab-library'),
         navigatorKey: _libraryTabNavigatorKey,
         observers: [_libraryPreviewStopObserver],
         heroAnimationsEnabled: heroAnimationsEnabled,
-        child: _LibraryTabRoot(isTabActive: _currentIndex == 1),
+        child: const _LibraryTabRoot(),
       ),
       if (showStore)
         _TabNavigator(
@@ -680,15 +544,13 @@ class _MainShellState extends ConsumerState<MainShell>
           heroAnimationsEnabled: heroAnimationsEnabled,
           child: const RepoTab(),
         ),
-      if (!context.isMornye) const SettingsTab(),
-      if (context.isMornye)
-        _TabNavigator(
-          key: const ValueKey('tab-search'),
-          navigatorKey: _searchTabNavigatorKey,
-          observers: [_searchPreviewStopObserver],
-          heroAnimationsEnabled: heroAnimationsEnabled,
-          child: const HomeTab(mode: HomeTabMode.search),
-        ),
+      _TabNavigator(
+        key: const ValueKey('tab-search'),
+        navigatorKey: _searchTabNavigatorKey,
+        observers: [_searchPreviewStopObserver],
+        heroAnimationsEnabled: heroAnimationsEnabled,
+        child: const HomeTab(mode: HomeTabMode.search),
+      ),
     ];
 
     final maxIndex = tabs.length - 1;
@@ -697,9 +559,6 @@ class _MainShellState extends ConsumerState<MainShell>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() => _currentIndex = maxIndex);
-          if (_pageController.hasClients) {
-            _pageController.jumpToPage(maxIndex);
-          }
         }
       });
     }
@@ -720,40 +579,17 @@ class _MainShellState extends ConsumerState<MainShell>
 
     final pageView = KeyedSubtree(
       key: _pageViewKey,
-      child: context.isMornye
-          ? LazyTabView(
-              index: selectedDestination,
-              preloadKeys: {const ValueKey('tab-search')},
-              children: [
-                for (var index = 0; index < tabs.length; index++)
-                  KeyedSubtree(
-                    key: tabs[index].key,
-                    child: observeScroll(tabs[index], index),
-                  ),
-              ],
-            )
-          : FadeTransition(
-              opacity: _tabJumpOpacity,
-              child: ScaleTransition(
-                scale: _tabJumpScale,
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: tabs.length,
-                  onPageChanged: _onPageChanged,
-                  physics: const NeverScrollableScrollPhysics(),
-                  // TickerMode mutes animations and lets visibility-aware widgets
-                  // (e.g. MotionHeaderBanner) pause when their tab is hidden;
-                  // kept-alive pages otherwise keep running offscreen.
-                  itemBuilder: (context, index) => _KeepAliveTabPage(
-                    key: ValueKey('page-$index'),
-                    child: TickerMode(
-                      enabled: index == _currentIndex,
-                      child: observeScroll(tabs[index], index),
-                    ),
-                  ),
-                ),
-              ),
+      child: LazyTabView(
+        index: selectedDestination,
+        preloadKeys: {const ValueKey('tab-search')},
+        children: [
+          for (var index = 0; index < tabs.length; index++)
+            KeyedSubtree(
+              key: tabs[index].key,
+              child: observeScroll(tabs[index], index),
             ),
+        ],
+      ),
     );
 
     // From here only the navigation chrome follows the window size and the
@@ -795,26 +631,15 @@ class _MainShellState extends ConsumerState<MainShell>
     final l10n = context.l10n;
     return <NavigationDestination>[
       NavigationDestination(
-        icon: AppIcon(
-          context.isMornye ? CupertinoIcons.house_fill : Icons.home_outlined,
-        ),
+        icon: AppIcon(CupertinoIcons.house_fill),
         selectedIcon: BouncingIcon(child: const AppIcon(Icons.home)),
         label: l10n.navHome,
       ),
       NavigationDestination(
-        icon: context.isMornye
-            ? MornyeNavigationIcon(
-                icon: CupertinoIcons.square_stack_fill,
-                badgeCount: queuedCount,
-              )
-            : AnimatedBadge(
-                count: queuedCount,
-                child: Badge(
-                  isLabelVisible: queuedCount > 0,
-                  label: Text('$queuedCount'),
-                  child: const AppIcon(Icons.library_music_outlined),
-                ),
-              ),
+        icon: MornyeNavigationIcon(
+          icon: CupertinoIcons.square_stack_fill,
+          badgeCount: queuedCount,
+        ),
         selectedIcon: SlidingIcon(
           child: AnimatedBadge(
             count: queuedCount,
@@ -829,19 +654,10 @@ class _MainShellState extends ConsumerState<MainShell>
       ),
       if (showStore)
         NavigationDestination(
-          icon: context.isMornye
-              ? MornyeNavigationIcon(
-                  icon: CupertinoIcons.square_grid_2x2,
-                  badgeCount: repoUpdatesCount,
-                )
-              : AnimatedBadge(
-                  count: repoUpdatesCount,
-                  child: Badge(
-                    isLabelVisible: repoUpdatesCount > 0,
-                    label: Text('$repoUpdatesCount'),
-                    child: const AppIcon(Icons.extension_outlined),
-                  ),
-                ),
+          icon: MornyeNavigationIcon(
+            icon: CupertinoIcons.square_grid_2x2,
+            badgeCount: repoUpdatesCount,
+          ),
           selectedIcon: BouncingIcon(
             child: AnimatedBadge(
               count: repoUpdatesCount,
@@ -854,17 +670,10 @@ class _MainShellState extends ConsumerState<MainShell>
           ),
           label: l10n.navStore,
         ),
-      if (!context.isMornye)
-        NavigationDestination(
-          icon: const AppIcon(Icons.settings_outlined),
-          selectedIcon: SpinIcon(child: const AppIcon(Icons.settings)),
-          label: l10n.navSettings,
-        ),
-      if (context.isMornye)
-        NavigationDestination(
-          icon: const Icon(CupertinoIcons.search),
-          label: l10n.sistrumSearch,
-        ),
+      NavigationDestination(
+        icon: const Icon(CupertinoIcons.search),
+        label: l10n.sistrumSearch,
+      ),
     ];
   }
 
@@ -878,15 +687,10 @@ class _MainShellState extends ConsumerState<MainShell>
     required int maxIndex,
   }) {
     final screenSize = MediaQuery.sizeOf(context);
-    final isTablet = screenSize.shortestSide >= 600;
-    // Material follows its expanded window class: landscape tablets get the
-    // rail, portrait tablets keep the bottom bar. Mornye keeps a bottom tab
-    // bar on tablets, compact and centered once the window is expanded, and
-    final useNavigationRail = context.isMornye
-        ? useNavigationRailForWidth(screenSize.width)
-        : useMaterialNavigationRailForWidth(screenSize.width);
-    final compactMornyeChrome =
-        context.isMornye && screenSize.width >= expandedLayoutBreakpoint;
+    // Mornye keeps a bottom tab bar on tablets, compact and centered once
+    // the window is expanded.
+    final useNavigationRail = useNavigationRailForWidth(screenSize.width);
+    final compactMornyeChrome = screenSize.width >= expandedLayoutBreakpoint;
     final canMinimizeChrome = _canMinimizeChromeAt(
       screenSize.width,
       MediaQuery.textScalerOf(context),
@@ -937,108 +741,51 @@ class _MainShellState extends ConsumerState<MainShell>
           : pageView,
       bottomNavigationBar: Builder(
         builder: (context) {
-          if (context.isMornye) {
-            return ListenableBuilder(
-              listenable: Listenable.merge([
-                ShellNavigationService.chromeBrightness,
-                ShellNavigationService.chromeSurface,
-              ]),
-              builder: (context, child) => Theme(
-                data: ShellNavigationService.chromeBrightness.value == null
-                    ? Theme.of(context)
-                    : MornyeTheme.fromContext(
-                        context,
-                        brightness:
-                            ShellNavigationService.chromeBrightness.value!,
-                        chromeSurface:
-                            ShellNavigationService.chromeSurface.value,
-                      ),
-                child: child!,
-              ),
-              child: SafeArea(
-                top: false,
-                minimum: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                // than a bar spread across a landscape tablet.
-                child: Center(
-                  heightFactor: 1,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: compactMornyeChrome ? 600 : double.infinity,
+          return ListenableBuilder(
+            listenable: Listenable.merge([
+              ShellNavigationService.chromeBrightness,
+              ShellNavigationService.chromeSurface,
+            ]),
+            builder: (context, child) => Theme(
+              data: ShellNavigationService.chromeBrightness.value == null
+                  ? Theme.of(context)
+                  : MornyeTheme.fromContext(
+                      context,
+                      brightness:
+                          ShellNavigationService.chromeBrightness.value!,
+                      chromeSurface: ShellNavigationService.chromeSurface.value,
                     ),
-                    child: useNavigationRail
-                        ? const MiniPlayer()
-                        : ValueListenableBuilder<bool>(
-                            valueListenable: _mornyeChrome,
-                            builder: (context, collapsed, _) => MornyeBottomBar(
-                              collapsed:
-                                  canMinimizeChrome &&
-                                  collapsed &&
-                                  MediaQuery.viewInsetsOf(context).bottom == 0,
-                              destinations: destinations,
-                              selectedIndex: selectedDestination,
-                              onSelected: _onNavTap,
-                              onHome: () => _onNavTap(0),
-                              onSearch: ShellNavigationService.requestSearch,
-                              blurEnabled: ref.watch(mornyeBlurEnabledProvider),
-                            ),
-                          ),
-                  ),
-                ),
-              ),
-            );
-          }
-          final blurEnabled = ref.watch(backdropBlurEnabledProvider);
-          // The mini player and the bar read as one surface, so the bar
-          // takes the playing track's artwork scheme too; with nothing
-          // playing both keep the app scheme. Only this scope listens
-          // to the track, so a cover change does not rebuild the shell.
-          return Consumer(
-            builder: (context, ref, child) => PlayerArtworkTheme(
-              artUri: ref.watch(
-                currentMediaItemProvider.select(
-                  (item) => item.value?.artUri?.toString(),
-                ),
-              ),
               child: child!,
             ),
-            child: Builder(
-              builder: (context) {
-                final bottomBar = Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const MiniPlayer(),
-                    // The bar's container fill separates it; no divider,
-                    // so the mini player and the bar read as one surface.
-                    if (!useNavigationRail)
-                      ExpressiveNavigationBar(
-                        selectedIndex: _currentIndex.clamp(0, maxIndex),
-                        onDestinationSelected: _onNavTap,
-                        isTablet: isTablet,
-                        backgroundColor: settingsGroupColor(
-                          context,
-                        ).withValues(alpha: 0.72),
-                        destinations: destinations,
-                      ),
-                  ],
-                );
-                // The backdrop blur re-filters everything scrolling
-                // underneath on every frame; low-end devices get an
-                // opaque base instead unless the user forces blur on in
-                // appearance settings.
-                if (!blurEnabled) {
-                  return ColoredBox(
-                    color: settingsGroupColor(context),
-                    child: bottomBar,
-                  );
-                }
-                return ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    blendMode: BlendMode.src,
-                    child: bottomBar,
+            child: SafeArea(
+              top: false,
+              minimum: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+              // than a bar spread across a landscape tablet.
+              child: Center(
+                heightFactor: 1,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: compactMornyeChrome ? 600 : double.infinity,
                   ),
-                );
-              },
+                  child: useNavigationRail
+                      ? const MiniPlayer()
+                      : ValueListenableBuilder<bool>(
+                          valueListenable: _mornyeChrome,
+                          builder: (context, collapsed, _) => MornyeBottomBar(
+                            collapsed:
+                                canMinimizeChrome &&
+                                collapsed &&
+                                MediaQuery.viewInsetsOf(context).bottom == 0,
+                            destinations: destinations,
+                            selectedIndex: selectedDestination,
+                            onSelected: _onNavTap,
+                            onHome: () => _onNavTap(0),
+                            onSearch: ShellNavigationService.requestSearch,
+                            blurEnabled: ref.watch(mornyeBlurEnabledProvider),
+                          ),
+                        ),
+                ),
+              ),
             ),
           );
         },
@@ -1118,34 +865,16 @@ class _PreviewStopNavigatorObserver extends NavigatorObserver {
   }
 }
 
-class _LibraryTabRoot extends ConsumerWidget {
-  final bool isTabActive;
-
-  const _LibraryTabRoot({required this.isTabActive});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return QueueTab(isTabActive: isTabActive);
-  }
-}
-
-class _KeepAliveTabPage extends StatefulWidget {
-  final Widget child;
-
-  const _KeepAliveTabPage({super.key, required this.child});
-
-  @override
-  State<_KeepAliveTabPage> createState() => _KeepAliveTabPageState();
-}
-
-class _KeepAliveTabPageState extends State<_KeepAliveTabPage>
-    with AutomaticKeepAliveClientMixin<_KeepAliveTabPage> {
-  @override
-  bool get wantKeepAlive => true;
+class _LibraryTabRoot extends StatelessWidget {
+  const _LibraryTabRoot();
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
+    return MornyeLibraryScreen(
+      onOpenSection: (section) => pushPage<void>(
+        context,
+        (_) => Scaffold(body: QueueTab(librarySection: section)),
+      ),
+    );
   }
 }

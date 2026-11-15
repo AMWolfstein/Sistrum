@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
@@ -11,10 +10,8 @@ import 'package:sistrum/models/artist_concert.dart';
 import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
-import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/utils/editorial_notes.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
@@ -62,64 +59,18 @@ class _LoadingOrErrorScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      if ((!context.isMornye) && collectionHeader) {
-        // The real header with the title and cover already known; only the
-        // rows that wait for the tracks are skeletons.
-        final cover = coverUrl;
-        final hasCover = cover != null && cover.isNotEmpty;
-        final colors = Theme.of(context).colorScheme;
-        return Scaffold(
-          body: CustomScrollView(
-            physics: const NeverScrollableScrollPhysics(),
-            slivers: [
-              AlbumDetailHeader(
-                title: title,
-                expandedHeight: collectionHeaderExpandedHeight(context),
-                showTitleInAppBar: false,
-                paletteSource: hasCover ? cover : null,
-                blurAndScrimBackground: hasCover,
-                background: hasCover
-                    ? CachedCoverImage(imageUrl: cover, fit: BoxFit.cover)
-                    : ColoredBox(color: colors.surfaceContainerHighest),
-                coverBuilder: (context, size) => hasCover
-                    ? CachedCoverImage(
-                        imageUrl: cover,
-                        width: size,
-                        height: size,
-                        fit: BoxFit.cover,
-                      )
-                    : ShimmerLoading(
-                        child: SkeletonBox(
-                          width: size,
-                          height: size,
-                          borderRadius: 0,
-                        ),
-                      ),
-                subtitle: CollectionHeaderSkeletonRows.subtitle(context),
-                meta: CollectionHeaderSkeletonRows.meta(),
-                actions: CollectionHeaderSkeletonRows.actions(context),
-              ),
-              SliverToBoxAdapter(child: loadingBody),
-            ],
-          ),
-        );
-      }
       return Scaffold(
         appBar: AppBar(
           title: Text(title),
-          leadingWidth: context.isMornye ? 68 : null,
-          leading: context.isMornye
-              ? Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 12),
-                  child: HeaderCircleButton(
-                    icon: Icons.arrow_back,
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).backButtonTooltip,
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                )
-              : null,
+          leadingWidth: 68,
+          leading: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 12),
+            child: HeaderCircleButton(
+              icon: Icons.arrow_back,
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
         ),
         body: loadingBody,
       );
@@ -195,141 +146,39 @@ class _ArtistLoadingScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource: coverUrl,
-        child: Builder(
-          builder: (context) => Scaffold(
-            body: CustomScrollView(
-              slivers: [
-                ...MornyeArtistHeader(
-                  name: artistName,
-                  showTitle: false,
-                  artwork: coverUrl != null && coverUrl!.isNotEmpty
-                      ? CachedCoverImage(
-                          imageUrl: coverUrl!,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                          memCacheWidth: 800,
-                        )
-                      : const ShimmerLoading(
-                          child: SkeletonBox(
-                            width: double.infinity,
-                            height: double.infinity,
-                            borderRadius: 0,
-                          ),
+    return MornyeArtistSurface(
+      imageSource: coverUrl,
+      child: Builder(
+        builder: (context) => Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              ...MornyeArtistHeader(
+                name: artistName,
+                showTitle: false,
+                artwork: coverUrl != null && coverUrl!.isNotEmpty
+                    ? CachedCoverImage(
+                        imageUrl: coverUrl!,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        memCacheWidth: 800,
+                      )
+                    : const ShimmerLoading(
+                        child: SkeletonBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          borderRadius: 0,
                         ),
-                  actions: const [
-                    ShimmerLoading(child: ArtistHeaderActionsSkeleton()),
-                  ],
-                ).buildSlivers(context),
-                const SliverToBoxAdapter(
-                  child: ArtistScreenSkeleton(showCoverHeader: false),
-                ),
-              ],
-            ),
+                      ),
+                actions: const [
+                  ShimmerLoading(child: ArtistHeaderActionsSkeleton()),
+                ],
+              ).buildSlivers(context),
+              const SliverToBoxAdapter(
+                child: ArtistScreenSkeleton(showCoverHeader: false),
+              ),
+            ],
           ),
         ),
-      );
-    }
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final edgeInset = detailHeaderEdgeInset(context);
-    final url = coverUrl;
-    final hasImage =
-        url != null &&
-        url.isNotEmpty &&
-        Uri.tryParse(url)?.hasAuthority == true;
-
-    final Widget image = hasImage
-        ? CachedCoverImage(
-            imageUrl: url,
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            memCacheWidth: 800,
-          )
-        : Container(
-            color: colorScheme.surfaceContainerHighest,
-            child: Icon(
-              Icons.person,
-              size: 80,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          );
-
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 420,
-            pinned: true,
-            backgroundColor: colorScheme.surface,
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.none,
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  image,
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withValues(alpha: 0.3),
-                          Colors.black.withValues(alpha: 0.7),
-                          isDark
-                              ? colorScheme.surface
-                              : Colors.black.withValues(alpha: 0.85),
-                        ],
-                        stops: const [0.0, 0.5, 0.75, 1.0],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 16 + edgeInset,
-                    right: 16 + edgeInset,
-                    bottom: 16,
-                    child: Text(
-                      artistName,
-                      style: Theme.of(context).textTheme.headlineLarge
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                offset: const Offset(0, 1),
-                                blurRadius: 4,
-                                color: Colors.black.withValues(alpha: 0.5),
-                              ),
-                            ],
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            leadingWidth: kToolbarHeight + edgeInset,
-            leading: Padding(
-              padding: EdgeInsetsDirectional.only(start: edgeInset),
-              // Centered so the tight leading slot cannot stretch it.
-              child: Center(
-                child: HeaderCircleButton(
-                  icon: Icons.arrow_back,
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: ArtistScreenSkeleton(showCoverHeader: false),
-          ),
-        ],
       ),
     );
   }
@@ -397,10 +246,10 @@ class _ExtensionAlbumScreenState extends ConsumerState<ExtensionAlbumScreen> {
 
     try {
       final result = await (PlatformBridge.getProviderMetadata(
-          widget.extensionId,
-          'album',
-          widget.albumId,
-        ));
+        widget.extensionId,
+        'album',
+        widget.albumId,
+      ));
       if (!mounted) return;
 
       final albumInfo = result['album_info'] as Map<String, dynamic>? ?? result;
@@ -570,10 +419,10 @@ class _ExtensionPlaylistScreenState
 
     try {
       final result = await (PlatformBridge.getProviderMetadata(
-          widget.extensionId,
-          'playlist',
-          widget.playlistId,
-        ));
+        widget.extensionId,
+        'playlist',
+        widget.playlistId,
+      ));
       if (!mounted) return;
 
       final trackList =
@@ -703,10 +552,10 @@ class _ExtensionArtistScreenState extends ConsumerState<ExtensionArtistScreen>
 
     try {
       final result = await (PlatformBridge.getProviderMetadata(
-          widget.extensionId,
-          'artist',
-          widget.artistId,
-        ));
+        widget.extensionId,
+        'artist',
+        widget.artistId,
+      ));
       if (!mounted) return;
 
       final artistInfo =

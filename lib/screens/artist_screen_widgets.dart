@@ -22,12 +22,10 @@ extension _ArtistScreenSections on _ArtistScreenState {
     if (imageUrl == null || imageUrl.isEmpty) {
       imageUrl = widget.coverUrl;
     }
-
     final hasValidImage =
         imageUrl != null &&
         imageUrl.isNotEmpty &&
         Uri.tryParse(imageUrl)?.hasAuthority == true;
-
     String? headerVideoUrl = _headerVideoUrl;
     if (headerVideoUrl == null || headerVideoUrl.isEmpty) {
       headerVideoUrl = widget.headerVideoUrl;
@@ -36,7 +34,6 @@ extension _ArtistScreenSections on _ArtistScreenState {
         headerVideoUrl != null &&
         headerVideoUrl.isNotEmpty &&
         Uri.tryParse(headerVideoUrl)?.hasAuthority == true;
-
     String? listenersText;
     final listeners = _monthlyListeners ?? widget.monthlyListeners;
     if (listeners != null && listeners > 0) {
@@ -45,7 +42,6 @@ extension _ArtistScreenSections on _ArtistScreenState {
         formatter.format(listeners),
       );
     }
-
     final favoriteProviderId = _directMetadataProviderId();
     final favoriteArtistId = _metadataResourceId(favoriteProviderId ?? '');
     final isFavoriteArtist = ref.watch(
@@ -56,8 +52,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
         ),
       ),
     );
-
-    if (context.isMornye) {
+    {
       final artwork = hasValidImage
           ? DownloadableCover(
               coverUrl: imageUrl,
@@ -168,321 +163,6 @@ extension _ArtistScreenSections on _ArtistScreenState {
               ],
       ).buildSlivers(context);
     }
-    return [
-      CoverPaletteBuilder(
-        imageSource: hasValidImage ? imageUrl : null,
-        builder: (context, headerScheme) => _buildArtistAppBar(
-          context,
-          colorScheme,
-          headerScheme,
-          albums: albums,
-          hasDiscography: hasDiscography,
-          imageUrl: imageUrl,
-          hasValidImage: hasValidImage,
-          headerVideoUrl: headerVideoUrl,
-          hasMotionBanner: hasMotionBanner,
-          listenersText: listenersText,
-          isFavoriteArtist: isFavoriteArtist,
-        ),
-      ),
-    ];
-  }
-
-  Widget _buildArtistAppBar(
-    BuildContext context,
-    ColorScheme colorScheme,
-    ColorScheme headerScheme, {
-    required List<ArtistAlbum> albums,
-    required bool hasDiscography,
-    required String? imageUrl,
-    required bool hasValidImage,
-    required String? headerVideoUrl,
-    required bool hasMotionBanner,
-    required String? listenersText,
-    required bool isFavoriteArtist,
-  }) {
-    final edgeInset = detailHeaderEdgeInset(context);
-    const fallbackMotion = AppMotionSpec(
-      Duration(milliseconds: 200),
-      Curves.linear,
-    );
-    final titleFade = AppMotion.effects(context, fallbackMotion);
-    final titleSlide = materialExpressiveEnabled(context)
-        ? AppMotion.spatial(context, fallbackMotion)
-        : null;
-    final toolbarTitle = ValueListenableBuilder(
-      valueListenable: _showTitleInAppBar,
-      builder: (_, showTitle, text) {
-        final Widget title = AnimatedOpacity(
-          duration: titleFade.duration,
-          curve: titleFade.curve,
-          opacity: showTitle ? 1.0 : 0.0,
-          child: text,
-        );
-        return titleSlide == null
-            ? title
-            : AnimatedSlide(
-                duration: titleSlide.duration,
-                curve: titleSlide.curve,
-                offset: showTitle ? Offset.zero : const Offset(0, 0.6),
-                child: title,
-              );
-      },
-      child: Text(
-        widget.artistName,
-        style: TextStyle(
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-    return SliverAppBar(
-      expandedHeight: hasDiscography ? 420 : 380,
-      pinned: true,
-      stretch: true,
-      backgroundColor: colorScheme.surface,
-      surfaceTintColor: Colors.transparent,
-      title: toolbarTitle,
-      flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.none,
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (hasMotionBanner)
-              MotionHeaderBanner(
-                videoUrl: headerVideoUrl!,
-                fallback: hasValidImage
-                    ? DownloadableCover(
-                        coverUrl: imageUrl,
-                        baseName: widget.artistName,
-                        child: CachedCoverImage(
-                          imageUrl: imageUrl!,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                          memCacheWidth: 800,
-                          placeholder: (context, url) => Container(
-                            color: colorScheme.surfaceContainerHighest,
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.person,
-                              size: 80,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container(
-                        color: colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          Icons.person,
-                          size: 80,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-              )
-            else if (hasValidImage)
-              DownloadableCover(
-                coverUrl: imageUrl,
-                baseName: widget.artistName,
-                child: CachedCoverImage(
-                  imageUrl: imageUrl!,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                  memCacheWidth: 800,
-                  placeholder: (context, url) =>
-                      Container(color: colorScheme.surfaceContainerHighest),
-                  errorWidget: (context, url, error) => Container(
-                    color: colorScheme.surfaceContainerHighest,
-                    child: Icon(
-                      Icons.person,
-                      size: 80,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              )
-            else
-              Container(
-                color: colorScheme.surfaceContainerHighest,
-                child: Icon(
-                  Icons.person,
-                  size: 80,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    headerScheme.surface.withValues(alpha: 0),
-                    headerScheme.surface.withValues(alpha: 0.35),
-                    headerScheme.surface.withValues(alpha: 0.75),
-                    headerScheme.surface,
-                  ],
-                  stops: const [0.0, 0.5, 0.75, 1.0],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 16 + edgeInset,
-              right: 16 + edgeInset,
-              bottom: 16,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_concerts.isNotEmpty && !isSelectionMode) ...[
-                          _concertsButton(),
-                          const SizedBox(height: 8),
-                        ],
-                        Text(
-                          widget.artistName,
-                          style: Theme.of(context).textTheme.headlineLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: headerScheme.onSurface,
-                              ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (listenersText != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            listenersText,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: headerScheme.onSurfaceVariant,
-                                ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (!isSelectionMode) ...[
-                    const SizedBox(width: 12),
-                    if (materialExpressiveEnabled(context))
-                      // Favourite morphs to a square while selected, and the
-                      // pair squishes like a button group when pressed.
-                      ExpressiveButtonGroup(
-                        slotWidth: 52,
-                        children: [
-                          ExpressiveIconButton(
-                            onPressed: () => _toggleFavoriteArtist(context),
-                            icon: Icon(
-                              isFavoriteArtist
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                            ),
-                            selected: isFavoriteArtist,
-                            size: 52,
-                            iconSize: 26,
-                            backgroundColor: headerScheme.primaryContainer,
-                            foregroundColor: isFavoriteArtist
-                                ? headerScheme.error
-                                : headerScheme.onPrimaryContainer,
-                            tooltip: isFavoriteArtist
-                                ? context.l10n.artistOptionRemoveFromFavorites
-                                : context.l10n.artistOptionAddToFavorites,
-                          ),
-                          if (hasDiscography)
-                            ExpressiveIconButton(
-                              onPressed: () => _showDiscographyOptions(
-                                context,
-                                colorScheme,
-                                albums,
-                              ),
-                              icon: const Icon(Icons.download_rounded),
-                              size: 52,
-                              iconSize: 26,
-                              backgroundColor: headerScheme.primaryContainer,
-                              foregroundColor: headerScheme.onPrimaryContainer,
-                              tooltip: context.l10n.discographyDownload,
-                            ),
-                        ],
-                      )
-                    else ...[
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: headerScheme.primaryContainer,
-                          shape: BoxShape.circle,
-                        ),
-                        child: AppIconButton(
-                          onPressed: () => _toggleFavoriteArtist(context),
-                          icon: Icon(
-                            isFavoriteArtist
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 26,
-                          ),
-                          color: isFavoriteArtist
-                              ? headerScheme.error
-                              : headerScheme.onPrimaryContainer,
-                          tooltip: isFavoriteArtist
-                              ? context.l10n.artistOptionRemoveFromFavorites
-                              : context.l10n.artistOptionAddToFavorites,
-                        ),
-                      ),
-                      if (hasDiscography) ...[
-                        const SizedBox(width: 12),
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: headerScheme.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: AppIconButton(
-                            onPressed: () => _showDiscographyOptions(
-                              context,
-                              colorScheme,
-                              albums,
-                            ),
-                            icon: const Icon(Icons.download_rounded, size: 26),
-                            color: headerScheme.onPrimaryContainer,
-                            tooltip: context.l10n.discographyDownload,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-        stretchModes: const [StretchMode.zoomBackground],
-      ),
-      leadingWidth: kToolbarHeight + edgeInset,
-      leading: Padding(
-        padding: EdgeInsetsDirectional.only(start: edgeInset),
-        child: HeaderCircleButton(
-          icon: Icons.arrow_back,
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      actionsPadding: EdgeInsetsDirectional.only(end: edgeInset),
-      actions: [
-        HeaderCircleButton(
-          icon: Icons.open_in_new_rounded,
-          tooltip: context.l10n.openInOtherServices,
-          onPressed: () => _showShareSheet(context),
-        ),
-      ],
-    );
   }
 
   Future<void> _shuffleArtist(BuildContext context) async {
@@ -641,27 +321,9 @@ extension _ArtistScreenSections on _ArtistScreenState {
           child: Padding(
             padding: compact
                 ? const EdgeInsets.symmetric(vertical: 4)
-                : EdgeInsetsDirectional.fromSTEB(
-                    context.isMornye ? 20 : 16,
-                    8,
-                    10,
-                    8,
-                  ),
+                : EdgeInsetsDirectional.fromSTEB(20, 8, 10, 8),
             child: Row(
               children: [
-                if (!context.isMornye) ...[
-                  SizedBox(
-                    width: 24,
-                    child: Text(
-                      '$rank',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
                 track.coverUrl != null
                     ? DownloadableCover(
                         coverUrl: track.coverUrl,
@@ -708,14 +370,8 @@ extension _ArtistScreenSections on _ArtistScreenState {
                       Text(
                         track.name,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: compact
-                              ? 14
-                              : context.isMornye
-                              ? 17
-                              : null,
-                          fontWeight: context.isMornye
-                              ? FontWeight.w400
-                              : FontWeight.w500,
+                          fontSize: compact ? 14 : 17,
+                          fontWeight: FontWeight.w400,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -736,11 +392,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
                                   style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
                                         color: colorScheme.onSurfaceVariant,
-                                        fontSize: compact
-                                            ? 13
-                                            : context.isMornye
-                                            ? 15
-                                            : null,
+                                        fontSize: compact ? 13 : 15,
                                       ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -764,7 +416,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
             ),
           ),
         );
-        if (!context.isMornye || !separated) return row;
+        if (!separated) return row;
         return Stack(
           children: [
             row,

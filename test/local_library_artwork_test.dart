@@ -18,7 +18,6 @@ import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
@@ -257,13 +256,9 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(
-        mornye
-            ? tester
-                  .widget<MornyeArtistSurface>(find.byType(MornyeArtistSurface))
-                  .imageSource
-            : tester
-                  .widget<AlbumDetailHeader>(find.byType(AlbumDetailHeader))
-                  .paletteSource,
+        tester
+            .widget<MornyeArtistSurface>(find.byType(MornyeArtistSurface))
+            .imageSource,
         scannedCover.path,
       );
       expect(extractions, 0);
@@ -306,19 +301,11 @@ void main() {
         await tester.pumpAndSettle();
         await pumpUntil(
           tester,
-          () => mornye
-              ? tester
-                        .widget<MornyeArtistSurface>(
-                          find.byType(MornyeArtistSurface),
-                        )
-                        .imageSource ==
-                    preview
-              : tester
-                        .widget<AlbumDetailHeader>(
-                          find.byType(AlbumDetailHeader),
-                        )
-                        .paletteSource ==
-                    preview,
+          () =>
+              tester
+                  .widget<MornyeArtistSurface>(find.byType(MornyeArtistSurface))
+                  .imageSource ==
+              preview,
         );
         expect(extractions, 1);
         expect(tester.takeException(), isNull);

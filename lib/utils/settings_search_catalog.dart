@@ -143,21 +143,8 @@ class SettingsSearchCatalog {
           title: l10n.appearanceLanguage,
           keywords: const ['locale', 'translation'],
         ),
-        SettingsSearchEntry(
-          icon: Icons.grid_view_outlined,
-          title: l10n.appearanceHistoryView,
-          subtitle:
-              '${l10n.appearanceHistoryViewList}, '
-              '${l10n.appearanceHistoryViewGrid}',
-          keywords: const ['layout', 'list', 'grid'],
-        ),
       ],
       library = [
-        SettingsSearchEntry(
-          icon: Icons.grid_view_rounded,
-          title: l10n.libraryDefaultView,
-          keywords: const ['library tab', 'default page'],
-        ),
         SettingsSearchEntry(
           icon: Icons.graphic_eq_rounded,
           title: l10n.trackAudioQuality,
@@ -320,12 +307,6 @@ class SettingsSearchCatalog {
           keywords: const ['artwork', 'cover', 'full screen', 'immersive'],
         ),
         SettingsSearchEntry(
-          icon: Icons.splitscreen_outlined,
-          title: l10n.landscapeLyricsArtwork,
-          subtitle: l10n.landscapeLyricsArtworkDescription,
-          keywords: const ['landscape', 'lyrics', 'album art', 'details'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.fullscreen,
           title: l10n.autoHideLyricsControls,
           subtitle: l10n.autoHideLyricsControlsDescription,
@@ -336,12 +317,6 @@ class SettingsSearchCatalog {
             'controls',
             'idle',
           ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.short_text,
-          title: l10n.compactPlayer,
-          subtitle: l10n.compactPlayerDescription,
-          keywords: const ['lyrics', 'compact', 'controls', 'mini', 'larger'],
         ),
         SettingsSearchEntry(
           icon: Icons.vibration,

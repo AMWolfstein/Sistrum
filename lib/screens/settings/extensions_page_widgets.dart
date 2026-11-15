@@ -29,18 +29,7 @@ class _ExtensionItem extends StatelessWidget {
     return ExtensionRow(
       showDivider: showDivider,
       onTap: onTap,
-      avatar: context.isMornye
-          ? null
-          : ExtensionAvatar(
-              filePath: extension.iconPath,
-              fallbackIcon: hasError ? Icons.error_outline : Icons.extension,
-              background: hasError
-                  ? colorScheme.errorContainer
-                  : colorScheme.primaryContainer,
-              foreground: hasError
-                  ? colorScheme.error
-                  : colorScheme.onPrimaryContainer,
-            ),
+      avatar: null,
       title: Text(extension.displayName),
       subtitle: Text.rich(
         hasError

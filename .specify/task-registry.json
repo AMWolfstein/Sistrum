@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 24,
+  "next_completion": 25,
   "next_mission": 3,
   "next_tor": 13,
   "tasks": {
@@ -50,13 +50,19 @@
       "title": "Collapse Material branches in shared widgets and theme"
     },
     "M001-T003": {
-      "completion": null,
+      "completion": 24,
+      "evidence": {
+        "checks": "Real review history: rounds 1-3 NEEDS_FIXES (all fixed), owner-authorized round 4 (log only) PASS; flutter analyze no issues; full flutter test 4126 passed, 10 skipped, 0 failed; rg isMornye lib test integration_test only README prose (T005)",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a07c4e89",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "1caa59612e554f03bbbf126d17226374",
       "record": "specs/001-remove-material-theme/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Collapse Material branches in screens and remove isMornye"
     },
     "M001-T004": {

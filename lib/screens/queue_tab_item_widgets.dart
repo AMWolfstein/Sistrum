@@ -992,19 +992,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
       selected: isSelected,
       // Material rows follow their own file, so a track change rebuilds only
       // the rows involved. Mornye rows show no current-track state.
-      child: context.isMornye
-          ? card()
-          : Consumer(
-              builder: (context, ref, _) {
-                final playback = ref.watch(
-                  mediaItemPlaybackUiProvider(playbackKey),
-                );
-                return card(
-                  current: playback.isCurrent,
-                  playing: playback.isPlaying,
-                );
-              },
-            ),
+      child: card(),
     );
   }
 
@@ -1178,7 +1166,6 @@ class _LibraryPlaybackButton extends ConsumerWidget {
               onPlay();
             }
           };
-
     if (grid) {
       return TrackGridPlayButton(
         tooltip: tooltip,
@@ -1186,25 +1173,14 @@ class _LibraryPlaybackButton extends ConsumerWidget {
         icon: icon,
       );
     }
-
     final colorScheme = Theme.of(context).colorScheme;
-    // Material draws a filled tonal icon button: a solid role pair rather
-    // than a faded primary container.
-    final material = !context.isMornye;
     return AppIconButton(
       onPressed: onPressed,
-      icon: Icon(
-        icon,
-        color: material
-            ? colorScheme.onSecondaryContainer
-            : colorScheme.primary,
-      ),
+      icon: Icon(icon, color: colorScheme.primary),
       tooltip: tooltip,
       style: IconButton.styleFrom(
         minimumSize: Size.square(context.tokens.minTouchTarget),
-        backgroundColor: material
-            ? colorScheme.secondaryContainer
-            : colorScheme.primaryContainer.withValues(alpha: 0.3),
+        backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
       ),
     );
   }

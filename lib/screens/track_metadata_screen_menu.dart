@@ -175,8 +175,7 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
     Widget buildMenu(BuildContext sheetContext) {
       final l10n = sheetContext.l10n;
       final options = _menuOptions(screenContext, ref, colorScheme, l10n);
-
-      if (sheetContext.isMornye) {
+      {
         final groups = <List<MornyeMenuAction>>[];
         for (final option in options) {
           if (option.icon == Icons.share_outlined) {
@@ -220,143 +219,13 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           groups: groups,
         );
       }
-
-      Widget buildContent({ScrollController? controller}) => SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          controller: controller,
-          primary: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const AppSheetHandle(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: _buildOptionsHeaderCover(colorScheme),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            trackName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(sheetContext).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            artistName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(sheetContext).textTheme.bodyMedium
-                                ?.copyWith(color: colorScheme.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Divider(
-                height: 1,
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 8),
-              Builder(
-                builder: (context) {
-                  final items = <Widget>[
-                    for (int i = 0; i < options.length; i++) ...[
-                      if (options[i].dividerAbove && i != 0)
-                        Divider(
-                          height: 1,
-                          thickness: 1,
-                          color: colorScheme.outlineVariant.withValues(
-                            alpha: 0.3,
-                          ),
-                        ),
-                      _MetadataOptionTile(
-                        option: options[i],
-                        colorScheme: colorScheme,
-                        onTap: () => _closeOptionsMenuAndRun(
-                          sheetContext,
-                          options[i].onTap,
-                        ),
-                      ),
-                    ],
-                  ];
-                  return SettingsGroup(children: items);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      );
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.85,
-        ),
-        child: buildContent(),
-      );
     }
 
-    if (screenContext.isMornye) {
-      showMornyeContextMenu<void>(
-        context: screenContext,
-        anchor: anchor,
-        builder: buildMenu,
-      );
-      return;
-    }
-    showAppModalBottomSheet<void>(
+    showMornyeContextMenu<void>(
       context: screenContext,
-      useRootNavigator: true,
-      isScrollControlled: true,
+      anchor: anchor,
       builder: buildMenu,
     );
-  }
-
-  Widget _buildOptionsHeaderCover(ColorScheme colorScheme) {
-    const size = 56.0;
-    const cacheWidth = 112;
-
-    Widget placeholder() => Container(
-      width: size,
-      height: size,
-      color: colorScheme.surfaceContainerHighest,
-      child: Icon(Icons.music_note, color: colorScheme.onSurfaceVariant),
-    );
-
-    if (_coverUrl != null) {
-      return CachedCoverImage(
-        imageUrl: _coverUrl!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        memCacheWidth: cacheWidth,
-        memCacheHeight: cacheWidth,
-        errorWidget: (_, _, _) => placeholder(),
-      );
-    }
-
-    if (_localCoverPath != null && _localCoverPath!.isNotEmpty) {
-      return Image.file(
-        File(_localCoverPath!),
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        cacheWidth: cacheWidth,
-        errorBuilder: (_, _, _) => placeholder(),
-      );
-    }
-
-    return placeholder();
+    return;
   }
 }

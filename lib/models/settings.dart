@@ -125,10 +125,7 @@ class AppSettings {
   final double musicHapticsStrength;
   @JsonKey(fromJson: playerCoverStyleFromJson)
   final String playerCoverStyle; // 'default' (card), 'fullscreen' or ''
-  final bool landscapeLyricsArtwork;
   final bool autoHideLyricsControls;
-  // Material: idle lyrics shrink the player to a slim bar, not hide it.
-  final bool compactPlayer;
   final bool isFirstLaunch;
   final bool checkForUpdates;
   final String updateChannel;
@@ -139,14 +136,8 @@ class AppSettings {
   final bool useAlbumArtistForFolders;
   final bool usePrimaryArtistOnly; // Strip featured artists from folder name
   final bool filterContributingArtistsInAlbumArtist;
-  final String historyViewMode;
-  final String historyFilterMode;
   @JsonKey(fromJson: librarySortModeFromJson)
   final String historySortMode;
-
-  /// Library view opened when switching to the Library tab:
-  /// 'last' (keep last used), 'all', 'albums', 'singles', or 'playlists'.
-  final String defaultLibraryView;
 
   /// Library badge text: measured bitrate, file format, bit depth,
   /// bit depth/sample rate, or the combined bit depth/bitrate label.
@@ -306,9 +297,7 @@ class AppSettings {
     this.musicHapticsSensitivity = 0.5,
     this.musicHapticsStrength = 0.5,
     this.playerCoverStyle = '',
-    this.landscapeLyricsArtwork = false,
     this.autoHideLyricsControls = true,
-    this.compactPlayer = false,
     this.isFirstLaunch = true,
     this.checkForUpdates = true,
     this.updateChannel = 'stable',
@@ -319,10 +308,7 @@ class AppSettings {
     this.useAlbumArtistForFolders = true,
     this.usePrimaryArtistOnly = false,
     this.filterContributingArtistsInAlbumArtist = false,
-    this.historyViewMode = 'grid',
-    this.historyFilterMode = 'all',
     this.historySortMode = 'latest',
-    this.defaultLibraryView = 'last',
     this.libraryQualityLabelMode = AppSettings.libraryQualityLabelBitDepthOnly,
     this.askQualityBeforeDownload = true,
     this.enableLogging = false,
@@ -447,9 +433,7 @@ class AppSettings {
     double? musicHapticsSensitivity,
     double? musicHapticsStrength,
     String? playerCoverStyle,
-    bool? landscapeLyricsArtwork,
     bool? autoHideLyricsControls,
-    bool? compactPlayer,
     bool? isFirstLaunch,
     bool? checkForUpdates,
     String? updateChannel,
@@ -460,10 +444,7 @@ class AppSettings {
     bool? useAlbumArtistForFolders,
     bool? usePrimaryArtistOnly,
     bool? filterContributingArtistsInAlbumArtist,
-    String? historyViewMode,
-    String? historyFilterMode,
     String? historySortMode,
-    String? defaultLibraryView,
     String? libraryQualityLabelMode,
     bool? askQualityBeforeDownload,
     bool? enableLogging,
@@ -581,11 +562,8 @@ class AppSettings {
           musicHapticsSensitivity ?? this.musicHapticsSensitivity,
       musicHapticsStrength: musicHapticsStrength ?? this.musicHapticsStrength,
       playerCoverStyle: playerCoverStyle ?? this.playerCoverStyle,
-      landscapeLyricsArtwork:
-          landscapeLyricsArtwork ?? this.landscapeLyricsArtwork,
       autoHideLyricsControls:
           autoHideLyricsControls ?? this.autoHideLyricsControls,
-      compactPlayer: compactPlayer ?? this.compactPlayer,
       isFirstLaunch: isFirstLaunch ?? this.isFirstLaunch,
       checkForUpdates: checkForUpdates ?? this.checkForUpdates,
       updateChannel: updateChannel ?? this.updateChannel,
@@ -599,10 +577,7 @@ class AppSettings {
       filterContributingArtistsInAlbumArtist:
           filterContributingArtistsInAlbumArtist ??
           this.filterContributingArtistsInAlbumArtist,
-      historyViewMode: historyViewMode ?? this.historyViewMode,
-      historyFilterMode: historyFilterMode ?? this.historyFilterMode,
       historySortMode: historySortMode ?? this.historySortMode,
-      defaultLibraryView: defaultLibraryView ?? this.defaultLibraryView,
       libraryQualityLabelMode:
           libraryQualityLabelMode ?? this.libraryQualityLabelMode,
       askQualityBeforeDownload:

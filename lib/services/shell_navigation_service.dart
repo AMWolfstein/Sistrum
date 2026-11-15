@@ -11,11 +11,7 @@ class ShellNavigationService {
   static final _chromeScopes =
       <
         Object,
-        ({
-          ModalRoute<dynamic> route,
-          Brightness brightness,
-          Color? surface,
-        })
+        ({ModalRoute<dynamic> route, Brightness brightness, Color? surface})
       >{};
   static bool _chromeUpdateScheduled = false;
   static int _searchGeneration = 0;
@@ -66,13 +62,10 @@ class ShellNavigationService {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (generation != _searchGeneration ||
           !identical(owner, _tabSelectionOwner) ||
-          _currentTabIndex != (_showSearchTab ? (_showRepoTab ? 3 : 2) : 0)) {
+          _currentTabIndex != (_showRepoTab ? 3 : 2)) {
         return;
       }
-      final navigatorKey = _showSearchTab
-          ? searchTabNavigatorKey
-          : homeTabNavigatorKey;
-      navigatorKey.currentState?.popUntil((route) => route.isFirst);
+      searchTabNavigatorKey.currentState?.popUntil((route) => route.isFirst);
       searchRequests.value++;
       // Search scrolls to its field and requests focus after layout.
       // Scheduling that frame avoids waiting for another tap to wake it up.
@@ -92,7 +85,6 @@ class ShellNavigationService {
 
   static int _currentTabIndex = 0;
   static bool _showRepoTab = false;
-  static bool _showSearchTab = false;
   static Object? _tabSelectionOwner;
   static ValueChanged<ShellTab>? _tabSelectionHandler;
 
@@ -120,16 +112,12 @@ class ShellNavigationService {
   static void syncState({
     required int currentTabIndex,
     required bool showRepoTab,
-    bool showSearchTab = false,
   }) {
-    if (_currentTabIndex == currentTabIndex &&
-        _showRepoTab == showRepoTab &&
-        _showSearchTab == showSearchTab) {
+    if (_currentTabIndex == currentTabIndex && _showRepoTab == showRepoTab) {
       return;
     }
     _currentTabIndex = currentTabIndex;
     _showRepoTab = showRepoTab;
-    _showSearchTab = showSearchTab;
     _scheduleChromeUpdate();
   }
 
@@ -139,7 +127,7 @@ class ShellNavigationService {
     if (_showRepoTab && _currentTabIndex == 2) {
       return repoTabNavigatorKey;
     }
-    if (_showSearchTab && _currentTabIndex == (_showRepoTab ? 3 : 2)) {
+    if (_currentTabIndex == (_showRepoTab ? 3 : 2)) {
       return searchTabNavigatorKey;
     }
     return null;

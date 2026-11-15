@@ -389,16 +389,13 @@ Future<T?> showAppModalBottomSheet<T>({
   );
 }
 
-/// Width of a [AppDialogSize.medium] sheet dialog, the default class.
-const double appSheetDialogMaxWidth = 560;
-
 /// widest the dialog grows; a narrower window shrinks it.
 enum AppDialogSize {
   /// A confirmation or a single field.
   compact(440),
 
   /// A list or a picker.
-  medium(appSheetDialogMaxWidth),
+  medium(560),
 
   /// An editor or a reference page.
   wide(720);

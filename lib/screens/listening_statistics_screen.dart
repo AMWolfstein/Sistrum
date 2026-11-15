@@ -8,7 +8,6 @@ import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/animation_utils.dart' show SkeletonBox;
 import 'package:sistrum/widgets/app_alert_dialog.dart';
@@ -184,24 +183,10 @@ class _ListeningStatisticsScreenState
     required int count,
     required Widget child,
   }) {
-    if (context.isMornye) return child;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, index == 0 ? 0 : 2, 16, 0),
-      child: Material(
-        color: settingsGroupColor(context),
-        clipBehavior: Clip.antiAlias,
-        borderRadius: connectedRowRadius(
-          context,
-          first: index == 0,
-          last: index == count - 1,
-        ),
-        child: child,
-      ),
-    );
+    return child;
   }
 
   Widget _summarySkeleton(BuildContext context) {
-    final mornye = context.isMornye;
     return ExcludeSemantics(
       child: Column(
         children: [
@@ -209,11 +194,9 @@ class _ListeningStatisticsScreenState
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: AppContentCard(
               mornyeSurface: false,
-              color: mornye
-                  ? null
-                  : Theme.of(context).colorScheme.primaryContainer,
+              color: null,
               child: Padding(
-                padding: EdgeInsets.all(mornye ? 20 : 24),
+                padding: EdgeInsets.all(20),
                 child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -297,7 +280,6 @@ class _ListeningStatisticsScreenState
 
   List<Widget> _summarySlivers(BuildContext context, ListeningSummary data) {
     final colors = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
     final artists = data.artists.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final topArtists = artists.take(10).toList();
@@ -319,9 +301,9 @@ class _ListeningStatisticsScreenState
           child: AppContentCard(
             mornyeSurface: false,
             // Material leads with the total as an emphasized hero figure.
-            color: mornye ? null : colors.primaryContainer,
+            color: null,
             child: Padding(
-              padding: EdgeInsets.all(mornye ? 20 : 24),
+              padding: EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -329,12 +311,7 @@ class _ListeningStatisticsScreenState
                     context.l10n.listeningStatsMinutes(
                       (data.milliseconds / 60000).round(),
                     ),
-                    style: mornye
-                        ? textTheme.headlineMedium
-                        : textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: colors.onPrimaryContainer,
-                          ),
+                    style: textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -343,11 +320,7 @@ class _ListeningStatisticsScreenState
                       data.tracks.length,
                       data.days.length,
                     ),
-                    style: mornye
-                        ? null
-                        : textTheme.bodyLarge?.copyWith(
-                            color: colors.onPrimaryContainer,
-                          ),
+                    style: null,
                   ),
                 ],
               ),

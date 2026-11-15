@@ -8,39 +8,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/widgets/mornye_glass_lens_fade.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_glass_press.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
-import 'package:sistrum/widgets/settled_blur.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
-/// Collapsing album-detail header shared by the album, local-album, and
-/// downloaded-album screens: full-bleed [background] (optionally blurred and
-/// scrimmed), bottom gradient, centered square cover, title, optional
+/// Collapsing album-detail header shared by the album, local-album,
+/// downloaded-album, playlist, mix and folder screens: full-bleed
+/// [background], bottom gradient, centered square cover, title, optional
 /// subtitle/meta/actions rows, and a circular back button. Content fades out
 /// below 30% expansion; the [title] fades into the toolbar instead.
 ///
-/// Colours come from a scheme derived from [paletteSource] (see [CoverPalette])
-/// and are published to descendants through [HeaderPalette], so the header
-/// follows both the artwork and the app's light/dark mode instead of assuming a
+/// Colours come from the app's Mornye scheme and are published to descendants
+/// through [HeaderPalette].
 class AlbumDetailHeader extends StatelessWidget {
   const AlbumDetailHeader({
     super.key,
     required this.title,
-    required this.expandedHeight,
     required this.showTitleInAppBar,
     this.showTitleListenable,
     required this.background,
-    this.paletteSource,
-    this.blurAndScrimBackground = true,
     this.coverBuilder,
     this.subtitle,
     this.meta,
@@ -48,13 +39,11 @@ class AlbumDetailHeader extends StatelessWidget {
     this.appBarActions,
     this.appBarTitle,
     this.leading,
-    this.backgroundColor,
     this.immersive = false,
     this.squareArtwork = true,
   });
 
   final String title;
-  final double expandedHeight;
   final bool showTitleInAppBar;
 
   /// Replaces [showTitleInAppBar] when set; see [headerToolbarTitle].
@@ -62,14 +51,6 @@ class AlbumDetailHeader extends StatelessWidget {
 
   /// Full-bleed background content (cover image, motion banner, placeholder).
   final Widget background;
-
-  /// Cover URL or local path the header palette is derived from. Null keeps the
-  /// app's own colour scheme.
-  final String? paletteSource;
-
-  /// Blur the background and dim it 35%; disable for motion banners and
-  /// placeholder backgrounds.
-  final bool blurAndScrimBackground;
 
   /// Builds the centered square cover for the given side length; null hides
   /// the cover block (the header wraps it in the shared shadow + rounding).
@@ -94,44 +75,26 @@ class AlbumDetailHeader extends StatelessWidget {
   /// Replaces the default circular back button.
   final Widget? leading;
 
-  final Color? backgroundColor;
   final bool immersive;
 
   /// Ordinary cover art stays 1:1; provider-supplied banners may fill a header.
   final bool squareArtwork;
 
-  /// Shrinks long titles so up to three lines fit the header.
-  double _titleFontSize() {
-    final length = title.trim().length;
-    if (length > 45) return 18;
-    if (length > 30) return 21;
-    return 24;
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (((coverBuilder != null || immersive))) {
-      final scheme = Theme.of(context).colorScheme;
-      return HeaderPalette(
-        scheme: scheme,
-        child: Builder(
-          builder: (context) =>
-              SliverMainAxisGroup(slivers: buildSlivers(context)),
-        ),
-      );
-    }
-    return CoverPaletteBuilder(
-      imageSource: paletteSource,
-      builder: (context, headerScheme) => _buildAppBar(context, headerScheme),
+    final scheme = Theme.of(context).colorScheme;
+    return HeaderPalette(
+      scheme: scheme,
+      child: Builder(
+        builder: (context) =>
+            SliverMainAxisGroup(slivers: buildSlivers(context)),
+      ),
     );
   }
 
   /// Keep the toolbar at the collection scroll-view level so it stays pinned
   /// after the dynamically sized artwork and metadata have scrolled away.
   List<Widget> buildSlivers(BuildContext context) {
-    if ((coverBuilder == null && !immersive)) {
-      return [this];
-    }
     final scheme = Theme.of(context).colorScheme;
     final edgeInset = detailHeaderEdgeInset(context);
     final screenSize = MediaQuery.sizeOf(context);
@@ -264,7 +227,7 @@ class AlbumDetailHeader extends StatelessWidget {
     padding: EdgeInsets.fromLTRB(20, immersive ? 0 : 20, 20, 28),
     child: Column(
       children: [
-        if (!immersive)
+        if (!immersive && coverBuilder != null)
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 280),
             child: AspectRatio(
@@ -290,7 +253,7 @@ class AlbumDetailHeader extends StatelessWidget {
               ),
             ),
           ),
-        if (!immersive) const SizedBox(height: 22),
+        if (!immersive && coverBuilder != null) const SizedBox(height: 22),
         Text(
           title,
           textAlign: TextAlign.center,
@@ -311,224 +274,6 @@ class AlbumDetailHeader extends StatelessWidget {
       ],
     ),
   );
-
-  Widget _buildAppBar(BuildContext context, ColorScheme headerScheme) {
-    final tokens = context.tokens;
-    final plainArtworkHeader = coverBuilder != null;
-    // Controls and header content get an explicit edge inset so circular
-    // actions do not touch the screen edge.
-    final headerEdgeInset = detailHeaderEdgeInset(context);
-    // Scrim and gradient are drawn from the palette surface instead of black,
-    // so a light theme gets a light header with dark text and a dark theme
-    // keeps the familiar dark treatment — both tinted by the artwork.
-    final scrimColor = headerScheme.surface;
-    final onHeader = headerScheme.onSurface;
-    final expressive = materialExpressiveEnabled(context);
-    final fallbackMotion = AppMotionSpec(tokens.motionFast, Curves.linear);
-    final titleSlide = AppMotion.spatial(context, fallbackMotion);
-    final titleFade = AppMotion.effects(context, fallbackMotion);
-    Widget toolbarTitle(bool showTitle) {
-      final fading = AnimatedOpacity(
-        duration: titleFade.duration,
-        curve: titleFade.curve,
-        opacity: showTitle ? 1.0 : 0.0,
-        child: Text(
-          appBarTitle ?? title,
-          style: TextStyle(
-            color: onHeader,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      );
-      if (!expressive) return fading;
-      return AnimatedSlide(
-        duration: titleSlide.duration,
-        curve: titleSlide.curve,
-        offset: showTitle ? Offset.zero : const Offset(0, 0.6),
-        child: fading,
-      );
-    }
-
-    return SliverAppBar(
-      expandedHeight: expandedHeight,
-      pinned: true,
-      stretch: true,
-      backgroundColor: backgroundColor ?? headerScheme.surface,
-      surfaceTintColor: Colors.transparent,
-      title: headerToolbarTitle(
-        showTitleListenable,
-        showTitleInAppBar,
-        toolbarTitle,
-      ),
-      flexibleSpace: LayoutBuilder(
-        builder: (context, constraints) {
-          final collapseRatio =
-              (constraints.maxHeight - kToolbarHeight) /
-              (expandedHeight - kToolbarHeight);
-          final showContent = collapseRatio > 0.3;
-          // Expressive headers shrink and fade the hero content with the
-          // scroll instead of hiding it at one threshold.
-          final contentProgress = Curves.easeOut.transform(
-            ((collapseRatio - 0.3) / 0.5).clamp(0.0, 1.0),
-          );
-          final content = Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (coverBuilder != null) ...[
-                Builder(
-                  builder: (context) {
-                    // Landscape headers are short: the cover also yields to
-                    // the height left below the toolbar once the title,
-                    // details and actions are placed, so it never rises
-                    // into the status bar or toolbar buttons.
-                    final toolbarBottom =
-                        MediaQuery.paddingOf(context).top + kToolbarHeight;
-                    final detailsHeight =
-                        40 +
-                        20 +
-                        58 +
-                        (subtitle == null ? 0 : 28) +
-                        (meta == null ? 0 : 34) +
-                        (actions == null ? 0 : 64);
-                    final coverSize = math.min(
-                      (constraints.maxWidth * 0.5).clamp(150.0, 210.0),
-                      math.max(
-                        96.0,
-                        expandedHeight - toolbarBottom - detailsHeight,
-                      ),
-                    );
-                    final coverRadius = tokens.radiusControl;
-                    return Container(
-                      width: coverSize,
-                      height: coverSize,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          plainArtworkHeader ? tokens.radiusCover : coverRadius,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: headerScheme.shadow.withValues(alpha: 0.45),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(coverRadius),
-                        child: coverBuilder!(context, coverSize),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-              Text(
-                title,
-                style: TextStyle(
-                  color: onHeader,
-                  fontSize: _titleFontSize(),
-                  fontWeight: FontWeight.bold,
-                  height: 1.2,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (subtitle != null) ...[const SizedBox(height: 6), subtitle!],
-              if (meta != null) ...[const SizedBox(height: 12), meta!],
-              if (actions != null) ...[const SizedBox(height: 16), actions!],
-            ],
-          );
-
-          return FlexibleSpaceBar(
-            collapseMode: CollapseMode.pin,
-            background: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (plainArtworkHeader)
-                  ColoredBox(color: headerScheme.surface)
-                else if (blurAndScrimBackground)
-                  SettledBlur(sigma: 32, child: background)
-                else
-                  background,
-                if (!plainArtworkHeader && blurAndScrimBackground)
-                  ColoredBox(color: scrimColor.withValues(alpha: 0.4)),
-                if (!plainArtworkHeader)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    height: expandedHeight * 0.65,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            scrimColor.withValues(alpha: 0),
-                            scrimColor.withValues(alpha: 0.92),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                Positioned(
-                  left: 20 + headerEdgeInset,
-                  right: 20 + headerEdgeInset,
-                  bottom: 40,
-                  child: expressive
-                      ? IgnorePointer(
-                          ignoring: contentProgress == 0,
-                          child: Opacity(
-                            opacity: contentProgress,
-                            child: Transform.scale(
-                              scale: 0.9 + 0.1 * contentProgress,
-                              alignment: Alignment.bottomCenter,
-                              child: content,
-                            ),
-                          ),
-                        )
-                      : AnimatedOpacity(
-                          duration: tokens.motionFast,
-                          opacity: showContent ? 1.0 : 0.0,
-                          child: content,
-                        ),
-                ),
-              ],
-            ),
-            stretchModes: const [StretchMode.zoomBackground],
-          );
-        },
-      ),
-      leadingWidth: kToolbarHeight + headerEdgeInset,
-      leading: Padding(
-        padding: EdgeInsetsDirectional.only(start: headerEdgeInset),
-        child:
-            leading ??
-            // Centered so the tight leading slot cannot stretch the circle.
-            Center(
-              child: AppIconButton.filledTonal(
-                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                icon: AppIcon(Icons.chevron_left),
-                style: IconButton.styleFrom(
-                  minimumSize: Size.square(tokens.minTouchTarget),
-                  backgroundColor: headerScheme.surfaceContainerHigh.withValues(
-                    alpha: 0.75,
-                  ),
-                  foregroundColor: headerScheme.onSurfaceVariant,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-      ),
-      actionsPadding: EdgeInsetsDirectional.only(end: headerEdgeInset),
-      actions: appBarActions,
-    );
-  }
 }
 
 /// Marks header buttons grouped in one glass capsule, where they drop their

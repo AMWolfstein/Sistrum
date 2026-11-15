@@ -278,14 +278,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Album",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Single",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
   "libraryRecentlyAdded": "Baru Ditambahkan",
   "libraryDownloads": "Download",
   "libraryNoActiveDownloads": "Tidak sedang download",
@@ -374,10 +366,6 @@
   "appearanceThemeDark": "Gelap",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Tampilan Koleksi",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Daftar",
   "@appearanceHistoryViewList": {
@@ -627,15 +615,6 @@
   "extensionsDisabled": "Mati",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
-  },
-  "extensionsVersion": "Versi {version}",
-  "@extensionsVersion": {
-    "description": "Extension version display",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
   },
   "extensionsUninstall": "Uninstal",
   "@extensionsUninstall": {
@@ -1689,10 +1668,6 @@
   },
   "sectionTheme": "Tema",
   "@sectionTheme": {
-    "description": "Settings section header"
-  },
-  "sectionLayout": "Tata Letak",
-  "@sectionLayout": {
     "description": "Settings section header"
   },
   "sectionLanguage": "Bahasa",
@@ -4940,14 +4915,6 @@
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
   },
-  "libraryDefaultView": "Tampilan default",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Terakhir digunakan",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
-  },
   "queueEmptyHistory": "Tidak ada histori download",
   "@queueEmptyHistory": {
     "description": "Empty state title when download history is empty"
@@ -6471,10 +6438,6 @@
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
-  "nowPlayingTitle": "Sedang Memutar",
-  "@nowPlayingTitle": {
-    "description": "Title for the now playing screen"
-  },
   "nowPlayingNothingPlaying": "Tidak memutar apapun",
   "@nowPlayingNothingPlaying": {
     "description": "Empty state when no track is currently playing"
@@ -6600,19 +6563,6 @@
   "nowPlayingNoLyricsOnline": "Lirik tidak ditemukan online",
   "@nowPlayingNoLyricsOnline": {
     "description": "Empty state after an online lyrics search for the playing track found nothing"
-  },
-  "nowPlayingLibraryEmpty": "Koleksi Anda kosong",
-  "@nowPlayingLibraryEmpty": {
-    "description": "Snackbar when shuffle library is requested but library has no tracks"
-  },
-  "nowPlayingShuffleLibraryFailed": "Tidak dapat mengacak koleksi: {error}",
-  "@nowPlayingShuffleLibraryFailed": {
-    "description": "Snackbar when shuffling the library fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "nowPlayingShuffleOn": "Acak hidup",
   "@nowPlayingShuffleOn": {
@@ -7029,14 +6979,6 @@
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
   },
-  "landscapeLyricsArtwork": "Cover album di samping lirik",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Tampilkan cover album menggantikan detail lagu pada player Material dalam posisi landscape",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
   "autoHideLyricsControls": "Lirik layar penuh otomatis",
   "@autoHideLyricsControls": {
     "description": "Playback switch that lets lyrics take more screen space after five idle seconds"
@@ -7110,39 +7052,6 @@
   "profileRemovePhoto": "Hapus foto",
   "profilePhotoError": "Pilih foto yang di bawah 20MB.",
   "profileSaveError": "Tidak dapat menyimpan profil Anda. Coba lagi.",
-  "homeGreetingMorning1": "Selamat pagi",
-  "homeGreetingMorning2": "Pagi yang cerah",
-  "homeGreetingMorning3": "Awali harimu",
-  "homeGreetingAfternoon1": "Selamat siang",
-  "homeGreetingAfternoon2": "Siang yang santai",
-  "homeGreetingAfternoon3": "Tetap semangat",
-  "homeGreetingEvening1": "Selamat malam",
-  "homeGreetingEvening2": "Waktunya rileks",
-  "homeGreetingEvening3": "Senja yang syahdu",
-  "homeGreetingNight1": "Selamat malam",
-  "homeGreetingNight2": "Teman begadang",
-  "homeGreetingNight3": "Malam yang tenang",
-  "homeGreetingNamed": "{greeting}, {name}",
-  "@homeGreetingNamed": {
-    "description": "Home greeting followed by the first name from the user's profile",
-    "placeholders": {
-      "greeting": {
-        "type": "String"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "homeTaglineListening": "Mau dengar apa hari ini?",
-  "@homeTaglineListening": {
-    "description": "Rotating Home prompt under the greeting"
-  },
-  "homeTaglineLink": "Punya link? Tempel saja di pencarian",
-  "homeTaglineDiscover": "Temukan album favoritmu berikutnya",
-  "@homeTaglineDiscover": {
-    "description": "Rotating Home prompt under the greeting"
-  },
   "homeContinueListening": "Lanjutkan mendengarkan",
   "@homeContinueListening": {
     "description": "Home section header for the track currently loaded in the player"
@@ -7155,7 +7064,6 @@
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
   },
-  "homeShortcuts": "Pintasan",
   "artistUpcomingConcerts": "Konser Mendatang",
   "artistAllUpcomingConcerts": "Semua Konser Mendatang",
   "artistNoUpcomingConcerts": "Tiada konser mendatang.",
@@ -7203,7 +7111,6 @@
   "listeningStatsClear": "Hapus statistik mendengarkan",
   "listeningStatsClearError": "Statistik mendengarkan tidak dapat dihapus. Silakan coba lagi.",
   "listeningStatsClearDescription": "Hapus semua statistik mendengarkan di perangkat ini? Musik dan playlist tetap tersimpan.",
-  "libraryArtistsEmpty": "Artis muncul di sini setelah kamu mengunduh musik atau memindai library lokal.",
   "listeningRewind": "Rewind",
   "listeningRewindDescription": "Lihat lagi momen menarik dari minggu dan bulan terakhir",
   "listeningRewindChoosePeriod": "Pilih periode",
@@ -7486,7 +7393,6 @@
   "equalizerEffectivePreamp": "Gain input setelah headroom",
   "equalizerDeletePreset": "Hapus preset",
   "equalizerCustom": "Kustom",
-  "equalizerManagePresets": "Kelola preset",
   "lyricsShareTitle": "Bagikan lirik",
   "@lyricsShareTitle": {
     "description": "Screen that turns selected lyric lines into an image for stories"

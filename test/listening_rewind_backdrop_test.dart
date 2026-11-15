@@ -248,7 +248,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'the backdrop drift moves at 30 Hz on the same clock ($mornye)',
       (tester) async {

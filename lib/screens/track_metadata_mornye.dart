@@ -175,24 +175,16 @@ extension _TrackMetadataMornye on _TrackMetadataScreenState {
     ColorScheme scheme, {
     required Widget child,
   }) {
-    if (context.isMornye) {
-      return Material(
-        color: MornyeTheme.controlFill(context),
-        borderRadius: BorderRadius.circular(28),
-        clipBehavior: Clip.antiAlias,
-        child: DividerTheme(
-          data: DividerTheme.of(
-            context,
-          ).copyWith(color: MornyeTheme.metadataDividerColor(context)),
-          child: child,
-        ),
-      );
-    }
-    return Card(
-      elevation: 0,
-      color: settingsGroupColor(context),
-      shape: _sectionCardShape(scheme),
-      child: child,
+    return Material(
+      color: MornyeTheme.controlFill(context),
+      borderRadius: BorderRadius.circular(28),
+      clipBehavior: Clip.antiAlias,
+      child: DividerTheme(
+        data: DividerTheme.of(
+          context,
+        ).copyWith(color: MornyeTheme.metadataDividerColor(context)),
+        child: child,
+      ),
     );
   }
 }

@@ -869,9 +869,6 @@ void main() {
     final coverSource = File(
       'lib/screens/track_metadata_screen_cover.dart',
     ).readAsStringSync();
-    final cardsSource = File(
-      'lib/screens/track_metadata_cards.dart',
-    ).readAsStringSync();
 
     expect(
       coverSource,
@@ -882,16 +879,5 @@ void main() {
       contains('DownloadedEmbeddedCoverResolver.resolveOrExtract('),
     );
     expect(coverSource, isNot(contains('PlatformBridge.extractCoverToFile')));
-    expect(
-      cardsSource,
-      contains('Downloaded-item entry points must await resolveOrExtract'),
-    );
-    expect(
-      cardsSource,
-      contains(
-        'Widget coverImage() => artworkImage(cacheWidth: coverCacheWidth)',
-      ),
-    );
-    expect(cardsSource, contains('cacheHeight: backdropCacheWidth'));
   });
 }

@@ -6,11 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/app_checkbox.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/theme/app_motion.dart';
@@ -42,18 +39,15 @@ import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/explore_provider.dart';
 import 'package:sistrum/providers/home_top_picks_provider.dart';
-import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/widgets/explore_featured_section.dart';
 import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/listening_statistics_screen.dart';
 import 'package:sistrum/screens/music_recognition_screen.dart';
-import 'package:sistrum/screens/network_storage_screen.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/listening_statistics.dart';
@@ -72,7 +66,6 @@ import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/file_access.dart';
-import 'package:sistrum/utils/home_greeting.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/widgets/download_service_picker.dart';
@@ -81,7 +74,6 @@ import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/extension_icon_image.dart';
-import 'package:sistrum/widgets/library_mix_cover.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/in_library_badge.dart';
@@ -104,10 +96,10 @@ part 'home_tab_search_results.dart';
 part 'home_tab_search_wide.dart';
 part 'home_tab_widgets.dart';
 
-enum HomeTabMode { combined, browse, search }
+enum HomeTabMode { browse, search }
 
 class HomeTab extends ConsumerStatefulWidget {
-  const HomeTab({super.key, this.mode = HomeTabMode.combined});
+  const HomeTab({super.key, required this.mode});
 
   final HomeTabMode mode;
 
@@ -117,8 +109,8 @@ class HomeTab extends ConsumerStatefulWidget {
 
 class _HomeTabState extends ConsumerState<HomeTab>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  bool get _showsSearch => widget.mode != HomeTabMode.browse;
-  bool get _showsHome => widget.mode != HomeTabMode.search;
+  bool get _showsSearch => widget.mode == HomeTabMode.search;
+  bool get _showsHome => widget.mode == HomeTabMode.browse;
   final _historySnapshot = TrackHistorySnapshot();
   final _urlController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -732,7 +724,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     final hasActualResults =
         _showsSearch &&
         ref.watch(trackProvider.select((s) => s.tracks.isNotEmpty));
@@ -753,7 +744,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
         (s) => (isInitialized: s.isInitialized, error: s.error),
       ),
     );
-
     final hasExploreContent =
         _showsHome &&
         ref.watch(exploreProvider.select((s) => s.sections.isNotEmpty));
@@ -773,7 +763,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
             (s) => s.homeFeedProvider == AppSettings.homeFeedProviderOff,
           ),
         );
-
     final colorScheme = Theme.of(context).colorScheme;
     final searchText = _showsSearch ? _urlController.text.trim() : '';
     final hasSearchInput = searchText.isNotEmpty;
@@ -796,7 +785,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
         _showsSearch &&
         ref.watch(trackProvider.select((s) => s.isShowingRecentAccess));
     final screenHeight = MediaQuery.sizeOf(context).height;
-
     final recentModeRequested =
         widget.mode == HomeTabMode.search ||
         isShowingRecentAccess ||
@@ -815,16 +803,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
       explicitSearchProvider,
       extensions,
     );
-    final showSearchBar =
-        _showsSearch &&
-        (widget.mode == HomeTabMode.search ||
-            HomeSearchProviderPolicy.shouldShowSearchBar(
-              hasSearchProvider: hasSearchProvider,
-              isSearchProviderLoading: isSearchProviderLoading,
-              hasHomeFeedExtension: hasHomeFeedExtension,
-              hasExploreContent: hasExploreContent,
-              hasSearchInput: hasSearchInput,
-            ));
     final hasResults =
         hasSearchInput || hasActualResults || isLoading || showRecentAccess;
     final showExplore =
@@ -861,21 +839,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
       context,
       const AppMotionSpec(Duration(milliseconds: 250), Curves.easeOut),
     );
-    // Without a feed, Home gathers the player, shortcuts and Library shelves.
-    final showHomeSections =
-        _showsHome && !showFeedSurface && !showEmptyHomeState;
-    // The Material Home also greets in its header. A feed brings its own
-    // greeting, and the Mornye style keeps its navigation title.
-    final greetsInHeader = showHomeSections && !context.isMornye;
-    final greeting = greetsInHeader
-        ? homeGreeting(
-            context.l10n,
-            name: ref.watch(
-              userProfileProvider.select((p) => p.value?.name ?? ''),
-            ),
-          )
-        : null;
-
     ref.listen<String>(settingsProvider.select((s) => s.defaultSearchTab), (
       previous,
       next,
@@ -898,7 +861,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
         _performSearch(text);
       });
     });
-
     if (hasActualResults &&
         isShowingRecentAccess &&
         hasSearchInput &&
@@ -909,7 +871,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
         }
       });
     }
-
     return GestureDetector(
       onTap: () {
         if (_searchFocusNode.hasFocus) {
@@ -925,7 +886,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
             controller: _homeScrollController,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             slivers: [
-              _buildHeaderSliver(greeting: greeting),
+              _buildHeaderSliver(),
               if (_showsHome) const SliverToBoxAdapter(child: AppCrashBanner()),
               _buildHomeIntroSliver(
                 sectionMotion: sectionMotion,
@@ -935,11 +896,10 @@ class _HomeTabState extends ConsumerState<HomeTab>
                 screenHeight: screenHeight,
                 showEmptyHomeState: showEmptyHomeState,
               ),
-              if (showSearchBar)
+              if (_showsSearch)
                 _buildSearchBarSliver(
                   hasResults: hasResults,
                   showExplore: showFeedSurface,
-                  greetsInHeader: greetsInHeader,
                 ),
               if (hasActiveSearchSurface && !showRecentAccess)
                 _buildSearchFilterSliver(
@@ -971,16 +931,14 @@ class _HomeTabState extends ConsumerState<HomeTab>
     );
   }
 
-  Widget _buildHeaderSliver({required String? greeting}) {
+  Widget _buildHeaderSliver() {
     return AppSliverHeader.tabRoot(
       alignToContent: true,
       contentInset: homeContentInset(context),
       title: widget.mode == HomeTabMode.search
           ? context.l10n.sistrumSearch
-          : greeting ?? context.l10n.homeTitle,
-      actions: context.isMornye && _showsHome
-          ? const [HomeProfileButton()]
-          : null,
+          : context.l10n.homeTitle,
+      actions: _showsHome ? const [HomeProfileButton()] : null,
     );
   }
 
@@ -1014,18 +972,13 @@ class _HomeTabState extends ConsumerState<HomeTab>
   Widget _buildSearchBarSliver({
     required bool hasResults,
     required bool showExplore,
-    required bool greetsInHeader,
   }) {
     return SliverToBoxAdapter(
       child: Padding(
         // Centered with the search results on tablets.
         padding: EdgeInsets.fromLTRB(
           16 + homeContentInset(context),
-          (hasResults || showExplore)
-              ? 8
-              : greetsInHeader
-              ? 20
-              : 32,
+          (hasResults || showExplore) ? 8 : 32,
           16 + homeContentInset(context),
           (hasResults || showExplore) ? 8 : 16,
         ),
@@ -1137,17 +1090,10 @@ class _HomeTabState extends ConsumerState<HomeTab>
         final exploreSections = ref.watch(
           exploreProvider.select((s) => s.sections),
         );
-        // The feed decides whether a greeting shows; its words
-        // are localized here and address the profile name.
-        final showGreeting =
-            ref.watch(exploreProvider.select((s) => s.greeting)) != null;
-        final profileName = ref.watch(
-          userProfileProvider.select((p) => p.value?.name ?? ''),
-        );
         return SliverMainAxisGroup(
           slivers: [
             // Mornye opens with Top Picks whether or not the feed follows.
-            if (context.isMornye && _HomeTopPicksSection.hasPicks(ref))
+            if (_HomeTopPicksSection.hasPicks(ref))
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 12),
@@ -1156,13 +1102,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
                   ),
                 ),
               ),
-            ..._buildExploreSections(
-              exploreSections,
-              showGreeting
-                  ? homeGreeting(context.l10n, name: profileName)
-                  : null,
-              colorScheme,
-            ),
+            ..._buildExploreSections(exploreSections, colorScheme),
           ],
         );
       },
@@ -1329,20 +1269,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
         ),
       );
     }
-
-    // The Mornye style uses the navigation title as the page identity. Keep
-    // the search surface directly beneath it instead of repeating app branding
-    // in the content area.
-    if (context.isMornye) return const SizedBox.shrink();
-
-    // The header carries the greeting; prompts take turns beneath it.
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24 + homeContentInset(context)),
-      child: const Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: _HomeTagline(),
-      ),
-    );
+    return const SizedBox.shrink();
   }
 
   void _onEmbeddedCoverChanged() {

@@ -42,13 +42,10 @@ SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
 - Reports retain the 60 Hz fields and add `frame_budgets` for 60, 90, 120 Hz
   and the display's reported refresh rate. These compare engine phase times
   to each budget; they do not claim the display actually ran at all those rates.
-- Run `material_performance_test.dart` through the same driver for Material
-  lyrics and artwork transitions with the same fixtures and gestures as the
-  Mornye suites, plus seek playback, dragging and paused idle in both styles.
-- Use `player_performance_test.dart` to compare lyrics, artwork and seek in
-  both styles in a single build.
+- Use `player_performance_test.dart` for lyrics, artwork transitions and seek
+  playback, dragging and paused idle in a single build.
 - Use `pipeline_performance_test.dart` on an isolated profile build
-  for Library, download, playback and both lyrics styles with synthetic files and
+  for Library, download, playback and lyrics with synthetic files and
   local HTTP fixtures. Its stage timelines include persistence and idle
   work; each report states which setup and platform features are excluded.
   Keep the app in the foreground and avoid accessibility inspection during
@@ -87,9 +84,8 @@ Aggregates (each runs other suites as groups):
 | --- | --- |
 | `collection_batch_write_test.dart` | `playlist_batch_write_test.dart`, `loved_batch_write_test.dart` |
 | `mornye_performance_test.dart` | The rendering, screens, artwork and lyrics Mornye performance suites; driver target |
-| `material_performance_test.dart` | Material lyrics/artwork and shared seek scenarios in both styles; driver target |
-| `player_performance_test.dart` | Shared lyrics, artwork and seek scenarios for Material and Mornye; driver target |
-| `pipeline_performance_test.dart` | Library, foreground download, native playback and both lyrics styles with isolated fixtures; profile driver target |
+| `player_performance_test.dart` | Lyrics, artwork and seek scenarios; driver target |
+| `pipeline_performance_test.dart` | Library, foreground download, native playback and lyrics with isolated fixtures; profile driver target |
 | `remaining_optimization_test.dart` | Collection restore, history staging, library staging, cache maintenance, collection workers, queue workers, backup archive |
 
 Support files (not tests): `performance_driver.dart` (host driver) and

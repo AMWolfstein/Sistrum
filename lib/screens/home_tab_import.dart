@@ -102,26 +102,14 @@ extension _HomeTabCsvImport on _HomeTabState {
                   children: [
                     Text(l10n.dialogImportPlaylistMessage(tracks.length)),
                     const SizedBox(height: 12),
-                    if (dialogCtx.isMornye)
-                      AppSwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.homeSkipAlreadyDownloaded),
-                        value: skipDownloaded,
-                        onChanged: (value) => setDialogState(() {
-                          skipDownloaded = value;
-                        }),
-                      )
-                    else
-                      AppCheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.homeSkipAlreadyDownloaded),
-                        value: skipDownloaded,
-                        onChanged: (value) {
-                          setDialogState(() {
-                            skipDownloaded = value ?? true;
-                          });
-                        },
-                      ),
+                    AppSwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l10n.homeSkipAlreadyDownloaded),
+                      value: skipDownloaded,
+                      onChanged: (value) => setDialogState(() {
+                        skipDownloaded = value;
+                      }),
+                    ),
                   ],
                 ),
                 actions: [
