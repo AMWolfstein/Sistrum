@@ -11,10 +11,16 @@
       "nonce": "a914f111b1d74ca082eb04d36b406178",
       "path": "specs/002-rebrand-sistrum",
       "title": "Rebrand Mornye to Sistrum"
+    },
+    "M003": {
+      "next_task": 15,
+      "nonce": "b57385371b6f4a578ec063e84a4c210f",
+      "path": "specs/003-offline-library-screens",
+      "title": "Offline library detail screens"
     }
   },
   "next_completion": 30,
-  "next_mission": 3,
+  "next_mission": 4,
   "next_tor": 14,
   "tasks": {
     "M001-T001": {
@@ -352,6 +358,146 @@
       "record": "specs/002-rebrand-sistrum/tasks.md",
       "status": "complete",
       "title": "Rename the remaining non-theme mornye names to sistrum"
+    },
+    "M003-T001": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "3f4056865835436996bf2ed027b26fce",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Library data for the detail screens"
+    },
+    "M003-T002": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "95723282094d4b83a3210604d9119327",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Artist screen reads the library"
+    },
+    "M003-T003": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "efc05a014ac04005921a03bb76dee227",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Album screen reads the library"
+    },
+    "M003-T004": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "b4b1e3f72fd44a99b0e981af043fc66a",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Playlists and Loved songs use the playlist design"
+    },
+    "M003-T005": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "9ab77727caba40b2af83f5be609792af",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Library overview and Songs page"
+    },
+    "M003-T006": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "6343c933ad634fc49e41e17a6a4bc066",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Library track rows use the album row"
+    },
+    "M003-T007": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "169953f49c9042eea115423b823b2f75",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Offline-only track menus"
+    },
+    "M003-T008": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "7851dc3472af44f49c6b1eb63477e45c",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Now Playing artist link, heart and menu"
+    },
+    "M003-T009": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "befedeea034b4e148ec97096d19d7433",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Port right-to-left lyrics (Mornye #844)"
+    },
+    "M003-T010": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "259d3d936f2e49d9ada5382434eea031",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Port the Now Playing lyric preview (Mornye #847)"
+    },
+    "M003-T011": {
+      "completion": null,
+      "final": true,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "45f10ab75f424eeeb70a429eb71efeef",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Cumulative review"
+    },
+    "M003-T012": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "fa51d332b091428e9dc04c24e4442e74",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Tag separators for artist and genre credits"
+    },
+    "M003-T013": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "e77a3983bfeb4c878be217bc7f061d50",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Library Genres page"
+    },
+    "M003-T014": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "a37fe852a4e4409ca76b2b3d8385f9e6",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "reserved",
+      "title": "Refresh the library row after a metadata save"
     },
     "TOR001": {
       "completion": 1,
