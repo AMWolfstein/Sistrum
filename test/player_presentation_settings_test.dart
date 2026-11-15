@@ -19,15 +19,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('cover style and music haptics keep their defaults', () {
     final restored = AppSettings.fromJson(const {});
-    // Unchosen, Material shows the cover full screen and Mornye a card.
+    // Unchosen, the player shows a card.
     expect(restored.playerCoverStyle, isEmpty);
-    expect(restored.playerCoverStyleFor(mornye: false), 'fullscreen');
-    expect(restored.playerCoverStyleFor(mornye: true), 'default');
-    // A choice holds in both styles.
+    expect(restored.playerCoverStyleFor(), 'default');
+    // A choice is kept.
     final card = restored.copyWith(playerCoverStyle: 'default');
-    expect(card.playerCoverStyleFor(mornye: false), 'default');
+    expect(card.playerCoverStyleFor(), 'default');
     final full = restored.copyWith(playerCoverStyle: 'fullscreen');
-    expect(full.playerCoverStyleFor(mornye: true), 'fullscreen');
+    expect(full.playerCoverStyleFor(), 'fullscreen');
     expect(restored.musicHaptics, isFalse);
     expect(restored.landscapeLyricsArtwork, isFalse);
     expect(restored.autoHideLyricsControls, isTrue);

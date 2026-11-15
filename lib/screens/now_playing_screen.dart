@@ -226,7 +226,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     final mornye = context.isMornye;
     final fullScreenCover = ref.watch(
       settingsProvider.select(
-        (s) => s.playerCoverStyleFor(mornye: mornye) == 'fullscreen',
+        (s) => s.playerCoverStyleFor() == 'fullscreen',
       ),
     );
     return LyricsScreenAwake(

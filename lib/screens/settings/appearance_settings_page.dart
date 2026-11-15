@@ -32,61 +32,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
           slivers: [
             AppSliverHeader.page(title: context.l10n.appearanceTitle),
 
-            ...settingsSectionSlivers(
-              title: context.l10n.appearanceStyle,
-              children: [
-                for (final style in AppThemeStyle.values)
-                  ListTile(
-                    title: Wrap(
-                      spacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          style == AppThemeStyle.mornye ? 'Mornye' : 'Material',
-                        ),
-                        if (style == AppThemeStyle.mornye)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              'Beta',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    leading: context.isMornye
-                        ? null
-                        : AppIcon(
-                            style == AppThemeStyle.mornye
-                                ? Icons.music_note_outlined
-                                : Icons.palette_outlined,
-                          ),
-                    trailing: themeSettings.style == style
-                        ? AppIcon(
-                            Icons.check_circle,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        : null,
-                    selected: themeSettings.style == style,
-                    onTap: () =>
-                        ref.read(themeProvider.notifier).setStyle(style),
-                  ),
-              ],
-            ),
-
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -97,60 +42,26 @@ class AppearanceSettingsPage extends ConsumerWidget {
               ),
             ),
 
-            if (themeSettings.style == AppThemeStyle.mornye)
-              ...settingsSectionSlivers(
-                title: context.l10n.sectionColor,
-                children: [
-                  _MornyeAccentPicker(
-                    selected: themeSettings.mornyeAccent,
-                    onChanged: ref.read(themeProvider.notifier).setMornyeAccent,
-                  ),
-                  SettingsSwitchItem(
-                    key: const ValueKey('mornye-glass-outlines'),
-                    icon: Icons.rounded_corner,
-                    title: context.l10n.appearanceGlassOutlines,
-                    subtitle: context.l10n.appearanceGlassOutlinesSubtitle,
-                    value: themeSettings.mornyeGlassOutlines,
-                    onChanged: ref
-                        .read(themeProvider.notifier)
-                        .setMornyeGlassOutlines,
-                    showDivider: false,
-                  ),
-                ],
-              )
-            else ...[
-              ...settingsSectionSlivers(
-                title: context.l10n.sectionColor,
-                children: [
-                  SettingsSwitchItem(
-                    icon: Icons.wallpaper,
-                    title: context.l10n.appearanceDynamicColor,
-                    subtitle: context.l10n.appearanceDynamicColorSubtitle,
-                    value: themeSettings.useDynamicColor,
-                    onChanged: (value) => ref
-                        .read(themeProvider.notifier)
-                        .setUseDynamicColor(value),
-                    showDivider: false,
-                  ),
-                ],
-              ),
-              if (!themeSettings.useDynamicColor)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      16 + wideListInset(context),
-                      12,
-                      16 + wideListInset(context),
-                      0,
-                    ),
-                    child: _ColorPalettePicker(
-                      currentColor: themeSettings.seedColorValue,
-                      onColorSelected: (color) =>
-                          ref.read(themeProvider.notifier).setSeedColor(color),
-                    ),
-                  ),
+            ...settingsSectionSlivers(
+              title: context.l10n.sectionColor,
+              children: [
+                _MornyeAccentPicker(
+                  selected: themeSettings.mornyeAccent,
+                  onChanged: ref.read(themeProvider.notifier).setMornyeAccent,
                 ),
-            ],
+                SettingsSwitchItem(
+                  key: const ValueKey('mornye-glass-outlines'),
+                  icon: Icons.rounded_corner,
+                  title: context.l10n.appearanceGlassOutlines,
+                  subtitle: context.l10n.appearanceGlassOutlinesSubtitle,
+                  value: themeSettings.mornyeGlassOutlines,
+                  onChanged: ref
+                      .read(themeProvider.notifier)
+                      .setMornyeGlassOutlines,
+                  showDivider: false,
+                ),
+              ],
+            ),
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionTheme,
@@ -161,17 +72,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                   onChanged: (mode) =>
                       ref.read(themeProvider.notifier).setThemeMode(mode),
                 ),
-                if (themeSettings.style == AppThemeStyle.material &&
-                    Theme.of(context).brightness == Brightness.dark)
-                  SettingsSwitchItem(
-                    icon: Icons.brightness_2,
-                    title: context.l10n.appearanceAmoledDark,
-                    subtitle: context.l10n.appearanceAmoledDarkSubtitle,
-                    value: themeSettings.useAmoled,
-                    onChanged: (value) =>
-                        ref.read(themeProvider.notifier).setUseAmoled(value),
-                    showDivider: false,
-                  ),
               ],
             ),
 

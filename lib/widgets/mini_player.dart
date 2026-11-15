@@ -76,7 +76,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
   void _warmFullScreenArtwork(Uri? artUri) {
     if (context.isMornye ||
         artUri == null ||
-        ref.read(settingsProvider).playerCoverStyleFor(mornye: false) !=
+        ref.read(settingsProvider).playerCoverStyleFor() !=
             'fullscreen' ||
         MediaQuery.orientationOf(context) != Orientation.portrait) {
       _warmedTransition = null;

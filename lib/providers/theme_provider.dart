@@ -1,80 +1,13 @@
 import 'dart:async';
 
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/theme_settings.dart';
 
 final initialThemeSettingsProvider = Provider<ThemeSettings>(
-  (ref) => ThemeSettings(style: defaultAppThemeStyle()),
+  (ref) => const ThemeSettings(),
 );
-
-/// The launch request for the system's colors. Without one the theme asks
-/// when it first builds.
-final initialDynamicColorsProvider = Provider<DynamicColors?>((ref) => null);
-
-typedef DynamicColorSchemes = ({
-  material_ui.ColorScheme light,
-  material_ui.ColorScheme dark,
-});
-
-/// accent color. Asked once, in the same order as `DynamicColorBuilder`.
-class DynamicColors {
-  DynamicColors.request() : future = _read() {
-    future.then<void>((schemes) {
-      _schemes = schemes;
-      _settled = true;
-    });
-  }
-
-  /// Null when the platform has no dynamic colors.
-  final Future<DynamicColorSchemes?> future;
-  DynamicColorSchemes? _schemes;
-  bool _settled = false;
-
-  bool get isSettled => _settled;
-  DynamicColorSchemes? get schemes => _schemes;
-
-  /// Waits at most [timeout] for the answer; never throws.
-  Future<void> settle(Duration timeout) => future
-      .timeout(timeout, onTimeout: () => null)
-      .then<void>((_) {}, onError: (Object _) {});
-
-  static Future<DynamicColorSchemes?> _read() async {
-    try {
-      final palette = await DynamicColorPlugin.getCorePalette();
-      if (palette != null) {
-        return (
-          light: palette.toColorScheme(),
-          dark: palette.toColorScheme(brightness: Brightness.dark),
-        );
-      }
-    } on PlatformException {
-      // Falls back to the accent color.
-    }
-    try {
-      final accent = await DynamicColorPlugin.getAccentColor();
-      if (accent != null) {
-        return (
-          light: material_ui.ColorScheme.fromSeed(
-            seedColor: accent,
-            brightness: Brightness.light,
-          ),
-          dark: material_ui.ColorScheme.fromSeed(
-            seedColor: accent,
-            brightness: Brightness.dark,
-          ),
-        );
-      }
-    } on PlatformException {
-      // No dynamic colors on this platform.
-    }
-    return null;
-  }
-}
 
 /// The accent to load, moving an install off the old default once. Every
 /// theme save wrote the accent, so a stored red usually only means red was
@@ -92,20 +25,23 @@ MornyeAccent _loadMornyeAccent(SharedPreferences prefs) {
   return mornyeAccentFromString(stored);
 }
 
-/// The retired Glass Quality slider's stored value. Glass is fixed at Clear, so
-/// the key is removed once at startup and nothing reads it any more.
-const _retiredGlassClarityKey = 'mornye_glass_clarity';
+/// Stored values nothing reads any more: the Glass Quality slider (glass is
+/// fixed at Clear) and the Material style, dynamic color, seed color and
+/// AMOLED options. They are removed once at startup, whatever their type.
+const _retiredKeys = [
+  'mornye_glass_clarity',
+  'theme_style',
+  'use_dynamic_color',
+  'seed_color',
+  'use_amoled',
+];
 
 ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
-  if (prefs.containsKey(_retiredGlassClarityKey)) {
-    unawaited(prefs.remove(_retiredGlassClarityKey));
+  for (final key in _retiredKeys) {
+    if (prefs.containsKey(key)) unawaited(prefs.remove(key));
   }
   return ThemeSettings(
     themeMode: themeModeFromString(prefs.getString(kThemeModeKey)),
-    useDynamicColor: prefs.getBool(kUseDynamicColorKey) ?? true,
-    seedColorValue: prefs.getInt(kSeedColorKey) ?? kDefaultSeedColor,
-    useAmoled: prefs.getBool(kUseAmoledKey) ?? false,
-    style: themeStyleFromString(prefs.getString(kThemeStyleKey)),
     mornyeAccent: _loadMornyeAccent(prefs),
     useSystemFont: prefs.getBool(kUseSystemFontKey) ?? false,
     customFontId: prefs.getString(kCustomFontIdKey) ?? '',
@@ -167,10 +103,6 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
       if (!ref.mounted) return;
       final snapshot = state;
       await prefs.setString(kThemeModeKey, snapshot.themeMode.name);
-      await prefs.setBool(kUseDynamicColorKey, snapshot.useDynamicColor);
-      await prefs.setInt(kSeedColorKey, snapshot.seedColorValue);
-      await prefs.setBool(kUseAmoledKey, snapshot.useAmoled);
-      await prefs.setString(kThemeStyleKey, snapshot.style.name);
       await prefs.setString(kMornyeAccentKey, snapshot.mornyeAccent.name);
       await prefs.setBool(kUseSystemFontKey, snapshot.useSystemFont);
       await prefs.setString(kCustomFontIdKey, snapshot.customFontId);
@@ -189,26 +121,6 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
 
   Future<void> setThemeMode(ThemeMode mode) async {
     _editState((current) => current.copyWith(themeMode: mode));
-    await _saveToStorage();
-  }
-
-  Future<void> setStyle(AppThemeStyle style) async {
-    _editState((current) => current.copyWith(style: style));
-    await _saveToStorage();
-  }
-
-  Future<void> setUseDynamicColor(bool value) async {
-    _editState((current) => current.copyWith(useDynamicColor: value));
-    await _saveToStorage();
-  }
-
-  Future<void> setSeedColor(Color color) async {
-    _editState((current) => current.copyWith(seedColorValue: color.toARGB32()));
-    await _saveToStorage();
-  }
-
-  Future<void> setUseAmoled(bool value) async {
-    _editState((current) => current.copyWith(useAmoled: value));
     await _saveToStorage();
   }
 

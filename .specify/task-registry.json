@@ -13,18 +13,24 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 22,
+  "next_completion": 23,
   "next_mission": 3,
   "next_tor": 13,
   "tasks": {
     "M001-T001": {
-      "completion": null,
+      "completion": 22,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test 4402 passed, 10 skipped, 0 failed; retired-key and wrong-type tests added; validation rg matches only the literal retired keys in theme_provider.dart/test and lib/theme/README.md (T005)",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a0dcdeb2",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "2bf08403870a4da6a5ceae289ada4f31",
       "record": "specs/001-remove-material-theme/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Make Mornye the only theme setting"
     },
     "M001-T002": {

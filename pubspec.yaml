@@ -47,8 +47,7 @@ dependencies:
   material_symbols_icons: ^4.2960.0
   volume_controller: ^3.7.1
 
-  # Material Expressive 3 / Dynamic Color
-  dynamic_color: ^2.1.0
+  # Material Expressive 3
   material_ui: ^1.9.0
   material_3_expressive: ^1.2.0
   material_color_utilities: 0.13.0

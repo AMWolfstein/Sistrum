@@ -89,14 +89,6 @@
   "@appearanceThemeDark": {
     "description": "Dark theme"
   },
-  "appearanceDynamicColor": "Dynamic Color",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Use colors from your wallpaper",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
-  },
   "appearanceHistoryView": "History View",
   "@appearanceHistoryView": {
     "description": "Layout style for history"
@@ -1389,14 +1381,6 @@
   "downloadFrom": "Download From",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "AMOLED Dark",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Pure black background",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "queueClearAll": "Clear All",
   "@queueClearAll": {

@@ -225,7 +225,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Gaya Aplikasi",
   "appearanceAccentRed": "Merah (default)",
   "appearanceAccentOrange": "Oranye",
   "appearanceAccentGreen": "Hijau",
@@ -237,9 +236,6 @@
   "appearanceGlassOutlinesSubtitle": "Tampilkan garis dekoratif di tepi kaca Sistrum. Mematikannya tetap mempertahankan blur dan pembiasan.",
   "appearanceUseSystemFont": "Gunakan font sistem",
   "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "id",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -378,14 +374,6 @@
   "appearanceThemeDark": "Gelap",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Warna Dinamis",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Gunakan warna dari wallpapermu",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Tampilan Koleksi",
   "@appearanceHistoryView": {
@@ -2350,14 +2338,6 @@
   "downloadFrom": "Download Dari",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "AMOLED Gelap",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Latar belakang hitam murni",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Transisi halus",
   "@appearanceHeroAnimations": {
@@ -5722,15 +5702,6 @@
   "queueRateLimitMessage": "Lagu ini mungkin masih tersedia. Tunggu sebentar, kurangi download bersamaan, lalu coba lagi.",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "Pilih warna aksen {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "Gulir otomatis HIDUP",
   "@logAutoScrollOn": {

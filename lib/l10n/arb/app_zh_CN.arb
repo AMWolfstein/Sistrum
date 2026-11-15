@@ -209,7 +209,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "应用样式",
   "appearanceAccentRed": "红色（默认）",
   "appearanceAccentOrange": "橙色",
   "appearanceAccentGreen": "绿色",
@@ -221,9 +220,6 @@
   "appearanceGlassOutlinesSubtitle": "在Sistrum玻璃周围显示装饰边缘。关闭后保留模糊和折射效果。",
   "appearanceUseSystemFont": "使用系统字体",
   "appearanceUseSystemFontSubtitle": "应用文本使用设备默认字体。",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "zh_CN",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -391,14 +387,6 @@
   "appearanceThemeDark": "深色",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "动态色彩",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "使用壁纸的颜色",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "历史记录",
   "@appearanceHistoryView": {
@@ -2375,14 +2363,6 @@
   "downloadFrom": "下载自",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "AMOLED深色",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "纯黑背景，OLED 屏更省电，黑得深邃。",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hero动画",
   "@appearanceHeroAnimations": {
@@ -5754,15 +5734,6 @@
   "queueRateLimitMessage": "此曲目可能仍然可用。等待几分钟，减少并行下载，然后重试。",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "选择强调色 {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "自动滚动 开",
   "@logAutoScrollOn": {

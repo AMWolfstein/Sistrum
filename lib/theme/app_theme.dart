@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 
 class AppTheme {
-  static const Color defaultSeedColor = Color(kDefaultSeedColor);
+  static const Color defaultSeedColor = Color(0xFF1DB954);
 
   /// Shared surfaces use one radius scale; actions use round Material shapes.
   static const AppTokens _tokens = AppTokens.standard;

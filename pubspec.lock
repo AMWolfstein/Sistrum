@@ -416,7 +416,7 @@ packages:
     source: hosted
     version: "8.1.0"
   dynamic_color:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: dynamic_color
       sha256: "869b3bce0100eb519768ecd71c0111f0b5ea679f5f62e1f59c49d80067e730c5"

@@ -1,22 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/theme/app_theme.dart';
-import 'package:sistrum/theme/dynamic_color_wrapper.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-
-double _contrast(Color first, Color second) {
-  final a = first.computeLuminance();
-  final b = second.computeLuminance();
-  return a > b ? (a + 0.05) / (b + 0.05) : (b + 0.05) / (a + 0.05);
-}
 
 Widget _host(Widget child, {ThemeData? theme, bool reduceMotion = false}) {
   return MaterialApp(
@@ -76,85 +65,6 @@ void main() {
         await _groupColor(tester, theme),
         theme.colorScheme.surfaceContainer,
       );
-    });
-
-    testWidgets('AMOLED groups and menus stay apart from the black page', (
-      tester,
-    ) async {
-      const settings = ThemeSettings(
-        themeMode: ThemeMode.dark,
-        useDynamicColor: false,
-        useAmoled: true,
-        style: AppThemeStyle.material,
-      );
-      SharedPreferences.setMockInitialValues({
-        kThemeModeKey: 'dark',
-        kUseDynamicColorKey: false,
-        kUseAmoledKey: true,
-        kThemeStyleKey: 'material',
-      });
-      late ThemeData theme;
-      late Color group;
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [initialThemeSettingsProvider.overrideWithValue(settings)],
-          child: DynamicColorWrapper(
-            builder: (light, dark, mode) => MaterialApp(
-              theme: light,
-              darkTheme: dark,
-              themeMode: mode,
-              home: Builder(
-                builder: (context) {
-                  theme = Theme.of(context);
-                  group = settingsGroupColor(context);
-                  return const SizedBox();
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final scheme = theme.colorScheme;
-      expect(scheme.brightness, Brightness.dark);
-      expect(scheme.surface, Colors.black);
-      expect(theme.scaffoldBackgroundColor, Colors.black);
-      expect(
-        group,
-        Color.alphaBlend(Colors.white.withValues(alpha: 0.08), Colors.black),
-      );
-      // At least as far from black as the old blended group fill (#141414).
-      expect(
-        _contrast(group, Colors.black),
-        greaterThanOrEqualTo(_contrast(const Color(0xFF141414), Colors.black)),
-      );
-      // Menus sit on the low tier, and shadows do not show on black.
-      expect(
-        _contrast(scheme.surfaceContainerLow, Colors.black),
-        greaterThan(1.1),
-      );
-      final ladder = [
-        scheme.surfaceContainerLowest,
-        scheme.surfaceContainerLow,
-        scheme.surfaceContainer,
-        scheme.surfaceContainerHigh,
-        scheme.surfaceContainerHighest,
-      ];
-      expect(ladder.first, Colors.black);
-      for (var i = 1; i < ladder.length; i++) {
-        expect(
-          _contrast(ladder[i], ladder[i - 1]),
-          greaterThan(1.03),
-          reason: 'tier $i must stay above tier ${i - 1}',
-        );
-        expect(
-          ladder[i].computeLuminance(),
-          greaterThan(ladder[i - 1].computeLuminance()),
-        );
-      }
-      expect(theme.popupMenuTheme.color, scheme.surfaceContainerLow);
-      expect(theme.navigationBarTheme.backgroundColor, scheme.surfaceContainer);
     });
 
     testWidgets('a reduced motion Material card keeps the 5.2.1 outline', (

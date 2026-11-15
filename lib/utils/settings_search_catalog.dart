@@ -102,15 +102,9 @@ class SettingsSearchCatalog {
           ],
         ),
         SettingsSearchEntry(
-          icon: Icons.wallpaper,
-          title: l10n.appearanceDynamicColor,
-          subtitle: l10n.appearanceDynamicColorSubtitle,
-          keywords: const ['material you', 'system color'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.color_lens_outlined,
           title: l10n.sectionColor,
-          keywords: const ['palette', 'seed color', 'accent'],
+          keywords: const ['palette', 'accent'],
         ),
         SettingsSearchEntry(
           icon: Icons.contrast,
@@ -119,12 +113,6 @@ class SettingsSearchCatalog {
               '${l10n.appearanceThemeSystem}, ${l10n.appearanceThemeLight}, '
               '${l10n.appearanceThemeDark}',
           keywords: const ['light mode', 'dark mode'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.brightness_2,
-          title: l10n.appearanceAmoledDark,
-          subtitle: l10n.appearanceAmoledDarkSubtitle,
-          keywords: const ['black theme', 'oled'],
         ),
         SettingsSearchEntry(
           icon: Icons.font_download_outlined,

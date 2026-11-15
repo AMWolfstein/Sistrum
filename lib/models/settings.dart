@@ -401,14 +401,9 @@ class AppSettings {
     'musixmatch_language': musixmatchLanguage,
   };
 
-  /// The cover art style the player shows: the one chosen, else the app
-  /// style's own, full screen in Material and a card in Mornye.
-  String playerCoverStyleFor({required bool mornye}) =>
-      playerCoverStyle.isNotEmpty
-      ? playerCoverStyle
-      : mornye
-      ? 'default'
-      : 'fullscreen';
+  /// The cover art style the player shows: the one chosen, else the card.
+  String playerCoverStyleFor() =>
+      playerCoverStyle.isNotEmpty ? playerCoverStyle : 'default';
 
   AppSettings copyWith({
     String? defaultService,

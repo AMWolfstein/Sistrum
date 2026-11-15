@@ -19,7 +19,7 @@ replacing them.
 
 | File | Role |
 | --- | --- |
-| `lib/theme/dynamic_color_wrapper.dart` | `DynamicColorWrapper`, used by `lib/app.dart`. Builds the light and dark `ThemeData` for the selected style |
+| `lib/theme/mornye_theme_wrapper.dart` | `MornyeThemeWrapper`, used by `lib/app.dart`. Builds the light and dark Mornye `ThemeData` from the stored theme settings |
 | `lib/theme/app_theme.dart` | `AppTheme.light` and `AppTheme.dark`: Material 3 component themes over a `ColorScheme` |
 | `lib/theme/app_tokens.dart` | `AppTokens`, a `ThemeExtension` with the shared radii, spacing, cover sizes and header metrics |
 | `lib/theme/mornye_theme.dart` | `MornyeTheme`: the Mornye `ThemeExtension`, its `ThemeData` builder, `context.isMornye`, `MornyeSettingsTheme` |
@@ -32,12 +32,9 @@ replacing them.
 
 ## How a Theme Is Built
 
-`DynamicColorWrapper` watches `themeProvider` and the custom font provider.
+`MornyeThemeWrapper` watches `themeProvider` and the custom font provider.
 
-- Material: `DynamicColorBuilder` supplies the wallpaper scheme when dynamic
-  color is on; otherwise `ColorScheme.fromSeed` uses the seed color. AMOLED
-  replaces the dark surfaces with black and near-black. `AppTheme` then adds
-  component themes and registers `AppTokens.standard`.
+- Material (`AppTheme`): only the test harness theme until M001-T005 deletes it.
 - Mornye: `MornyeTheme.build(brightness, ...)` takes the Mornye accent
   (`MornyeAccent`, red by default), the system-font and custom-font choices,
   glass clarity (default 0.75) and glass outlines. It seeds a `ColorScheme`

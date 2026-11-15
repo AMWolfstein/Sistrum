@@ -209,7 +209,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Стиль програми",
   "appearanceAccentRed": "Червоний (за замовчуванням)",
   "appearanceAccentOrange": "Помаранчевий",
   "appearanceAccentGreen": "Зелений",
@@ -221,9 +220,6 @@
   "appearanceGlassOutlinesSubtitle": "Показувати декоративні краї навколо скла Sistrum. Вимкнення цієї функції зберігає розмиття та заломлення.",
   "appearanceUseSystemFont": "Використовувати системний шрифт",
   "appearanceUseSystemFontSubtitle": "Використовуйте стандартний шрифт вашого пристрою для тексту в додатку.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "uk",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -391,14 +387,6 @@
   "appearanceThemeDark": "Темна",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Динамічний колір",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Використати кольори зі своїх шпалер",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Історія переглядів",
   "@appearanceHistoryView": {
@@ -2375,14 +2363,6 @@
   "downloadFrom": "Завантажити з",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "Темний AMOLED",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Чисто чорний фон",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Анімації головного елемента",
   "@appearanceHeroAnimations": {
@@ -5754,15 +5734,6 @@
   "queueRateLimitMessage": "Цей трек усе ще може бути доступним. Зачекайте кілька хвилин, зменште кількість одночасних завантажень і спробуйте знову.",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "Виберіть акцентний колір {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "Автопрокручування увімкнено",
   "@logAutoScrollOn": {

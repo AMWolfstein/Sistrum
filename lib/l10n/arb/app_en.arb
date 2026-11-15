@@ -272,7 +272,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "App Style",
   "appearanceAccentRed": "Red (default)",
   "appearanceAccentOrange": "Orange",
   "appearanceAccentGreen": "Green",
@@ -284,9 +283,6 @@
   "appearanceGlassOutlinesSubtitle": "Show decorative edges around Sistrum glass. Turning this off keeps blur and refraction.",
   "appearanceUseSystemFont": "Use system font",
   "appearanceUseSystemFontSubtitle": "Use your device’s default typeface for app text.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "en",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -454,14 +450,6 @@
   "appearanceThemeDark": "Dark",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Dynamic Color",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Use colors from your wallpaper",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "History View",
   "@appearanceHistoryView": {
@@ -2439,14 +2427,6 @@
   "downloadFrom": "Download From",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "AMOLED Dark",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Pure black background",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hero animations",
   "@appearanceHeroAnimations": {
@@ -5847,15 +5827,6 @@
   "queueRateLimitMessage": "This track may still be available. Wait a few minutes, reduce parallel downloads, then retry.",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "Select accent color {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "Auto-scroll ON",
   "@logAutoScrollOn": {

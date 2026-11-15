@@ -7,7 +7,7 @@ import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/screens/settings/appearance_settings_page.dart';
-import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/theme/mornye_theme_wrapper.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
@@ -80,7 +80,7 @@ void main() {
           // Low-end Android without forced blur renders flat, opaque glass.
           if (lowEnd) lowEndDeviceProvider.overrideWithValue(true),
         ],
-        child: DynamicColorWrapper(
+        child: MornyeThemeWrapper(
           builder: (light, dark, mode) => MaterialApp(
             theme: light,
             darkTheme: dark,
@@ -95,39 +95,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('switching theme style updates the app in place', (tester) async {
+  testWidgets('Appearance offers no Material-only options', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-    final container = ProviderContainer(
-      overrides: [
-        initialThemeSettingsProvider.overrideWithValue(
-          loadBootstrapThemeSettings(prefs),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: DynamicColorWrapper(
-          builder: (light, dark, mode) => MaterialApp(
-            theme: light,
-            home: const Scaffold(body: TextField(key: ValueKey('app-state'))),
-          ),
-        ),
-      ),
-    );
-    final before = tester.state(find.byKey(const ValueKey('app-state')));
-
-    await container.read(themeProvider.notifier).setStyle(AppThemeStyle.mornye);
-    await tester.pumpAndSettle();
-    expect(tester.state(find.byKey(const ValueKey('app-state'))), before);
-
-    await container
-        .read(themeProvider.notifier)
-        .setStyle(AppThemeStyle.material);
-    await tester.pumpAndSettle();
-    expect(tester.state(find.byKey(const ValueKey('app-state'))), before);
+    await openSettings(tester, prefs);
+    for (final title in [
+      'App Style',
+      'Dynamic Color',
+      'AMOLED Dark',
+      'Material',
+    ]) {
+      expect(find.text(title), findsNothing, reason: title);
+    }
+    expect(find.text('Color'), findsOneWidget);
+    expect(find.byTooltip('Blue'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   for (final mode in [ThemeMode.light, ThemeMode.dark]) {
@@ -135,7 +117,6 @@ void main() {
       'glass outlines toggle survives restart and local themes ($mode)',
       (tester) async {
         SharedPreferences.setMockInitialValues({
-          kThemeStyleKey: 'mornye',
           kThemeModeKey: mode.name,
         });
         final prefs = await SharedPreferences.getInstance();
@@ -178,7 +159,6 @@ void main() {
 
     testWidgets('the Glass Quality slider is gone ($mode)', (tester) async {
       SharedPreferences.setMockInitialValues({
-        kThemeStyleKey: 'mornye',
         kThemeModeKey: mode.name,
       });
       final prefs = await SharedPreferences.getInstance();
@@ -196,9 +176,7 @@ void main() {
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({
-        kThemeStyleKey: 'mornye',
         kThemeModeKey: mode.name,
-        kSeedColorKey: 0xff123456,
         kMornyeAccentKey: 'red',
         kMornyeAccentMovedToBlueKey: true,
       });
@@ -221,7 +199,6 @@ void main() {
         MornyeTheme.accentColor(MornyeAccent.blue, theme.brightness),
       );
       expect(prefs.getString(kMornyeAccentKey), 'blue');
-      expect(prefs.getInt(kSeedColorKey), 0xff123456);
       final overlay = MornyeTheme.fromContext(
         tester.element(page),
         brightness: Brightness.dark,
@@ -249,14 +226,12 @@ void main() {
     });
   }
 
-  for (final style in AppThemeStyle.values) {
+  {
     testWidgets(
-      'system font persists and restores the default ($style)',
+      'system font persists and restores the default',
       (tester) async {
         SharedPreferences.setMockInitialValues({
-          kThemeStyleKey: style.name,
           kMornyeAccentKey: 'blue',
-          kUseDynamicColorKey: false,
         });
         final prefs = await SharedPreferences.getInstance();
         await openSettings(tester, prefs);
@@ -278,15 +253,13 @@ void main() {
         expect(systemFamily, isNot('Inter'));
         expect(systemFamily, isNot('Google Sans Flex'));
         expect(prefs.getBool(kUseSystemFontKey), isTrue);
-        if (style == AppThemeStyle.mornye) {
-          final overlay = MornyeTheme.fromContext(
-            tester.element(page),
-            brightness: Brightness.dark,
-          );
-          expect(overlay.extension<MornyeTheme>()!.useSystemFont, isTrue);
-          expect(overlay.extension<MornyeTheme>()!.accent, MornyeAccent.blue);
-          expect(overlay.textTheme.bodyLarge!.fontFamily, systemFamily);
-        }
+        final overlay = MornyeTheme.fromContext(
+          tester.element(page),
+          brightness: Brightness.dark,
+        );
+        expect(overlay.extension<MornyeTheme>()!.useSystemFont, isTrue);
+        expect(overlay.extension<MornyeTheme>()!.accent, MornyeAccent.blue);
+        expect(overlay.textTheme.bodyLarge!.fontFamily, systemFamily);
         await tester.pumpWidget(const SizedBox());
         await openSettings(tester, prefs);
         expect(

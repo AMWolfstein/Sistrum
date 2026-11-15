@@ -28,7 +28,7 @@ searches below.
 
 ## Implementation
 
-- [ ] M001-T001 Make Mornye the only theme setting
+- [x] M001-T001 Make Mornye the only theme setting
   - Start: refresh the map; query `ThemeSettings`, `ThemeNotifier`,
     `DynamicColorWrapper`, `AppThemeStyle`, `PlaybackNotification`.
   - Acceptance: FR-001, FR-003, FR-004, FR-005. No `AppThemeStyle`,

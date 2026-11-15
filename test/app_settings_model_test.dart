@@ -192,10 +192,6 @@ void main() {
     test('serializes, deserializes, copies, and compares values', () {
       const settings = ThemeSettings(
         themeMode: ThemeMode.dark,
-        useDynamicColor: false,
-        seedColorValue: 0xff123456,
-        useAmoled: true,
-        style: AppThemeStyle.mornye,
         mornyeAccent: MornyeAccent.blue,
         useSystemFont: true,
       );
@@ -205,10 +201,7 @@ void main() {
 
       expect(decoded, settings);
       expect(decoded.hashCode, settings.hashCode);
-      expect(decoded.seedColor, const Color(0xff123456));
       expect(copied.themeMode, ThemeMode.light);
-      expect(copied.useAmoled, isTrue);
-      expect(decoded.style, AppThemeStyle.mornye);
       expect(decoded.mornyeAccent, MornyeAccent.blue);
       expect(copied.mornyeAccent, MornyeAccent.blue);
       expect(decoded.useSystemFont, isTrue);
@@ -227,10 +220,6 @@ void main() {
       expect(
         ThemeSettings.fromJson({'theme_mode': 'invalid'}).themeMode,
         ThemeMode.system,
-      );
-      expect(
-        ThemeSettings.fromJson({'theme_style': 'invalid'}).style,
-        AppThemeStyle.material,
       );
     });
   });

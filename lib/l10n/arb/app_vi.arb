@@ -209,7 +209,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Phong cách giao diện",
   "appearanceAccentRed": "Đỏ (mặc định)",
   "appearanceAccentOrange": "Cam",
   "appearanceAccentGreen": "Xanh lá",
@@ -221,9 +220,6 @@
   "appearanceGlassOutlinesSubtitle": "Hiển thị đường viền trang trí quanh các khung kính của Sistrum. Khi tắt, hiệu ứng làm mờ và khúc xạ vẫn được giữ nguyên.",
   "appearanceUseSystemFont": "Dùng phông chữ hệ thống",
   "appearanceUseSystemFontSubtitle": "Sử dụng kiểu chữ mặc định của thiết bị cho toàn bộ văn bản trong ứng dụng.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "vi",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -391,14 +387,6 @@
   "appearanceThemeDark": "Tối",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Màu sắc động (Material You)",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Lấy tông màu tự động từ hình nền thiết bị",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Kiểu xem lịch sử",
   "@appearanceHistoryView": {
@@ -2375,14 +2363,6 @@
   "downloadFrom": "Nguồn tải xuống",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": " Đen tuyền AMOLED",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Nền đen tuyệt đối",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hiệu ứng chuyển cảnh Hero",
   "@appearanceHeroAnimations": {
@@ -5754,15 +5734,6 @@
   "queueRateLimitMessage": "Bài hát này có thể vẫn tải được. Hãy đợi vài phút, giảm số luồng tải đồng thời rồi thử lại.",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "Chọn màu nhấn {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "Tự cuộn lời: BẬT",
   "@logAutoScrollOn": {

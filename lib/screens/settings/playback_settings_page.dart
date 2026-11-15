@@ -143,7 +143,7 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
     final settings = ref.watch(settingsProvider);
     final autoMixActive = settings.autoMix;
     final colorScheme = Theme.of(context).colorScheme;
-    final coverStyle = settings.playerCoverStyleFor(mornye: context.isMornye);
+    final coverStyle = settings.playerCoverStyleFor();
     // The charging rule applies to Android's background sweep only.
     final chargingOption = settings.songAnalysis && Platform.isAndroid;
     final progress = _songAnalysis.progress.value;

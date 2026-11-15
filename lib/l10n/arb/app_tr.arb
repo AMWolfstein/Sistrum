@@ -209,7 +209,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Uygulama stili",
   "appearanceAccentRed": "Kırmızı (varsayılan)",
   "appearanceAccentOrange": "Turuncu",
   "appearanceAccentGreen": "Yeşil",
@@ -221,9 +220,6 @@
   "appearanceGlassOutlinesSubtitle": "Sistrum camı çevresinde dekoratif kenarlıklar gösterir. Kapatıldığında bulanıklık ve kırılma korunur.",
   "appearanceUseSystemFont": "Sistem yazı tipini kullan",
   "appearanceUseSystemFontSubtitle": "Uygulama metinleri için cihazınızın varsayılan yazı tipini kullanın.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "tr",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -391,14 +387,6 @@
   "appearanceThemeDark": "Koyu",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Dinamik Renk",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Duvar kağıdının renklerini kullan",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Geçmiş Düzeni",
   "@appearanceHistoryView": {
@@ -2375,14 +2363,6 @@
   "downloadFrom": "İndirme Kaynağı",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "AMOLED Koyu",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Saf siyah arka plan",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hero animasyonları",
   "@appearanceHeroAnimations": {
@@ -5754,15 +5734,6 @@
   "queueRateLimitMessage": "Bu parça hâlâ kullanılabilir olabilir. Birkaç dakika bekleyin, paralel indirme sayısını azaltın ve tekrar deneyin.",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "Vurgu rengini seç {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "Otomatik kaydırma AÇIK",
   "@logAutoScrollOn": {

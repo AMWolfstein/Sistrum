@@ -11,7 +11,7 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/equalizer_provider.dart';
 import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/app_orientation.dart';
-import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/theme/mornye_theme_wrapper.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -215,7 +215,7 @@ class SistrumApp extends ConsumerWidget {
 
     final locale = localeFromSetting(localeString);
 
-    return DynamicColorWrapper(
+    return MornyeThemeWrapper(
       builder: (lightTheme, darkTheme, themeMode) {
         return MaterialApp.router(
           title: AppInfo.appName,

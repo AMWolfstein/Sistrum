@@ -5,7 +5,6 @@ class PlaybackNotification {
   static const favoriteAction = 'sistrum.favorite';
   static const shuffleAction = 'sistrum.shuffle';
 
-  final bool mornye;
   final String? mediaId;
   final String? source;
   final bool loved;
@@ -15,7 +14,6 @@ class PlaybackNotification {
   final String shuffleOffLabel;
 
   const PlaybackNotification({
-    this.mornye = false,
     this.mediaId,
     this.source,
     this.loved = false,
@@ -28,7 +26,6 @@ class PlaybackNotification {
 
   PlaybackNotification withFavorite(MediaItem item, bool loved) =>
       PlaybackNotification(
-        mornye: mornye,
         mediaId: item.id,
         source: item.extras?['source']?.toString(),
         loved: loved,
@@ -53,23 +50,15 @@ class PlaybackNotification {
             : 'drawable/ic_notification_star',
         label: current && loved ? unfavoriteLabel : favoriteLabel,
       ),
-      mornye
-          ? MediaControl.skipToPrevious.copyWith(
-              androidIcon: 'drawable/ic_widget_previous',
-            )
-          : MediaControl.skipToPrevious,
-      mornye
-          ? playPause.copyWith(
-              androidIcon: playing
-                  ? 'drawable/ic_widget_pause'
-                  : 'drawable/ic_widget_play',
-            )
-          : playPause,
-      mornye
-          ? MediaControl.skipToNext.copyWith(
-              androidIcon: 'drawable/ic_widget_next',
-            )
-          : MediaControl.skipToNext,
+      MediaControl.skipToPrevious.copyWith(
+        androidIcon: 'drawable/ic_widget_previous',
+      ),
+      playPause.copyWith(
+        androidIcon: playing
+            ? 'drawable/ic_widget_pause'
+            : 'drawable/ic_widget_play',
+      ),
+      MediaControl.skipToNext.copyWith(androidIcon: 'drawable/ic_widget_next'),
       MediaControl.custom(
         name: shuffleAction,
         androidIcon: shuffle

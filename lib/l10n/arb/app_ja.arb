@@ -209,7 +209,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "アプリのスタイル",
   "appearanceAccentRed": "Red (default)",
   "appearanceAccentOrange": "Orange",
   "appearanceAccentGreen": "Green",
@@ -221,9 +220,6 @@
   "appearanceGlassOutlinesSubtitle": "Sistrumガラスの周りに装飾的な縁を表示します。オフにすると、ぼやけて屈折します。",
   "appearanceUseSystemFont": "システムフォントを使用",
   "appearanceUseSystemFontSubtitle": "アプリのテキストにデバイスのデフォルトのフォントを使用します。",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "ja",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -391,14 +387,6 @@
   "appearanceThemeDark": "ダーク",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "ダイナミックカラー",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "壁紙の色を使用する",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "履歴の表示",
   "@appearanceHistoryView": {
@@ -2375,14 +2363,6 @@
   "downloadFrom": "ダウンロード元",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "appearanceAmoledDark": "AMOLED ダーク",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "ピュアブラックの背景",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "ヒーローアニメーション",
   "@appearanceHeroAnimations": {
@@ -5754,15 +5734,6 @@
   "queueRateLimitMessage": "This track may still be available. Wait a few minutes, reduce parallel downloads, then retry.",
   "@queueRateLimitMessage": {
     "description": "Explanation shown on a failed queue item when the download service rate limits requests"
-  },
-  "appearanceSelectAccentColor": "Select accent color {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
   },
   "logAutoScrollOn": "Auto-scroll ON",
   "@logAutoScrollOn": {

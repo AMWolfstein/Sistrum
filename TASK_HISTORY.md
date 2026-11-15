@@ -21,3 +21,4 @@
 - TOR010 — Full audit of M002 tasks, owner extras and final review
 - TOR011 — Rename non-theme mornye names in tests, scheme and docs links
 - TOR012 — Sort Cargo.lock after the crate rename
+- M001-T001 — Make Mornye the only theme setting

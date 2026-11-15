@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/theme_provider.dart';
-import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/theme/mornye_theme_wrapper.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 class _ThemeReader extends StatelessWidget {
@@ -126,7 +126,6 @@ void main() {
 
   testWidgets('only theme settings rebuild the app theme', (tester) async {
     SharedPreferences.setMockInitialValues({
-      kThemeStyleKey: AppThemeStyle.mornye.name,
       kThemeModeKey: ThemeMode.light.name,
       kMornyeGlassOutlinesKey: false,
     });
@@ -143,7 +142,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: DynamicColorWrapper(
+        child: MornyeThemeWrapper(
           builder: (light, dark, mode) {
             themes.add(light);
             return MaterialApp(
