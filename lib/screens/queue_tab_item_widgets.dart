@@ -394,7 +394,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
           children: [
             SettingsItem(
               icon: Icons.skip_next,
-              showIconInMornye: true,
               title: context.l10n.queueDownloadNext,
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -403,7 +402,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
             ),
             SettingsItem(
               icon: Icons.arrow_upward,
-              showIconInMornye: true,
               title: context.l10n.queueMoveUp,
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -412,7 +410,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
             ),
             SettingsItem(
               icon: Icons.arrow_downward,
-              showIconInMornye: true,
               title: context.l10n.queueMoveDown,
               showDivider: false,
               onTap: () {
@@ -978,9 +975,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     Widget card({bool current = false, bool playing = false}) => TrackCard(
       isSelectionMode: _isSelectionMode,
       isSelected: isSelected,
-      isCurrent: current,
-      isPlaying: playing,
-      leadingArtwork: true,
       onTap: _isSelectionMode ? () => _toggleSelection(item.id) : open,
       onLongPress: playlistDragEnabled
           ? null

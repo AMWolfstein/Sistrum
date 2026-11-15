@@ -605,7 +605,6 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
           if (!_loading) ...[
             SliverToBoxAdapter(
               child: SettingsGroup(
-                connected: true,
                 children: [
                   ListTile(
                     leading: const AppIcon(Icons.event_outlined),
@@ -665,7 +664,6 @@ class _ConcertDetailScreenState extends State<ConcertDetailScreen> {
             if (hasSetList)
               ...settingsSectionSlivers(
                 title: context.l10n.concertSetList,
-                connected: true,
                 children: [
                   ListTile(
                     leading: ClipRRect(

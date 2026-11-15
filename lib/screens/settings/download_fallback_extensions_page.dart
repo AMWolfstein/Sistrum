@@ -145,7 +145,6 @@ class _DownloadFallbackExtensionsPageState
                         extension.id,
                       );
                       return SettingsSwitchItem(
-                        icon: Icons.extension_rounded,
                         title: extension.displayName,
                         subtitle: extension.id,
                         value: isSelected,

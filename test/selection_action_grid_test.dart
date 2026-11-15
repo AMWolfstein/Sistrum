@@ -43,7 +43,6 @@ void main() {
                       icon: Icons.edit,
                       label: 'Action $index',
                       onPressed: () => tapped = index,
-                      colorScheme: Theme.of(context).colorScheme,
                     ),
                 ],
               ),
@@ -128,6 +127,5 @@ void main() {
         expect(tester.takeException(), isNull);
       }
     });
-
   }
 }

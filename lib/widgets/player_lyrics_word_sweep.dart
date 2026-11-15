@@ -272,7 +272,6 @@ class _WordHighlightedLyricLineState
 
   void _updateVisualEnd() {
     final decorativeMotion = !MediaQuery.disableAnimationsOf(context);
-    final glow = context.isMornye;
     var end = Duration.zero;
     for (final words in [
       widget.line.words,
@@ -282,9 +281,7 @@ class _WordHighlightedLyricLineState
       for (var index = 0; index < words.length; index++) {
         var wordEnd = _segmentEnd(words, index);
         if (decorativeMotion && identical(words, widget.line.words)) {
-          // Glow fades for 500ms after a held word; short-word lift may finish
-          // later than the color sweep (start + 540ms).
-          if (glow) wordEnd += const Duration(milliseconds: 500);
+          wordEnd += const Duration(milliseconds: 500);
           final liftEnd = words[index].time + const Duration(milliseconds: 540);
           if (liftEnd > wordEnd) wordEnd = liftEnd;
         }
@@ -357,10 +354,7 @@ class _WordHighlightedLyricLineState
     bool lift = true,
   }) {
     final highlightedColor = widget.colorScheme.onSurface;
-    final mornye = context.isMornye;
-    final pendingColor = mornye
-        ? Colors.white.withValues(alpha: 0.4)
-        : widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
+    final pendingColor = Colors.white.withValues(alpha: 0.4);
     return _SweepingTimedLyricText(
       segments: [for (final word in words) word.text],
       starts: [for (final word in words) word.time],
@@ -378,7 +372,7 @@ class _WordHighlightedLyricLineState
       // Sung words rise in both styles; the glow behind held words belongs
       // to Mornye's look.
       liftEnabled: lift && !MediaQuery.disableAnimationsOf(context),
-      glowEnabled: mornye,
+      glowEnabled: true,
       maxLines: widget.maxLines,
     );
   }

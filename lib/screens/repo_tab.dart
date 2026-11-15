@@ -229,7 +229,6 @@ class _RepoTabState extends ConsumerState<RepoTab> {
                 else
                   SliverToBoxAdapter(
                     child: SettingsGroup(
-                      connected: true,
                       children: filteredExtensions.asMap().entries.map((entry) {
                         final index = entry.key;
                         final ext = entry.value;
@@ -696,7 +695,6 @@ class _CategoryChip extends ConsumerWidget {
     return AppChoiceChip(
       label: Text(label),
       icon: Icon(icon, size: 18),
-      singleChoice: true,
       selected: isSelected,
       onSelected: (_) => onTap(),
     );
@@ -792,7 +790,7 @@ class _RepoListSkeleton extends StatelessWidget {
     }
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: SettingsGroup(connected: true, children: rows),
+      child: SettingsGroup(children: rows),
     );
   }
 }

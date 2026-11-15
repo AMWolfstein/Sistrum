@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_color_utilities/hct/hct.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
@@ -103,27 +102,21 @@ void main() {
       );
     });
 
-    // Material headers opt in; Mornye headers keep the tonal scheme.
-    for (final (theme, expected) in [
-      (AppTheme.dark(), neutral),
-      (MornyeTheme.build(Brightness.dark), tonal),
-    ]) {
-      ColorScheme? built;
-      await tester.pumpWidget(
-        MaterialApp(
-          // A fresh app, so the style does not tween in from the last one.
-          key: ObjectKey(theme),
-          theme: theme,
-          home: CoverPaletteBuilder(
-            imageSource: gray,
-            builder: (context, scheme) {
-              built = scheme;
-              return const SizedBox();
-            },
-          ),
+    // Headers keep the tonal scheme; Mornye shades neutral covers from the
+    // source colour instead.
+    ColorScheme? built;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
+        home: CoverPaletteBuilder(
+          imageSource: gray,
+          builder: (context, scheme) {
+            built = scheme;
+            return const SizedBox();
+          },
         ),
-      );
-      expect(built, same(expected));
-    }
+      ),
+    );
+    expect(built, same(tonal));
   });
 }

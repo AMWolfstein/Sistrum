@@ -7,7 +7,6 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/mornye_player_details_sheet.dart';
 import 'package:sistrum/widgets/player_details_sheet.dart';
 
@@ -44,7 +43,6 @@ void main() {
               body: TextButton(
                 onPressed: () => showPlayerDetailsSheet(
                   context,
-                  Theme.of(context).colorScheme,
                   metadata: metadata,
                   mediaItem: item,
                 ),
@@ -59,26 +57,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Material phones open the shared sheet with its handle', (
+  {}
+
+  testWidgets('Sistrum decodes the cover at its thumbnail size', (
     tester,
   ) async {
-    await open(tester, mornye: false);
-    final sheet = tester.widget<BottomSheet>(find.byType(BottomSheet));
-    expect(sheet.showDragHandle, isNot(true));
-    expect(find.byType(AppSheetHandle), findsOneWidget);
-    expect(find.byType(AppBottomSheet), findsOneWidget);
-    expect(find.text('Details'), findsOneWidget);
-    expect(find.text('A song · An artist'), findsOneWidget);
-    expect(find.text('An album'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-
-  {
-
-  }
-
-  testWidgets('Sistrum decodes the cover at its thumbnail size', (tester) async {
     await open(
       tester,
       mornye: true,

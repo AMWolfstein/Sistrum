@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 
 /// Square extension icon with a tinted fallback.
 class ExtensionAvatar extends StatelessWidget {
@@ -187,7 +186,7 @@ class ExtensionRow extends StatelessWidget {
                   ),
           ),
         ),
-        if (showDivider && !settingsRowsConnected(context))
+        if (showDivider)
           Divider(
             height: 1,
             thickness: 1,

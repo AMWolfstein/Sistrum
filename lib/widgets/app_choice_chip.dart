@@ -12,7 +12,6 @@ class AppChoiceChip extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onSelected,
-    this.singleChoice = false,
     this.icon,
     this.count,
   });
@@ -20,7 +19,6 @@ class AppChoiceChip extends StatelessWidget {
   final Widget label;
   final bool selected;
   final ValueChanged<bool>? onSelected;
-  final bool singleChoice;
   final Widget? icon;
   final int? count;
 
@@ -37,29 +35,6 @@ class AppChoiceChip extends StatelessWidget {
           selected: selected,
           onPressed: onSelected == null ? null : () => onSelected!(!selected),
         ),
-      );
-    }
-    if (!context.isMornye) {
-      final icon = this.icon == null ? null : symbolIconWidget(this.icon!);
-      final content = count == null
-          ? label
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [label, const SizedBox(width: 6), Text('$count')],
-            );
-      if (singleChoice) {
-        return ChoiceChip(
-          label: content,
-          avatar: icon,
-          selected: selected,
-          onSelected: onSelected,
-        );
-      }
-      return FilterChip(
-        label: content,
-        avatar: icon,
-        selected: selected,
-        onSelected: onSelected,
       );
     }
     final scheme = Theme.of(context).colorScheme;

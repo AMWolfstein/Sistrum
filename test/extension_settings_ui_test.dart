@@ -112,7 +112,7 @@ void main() {
     }
   });
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'account settings work at narrow width and large text ($mornye)',
       (tester) async {

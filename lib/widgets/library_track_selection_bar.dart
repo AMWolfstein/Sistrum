@@ -55,7 +55,6 @@ class LibraryTrackSelectionBar extends StatelessWidget {
           ? context.l10n.selectionRemoveReplayGainCount(selectedCount)
           : context.l10n.selectionReplayGainCount(selectedCount),
       onPressed: hasSelection ? () => onReplayGain(remove: remove) : null,
-      colorScheme: colorScheme,
     );
     return SelectionBottomBar(
       selectedCount: selectedCount,
@@ -77,19 +76,16 @@ class LibraryTrackSelectionBar extends StatelessWidget {
                 icon: Icons.download_for_offline_outlined,
                 label: '${context.l10n.queueFlacAction} ($flacEligibleCount)',
                 onPressed: onQueueFlac,
-                colorScheme: colorScheme,
               ),
             SelectionActionButton(
               icon: Icons.auto_fix_high_outlined,
               label: '${context.l10n.trackReEnrich} ($selectedCount)',
               onPressed: hasSelection ? onReEnrich : null,
-              colorScheme: colorScheme,
             ),
             SelectionActionButton(
               icon: Icons.swap_horiz,
               label: context.l10n.selectionConvertCount(selectedCount),
               onPressed: hasSelection ? onConvert : null,
-              colorScheme: colorScheme,
             ),
             replayGain(remove: false),
             replayGain(remove: true),

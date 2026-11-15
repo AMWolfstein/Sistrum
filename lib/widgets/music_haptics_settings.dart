@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_slider.dart';
-import 'package:sistrum/widgets/slider_value_header.dart';
 
 /// Sensitivity and strength sliders shown under the music haptics switch.
 class MusicHapticsSettings extends ConsumerStatefulWidget {
@@ -38,14 +36,7 @@ class _MusicHapticsSettingsState extends ConsumerState<MusicHapticsSettings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (context.isMornye)
-              Text('$label: $percent')
-            else
-              SliderValueHeader(
-                title: label,
-                value: percent,
-                enabled: widget.enabled,
-              ),
+            Text('$label: $percent'),
             AppSlider(
               value: value,
               divisions: 20,

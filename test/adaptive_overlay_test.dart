@@ -33,7 +33,7 @@ class _ChoiceSettings extends SettingsNotifier {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     for (final brightness in Brightness.values) {
       final theme = mornye
           ? MornyeTheme.build(brightness)

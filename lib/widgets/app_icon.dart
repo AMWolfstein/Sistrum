@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sistrum/theme/material_symbols.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// [widget] as an [AppIcon] when it is a plain [Icon], so shared components
 /// can adopt Material Symbols without changing every caller.
@@ -63,35 +61,10 @@ class AppIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = this.icon;
-    if (context.isMornye) {
-      return Icon(
-        _adaptive && icon != null ? mornyeIconFor(icon) : icon,
-        size: size,
-        color: color,
-        semanticLabel: semanticLabel,
-        shadows: shadows,
-        textDirection: textDirection,
-      );
-    }
-    final symbol = materialSymbolFor(icon);
-    if (symbol == null) {
-      return Icon(
-        icon,
-        size: size,
-        color: color,
-        semanticLabel: semanticLabel,
-        shadows: shadows,
-        textDirection: textDirection,
-      );
-    }
-    final resolvedSize = size ?? IconTheme.of(context).size ?? 24;
     return Icon(
-      symbol.icon,
+      _adaptive && icon != null ? mornyeIconFor(icon) : icon,
       size: size,
       color: color,
-      fill: fill ?? (symbol.filled ? 1 : 0),
-      // Material Symbols adjust stroke detail for the drawn size.
-      opticalSize: resolvedSize.clamp(20, 48).toDouble(),
       semanticLabel: semanticLabel,
       shadows: shadows,
       textDirection: textDirection,

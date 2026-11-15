@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/editorial_notes.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -87,9 +86,7 @@ class AlbumDescription extends StatelessWidget {
                     children: [
                       HeaderCircleButton(
                         buttonSize: 48,
-                        icon: context.isMornye
-                            ? CupertinoIcons.xmark
-                            : Icons.close,
+                        icon: CupertinoIcons.xmark,
                         tooltip: MaterialLocalizations.of(
                           context,
                         ).closeButtonTooltip,
@@ -117,7 +114,7 @@ class AlbumDescription extends StatelessWidget {
                       child: Text.rich(
                         text,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          fontSize: context.isMornye ? 18 : 16,
+                          fontSize: 18,
                           height: 1.45,
                           color: theme.colorScheme.onSurface,
                         ),
@@ -140,7 +137,7 @@ class AlbumDescription extends StatelessWidget {
     final theme = Theme.of(context);
     final more = MaterialLocalizations.of(context).moreButtonTooltip;
     final previewStyle = theme.textTheme.bodyLarge?.copyWith(
-      fontSize: context.isMornye ? 17 : 16,
+      fontSize: 17,
       height: 1.4,
       color: theme.colorScheme.onSurfaceVariant,
     );
@@ -187,7 +184,7 @@ class AlbumDescription extends StatelessWidget {
                       if (hasMore) ...[
                         const SizedBox(width: 8),
                         Text(
-                          context.isMornye ? more.toUpperCase() : more,
+                          more.toUpperCase(),
                           style: theme.textTheme.labelLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: theme.colorScheme.onSurface,

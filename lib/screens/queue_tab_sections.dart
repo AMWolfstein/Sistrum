@@ -161,10 +161,8 @@ extension _QueueTabSections on _QueueTabState {
         sections: sections,
         leadCount: leadCount,
         leadBuilder: leadBuilder,
-        rowBuilder: (index, section) => TrackCardSegment.at(
+        rowBuilder: (index, section) => KeyedSubtree(
           key: ValueKey(items[index].id),
-          index: index - section.start,
-          count: section.length,
           child: rowBuilder(index),
         ),
       ),

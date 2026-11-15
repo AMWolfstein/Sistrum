@@ -83,7 +83,6 @@ class _CollectionReorderSliverState extends State<CollectionReorderSliver> {
               },
               child: TrackCard(
                 style: TrackCardStyle.flat,
-                leadingArtwork: true,
                 leading: ClipRRect(
                   borderRadius: context.tokens.borderRadiusThumb,
                   child: track.coverUrl?.isNotEmpty == true

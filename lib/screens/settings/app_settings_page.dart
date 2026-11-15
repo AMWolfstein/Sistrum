@@ -30,10 +30,8 @@ class AppSettingsPage extends ConsumerWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionApp,
-              connected: true,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.extension,
                   title: context.l10n.optionsExtensionStore,
                   subtitle: context.l10n.optionsExtensionStoreSubtitle,
                   value: settings.showExtensionStore,
@@ -48,7 +46,6 @@ class AppSettingsPage extends ConsumerWidget {
                       .setExtensionVerificationBrowserMode(mode),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.system_update,
                   title: context.l10n.optionsCheckUpdates,
                   subtitle: context.l10n.optionsCheckUpdatesSubtitle,
                   value: settings.checkForUpdates,
@@ -69,20 +66,17 @@ class AppSettingsPage extends ConsumerWidget {
               title: context.l10n.sectionData,
               children: [
                 SettingsItem(
-                  icon: Icons.cleaning_services_outlined,
                   title: context.l10n.cleanupOrphanedDownloads,
                   subtitle: context.l10n.cleanupOrphanedDownloadsSubtitle,
                   onTap: () => _cleanupOrphanedDownloads(context, ref),
                 ),
                 SettingsItem(
-                  icon: Icons.delete_forever,
                   title: context.l10n.optionsClearHistory,
                   subtitle: context.l10n.optionsClearHistorySubtitle,
                   onTap: () =>
                       _showClearHistoryDialog(context, ref, colorScheme),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.history_toggle_off_outlined,
                   title: context.l10n.settingsSaveDownloadHistory,
                   subtitle: context.l10n.settingsSaveDownloadHistorySubtitle,
                   value: settings.saveDownloadHistory,
@@ -116,7 +110,6 @@ class AppSettingsPage extends ConsumerWidget {
               title: context.l10n.sectionDebug,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.bug_report,
                   title: context.l10n.optionsDetailedLogging,
                   subtitle: settings.enableLogging
                       ? context.l10n.optionsDetailedLoggingOn
@@ -431,14 +424,13 @@ class _VerificationBrowserModeSelector extends StatelessWidget {
             ],
           ),
         ),
-        if (!settingsRowsConnected(context))
-          Divider(
-            height: 1,
-            thickness: 1,
-            indent: 56,
-            endIndent: 20,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-          ),
+        Divider(
+          height: 1,
+          thickness: 1,
+          indent: 56,
+          endIndent: 20,
+          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
       ],
     );
     return SettingsSearchTarget(

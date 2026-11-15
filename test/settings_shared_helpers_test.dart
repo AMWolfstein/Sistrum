@@ -99,7 +99,6 @@ List<Object?> _dialogSnapshot(WidgetTester tester) {
         action.isDefault,
         action.filled,
         action.isDestructive,
-        action.outlined,
         action.style,
         tester.getRect(actions.at(index)),
       ),
@@ -499,7 +498,6 @@ void main() {
       }
       expect(tester.takeException(), isNull);
     });
-
   }
 
   testWidgets('Sistrum glass groups skip the backdrop pass', (tester) async {
@@ -567,7 +565,6 @@ void main() {
     final rows = <Widget>[const SettingsItem(title: 'Row')];
     final slivers = settingsSectionSlivers(
       title: 'Section',
-      connected: true,
       glass: true,
       children: rows,
     );
@@ -575,10 +572,10 @@ void main() {
     final header = (slivers[0] as SliverToBoxAdapter).child!;
     final group = (slivers[1] as SliverToBoxAdapter).child! as SettingsGroup;
     expect((header as SettingsSectionHeader).title, 'Section');
-    expect((group.connected, group.glass, group.margin), (true, true, null));
+    expect((group.glass, group.margin), (true, null));
     expect(group.children, same(rows));
     final plain = settingsSectionSlivers(title: 'Section', children: const []);
     final plainGroup = (plain[1] as SliverToBoxAdapter).child! as SettingsGroup;
-    expect((plainGroup.connected, plainGroup.glass), (false, false));
+    expect(plainGroup.glass, false);
   });
 }

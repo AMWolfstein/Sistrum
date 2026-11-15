@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/mornye_player_slider.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
@@ -98,105 +95,45 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
           : () => _setVolume((value - 0.05).clamp(0, 1)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: !context.isMornye
-            ? _materialSlider(context, value, enabled: volume != null)
-            : Row(
-                children: [
-                  Icon(
-                    CupertinoIcons.speaker_fill,
-                    size: 16,
-                    color: widget.foreground.withValues(alpha: 0.54),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => IgnorePointer(
-                        ignoring: volume == null,
-                        child: Opacity(
-                          opacity: volume == null ? 0.4 : 1,
-                          child: MornyePlayerSlider(
-                            value: value,
-                            activeColor: widget.foreground.withValues(
-                              alpha: 0.70,
-                            ),
-                            inactiveColor: widget.foreground.withValues(
-                              alpha: 0.12,
-                            ),
-                            onChangeStart: (_) => _dragging = true,
-                            onChanged: _setVolume,
-                            onChangeEnd: (value) {
-                              _dragging = false;
-                              _setVolume(value);
-                            },
-                          ),
-                        ),
-                      ),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.speaker_fill,
+              size: 16,
+              color: widget.foreground.withValues(alpha: 0.54),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) => IgnorePointer(
+                  ignoring: volume == null,
+                  child: Opacity(
+                    opacity: volume == null ? 0.4 : 1,
+                    child: MornyePlayerSlider(
+                      value: value,
+                      activeColor: widget.foreground.withValues(alpha: 0.70),
+                      inactiveColor: widget.foreground.withValues(alpha: 0.12),
+                      onChangeStart: (_) => _dragging = true,
+                      onChanged: _setVolume,
+                      onChangeEnd: (value) {
+                        _dragging = false;
+                        _setVolume(value);
+                      },
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Icon(
-                    CupertinoIcons.speaker_3_fill,
-                    size: 16,
-                    color: widget.foreground.withValues(alpha: 0.54),
-                  ),
-                ],
-              ),
-      ),
-    );
-    return control;
-  }
-
-  /// The expressive slider has no drag-start callback, so the pointer marks
-  /// the drag that keeps system-volume echoes from resetting the thumb.
-  Widget _materialSlider(
-    BuildContext context,
-    double value, {
-    required bool enabled,
-  }) {
-    final colors = Theme.of(context).colorScheme;
-    void release() {
-      if (!_dragging) return;
-      _dragging = false;
-      if (!_writing && mounted) setState(() => _preview = null);
-    }
-
-    return Row(
-      children: [
-        AppIcon(
-          value <= 0 ? Icons.volume_mute_rounded : Icons.volume_down_rounded,
-          size: 20,
-          color: colors.onSurfaceVariant,
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: IgnorePointer(
-            ignoring: !enabled,
-            child: Opacity(
-              opacity: enabled ? 1 : 0.4,
-              child: Listener(
-                onPointerDown: (_) => _dragging = true,
-                onPointerUp: (_) => release(),
-                onPointerCancel: (_) => release(),
-                child: AppSlider(
-                  // As thin as the seek bar above it, with a shorter handle,
-                  // so volume stays secondary to it.
-                  trackThickness: 4,
-                  thumbLength: 20,
-                  value: value,
-                  onChanged: enabled ? _setVolume : null,
-                  onChangeEnd: _setVolume,
                 ),
               ),
             ),
-          ),
+            const SizedBox(width: 10),
+            Icon(
+              CupertinoIcons.speaker_3_fill,
+              size: 16,
+              color: widget.foreground.withValues(alpha: 0.54),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        AppIcon(
-          Icons.volume_up_rounded,
-          size: 20,
-          color: colors.onSurfaceVariant,
-        ),
-      ],
+      ),
     );
+    return control;
   }
 }

@@ -43,7 +43,7 @@ void main() {
     },
   );
 
-  for (final style in ['mornye-light', 'mornye-dark', 'material']) {
+  for (final style in ['mornye-light', 'mornye-dark']) {
     testWidgets('short album notes have no More action ($style)', (
       tester,
     ) async {

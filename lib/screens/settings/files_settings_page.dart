@@ -134,7 +134,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
               title: context.l10n.setupDownloadLocationTitle,
               children: [
                 SettingsItem(
-                  icon: Icons.folder_outlined,
                   title: context.l10n.downloadDirectory,
                   subtitle: settings.downloadDirectory.isEmpty
                       ? ('Download/Sistrum')
@@ -143,7 +142,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                   showDivider: false,
                 ),
                 SettingsItem(
-                  icon: Icons.dns_outlined,
                   title: context.l10n.networkDownloadDestination,
                   subtitle: settings.networkDownloadFolder.isEmpty
                       ? context.l10n.networkUseForDownloads
@@ -156,7 +154,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 ),
                 if (settings.networkDownloadFolder.isNotEmpty)
                   SettingsItem(
-                    icon: Icons.phone_android_outlined,
                     title: context.l10n.networkUseLocalDownloads,
                     onTap: () => ref
                         .read(settingsProvider.notifier)
@@ -191,14 +188,12 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
               title: context.l10n.sectionFileSettings,
               children: [
                 SettingsItem(
-                  icon: Icons.text_fields,
                   title: context.l10n.downloadFilenameFormat,
                   subtitle: settings.filenameFormat,
                   onTap: () =>
                       _showFormatEditor(context, ref, settings.filenameFormat),
                 ),
                 SettingsItem(
-                  icon: Icons.music_note_outlined,
                   title: context.l10n.downloadSingleFilenameFormat,
                   subtitle: settings.singleFilenameFormat,
                   onTap: () => _showFormatEditor(
@@ -221,7 +216,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
               title: context.l10n.downloadFolderOrganization,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.library_music_outlined,
                   title: context.l10n.downloadSeparateSinglesFolder,
                   subtitle: settings.separateSingles
                       ? context.l10n.downloadSeparateSinglesEnabled
@@ -232,7 +226,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                       .setSeparateSingles(value),
                 ),
                 SettingsItem(
-                  icon: Icons.folder_copy_outlined,
                   title: context.l10n.downloadFolderTemplate,
                   subtitle:
                       !settings.separateSingles &&
@@ -243,7 +236,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 ),
                 if (settings.separateSingles)
                   SettingsItem(
-                    icon: Icons.folder_outlined,
                     title: context.l10n.downloadAlbumFolderStructure,
                     subtitle: _getAlbumFolderStructureLabel(
                       context,
@@ -257,7 +249,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                   ),
                 if (!settings.separateSingles)
                   SettingsItem(
-                    icon: Icons.create_new_folder_outlined,
                     title: context.l10n.downloadFolderOrganization,
                     subtitle: _getFolderOrganizationLabel(
                       context,
@@ -270,7 +261,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                     ),
                   ),
                 SettingsSwitchItem(
-                  icon: Icons.playlist_play_outlined,
                   title: context.l10n.downloadCreatePlaylistSourceFolder,
                   subtitle: _getPlaylistFolderSubtitle(settings),
                   value: settings.createPlaylistFolder,
@@ -279,7 +269,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                       .setCreatePlaylistFolder(value),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.person_search_outlined,
                   title: context.l10n.downloadUseAlbumArtistForFolders,
                   subtitle: settings.useAlbumArtistForFolders
                       ? context
@@ -294,7 +283,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                       .setUseAlbumArtistForFolders(value),
                 ),
                 SettingsItem(
-                  icon: Icons.filter_alt_outlined,
                   title: context.l10n.downloadArtistNameFilters,
                   subtitle: _getArtistFolderFilterSubtitle(
                     context,
@@ -315,7 +303,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 ),
                 if (_artistFolderFiltersExpanded) ...[
                   SettingsSwitchItem(
-                    icon: Icons.person_outline,
                     title: context.l10n.downloadUsePrimaryArtistOnly,
                     subtitle: settings.usePrimaryArtistOnly
                         ? context.l10n.downloadUsePrimaryArtistOnlyEnabled
@@ -326,7 +313,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                         .setUsePrimaryArtistOnly(value),
                   ),
                   SettingsSwitchItem(
-                    icon: Icons.group_remove_outlined,
                     title: context.l10n.downloadFilterContributing,
                     subtitle: settings.filterContributingArtistsInAlbumArtist
                         ? context.l10n.downloadFilterContributingEnabled
@@ -345,7 +331,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
               title: context.l10n.sectionExistingDownloads,
               children: [
                 SettingsItem(
-                  icon: Icons.drive_file_move_outlined,
                   title: context.l10n.reorganizeLibraryTitle,
                   subtitle: context.l10n.reorganizeLibrarySubtitle,
                   onTap: () => _reorganizeExistingDownloads(context, ref),
@@ -359,7 +344,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 title: context.l10n.sectionStorageAccess,
                 children: [
                   SettingsSwitchItem(
-                    icon: Icons.folder_special_outlined,
                     title: context.l10n.allFilesAccess,
                     subtitle: _hasAllFilesAccess
                         ? context.l10n.allFilesAccessEnabledSubtitle

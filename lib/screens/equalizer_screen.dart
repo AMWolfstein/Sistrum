@@ -249,7 +249,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
               SettingsGroup(
                 children: [
                   SettingsSwitchItem(
-                    icon: Icons.graphic_eq,
                     title: l10n.equalizerEnable,
                     titleTrailing: const BetaBadge(),
                     value: settings.enabled,
@@ -325,7 +324,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
           section(SettingsSectionHeader(title: l10n.equalizerTone)),
           section(
             SettingsGroup(
-              connected: true,
               children: [
                 _SliderTile(
                   icon: Icons.volume_up_outlined,
@@ -373,10 +371,8 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
           section(SettingsSectionHeader(title: l10n.equalizerDynamics)),
           section(
             SettingsGroup(
-              connected: true,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.vertical_align_bottom,
                   title: l10n.equalizerHeadroom,
                   subtitle: l10n.equalizerHeadroomDescription,
                   value: settings.autoHeadroom,
@@ -388,7 +384,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.health_and_safety_outlined,
                   title: l10n.equalizerLimiter,
                   subtitle: l10n.equalizerLimiterDescription,
                   value: settings.limiter,
@@ -397,7 +392,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.compress,
                   title: l10n.equalizerCompressor,
                   subtitle: l10n.equalizerCompressorDescription,
                   value: settings.compressor,

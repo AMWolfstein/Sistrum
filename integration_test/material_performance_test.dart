@@ -28,8 +28,7 @@ void main() {
             body: Center(
               child: ValueListenableBuilder<bool>(
                 valueListenable: playing,
-                builder: (_, value, _) => PlaybackSeekSlider(
-                  playing: value,
+                builder: (_, _, _) => PlaybackSeekSlider(
                   position: const Duration(seconds: 40),
                   duration: const Duration(minutes: 4),
                   onSeek: (target) async => seeks.add(target),

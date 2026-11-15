@@ -272,8 +272,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       inherit: true,
       color: foreground,
       fontFamily:
-          fontFamily ??
-          (useSystemFont ? type.textStyle.fontFamily : 'Inter'),
+          fontFamily ?? (useSystemFont ? type.textStyle.fontFamily : 'Inter'),
     );
     final display = type.navLargeTitleTextStyle.copyWith(
       inherit: true,
@@ -485,7 +484,6 @@ class MornyeSettingsTheme extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) return child;
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final background = dark ? Colors.black : const Color(0xfff2f2f7);

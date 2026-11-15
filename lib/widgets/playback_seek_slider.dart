@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
-import 'package:sistrum/widgets/expressive_seek_track.dart';
 import 'package:sistrum/widgets/mornye_player_slider.dart';
 
 /// Previews scrubbing locally and seeks once when the gesture ends.
@@ -10,7 +8,6 @@ class PlaybackSeekSlider extends StatefulWidget {
   final Duration duration;
   final Future<void> Function(Duration) onSeek;
   final PlaybackSeekPreview? preview;
-  final bool playing;
 
   /// player capsule.
   final bool hairline;
@@ -25,7 +22,6 @@ class PlaybackSeekSlider extends StatefulWidget {
     required this.duration,
     required this.onSeek,
     this.preview,
-    this.playing = false,
     this.hairline = false,
     this.edgeAligned = false,
   });
@@ -89,71 +85,45 @@ class _PlaybackSeekSliderState extends State<PlaybackSeekSlider> {
     final durationMs = widget.duration.inMilliseconds;
     final enabled = durationMs > 0;
     final maxMs = enabled ? durationMs.toDouble() : 1.0;
-    if (context.isMornye) {
-      final currentMs = (_previewMs ?? widget.position.inMilliseconds)
-          .clamp(0, maxMs)
-          .toDouble();
-      String percentage(double milliseconds) =>
-          '${(milliseconds / maxMs * 100).clamp(0, 100).round()}%';
-      return Semantics(
-        slider: true,
-        enabled: enabled,
-        excludeSemantics: true,
-        value: percentage(currentMs),
-        increasedValue: enabled
-            ? percentage((currentMs + 5000).clamp(0, maxMs).toDouble())
-            : null,
-        decreasedValue: enabled
-            ? percentage((currentMs - 5000).clamp(0, maxMs).toDouble())
-            : null,
-        onIncrease: enabled
-            ? () => _adjust((currentMs + 5000).clamp(0, maxMs).toDouble())
-            : null,
-        onDecrease: enabled
-            ? () => _adjust((currentMs - 5000).clamp(0, maxMs).toDouble())
-            : null,
-        child: IgnorePointer(
-          ignoring: !enabled,
-          child: MornyePlayerSlider(
-            activeColor:
-                SliderTheme.of(context).activeTrackColor ?? Colors.white,
-            inactiveColor:
-                SliderTheme.of(context).inactiveTrackColor ?? Colors.white12,
-            value: enabled ? currentMs : 0,
-            max: maxMs,
-            trackHeight: widget.hairline ? 2 : 6,
-            height: widget.hairline ? 10 : 44,
-            inset: widget.hairline || widget.edgeAligned
-                ? 0
-                : MornyePlayerSlider.horizontalInset,
-            onChangeStart: _start,
-            onChanged: _preview,
-            onChangeEnd: _commit,
-          ),
+    final currentMs = (_previewMs ?? widget.position.inMilliseconds)
+        .clamp(0, maxMs)
+        .toDouble();
+    String percentage(double milliseconds) =>
+        '${(milliseconds / maxMs * 100).clamp(0, 100).round()}%';
+    return Semantics(
+      slider: true,
+      enabled: enabled,
+      excludeSemantics: true,
+      value: percentage(currentMs),
+      increasedValue: enabled
+          ? percentage((currentMs + 5000).clamp(0, maxMs).toDouble())
+          : null,
+      decreasedValue: enabled
+          ? percentage((currentMs - 5000).clamp(0, maxMs).toDouble())
+          : null,
+      onIncrease: enabled
+          ? () => _adjust((currentMs + 5000).clamp(0, maxMs).toDouble())
+          : null,
+      onDecrease: enabled
+          ? () => _adjust((currentMs - 5000).clamp(0, maxMs).toDouble())
+          : null,
+      child: IgnorePointer(
+        ignoring: !enabled,
+        child: MornyePlayerSlider(
+          activeColor: SliderTheme.of(context).activeTrackColor ?? Colors.white,
+          inactiveColor:
+              SliderTheme.of(context).inactiveTrackColor ?? Colors.white12,
+          value: enabled ? currentMs : 0,
+          max: maxMs,
+          trackHeight: widget.hairline ? 2 : 6,
+          height: widget.hairline ? 10 : 44,
+          inset: widget.hairline || widget.edgeAligned
+              ? 0
+              : MornyePlayerSlider.horizontalInset,
+          onChangeStart: _start,
+          onChanged: _preview,
+          onChangeEnd: _commit,
         ),
-      );
-    }
-    return ExpressiveSeekTrack(
-      playing:
-          widget.playing &&
-          enabled &&
-          widget.position < widget.duration &&
-          _previewMs == null,
-      child: Slider(
-        value: enabled
-            ? (_previewMs ?? widget.position.inMilliseconds.toDouble()).clamp(
-                0,
-                maxMs,
-              )
-            : 0,
-        max: maxMs,
-        // Keeps the default 48dp height around the 20dp thumb.
-        padding: widget.edgeAligned
-            ? const EdgeInsets.symmetric(vertical: 14)
-            : null,
-        onChangeStart: enabled ? _start : null,
-        onChanged: enabled ? _preview : null,
-        onChangeEnd: enabled ? _commit : null,
       ),
     );
   }

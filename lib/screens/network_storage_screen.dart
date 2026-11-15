@@ -519,7 +519,6 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                             icon: context.isMornye
                                 ? CupertinoIcons.cloud
                                 : Icons.dns_outlined,
-                            showIconInMornye: true,
                             title: c.name,
                             subtitle: '${_kindLabel(c)} · ${c.root.host}',
                             onTap: () => _open(c),
@@ -587,7 +586,6 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
                             icon: entry.directory
                                 ? Icons.folder_outlined
                                 : Icons.music_note,
-                            showIconInMornye: true,
                             title: _entryName(entry),
                             subtitle: entry.directory
                                 ? null

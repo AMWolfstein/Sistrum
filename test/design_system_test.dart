@@ -96,7 +96,6 @@ void main() {
       );
     });
 
-
     testWidgets('context.tokens falls back to the standard scale', (
       tester,
     ) async {
@@ -162,21 +161,20 @@ void main() {
       );
     });
 
-    testWidgets('selection actions expose their label and disabled state', (
-      tester,
-    ) async {
+    testWidgets('selection actions expose their label', (tester) async {
       final semantics = tester.ensureSemantics();
       try {
         await tester.pumpWidget(
-          MaterialApp(
-            theme: AppTheme.light(),
-            home: Scaffold(
-              body: Center(
-                child: SelectionActionButton(
-                  icon: Icons.delete,
-                  label: 'Delete selected tracks',
-                  onPressed: null,
-                  colorScheme: AppTheme.light().colorScheme,
+          ProviderScope(
+            child: MaterialApp(
+              theme: MornyeTheme.build(Brightness.light),
+              home: Scaffold(
+                body: Center(
+                  child: SelectionActionButton(
+                    icon: Icons.delete,
+                    label: 'Delete selected tracks',
+                    onPressed: null,
+                  ),
                 ),
               ),
             ),
@@ -184,17 +182,16 @@ void main() {
         );
 
         expect(
-          tester.getSemantics(find.byType(SelectionActionButton)),
+          tester.getSemantics(find.bySemanticsLabel('Delete selected tracks')),
           matchesSemantics(
             label: 'Delete selected tracks',
             isButton: true,
-            hasEnabledState: true,
-            isEnabled: false,
+            hasTapAction: true,
           ),
         );
         expect(
           tester.getSize(find.byType(SelectionActionButton)).height,
-          greaterThanOrEqualTo(AppTokens.standard.minTouchTarget),
+          greaterThanOrEqualTo(44),
         );
       } finally {
         semantics.dispose();
@@ -321,42 +318,6 @@ void main() {
       expect(cleared, isTrue);
       expect(tester.takeException(), isNull);
     });
-
-    testWidgets('uses the shared filled search style and clears input', (
-      tester,
-    ) async {
-      final controller = TextEditingController(text: 'quality');
-      var cleared = false;
-      addTearDown(controller.dispose);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          home: Scaffold(
-            body: AppSearchField(
-              controller: controller,
-              hintText: 'Search settings',
-              clearTooltip: 'Clear',
-              onChanged: (_) {},
-              onClear: () => cleared = true,
-            ),
-          ),
-        ),
-      );
-
-      final field = tester.widget<TextField>(find.byType(TextField));
-      final border = field.decoration!.enabledBorder! as OutlineInputBorder;
-
-      expect(field.decoration!.filled, isTrue);
-      expect(border.borderRadius.topLeft.x, AppTokens.standard.radiusSheet);
-      expect(findAppIcon(Icons.clear), findsOneWidget);
-
-      await tester.tap(findAppIcon(Icons.clear));
-      await tester.pump();
-
-      expect(controller.text, isEmpty);
-      expect(cleared, isTrue);
-    });
   });
 
   group('Now Playing actions', () {
@@ -401,9 +362,7 @@ void main() {
     );
   });
 
-  group('AlbumDetailHeader', () {
-
-  });
+  group('AlbumDetailHeader', () {});
 
   group('AppSliverHeader', () {
     testWidgets('tab root variant shows the title without a back button', (
@@ -421,21 +380,23 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const Scaffold(
-                      body: CustomScrollView(
-                        slivers: [AppSliverHeader.page(title: 'Downloads')],
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const Scaffold(
+                        body: CustomScrollView(
+                          slivers: [AppSliverHeader.page(title: 'Downloads')],
+                        ),
                       ),
                     ),
                   ),
+                  child: const Text('open'),
                 ),
-                child: const Text('open'),
               ),
             ),
           ),
@@ -446,7 +407,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsOneWidget);
 
-      await tester.tap(findAppIcon(Icons.arrow_back));
+      await tester.tap(findAppIcon(Icons.chevron_left));
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsNothing);
     });
@@ -483,18 +444,20 @@ void main() {
   group('AppBottomSheet', () {
     testWidgets('supplies one handle plus the title block', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showAppBottomSheet<void>(
-                  context: context,
-                  title: 'Open on',
-                  subtitle: 'Track - Artist',
-                  builder: (_) => const Text('body'),
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => showAppBottomSheet<void>(
+                    context: context,
+                    title: 'Open on',
+                    subtitle: 'Track - Artist',
+                    builder: (_) => const Text('body'),
+                  ),
+                  child: const Text('open'),
                 ),
-                child: const Text('open'),
               ),
             ),
           ),

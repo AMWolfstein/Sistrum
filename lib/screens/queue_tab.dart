@@ -578,10 +578,8 @@ class _QueueTabState extends ConsumerState<QueueTab> {
             padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
             sliver: SliverList.builder(
               itemCount: ids.length,
-              itemBuilder: (context, index) => TrackCardSegment.at(
+              itemBuilder: (context, index) => KeyedSubtree(
                 key: ValueKey(ids[index]),
-                index: index,
-                count: ids.length,
                 child: _QueueItemSliverRow(
                   itemId: ids[index],
                   colorScheme: colors,

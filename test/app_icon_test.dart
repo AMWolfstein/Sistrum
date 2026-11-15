@@ -47,20 +47,6 @@ void main() {
     expect(materialSymbolFor(CupertinoIcons.heart), isNull);
   });
 
-  testWidgets('Material draws the rounded symbol with the legacy fill', (
-    tester,
-  ) async {
-    await tester.pumpWidget(_host(const AppIcon(Icons.favorite_border)));
-    final icon = _drawnIcon(tester);
-    expect(icon.icon, Symbols.favorite_rounded);
-    expect(icon.fill, 0);
-
-    await tester.pumpWidget(_host(const AppIcon(Icons.favorite, size: 18)));
-    final filled = _drawnIcon(tester);
-    expect(filled.fill, 1);
-    expect(filled.opticalSize, 20);
-  });
-
   testWidgets('Sistrum keeps the original glyph or its Cupertino mapping', (
     tester,
   ) async {
@@ -81,27 +67,6 @@ void main() {
     expect(symbolIconWidget(plain), isA<AppIcon>());
     const other = SizedBox();
     expect(identical(symbolIconWidget(other), other), isTrue);
-  });
-
-  testWidgets('AppIconButton uses the expressive button for default sizes', (
-    tester,
-  ) async {
-    var taps = 0;
-    await tester.pumpWidget(
-      _host(
-        AppIconButton(
-          tooltip: 'Close',
-          icon: const Icon(Icons.close),
-          onPressed: () => taps++,
-        ),
-      ),
-    );
-    expect(find.byType(M3EIconButton), findsOneWidget);
-    expect(find.byType(IconButton), findsNothing);
-    expect(_drawnIcon(tester).icon, Symbols.close_rounded);
-    await tester.tap(find.byType(M3EIconButton));
-    await tester.pumpAndSettle();
-    expect(taps, 1);
   });
 
   testWidgets('AppIconButton keeps IconButton for dense, Sistrum and reduced '

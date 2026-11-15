@@ -477,7 +477,6 @@ class _FetchingProgressDialogState extends State<_FetchingProgressDialog> {
 
     return AppAlertDialog(
       backgroundColor: colorScheme.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

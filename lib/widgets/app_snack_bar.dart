@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -72,7 +71,7 @@ class _TransientSnackBar extends SnackBar {
   }
 }
 
-/// Reports a failure to open a local file with a plain Material snackbar.
+/// Reports a failure to open a local file with a plain snackbar.
 void showCannotOpenFileSnackBar(BuildContext context, Object error) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -92,18 +91,6 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showAppSnackBar(
   SnackBarAction? action,
 }) {
   final messenger = ScaffoldMessenger.of(context);
-  if (!context.isMornye) {
-    return messenger.showSnackBar(
-      SnackBar(
-        content: content,
-        duration: duration,
-        behavior: behavior,
-        action: action,
-        persist: false,
-        showCloseIcon: true,
-      ),
-    );
-  }
   final theme = Theme.of(context);
   final reduceMotion = MediaQuery.disableAnimationsOf(context);
   final snackBar = _MornyeSnackBar(

@@ -192,11 +192,6 @@ class _LibrarySourceSettingsItem extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1 : 0.5,
       child: SettingsItem(
-        icon: source.path.startsWith('network://')
-            ? Icons.dns_outlined
-            : source.isRemovable
-            ? Icons.usb_rounded
-            : Icons.folder_outlined,
         title: title,
         titleTrailing: source.isRemovable
             ? Tooltip(
@@ -226,7 +221,6 @@ class _LibrarySourceSettingsItem extends StatelessWidget {
                 ),
               ),
             AppSwitch(
-              adaptive: true,
               semanticLabel: title,
               value: source.enabled,
               onChanged: enabled ? onEnabledChanged : null,

@@ -7,10 +7,11 @@ import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 
 void main() {
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('mixed batch retains the 48 kHz option ($mornye)', (
       tester,
     ) async {
@@ -55,8 +56,9 @@ void main() {
     'batch conversion keeps a valid context after its launcher is removed',
     (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
+        ProviderScope(
           child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -84,7 +86,7 @@ void main() {
       await tester.tap(convertButton);
       await tester.pumpAndSettle();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(AppAlertDialog), findsOneWidget);
       expect(
         find.textContaining('Original files will be deleted'),
         findsOneWidget,

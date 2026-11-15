@@ -5,13 +5,10 @@ import 'package:sistrum/services/hires_check_service.dart';
 import 'package:sistrum/services/audio_analysis_jobs.dart';
 import 'package:sistrum/services/network_audio_analysis_input.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 /// On-demand sampled spectrum and bit-depth analysis for one FLAC/WAV file.
 class HiResCheckCard extends StatefulWidget {
@@ -94,8 +91,6 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final result = _result;
-    final mornye = context.isMornye;
-
     return AppContentCard(
       elevation: 0,
       color: settingsGroupColor(context),
@@ -104,7 +99,7 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
         side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Padding(
-        padding: EdgeInsets.all(mornye ? 20 : 16),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -124,11 +119,9 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
                   SizedBox(
                     width: 20,
                     height: 20,
-                    child: mornye
-                        ? const CupertinoActivityIndicator()
-                        : const AppLoadingIndicator(size: 20, strokeWidth: 2.5),
+                    child: const CupertinoActivityIndicator(),
                   )
-                else if (mornye && (result != null || _error != null))
+                else if ((result != null || _error != null))
                   Tooltip(
                     message: l10n.audioAnalysisRescan,
                     child: CupertinoButton(
@@ -170,20 +163,13 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: mornye
-                    ? AppActionButton(
-                        outlined: true,
-                        tonal: true,
-                        onPressed: _check,
-                        icon: const Icon(Icons.search),
-                        label: Text(l10n.hiResCheckRun),
-                      )
-                    : ExpressiveButton(
-                        tonal: true,
-                        onPressed: _check,
-                        icon: const Icon(Icons.search, size: 20),
-                        child: Text(l10n.hiResCheckRun),
-                      ),
+                child: AppActionButton(
+                  outlined: true,
+                  tonal: true,
+                  onPressed: _check,
+                  icon: const Icon(Icons.search),
+                  label: Text(l10n.hiResCheckRun),
+                ),
               ),
             ] else if (!result.supported)
               _secondaryText(l10n.hiResCheckUnsupported, cs)

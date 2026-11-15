@@ -3,12 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
-import 'package:sistrum/widgets/app_checkbox.dart';
-import 'package:sistrum/widgets/app_text_field.dart';
 import '../l10n/app_localizations.dart';
 import 'package:sistrum/services/batch_metadata_re_enrich.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 
 Future<ReEnrichFieldSelection?> showReEnrichFieldDialog(
   BuildContext context, {
@@ -259,55 +256,34 @@ class _ReEnrichFieldSheetState extends State<_ReEnrichFieldSheet> {
                     if (index > 0) const Divider(height: 1),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                      child: context.isMornye
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _manualLabelFor(
-                                    manualBatchMetadataFields[index],
-                                    l10n,
-                                  ),
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                                const SizedBox(height: 6),
-                                CupertinoTextField(
-                                  controller:
-                                      _manualControllers[manualBatchMetadataFields[index]],
-                                  onChanged: (_) => setState(() {}),
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: MornyeTheme.controlFill(context),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : AppTextField(
-                              controller:
-                                  _manualControllers[manualBatchMetadataFields[index]],
-                              onChanged: (_) => setState(() {}),
-                              outlined: true,
-                              label: _manualLabelFor(
-                                manualBatchMetadataFields[index],
-                                l10n,
-                              ),
-                              decoration: InputDecoration(
-                                labelText: _manualLabelFor(
-                                  manualBatchMetadataFields[index],
-                                  l10n,
-                                ),
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                              ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _manualLabelFor(
+                              manualBatchMetadataFields[index],
+                              l10n,
                             ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 6),
+                          CupertinoTextField(
+                            controller:
+                                _manualControllers[manualBatchMetadataFields[index]],
+                            onChanged: (_) => setState(() {}),
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: MornyeTheme.controlFill(context),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ],
@@ -345,15 +321,6 @@ class _ReEnrichFieldSheetState extends State<_ReEnrichFieldSheet> {
   }
 
   Widget _options({required List<Widget> children, bool grouped = true}) {
-    if (!context.isMornye) {
-      return SettingsGroup(
-        connected: true,
-        children: [
-          for (final child in children)
-            if (child is! Divider) child,
-        ],
-      );
-    }
     final content = Column(mainAxisSize: MainAxisSize.min, children: children);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: grouped ? 16 : 4, vertical: 4),
@@ -376,19 +343,6 @@ class _ReEnrichFieldSheetState extends State<_ReEnrichFieldSheet> {
   }) {
     void select() => setState(() => _mode = mode);
     final scheme = Theme.of(context).colorScheme;
-    if (!context.isMornye) {
-      return ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        selected: _mode == mode,
-        selectedColor: scheme.onSurface,
-        trailing: _mode == mode
-            ? Icon(Icons.check, color: scheme.primary)
-            : null,
-        onTap: select,
-      );
-    }
     return Semantics(
       selected: _mode == mode,
       child: CupertinoButton(
@@ -436,15 +390,6 @@ class _ReEnrichFieldSheetState extends State<_ReEnrichFieldSheet> {
     required ValueChanged<bool?> onChanged,
     IconData? icon,
   }) {
-    if (!context.isMornye) {
-      return AppCheckboxListTile(
-        title: Text(title),
-        value: value,
-        onChanged: onChanged,
-        secondary: icon == null ? null : Icon(icon, size: 20),
-        controlAffinity: ListTileControlAffinity.leading,
-      );
-    }
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       checked: value,

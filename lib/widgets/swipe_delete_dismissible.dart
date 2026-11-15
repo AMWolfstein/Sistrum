@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/track_card.dart';
 
 /// End-to-start swipe that removes a track row over a delete background.
 ///
-/// The background takes the row's [TrackCardSegment] corners. With expressive
-/// motion the icon grows with the swipe and the fill deepens to the error
-/// color once letting go would dismiss. Mornye and reduced motion keep the
-/// static background.
+/// With expressive motion the icon grows with the swipe and the fill deepens
+/// to the error color once letting go would dismiss. Mornye and reduced
+/// motion keep the static background.
 class SwipeDeleteDismissible extends StatefulWidget {
   const SwipeDeleteDismissible({
     super.key,
@@ -41,11 +39,8 @@ class _SwipeDeleteDismissibleState extends State<SwipeDeleteDismissible> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final expressive = materialExpressiveEnabled(context);
-    final radius =
-        TrackCardSegment.radiusOf(context) ?? BorderRadius.circular(12);
-    final margin =
-        TrackCardSegment.marginOf(context) ??
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 4);
+    final radius = BorderRadius.circular(12);
+    const margin = EdgeInsets.symmetric(horizontal: 16, vertical: 4);
     Widget background({required bool reached, required double progress}) {
       final scale = 0.7 + 0.45 * (progress / _threshold).clamp(0.0, 1.0);
       return AnimatedContainer(

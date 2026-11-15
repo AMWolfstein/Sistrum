@@ -13,7 +13,7 @@ import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/playback_feedback.dart';
 
 void main() {
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('playback errors show themed feedback (Mornye: $mornye)', (
       tester,
     ) async {

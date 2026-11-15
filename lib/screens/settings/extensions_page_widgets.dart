@@ -133,7 +133,6 @@ class _ExtensionPriorityLink extends ConsumerWidget {
     return Opacity(
       opacity: enabled ? 1 : 0.5,
       child: SettingsItem(
-        icon: icon,
         title: title,
         subtitle: enabled
             ? subtitle
@@ -175,7 +174,6 @@ class _SearchProviderSelector extends ConsumerWidget {
     return Opacity(
       opacity: hasAnyProvider ? 1 : 0.5,
       child: SettingsItem(
-        icon: Icons.manage_search,
         title: context.l10n.extensionsSearchProvider,
         subtitle: hasAnyProvider
             ? currentProviderName
@@ -267,7 +265,6 @@ class _HomeFeedProviderSelector extends ConsumerWidget {
     }
 
     return SettingsItem(
-      icon: Icons.explore_outlined,
       title: context.l10n.extensionsHomeFeedProvider,
       subtitle: !hasAnyProvider && !homeFeedDisabled
           ? context.l10n.extensionsNoHomeFeedExtensions

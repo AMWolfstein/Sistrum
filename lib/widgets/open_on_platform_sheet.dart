@@ -21,11 +21,9 @@ class OpenOnPlatformSheet extends StatefulWidget {
     String spotifyId = '',
     String isrc = '',
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
     return showAppBottomSheet<void>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainerHigh,
       title: context.l10n.trackOpenOn,
       maxHeightFactor: 0.7,
       builder: (_) => OpenOnPlatformSheet(spotifyId: spotifyId, isrc: isrc),

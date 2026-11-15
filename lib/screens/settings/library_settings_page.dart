@@ -466,7 +466,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
             child: SettingsGroup(
               children: [
                 SettingsItem(
-                  icon: Icons.grid_view_rounded,
                   title: context.l10n.libraryDefaultView,
                   subtitle: _getDefaultViewLabel(
                     context,
@@ -478,7 +477,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                   ),
                 ),
                 SettingsItem(
-                  icon: Icons.graphic_eq_rounded,
                   title: context.l10n.trackAudioQuality,
                   subtitle: _getQualityLabelModeLabel(
                     context,
@@ -535,10 +533,8 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
           ),
           SliverToBoxAdapter(
             child: SettingsGroup(
-              connected: true,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.library_music_outlined,
                   title: context.l10n.libraryEnableLocalLibrary,
                   subtitle: settings.localLibraryEnabled
                       ? context.l10n.libraryEnableLocalLibrarySubtitle
@@ -591,7 +587,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                 Opacity(
                   opacity: settings.localLibraryEnabled ? 1.0 : 0.5,
                   child: SettingsItem(
-                    icon: Icons.create_new_folder_outlined,
                     title: context.l10n.libraryAddFolder,
                     subtitle: librarySources.isEmpty
                         ? context.l10n.libraryFolderHint
@@ -602,7 +597,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                   ),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.content_copy_outlined,
                   title: context.l10n.libraryShowDuplicateIndicator,
                   subtitle: settings.localLibraryShowDuplicates
                       ? context.l10n.libraryShowDuplicateIndicatorSubtitle
@@ -614,7 +608,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                       .setLocalLibraryShowDuplicates(value),
                 ),
                 SettingsItem(
-                  icon: Icons.difference_outlined,
                   title: context.l10n.libraryReviewDuplicates,
                   subtitle: context.l10n.libraryReviewDuplicatesSubtitle,
                   onTap: () => DuplicateReviewSheet.show(context),
@@ -622,7 +615,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                 Opacity(
                   opacity: settings.localLibraryEnabled ? 1.0 : 0.5,
                   child: SettingsItem(
-                    icon: Icons.autorenew_rounded,
                     title: context.l10n.libraryAutoScan,
                     subtitle: _getAutoScanLabel(
                       context,
@@ -729,7 +721,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                       !_isLoadingReEnrich &&
                       (libraryState.totalCount > 0 || hasDownloads);
                   return SettingsGroup(
-                    connected: true,
                     children: [
                       if (libraryState.isScanning)
                         _ScanProgressTile(
@@ -747,7 +738,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                         Opacity(
                           opacity: librarySources.isNotEmpty ? 1.0 : 0.5,
                           child: SettingsItem(
-                            icon: Icons.refresh,
                             title: context.l10n.libraryScan,
                             subtitle: librarySources.isEmpty
                                 ? context.l10n.libraryScanSelectFolderFirst
@@ -760,7 +750,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                         Opacity(
                           opacity: librarySources.isNotEmpty ? 1.0 : 0.5,
                           child: SettingsItem(
-                            icon: Icons.sync,
                             title: context.l10n.libraryForceFullScan,
                             subtitle: context.l10n.libraryForceFullScanSubtitle,
                             onTap: librarySources.isNotEmpty
@@ -773,7 +762,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                               ? 1.0
                               : 0.5,
                           child: SettingsItem(
-                            icon: Icons.travel_explore,
                             title: context.l10n.libraryReEnrichAll,
                             subtitle: context.l10n.libraryReEnrichAllSubtitle,
                             trailing: _isLoadingReEnrich
@@ -791,7 +779,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                             ? 1.0
                             : 0.5,
                         child: SettingsItem(
-                          icon: Icons.manage_search,
                           title: context.l10n.libraryFindMovedDownloads,
                           subtitle:
                               context.l10n.libraryFindMovedDownloadsSubtitle,
@@ -809,7 +796,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                             ? 1.0
                             : 0.5,
                         child: SettingsItem(
-                          icon: Icons.cleaning_services_outlined,
                           title: context.l10n.libraryCleanupMissingFiles,
                           subtitle:
                               context.l10n.libraryCleanupMissingFilesSubtitle,
@@ -825,7 +811,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                       Opacity(
                         opacity: libraryState.totalCount > 0 ? 1.0 : 0.5,
                         child: SettingsItem(
-                          icon: Icons.delete_outline,
                           title: context.l10n.libraryClear,
                           subtitle: context.l10n.libraryClearSubtitle,
                           onTap: libraryState.totalCount > 0

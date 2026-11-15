@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/local_playback.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
@@ -52,12 +50,6 @@ class TrackListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    // Material rows mark the current track; Mornye rows show no
-    // current-track state.
-    final playback = context.isMornye
-        ? null
-        : ref.watch(catalogTrackPlaybackUiProvider(catalogTrackKey(track)));
-
     final isQueued = ref.watch(
       downloadQueueLookupProvider.select(
         (lookup) => lookup.byTrackId.containsKey(track.id),
@@ -85,9 +77,6 @@ class TrackListTile extends ConsumerWidget {
       style: TrackCardStyle.flat,
       isSelectionMode: isSelectionMode,
       isSelected: isSelected,
-      isCurrent: playback?.isCurrent ?? false,
-      isPlaying: playback?.isPlaying ?? false,
-      leadingArtwork: leadingArtwork,
       leading: leading,
       title: track.name,
       subtitle: TrackMetadataBadgesLine(

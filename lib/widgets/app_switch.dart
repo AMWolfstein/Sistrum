@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoColors;
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 
 /// One switch style for settings, extension controls and editing sheets.
@@ -12,13 +11,11 @@ class AppSwitch extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
-    this.adaptive = false,
     this.semanticLabel,
   });
 
   final bool value;
   final ValueChanged<bool>? onChanged;
-  final bool adaptive;
   final String? semanticLabel;
 
   @override
@@ -33,12 +30,6 @@ class AppSwitch extends StatelessWidget {
         ),
       );
     }
-    if (!context.isMornye) {
-      return adaptive
-          ? Switch.adaptive(value: value, onChanged: onChanged)
-          : Switch(value: value, onChanged: onChanged);
-    }
-
     return _MornyeSwitch(
       value: value,
       onChanged: onChanged,
@@ -174,7 +165,6 @@ class AppSwitchListTile extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.contentPadding,
-    this.adaptive = false,
   });
 
   final bool value;
@@ -182,27 +172,9 @@ class AppSwitchListTile extends StatelessWidget {
   final Widget title;
   final Widget? subtitle;
   final EdgeInsetsGeometry? contentPadding;
-  final bool adaptive;
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye && !materialExpressiveEnabled(context)) {
-      return adaptive
-          ? SwitchListTile.adaptive(
-              value: value,
-              onChanged: onChanged,
-              title: title,
-              subtitle: subtitle,
-              contentPadding: contentPadding,
-            )
-          : SwitchListTile(
-              value: value,
-              onChanged: onChanged,
-              title: title,
-              subtitle: subtitle,
-              contentPadding: contentPadding,
-            );
-    }
     return MergeSemantics(
       child: ListTile(
         title: title,

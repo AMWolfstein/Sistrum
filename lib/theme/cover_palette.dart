@@ -10,7 +10,6 @@ import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/quantize/quantizer_celebi.dart';
 import 'package:material_color_utilities/score/score.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 
 Future<List<List<int>>> _quantizePaletteInIsolate(Uint8List bytes) async {
@@ -543,7 +542,6 @@ class _CoverPaletteBuilderState extends State<CoverPaletteBuilder> {
   ColorScheme? _scheme;
   String? _resolvedSource;
   Brightness? _resolvedBrightness;
-  bool? _resolvedNeutral;
   int _resolveGeneration = 0;
 
   @override
@@ -563,36 +561,20 @@ class _CoverPaletteBuilderState extends State<CoverPaletteBuilder> {
   void _maybeResolve() {
     final source = widget.imageSource;
     final brightness = Theme.of(context).brightness;
-    // Material headers give black and white covers a neutral scheme. Mornye
-    // keeps the tonal one and shades neutral covers from the source colour.
-    final neutral = !context.isMornye;
     if (source == null || source.isEmpty) {
       _resolveGeneration++;
       _resolvedSource = null;
       _resolvedBrightness = null;
-      _resolvedNeutral = null;
       _scheme = null;
       return;
     }
     final requestGeneration = ++_resolveGeneration;
-    if (_resolvedSource != source ||
-        _resolvedBrightness != brightness ||
-        _resolvedNeutral != neutral) {
+    if (_resolvedSource != source || _resolvedBrightness != brightness) {
       _resolvedSource = source;
       _resolvedBrightness = brightness;
-      _resolvedNeutral = neutral;
-      _scheme = CoverPalette.peek(
-        source,
-        brightness,
-        neutralGrayscale: neutral,
-      );
+      _scheme = CoverPalette.peek(source, brightness);
     }
-
-    final resolved = CoverPalette.resolve(
-      source,
-      brightness,
-      neutralGrayscale: neutral,
-    );
+    final resolved = CoverPalette.resolve(source, brightness);
     resolved.then((scheme) {
       if (!mounted) return;
       if (_resolveGeneration != requestGeneration) {

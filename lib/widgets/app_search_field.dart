@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -51,13 +49,9 @@ class AppSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
     final height = MediaQuery.textScalerOf(context).scale(compactHeight);
     final glassRadius = compact ? height / 2 : 28.0;
-    final radius = BorderRadius.circular(
-      mornye ? glassRadius : context.tokens.radiusSheet,
-    );
-
+    final radius = BorderRadius.circular(glassRadius);
     final field = ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, value, _) => TextField(
@@ -83,20 +77,14 @@ class AppSearchField extends StatelessWidget {
           suffixIconConstraints: compact
               ? BoxConstraints.tightFor(height: height)
               : null,
-          prefixIcon:
-              prefixIcon ??
-              AppIcon(mornye ? CupertinoIcons.search : Icons.search),
+          prefixIcon: prefixIcon ?? AppIcon(CupertinoIcons.search),
           suffixIcon:
               suffixIcon ??
               (value.text.isEmpty
                   ? null
                   : AppIconButton(
                       tooltip: clearTooltip,
-                      icon: AppIcon(
-                        mornye
-                            ? CupertinoIcons.clear_circled_solid
-                            : Icons.clear,
-                      ),
+                      icon: AppIcon(CupertinoIcons.clear_circled_solid),
                       onPressed: () {
                         controller.clear();
                         onClear();
@@ -114,14 +102,10 @@ class AppSearchField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: radius,
-            borderSide: mornye
-                ? BorderSide.none
-                : BorderSide(color: colorScheme.primary, width: 2),
+            borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: mornye
-              ? Colors.transparent
-              : colorScheme.surfaceContainerHigh,
+          fillColor: Colors.transparent,
           contentPadding: compact
               ? const EdgeInsets.symmetric(horizontal: 8, vertical: 8)
               : const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -131,7 +115,6 @@ class AppSearchField extends StatelessWidget {
         onTapOutside: (_) => FocusScope.of(context).unfocus(),
       ),
     );
-    if (!mornye) return field;
     return Consumer(
       builder: (context, ref, child) => MornyeGlass.navigation(
         radius: glassRadius,

@@ -77,16 +77,12 @@ void main() {
     ('portrait tablet', const Size(800, 1280)),
     ('narrow tablet window', const Size(820, 1400)),
   ]) {
-    for (final mornye in [false, true]) {
+    for (final mornye in const [true]) {
       final key = '$name ${mornye ? 'Mornye' : 'Material'}';
       testWidgets('Search results on a $key paint the base layout', (
         tester,
       ) async {
-        await pumpSearchFixture(
-          tester,
-          size: size,
-          mornye: mornye,
-        );
+        await pumpSearchFixture(tester, size: size, mornye: mornye);
         expect(find.text('Found artist 0'), findsOneWidget);
         expect(find.byType(SliverGrid), findsNothing);
 

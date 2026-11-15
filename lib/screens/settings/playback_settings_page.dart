@@ -161,7 +161,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
             title: context.l10n.sectionPlayer,
             children: [
               SettingsItem(
-                icon: Icons.open_in_new,
                 title: context.l10n.libraryExternalPlayer,
                 subtitle: context.l10n.libraryExternalPlayerSubtitle,
                 selected: settings.playerMode == 'external',
@@ -173,7 +172,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     .setPlayerMode('external'),
               ),
               SettingsItem(
-                icon: Icons.play_circle_outline,
                 title: context.l10n.libraryBuiltInPreviewPlayer,
                 subtitle: context.l10n.libraryBuiltInPreviewPlayerSubtitle,
                 selected: settings.playerMode == 'internal',
@@ -191,7 +189,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
             title: context.l10n.sectionVolumeAndTransitions,
             children: [
               SettingsItem(
-                icon: Icons.equalizer,
                 title: context.l10n.equalizerTitle,
                 titleTrailing: const BetaBadge(),
                 subtitle: context.l10n.equalizerDescription,
@@ -199,7 +196,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     pushPage<void>(context, (_) => const EqualizerScreen()),
               ),
               SettingsSwitchItem(
-                icon: Icons.graphic_eq,
                 title: context.l10n.libraryPlaybackNormalization,
                 subtitle: context.l10n.libraryPlaybackNormalizationSubtitle,
                 value: settings.playbackNormalization,
@@ -212,7 +208,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 PlaybackNormalizationSettings(enabled: !settings.usbBitPerfect),
               ...[
                 SettingsSwitchItem(
-                  icon: Icons.vibration,
                   title: context.l10n.musicHaptics,
                   subtitle: context.l10n.musicHapticsDescription,
                   value: settings.musicHaptics,
@@ -227,7 +222,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   ),
               ],
               SettingsSwitchItem(
-                icon: Icons.linear_scale,
                 title: context.l10n.gaplessPlayback,
                 subtitle: context.l10n.gaplessPlaybackDescription,
                 value: settings.gaplessPlayback && !autoMixActive,
@@ -240,7 +234,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     .setGaplessPlayback(value),
               ),
               SettingsSwitchItem(
-                icon: Icons.compare_arrows,
                 title: 'AutoMix',
                 subtitle: context.l10n.autoMixDescription,
                 value: autoMixActive,
@@ -263,7 +256,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
             title: context.l10n.autoplayFromLibrary,
             children: [
               SettingsSwitchItem(
-                icon: Icons.playlist_play_rounded,
                 title: context.l10n.autoplayFromLibrary,
                 subtitle: context.l10n.autoplayDescription,
                 value: settings.autoplay,
@@ -272,7 +264,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     ref.read(settingsProvider.notifier).setAutoplay(value),
               ),
               SettingsSwitchItem(
-                icon: Icons.auto_awesome_outlined,
                 title: context.l10n.autoplayPersonalization,
                 subtitle: context.l10n.autoplayPersonalizationDescription,
                 value: settings.autoplayPersonalization,
@@ -283,13 +274,11 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
               ),
               if (settings.autoplayPersonalization)
                 SettingsItem(
-                  icon: Icons.restart_alt,
                   title: context.l10n.autoplayResetLearning,
                   subtitle: _learningSummary(),
                   onTap: _confirmResetLearning,
                 ),
               SettingsSwitchItem(
-                icon: Icons.multitrack_audio,
                 title: context.l10n.songAnalysis,
                 subtitle: context.l10n.songAnalysisDescription,
                 value: settings.songAnalysis,
@@ -300,7 +289,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
               ),
               if (chargingOption)
                 SettingsSwitchItem(
-                  icon: Icons.battery_charging_full,
                   title: context.l10n.songAnalysisOnlyWhileCharging,
                   subtitle:
                       context.l10n.songAnalysisOnlyWhileChargingDescription,
@@ -313,7 +301,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 ),
               if (analysis != null)
                 SettingsItem(
-                  icon: Icons.delete_outline,
                   title: context.l10n.songAnalysisClear,
                   subtitle: context.l10n.songAnalysisProgress(
                     analysis.analyzed,
@@ -338,7 +325,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
             title: context.l10n.playbackAutomation,
             children: [
               SettingsSwitchItem(
-                icon: Icons.volume_off_outlined,
                 title: context.l10n.playbackPauseOnMute,
                 subtitle: context.l10n.playbackPauseOnMuteDescription,
                 value: settings.pauseOnMute,
@@ -349,7 +335,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     ref.read(settingsProvider.notifier).setPauseOnMute(value),
               ),
               SettingsSwitchItem(
-                icon: Icons.headphones_outlined,
                 title: context.l10n.playbackOnHeadphonesConnected,
                 subtitle: context.l10n.playbackOnHeadphonesConnectedDescription,
                 value: settings.playOnHeadphonesConnected,
@@ -364,22 +349,19 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
           ...settingsSectionSlivers(
             title: context.l10n.playerCoverStyle,
             children: [
-              for (final (style, icon, title, subtitle) in [
+              for (final (style, title, subtitle) in [
                 (
                   'default',
-                  Icons.crop_square,
                   context.l10n.playerCoverStyleCard,
                   context.l10n.playerCoverStyleDefaultDescription,
                 ),
                 (
                   'fullscreen',
-                  Icons.fullscreen,
                   context.l10n.playerCoverStyleFullScreen,
                   context.l10n.playerCoverStyleFullScreenDescription,
                 ),
               ])
                 SettingsItem(
-                  icon: icon,
                   title: title,
                   subtitle: subtitle,
                   selected: coverStyle == style,
@@ -392,7 +374,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   showDivider: true,
                 ),
               SettingsSwitchItem(
-                icon: Icons.splitscreen_outlined,
                 title: context.l10n.landscapeLyricsArtwork,
                 subtitle: context.l10n.landscapeLyricsArtworkDescription,
                 value: settings.landscapeLyricsArtwork,
@@ -403,7 +384,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
               ),
               SettingsSwitchItem(
                 key: const ValueKey('auto-hide-lyrics-controls'),
-                icon: Icons.fullscreen,
                 title: context.l10n.autoHideLyricsControls,
                 subtitle: context.l10n.autoHideLyricsControlsDescription,
                 value: settings.autoHideLyricsControls,
@@ -412,7 +392,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     .setAutoHideLyricsControls,
               ),
               SettingsSwitchItem(
-                icon: Icons.short_text,
                 title: context.l10n.compactPlayer,
                 subtitle: context.l10n.compactPlayerDescription,
                 value: settings.compactPlayer,
@@ -427,7 +406,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
             title: context.l10n.motionArtwork,
             children: [
               SettingsSwitchItem(
-                icon: Icons.motion_photos_on_outlined,
                 title: context.l10n.motionArtwork,
                 subtitle: context.l10n.motionArtworkDescription,
                 value: settings.motionArtworkEnabled,
@@ -441,12 +419,10 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
           if (Platform.isAndroid)
             ...settingsSectionSlivers(
               title: context.l10n.sectionAudioOutput,
-              connected: true,
               children: [
                 ValueListenableBuilder<UsbAudioStatus>(
                   valueListenable: usbAudioStatus,
                   builder: (context, status, _) => SettingsSwitchItem(
-                    icon: Icons.usb,
                     title: context.l10n.usbBitPerfect,
                     titleTrailing: const BetaBadge(),
                     subtitle: [
@@ -473,7 +449,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 ),
                 if (settings.usbBitPerfect) ...[
                   SettingsSwitchItem(
-                    icon: Icons.usb,
                     title: context.l10n.usbDirect,
                     subtitle: context.l10n.usbDirectDescription,
                     value: settings.usbDirect,
@@ -491,7 +466,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   ),
                   if (settings.usbDirect) ...[
                     SettingsSwitchItem(
-                      icon: Icons.graphic_eq,
                       title: context.l10n.usbDsdOverPcm,
                       subtitle: context.l10n.usbDsdOverPcmDescription,
                       value: settings.usbDsdOverPcm,
@@ -500,7 +474,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                           .setUsbDsdOverPcm(value),
                     ),
                     SettingsSwitchItem(
-                      icon: Icons.volume_up_outlined,
                       title: context.l10n.usbFixedVolume,
                       subtitle: context.l10n.usbFixedVolumeDescription,
                       value: settings.usbAllowFixedVolume,
@@ -549,7 +522,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                     ),
                   ],
                   SettingsSwitchItem(
-                    icon: Icons.headphones,
                     title: context.l10n.dapExclusive,
                     titleTrailing: const BetaBadge(),
                     subtitle: context.l10n.dapExclusiveDescription,
@@ -567,7 +539,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
             title: context.l10n.listeningStats,
             children: [
               SettingsItem(
-                icon: Icons.insights_outlined,
                 title: context.l10n.listeningStats,
                 subtitle: context.l10n.listeningStatsDescription,
                 onTap: () => Navigator.of(context).push(

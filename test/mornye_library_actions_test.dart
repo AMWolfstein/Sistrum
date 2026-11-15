@@ -103,7 +103,6 @@ void main() {
                   icon: Icons.swap_horiz,
                   label: 'Convert 1 track',
                   onPressed: () => converted = true,
-                  colorScheme: Theme.of(context).colorScheme,
                 ),
                 const SizedBox(height: 8),
                 DestructiveSelectionButton(

@@ -174,7 +174,6 @@ class PlayerCompactBar extends ConsumerWidget {
                       duration: duration,
                       onSeek: controller.seek,
                       preview: seekPreview,
-                      playing: playing && !loading,
                     ),
                   ),
                 ),

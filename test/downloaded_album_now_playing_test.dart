@@ -14,7 +14,6 @@ import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
-import 'package:sistrum/widgets/now_playing_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/app_icon_finder.dart';
@@ -28,7 +27,7 @@ class _History extends DownloadHistoryNotifier {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('downloaded album rows follow playback (mornye: $mornye)', (
       tester,
     ) async {
@@ -120,13 +119,6 @@ void main() {
       expect(
         find.descendant(of: row('First'), matching: find.byTooltip('Play')),
         findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: row('Second'),
-          matching: find.byType(NowPlayingIndicator),
-        ),
-        mornye ? findsNothing : findsOneWidget,
       );
       expect(
         find.descendant(

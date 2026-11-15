@@ -118,7 +118,6 @@ class _QualityOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return SettingsItem(
-      icon: icon,
       title: title,
       subtitle: subtitle,
       selected: isSelected,

@@ -157,7 +157,7 @@ class _LogEntryTile extends StatelessWidget {
             ),
           ),
         ),
-        if (showDivider && !settingsRowsConnected(context))
+        if (showDivider)
           Divider(
             height: 1,
             indent: 20,

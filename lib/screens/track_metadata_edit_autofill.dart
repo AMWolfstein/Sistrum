@@ -131,7 +131,6 @@ extension _EditMetadataSheetAutoFill on _EditMetadataSheetState {
     return showAppBottomSheet<Map<String, dynamic>>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: context.l10n.editMetadataAutoFillSource,
       subtitle: [
         currentTitle,

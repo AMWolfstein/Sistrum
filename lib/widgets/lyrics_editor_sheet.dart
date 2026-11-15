@@ -18,12 +18,9 @@ import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 import 'package:sistrum/widgets/discard_changes_dialog.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 final _log = AppLogger('LyricsEditor');
@@ -447,7 +444,6 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final mornye = context.isMornye;
     final controller = ref.read(musicPlayerControllerProvider);
     final playing = ref.watch(playbackPlayingProvider);
     final duration = widget.item.duration ?? Duration.zero;
@@ -456,31 +452,25 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
       fontFeatures: const [FontFeature.tabularFigures()],
     );
     final selectedTimed = _lines[_selected].time != null;
-
     Widget nudge(String label, String tooltip, Duration delta) =>
         AppIconButton.filledTonal(
           tooltip: tooltip,
           onPressed: selectedTimed ? () => _nudge(delta) : null,
           icon: Text(label, style: theme.textTheme.labelLarge),
         );
-
     final playButton = AppIconButton.filledTonal(
       tooltip: playing ? l10n.actionPause : l10n.tooltipPlay,
       isSelected: playing,
       onPressed: () => controller.togglePlayPause(playing),
-      icon: AppIcon.adaptive(
-        mornye ? CupertinoIcons.play_fill : Icons.play_arrow,
-      ),
-      selectedIcon: AppIcon.adaptive(
-        mornye ? CupertinoIcons.pause_fill : Icons.pause,
-      ),
+      icon: AppIcon.adaptive(CupertinoIcons.play_fill),
+      selectedIcon: AppIcon.adaptive(CupertinoIcons.pause_fill),
     );
     final setTime = Tooltip(
       message: l10n.lyricsEditSetTimeTooltip,
       child: AppActionButton(
         key: const ValueKey('lyrics-editor-set-time'),
         tonal: true,
-        outlined: mornye,
+        outlined: true,
         onPressed: _saving ? null : _setTime,
         icon: const AppIcon(Icons.timer_outlined),
         label: Text(l10n.lyricsEditSetTime),
@@ -492,7 +482,6 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
       setTime,
       nudge(l10n.lyricsEditLater, l10n.lyricsEditLaterTooltip, _nudgeStep),
     ];
-
     return SafeArea(
       top: false,
       child: Padding(
@@ -512,45 +501,31 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
                     position: ref.watch(playbackPositionProvider),
                     duration: duration,
                     onSeek: controller.seek,
-                    playing: playing,
                   ),
                 ),
                 Text(formatClock(duration.inSeconds), style: timeStyle),
               ],
             ),
             const SizedBox(height: 4),
-            if (mornye)
-              Row(
-                children: [
-                  for (final (index, tool) in tools.indexed) ...[
-                    if (index > 0) const SizedBox(width: 8),
-                    index == 2 ? Expanded(child: tool) : tool,
-                  ],
+            Row(
+              children: [
+                for (final (index, tool) in tools.indexed) ...[
+                  if (index > 0) const SizedBox(width: 8),
+                  index == 2 ? Expanded(child: tool) : tool,
                 ],
-              )
-            else
-              ExpressiveButtonGroup(
-                flexible: const {2},
-                spacing: 8,
-                children: tools,
-              ),
+              ],
+            ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                mornye
-                    ? AppActionButton(
-                        outlined: true,
-                        glass: false,
-                        onPressed: _saving ? null : _close,
-                        icon: const SizedBox.shrink(),
-                        label: Text(l10n.dialogCancel),
-                      )
-                    : ExpressiveButton(
-                        text: true,
-                        onPressed: _saving ? null : _close,
-                        child: Text(l10n.dialogCancel),
-                      ),
+                AppActionButton(
+                  outlined: true,
+                  glass: false,
+                  onPressed: _saving ? null : _close,
+                  icon: const SizedBox.shrink(),
+                  label: Text(l10n.dialogCancel),
+                ),
                 const SizedBox(width: 8),
                 AppActionButton(
                   key: const ValueKey('lyrics-editor-save'),
@@ -558,12 +533,7 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
                   icon: _saving
                       ? SizedBox.square(
                           dimension: 18,
-                          child: mornye
-                              ? const CupertinoActivityIndicator()
-                              : AppLoadingIndicator(
-                                  size: 18,
-                                  color: scheme.onPrimary,
-                                ),
+                          child: const CupertinoActivityIndicator(),
                         )
                       : const AppIcon(Icons.check),
                   label: Text(l10n.dialogSave),
@@ -581,20 +551,13 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
     required IconData icon,
     required String label,
     required VoidCallback onPressed,
-  }) => context.isMornye
-      ? AppActionButton(
-          outlined: true,
-          glass: false,
-          onPressed: onPressed,
-          icon: AppIcon(icon),
-          label: Text(label),
-        )
-      : ExpressiveButton(
-          text: true,
-          onPressed: onPressed,
-          icon: AppIcon(icon),
-          child: Text(label),
-        );
+  }) => AppActionButton(
+    outlined: true,
+    glass: false,
+    onPressed: onPressed,
+    icon: AppIcon(icon),
+    label: Text(label),
+  );
 }
 
 /// One line: its time, which plays from there, the text field, and the
@@ -629,7 +592,6 @@ class _LyricsEditorRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final tokens = context.tokens;
-    final mornye = context.isMornye;
     final outer = Radius.circular(tokens.radiusCard);
     final inner = Radius.circular(tokens.radiusThumb);
     final radius = selected
@@ -640,13 +602,10 @@ class _LyricsEditorRow extends StatelessWidget {
           );
     final fill = selected
         ? scheme.secondaryContainer
-        : mornye
-        ? MornyeTheme.controlFill(context)
-        : scheme.surfaceContainerHighest;
+        : MornyeTheme.controlFill(context);
     final onFill = selected ? scheme.onSecondaryContainer : scheme.onSurface;
     final time = line.time;
     final timeLabel = time == null ? '--:--' : formatLyricsTime(time);
-
     final timeChip = Tooltip(
       message: time == null
           ? l10n.lyricsEditNoTime
@@ -693,7 +652,6 @@ class _LyricsEditorRow extends StatelessWidget {
         ),
       ),
     );
-
     return Material(
       color: fill,
       shape: RoundedRectangleBorder(borderRadius: radius),
@@ -739,9 +697,7 @@ class _LyricsEditorRow extends StatelessWidget {
                   onPressed: () => onMenu(
                     contextMenuPositionBelow(buttonContext) ?? Offset.zero,
                   ),
-                  icon: AppIcon.adaptive(
-                    mornye ? CupertinoIcons.ellipsis : Icons.more_vert,
-                  ),
+                  icon: AppIcon.adaptive(CupertinoIcons.ellipsis),
                 ),
               ),
             ],

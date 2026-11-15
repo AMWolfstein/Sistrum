@@ -126,7 +126,6 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
             ),
             SliverToBoxAdapter(
               child: SettingsGroup(
-                connected: true,
                 children: [
                   _ExtensionPriorityLink(_PriorityLink.download),
                   _ExtensionPriorityLink(_PriorityLink.fallback),
@@ -187,7 +186,6 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
             if (extState.extensions.isNotEmpty)
               SliverToBoxAdapter(
                 child: SettingsGroup(
-                  connected: true,
                   children: extState.extensions.asMap().entries.map((entry) {
                     final index = entry.key;
                     final ext = entry.value;

@@ -14,7 +14,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/lyrics_timeline.dart';
 import 'package:sistrum/utils/synced_lyrics_scroll.dart';
@@ -31,9 +30,6 @@ part 'player_lyrics_word_sweep.dart';
 
 const _mornyeLyricFontSize = 34.0;
 
-/// a phone. Null keeps the text theme's size (phones and tablets).
-double? get _materialLyricFontSize => null;
-double get _materialBackgroundLyricFontSize => 18;
 const mornyeLyricsContentInset = 28.0 + MornyePlayerSlider.horizontalInset;
 
 /// How much of the lyrics area's bottom the player's controls cover. The
@@ -435,18 +431,17 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
     if (widget.seekPreview.value != null) {
       return LyricsParser.activeIndex(_lines, position);
     }
-    if (context.isMornye) {
-      // Read one transport snapshot: playing/loading derived providers can
-      // notify separately during the same playback event.
-      final playback = ref.read(playbackStateProvider).value;
-      if (playback?.processingState == AudioProcessingState.loading ||
-          playback?.processingState == AudioProcessingState.buffering) {
-        return -1;
-      }
-      _hasStarted =
-          _hasStarted || playback?.playing == true || position > Duration.zero;
-      if (!_hasStarted) return -1;
+    // Read one transport snapshot: playing/loading derived providers can
+    // notify separately during the same playback event.
+    final playback = ref.read(playbackStateProvider).value;
+    if (playback?.processingState == AudioProcessingState.loading ||
+        playback?.processingState == AudioProcessingState.buffering) {
+      return -1;
     }
+    _hasStarted =
+        _hasStarted || playback?.playing == true || position > Duration.zero;
+    if (!_hasStarted) return -1;
+
     return LyricsParser.activeIndex(_lines, position);
   }
 
@@ -784,7 +779,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
     final curve = seeking ? Curves.easeOutCubic : LyricScrollMotion.scrollCurve;
     if (duration == Duration.zero) _stopScrollMotion();
     final extents = _targetLineExtents;
-    if (context.isMornye && extents != null && row < extents.length) {
+    if (extents != null && row < extents.length) {
       final position = _scroll.position;
       final target = extents.offsetForRow(row);
       final offset = target.clamp(
@@ -887,13 +882,11 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
     final loading = _visible
         ? ref.watch(playbackLoadingProvider)
         : ref.read(playbackLoadingProvider);
-    final mornye = context.isMornye;
     final highContrast = MediaQuery.highContrastOf(context);
     final blurStrength = ref.watch(
       themeProvider.select((theme) => theme.lyricsBlur),
     );
     final blurLyrics =
-        mornye &&
         !highContrast &&
         blurStrength > 0 &&
         // Defocused lines are filtered on every frame while their focus eases.
@@ -903,7 +896,6 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
     final motion = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
         : const Duration(milliseconds: 420);
-
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification.depth != 0 ||
@@ -934,7 +926,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final inset = mornye ? mornyeLyricsContentInset : 24.0;
+          final inset = mornyeLyricsContentInset;
           final contentWidth = (constraints.maxWidth - inset * 2).clamp(
             0.0,
             double.infinity,
@@ -946,10 +938,8 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
             0.0,
             double.infinity,
           );
-          final lyricScale = mornye && layoutWidth > 0
-              ? contentWidth / layoutWidth
-              : 1.0;
-          if (mornye) {
+          final lyricScale = layoutWidth > 0 ? contentWidth / layoutWidth : 1.0;
+          {
             final previousExtents = _lineExtents;
             final previousScrollAnchor =
                 previousExtents != null && _scroll.hasClients
@@ -1029,15 +1019,10 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
               }
             });
           }
-          final topPadding = mornye
-              ? _focusInset
-              : syncedLyricsCenterPadding(
-                  viewportDimension: constraints.maxHeight,
-                  estimatedLineExtent: _estimatedLyricExtent,
-                );
+          final topPadding = _focusInset;
           // Leave enough trailing space for the final line to reach the same
           // upper focus position as every other line.
-          final bottomPadding = mornye && _lineExtents!.isNotEmpty
+          final bottomPadding = _lineExtents!.isNotEmpty
               ? (constraints.maxHeight - _lineExtents!.last - topPadding).clamp(
                   topPadding,
                   double.infinity,
@@ -1045,11 +1030,9 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
               : topPadding;
           final list = ListView.builder(
             controller: _scroll,
-            itemExtentBuilder: mornye
-                ? (index, _) => index < lines.length
-                      ? _lineExtents![index]
-                      : widget.credits!.heightFor(context, contentWidth)
-                : null,
+            itemExtentBuilder: (index, _) => index < lines.length
+                ? _lineExtents![index]
+                : widget.credits!.heightFor(context, contentWidth),
             padding: EdgeInsets.fromLTRB(
               inset,
               topPadding,
@@ -1066,16 +1049,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
               final reveal = rowVisibility[index];
               if (reveal == 0) return SizedBox.shrink(key: _lineKeys[index]);
               final isActive = _activeLines.contains(index);
-              final isPast = index < active;
-
-              final color = mornye
-                  ? Colors.white
-                  : isActive
-                  ? widget.colorScheme.onSurface
-                  : isPast
-                  ? widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-                  : widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
-
+              final color = Colors.white;
               if (line.text.isEmpty) {
                 return _revealRow(
                   index,
@@ -1110,7 +1084,6 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                   ),
                 );
               }
-
               final timed =
                   isActive &&
                   (line.hasWordTiming || line.romanizationWords.isNotEmpty);
@@ -1123,9 +1096,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                   initialPosition: _activeTransitionPosition,
                   seekPreview: widget.seekPreview,
                   supplementVisibility: visibility,
-                  pronunciationLayout: mornye
-                      ? _pronunciationLayouts[index]
-                      : null,
+                  pronunciationLayout: _pronunciationLayouts[index],
                   textAlign: textAlign,
                 );
               } else {
@@ -1143,9 +1114,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                   content,
                   color,
                   visibility: visibility,
-                  pronunciationLayout: mornye
-                      ? _pronunciationLayouts[index]
-                      : null,
+                  pronunciationLayout: _pronunciationLayouts[index],
                   textAlign: textAlign,
                 );
               }
@@ -1154,15 +1123,13 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                 reverseDuration: const Duration(milliseconds: 260),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: mornye
-                    ? LyricBlur.fadeTransition
-                    : AnimatedSwitcher.defaultTransitionBuilder,
+                transitionBuilder: LyricBlur.fadeTransition,
                 child: KeyedSubtree(
                   key: ValueKey(timed),
                   child: SizedBox(width: double.infinity, child: content),
                 ),
               );
-              if (mornye) {
+              {
                 final activeLead = active < 0 ? -1 : _focus;
                 final distance = activeLead < 0
                     ? row + 1
@@ -1198,7 +1165,6 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                   child: SizedBox(width: layoutWidth, child: content),
                 );
               }
-
               content = LyricScrollMotion(
                 progress: _scrollMotion,
                 distance: _scrollMotionDistance,
@@ -1240,9 +1206,7 @@ class _SyncedLyricsViewState extends ConsumerState<SyncedLyricsView>
                       duration: motion,
                       curve: Curves.easeOutCubic,
                       child: AnimatedOpacity(
-                        opacity: mornye
-                            ? (isActive || highContrast ? 1 : 0.48)
-                            : (isActive ? 1.0 : (isPast ? 0.55 : 0.85)),
+                        opacity: (isActive || highContrast ? 1 : 0.48),
                         duration: motion,
                         curve: Curves.easeInOutCubic,
                         child: content,
@@ -1509,7 +1473,7 @@ class LyricsCredits extends StatelessWidget {
 
   TextStyle _style(BuildContext context) =>
       Theme.of(context).textTheme.bodyMedium!.copyWith(
-        fontSize: context.isMornye ? 17 : 14,
+        fontSize: 17,
         fontWeight: FontWeight.w600,
         height: 1.4,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.48),

@@ -4,12 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/l10n/l10n.dart';
 
 /// Hosts selection bars above the shell navigation while keeping modal routes
@@ -256,35 +253,25 @@ class SelectionBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
     final colorScheme = Theme.of(context).colorScheme;
 
     final header = LayoutBuilder(
       builder: (context, constraints) => Row(
         children: [
-          if (context.isMornye)
-            Tooltip(
-              message: MaterialLocalizations.of(context).closeButtonTooltip,
-              child: CupertinoButton(
-                color: MornyeTheme.controlFill(context),
-                borderRadius: BorderRadius.circular(28),
-                padding: const EdgeInsets.all(12),
-                onPressed: onClose,
-                child: Icon(
-                  CupertinoIcons.xmark,
-                  color: colorScheme.onSurface,
-                  size: 24,
-                ),
-              ),
-            )
-          else
-            ExpressiveIconButton(
+          Tooltip(
+            message: MaterialLocalizations.of(context).closeButtonTooltip,
+            child: CupertinoButton(
+              color: MornyeTheme.controlFill(context),
+              borderRadius: BorderRadius.circular(28),
+              padding: const EdgeInsets.all(12),
               onPressed: onClose,
-              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-              icon: const Icon(Icons.close),
-              foregroundColor: colorScheme.onSecondaryContainer,
-              backgroundColor: colorScheme.surfaceContainerHighest,
+              child: Icon(
+                CupertinoIcons.xmark,
+                color: colorScheme.onSurface,
+                size: 24,
+              ),
             ),
+          ),
           const SizedBox(width: 12),
 
           Expanded(
@@ -313,92 +300,31 @@ class SelectionBottomBar extends StatelessWidget {
 
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.4),
-            child: context.isMornye
-                ? CupertinoButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    onPressed: onToggleSelectAll,
-                    child: Text(
-                      allSelected
-                          ? context.l10n.actionDeselect
-                          : context.l10n.actionSelectAll,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  )
-                : ExpressiveButton(
-                    text: true,
-                    onPressed: onToggleSelectAll,
-                    icon: Icon(
-                      allSelected ? Icons.deselect : Icons.select_all,
-                      size: 20,
-                    ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: colorScheme.primary,
-                    ),
-                    child: Text(
-                      allSelected
-                          ? context.l10n.actionDeselect
-                          : context.l10n.actionSelectAll,
-                    ),
-                  ),
+            child: CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              onPressed: onToggleSelectAll,
+              child: Text(
+                allSelected
+                    ? context.l10n.actionDeselect
+                    : context.l10n.actionSelectAll,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
+              ),
+            ),
           ),
         ],
       ),
     );
-    const floatingMargin = 12.0;
     Widget surface(Widget content) {
-      if (context.isMornye) {
-        return MornyeGlassPanel.overlay(child: content);
-      }
-      final toolbar = Material(
-        color: colorScheme.surfaceContainerHigh,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: colorScheme.shadow,
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(tokens.radiusSheet),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: MediaQuery.removePadding(
-          context: context,
-          removeBottom: true,
-          child: content,
-        ),
-      );
-      // Expressive floating toolbar: detached from the screen edges and
-      // fully rounded. The faded backdrop hides and blocks the navigation
-      // bar underneath, so a tap beside the toolbar cannot switch tabs.
-      final backdrop = colorScheme.surface;
-      return Listener(
-        behavior: HitTestBehavior.opaque,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [backdrop.withValues(alpha: 0), backdrop],
-              stops: const [0, 0.4],
-            ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              floatingMargin,
-              0,
-              floatingMargin,
-              floatingMargin + MediaQuery.viewPaddingOf(context).bottom,
-            ),
-            child: toolbar,
-          ),
-        ),
-      );
+      return MornyeGlassPanel.overlay(child: content);
     }
 
     return _SelectionPanelDrag(
       onClose: onClose,
       header: header,
       bottomPadding: bottomPadding,
-      floatingMargin: context.isMornye ? 0 : floatingMargin,
+      floatingMargin: 0,
       surfaceBuilder: surface,
       children: children,
     );

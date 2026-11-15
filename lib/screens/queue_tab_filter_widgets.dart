@@ -273,19 +273,11 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       );
     }
 
-    // Active downloads and the library tracks below them form one connected
-    // run of rows.
     Widget leadListCell(int index) {
-      // their own run.
-      final runLength = (rootLibrary && !context.isMornye)
-          ? leadCount
-          : leadCount + filteredUnifiedItems.length;
       if (index < activeDownloadIds.length) {
         final id = activeDownloadIds[index];
-        return TrackCardSegment.at(
+        return KeyedSubtree(
           key: ValueKey('dllist_$id'),
-          index: index,
-          count: runLength,
           child: _QueueItemSliverRow(
             itemId: id,
             colorScheme: colorScheme,
@@ -294,10 +286,8 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         );
       }
       final bridgeId = bridgeIds[index - activeDownloadIds.length];
-      return TrackCardSegment.at(
+      return KeyedSubtree(
         key: ValueKey('dllist_bridge_$bridgeId'),
-        index: index,
-        count: runLength,
         child: _buildBridgeItem(
           context,
           _completionBridge[bridgeId]!,
@@ -641,10 +631,8 @@ extension _QueueTabFilterWidgets on _QueueTabState {
                     final trackIndex = afterCollections - leadCount;
                     if (trackIndex < filteredUnifiedItems.length) {
                       final item = filteredUnifiedItems[trackIndex];
-                      return TrackCardSegment.at(
+                      return KeyedSubtree(
                         key: ValueKey(item.id),
-                        index: afterCollections,
-                        count: leadCount + filteredUnifiedItems.length,
                         child: trackTile(item, grid: false),
                       );
                     }

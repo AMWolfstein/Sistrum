@@ -225,9 +225,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     final mediaItem = ref.watch(currentMediaItemProvider).value;
     final mornye = context.isMornye;
     final fullScreenCover = ref.watch(
-      settingsProvider.select(
-        (s) => s.playerCoverStyleFor() == 'fullscreen',
-      ),
+      settingsProvider.select((s) => s.playerCoverStyleFor() == 'fullscreen'),
     );
     return LyricsScreenAwake(
       visible: _currentPage == 1 && mediaItem != null,
@@ -1025,7 +1023,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         : await showAppBottomSheet<String>(
             context: context,
             useRootNavigator: true,
-            backgroundColor: colorScheme.surfaceContainerHigh,
             title: mediaItem.title,
             subtitle: mediaItem.artist,
             builder: (sheetContext) => Padding(
@@ -1034,49 +1031,39 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                 children: [
                   if ((mediaItem.album ?? '').trim().isNotEmpty)
                     SettingsItem(
-                      icon: Icons.album_outlined,
                       title: sheetContext.l10n.homeGoToAlbum,
                       onTap: () => Navigator.of(sheetContext).pop('album'),
                     ),
                   SettingsItem(
-                    icon: Icons.info_outline,
                     title: sheetContext.l10n.nowPlayingDetails,
                     onTap: () => Navigator.of(sheetContext).pop('details'),
                   ),
                   SettingsItem(
-                    icon: Icons.format_quote_outlined,
                     title: sheetContext.l10n.lyricsShareTitle,
                     onTap: () => Navigator.of(sheetContext).pop('shareLyrics'),
                   ),
                   if (canSaveNetworkOfflineSource(source))
                     SettingsItem(
-                      icon: Icons.download_for_offline_outlined,
                       title: sheetContext.l10n.offlineSave,
                       onTap: () =>
                           Navigator.of(sheetContext).pop('networkOffline'),
                     ),
                   SettingsItem(
-                    icon: Icons.bedtime_outlined,
                     title: sheetContext.l10n.nowPlayingSleepTimer,
                     subtitle: sleepTimerSubtitle,
                     onTap: () => Navigator.of(sheetContext).pop('sleepTimer'),
                   ),
                   SettingsItem(
-                    icon: Icons.equalizer,
                     title: sheetContext.l10n.equalizerTitle,
                     onTap: () => Navigator.of(sheetContext).pop('equalizer'),
                   ),
                   SettingsItem(
-                    icon: volumeShown
-                        ? Icons.volume_off_outlined
-                        : Icons.volume_up_outlined,
                     title: volumeShown
                         ? sheetContext.l10n.nowPlayingHideVolume
                         : sheetContext.l10n.nowPlayingShowVolume,
                     onTap: () => Navigator.of(sheetContext).pop('volume'),
                   ),
                   SettingsItem(
-                    icon: Icons.open_in_new,
                     title: sheetContext.l10n.nowPlayingOpenInExternalPlayer,
                     trailing: AppIcon(
                       Icons.open_in_new,
@@ -1130,7 +1117,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         unawaited(
           showPlayerDetailsSheet(
             context,
-            colorScheme,
             metadata: _trackMetadata,
             mediaItem: ref.read(currentMediaItemProvider).value,
           ),
@@ -1161,7 +1147,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     final selection = await showAppBottomSheet<String>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainerHigh,
       title: context.l10n.nowPlayingSleepTimer,
       builder: (sheetContext) => Padding(
         padding: const EdgeInsets.only(bottom: 16),
@@ -1169,14 +1154,12 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
           children: [
             for (final minutes in durations)
               SettingsItem(
-                icon: Icons.timer_outlined,
                 title: sheetContext.l10n.nowPlayingSleepTimerMinutes(minutes),
                 showDivider: isActive || minutes != durations.last,
                 onTap: () => Navigator.of(sheetContext).pop('$minutes'),
               ),
             if (isActive)
               SettingsItem(
-                icon: Icons.timer_off_outlined,
                 title: sheetContext.l10n.nowPlayingSleepTimerOff,
                 showDivider: false,
                 onTap: () => Navigator.of(sheetContext).pop('off'),

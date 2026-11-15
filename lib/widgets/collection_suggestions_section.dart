@@ -222,7 +222,6 @@ class _SuggestionRow extends ConsumerWidget {
     final cover = track.coverUrl?.trim() ?? '';
     return TrackCard(
       style: TrackCardStyle.flat,
-      leadingArtwork: true,
       leading: ClipRRect(
         borderRadius: context.tokens.borderRadiusThumb,
         child: cover.isEmpty

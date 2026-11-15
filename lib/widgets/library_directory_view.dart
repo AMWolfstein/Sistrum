@@ -21,7 +21,6 @@ import 'package:sistrum/services/library_directory_index.dart';
 import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
@@ -380,9 +379,8 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     required bool summary,
   }) {
     final tokens = context.tokens;
-    final mornye = context.isMornye;
     final inset = wideListInset(context);
-    final gutter = (mornye ? 20.0 : tokens.gapLg) + inset;
+    final gutter = 20.0 + inset;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final songsValue = folder.tracks.isEmpty
@@ -444,10 +442,8 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           padding: EdgeInsets.symmetric(horizontal: inset),
           sliver: SliverList.builder(
             itemCount: folder.folders.length,
-            itemBuilder: (context, index) => TrackCardSegment.at(
+            itemBuilder: (context, index) => KeyedSubtree(
               key: ValueKey('folder:${folder.folders[index].key}'),
-              index: index,
-              count: folder.folders.length,
               child: _folderRow(folder, folder.folders[index]),
             ),
           ),
@@ -477,10 +473,8 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           padding: EdgeInsets.symmetric(horizontal: inset),
           sliver: SliverList.builder(
             itemCount: items.length,
-            itemBuilder: (context, index) => TrackCardSegment.at(
+            itemBuilder: (context, index) => KeyedSubtree(
               key: ValueKey(items[index].id),
-              index: index,
-              count: items.length,
               child: _songRow(context, items, items[index]),
             ),
           ),
@@ -528,17 +522,14 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           mediaItemPlaybackUiProvider(_playbackKey(item)),
         );
         return TrackCard(
-          style: context.isMornye ? TrackCardStyle.flat : TrackCardStyle.filled,
+          style: TrackCardStyle.flat,
           leading: _SongArtwork(item: item, size: context.tokens.coverList),
-          leadingArtwork: true,
           title: item.trackName,
           subtitle: Text(
             [item.artistName, ?quality].join(' · '),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          isCurrent: playback.isCurrent,
-          isPlaying: playback.isPlaying,
           trailing: AppIconButton(
             tooltip: playback.isPlaying
                 ? context.l10n.actionPause
@@ -570,9 +561,8 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
 
   Widget _folderRow(LibraryDirectory parent, LibraryDirectory folder) {
     return TrackCard(
-      style: context.isMornye ? TrackCardStyle.flat : TrackCardStyle.filled,
+      style: TrackCardStyle.flat,
       leading: _FolderArtwork(folder: folder),
-      leadingArtwork: folder.cover != null,
       // Top-level entries of several volumes read as their paths.
       title: parent.key.isEmpty ? folder.path : folder.name,
       subtitle: Text(

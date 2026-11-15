@@ -164,7 +164,7 @@ void main() {
   });
   tearDown(() => messenger.setMockMethodCallHandler(channel, null));
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('translation mode applies on tap '
         '(mornye=$mornye)', (tester) async {
       tester.view.physicalSize = const Size(390, 800);
@@ -211,7 +211,7 @@ void main() {
     });
   }
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     for (final pick in [false, true]) {
       testWidgets('the lyrics menu translates into '
           '${pick ? 'a picked' : 'the settings'} language ($mornye)', (
@@ -362,7 +362,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('settings save the key and test the connection ($mornye)', (
       tester,
     ) async {

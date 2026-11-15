@@ -83,14 +83,12 @@ class _LyricsAiTranslationPageState
             title: l10n.lyricsAiSectionProvider,
             children: [
               SettingsItem(
-                icon: Icons.auto_awesome_outlined,
                 title: l10n.lyricsAiProvider,
                 subtitle: lyricsAiProviderName(l10n, provider),
                 onTap: () => _pickProvider(provider),
               ),
               if (provider == LyricsAiProvider.custom)
                 SettingsItem(
-                  icon: Icons.dns_outlined,
                   title: l10n.lyricsAiBaseUrl,
                   subtitle: settings.lyricsAiBaseUrl.isEmpty
                       ? l10n.lyricsAiNotSet
@@ -99,7 +97,6 @@ class _LyricsAiTranslationPageState
                 ),
               SettingsItem(
                 key: const ValueKey('lyrics-ai-api-key'),
-                icon: Icons.key_outlined,
                 title: l10n.lyricsAiApiKey,
                 subtitle: apiKey.isNotEmpty
                     ? l10n.lyricsAiApiKeySaved(_keySuffix(apiKey))
@@ -109,7 +106,6 @@ class _LyricsAiTranslationPageState
                 onTap: () => _editKey(provider, apiKey),
               ),
               SettingsItem(
-                icon: Icons.memory_outlined,
                 title: l10n.lyricsAiModel,
                 subtitle: settings.lyricsAiModel.isNotEmpty
                     ? settings.lyricsAiModel
@@ -120,7 +116,6 @@ class _LyricsAiTranslationPageState
               ),
               SettingsItem(
                 key: const ValueKey('lyrics-ai-test'),
-                icon: Icons.network_check_outlined,
                 title: l10n.lyricsAiTestConnection,
                 subtitle: l10n.lyricsAiTestConnectionSubtitle,
                 trailing: _testing ? const AppLoadingIndicator(size: 24) : null,
@@ -135,7 +130,6 @@ class _LyricsAiTranslationPageState
             title: l10n.lyricsAiSectionTranslation,
             children: [
               SettingsItem(
-                icon: Icons.language_outlined,
                 title: l10n.lyricsAiTargetLanguage,
                 subtitle: target == null
                     ? l10n.lyricsAiTargetLanguageApp(appLanguage.nativeName)
@@ -154,7 +148,6 @@ class _LyricsAiTranslationPageState
               ),
               SettingsItem(
                 key: const ValueKey('lyrics-ai-mode'),
-                icon: Icons.speed_outlined,
                 title: l10n.lyricsAiMode,
                 subtitle: settings.lyricsAiWordSync
                     ? l10n.lyricsAiModeSynced
@@ -162,7 +155,6 @@ class _LyricsAiTranslationPageState
                 onTap: () => _pickMode(settings.lyricsAiWordSync),
               ),
               SettingsItem(
-                icon: Icons.edit_note_outlined,
                 title: l10n.lyricsAiInstruction,
                 subtitle: settings.lyricsAiInstruction.isEmpty
                     ? l10n.lyricsAiInstructionNone
@@ -170,21 +162,18 @@ class _LyricsAiTranslationPageState
                 onTap: () => _editInstruction(settings.lyricsAiInstruction),
               ),
               SettingsSwitchItem(
-                icon: Icons.bolt_outlined,
                 title: l10n.lyricsAiAutoTranslate,
                 subtitle: l10n.lyricsAiAutoTranslateSubtitle,
                 value: settings.lyricsAutoTranslate,
                 onChanged: notifier.setLyricsAutoTranslate,
               ),
               SettingsSwitchItem(
-                icon: Icons.record_voice_over_outlined,
                 title: l10n.lyricsAiRomanize,
                 subtitle: l10n.lyricsAiRomanizeSubtitle,
                 value: settings.lyricsAiRomanize,
                 onChanged: notifier.setLyricsAiRomanize,
               ),
               SettingsItem(
-                icon: Icons.delete_outline,
                 title: l10n.lyricsAiClearCache,
                 subtitle: _cachedCount == null
                     ? null

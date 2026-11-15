@@ -18,7 +18,6 @@ import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/local_track_redownload_service.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -34,7 +33,7 @@ import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 
-/// Slivers shared by Material's Library and Sistrum's Library/Songs screens.
+/// Slivers shared by Sistrum's Library/Songs screens.
 /// Only the current query's provider families are watched; late results from
 /// an earlier query cannot replace what the user is currently searching for.
 class LibrarySearchResults extends ConsumerStatefulWidget {
@@ -416,11 +415,9 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     );
     final song = hit.kind == LibrarySearchKind.songs;
     final key = ValueKey('${hit.kind.name}:${hit.source}:${hit.id}');
-    Widget card({MediaPlaybackUi? playback}) => TrackCard(
-      key: playback == null ? key : null,
-      style: hit.kind == LibrarySearchKind.songs && !context.isMornye
-          ? TrackCardStyle.filled
-          : TrackCardStyle.flat,
+    return TrackCard(
+      key: key,
+      style: TrackCardStyle.flat,
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(
           hit.kind == LibrarySearchKind.artists ? 28 : 8,
@@ -434,25 +431,11 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       ),
       title: hit.title,
       subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
-      isCurrent: playback?.isCurrent ?? false,
-      isPlaying: playback?.isPlaying ?? false,
-      leadingArtwork: song,
       trailing: song
           ? AppIconButton(
-              tooltip: playback?.isPlaying ?? false
-                  ? context.l10n.actionPause
-                  : context.l10n.tooltipPlay,
-              icon: Icon(
-                playback?.isPlaying ?? false
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-              ),
-              // The current track pauses and resumes in place.
-              onPressed: playback?.isCurrent ?? false
-                  ? () => ref
-                        .read(musicPlayerControllerProvider)
-                        .togglePlayPause(playback!.isPlaying)
-                  : () => _open(hit, play: true),
+              tooltip: context.l10n.tooltipPlay,
+              icon: const Icon(Icons.play_arrow_rounded),
+              onPressed: () => _open(hit, play: true),
             )
           : const Icon(Icons.chevron_right),
       // Long-press selects songs for the Library batch actions; while
@@ -465,18 +448,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           ? () => _toggleSelection(hit)
           : null,
       onLongPress: song ? () => _toggleSelection(hit) : null,
-    );
-    if (!song || context.isMornye) return card();
-    // Material song rows follow the file they play, so a track change
-    // rebuilds only the rows involved. Mornye rows show no current-track
-    // state.
-    return Consumer(
-      key: key,
-      builder: (context, ref, _) => card(
-        playback: ref.watch(
-          mediaItemPlaybackUiProvider((id: hit.id, path: hit.samplePath)),
-        ),
-      ),
     );
   }
 
@@ -772,13 +743,11 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                           : _label(kind),
                     ),
                     selected: !_lyricsSearch && _kind == kind,
-                    singleChoice: true,
                     onSelected: (_) => _select(kind),
                   ),
               AppChoiceChip(
                 label: Text(context.l10n.trackLyrics),
                 selected: _lyricsSearch,
-                singleChoice: true,
                 onSelected: (_) => _selectLyrics(),
               ),
             ],

@@ -5,7 +5,6 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -186,7 +185,7 @@ class PlayerLyricsSection extends ConsumerWidget {
           ),
           if (options != null)
             PositionedDirectional(
-              start: context.isMornye ? mornyeLyricsContentInset : 24,
+              start: mornyeLyricsContentInset,
               bottom: 8,
               child: options!,
             ),
@@ -227,7 +226,7 @@ class PlayerLyricsSection extends ConsumerWidget {
       children: [
         plain,
         PositionedDirectional(
-          start: context.isMornye ? mornyeLyricsContentInset : 24,
+          start: mornyeLyricsContentInset,
           bottom: 8,
           child: options!,
         ),

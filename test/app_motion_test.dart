@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_theme.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
   test('spring curves start at rest and settle within their duration', () {
@@ -33,52 +30,4 @@ void main() {
     );
     expect(peak(SpringCurve(M3EMotion.effectsDefault)), lessThanOrEqualTo(1));
   });
-
-  Future<AppMotionSpec> resolve(
-    WidgetTester tester, {
-    required ThemeData theme,
-    bool reduceMotion = false,
-  }) async {
-    late AppMotionSpec spec;
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: theme,
-        home: MediaQuery(
-          data: MediaQueryData(disableAnimations: reduceMotion),
-          child: Builder(
-            builder: (context) {
-              spec = AppMotion.spatial(
-                context,
-                const AppMotionSpec(
-                  Duration(milliseconds: 250),
-                  Curves.easeOutCubic,
-                ),
-              );
-              return const SizedBox();
-            },
-          ),
-        ),
-      ),
-    );
-    // MaterialApp animates theme changes between pumps.
-    await tester.pumpAndSettle();
-    return spec;
-  }
-
-  testWidgets(
-    'Material uses springs; Sistrum and reduced motion keep fallback',
-    (tester) async {
-      expect(
-        (await resolve(tester, theme: AppTheme.light())).curve,
-        isA<SpringCurve>(),
-      );
-      for (final spec in [
-        await resolve(tester, theme: MornyeTheme.build(Brightness.light)),
-        await resolve(tester, theme: AppTheme.light(), reduceMotion: true),
-      ]) {
-        expect(spec.curve, Curves.easeOutCubic);
-        expect(spec.duration, const Duration(milliseconds: 250));
-      }
-    },
-  );
 }

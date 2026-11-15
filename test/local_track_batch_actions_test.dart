@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -420,6 +421,9 @@ void main() {
             null,
           ),
         );
+        tester.view.physicalSize = const Size(800, 1600);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
@@ -427,6 +431,7 @@ void main() {
               localLibraryProvider.overrideWith(() => library),
             ],
             child: MaterialApp(
+              theme: MornyeTheme.build(Brightness.light),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               home: Scaffold(
@@ -512,6 +517,7 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             child: MaterialApp(
+              theme: MornyeTheme.build(Brightness.light),
               navigatorKey: navigatorKey,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
@@ -541,6 +547,7 @@ void main() {
           await tester.pump();
         }
         await tester.tap(find.text('Start'));
+        await tester.pump(const Duration(milliseconds: 400));
         await tester.pumpAndSettle();
         expect(events, ['hide']);
         expect(navigatorKey.currentState!.canPop(), isTrue);

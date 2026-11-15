@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Keeps touch-first tablets on the bottom navigation used by phones. A rail
 const double navigationRailBreakpoint = 1440;
@@ -102,7 +101,7 @@ double wideInsetForWidth(
 double wideListInset(BuildContext context, {double? contentMaxWidth}) =>
     wideInsetForWidth(
       MediaQuery.sizeOf(context).width,
-      contentMaxWidth: contentMaxWidth ?? (defaultWideContentMaxWidth),
+      contentMaxWidth: contentMaxWidth ?? defaultWideContentMaxWidth,
     );
 
 /// whole pane, as M3 panes do, with the 24dp margin of expanded and larger
@@ -133,9 +132,6 @@ const double searchCoverLayoutMinWidth = 840;
 /// rather than growing covers far past it.
 const double searchCoverMinExtent = 160;
 
-/// The cover side of a search result shelf.
-const double searchCoverShelfExtent = 176;
-
 /// The space between search result covers.
 const double searchCoverGap = 16;
 
@@ -153,7 +149,6 @@ double searchShelfExtentFor(
   double paneWidth, {
   required bool round,
 }) {
-  if (!context.isMornye) return searchCoverShelfExtent;
   final content = paneWidth - 2 * searchCoverEdge(context);
   final perPane = round ? 5.2 : 4.17;
   return ((content + searchCoverGap) / perPane - searchCoverGap).clamp(
@@ -192,8 +187,7 @@ double searchCoverTextHeight(BuildContext context) {
 
 /// The side margin of search result grids and shelves: the section titles'
 /// inset, so covers line up under them.
-double searchCoverEdge(BuildContext context) =>
-    (context.isMornye ? 20 : 16) + homeContentInset(context);
+double searchCoverEdge(BuildContext context) => 20 + homeContentInset(context);
 
 /// Scales fixed sizes with the shortest screen side, clamped to [min]..[max].
 double responsiveScale({

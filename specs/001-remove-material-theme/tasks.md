@@ -59,7 +59,7 @@ searches below.
     returns nothing.
   - Dependencies: planning commit.
 
-- [ ] M001-T002 Collapse Material branches in shared widgets and theme
+- [x] M001-T002 Collapse Material branches in shared widgets and theme
   - Start: refresh the map; query each file in scope for callers.
   - Acceptance: FR-002, FR-006 for `lib/widgets`, `lib/theme`, `lib/utils`,
     `lib/routes`, `lib/controllers`: every `isMornye` condition there is replaced

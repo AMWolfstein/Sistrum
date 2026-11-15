@@ -33,11 +33,9 @@ class DuplicateReviewSheet extends ConsumerStatefulWidget {
   const DuplicateReviewSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return showAppBottomSheet<void>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainerHigh,
       title: context.l10n.duplicatesTitle,
       maxHeightFactor: 0.85,
       builder: (_) => const DuplicateReviewSheet(),
@@ -332,7 +330,6 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
   ) {
     final first = group.entries.first;
     return SettingsGroup(
-      connected: true,
       children: [
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 4),

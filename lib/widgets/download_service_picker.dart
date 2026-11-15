@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
@@ -40,13 +39,11 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
     String? recommendedService,
     required void Function(String quality, String service) onSelect,
   }) {
-    final mornye = context.isMornye;
-
     showAppModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      showDragHandle: !mornye,
+      showDragHandle: false,
       // Explicit constraints replace the theme's, so repeat its tablet width.
       constraints: BoxConstraints(
         maxWidth: 640,
@@ -60,7 +57,6 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
           onSelect: onSelect,
           recommendedService: recommendedService,
         );
-        if (!context.isMornye) return picker;
         final content = Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -179,11 +175,10 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
                 artistName: widget.artistName,
                 coverUrl: widget.coverUrl,
               ),
-              if (context.isMornye)
-                Divider(
-                  height: 1,
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                ),
+              Divider(
+                height: 1,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
             ],
 
             Padding(
@@ -224,12 +219,7 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
             ),
             if (hasProviders) ...[
               Padding(
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  context.isMornye ? 24 : 16,
-                  24,
-                  context.isMornye ? 12 : 8,
-                ),
+                padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
                 child: Text(
                   context.l10n.downloadSelectQuality,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -237,29 +227,26 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
                   ),
                 ),
               ),
-              if (context.isMornye)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: RepaintBoundary(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var i = 0; i < qualityRows.length; i++) ...[
-                          if (i > 0)
-                            Divider(
-                              height: 0.5,
-                              indent: 52,
-                              endIndent: 16,
-                              color: MornyeTheme.metadataDividerColor(context),
-                            ),
-                          qualityRows[i],
-                        ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: RepaintBoundary(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < qualityRows.length; i++) ...[
+                        if (i > 0)
+                          Divider(
+                            height: 0.5,
+                            indent: 52,
+                            endIndent: 16,
+                            color: MornyeTheme.metadataDividerColor(context),
+                          ),
+                        qualityRows[i],
                       ],
-                    ),
+                    ],
                   ),
-                )
-              else
-                ...qualityRows,
+                ),
+              ),
             ],
 
             const SizedBox(height: 16),
@@ -321,71 +308,50 @@ class _QualityOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    if (context.isMornye) {
-      return CupertinoButton(
-        padding: const EdgeInsets.all(16),
-        onPressed: onTap,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 24,
-              child: Icon(
-                mornyeIconFor(icon),
-                color: colorScheme.primary,
-                size: 22,
-              ),
+    return CupertinoButton(
+      padding: const EdgeInsets.all(16),
+      onPressed: onTap,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24,
+            child: Icon(
+              mornyeIconFor(icon),
+              color: colorScheme.primary,
+              size: 22,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
                   Text(
-                    title,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
                 ],
-              ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Icon(
-              CupertinoIcons.right_chevron,
-              size: 14,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ],
-        ),
-      );
-    }
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: colorScheme.onPrimaryContainer, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Icon(
+            CupertinoIcons.right_chevron,
+            size: 14,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ],
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      subtitle: subtitle.isNotEmpty
-          ? Text(
-              subtitle,
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
-            )
-          : null,
-      onTap: onTap,
     );
   }
 }
@@ -428,120 +394,62 @@ class _ServiceChip extends StatelessWidget {
       );
     }
 
-    if (context.isMornye) {
-      final foreground = isSelected
-          ? colorScheme.primary
-          : colorScheme.onSurface;
-      return Semantics(
-        button: true,
-        selected: isSelected,
-        hint: isRecommended ? 'Recommended' : null,
-        child: CupertinoButton(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          borderRadius: BorderRadius.circular(24),
-          color: isSelected
-              ? colorScheme.primary.withValues(alpha: 0.14)
-              : colorScheme.onSurface.withValues(alpha: 0.05),
-          onPressed: onTap,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isSelected) ...[
-                Icon(CupertinoIcons.checkmark, color: foreground, size: 18),
-                const SizedBox(width: 8),
-              ],
-              if (iconPath != null) ...[
-                serviceIcon(
-                  Icon(
-                    CupertinoIcons.square_grid_2x2,
-                    size: 18,
-                    color: foreground,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: foreground,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              if (isRecommended) ...[
-                const SizedBox(width: 6),
-                Tooltip(
-                  message: accessibleLabel,
-                  excludeFromSemantics: true,
-                  child: Icon(
-                    CupertinoIcons.star_fill,
-                    size: 12,
-                    color: foreground,
-                  ),
-                ),
-              ],
-              if (healthServiceId != null) ...[
-                const SizedBox(width: 8),
-                _ServiceHealthDot(serviceId: healthServiceId!),
-              ],
-            ],
-          ),
-        ),
-      );
-    }
-    // The chip stays compact; the tap area around it is the 48dp minimum.
-    final chip = AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
+    final foreground = isSelected ? colorScheme.primary : colorScheme.onSurface;
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      hint: isRecommended ? 'Recommended' : null,
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        borderRadius: BorderRadius.circular(24),
         color: isSelected
-            ? colorScheme.primaryContainer
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: isSelected
-            ? null
-            : Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            ? colorScheme.primary.withValues(alpha: 0.14)
+            : colorScheme.onSurface.withValues(alpha: 0.05),
+        onPressed: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              Icon(CupertinoIcons.checkmark, color: foreground, size: 18),
+              const SizedBox(width: 8),
+            ],
+            if (iconPath != null) ...[
+              serviceIcon(
+                Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 18,
+                  color: foreground,
+                ),
               ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (healthServiceId != null) ...[
-            _ServiceHealthDot(serviceId: healthServiceId!),
-            const SizedBox(width: 8),
-          ],
-          if (iconPath != null) ...[
-            serviceIcon(
-              Icon(
-                Icons.extension,
-                size: 18,
-                color: isSelected
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
+              const SizedBox(width: 8),
+            ],
+            Flexible(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            const SizedBox(width: 6),
+            if (isRecommended) ...[
+              const SizedBox(width: 6),
+              Tooltip(
+                message: accessibleLabel,
+                excludeFromSemantics: true,
+                child: Icon(
+                  CupertinoIcons.star_fill,
+                  size: 12,
+                  color: foreground,
+                ),
+              ),
+            ],
+            if (healthServiceId != null) ...[
+              const SizedBox(width: 8),
+              _ServiceHealthDot(serviceId: healthServiceId!),
+            ],
           ],
-          Text(
-            accessibleLabel,
-            style: TextStyle(
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              color: isSelected
-                  ? colorScheme.onPrimaryContainer
-                  : colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: context.tokens.minTouchTarget),
-        child: Center(widthFactor: 1, heightFactor: 1, child: chip),
+        ),
       ),
     );
   }

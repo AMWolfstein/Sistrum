@@ -22,3 +22,4 @@
 - TOR011 — Rename non-theme mornye names in tests, scheme and docs links
 - TOR012 — Sort Cargo.lock after the crate rename
 - M001-T001 — Make Mornye the only theme setting
+- M001-T002 — Collapse Material branches in shared widgets and theme

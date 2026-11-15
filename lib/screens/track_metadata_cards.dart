@@ -704,19 +704,16 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
             children: [
               SettingsItem(
                 icon: Icons.content_copy_rounded,
-                showIconInMornye: true,
                 title: sheetContext.l10n.metadataCopyValue,
                 onTap: () => Navigator.pop(sheetContext, 'value'),
               ),
               SettingsItem(
                 icon: Icons.label_outline_rounded,
-                showIconInMornye: true,
                 title: sheetContext.l10n.metadataCopyField,
                 onTap: () => Navigator.pop(sheetContext, 'field'),
               ),
               SettingsItem(
                 icon: Icons.copy_all_rounded,
-                showIconInMornye: true,
                 title: sheetContext.l10n.metadataCopyAll,
                 showDivider: false,
                 onTap: () => Navigator.pop(sheetContext, 'all'),

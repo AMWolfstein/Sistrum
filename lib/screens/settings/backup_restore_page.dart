@@ -266,7 +266,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
             title: l10n.backupExportSectionTitle,
             children: [
               SettingsItem(
-                icon: Icons.settings_outlined,
                 title: l10n.backupSettingsOnly,
                 onTap: _isBusy
                     ? null
@@ -279,7 +278,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
                       }),
               ),
               SettingsSwitchItem(
-                icon: Icons.settings_outlined,
                 title: l10n.backupContentsSettings,
                 subtitle: l10n.backupIncludesProfile,
                 value: _includeSettings,
@@ -288,7 +286,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
                     : (value) => setState(() => _includeSettings = value),
               ),
               SettingsSwitchItem(
-                icon: Icons.history,
                 title: l10n.backupSelectHistory,
                 value: _includeHistory,
                 onChanged: _isBusy
@@ -296,7 +293,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
                     : (value) => setState(() => _includeHistory = value),
               ),
               SettingsSwitchItem(
-                icon: Icons.library_music_outlined,
                 title: l10n.backupSelectCollections,
                 subtitle: l10n.backupSelectCollectionsDescription,
                 value: _includeCollections,
@@ -305,7 +301,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
                     : (value) => setState(() => _includeCollections = value),
               ),
               SettingsSwitchItem(
-                icon: Icons.extension_outlined,
                 title: l10n.backupSelectExtensions,
                 value: _includeExtensions,
                 onChanged: _isBusy
@@ -316,7 +311,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
                       }),
               ),
               SettingsSwitchItem(
-                icon: Icons.vpn_key_outlined,
                 title: l10n.backupIncludeSecrets,
                 subtitle: l10n.backupIncludeSecretsDescription,
                 value: _includeSecrets,
@@ -325,7 +319,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
                     : (value) => setState(() => _includeSecrets = value),
               ),
               SettingsItem(
-                icon: Icons.ios_share,
                 title: l10n.backupExportButton,
                 subtitle: _hasSelection
                     ? l10n.backupSelectedExportDescription
@@ -342,7 +335,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
             title: l10n.backupImportSectionTitle,
             children: [
               SettingsItem(
-                icon: Icons.settings_backup_restore,
                 title: l10n.backupImportButton,
                 subtitle: l10n.backupImportSectionDescription,
                 onTap: _isBusy ? null : _restoreBackup,

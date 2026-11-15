@@ -627,7 +627,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
           : CollectionHeaderActions(
               tracks: tracks,
               onLoveAll: () => loveAllTracks(this.context, ref, tracks),
-              downloadIcon: Icons.download,
               onDownloadAll: () => _downloadAll(context),
               addToPlaylistIcon: Icons.add,
               onAddToPlaylist: () =>
@@ -771,7 +770,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
           child: SelectionActionButton(
             icon: Icons.playlist_add,
             label: barContext.l10n.collectionAddToPlaylist,
-            colorScheme: colorScheme,
             onPressed: selectedCount == 0
                 ? null
                 : () {
@@ -790,7 +788,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
             onPressed: selectedCount == 0
                 ? null
                 : () => _downloadSelected(context, tracks),
-            colorScheme: colorScheme,
           ),
         ),
       ],

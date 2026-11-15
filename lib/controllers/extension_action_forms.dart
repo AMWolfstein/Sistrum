@@ -233,78 +233,32 @@ class _AccountFormDialogState extends State<_AccountFormDialog> {
     final label = field['label'] as String? ?? key;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final mornye = context.isMornye;
     final last = index == widget.form.fields.length - 1;
     final secret = field['type'] == 'password' || field['secret'] == true;
     final keyboard = field['type'] == 'number'
         ? const TextInputType.numberWithOptions(decimal: true, signed: true)
         : TextInputType.text;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide.none,
-    );
-    final themedBorder = theme.inputDecorationTheme.enabledBorder;
-    final materialRadius = themedBorder is OutlineInputBorder
-        ? themedBorder.borderRadius
-        : border.borderRadius;
-    final decoration = InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
-      border: border,
-      counterText: '',
-    );
     Widget input;
     if (field['type'] == 'select') {
-      input = mornye
-          ? CupertinoButton(
-              onPressed: () => _chooseOption(field),
-              color: MornyeTheme.controlFill(context),
-              borderRadius: BorderRadius.circular(12),
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _choices[key]!,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ),
-                  Icon(
-                    CupertinoIcons.chevron_up_chevron_down,
-                    size: 16,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            )
-          : Material(
-              color: Colors.transparent,
-              child: Ink(
-                decoration: BoxDecoration(
-                  color: decoration.fillColor,
-                  borderRadius: materialRadius,
-                ),
-                child: InkWell(
-                  borderRadius: materialRadius,
-                  onTap: () => _chooseOption(field),
-                  child: InputDecorator(
-                    decoration: decoration.copyWith(
-                      fillColor: Colors.transparent,
-                      suffixIcon: Icon(
-                        Icons.expand_more,
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                    child: Text(
-                      _choices[key]!,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ),
-                ),
-              ),
-            );
-    } else if (mornye) {
+      input = CupertinoButton(
+        onPressed: () => _chooseOption(field),
+        color: MornyeTheme.controlFill(context),
+        borderRadius: BorderRadius.circular(12),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(_choices[key]!, style: theme.textTheme.bodyLarge),
+            ),
+            Icon(
+              CupertinoIcons.chevron_up_chevron_down,
+              size: 16,
+              color: colors.onSurfaceVariant,
+            ),
+          ],
+        ),
+      );
+    } else {
       input = FormField<String>(
         validator: (value) => _validate(field, value),
         builder: (state) => Column(
@@ -344,38 +298,21 @@ class _AccountFormDialogState extends State<_AccountFormDialog> {
           ],
         ),
       );
-    } else {
-      input = TextFormField(
-        controller: _controllers[key],
-        obscureText: secret,
-        autocorrect: false,
-        enableSuggestions: false,
-        enableIMEPersonalizedLearning: false,
-        maxLength: 4096,
-        keyboardType: keyboard,
-        textInputAction: last ? TextInputAction.done : TextInputAction.next,
-        onFieldSubmitted: (_) =>
-            last ? _submit() : FocusScope.of(context).nextFocus(),
-        decoration: decoration,
-        validator: (value) => _validate(field, value),
-      );
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (mornye) ...[
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
-              child: Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
               ),
             ),
-          ],
+          ),
           Semantics(
             label: label,
             button: field['type'] == 'select' ? true : null,

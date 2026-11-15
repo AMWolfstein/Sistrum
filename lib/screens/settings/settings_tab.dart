@@ -335,7 +335,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     return SettingsItem(
       icon: destination.icon,
       iconColor: _iconColorFor(destination),
-      showIconInMornye: true,
       title: destination.title,
       titleTrailing: destination.beta ? const BetaBadge() : null,
       subtitle: context.isMornye ? null : destination.subtitle,
@@ -356,7 +355,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       ),
       icon: entry.icon,
       iconColor: _iconColorFor(result.destination),
-      showIconInMornye: true,
       title: entry.title,
       subtitle: result.destination.title,
       showDivider: showDivider,

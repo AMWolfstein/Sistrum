@@ -25,14 +25,12 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = Theme.of(context).colorScheme;
     final showPlayer = ref.watch(playerUiEnabledProvider);
     final actions = <Widget>[
       if (items.any((item) => networkOfflineOrigin(item) != null))
         SelectionActionButton(
           icon: Icons.download_for_offline_outlined,
           label: context.l10n.offlineSave,
-          colorScheme: colors,
           onPressed: () {
             final root = Navigator.of(context, rootNavigator: true).context;
             unawaited(saveNetworkOffline(root, ref, items));
@@ -46,7 +44,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
         SelectionActionButton(
           icon: Icons.cloud_upload_outlined,
           label: context.l10n.networkUpload,
-          colorScheme: colors,
           onPressed: () {
             final root = Navigator.of(context, rootNavigator: true).context;
             unawaited(uploadToNetworkStorage(root, ref, items));
@@ -56,7 +53,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
       SelectionActionButton(
         icon: Icons.playlist_add,
         label: context.l10n.collectionAddToPlaylist,
-        colorScheme: colors,
         onPressed: items.isEmpty
             ? null
             : () {
@@ -75,7 +71,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
           label: next
               ? context.l10n.trackPlayNext
               : context.l10n.trackAddToQueue,
-          colorScheme: colors,
           onPressed: items.isEmpty
               ? null
               : () async {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
@@ -49,8 +48,6 @@ class AlbumTrackTile extends StatelessWidget {
       style: TrackCardStyle.flat,
       isSelectionMode: isSelectionMode,
       isSelected: isSelected,
-      isCurrent: isCurrent,
-      isPlaying: isPlaying,
       onTap: isSelectionMode ? onToggleSelection : onOpen,
       onLongPress: isSelectionMode ? null : onEnterSelectionMode,
       leading: SizedBox(
@@ -83,24 +80,16 @@ class AlbumTrackPlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    // Material draws a filled tonal icon button: a solid role pair rather
-    // than a faded primary container.
     return AppIconButton(
       tooltip: isPlaying ? context.l10n.actionPause : context.l10n.tooltipPlay,
       onPressed: onPlay,
       icon: Icon(
-        context.isMornye
-            ? (isPlaying ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill)
-            : (isPlaying ? Icons.pause : Icons.play_arrow),
-        color: context.isMornye
-            ? colorScheme.primary
-            : colorScheme.onSecondaryContainer,
+        (isPlaying ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill),
+        color: colorScheme.primary,
       ),
       style: IconButton.styleFrom(
         minimumSize: Size.square(context.tokens.minTouchTarget),
-        backgroundColor: context.isMornye
-            ? Colors.transparent
-            : colorScheme.secondaryContainer,
+        backgroundColor: Colors.transparent,
       ),
     );
   }

@@ -287,7 +287,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                 SliverToBoxAdapter(
                   child: SettingsGroup(
                     glass: true,
-                    connected: true,
                     children: extension.settings.asMap().entries.map((entry) {
                       final index = entry.key;
                       final setting = entry.value;
@@ -312,7 +311,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
               ...settingsSectionSlivers(
                 title: context.l10n.extensionServiceStatus,
                 glass: true,
-                connected: true,
                 children: [
                   _HealthSummaryItem(
                     status: healthStatus,
@@ -346,7 +344,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
               ...settingsSectionSlivers(
                 title: context.l10n.extensionQualityOptions,
                 glass: true,
-                connected: true,
                 children: extension.qualityOptions.asMap().entries.map((entry) {
                   final index = entry.key;
                   final quality = entry.value;
@@ -362,7 +359,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
               ...settingsSectionSlivers(
                 title: context.l10n.extensionPostProcessingHooks,
                 glass: true,
-                connected: true,
                 children: extension.postProcessing!.hooks.asMap().entries.map((
                   entry,
                 ) {
@@ -380,7 +376,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
               ...settingsSectionSlivers(
                 title: context.l10n.extensionPermissions,
                 glass: true,
-                connected: true,
                 children: extension.permissions.asMap().entries.map((entry) {
                   final index = entry.key;
                   final permission = entry.value;
@@ -394,7 +389,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
             ...settingsSectionSlivers(
               title: context.l10n.extensionCapabilities,
               glass: true,
-              connected: true,
               children: [
                 _CapabilityItem(
                   icon: Icons.search,
@@ -467,7 +461,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                 child: AppDialogAction(
                   onPressed: () => _confirmRemove(context),
                   isDestructive: true,
-                  outlined: true,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: colorScheme.error,
                     side: BorderSide(color: colorScheme.error),

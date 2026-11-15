@@ -110,7 +110,7 @@ void main() {
     });
   }
 
-  for (final mornye in [true, false]) {
+  for (final mornye in const [true]) {
     for (final brightness in Brightness.values) {
       final name = '${mornye ? 'mornye' : 'material'}-${brightness.name}';
       testWidgets('centered action and neutral bandwidth result ($name)', (
@@ -153,7 +153,7 @@ void main() {
     }
   }
 
-  for (final mornye in [true, false]) {
+  for (final mornye in const [true]) {
     testWidgets('large text stays readable ($mornye)', (tester) async {
       await openCard(tester, mornye: mornye, textScale: 2);
       await tester.tap(find.text('Check'));

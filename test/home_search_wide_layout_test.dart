@@ -36,15 +36,10 @@ Future<void> _dismissSnackBars(WidgetTester tester) async {
 }
 
 void main() {
-
-
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     final style = mornye ? 'Mornye' : 'Material';
 
-
-    for (final (platform, size) in [
-      ('tablet', _tablet),
-    ]) {
+    for (final (platform, size) in [('tablet', _tablet)]) {
       testWidgets('$style $platform album filter shows a grid of covers', (
         tester,
       ) async {
@@ -60,9 +55,7 @@ void main() {
           results: results,
           filters: searchFixtureAllFilters,
         );
-        await tester.tap(
-          find.text('Albums filter'),
-        );
+        await tester.tap(find.text('Albums filter'));
         await tester.pumpAndSettle();
         expect(results.requestedFilters.last, 'album');
 
@@ -116,7 +109,6 @@ void main() {
       });
     }
 
-
     testWidgets('$style tablet All view shelves songs without a filter', (
       tester,
     ) async {
@@ -137,6 +129,5 @@ void main() {
       expect(results.requestedFilters, [null]);
       expect(tester.takeException(), isNull);
     });
-
   }
 }

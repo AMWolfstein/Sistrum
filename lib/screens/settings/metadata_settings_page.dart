@@ -29,7 +29,6 @@ class MetadataSettingsPage extends ConsumerWidget {
               title: context.l10n.sectionDownload,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.sell_outlined,
                   title: context.l10n.optionsEmbedMetadata,
                   subtitle: settings.embedMetadata
                       ? context.l10n.optionsEmbedMetadataSubtitleOn
@@ -41,7 +40,6 @@ class MetadataSettingsPage extends ConsumerWidget {
                 ),
                 if (settings.embedMetadata) ...[
                   SettingsItem(
-                    icon: Icons.people_alt_outlined,
                     title: context.l10n.optionsArtistTagMode,
                     subtitle: _getArtistTagModeLabel(
                       context,
@@ -54,7 +52,6 @@ class MetadataSettingsPage extends ConsumerWidget {
                     ),
                   ),
                   SettingsItem(
-                    icon: Icons.format_list_bulleted,
                     title: context.l10n.metadataSeparators,
                     onTap: () => pushPage<void>(
                       context,
@@ -62,7 +59,6 @@ class MetadataSettingsPage extends ConsumerWidget {
                     ),
                   ),
                   SettingsItem(
-                    icon: Icons.photo_size_select_large_outlined,
                     title: context.l10n.optionsEmbeddedCoverSize,
                     subtitle: _getEmbeddedCoverSizeLabel(
                       context,
@@ -75,7 +71,6 @@ class MetadataSettingsPage extends ConsumerWidget {
                     ),
                   ),
                   SettingsSwitchItem(
-                    icon: Icons.graphic_eq,
                     title: context.l10n.optionsReplayGain,
                     subtitle: settings.embedReplayGain
                         ? context.l10n.optionsReplayGainSubtitleOn
@@ -94,7 +89,6 @@ class MetadataSettingsPage extends ConsumerWidget {
               title: context.l10n.sectionMetadataProviders,
               children: [
                 SettingsItem(
-                  icon: Icons.source_outlined,
                   title: context.l10n.metadataProvidersTitle,
                   subtitle: context.l10n.metadataProvidersSubtitle,
                   onTap: () => pushPage<void>(
@@ -110,7 +104,6 @@ class MetadataSettingsPage extends ConsumerWidget {
               title: context.l10n.sectionDuplicates,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.filter_list_outlined,
                   title: context.l10n.downloadDeduplication,
                   subtitle: settings.deduplicateDownloads
                       ? settings.allowQualityVariants
@@ -125,7 +118,6 @@ class MetadataSettingsPage extends ConsumerWidget {
                       .setDeduplicateDownloads(value),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.library_music_outlined,
                   title: context.l10n.downloadQualityVariants,
                   subtitle: context.l10n.downloadQualityVariantsDescription,
                   value: settings.allowQualityVariants,

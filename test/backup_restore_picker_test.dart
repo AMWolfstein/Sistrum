@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/screens/settings/backup_restore_page.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
@@ -37,8 +38,9 @@ void main() {
     'settings-only preset and empty selection update export controls',
     (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
+        ProviderScope(
           child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: BackupRestorePage(),
@@ -62,7 +64,7 @@ void main() {
       await tester.pumpAndSettle();
       final export = tester
           .widgetList<SettingsItem>(find.byType(SettingsItem))
-          .firstWhere((item) => item.icon == Icons.ios_share);
+          .firstWhere((item) => item.title == 'Create backup file');
       expect(export.onTap, isNull);
       expect(
         export.subtitle,
@@ -80,8 +82,9 @@ void main() {
     FilePickerPlatform.instance = picker;
     addTearDown(() => FilePickerPlatform.instance = original);
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: BackupRestorePage(),

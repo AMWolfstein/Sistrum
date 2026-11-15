@@ -38,7 +38,6 @@ class _LastfmSettingsState extends State<LastfmSettings> {
       builder: (context, _) => SettingsGroup(
         children: [
           SettingsItem(
-            icon: service.connected ? Icons.check_circle_outline : Icons.link,
             title: service.connected
                 ? service.username!
                 : service.busy
@@ -65,21 +64,18 @@ class _LastfmSettingsState extends State<LastfmSettings> {
           ),
           if (service.awaitingAuthorization)
             SettingsItem(
-              icon: Icons.close,
               title: l10n.dialogCancel,
               onTap: service.cancelConnection,
               showDivider: service.problem != null,
             ),
           if (service.connected) ...[
             SettingsSwitchItem(
-              icon: Icons.history_rounded,
               title: l10n.lastfmScrobbling,
               subtitle: l10n.lastfmScrobblingDescription,
               value: service.enabled,
               onChanged: (enabled) => unawaited(service.setEnabled(enabled)),
             ),
             SettingsSwitchItem(
-              icon: Icons.music_note_outlined,
               title: l10n.lastfmNowPlaying,
               subtitle: l10n.lastfmNowPlayingDescription,
               value: service.nowPlaying,
@@ -89,13 +85,11 @@ class _LastfmSettingsState extends State<LastfmSettings> {
           ],
           if (service.pendingCount > 0)
             SettingsItem(
-              icon: Icons.sync,
               title: l10n.lastfmPending(service.pendingCount),
               onTap: service.enabled ? () => unawaited(service.flush()) : null,
             ),
           if (service.problem case final problem?)
             SettingsItem(
-              icon: Icons.info_outline,
               title: switch (problem) {
                 LastfmProblem.connection => l10n.lastfmConnectionError,
                 LastfmProblem.storage => l10n.lastfmStorageError,
@@ -112,7 +106,6 @@ class _LastfmSettingsState extends State<LastfmSettings> {
             ),
           if (service.connected)
             SettingsItem(
-              icon: Icons.link_off,
               title: l10n.lastfmDisconnect,
               onTap: () => unawaited(service.disconnect()),
               showDivider: false,

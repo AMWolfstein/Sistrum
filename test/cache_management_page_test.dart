@@ -52,7 +52,7 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('cache rows show sizes and confirm before clearing '
         '(Mornye: $mornye)', (tester) async {
       tester.view.physicalSize = const Size(430, 2400);
@@ -86,61 +86,49 @@ void main() {
           .widgetList<SettingsItem>(find.byType(SettingsItem))
           .toList();
       expect(
-        [
-          for (final row in rows)
-            (row.icon, row.title, row.subtitle, row.showDivider),
-        ],
+        [for (final row in rows) (row.title, row.subtitle, row.showDivider)],
         [
           (
-            Icons.folder_outlined,
             l10n.cacheAppDirectory,
             '${l10n.cacheAppDirectoryDesc}\n${sized(1500, 2)}',
             true,
           ),
           (
-            Icons.timer_outlined,
             l10n.cacheTempDirectory,
             '${l10n.cacheTempDirectoryDesc}\n${sized(2048, 1)}',
             true,
           ),
           (
-            Icons.image_outlined,
             l10n.cacheCoverImage,
             '${l10n.cacheCoverImageDesc}\n${l10n.cacheNoData}',
             true,
           ),
           (
-            Icons.library_music_outlined,
             l10n.cacheLibraryCover,
             '${l10n.cacheLibraryCoverDesc}\n${l10n.cacheNoData}',
             true,
           ),
           (
-            Icons.graphic_eq_outlined,
             l10n.cacheAudioAnalysis,
             '${l10n.cacheAudioAnalysisDesc}\n${sized(300, 1)}',
             true,
           ),
           (
-            Icons.video_library_outlined,
             l10n.cacheMotionArtwork,
             '${l10n.cacheMotionArtworkDesc}\n${formatBytes(4096)}',
             true,
           ),
           (
-            Icons.explore_outlined,
             l10n.cacheExploreFeed,
             '${l10n.cacheExploreFeedDesc}\n${l10n.cacheNoData}',
             true,
           ),
           (
-            Icons.memory_outlined,
             l10n.cacheTrackLookup,
             '${l10n.cacheTrackLookupDesc}\n${l10n.cacheNoData}',
             false,
           ),
           (
-            Icons.cleaning_services_outlined,
             l10n.cacheCleanupUnused,
             '${l10n.cacheCleanupUnusedDesc}\n'
                 '${l10n.cacheCleanupUnusedSubtitle}',

@@ -85,7 +85,6 @@ class _ListeningStatisticsScreenState
                     child: SettingsGroup(
                       children: [
                         SettingsSwitchItem(
-                          icon: Icons.insights_outlined,
                           title: context.l10n.listeningStatsRecord,
                           subtitle: context.l10n.listeningStatsDescription,
                           value: ref

@@ -8,7 +8,6 @@ import 'package:sistrum/screens/settings/appearance_settings_page.dart';
 import 'package:sistrum/screens/settings/download_settings_page.dart';
 import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
@@ -20,8 +19,6 @@ void main() {
     'equalizer': () => const EqualizerScreen(),
   };
   final themes = <String, ThemeData Function()>{
-    'Material light': AppTheme.light,
-    'Material dark': AppTheme.dark,
     'Sistrum light': () => MornyeTheme.build(Brightness.light),
     'Sistrum dark': () => MornyeTheme.build(Brightness.dark),
   };

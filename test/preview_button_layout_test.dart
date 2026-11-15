@@ -1,9 +1,11 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
@@ -42,7 +44,8 @@ void main() {
           ),
           playbackPlayingProvider.overrideWith((ref) => false),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: PreviewButton(track: track)),
@@ -99,6 +102,7 @@ void main() {
           previewPlayerProvider.overrideWith(() => player),
         ],
         child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -154,8 +158,9 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: TrackCollectionQuickActions(track: track)),
@@ -164,7 +169,7 @@ void main() {
     );
     await tester.pump();
 
-    expectCenteredHitbox(tester, Icons.more_vert);
+    expectCenteredHitbox(tester, CupertinoIcons.ellipsis);
   });
 
   testWidgets('track options expose Go to Album for album tracks', (
@@ -178,7 +183,8 @@ void main() {
             _TestLibraryCollectionsNotifier.new,
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: TrackCollectionQuickActions(track: track)),
@@ -186,11 +192,11 @@ void main() {
       ),
     );
 
-    await tester.tap(findAppIcon(Icons.more_vert));
+    await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
     await tester.pumpAndSettle();
 
     expect(find.text('Go to Album'), findsOneWidget);
-    expect(findAppIcon(Icons.album_outlined), findsOneWidget);
+    expect(findAppIcon(CupertinoIcons.square_stack), findsOneWidget);
   });
 
   testWidgets(
@@ -204,7 +210,8 @@ void main() {
               _TestLibraryCollectionsNotifier.new,
             ),
           ],
-          child: const MaterialApp(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
@@ -214,11 +221,11 @@ void main() {
         ),
       );
 
-      await tester.tap(findAppIcon(Icons.more_vert));
+      await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
       await tester.pumpAndSettle();
 
       expect(find.text('Go to Album'), findsOneWidget);
-      expect(findAppIcon(Icons.album_outlined), findsOneWidget);
+      expect(findAppIcon(CupertinoIcons.square_stack), findsOneWidget);
     },
   );
 }

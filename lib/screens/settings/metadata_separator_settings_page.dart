@@ -41,9 +41,6 @@ class MetadataSeparatorSettingsPage extends ConsumerWidget {
               children: [
                 for (final field in MetadataSeparators.fields)
                   SettingsItem(
-                    icon: field == 'genre'
-                        ? Icons.category_outlined
-                        : Icons.people_alt_outlined,
                     title: labels[field]!,
                     subtitle: separators.toJson()[field]!.isEmpty
                         ? context.l10n.metadataSeparatorSource

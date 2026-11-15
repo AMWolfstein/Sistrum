@@ -31,18 +31,14 @@ class _ExtensionDivider extends StatelessWidget {
   final double indent;
 
   @override
-  Widget build(BuildContext context) => settingsRowsConnected(context)
-      ? const SizedBox.shrink()
-      : Divider(
-          height: 1,
-          indent: indent,
-          endIndent: 16,
-          color: context.isMornye
-              ? MornyeTheme.metadataDividerColor(context)
-              : Theme.of(
-                  context,
-                ).colorScheme.outlineVariant.withValues(alpha: 0.3),
-        );
+  Widget build(BuildContext context) => Divider(
+    height: 1,
+    indent: indent,
+    endIndent: 16,
+    color: context.isMornye
+        ? MornyeTheme.metadataDividerColor(context)
+        : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+  );
 }
 
 /// Long OAuth URLs: selectable text so users can copy without relying on snackbars.

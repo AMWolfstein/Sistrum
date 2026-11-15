@@ -71,7 +71,7 @@ void main() {
     expect(savedPreamp(), -5);
   });
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'EQ drags retain unrelated controls and current edits ($mornye)',
       (tester) async {
@@ -340,7 +340,7 @@ void main() {
     expect(restored.read(equalizerProvider).presets.length, 3);
   });
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'EQ editing and dialogs fit a narrow screen with large text ($mornye)',
       (tester) async {

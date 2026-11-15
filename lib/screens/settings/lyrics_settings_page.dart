@@ -45,7 +45,6 @@ class LyricsSettingsPage extends ConsumerWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionLyrics,
-              connected: true,
               children: [
                 const LyricsSizeSetting(),
                 // Lyrics blur only where the player draws it.
@@ -53,7 +52,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                   const LyricsBlurSetting(),
                 const LyricsOffsetSetting(),
                 SettingsSwitchItem(
-                  icon: Icons.light_mode_outlined,
                   title: context.l10n.lyricsKeepScreenOn,
                   subtitle: context.l10n.lyricsKeepScreenOnSubtitle,
                   value: settings.keepScreenOnLyrics,
@@ -63,7 +61,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                 ),
                 SettingsItem(
                   key: const ValueKey('lyrics-ai-translation'),
-                  icon: Icons.auto_awesome_outlined,
                   title: context.l10n.lyricsAiTranslation,
                   subtitle: aiReady
                       ? lyricsAiProviderName(context.l10n, aiProvider)
@@ -74,7 +71,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                   ),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.subtitles_outlined,
                   title: context.l10n.optionsEmbedLyrics,
                   subtitle: settings.embedMetadata
                       ? context.l10n.optionsEmbedLyricsSubtitle
@@ -87,7 +83,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                 ),
                 if (settings.embedMetadata && settings.embedLyrics) ...[
                   SettingsItem(
-                    icon: Icons.lyrics_outlined,
                     title: context.l10n.lyricsMode,
                     subtitle: _getLyricsModeLabel(context, settings.lyricsMode),
                     onTap: () => _showLyricsModePicker(
@@ -97,7 +92,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                     ),
                   ),
                   SettingsItem(
-                    icon: Icons.source_outlined,
                     title: context.l10n.lyricsProvidersTitle,
                     subtitle: _getLyricsProvidersSubtitle(
                       context,
@@ -119,7 +113,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                 title: context.l10n.sectionLyricsProviderOptions,
                 children: [
                   SettingsSwitchItem(
-                    icon: Icons.translate_outlined,
                     title: context.l10n.downloadNeteaseIncludeTranslation,
                     subtitle: settings.lyricsIncludeTranslationNetease
                         ? context.l10n.downloadNeteaseIncludeTranslationEnabled
@@ -132,7 +125,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                         .setLyricsIncludeTranslationNetease(value),
                   ),
                   SettingsSwitchItem(
-                    icon: Icons.text_fields_outlined,
                     title: context.l10n.downloadNeteaseIncludeRomanization,
                     subtitle: settings.lyricsIncludeRomanizationNetease
                         ? context.l10n.downloadNeteaseIncludeRomanizationEnabled
@@ -145,7 +137,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                         .setLyricsIncludeRomanizationNetease(value),
                   ),
                   SettingsSwitchItem(
-                    icon: Icons.record_voice_over_outlined,
                     title: context.l10n.downloadAppleQqMultiPerson,
                     subtitle: settings.lyricsMultiPersonWordByWord
                         ? context.l10n.downloadAppleQqMultiPersonEnabled
@@ -156,7 +147,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                         .setLyricsMultiPersonWordByWord(value),
                   ),
                   SettingsSwitchItem(
-                    icon: Icons.graphic_eq_outlined,
                     title: context.l10n.downloadAppleElrcWordSync,
                     subtitle: settings.lyricsAppleElrcWordSync
                         ? context.l10n.downloadAppleElrcWordSyncEnabled
@@ -167,7 +157,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                         .setLyricsAppleElrcWordSync(value),
                   ),
                   SettingsItem(
-                    icon: Icons.language_outlined,
                     title: context.l10n.downloadMusixmatchLanguage,
                     subtitle: settings.musixmatchLanguage.isEmpty
                         ? context.l10n.downloadMusixmatchLanguageAuto

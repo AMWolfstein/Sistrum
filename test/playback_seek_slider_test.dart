@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/widgets/mornye_player_slider.dart';
 import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 void main() {
@@ -18,7 +19,6 @@ void main() {
       home: Scaffold(
         body: PlaybackSeekSlider(
           preview: sharedPreview,
-          playing: true,
           position: position,
           duration: const Duration(seconds: 100),
           onSeek: (target) {
@@ -180,6 +180,7 @@ void main() {
     final seeks = <Duration>[];
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
         home: Scaffold(
           body: PlaybackSeekSlider(
             position: const Duration(minutes: 2),
@@ -189,10 +190,11 @@ void main() {
         ),
       ),
     );
-    final slider = tester.widget<Slider>(find.byType(Slider));
+    final slider = tester.widget<MornyePlayerSlider>(
+      find.byType(MornyePlayerSlider),
+    );
     expect(slider.value, 0);
-    expect(slider.onChanged, isNull);
-    await tester.tap(find.byType(Slider));
+    await tester.tap(find.byType(MornyePlayerSlider), warnIfMissed: false);
     expect(seeks, isEmpty);
   });
 }

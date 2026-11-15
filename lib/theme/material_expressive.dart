@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:material_ui/material_ui.dart' as material_ui;
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/skip_autofocus.dart';
 
 /// Motion-heavy expressive controls use their static Material counterpart when
 /// the OS requests reduced motion. Mornye owns its own component system.
-bool materialExpressiveEnabled(BuildContext context) =>
-    !context.isMornye && !MediaQuery.disableAnimationsOf(context);
+bool materialExpressiveEnabled(BuildContext context) => false;
 
 /// Bridges the app's Flutter theme to the separate Material UI widget library.
 /// Local artwork colors, dynamic colors, fonts and AMOLED surfaces stay intact.

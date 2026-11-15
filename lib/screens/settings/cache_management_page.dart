@@ -295,7 +295,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
     Future<void> Function() action, {
     bool showDivider = true,
   }) => SettingsItem(
-    icon: icon,
     title: title,
     subtitle: '$description\n$sizeInfo',
     trailing: _buildClearTrailing(
@@ -546,7 +545,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
               title: context.l10n.cacheSectionMaintenance,
               children: [
                 SettingsItem(
-                  icon: Icons.cleaning_services_outlined,
                   title: context.l10n.cacheCleanupUnused,
                   subtitle:
                       '${context.l10n.cacheCleanupUnusedDesc}\n${context.l10n.cacheCleanupUnusedSubtitle}',

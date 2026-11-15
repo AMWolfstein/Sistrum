@@ -9,7 +9,6 @@ import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -17,17 +16,7 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 /// The neutral grouped fill used in Settings, including AMOLED themes.
 Color settingsGroupColor(BuildContext context) {
   final colorScheme = Theme.of(context).colorScheme;
-  if (context.isMornye) return colorScheme.surfaceContainer;
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return isDark
-      ? Color.alphaBlend(
-          Colors.white.withValues(alpha: 0.08),
-          colorScheme.surface,
-        )
-      : Color.alphaBlend(
-          Colors.black.withValues(alpha: 0.04),
-          colorScheme.surface,
-        );
+  return colorScheme.surfaceContainer;
 }
 
 /// Carries a Settings search result into its destination page.
@@ -192,12 +181,6 @@ class _SettingsSearchTargetState extends State<SettingsSearchTarget> {
   }
 }
 
-/// Whether rows sit in an expressive connected [SettingsGroup], where the gaps
-/// between row surfaces replace dividers. Custom rows check this to hide
-/// their own dividers.
-bool settingsRowsConnected(BuildContext context) =>
-    context.dependOnInheritedWidgetOfExactType<_ConnectedRowsScope>() != null;
-
 /// Horizontal margin of settings content on a surface [maxWidth] wide: the
 /// 16dp edge plus the wide-layout centering inset. Groups, section headers,
 /// info cards and page-level buttons share it so their edges line up, also
@@ -223,46 +206,25 @@ BorderRadius connectedRowRadius(
   );
 }
 
-class _ConnectedRowsScope extends InheritedWidget {
-  const _ConnectedRowsScope({required super.child});
-
-  @override
-  bool updateShouldNotify(_ConnectedRowsScope oldWidget) => false;
-}
-
 class SettingsGroup extends StatelessWidget {
   final List<Widget> children;
   final EdgeInsetsGeometry? margin;
   final bool glass;
-
-  /// Connects custom [children] that are each one complete row, such as
-  /// extension rows. Groups of [SettingsItem], [SettingsSwitchItem] and [ListTile]
-  /// connect without it.
-  final bool connected;
 
   const SettingsGroup({
     super.key,
     required this.children,
     this.margin,
     this.glass = false,
-    this.connected = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final cardColor = settingsGroupColor(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
     final decoration = BoxDecoration(
       color: cardColor,
-      borderRadius: BorderRadius.circular(
-        context.isMornye ? 28 : context.tokens.radiusCard,
-      ),
-      border: context.isMornye
-          ? null
-          : Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
+      borderRadius: BorderRadius.circular(28),
+      border: null,
     );
     final child = Material(
       color: Colors.transparent,
@@ -285,57 +247,12 @@ class SettingsGroup extends StatelessWidget {
               child: child,
             ),
           );
-
-    if (glass && context.isMornye) {
+    if (glass) {
       // Groups scroll over the opaque page color, where a backdrop pass
       // filters a flat color; keep the glass tint and rim without it.
       return inset(MornyeGlassPanel(samplesBackdrop: false, child: child));
     }
-
     final expressive = materialExpressiveEnabled(context);
-    // Only groups of standard rows split into connected tiles. Forms and
-    // custom content keep one card, so spacers never become empty tiles.
-    final standardRows =
-        children.isNotEmpty &&
-        (connected ||
-            children.every(
-              (child) =>
-                  child is SettingsItem ||
-                  child is SettingsSwitchItem ||
-                  child is ListTile,
-            ));
-    // Connected surfaces are static layout, so reduced motion keeps the gaps.
-    if (!context.isMornye && standardRows) {
-      // Expressive connected list: every row is its own surface separated by
-      // a 2dp gap. The group's ends keep the card radius, inner corners stay
-      // tight, and the gaps replace row dividers.
-      final last = children.length - 1;
-      return inset(
-        _ConnectedRowsScope(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (index, row) in children.indexed) ...[
-                if (index > 0) const SizedBox(height: 2),
-                Material(
-                  color: cardColor,
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: connectedRowRadius(
-                      context,
-                      first: index == 0,
-                      last: index == last,
-                    ),
-                  ),
-                  child: row,
-                ),
-              ],
-            ],
-          ),
-        ),
-      );
-    }
-
     if (expressive) {
       return inset(
         MaterialExpressiveScope(
@@ -349,7 +266,6 @@ class SettingsGroup extends StatelessWidget {
         ),
       );
     }
-
     return inset(
       Container(
         decoration: decoration,
@@ -364,16 +280,11 @@ class SettingsGroup extends StatelessWidget {
 List<Widget> settingsSectionSlivers({
   required String title,
   required List<Widget> children,
-  bool connected = false,
   bool glass = false,
 }) => [
   SliverToBoxAdapter(child: SettingsSectionHeader(title: title)),
   SliverToBoxAdapter(
-    child: SettingsGroup(
-      connected: connected,
-      glass: glass,
-      children: children,
-    ),
+    child: SettingsGroup(glass: glass, children: children),
   ),
 ];
 
@@ -398,25 +309,17 @@ class SliverSettingsGroup extends StatelessWidget {
       itemBuilder: (context, index) {
         final first = index == 0;
         final last = index == itemCount - 1;
-        final mornye = context.isMornye;
-        final radius = mornye
-            ? BorderRadius.vertical(
-                top: first ? const Radius.circular(28) : Radius.zero,
-                bottom: last ? const Radius.circular(28) : Radius.zero,
-              )
-            : connectedRowRadius(context, first: first, last: last);
+        final radius = BorderRadius.vertical(
+          top: first ? const Radius.circular(28) : Radius.zero,
+          bottom: last ? const Radius.circular(28) : Radius.zero,
+        );
         final row = Material(
           color: settingsGroupColor(context),
           clipBehavior: Clip.antiAlias,
           borderRadius: radius,
           child: itemBuilder(context, index),
         );
-        return mornye
-            ? row
-            : Padding(
-                padding: EdgeInsets.only(top: first ? 0 : 2),
-                child: _ConnectedRowsScope(child: row),
-              );
+        return row;
       },
     ),
   );
@@ -426,8 +329,6 @@ class SettingsItem extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
 
-  /// Show category icons in Mornye's top-level settings and search results.
-  final bool showIconInMornye;
   final String title;
   final Widget? titleTrailing;
   final String? subtitle;
@@ -444,7 +345,6 @@ class SettingsItem extends StatelessWidget {
     super.key,
     this.icon,
     this.iconColor,
-    this.showIconInMornye = false,
     required this.title,
     this.titleTrailing,
     this.subtitle,
@@ -458,7 +358,7 @@ class SettingsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final showIcon = icon != null && (!context.isMornye || showIconInMornye);
+    final showIcon = icon != null;
 
     final content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -512,17 +412,10 @@ class SettingsItem extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               subtitle!,
-                              style:
-                                  (context.isMornye
-                                          ? Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall
-                                          : Theme.of(
-                                              context,
-                                            ).textTheme.bodyMedium)
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
+                              style: (Theme.of(context).textTheme.bodySmall)
+                                  ?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                             ),
                           ],
                           if (footer != null) ...[
@@ -538,9 +431,7 @@ class SettingsItem extends StatelessWidget {
                     ] else if (onTap != null) ...[
                       const SizedBox(width: 8),
                       AppIcon(
-                        context.isMornye
-                            ? CupertinoIcons.forward
-                            : Icons.chevron_right,
+                        CupertinoIcons.forward,
                         size: context.tokens.rowChevronSize,
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -551,16 +442,14 @@ class SettingsItem extends StatelessWidget {
             ),
           ),
         ),
-        if (showDivider && !settingsRowsConnected(context))
+        if (showDivider)
           Divider(
             height: 1,
             indent: showIcon
                 ? context.tokens.rowIconDividerIndent
                 : context.tokens.rowPaddingH,
             endIndent: context.tokens.rowPaddingH,
-            color: context.isMornye
-                ? colorScheme.outlineVariant
-                : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            color: colorScheme.outlineVariant,
           ),
       ],
     );
@@ -569,7 +458,6 @@ class SettingsItem extends StatelessWidget {
 }
 
 class SettingsSwitchItem extends StatelessWidget {
-  final IconData? icon;
   final String title;
   final Widget? titleTrailing;
   final String? subtitle;
@@ -580,7 +468,6 @@ class SettingsSwitchItem extends StatelessWidget {
 
   const SettingsSwitchItem({
     super.key,
-    this.icon,
     required this.title,
     this.titleTrailing,
     this.subtitle,
@@ -594,8 +481,6 @@ class SettingsSwitchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDisabled = !enabled || onChanged == null;
-    final showIcon = icon != null && !context.isMornye;
-
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -614,16 +499,6 @@ class SettingsSwitchItem extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    if (showIcon) ...[
-                      AppIcon(
-                        icon,
-                        color: isDisabled
-                            ? colorScheme.outline
-                            : colorScheme.onSurfaceVariant,
-                        size: 24,
-                      ),
-                      SizedBox(width: context.tokens.rowIconGap),
-                    ],
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -674,16 +549,12 @@ class SettingsSwitchItem extends StatelessWidget {
             ),
           ),
         ),
-        if (showDivider && !settingsRowsConnected(context))
+        if (showDivider)
           Divider(
             height: 1,
-            indent: showIcon
-                ? context.tokens.rowIconDividerIndent
-                : context.tokens.rowPaddingH,
+            indent: context.tokens.rowPaddingH,
             endIndent: context.tokens.rowPaddingH,
-            color: context.isMornye
-                ? colorScheme.outlineVariant
-                : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            color: colorScheme.outlineVariant,
           ),
       ],
     );
@@ -700,16 +571,10 @@ class SettingsSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = Text(
       title,
-      style:
-          (context.isMornye
-                  ? Theme.of(context).textTheme.bodyLarge
-                  : Theme.of(context).textTheme.titleSmall)
-              ?.copyWith(
-                color: context.isMornye
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
+      style: (Theme.of(context).textTheme.bodyLarge)?.copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w600,
+      ),
     );
     // Aligned with the row content of the groups below at any width.
     final content = LayoutBuilder(
@@ -763,14 +628,8 @@ class SettingsChoiceChip extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final borderRadius = BorderRadius.circular(tokens.radiusCover);
 
-    // One solid tier above a settings group in light, dark and AMOLED.
-    final unselectedColor = context.isMornye
-        ? Colors.transparent
-        : colorScheme.surfaceContainerHigh;
-    final foreground = context.isMornye && isSelected
+    final foreground = isSelected
         ? colorScheme.primary
-        : isSelected
-        ? colorScheme.onPrimaryContainer
         : colorScheme.onSurfaceVariant;
 
     final labelText = Text(
@@ -780,10 +639,9 @@ class SettingsChoiceChip extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: theme.textTheme.bodyMedium?.copyWith(
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        // on Mornye's grey fill falls below readable contrast.
-        color: context.isMornye && isSelected
-            ? colorScheme.onSurface
-            : foreground,
+        // The primary color on the grey selected fill falls below readable
+        // contrast.
+        color: isSelected ? colorScheme.onSurface : foreground,
       ),
     );
 
@@ -812,10 +670,8 @@ class SettingsChoiceChip extends StatelessWidget {
 
     final chip = Material(
       color: isSelected
-          ? (context.isMornye
-                ? colorScheme.surfaceContainerHighest
-                : colorScheme.primaryContainer)
-          : unselectedColor,
+          ? colorScheme.surfaceContainerHighest
+          : Colors.transparent,
       borderRadius: borderRadius,
       child: Semantics(
         button: true,
@@ -908,22 +764,6 @@ class SettingsSegmentedChoice<T> extends StatelessWidget {
         ),
       );
     }
-    if (!context.isMornye) {
-      return SegmentedButton<T>(
-        showSelectedIcon: false,
-        expandedInsets: EdgeInsets.zero,
-        segments: [
-          for (final option in options)
-            ButtonSegment(
-              value: option.value,
-              label: Text(option.label),
-              icon: option.icon == null ? null : AppIcon(option.icon!),
-            ),
-        ],
-        selected: {selected},
-        onSelectionChanged: (value) => onChanged(value.first),
-      );
-    }
     return Row(
       children: [
         for (final (index, option) in options.indexed) ...[
@@ -995,7 +835,7 @@ class SettingsInfoCard extends StatelessWidget {
 
   final EdgeInsetsGeometry? margin;
 
-  /// Uses the shared glass surface in Mornye without changing Material cards.
+  /// Uses the shared glass surface.
   final bool glass;
 
   @override
@@ -1003,32 +843,21 @@ class SettingsInfoCard extends StatelessWidget {
     final tokens = context.tokens;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    // Material uses the solid container with its paired on-color, so the
-    // text keeps its contrast; Mornye keeps its softer fills.
-    final mornye = context.isMornye;
     final (background, foreground) = switch (tone) {
       SettingsInfoTone.neutral => (
-        mornye
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surfaceContainerHigh,
+        colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         colorScheme.onSurfaceVariant,
       ),
       SettingsInfoTone.warning => (
-        mornye
-            ? colorScheme.tertiaryContainer.withValues(alpha: 0.5)
-            : colorScheme.tertiaryContainer,
+        colorScheme.tertiaryContainer.withValues(alpha: 0.5),
         colorScheme.onTertiaryContainer,
       ),
       SettingsInfoTone.error => (
-        mornye
-            ? colorScheme.errorContainer.withValues(alpha: 0.6)
-            : colorScheme.errorContainer,
+        colorScheme.errorContainer.withValues(alpha: 0.6),
         colorScheme.onErrorContainer,
       ),
     };
-
-    final useGlass = glass && mornye;
+    final useGlass = glass;
     final textColor = useGlass ? colorScheme.onSurface : foreground;
     final content = Padding(
       padding: EdgeInsets.all(tokens.gapLg),

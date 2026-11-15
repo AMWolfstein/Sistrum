@@ -121,7 +121,6 @@ class _BatchProgressDialogState extends State<BatchProgressDialog> {
 
     return AppAlertDialog(
       backgroundColor: colorScheme.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

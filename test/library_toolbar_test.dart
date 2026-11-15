@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EButton, M3EButtonGroup, M3EButtonGroupType;
+    show M3EButtonGroup;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
@@ -207,128 +207,79 @@ void main() {
   AppLocalizations l10nOf(WidgetTester tester) =>
       AppLocalizations.of(tester.element(find.byType(QueueTab)));
 
-  Finder toolButton(String? tooltip, {String? label}) => find
-      .byWidgetPredicate(
-        (widget) =>
-            widget is M3EButton &&
-            (tooltip == null || widget.tooltip == tooltip) &&
-            (label == null ||
-                (widget.label is Text &&
-                    (widget.label! as Text).data == label)),
-      )
-      .hitTestable();
-
   {
     for (final trackCount in <int?>[null, 0, 143]) {
-      testWidgets(
-        'Material opens Playlists without downloaded or local songs '
-        '(playlist tracks: $trackCount)',
-        (tester) async {
-          final now = DateTime(2026);
-          await pumpLibrary(
-            tester,
-            dates: const [],
-            withQueueItem: false,
-            playlists: [
-              if (trackCount != null)
-                UserPlaylistCollection(
-                  id: 'remote-playlist',
-                  name: 'Example saved playlist',
-                  createdAt: now,
-                  updatedAt: now,
-                  tracks: [
-                    for (var i = 0; i < trackCount; i++)
-                      CollectionTrackEntry(
-                        key: 'example:$i',
-                        addedAt: now,
-                        track: Track(
-                          id: 'example:$i',
-                          name: 'Remote song $i',
-                          artistName: 'Example Artist',
-                          albumName: 'Example Album',
-                          duration: 180,
-                          source: 'example',
-                        ),
+      testWidgets('Material opens Playlists without downloaded or local songs '
+          '(playlist tracks: $trackCount)', (tester) async {
+        final now = DateTime(2026);
+        await pumpLibrary(
+          tester,
+          dates: const [],
+          withQueueItem: false,
+          playlists: [
+            if (trackCount != null)
+              UserPlaylistCollection(
+                id: 'remote-playlist',
+                name: 'Example saved playlist',
+                createdAt: now,
+                updatedAt: now,
+                tracks: [
+                  for (var i = 0; i < trackCount; i++)
+                    CollectionTrackEntry(
+                      key: 'example:$i',
+                      addedAt: now,
+                      track: Track(
+                        id: 'example:$i',
+                        name: 'Remote song $i',
+                        artistName: 'Example Artist',
+                        albumName: 'Example Album',
+                        duration: 180,
+                        source: 'example',
                       ),
-                  ],
-                ),
-            ],
-          );
-          final l10n = l10nOf(tester);
-          final playlistsTab = find.descendant(
-            of: find.byType(TabBar),
-            matching: find.text(l10n.searchPlaylists),
-          );
-          expect(playlistsTab.hitTestable(), findsOneWidget);
-          await tester.tap(playlistsTab);
-          // Let the spatial spring finish before clicking inside the page.
-          for (var i = 0; i < 40; i++) {
+                    ),
+                ],
+              ),
+          ],
+        );
+        final l10n = l10nOf(tester);
+        final playlistsTab = find.descendant(
+          of: find.byType(TabBar),
+          matching: find.text(l10n.searchPlaylists),
+        );
+        expect(playlistsTab.hitTestable(), findsOneWidget);
+        await tester.tap(playlistsTab);
+        // Let the spatial spring finish before clicking inside the page.
+        for (var i = 0; i < 40; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(find.text(l10n.collectionCreatePlaylist), findsOneWidget);
+        if (trackCount != null) {
+          expect(find.byType(AppSearchField), findsOneWidget);
+          expect(find.text('Example saved playlist'), findsOneWidget);
+          expect(find.text(l10n.itemCount(trackCount)), findsOneWidget);
+          await tester.tap(find.text('Example saved playlist'));
+          for (var i = 0; i < 10; i++) {
             await tester.pump(const Duration(milliseconds: 50));
           }
-          expect(find.text(l10n.collectionCreatePlaylist), findsOneWidget);
-          if (trackCount != null) {
-            expect(find.byType(AppSearchField), findsOneWidget);
-            expect(find.text('Example saved playlist'), findsOneWidget);
-            expect(find.text(l10n.itemCount(trackCount)), findsOneWidget);
-            await tester.tap(find.text('Example saved playlist'));
-            for (var i = 0; i < 10; i++) {
-              await tester.pump(const Duration(milliseconds: 50));
-            }
-            expect(
-              tester
-                  .widget<LibraryTracksFolderScreen>(
-                    find.byType(LibraryTracksFolderScreen),
-                  )
-                  .playlistId,
-              'remote-playlist',
-            );
-            if (trackCount > 0) {
-              expect(find.text('Remote song 0'), findsOneWidget);
-            }
+          expect(
+            tester
+                .widget<LibraryTracksFolderScreen>(
+                  find.byType(LibraryTracksFolderScreen),
+                )
+                .playlistId,
+            'remote-playlist',
+          );
+          if (trackCount > 0) {
+            expect(find.text('Remote song 0'), findsOneWidget);
           }
-          expect(tester.takeException(), isNull);
-        },
-        variant: TargetPlatformVariant({
-          TargetPlatform.android,
-        }),
-      );
+        }
+        expect(tester.takeException(), isNull);
+      }, variant: TargetPlatformVariant({TargetPlatform.android}));
     }
-
-    testWidgets('Material joins sort, filter and view in one connected group', (
-      tester,
-    ) async {
-      await pumpLibrary(tester);
-      final l10n = l10nOf(tester);
-
-      final groups = find.byType(M3EButtonGroup);
-      expect(groups, findsOneWidget);
-      final group = tester.widget<M3EButtonGroup>(groups);
-      expect(group.type, M3EButtonGroupType.connected);
-      expect(group.actions, hasLength(3));
-      // Sort keeps its label so the current order stays visible.
-      expect(
-        (group.actions[0].label! as Text).data,
-        l10n.libraryFilterSortLatest,
-      );
-      expect((group.actions[1].label! as Text).data, l10n.libraryFilterTitle);
-      expect(group.actions[2].tooltip, l10n.appearanceHistoryViewGrid);
-      expect(group.actions[2].label, isNull);
-      expect(group.selectedIndex, isNull);
-
-      // A compact visual that keeps the 48dp touch target.
-      expect(tester.getSize(groups).height, 44);
-      final sort = toolButton(null, label: l10n.libraryFilterSortLatest);
-      expect(sort, findsOneWidget);
-      final above = tester.getRect(sort).topCenter - const Offset(0, 1);
-      expect(
-        tester.hitTestOnBinding(above).path.map((entry) => entry.target),
-        contains(tester.renderObject(sort)),
-      );
-    });
   }
 
-{
-    for (final mornye in [false, true]) {
+  {
+    for (final mornye in const [true]) {
       testWidgets('title sort survives a fresh Library and settings scope '
           '(Mornye: $mornye)', (tester) async {
         await pumpLibrary(tester, mornye: mornye);
@@ -449,19 +400,6 @@ void main() {
       });
     }
   }
-
-  testWidgets('the view tool switches the Library to the grid', (tester) async {
-    await pumpLibrary(tester);
-    final l10n = l10nOf(tester);
-
-    await tester.tap(toolButton(l10n.appearanceHistoryViewGrid));
-    await tester.pump();
-
-    final container = ProviderScope.containerOf(
-      tester.element(find.byType(QueueTab)),
-    );
-    expect(container.read(settingsProvider).historyViewMode, 'grid');
-  });
 
   testWidgets('reduced motion keeps the separate Material buttons', (
     tester,

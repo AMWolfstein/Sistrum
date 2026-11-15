@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/services/cast_output.dart';
 import 'package:sistrum/widgets/audio_output_button.dart';
 
@@ -17,16 +19,19 @@ void main() {
     ValueChanged<bool>? onChanged,
     Color? background,
     CastOutput? output,
-  }) => MaterialApp(
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: Scaffold(
-      body: Center(
-        child: AudioOutputButton(
-          onPickerChanged: onChanged,
-          backgroundColor: background,
-          width: 56,
-          output: output,
+  }) => ProviderScope(
+    child: MaterialApp(
+      theme: MornyeTheme.build(Brightness.light),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: Center(
+          child: AudioOutputButton(
+            onPickerChanged: onChanged,
+            backgroundColor: background,
+            width: 56,
+            output: output,
+          ),
         ),
       ),
     ),
@@ -36,7 +41,6 @@ void main() {
     messenger.setMockMethodCallHandler(channel, null);
     messenger.setMockMethodCallHandler(SystemChannels.platform_views, null);
   });
-
 
   testWidgets('opens native output picker once and reports failure visibly', (
     tester,
@@ -89,5 +93,4 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
-
 }

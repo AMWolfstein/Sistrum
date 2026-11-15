@@ -68,7 +68,7 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'local album controls pause and resume without restarting ($mornye)',
       (tester) async {

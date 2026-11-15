@@ -603,7 +603,6 @@ class _LibraryTracksFolderScreenState
               icon: Icons.play_arrow,
               label: context.l10n.tooltipPlay,
               onPressed: canPlay ? () => _playSelectedFiles(files) : null,
-              colorScheme: colorScheme,
             ),
             if (showPlayer)
               for (final next in [true, false])
@@ -615,7 +614,6 @@ class _LibraryTracksFolderScreenState
                   onPressed: canPlay
                       ? () => _playSelectedFiles(files, playNext: next)
                       : null,
-                  colorScheme: colorScheme,
                 ),
             if (isWishlist)
               SelectionActionButton(
@@ -624,7 +622,6 @@ class _LibraryTracksFolderScreenState
                 onPressed: selectedCount > 0
                     ? () => _downloadSelected(entries)
                     : null,
-                colorScheme: colorScheme,
               ),
             SelectionActionButton(
               icon: Icons.playlist_add,
@@ -632,7 +629,6 @@ class _LibraryTracksFolderScreenState
               onPressed: selectedCount > 0
                   ? () => _addSelectedToPlaylist(entries)
                   : null,
-              colorScheme: colorScheme,
             ),
             // Removing entries keeps the files, so it stays a plain action.
             // the Library selection bar.
@@ -641,7 +637,6 @@ class _LibraryTracksFolderScreenState
                   ? () => _removeSelected(entries)
                   : null,
               icon: Icons.remove_circle_outline,
-              colorScheme: colorScheme,
               label: selectedCount > 0
                   ? '${widget.mode == LibraryTracksFolderMode.playlist ? context.l10n.collectionRemoveFromPlaylist : context.l10n.collectionRemoveFromFolder} ($selectedCount)'
                   : widget.mode == LibraryTracksFolderMode.playlist
@@ -1226,9 +1221,6 @@ class _CollectionTrackTile extends ConsumerWidget {
       style: TrackCardStyle.flat,
       isSelectionMode: isSelectionMode,
       isSelected: isSelected,
-      isCurrent: isCurrent,
-      isPlaying: isPlaying,
-      leadingArtwork: true,
       leading: HeroMode(
         enabled: heroTag != null,
         child: Builder(

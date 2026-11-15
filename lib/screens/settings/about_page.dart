@@ -38,7 +38,6 @@ class AboutPage extends StatelessWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.aboutSpecialThanks,
-              connected: true,
               children: [
                 _AboutSettingsItem(
                   icon: Icons.swap_horiz_rounded,
@@ -74,7 +73,6 @@ class AboutPage extends StatelessWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.aboutLinks,
-              connected: true,
               children: [
                 _AboutSettingsItem(
                   icon: Icons.phone_android,
@@ -102,7 +100,6 @@ class AboutPage extends StatelessWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.aboutApp,
-              connected: true,
               children: [
                 _AboutSettingsItem(
                   icon: Icons.info_outline,
@@ -119,7 +116,8 @@ class AboutPage extends StatelessWidget {
                     context: context,
                     applicationName: AppInfo.appName,
                     applicationVersion: AppInfo.displayVersion,
-                    applicationLegalese: '${AppInfo.copyright}\n${AppInfo.originalCredit}',
+                    applicationLegalese:
+                        '${AppInfo.copyright}\n${AppInfo.originalCredit}',
                   ),
                   showDivider: false,
                 ),
@@ -328,7 +326,7 @@ class _AboutSettingsItem extends StatelessWidget {
             ),
           ),
         ),
-        if (showDivider && !settingsRowsConnected(context))
+        if (showDivider)
           Divider(
             height: 1,
             thickness: 1,

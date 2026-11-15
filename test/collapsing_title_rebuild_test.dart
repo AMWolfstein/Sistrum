@@ -154,7 +154,7 @@ void main() {
     'local album',
     'library folder',
   ]) {
-    for (final mornye in [false, true]) {
+    for (final mornye in const [true]) {
       testWidgets('$page title flip leaves the page unbuilt in '
           'Sistrum=$mornye', (tester) async {
         tester.view.physicalSize = const Size(430, 1000);

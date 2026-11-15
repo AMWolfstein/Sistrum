@@ -62,7 +62,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionService,
-              connected: true,
               children: [
                 _ServiceSelector(
                   currentService: settings.defaultService,
@@ -75,10 +74,8 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionAudioQuality,
-              connected: true,
               children: [
                 SettingsSwitchItem(
-                  icon: Icons.tune,
                   title: context.l10n.downloadAskBeforeDownload,
                   subtitle: !hasDownloadExtensions
                       ? context.l10n.extensionsNoDownloadProvider
@@ -106,7 +103,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                         showDivider: true,
                       ),
                 SettingsSwitchItem(
-                  icon: Icons.verified_outlined,
                   title: context.l10n.downloadRedownloadFakeHiRes,
                   subtitle: context.l10n.downloadRedownloadFakeHiResSubtitle,
                   value: settings.redownloadFakeHiRes,
@@ -115,7 +111,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                       .setRedownloadFakeHiRes(value),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.auto_fix_high_outlined,
                   title: context.l10n.downloadAutoConvert,
                   subtitle: context.l10n.downloadAutoConvertAllFormatsSubtitle,
                   value: settings.autoConvertDownloads,
@@ -126,7 +121,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                 ),
                 if (settings.autoConvertDownloads) ...[
                   SettingsItem(
-                    icon: Icons.audio_file_outlined,
                     title: context.l10n.downloadAutoConvertFormat,
                     subtitle: autoConvertFormatLabel(
                       settings.autoConvertFormat,
@@ -140,7 +134,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                   if (normalizeAutoConvertFormat(settings.autoConvertFormat) ==
                       'flac') ...[
                     SettingsItem(
-                      icon: Icons.high_quality_outlined,
                       title: context.l10n.downloadAutoConvertMaxBitDepth,
                       subtitle: losslessBitDepthLabel(
                         settings.autoConvertMaxBitDepth == 0
@@ -155,7 +148,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                       ),
                     ),
                     SettingsItem(
-                      icon: Icons.graphic_eq,
                       title: context.l10n.downloadAutoConvertMaxSampleRate,
                       subtitle: losslessSampleRateLabel(
                         settings.autoConvertMaxSampleRate == 0
@@ -172,7 +164,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                     ),
                   ] else
                     SettingsItem(
-                      icon: Icons.speed_outlined,
                       title: context.l10n.downloadAutoConvertBitrate,
                       subtitle: normalizeAutoConvertBitrate(
                         settings.autoConvertBitrate,
@@ -192,7 +183,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
               title: context.l10n.sectionPerformance,
               children: [
                 SettingsItem(
-                  icon: Icons.wifi,
                   title: context.l10n.settingsDownloadNetwork,
                   subtitle: settings.downloadNetworkMode == 'wifi_only'
                       ? context.l10n.settingsDownloadNetworkWifiOnly
@@ -204,7 +194,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                   ),
                 ),
                 SettingsItem(
-                  icon: Icons.dynamic_feed_outlined,
                   title: context.l10n.settingsConcurrentDownloads,
                   subtitle: settings.concurrentDownloads <= 1
                       ? context.l10n.concurrentDownloadsOne
@@ -219,7 +208,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                 ),
                 if (Platform.isAndroid)
                   SettingsSwitchItem(
-                    icon: Icons.downloading_outlined,
                     title: context.l10n.downloadNativeWorker,
                     subtitle: hasDownloadExtensions
                         ? context.l10n.downloadNativeWorkerSubtitle
@@ -233,7 +221,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                         .setNativeDownloadWorkerEnabled(value),
                   ),
                 SettingsSwitchItem(
-                  icon: Icons.security_outlined,
                   title: context.l10n.downloadNetworkCompatibilityMode,
                   subtitle: settings.networkCompatibilityMode
                       ? context.l10n.downloadNetworkCompatibilityModeEnabled
@@ -244,7 +231,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                       .setNetworkCompatibilityMode(value),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.lan_outlined,
                   title: context.l10n.downloadAllowLocalNetwork,
                   subtitle: settings.allowLocalNetwork
                       ? context.l10n.downloadAllowLocalNetworkEnabled
@@ -266,12 +252,10 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionSearchSource,
-              connected: true,
               children: [
                 const _MetadataSourceSelector(),
                 const _DefaultSearchTabSelector(),
                 SettingsSwitchItem(
-                  icon: Icons.sync,
                   title: context.l10n.optionsAutoFallback,
                   subtitle: context.l10n.optionsAutoFallbackSubtitle,
                   value: settings.autoFallback,
@@ -279,7 +263,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                       ref.read(settingsProvider.notifier).setAutoFallback(v),
                 ),
                 SettingsItem(
-                  icon: Icons.extension_outlined,
                   title: context.l10n.downloadFallbackExtensions,
                   subtitle: context.l10n.downloadFallbackExtensionsSubtitle,
                   onTap: () => pushPage<void>(
@@ -295,7 +278,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
               title: context.l10n.sectionDownload,
               children: [
                 SettingsItem(
-                  icon: Icons.public,
                   title: context.l10n.downloadSongLinkRegion,
                   subtitle: _getSongLinkRegionLabel(
                     context,
@@ -308,7 +290,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                   ),
                 ),
                 SettingsSwitchItem(
-                  icon: Icons.file_download_outlined,
                   title: context.l10n.settingsAutoExportFailed,
                   subtitle: context.l10n.settingsAutoExportFailedSubtitle,
                   value: settings.autoExportFailedDownloads,

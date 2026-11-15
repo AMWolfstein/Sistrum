@@ -3,16 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/isrc_utils.dart';
-import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/mornye_player_details_sheet.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 
 Future<void> showPlayerDetailsSheet(
-  BuildContext context,
-  ColorScheme colorScheme, {
+  BuildContext context, {
   required PlayerMetadataController metadata,
   required MediaItem? mediaItem,
 }) {
@@ -24,25 +19,10 @@ Future<void> showPlayerDetailsSheet(
         initialData: fallback,
         builder: (context, snapshot) => _MetadataList(
           meta: snapshot.data ?? fallback,
-          colorScheme: colorScheme,
           scrollController: scrollController,
           mediaItem: mediaItem,
         ),
       );
-  if (!context.isMornye) {
-    // The shared sheet supplies the handle, shape and header on phones, and
-    final item = mediaItem;
-    final subtitle = [
-      item?.title,
-      item?.artist,
-    ].whereType<String>().where((part) => part.trim().isNotEmpty).join(' · ');
-    return showAppScrollableBottomSheet<void>(
-      context: context,
-      title: context.l10n.nowPlayingDetails,
-      subtitle: subtitle.isEmpty ? null : subtitle,
-      builder: (context, scrollController) => details(scrollController),
-    );
-  }
   // The Mornye details draw their own glass, handle and header.
   return showModalBottomSheet<void>(
     context: context,
@@ -62,13 +42,11 @@ Future<void> showPlayerDetailsSheet(
 
 class _MetadataList extends StatelessWidget {
   final Map<String, dynamic> meta;
-  final ColorScheme colorScheme;
   final ScrollController scrollController;
   final MediaItem? mediaItem;
 
   const _MetadataList({
     required this.meta,
-    required this.colorScheme,
     required this.scrollController,
     this.mediaItem,
   });
@@ -103,72 +81,10 @@ class _MetadataList extends StatelessWidget {
         (meta['bit_depth'] as num? ?? 0) > 0 ? '${meta['bit_depth']}-bit' : '',
       ),
     ].where((r) => r.$2.trim().isNotEmpty && r.$2 != '0').toList();
-
-    if (context.isMornye) {
-      return MornyePlayerDetailsSheet(
-        rows: rows,
-        scrollController: scrollController,
-        mediaItem: mediaItem,
-      );
-    }
-
-    final textTheme = Theme.of(context).textTheme;
-    final tokens = context.tokens;
-
-    // The sheet header names the track, so the rows sit in one group below
-    // it instead of a titled card.
-    return ListView(
-      controller: scrollController,
-      padding: EdgeInsets.only(top: tokens.gapXs, bottom: tokens.gapXl),
-      children: [
-        if (rows.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: tokens.gapXl),
-            child: Text(
-              l10n.nowPlayingNoMetadata,
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          )
-        else
-          SettingsGroup(
-            connected: true,
-            children: [
-              for (final (label, value) in rows)
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: tokens.rowPaddingH,
-                    vertical: tokens.rowPaddingVCompact,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        child: Text(
-                          label,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: tokens.gapSm),
-                      Expanded(
-                        child: Text(
-                          value,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-      ],
+    return MornyePlayerDetailsSheet(
+      rows: rows,
+      scrollController: scrollController,
+      mediaItem: mediaItem,
     );
   }
 }

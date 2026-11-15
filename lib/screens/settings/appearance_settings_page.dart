@@ -51,7 +51,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 ),
                 SettingsSwitchItem(
                   key: const ValueKey('mornye-glass-outlines'),
-                  icon: Icons.rounded_corner,
                   title: context.l10n.appearanceGlassOutlines,
                   subtitle: context.l10n.appearanceGlassOutlinesSubtitle,
                   value: themeSettings.mornyeGlassOutlines,
@@ -65,7 +64,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionTheme,
-              connected: true,
               children: [
                 _ThemeModeSelector(
                   currentMode: themeSettings.themeMode,
@@ -77,10 +75,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
 
             SliverToBoxAdapter(
               child: SettingsGroup(
-                connected: true,
                 children: [
                   SettingsSwitchItem(
-                    icon: Icons.font_download_outlined,
                     title: context.l10n.appearanceUseSystemFont,
                     subtitle: context.l10n.appearanceUseSystemFontSubtitle,
                     value: themeSettings.useSystemFont,
@@ -89,7 +85,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         .setUseSystemFont,
                   ),
                   SettingsSwitchItem(
-                    icon: Icons.animation,
                     title: context.l10n.appearanceHeroAnimations,
                     subtitle: context.l10n.appearanceHeroAnimationsSubtitle,
                     value: settings.heroAnimationsEnabled,
@@ -99,7 +94,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                   ),
                   const CustomFontSetting(),
                   SettingsSwitchItem(
-                    icon: Icons.blur_on,
                     title: context.l10n.appearanceForceBlur,
                     subtitle: context.l10n.appearanceForceBlurSubtitle,
                     value: settings.forceBackdropBlur,
@@ -114,7 +108,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionLanguage,
-              connected: true,
               children: [
                 _LanguageSelector(
                   currentLocale: settings.locale,
@@ -126,7 +119,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionLayout,
-              connected: true,
               children: [
                 _HistoryViewSelector(
                   currentMode: settings.historyViewMode,

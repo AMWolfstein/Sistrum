@@ -44,7 +44,7 @@ void main() {
     );
   }
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets('empty cancel action allows account setup ($mornye)', (
       tester,
     ) async {
@@ -109,7 +109,7 @@ void main() {
       expect(find.text('Connect your account'), findsOneWidget);
       expect(result, isNull);
 
-      final fields = find.byType(mornye ? CupertinoTextField : TextFormField);
+      final fields = find.byType(CupertinoTextField);
       await tester.enterText(fields.first, 'invalid');
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
@@ -206,7 +206,7 @@ void main() {
       await tester.tap(find.text('Connect'));
       await tester.pumpAndSettle();
       expect(result!['success'], isFalse);
-      expect(find.byType(TextFormField), findsNothing);
+      expect(find.byType(CupertinoTextField), findsNothing);
     }
   });
 
@@ -234,13 +234,17 @@ void main() {
     });
     await tester.tap(find.text('Connect'));
     await tester.pumpAndSettle();
-    final field = tester.widget<TextFormField>(find.byType(TextFormField));
+    final field = tester.widget<CupertinoTextField>(
+      find.byType(CupertinoTextField),
+    );
     final controller = field.controller!;
     expect(
-      tester.widget<TextField>(find.byType(TextField)).obscureText,
+      tester
+          .widget<CupertinoTextField>(find.byType(CupertinoTextField))
+          .obscureText,
       isTrue,
     );
-    await tester.enterText(find.byType(TextFormField), 'fixture-password');
+    await tester.enterText(find.byType(CupertinoTextField), 'fixture-password');
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(result!['state'], 'active');
@@ -303,7 +307,7 @@ void main() {
       await tester.tap(find.text('Connect'));
       await tester.pumpAndSettle();
       expect(result!['success'], isFalse);
-      expect(find.byType(TextFormField), findsNothing);
+      expect(find.byType(CupertinoTextField), findsNothing);
       expect(calls, 1);
       expect(tester.takeException(), isNull);
     }
@@ -353,14 +357,17 @@ void main() {
     });
     await tester.tap(find.text('Connect'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), 'fixture-secret');
+    await tester.enterText(find.byType(CupertinoTextField), 'fixture-secret');
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(
-      tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text,
+      tester
+          .widget<CupertinoTextField>(find.byType(CupertinoTextField))
+          .controller!
+          .text,
       isEmpty,
     );
-    await tester.enterText(find.byType(TextFormField), 'A12345');
+    await tester.enterText(find.byType(CupertinoTextField), 'A12345');
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(inputs, [
@@ -394,7 +401,7 @@ void main() {
     });
     await tester.tap(find.text('Connect'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), '123456');
+    await tester.enterText(find.byType(CupertinoTextField), '123456');
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(actions, ['submitAccountOTP', 'cancelAccountAuth']);

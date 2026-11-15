@@ -19,7 +19,6 @@ Future<void> showPlayerQueueSheet(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
-  backgroundColor: colorScheme.surfaceContainerHigh,
   builder: (context) => DraggableScrollableSheet(
     expand: false,
     initialChildSize: 0.6,
@@ -81,19 +80,16 @@ class PlayerQueueSheet extends ConsumerWidget {
               PlayerPlaybackModeButton(
                 mode: PlayerPlaybackMode.autoplay,
                 colorScheme: colorScheme,
-                secondary: true,
               ),
               const SizedBox(width: 4),
               PlayerPlaybackModeButton(
                 mode: PlayerPlaybackMode.repeat,
                 colorScheme: colorScheme,
-                secondary: true,
               ),
               const SizedBox(width: 4),
               PlayerPlaybackModeButton(
                 mode: PlayerPlaybackMode.shuffle,
                 colorScheme: colorScheme,
-                secondary: true,
               ),
             ],
           ),

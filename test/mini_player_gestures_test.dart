@@ -38,12 +38,10 @@ class _Controller implements MusicPlayerController {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   for (final configuration in [
-    (name: 'Material', mornye: false, compact: false),
     (name: 'Sistrum', mornye: true, compact: false),
     (name: 'Sistrum compact', mornye: true, compact: true),
   ]) {
@@ -275,7 +273,6 @@ void main() {
         expect(find.text('Song'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
-
     } else {
       testWidgets(
         '${configuration.name}: paused swipes keep track navigation',

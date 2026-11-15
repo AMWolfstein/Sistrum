@@ -2,6 +2,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/widgets/player_queue_dismissible.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/player_track_swipe.dart';
 
 void main() {
@@ -18,6 +20,7 @@ void main() {
         final selected = <int>[];
         await tester.pumpWidget(
           MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             home: MediaQuery(
               data: MediaQueryData(disableAnimations: reducedMotion),
               child: StatefulBuilder(
@@ -114,6 +117,7 @@ void main() {
     final selected = <MediaItem>[];
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -188,6 +192,7 @@ void main() {
     final builds = <String, int>{};
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
         home: StatefulBuilder(
           builder: (context, setState) {
             rebuild = setState;
@@ -276,6 +281,9 @@ void main() {
     final entries = [queue[0], queue[0].copyWith(), queue[1]];
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: StatefulBuilder(
           builder: (context, setState) => Scaffold(
             body: Column(

@@ -129,7 +129,7 @@ void main() {
         .load();
   });
 
-  for (final mornye in [true, false]) {
+  for (final mornye in const [true]) {
     testWidgets('track menu copies the service link (Mornye: $mornye)', (
       tester,
     ) async {
@@ -176,7 +176,6 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-
 
   testWidgets('track menu hides the link for an unknown service', (
     tester,
@@ -242,7 +241,7 @@ void main() {
     });
   }
 
-  for (final mornye in [true, false]) {
+  for (final mornye in const [true]) {
     testWidgets('picker submits and closes once (Mornye: $mornye)', (
       tester,
     ) async {

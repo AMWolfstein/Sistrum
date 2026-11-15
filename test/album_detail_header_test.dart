@@ -4,9 +4,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/l10n/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/settled_blur.dart';
 
@@ -20,26 +19,26 @@ Widget _collection(
   ScrollController controller, {
   ThemeData? theme,
   bool playing = false,
-}) => MaterialApp(
-  theme: theme ?? AppTheme.light(),
-  home: RepaintBoundary(
-    key: _page,
-    child: Scaffold(
-      body: CustomScrollView(
-        controller: controller,
-        slivers: [
-          AlbumDetailHeader(
-            title: 'Album',
-            expandedHeight: 534,
-            showTitleInAppBar: false,
-            background: RawImage(image: _cover, fit: BoxFit.cover),
-            coverBuilder: (context, size) =>
-                RawImage(image: _cover, fit: BoxFit.cover),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 2000)),
-        ],
+}) => ProviderScope(
+  child: MaterialApp(
+    theme: theme ?? MornyeTheme.build(Brightness.light),
+    home: RepaintBoundary(
+      key: _page,
+      child: Scaffold(
+        body: CustomScrollView(
+          controller: controller,
+          slivers: [
+            AlbumDetailHeader(
+              title: 'Album',
+              expandedHeight: 534,
+              showTitleInAppBar: false,
+              background: RawImage(image: _cover, fit: BoxFit.cover),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 2000)),
+          ],
+        ),
+        bottomNavigationBar: playing ? const LinearProgressIndicator() : null,
       ),
-      bottomNavigationBar: playing ? const LinearProgressIndicator() : null,
     ),
   ),
 );
@@ -99,81 +98,6 @@ void main() {
 
   tearDownAll(() => _cover.dispose());
 
-  testWidgets('the Material header shows its title, cover and actions and '
-      'collapses on a phone', (tester) async {
-    _phone(tester);
-    final controller = ScrollController();
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: CustomScrollView(
-              controller: controller,
-              slivers: [
-                AlbumDetailHeader(
-                  title: 'Album',
-                  expandedHeight: 534,
-                  showTitleInAppBar: false,
-                  background: RawImage(image: _cover, fit: BoxFit.cover),
-                  coverBuilder: (context, size) =>
-                      RawImage(image: _cover, fit: BoxFit.cover),
-                  actions: AlbumPlayActions(
-                    playLabel: 'Play',
-                    shuffleTooltip: 'Shuffle',
-                    onPlay: () {},
-                    onShuffle: () {},
-                    onDownload: () {},
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 2000)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pump();
-    expect(find.text('Album'), findsWidgets);
-    expect(find.byType(RawImage), findsWidgets);
-    final download = find.byType(HeaderCircleButton);
-    expect(download, findsOneWidget);
-    expect(
-      tester.getSize(download).shortestSide,
-      greaterThanOrEqualTo(kMinInteractiveDimension),
-    );
-    controller.jumpTo(600);
-    await tester.pump();
-    controller.jumpTo(0);
-    await tester.pump();
-    expect(find.text('Album'), findsWidgets);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('the Material header blurs its cover once, not per scroll or '
-      'playback frame', (tester) async {
-    _phone(tester);
-    final controller = ScrollController();
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(_collection(controller, playing: true));
-    var liveFrames = _blursLive(tester) ? 1 : 0;
-    final images = <ui.Image?>{};
-    for (var frame = 1; frame <= 90; frame++) {
-      // Collapses the header part way while the mini player keeps drawing.
-      if (frame >= 10 && frame < 40) controller.jumpTo((frame - 9) * 8.0);
-      await tester.pump(const Duration(milliseconds: 16));
-      if (_blursLive(tester)) liveFrames++;
-      if (frame > 2) images.add(_image(tester));
-    }
-    // The page's first frame and the unchanged one after it, then never.
-    expect(liveFrames, 2);
-    expect(images, hasLength(1));
-    expect(images.single!.debugDisposed, isFalse);
-  });
-
   testWidgets('a new window size or theme blurs the header cover again', (
     tester,
   ) async {
@@ -201,7 +125,9 @@ void main() {
       landscape.height,
     ), isNot((portrait.width, portrait.height)));
 
-    await tester.pumpWidget(_collection(controller, theme: AppTheme.dark()));
+    await tester.pumpWidget(
+      _collection(controller, theme: MornyeTheme.build(Brightness.dark)),
+    );
     await tester.pump();
     expect(landscape.debugDisposed, isTrue);
     await settle();

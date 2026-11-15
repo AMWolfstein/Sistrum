@@ -176,12 +176,10 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
 
   void _showSortOptions(ColorScheme colorScheme) {
     var tempSort = _searchSortOption;
-    final mornye = context.isMornye;
     showAppModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      backgroundColor: mornye ? null : colorScheme.surfaceContainerLow,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           final content = SafeArea(
@@ -225,7 +223,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
                       return AppChoiceChip(
                         label: Text(_sortOptionLabel(option)),
                         selected: tempSort == option,
-                        singleChoice: true,
                         onSelected: (_) =>
                             setSheetState(() => tempSort = option),
                       );
@@ -867,7 +864,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
               label: Text(label),
               selected: selectedFilter == id,
               onSelected: (_) => select(),
-              singleChoice: true,
               icon: icon == null ? null : Icon(icon, size: 18),
             );
     }

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// [CupertinoIcons.arrow_right] that points the other way in right-to-left
 /// layouts, as the chevrons [CupertinoIcons.back] and
@@ -224,5 +223,5 @@ IconData _cupertinoFor(IconData icon) {
 
 extension MornyeIconContext on BuildContext {
   /// [icon] as-is, or its Cupertino counterpart when the Mornye theme is on.
-  IconData adaptiveIcon(IconData icon) => isMornye ? mornyeIconFor(icon) : icon;
+  IconData adaptiveIcon(IconData icon) => mornyeIconFor(icon);
 }

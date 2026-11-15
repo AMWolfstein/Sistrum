@@ -4,9 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 
 /// Love all, download all and add to playlist buttons of a track collection
 /// while [tracks] is empty.
@@ -15,7 +13,6 @@ class CollectionHeaderActions extends StatelessWidget {
     super.key,
     required this.tracks,
     required this.onLoveAll,
-    required this.downloadIcon,
     required this.onDownloadAll,
     required this.addToPlaylistIcon,
     required this.onAddToPlaylist,
@@ -25,8 +22,6 @@ class CollectionHeaderActions extends StatelessWidget {
   final List<Track> tracks;
   final VoidCallback onLoveAll;
 
-  /// The Material download glyph; Mornye uses its filled arrow.
-  final IconData downloadIcon;
   final VoidCallback onDownloadAll;
   final bool tonalDownload;
   final IconData addToPlaylistIcon;
@@ -35,7 +30,6 @@ class CollectionHeaderActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = tracks.isNotEmpty;
-    final mornye = context.isMornye;
     final love = Consumer(
       builder: (context, ref, _) {
         ref.watch(libraryCollectionsProvider.select((state) => state.loved));
@@ -54,11 +48,9 @@ class CollectionHeaderActions extends StatelessWidget {
       },
     );
     final download = HeaderFilledButton(
-      icon: mornye ? CupertinoIcons.arrow_down_circle_fill : downloadIcon,
+      icon: CupertinoIcons.arrow_down_circle_fill,
       tonal: tonalDownload,
-      label: mornye
-          ? context.l10n.dialogDownload
-          : context.l10n.downloadAllCount(tracks.length),
+      label: context.l10n.dialogDownload,
       onPressed: enabled ? onDownloadAll : null,
     );
     final addToPlaylist = HeaderCircleButton(
@@ -67,21 +59,15 @@ class CollectionHeaderActions extends StatelessWidget {
       tooltip: context.l10n.tooltipAddToPlaylist,
       onPressed: enabled ? onAddToPlaylist : null,
     );
-    if (mornye) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          love,
-          const SizedBox(width: 16),
-          Flexible(child: SizedBox(width: 172, child: download)),
-          const SizedBox(width: 16),
-          addToPlaylist,
-        ],
-      );
-    }
-    return ExpressiveButtonGroup(
-      flexible: const {1},
-      children: [love, download, addToPlaylist],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        love,
+        const SizedBox(width: 16),
+        Flexible(child: SizedBox(width: 172, child: download)),
+        const SizedBox(width: 16),
+        addToPlaylist,
+      ],
     );
   }
 }

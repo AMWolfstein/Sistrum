@@ -28,7 +28,6 @@ class _HomeFeedRegionSettingState extends ConsumerState<HomeFeedRegionSetting> {
     final selected = (saved.value?[setting.key] ?? setting.defaultValue)
         ?.toString();
     return SettingsItem(
-      icon: Icons.public,
       title: context.l10n.extensionsHomeFeedCountry,
       subtitle: saved.hasError
           ? context.friendlyError(saved.error)

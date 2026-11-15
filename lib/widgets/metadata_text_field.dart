@@ -2,15 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_text_field.dart';
 
 Color metadataEditorFieldFill(BuildContext context, ColorScheme cs) {
-  if (context.isMornye) return Colors.transparent;
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return isDark
-      ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), cs.surface)
-      : cs.surface;
+  return Colors.transparent;
 }
 
 class MetadataTextField extends StatelessWidget {
@@ -36,7 +31,6 @@ class MetadataTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = colorScheme;
-    final radius = BorderRadius.circular(14);
     if (materialExpressiveEnabled(context)) {
       // The expressive field floats its own label.
       return Padding(
@@ -67,7 +61,7 @@ class MetadataTextField extends StatelessWidget {
               ),
             ),
           ),
-          if (context.isMornye) ...[
+          ...[
             CupertinoTextField(
               controller: controller,
               keyboardType: keyboard,
@@ -80,37 +74,7 @@ class MetadataTextField extends StatelessWidget {
               decoration: null,
             ),
             const Divider(height: 0.5),
-          ] else
-            TextField(
-              controller: controller,
-              keyboardType: keyboard,
-              inputFormatters: inputFormatters,
-              maxLines: maxLines,
-              cursorColor: cs.primary,
-              style: Theme.of(context).textTheme.bodyLarge,
-              decoration: InputDecoration(
-                hintText: hint,
-                filled: true,
-                fillColor: metadataEditorFieldFill(context, cs),
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: radius,
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: radius,
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: radius,
-                  borderSide: BorderSide(color: cs.primary, width: 1.5),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 15,
-                ),
-              ),
-            ),
+          ],
         ],
       ),
     );

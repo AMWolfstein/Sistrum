@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sistrum/services/app_orientation.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Hero tag shared by the mini player artwork and the full player artwork so
 /// the cover visually expands when the player opens.
@@ -129,7 +128,6 @@ class NowPlayingRoute extends PageRoute<void> {
   bool didPop(void result) {
     final context = subtreeContext;
     if (context != null &&
-        context.isMornye &&
         !MediaQuery.disableAnimationsOf(context) &&
         (controller?.value ?? 0) > 0) {
       final coveredSize = _coveredOverlaySize;
@@ -235,18 +233,13 @@ class NowPlayingRoute extends PageRoute<void> {
         ],
       );
     }
-    final reversing = animation.status == AnimationStatus.reverse;
-    // Mornye's full-bleed artwork travels with its panel. Material keeps the
-    // independent cover flight back to the mini-player on button/back pop.
-    final inPlacePop =
-        reversing && !_interactiveTransition && !context.isMornye;
     final slide = _interactiveTransition
         ? animation
         : animation.drive(CurveTween(curve: Easing.emphasizedDecelerate));
-    final position = inPlacePop
-        ? const AlwaysStoppedAnimation(Offset.zero)
-        : slide.drive(Tween(begin: const Offset(0, 1), end: Offset.zero));
-    final opacity = inPlacePop ? animation : kAlwaysCompleteAnimation;
+    final position = slide.drive(
+      Tween(begin: const Offset(0, 1), end: Offset.zero),
+    );
+    final opacity = kAlwaysCompleteAnimation;
     return SlideTransition(
       position: position,
       child: FadeTransition(opacity: opacity, child: child),

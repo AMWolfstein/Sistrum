@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 
 /// One row of an [AppMenuButton].
@@ -59,9 +58,7 @@ class AppMenuButton<T extends Object> extends StatelessWidget {
       icon: icon,
       tooltip: tooltip,
       offset: offset,
-      shape: context.isMornye
-          ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-          : null,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       popUpAnimationStyle: AppMotion.surfaceEntrance(context),
       onSelected: onSelected,
       itemBuilder: (context) => [

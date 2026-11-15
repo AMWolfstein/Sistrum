@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoColors, CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_icon.dart';
 
 /// Removing a row affects the queue only, never the song on disk.
 class PlayerQueueDismissible extends StatefulWidget {
@@ -36,36 +34,15 @@ class _PlayerQueueDismissibleState extends State<PlayerQueueDismissible> {
     direction: widget.enabled
         ? DismissDirection.endToStart
         : DismissDirection.none,
-    dismissThresholds: context.isMornye
-        ? const {DismissDirection.endToStart: 0.5}
-        : const {},
-    onUpdate: context.isMornye
-        ? (details) => _progress.value = details.progress
-        : null,
+    dismissThresholds: const {DismissDirection.endToStart: 0.5},
+    onUpdate: (details) => _progress.value = details.progress,
     // Remove before collapsing so a concurrently playing row is never left
     // dismissed in the tree. The service resolves the entry by identity.
     confirmDismiss: (_) async {
       widget.onRemove();
       return false;
     },
-    background: context.isMornye
-        ? _buildMornyeBackground(context)
-        : Container(
-            alignment: AlignmentDirectional.centerEnd,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error,
-              // Matches the queue sheet's row corners.
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: AppIcon(
-              Icons.delete_outline,
-              color: Theme.of(context).colorScheme.onError,
-              semanticLabel: MaterialLocalizations.of(
-                context,
-              ).deleteButtonTooltip,
-            ),
-          ),
+    background: _buildMornyeBackground(context),
     child: widget.child,
   );
 

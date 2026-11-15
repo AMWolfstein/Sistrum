@@ -32,11 +32,9 @@ class CrossExtensionShareSheet extends ConsumerStatefulWidget {
     required String type,
     required String sourceExtensionId,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
     return showAppBottomSheet<void>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainerHigh,
       title: context.l10n.openInOtherServices,
       subtitle: artists.isNotEmpty ? '$name - $artists' : name,
       maxHeightFactor: 0.82,

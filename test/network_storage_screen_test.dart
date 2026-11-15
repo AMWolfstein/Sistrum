@@ -30,6 +30,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: NetworkStorageScreen(
@@ -67,6 +68,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: NetworkStorageScreen(
@@ -117,9 +119,13 @@ void main() {
   ) async {
     final service = _NetworkFixture()
       ..error = const SocketException('private-host');
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: NetworkStorageScreen(service: service),
@@ -146,7 +152,7 @@ void main() {
     expect(find.textContaining('private-host'), findsNothing);
     expect(await service.connections(), isEmpty);
   });
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     for (final failure in ['listing', 'save']) {
       testWidgets(
         'HTTP reports $failure failure separately (Mornye: $mornye)',

@@ -126,6 +126,9 @@ void main() {
           return null;
         });
         addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+        tester.view.physicalSize = const Size(800, 1600);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
@@ -134,6 +137,7 @@ void main() {
               localLibraryProvider.overrideWith(() => library),
             ],
             child: MaterialApp(
+              theme: MornyeTheme.build(Brightness.light),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               home: Scaffold(
@@ -206,7 +210,7 @@ void main() {
     );
   }
 
-  for (final mornye in [false, true]) {
+  for (final mornye in const [true]) {
     testWidgets(
       'downloaded album re-enrich restores selection on cancel and updates only selected files ($mornye)',
       (tester) async {

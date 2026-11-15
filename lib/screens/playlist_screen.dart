@@ -98,7 +98,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
             icon: Icons.download_rounded,
             label: '${context.l10n.dialogDownload} ($selectedCount)',
             onPressed: selectedCount == 0 ? null : _downloadSelected,
-            colorScheme: colorScheme,
           ),
         ),
       ],
@@ -265,28 +264,28 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
     pruneSelection(ids.toSet());
 
     return CollectionScaffold(
-        scrollController: scrollController,
-        isSelectionMode: isSelectionMode,
-        onExitSelectionMode: exitSelectionMode,
-        selectionBar: _buildSelectionBottomBar(
-          context,
-          colorScheme,
-          ids,
-          bottomPadding,
-        ),
-        appBar: _buildAppBar(context, colorScheme),
-        slivers: [
-          _buildTrackList(context, colorScheme),
-          _buildPlaylistFooter(context, colorScheme),
-          if (!_isLoading && _tracks.isNotEmpty && !isSelectionMode)
-            CollectionSuggestionsSliver(
-              collectionKey:
-                  'playlist:${widget.metadataProviderId}:'
-                  '${widget.playlistId ?? widget.playlistName}',
-              tracks: _tracks,
-            ),
-        ],
-      );
+      scrollController: scrollController,
+      isSelectionMode: isSelectionMode,
+      onExitSelectionMode: exitSelectionMode,
+      selectionBar: _buildSelectionBottomBar(
+        context,
+        colorScheme,
+        ids,
+        bottomPadding,
+      ),
+      appBar: _buildAppBar(context, colorScheme),
+      slivers: [
+        _buildTrackList(context, colorScheme),
+        _buildPlaylistFooter(context, colorScheme),
+        if (!_isLoading && _tracks.isNotEmpty && !isSelectionMode)
+          CollectionSuggestionsSliver(
+            collectionKey:
+                'playlist:${widget.metadataProviderId}:'
+                '${widget.playlistId ?? widget.playlistName}',
+            tracks: _tracks,
+          ),
+      ],
+    );
   }
 
   Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
@@ -356,7 +355,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
       actions: CollectionHeaderActions(
         tracks: _tracks,
         onLoveAll: () => loveAllTracks(this.context, ref, _tracks),
-        downloadIcon: Icons.download_rounded,
         tonalDownload: true,
         onDownloadAll: () => confirmDownloadAllDialog(
           context,

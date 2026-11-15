@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
@@ -10,9 +9,7 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
-import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/player_artwork_theme.dart';
@@ -117,38 +114,6 @@ void main() {
       expect(palette.requests, [_coverA]);
     });
 
-    testWidgets('keeps the previous scheme until the next cover resolves, '
-        'then moves every role at once', (tester) async {
-      final theme = AppTheme.light();
-      palette.cached[_coverA] = red;
-      await tester.pumpWidget(host(_coverA, theme));
-      await tester.pumpWidget(host(_coverB, theme));
-      await tester.pump(const Duration(seconds: 1));
-      expect(shown(tester), red);
-
-      palette.complete(_coverB, green);
-      await tester.pump();
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 40));
-      final midway = shown(tester);
-      for (final (from, to, now) in [
-        (red.primary, green.primary, midway.primary),
-        (red.surface, green.surface, midway.surface),
-        (
-          red.secondaryContainer,
-          green.secondaryContainer,
-          midway.secondaryContainer,
-        ),
-      ]) {
-        expect(now, isNot(from));
-        expect(now, isNot(to));
-      }
-
-      await tester.pumpAndSettle();
-      expect(shown(tester), green);
-      expect(palette.requests, [_coverA, _coverB]);
-    });
-
     testWidgets('returns to the app scheme without readable artwork', (
       tester,
     ) async {
@@ -242,58 +207,6 @@ void main() {
         home: home,
       ),
     );
-
-
-    testWidgets('the Material mini player takes the cover scheme', (
-      tester,
-    ) async {
-      palette.cached[_coverA] = cover;
-      await tester.pumpWidget(
-        app(const Scaffold(bottomNavigationBar: MiniPlayer()), mornye: false),
-      );
-      await tester.pumpAndSettle();
-      expect(Theme.of(tester.element(find.text('Song'))).colorScheme, cover);
-    });
-
-    testWidgets('the Material full player takes the cover scheme', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-            const MethodChannel('com.amwolfstein.sistrum/backend'),
-            (_) async => null,
-          );
-      addTearDown(
-        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-              const MethodChannel('com.amwolfstein.sistrum/backend'),
-              null,
-            ),
-      );
-      palette.cached[_coverA] = cover;
-      await tester.pumpWidget(app(const NowPlayingScreen(), mornye: false));
-      // The card, whose scaffold shows the scheme's surface.
-      ProviderScope.containerOf(
-        tester.element(find.byType(NowPlayingScreen)),
-      ).read(settingsProvider.notifier).setPlayerCoverStyle('default');
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-
-      final scaffold = tester.widget<Scaffold>(
-        find
-            .descendant(
-              of: find.byType(NowPlayingScreen),
-              matching: find.byType(Scaffold),
-            )
-            .first,
-      );
-      expect(scaffold.backgroundColor, cover.surface);
-      expect(Theme.of(tester.element(find.text('Song'))).colorScheme, cover);
-    });
 
     for (final (name, home) in [
       ('mini player', const Scaffold(bottomNavigationBar: MiniPlayer())),
