@@ -193,7 +193,7 @@ searches below.
 
 ## Owner extras
 
-- [ ] M001-TOR004 Remove the Android home-screen widgets
+- [x] M001-TOR004 Remove the Android home-screen widgets
   - Request: the owner chose to delete both Android home-screen widgets (Player
     and Download queue), whose only look is Material 3, rather than keep or
     redesign them (FR-012).

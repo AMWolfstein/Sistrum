@@ -7,6 +7,7 @@ class SistrumApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         AppCrashReporter.initialize(this)
+        removeRetiredWidgetData()
         // audio_service creates the cached engine before a FlutterFragment can
         // supply shell args, including when playback starts without an Activity.
         AudioServicePlugin.setFlutterEngineArguments(flutterRendererShellArgs())
@@ -28,6 +29,19 @@ class SistrumApplication : Application() {
                 "drawable/ic_widget_pause" -> R.drawable.ic_widget_pause
                 else -> 0
             }
+        }
+    }
+
+    // The home-screen widgets are gone; drop what they saved. Deleting a
+    // file that is already gone is a no-op, so this stays safe on every start.
+    private fun removeRetiredWidgetData() {
+        try {
+            deleteSharedPreferences("player_widget")
+            deleteSharedPreferences("download_widget_state")
+            java.io.File(filesDir, "player-widget-cover.png").delete()
+            java.io.File(filesDir, "player-widget-cover.tmp").delete()
+        } catch (error: Exception) {
+            android.util.Log.w("SistrumApplication", "Retired widget data cleanup failed", error)
         }
     }
 }

@@ -30,7 +30,6 @@ import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/playback_notification.dart';
-import 'package:sistrum/services/player_widget_service.dart';
 import 'package:sistrum/services/song_analysis.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
@@ -473,9 +472,6 @@ class MusicPlayerRuntime {
       }
       _initializing = false;
       _handlers.add(handler);
-      if (dependencies.isAndroid) {
-        PlayerWidgetService.instance.bind(handler);
-      }
       return handler;
     } catch (error, stack) {
       _log.e('Failed to initialize playback', error, stack);

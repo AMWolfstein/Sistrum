@@ -473,3 +473,58 @@ Independent round 3 verified all code and test changes (keyboard-resume cycles i
 driver, music_recognition loop, amoled keyword, per-file assertion counts, JSON counts
 4103 -> 3930); its only finding was that the earlier 3931 lines were not marked superseded.
 Marked above. The third result was NEEDS_FIXES, so a further review needs owner permission.
+
+## M001-TOR004 Remove the Android home-screen widgets
+
+- **Map (first action)**: `python3 workflow/codegraph/code_tools.py update` succeeded:
+  34563 symbols, 1714 extracted sources, 0 partial, 0 unindexed. Scope read with `rg` on
+  `android lib test integration_test` and docs for `appwidget|PlayerWidget|DownloadQueueWidget|
+  player_widget|download_widget`; the map does not resolve Kotlin-to-resource references, so
+  resource use was checked by script (below).
+- **Deleted (native)**: `PlayerWidgetProvider.kt` (also holds `PlayerWidgetBridge`),
+  `PlayerWidgetConfigurationActivity.kt`, `DownloadQueueWidgetProvider.kt`,
+  `androidTest/.../PlayerWidgetTest.kt`; `res/layout/widget_*.xml` (7, the whole layout dir),
+  `res/xml/widget_*_info.xml`, `res/drawable/widget_*.xml` (6) and `res/drawable-v31/`,
+  the widget-only icons `ic_widget_done`, `ic_widget_download`, `ic_widget_music`,
+  `res/values{,-in}/{player,download}_widget_strings.xml` (the `values-in` folder held only
+  those), the widget colours (`values/colors.xml` keeps `ic_launcher_background`;
+  `values-night`, `values-v31`, `values-night-v31` colour files held only widget colours),
+  and the `WidgetConfigTheme` styles in `values/` and `values-night/`.
+- **Edited (native)**: `AndroidManifest.xml` (two receivers and the configuration activity),
+  `proguard-rules.pro` (keep rule of the removed provider), `SharedEngineChannels.kt`
+  (`PlayerWidgetBridge.attach`), `MainActivity.kt` (two `handleIntent` calls),
+  `DownloadService.kt` (widget push state, throttle constant, the unused `SystemClock`
+  import; the notification path is unchanged), `SistrumApplication.kt` (see below).
+- **Kept**: `ic_widget_play`, `ic_widget_pause`, `ic_widget_next`, `ic_widget_previous`
+  (notification icons: `SistrumApplication` resource resolver, `playback_notification.dart`,
+  `res/raw/notification_keep.xml`, `AudioServiceLifecycleTest.java`).
+- **Saved data**: `SistrumApplication.removeRetiredWidgetData()` deletes the `player_widget`
+  and `download_widget_state` preference files and the widget cover files
+  (`player-widget-cover.png/.tmp`) at every start inside a try/catch; deleting what is
+  already gone is a no-op, so no flag is needed. This is the only place the old names remain,
+  so the validation `rg` returns exactly those two literals there.
+- **Deleted (Dart)**: `lib/services/player_widget_service.dart`,
+  `test/player_widget_service_test.dart`; `lib/main.dart` lost the Android
+  `PlayerWidgetService.initialize` block and the imports only it used
+  (`app_navigation_service`, `now_playing_screen`); `music_player_runtime.dart` lost the
+  `PlayerWidgetService.bind` call. `PlaybackDependencies.isAndroid` stays: it is also read by
+  `playback_session_restore.dart` (first attempt to remove it broke analyze and was reverted).
+  `test/player_widget_ownership_test.dart` is about the player details sheet, not the widgets,
+  and stays.
+- **Docs**: `README.md` (feature sentence about widgets following the wallpaper),
+  `CONTRIBUTING.md` (service and Kotlin tables), `android/README.md` (channel table).
+  No widget l10n keys exist.
+- **Resource check**: Gradle was not run (no Android build here: Maven Central is
+  unreliable and disk is limited). A script collected every resource defined in
+  `android/app/src/*/res` (all folders and value files) and every `R.type.name` /
+  `@type/name` reference in Kotlin, Java, XML and the manifest: 37 references, none dangling
+  except `android.R.*` framework ids, the AppCompat theme and the `ic_notification_*`
+  wildcard of `notification_keep.xml`, all unrelated and unchanged. Kotlin compilation of the
+  edited files was therefore not run; the edits only remove code and one 10-line cleanup.
+- **Checks**: `flutter analyze` no issues (including `integration_test`); full
+  `flutter test` result below; `work.py validate` PASS.
+- **Full `flutter test`** (JSON reporter, exit 0): 3911 passed, 10 skipped, 0 failed, against
+  3920 passed before. The 9 fewer tests are those of the deleted
+  `test/player_widget_service_test.dart` (the widget service); nothing else was removed.
+- **Not verified**: Kotlin compilation, lint, and the launcher behaviour (existing widget
+  placements, device cleanup of the retired data) were not run; no APK.

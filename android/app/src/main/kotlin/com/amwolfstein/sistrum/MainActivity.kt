@@ -394,7 +394,6 @@ class MainActivity: FlutterFragmentActivity() {
         AudioServicePlugin.getFlutterEngine(this)
         super.onCreate(savedInstanceState)
         handleExtensionOAuthIntent(intent)
-        PlayerWidgetBridge.handleIntent(intent)
     }
 
     override fun onStop() {
@@ -424,7 +423,6 @@ class MainActivity: FlutterFragmentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleExtensionOAuthIntent(intent)
-        PlayerWidgetBridge.handleIntent(intent)
     }
 
     internal fun reportLibraryScanError(path: String, operation: String, message: String) {

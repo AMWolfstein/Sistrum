@@ -13,7 +13,7 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 27,
+  "next_completion": 28,
   "next_mission": 3,
   "next_tor": 13,
   "tasks": {
@@ -108,13 +108,19 @@
       "title": "Cumulative review"
     },
     "M001-TOR004": {
-      "completion": null,
+      "completion": 27,
+      "evidence": {
+        "checks": "flutter analyze no issues; full flutter test 3911 passed, 10 skipped, 0 failed; resource references scripted + independently resolved; Kotlin/Gradle compile and lint NOT run (unverified)",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a254e57a",
+        "round": 1
+      },
       "final": false,
       "kind": "TOR",
       "mission": "M001",
       "nonce": "9879ade5027e4ab59bf0c87842e88f56",
       "record": "specs/001-remove-material-theme/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove the Android home-screen widgets"
     },
     "M002-T001": {

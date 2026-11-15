@@ -41,8 +41,7 @@
       <p>
         Full-screen cover art, a detailed audio quality label, queue
         controls and a sleep timer. AutoMix blends tracks with its own beat
-        detection, and Android home screen widgets follow your wallpaper
-        colors.
+        detection.
       </p>
       <p></p>
     </td>

@@ -27,15 +27,12 @@ import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/share_intent_service.dart';
 import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/services/app_state_database.dart';
-import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/services/activity_attachment.dart';
 import 'package:sistrum/services/app_crash_service.dart';
 import 'package:sistrum/services/background_favorites.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/playback_notification.dart';
-import 'package:sistrum/services/player_widget_service.dart';
-import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/utils/local_library_scan_prefs.dart';
 import 'package:sistrum/utils/logger.dart';
 
@@ -179,28 +176,6 @@ void main() {
       // Waits until startup settles, then analyzes how songs sound for
       // Autoplay. Media browsers that start without the app shell skip it.
       musicPlayerRuntime.startSongAnalysis();
-      if (Platform.isAndroid) {
-        unawaited(
-          PlayerWidgetService.instance.initialize((command) async {
-            await restorePersistedPlaybackSession();
-            final handler = await initMusicPlayer();
-            if (command == 'open') {
-              await WidgetsBinding.instance.endOfFrame;
-              final navigator =
-                  AppNavigationService.rootNavigatorKey.currentState;
-              if (navigator != null && handler.mediaItem.value != null) {
-                unawaited(
-                  navigator.push<void>(
-                    NowPlayingRoute(child: const NowPlayingScreen()),
-                  ),
-                );
-              }
-            } else {
-              await PlayerWidgetService.control(handler, command);
-            }
-          }),
-        );
-      }
     },
     (error, stack) {
       _log.e('Uncaught zone error: $error');

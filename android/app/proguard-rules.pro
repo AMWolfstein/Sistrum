@@ -47,9 +47,6 @@
 -keep,allowoptimization class com.amwolfstein.sistrum.DownloadService {
     public <init>();
 }
--keep,allowoptimization class com.amwolfstein.sistrum.DownloadQueueWidgetProvider {
-    public <init>();
-}
 
 # Flutter's fragment builders instantiate this class through reflection.
 -keep,allowoptimization class com.amwolfstein.sistrum.MainActivity$ImpellerAwareFlutterFragment {

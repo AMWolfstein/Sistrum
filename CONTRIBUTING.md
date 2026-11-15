@@ -189,7 +189,7 @@ ones.
 | `routes/` | `now_playing_route.dart` | services, theme |
 
 No provider or service imports `screens/` or `widgets/`. Among services, only
-the navigation, orientation, music player, and player widget services import
+the navigation, orientation and music player services import
 Flutter's `material.dart` or `widgets.dart`; among providers, the preview
 player, extension, download queue, download queue policy and theme providers
 do.
@@ -221,7 +221,6 @@ and the generated bindings to the same source set.
 | `NativeDownloadFinalizer.kt`, `NativeFinalizer*.kt`, `NativeHistoryStore.kt` | Post-download finalization and the native history write |
 | `Saf*.kt` | Storage Access Framework helpers |
 | `UsbBitPerfectPlugin.kt`, `Usb*.kt`, `BitPerfectPcm.kt`, `Dsd*.kt`, `HiResPlayback.kt`, `NativeAudio.kt` | Bit-perfect and USB playback (`com.amwolfstein.sistrum/usb_pcm`) |
-| `PlayerWidget*.kt`, `DownloadQueueWidgetProvider.kt` | Home-screen widgets |
 | `CoreBackend.kt`; `SelectedCoreBackend.kt`, `RustCoreBackendApplication.kt`, `NativeDataJobs.kt` | The `CoreBackend` interface and its Rust implementation `RustCoreBackend`, which maps method names to UniFFI calls |
 
 ## Where Each Feature Lives
@@ -241,7 +240,7 @@ Kotlin files in the Android folders above.
 | Extensions and repository | `providers/extension_provider.dart`, `providers/repo_provider.dart`, `models/extension.dart`, `screens/settings/extensions_page.dart`, `screens/repo_tab.dart` | `extensions/src/manifest.rs`, `extensions/src/runtime.rs`, `extensions/src/manager/`, `extensions/src/repository/`, `mobile/src/extensions.rs`, `mobile/src/repository.rs` | `RustCoreBackendApplication.kt`, `ExtensionAuthCallbacks.kt`, `MainActivityExtensionIntents.kt` |
 | Settings | `providers/settings_provider.dart`, `models/settings.dart`, `screens/settings/`, `utils/settings_search_catalog.dart` | none; values the backend needs are pushed by the `_sync*ToBackend` methods of `SettingsNotifier` | none |
 | Statistics and Rewind | `providers/listening_statistics_provider.dart`, `services/listening_statistics.dart`, `providers/listening_rewind_provider.dart`, `services/listening_rewind.dart` | none | none |
-| Widgets and notifications | `services/player_widget_service.dart`, `services/notification_service.dart`, `services/playback_notification.dart`, `providers/playback_notification_provider.dart` | none | `PlayerWidgetProvider.kt`, `DownloadQueueWidgetProvider.kt`, notifications in `DownloadService.kt` |
+| Notifications | `services/notification_service.dart`, `services/playback_notification.dart`, `providers/playback_notification_provider.dart` | none | notifications in `DownloadService.kt` |
 
 ## Data Flow
 
