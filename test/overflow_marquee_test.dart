@@ -406,7 +406,7 @@ void main() {
   for (final mornye in [false, true]) {
     for (final compact in [false, true]) {
       testWidgets(
-        'mini player scrolls title and artist (Sistrum: $mornye, compact: $compact)',
+        'mini player scrolls title and artist (Mornye: $mornye, compact: $compact)',
         (tester) async {
           await tester.pumpWidget(
             ProviderScope(

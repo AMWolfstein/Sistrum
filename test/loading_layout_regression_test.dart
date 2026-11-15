@@ -63,7 +63,7 @@ void main() {
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
         messenger.setMockMethodCallHandler(
           paths,
-          (_) async => '/tmp/mornye-loading-test',
+          (_) async => '/tmp/sistrum-loading-test',
         );
         addTearDown(() => messenger.setMockMethodCallHandler(paths, null));
         await tester.pumpWidget(

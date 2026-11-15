@@ -10,7 +10,7 @@ void main() {
   late Directory directory;
 
   setUp(() async {
-    directory = await Directory.systemTemp.createTemp('mornye-open-audio-');
+    directory = await Directory.systemTemp.createTemp('sistrum-open-audio-');
   });
   tearDown(() => directory.delete(recursive: true));
 

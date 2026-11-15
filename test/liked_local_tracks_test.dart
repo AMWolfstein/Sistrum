@@ -63,7 +63,7 @@ class _History extends DownloadHistoryNotifier {
 
 void main() {
   for (final mornye in [false, true]) {
-    testWidgets('Liked Songs reopens with local artwork (Sistrum: $mornye)', (
+    testWidgets('Liked Songs reopens with local artwork (Mornye: $mornye)', (
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({});

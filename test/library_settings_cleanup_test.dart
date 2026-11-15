@@ -121,7 +121,7 @@ Future<void> _mount(
 
 void main() {
   for (final mornye in [false, true]) {
-    testWidgets('source shows the scan failure reason (Sistrum: $mornye)', (
+    testWidgets('source shows the scan failure reason (Mornye: $mornye)', (
       tester,
     ) async {
       const error =

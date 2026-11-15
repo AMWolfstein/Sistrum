@@ -13,9 +13,9 @@
       "title": "Rebrand Mornye to Sistrum"
     }
   },
-  "next_completion": 20,
+  "next_completion": 21,
   "next_mission": 3,
-  "next_tor": 11,
+  "next_tor": 12,
   "tasks": {
     "M001-T001": {
       "completion": null,
@@ -390,6 +390,22 @@
       "record": ".specify/quick-tasks/TOR010.md",
       "status": "complete",
       "title": "Full audit of M002 tasks, owner extras and final review"
+    },
+    "TOR011": {
+      "completion": 20,
+      "evidence": {
+        "checks": "Review: round 1 NEEDS_FIXES (record accuracy only: performance-suite basis), corrected in the record; no code defect. Checks: flutter analyze no issues; targeted tests passed (+224, +28, +4407 full suite exit 0 on the final code); greps for mornye-browse, mornye.com/docs, Sistrum: $mornye and the old temp names clean; work.py validate PASS.",
+        "result": "PASS",
+        "reviewer": "independent general-purpose reviewer following .agents/reviewers/task-reviewer.md",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "1ee7aee08b8844f7908b54b776090028",
+      "record": ".specify/quick-tasks/TOR011.md",
+      "status": "complete",
+      "title": "Rename non-theme mornye names in tests, scheme and docs links"
     }
   },
   "version": 1

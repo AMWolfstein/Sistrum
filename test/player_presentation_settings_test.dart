@@ -119,7 +119,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets(
-      'automatic fullscreen lyrics is saved and searchable (Sistrum: $mornye)',
+      'automatic fullscreen lyrics is saved and searchable (Mornye: $mornye)',
       (tester) async {
         SharedPreferences.setMockInitialValues({});
         tester.view.physicalSize = const Size(390, 844);

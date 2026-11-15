@@ -22,7 +22,7 @@ void main() {
       'APK progress is bounded for chunk bursts and finishes with the latest byte count ($knownLength)',
       () async {
         final directory = await Directory.systemTemp.createTemp(
-          'mornye-progress-test-',
+          'sistrum-progress-test-',
         );
         addTearDown(() => directory.delete(recursive: true));
         final chunks = [
@@ -66,7 +66,7 @@ void main() {
     'APK progress still updates while a slower stream is downloading',
     () async {
       final directory = await Directory.systemTemp.createTemp(
-        'mornye-progress-test-',
+        'sistrum-progress-test-',
       );
       addTearDown(() => directory.delete(recursive: true));
       Stream<List<int>> chunks() async* {
@@ -96,7 +96,7 @@ void main() {
 
   test('APK updater resumes a matching partial and verifies SHA-256', () async {
     final directory = await Directory.systemTemp.createTemp(
-      'mornye-updater-test-',
+      'sistrum-updater-test-',
     );
     addTearDown(() async {
       if (await directory.exists()) await directory.delete(recursive: true);
@@ -158,7 +158,7 @@ void main() {
     'native hashing verifies the completed partial before publishing',
     () async {
       final directory = await Directory.systemTemp.createTemp(
-        'mornye-native-updater-test-',
+        'sistrum-native-updater-test-',
       );
       addTearDown(() => directory.delete(recursive: true));
       final payload = <int>[0x50, 0x4b, 0x03, 0x04, 1, 2, 3];

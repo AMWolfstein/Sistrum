@@ -416,7 +416,7 @@ class SubsonicClient {
   }
 
   /// The lyrics of [song] from the OpenSubsonic songLyrics extension, as
-  /// also sends the stored text (`mornyeRaw`), which keeps word timing.
+  /// also sends the stored text (`sistrumRaw`), which keeps word timing.
   /// Throws when the server lacks the extension.
   Future<String> lyrics(SubsonicSong song) async {
     final result = await request('getLyricsBySongId', {'id': song.id});
@@ -424,7 +424,7 @@ class SubsonicClient {
       _subsonicMap(result['lyricsList'])['structuredLyrics'],
     );
     for (final entry in entries) {
-      if (entry['mornyeRaw'] case final String raw when raw.trim().isNotEmpty) {
+      if (entry['sistrumRaw'] case final String raw when raw.trim().isNotEmpty) {
         return raw;
       }
     }

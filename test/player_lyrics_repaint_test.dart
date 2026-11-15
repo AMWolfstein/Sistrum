@@ -71,7 +71,7 @@ void main() {
     for (final reducedMotion in [false, true]) {
       for (final milliseconds in [200, 650]) {
         testWidgets('short final word completes its lift clock '
-            '(Sistrum: $mornye, reduced: $reducedMotion, ms: $milliseconds)', (
+            '(Mornye: $mornye, reduced: $reducedMotion, ms: $milliseconds)', (
           tester,
         ) async {
           final playback = StreamController<PlaybackState>.broadcast();

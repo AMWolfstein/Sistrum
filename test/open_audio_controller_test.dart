@@ -40,7 +40,7 @@ void main() {
   late ProviderContainer container;
   late _Player player;
   setUp(() async {
-    folder = await Directory.systemTemp.createTemp('mornye-open-controller-');
+    folder = await Directory.systemTemp.createTemp('sistrum-open-controller-');
     player = _Player();
     container = ProviderContainer(
       overrides: [

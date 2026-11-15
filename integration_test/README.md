@@ -26,7 +26,7 @@ report on the host, run the suite through
 `integration_test/performance_driver.dart`:
 
 ```bash
-SISTRUM_PERFORMANCE_REPORT=build/perf/mornye.json \
+SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
   flutter drive --profile --keep-app-running -d emulator-5554 \
   --driver=integration_test/performance_driver.dart \
   --target=integration_test/mornye_performance_test.dart

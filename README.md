@@ -168,8 +168,7 @@
       </p>
       <p>
         Add metadata and lyrics sources from community extension
-        repositories, then choose their priority. Building one? See the
-        <a href="https://mornye.com/docs">extension documentation</a>.
+        repositories, then choose their priority.
       </p>
       <p></p>
     </td>

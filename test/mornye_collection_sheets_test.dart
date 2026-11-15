@@ -130,7 +130,7 @@ void main() {
   });
 
   for (final mornye in [true, false]) {
-    testWidgets('track menu copies the service link (Sistrum: $mornye)', (
+    testWidgets('track menu copies the service link (Mornye: $mornye)', (
       tester,
     ) async {
       String? copied;
@@ -243,7 +243,7 @@ void main() {
   }
 
   for (final mornye in [true, false]) {
-    testWidgets('picker submits and closes once (Sistrum: $mornye)', (
+    testWidgets('picker submits and closes once (Mornye: $mornye)', (
       tester,
     ) async {
       final addition = Completer<void>();
@@ -290,7 +290,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('picker retains selections after failure (Sistrum: $mornye)', (
+    testWidgets('picker retains selections after failure (Mornye: $mornye)', (
       tester,
     ) async {
       final firstAddition = Completer<void>()..complete();
@@ -339,7 +339,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('picker adds only new selections (Sistrum: $mornye)', (
+    testWidgets('picker adds only new selections (Mornye: $mornye)', (
       tester,
     ) async {
       final collections = _Collections()

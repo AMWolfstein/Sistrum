@@ -96,7 +96,7 @@ class BrowserCoverProvider {
 
 /// The Library as media browsers such as Android Auto show it: tabs for
 /// songs, albums, artists and playlists, a search, and the queue each item
-/// plays. Item ids are `mornye-browse:` URIs, apart from the queue's own ids.
+/// plays. Item ids are `sistrum-browse:` URIs, apart from the queue's own ids.
 class MediaLibraryBrowser {
   MediaLibraryBrowser({
     required this.library,
@@ -125,7 +125,7 @@ class MediaLibraryBrowser {
 
   CoverStore get _covers => _coverStore ?? CoverStore.instance;
 
-  static const _scheme = 'mornye-browse';
+  static const _scheme = 'sistrum-browse';
 
   /// The most items one list shows. Cars cut long lists short while driving,
   /// and a search reaches the rest.

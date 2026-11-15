@@ -28,7 +28,7 @@ void main() {
   {
     for (final mornye in [false, true]) {
       testWidgets('Home keeps Resume without a player '
-          '(Sistrum: $mornye)', (tester) async {
+          '(Mornye: $mornye)', (tester) async {
         tester.platformDispatcher.accessibilityFeaturesTestValue =
             const FakeAccessibilityFeatures(disableAnimations: true);
         addTearDown(
@@ -169,7 +169,7 @@ void main() {
   {
     for (final mornye in [false, true]) {
       testWidgets('Home keeps its feed layout through slow startup '
-          '(Sistrum: $mornye)', (tester) async {
+          '(Mornye: $mornye)', (tester) async {
         tester.view.physicalSize = const Size(430, 932);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);

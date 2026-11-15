@@ -478,7 +478,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('Wishlist enqueues one selection (Sistrum: $mornye)', (
+    testWidgets('Wishlist enqueues one selection (Mornye: $mornye)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(800, 1100);
@@ -550,7 +550,7 @@ void main() {
   for (final mode in LibraryTracksFolderMode.values) {
     for (final mornye in [false, true]) {
       testWidgets(
-        'selection dispatches one ${mode.name} removal (Sistrum: $mornye)',
+        'selection dispatches one ${mode.name} removal (Mornye: $mornye)',
         (tester) async {
           tester.view.physicalSize = const Size(400, 850);
           tester.view.devicePixelRatio = 1;
@@ -624,7 +624,7 @@ void main() {
   }
 
   for (final mornye in [false, true]) {
-    testWidgets('playlist row queues its neighbors (Sistrum: $mornye)', (
+    testWidgets('playlist row queues its neighbors (Mornye: $mornye)', (
       tester,
     ) async {
       final player = _Player();
@@ -683,7 +683,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('playlist header shuffles every song (Sistrum: $mornye)', (
+    testWidgets('playlist header shuffles every song (Mornye: $mornye)', (
       tester,
     ) async {
       // A narrow phone, so Play, Shuffle and Download all must share it.
@@ -735,7 +735,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('playlist header mirrors in Arabic (Sistrum: $mornye)', (
+    testWidgets('playlist header mirrors in Arabic (Mornye: $mornye)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(360, 780);

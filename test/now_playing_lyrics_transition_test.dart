@@ -1593,7 +1593,7 @@ void main() {
   for (final mornye in [false, true]) {
     for (final landscape in [false, true]) {
       testWidgets('automatic fullscreen lyrics follows the saved option '
-          '(Sistrum: $mornye, landscape: $landscape)', (tester) async {
+          '(Mornye: $mornye, landscape: $landscape)', (tester) async {
         metadataOverrides['lyrics'] = List.generate(
           20,
           (index) => '[00:${index.toString().padLeft(2, '0')}.00]Line $index',
@@ -3218,7 +3218,7 @@ void main() {
 
   for (final mornye in [false, true]) {
     testWidgets('swiping up the mini player opens the player '
-        '(Sistrum: $mornye)', (tester) async {
+        '(Mornye: $mornye)', (tester) async {
       await pumpNowPlaying(
         tester,
         theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
@@ -3888,7 +3888,7 @@ void main() {
 
     for (final ttml in [false, true]) {
       testWidgets(
-        'backing vocals stay smaller under the lead with independent timing (Sistrum: $mornye, TTML: $ttml)',
+        'backing vocals stay smaller under the lead with independent timing (Mornye: $mornye, TTML: $ttml)',
         (tester) async {
           metadataOverrides['lyrics'] = ttml
               ? '''

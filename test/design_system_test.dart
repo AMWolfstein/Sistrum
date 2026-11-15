@@ -375,7 +375,7 @@ void main() {
       'local cache identity changes when artwork is replaced in place',
       () async {
         final directory = Directory.systemTemp.createTempSync(
-          'mornye-cover-palette-',
+          'sistrum-cover-palette-',
         );
         final file = File('${directory.path}/cover.jpg');
         try {

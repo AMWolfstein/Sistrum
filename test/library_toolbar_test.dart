@@ -330,7 +330,7 @@ void main() {
 {
     for (final mornye in [false, true]) {
       testWidgets('title sort survives a fresh Library and settings scope '
-          '(Sistrum: $mornye)', (tester) async {
+          '(Mornye: $mornye)', (tester) async {
         await pumpLibrary(tester, mornye: mornye);
         final l10n = l10nOf(tester);
         await tester.tap(
@@ -379,7 +379,7 @@ void main() {
       });
 
       testWidgets('size sort applies from the Library menu '
-          '(Sistrum: $mornye)', (tester) async {
+          '(Mornye: $mornye)', (tester) async {
         await pumpLibrary(tester, mornye: mornye);
         final l10n = l10nOf(tester);
         // The search field scrolls with the page over its plain background.

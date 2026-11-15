@@ -149,7 +149,7 @@ void main() {
   for (final mornye in [false, true]) {
     for (final failure in ['listing', 'save']) {
       testWidgets(
-        'HTTP reports $failure failure separately (Sistrum: $mornye)',
+        'HTTP reports $failure failure separately (Mornye: $mornye)',
         (tester) async {
           final service = _NetworkFixture();
           if (failure == 'listing') {
@@ -202,7 +202,7 @@ void main() {
         },
       );
     }
-    testWidgets('local permission denial can be retried (Sistrum: $mornye)', (
+    testWidgets('local permission denial can be retried (Mornye: $mornye)', (
       tester,
     ) async {
       final service = _NetworkFixture()
@@ -241,7 +241,7 @@ void main() {
     });
 
     testWidgets(
-      'certificate trust requires a tap and stays on its server (Sistrum: $mornye)',
+      'certificate trust requires a tap and stays on its server (Mornye: $mornye)',
       (tester) async {
         const certificate = NetworkCertificateException(
           origin: 'https://nas.test:6008',
@@ -307,7 +307,7 @@ void main() {
       },
     );
     testWidgets(
-      'saved networks open their own browser and retry (Sistrum: $mornye)',
+      'saved networks open their own browser and retry (Mornye: $mornye)',
       (tester) async {
         final service = _NetworkFixture();
         await service.save(
@@ -355,7 +355,7 @@ void main() {
     );
 
     testWidgets(
-      'connection form saves in the selected theme (Sistrum: $mornye)',
+      'connection form saves in the selected theme (Mornye: $mornye)',
       (tester) async {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;

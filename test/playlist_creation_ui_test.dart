@@ -90,7 +90,7 @@ void main() {
   });
 
   for (final mornye in [false, true]) {
-    testWidgets('create playlist offers three sources (Sistrum: $mornye)', (
+    testWidgets('create playlist offers three sources (Mornye: $mornye)', (
       tester,
     ) async {
       final collections = _Collections();

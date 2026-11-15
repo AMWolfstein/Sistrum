@@ -38,7 +38,7 @@ void main() {
       final theme = mornye
           ? MornyeTheme.build(brightness)
           : ThemeData(brightness: brightness);
-      final variant = 'Sistrum: $mornye, $brightness';
+      final variant = 'Mornye: $mornye, $brightness';
 
       testWidgets('choice rows preserve adaptive appearance ($variant)', (
         tester,

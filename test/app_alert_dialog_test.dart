@@ -88,7 +88,7 @@ void main() {
 
   for (final mornye in [true, false]) {
     testWidgets(
-      'confirmation preserves cancel and confirm results (Sistrum: $mornye)',
+      'confirmation preserves cancel and confirm results (Mornye: $mornye)',
       (tester) async {
         bool? result;
         await tester.pumpWidget(

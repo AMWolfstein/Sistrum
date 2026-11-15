@@ -3,6 +3,3 @@ contact_links:
   - name: README
     url: https://github.com/AMWolfstein/Sistrum#readme
     about: Check the README for setup instructions and FAQ
-  - name: Extension Development Guide
-    url: https://mornye.com/docs
-    about: Documentation for building Sistrum extensions

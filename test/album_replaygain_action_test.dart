@@ -23,7 +23,7 @@ void main() {
     for (final downloaded in [false, true]) {
       for (final remove in [false, true]) {
         testWidgets(
-          'ReplayGain survives hiding the album selection (Sistrum: $mornye, downloaded: $downloaded, remove: $remove)',
+          'ReplayGain survives hiding the album selection (Mornye: $mornye, downloaded: $downloaded, remove: $remove)',
           (tester) async {
             SharedPreferences.setMockInitialValues({});
             var attempts = 0;
