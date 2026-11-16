@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 35,
+  "next_completion": 36,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -408,13 +408,19 @@
       "title": "Album screen reads the library"
     },
     "M003-T004": {
-      "completion": null,
+      "completion": 35,
+      "evidence": {
+        "checks": "Round 1 NEEDS_FIXES (system back during Edit order skipped the discard dialog) fixed; round 2 PASS. Saved evidence scratchpad/t004: flutter analyze lib test integration_test no issues; dart format 21 files 0 changed; targeted 147 passed; full flutter test exit 0, 3997 passed incl 7 loading, 10 skipped, 0 failed; work.py validate PASS. Wishlist unchanged; playlist and Loved use the playlist design with offline actions; no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-abcf43f5",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "b4b1e3f72fd44a99b0e981af043fc66a",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Playlists and Loved songs use the playlist design"
     },
     "M003-T005": {

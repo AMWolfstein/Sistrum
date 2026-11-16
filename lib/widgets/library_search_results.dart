@@ -11,7 +11,7 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -355,10 +355,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         case LibrarySearchKind.playlists:
           await pushPage<void>(
             context,
-            (_) => LibraryTracksFolderScreen(
-              mode: LibraryTracksFolderMode.playlist,
-              playlistId: hit.id,
-            ),
+            (_) => PlaylistScreen.libraryPlaylist(libraryPlaylistId: hit.id),
           );
         case LibrarySearchKind.albums:
           await pushPage<void>(

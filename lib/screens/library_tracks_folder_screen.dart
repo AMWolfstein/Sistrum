@@ -1,74 +1,41 @@
-import 'dart:io';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/widgets/in_library_badge.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
-import 'dart:math';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
 import 'package:sistrum/widgets/collection_scaffold.dart';
-import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/services/m3u_playlist_service.dart';
-import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/collection_track_files_provider.dart';
-import 'package:sistrum/providers/deleted_library_files.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/cover_art_utils.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
-import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
+import 'package:sistrum/controllers/collection_order_editing.dart';
 import 'package:sistrum/controllers/library_tracks_folder_data.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
-import 'package:sistrum/widgets/discard_changes_dialog.dart';
-import 'package:sistrum/widgets/selection_action_button.dart';
-import 'package:sistrum/widgets/destructive_selection_button.dart';
+import 'package:sistrum/widgets/collection_track_actions.dart';
 import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/widgets/playlist_picker_sheet.dart';
-import 'package:sistrum/widgets/collection_suggestions_section.dart';
 import 'package:sistrum/widgets/track_detail_actions.dart';
-import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 
 export 'package:sistrum/models/library_collections.dart'
     show LibraryTracksFolderMode;
 
-String? _resolveRawCoverUrl(Track track) {
-  final rawCover = track.coverUrl?.trim();
-  if (rawCover != null &&
-      rawCover.isNotEmpty &&
-      !rawCover.startsWith('content://')) {
-    return rawCover;
-  }
-  return null;
-}
-
+/// The Wishlist: saved songs to download. Library playlists and Loved songs
+/// use the playlist page.
 class LibraryTracksFolderScreen extends ConsumerStatefulWidget {
-  final LibraryTracksFolderMode mode;
-  final String? playlistId;
-
-  const LibraryTracksFolderScreen({
-    super.key,
-    required this.mode,
-    this.playlistId,
-  });
+  const LibraryTracksFolderScreen({super.key});
 
   @override
   ConsumerState<LibraryTracksFolderScreen> createState() =>
@@ -79,209 +46,57 @@ class _LibraryTracksFolderScreenState
     extends ConsumerState<LibraryTracksFolderScreen>
     with
         SelectionModeMixin<LibraryTracksFolderScreen>,
-        CollapsingHeaderScrollMixin<LibraryTracksFolderScreen> {
-  UserPlaylistCollection? playlist;
+        CollapsingHeaderScrollMixin<LibraryTracksFolderScreen>,
+        CollectionOrderEditing<LibraryTracksFolderScreen>,
+        CollectionTrackActions<LibraryTracksFolderScreen> {
   final _folderData = LibraryTracksFolderData();
-  List<CollectionTrackEntry>? _orderDraft;
-  List<String> _orderBefore = const [];
-  bool _savingOrder = false;
-  bool _draggingOrder = false;
-  bool _confirmingDiscard = false;
-  bool _trackActionInProgress = false;
-
-  bool get _editingOrder => _orderDraft != null;
-  bool get _orderChanged =>
-      _orderDraft?.indexed.any(
-        (item) => item.$2.key != _orderBefore[item.$1],
-      ) ??
-      false;
-
-  void _editOrder(List<CollectionTrackEntry> entries) {
-    exitSelectionMode();
-    setState(() {
-      _orderDraft = [...entries];
-      _orderBefore = [for (final entry in entries) entry.key];
-      _draggingOrder = false;
-    });
-  }
-
-  Future<void> _cancelOrder() async {
-    if (_savingOrder || _confirmingDiscard) return;
-    _confirmingDiscard = true;
-    try {
-      if (_orderChanged && !await showDiscardChangesDialog(context)) return;
-      if (mounted) {
-        setState(() {
-          _orderDraft = null;
-          _draggingOrder = false;
-        });
-      }
-    } finally {
-      _confirmingDiscard = false;
-    }
-  }
-
-  Future<void> _saveOrder() async {
-    final draft = _orderDraft;
-    if (draft == null || _savingOrder || _draggingOrder) return;
-    setState(() => _savingOrder = true);
-    try {
-      final keys = [for (final entry in draft) entry.key];
-      final notifier = ref.read(libraryCollectionsProvider.notifier);
-      final saved = widget.mode == LibraryTracksFolderMode.playlist
-          ? await notifier.reorderPlaylistTracks(widget.playlistId!, keys)
-          : await notifier.reorderSavedTracks(widget.mode, keys);
-      if (!mounted) return;
-      setState(() => _orderDraft = null);
-      showAppSnackBar(
-        context,
-        content: Text(
-          saved
-              ? context.l10n.collectionOrderSaved
-              : context.l10n.collectionOrderChanged,
-        ),
-      );
-    } on Object {
-      if (mounted) {
-        showAppSnackBar(
-          context,
-          content: Text(context.l10n.collectionOrderSaveFailed),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _savingOrder = false);
-    }
-  }
 
   @override
-  void initState() {
-    super.initState();
-    final playlistId = widget.playlistId;
-    if (widget.mode == LibraryTracksFolderMode.playlist && playlistId != null) {
-      Future.microtask(
-        () => ref
-            .read(libraryCollectionsProvider.notifier)
-            .ensurePlaylistLoaded(playlistId),
-      );
-    }
+  Future<bool> saveOrderKeys(List<String> orderedKeys) => ref
+      .read(libraryCollectionsProvider.notifier)
+      .reorderSavedTracks(LibraryTracksFolderMode.wishlist, orderedKeys);
+
+  @override
+  void leaveSelectionAfterTrackAction() => exitSelectionMode();
+
+  Widget _selectionActions(List<CollectionTrackEntry> entries) {
+    final tracks = [
+      for (final entry in entries)
+        if (selectedIds.contains(entry.key)) entry.track,
+    ];
+    return CollectionTrackSelectionActions(
+      media: selectedMedia(tracks),
+      selectedCount: tracks.length,
+      showPlayer: ref.watch(playerUiEnabledProvider),
+      inProgress: trackActionInProgress,
+      onPlay: playSelectedMedia,
+      onAddToPlaylist: () => showAddTracksToPlaylistSheet(context, ref, tracks),
+      removeLabel: context.l10n.collectionRemoveFromFolder,
+      onRemove: _removeSelected,
+      onDelete: deleteSelectedMedia,
+      onDownload: () => _downloadSelected(entries),
+    );
   }
 
-  /// Exports the collection as an .m3u8 shared via the system sheet. Tracks
-  /// without a resolvable local file are skipped; SAF entries are written
-  /// relative to the download tree root.
-  Future<void> _exportAsM3u8(
-    BuildContext context,
-    String title,
-    List<CollectionTrackEntry> entries,
-  ) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      final tracks = entries.map((e) => e.track).toList(growable: false);
-      final paths = await ref
-          .read(playbackProvider.notifier)
-          .resolveTrackFilePaths(tracks);
-
-      final exportEntries = <M3uExportEntry>[];
-      for (var i = 0; i < tracks.length; i++) {
-        final path = paths[i];
-        if (path == null || isCueVirtualPath(path)) continue;
-        final entryPath = M3uPlaylistService.exportPathFor(path);
-        if (entryPath == null) continue;
-        exportEntries.add(M3uExportEntry(track: tracks[i], path: entryPath));
-      }
-
-      if (exportEntries.isEmpty) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.collectionExportM3uNone)),
-        );
-        return;
-      }
-
-      final file = await M3uPlaylistService.writeExportEntries(
-        title,
-        exportEntries,
-      );
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.collectionExportM3uDone(exportEntries.length, tracks.length),
-          ),
-        ),
-      );
-      await SharePlus.instance.share(
-        ShareParams(files: [XFile(file.path)], text: title),
-      );
-    } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.collectionExportM3uFailed)),
-      );
-    }
+  void _startEditOrder(List<CollectionTrackEntry> entries) {
+    exitSelectionMode();
+    editOrder(entries);
   }
 
-  IconData _modeIcon() {
-    return switch (widget.mode) {
-      LibraryTracksFolderMode.wishlist => Icons.bookmark,
-      LibraryTracksFolderMode.loved => Icons.favorite,
-      LibraryTracksFolderMode.playlist => Icons.queue_music,
-    };
-  }
-
-  String? _firstRawCoverUrl(List<CollectionTrackEntry> entries) {
-    for (final entry in entries) {
-      final cover = _resolveRawCoverUrl(entry.track);
-      if (cover != null && cover.isNotEmpty) {
-        return cover;
-      }
-    }
-    return null;
-  }
-
-  Future<void> _removeSelected(List<CollectionTrackEntry> entries) async {
+  Future<void> _removeSelected() async {
     final keysToRemove = selectedIds.toSet();
     if (keysToRemove.isEmpty) return;
 
     final count = keysToRemove.length;
-    final notifier = ref.read(libraryCollectionsProvider.notifier);
-
-    switch (widget.mode) {
-      case LibraryTracksFolderMode.wishlist:
-        await notifier.removeWishlistTracks(keysToRemove);
-        break;
-      case LibraryTracksFolderMode.loved:
-        await notifier.removeLovedTracks(keysToRemove);
-        break;
-      case LibraryTracksFolderMode.playlist:
-        if (widget.playlistId != null) {
-          await notifier.removeTracksFromPlaylist(
-            widget.playlistId!,
-            keysToRemove,
-          );
-        }
-        break;
-    }
+    await ref
+        .read(libraryCollectionsProvider.notifier)
+        .removeWishlistTracks(keysToRemove);
 
     exitSelectionMode();
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.l10n.selectionSelected(count))),
-    );
-  }
-
-  LocalLibraryCoverBatchRequest _coverBatchRequest(
-    List<CollectionTrackEntry> entries,
-  ) {
-    return LocalLibraryCoverBatchRequest(
-      entries
-          .map(
-            (entry) => LocalLibraryCoverRequest(
-              isrc: entry.track.isrc?.trim(),
-              trackName: entry.track.name,
-              artistName: entry.track.artistName,
-            ),
-          )
-          .toList(growable: false),
     );
   }
 
@@ -314,82 +129,23 @@ class _LibraryTracksFolderScreenState
     );
   }
 
-  void _addSelectedToPlaylist(List<CollectionTrackEntry> entries) {
-    final selectedTracks = entries
-        .where((e) => selectedIds.contains(e.key))
-        .map((e) => e.track)
-        .toList(growable: false);
-    if (selectedTracks.isEmpty) return;
-
-    showAddTracksToPlaylistSheet(context, ref, selectedTracks);
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     ref.watch(localLibraryProvider.select((s) => s.loadedIndexVersion));
-    List<CollectionTrackEntry> entries;
-
-    switch (widget.mode) {
-      case LibraryTracksFolderMode.wishlist:
-        playlist = null;
-        entries = ref.watch(
-          libraryCollectionsProvider.select((state) => state.wishlist),
-        );
-        break;
-      case LibraryTracksFolderMode.loved:
-        playlist = null;
-        entries = ref.watch(
-          libraryCollectionsProvider.select((state) => state.loved),
-        );
-        break;
-      case LibraryTracksFolderMode.playlist:
-        final playlistId = widget.playlistId;
-        playlist = playlistId == null
-            ? null
-            : ref.watch(
-                libraryCollectionsProvider.select(
-                  (state) => state.playlistById(playlistId),
-                ),
-              );
-        entries = playlist?.tracks ?? const <CollectionTrackEntry>[];
-        break;
-    }
-
-    entries = _orderDraft ?? entries;
+    final stored = ref.watch(
+      libraryCollectionsProvider.select((state) => state.wishlist),
+    );
+    final entries = orderDraft ?? stored;
     _folderData.update(entries);
     pruneSelection(_folderData.keys);
-
-    final title = switch (widget.mode) {
-      LibraryTracksFolderMode.wishlist => context.l10n.collectionWishlist,
-      LibraryTracksFolderMode.loved => context.l10n.collectionLoved,
-      LibraryTracksFolderMode.playlist =>
-        playlist?.name ?? context.l10n.collectionPlaylist,
-    };
-
-    final emptyTitle = switch (widget.mode) {
-      LibraryTracksFolderMode.wishlist =>
-        context.l10n.collectionWishlistEmptyTitle,
-      LibraryTracksFolderMode.loved => context.l10n.collectionLovedEmptyTitle,
-      LibraryTracksFolderMode.playlist =>
-        context.l10n.collectionPlaylistEmptyTitle,
-    };
-
-    final emptySubtitle = switch (widget.mode) {
-      LibraryTracksFolderMode.wishlist =>
-        context.l10n.collectionWishlistEmptySubtitle,
-      LibraryTracksFolderMode.loved =>
-        context.l10n.collectionLovedEmptySubtitle,
-      LibraryTracksFolderMode.playlist =>
-        context.l10n.collectionPlaylistEmptySubtitle,
-    };
 
     final bottomPadding = isSelectionMode
         ? MediaQuery.paddingOf(context).bottom
         : 0.0;
 
     final folderTracks = _folderData.tracks;
-    final existingHistoryKeys = _editingOrder
+    final existingHistoryKeys = editingOrder
         ? const <String>{}
         : ref.watch(
             downloadHistoryVisibleBatchExistsProvider(
@@ -403,16 +159,14 @@ class _LibraryTracksFolderScreenState
       scrollController: scrollController,
       isSelectionMode: showsSelectionBar,
       onExitSelectionMode: exitSelectionMode,
-      selectionBar: _buildSelectionBottomBar(
-        context,
-        colorScheme,
-        entries,
-        ids,
-        bottomPadding,
+      selectionBar: buildSelectionBar(
+        ids: ids,
+        bottomPadding: bottomPadding,
+        children: [_selectionActions(entries)],
       ),
-      appBar: _buildAppBar(context, colorScheme, title, entries, playlist),
+      appBar: _buildAppBar(context, colorScheme, entries),
       slivers: [
-        if (_editingOrder)
+        if (editingOrder)
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(
@@ -427,26 +181,17 @@ class _LibraryTracksFolderScreenState
         if (entries.isEmpty)
           SliverFillRemaining(
             hasScrollBody: false,
-            child: _EmptyFolderState(
-              title: emptyTitle,
-              subtitle: emptySubtitle,
+            child: CollectionEmptyState(
+              title: context.l10n.collectionWishlistEmptyTitle,
+              subtitle: context.l10n.collectionWishlistEmptySubtitle,
             ),
           )
-        else if (_editingOrder)
+        else if (editingOrder)
           CollectionReorderSliver(
             entries: entries,
-            enabled: !_savingOrder,
-            onDraggingChanged: (dragging) {
-              if (mounted) setState(() => _draggingOrder = dragging);
-            },
-            onReorder: (oldIndex, newIndex) {
-              if (_orderDraft == null || _savingOrder) return;
-              setState(() {
-                final next = [..._orderDraft!];
-                next.insert(newIndex, next.removeAt(oldIndex));
-                _orderDraft = next;
-              });
-            },
+            enabled: !savingOrder,
+            onDraggingChanged: setDraggingOrder,
+            onReorder: moveDraftEntry,
           )
         else
           SliverPadding(
@@ -462,7 +207,6 @@ class _LibraryTracksFolderScreenState
                     index: index,
                     child: _CollectionTrackTile(
                       entry: entry,
-                      mode: widget.mode,
                       folderTracks: folderTracks,
                       trackIndex: index,
                       isInHistory: isInHistory,
@@ -480,253 +224,38 @@ class _LibraryTracksFolderScreenState
               }, childCount: entries.length),
             ),
           ),
-        if (playlist case final playlist?
-            when playlist.tracks.isNotEmpty &&
-                !showsSelectionBar &&
-                !_editingOrder)
-          CollectionSuggestionsSliver(
-            collectionKey: 'playlist:${playlist.id}',
-            // The newest additions say most about where the playlist goes.
-            tracks: _folderData.newestFirstTracks,
-            playlistId: playlist.id,
-          ),
       ],
     );
     return PopScope(
-      canPop: !_editingOrder,
+      canPop: !editingOrder,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && _editingOrder) _cancelOrder();
+        if (!didPop && editingOrder) cancelOrder();
       },
       child: scaffold,
     );
   }
 
-  CollectionTrackFilesRequest _selectedTrackFiles(
-    List<CollectionTrackEntry> entries,
-  ) => CollectionTrackFilesRequest([
-    for (final entry in entries)
-      if (selectedIds.contains(entry.key)) entry.track,
-  ]);
-
-  Future<void> _playSelectedFiles(
-    List<PlayableMedia> media, {
-    bool? playNext,
-  }) async {
-    if (media.isEmpty || _trackActionInProgress) return;
-    setState(() => _trackActionInProgress = true);
-    try {
-      if (playNext == null) {
-        await ref
-            .read(playbackProvider.notifier)
-            .playMediaQueue(
-              media,
-              startIndex: 0,
-              externalPath: media.first.source,
-            );
-      } else {
-        await ref
-            .read(musicPlayerControllerProvider)
-            .enqueueMedia(media, playNext: playNext);
-      }
-      if (mounted) exitSelectionMode();
-    } catch (error) {
-      if (mounted) showCannotOpenFileSnackBar(context, error);
-    } finally {
-      if (mounted) setState(() => _trackActionInProgress = false);
-    }
-  }
-
-  Future<void> _deleteSelectedFiles(List<PlayableMedia> media) async {
-    final paths = {
-      for (final item in media)
-        if (!item.isNetwork && !isCueVirtualPath(item.source)) item.source,
-    }.toList();
-    if (paths.isEmpty || _trackActionInProgress) return;
-    final container = ProviderScope.containerOf(context, listen: false);
-    setState(() => _trackActionInProgress = true);
-    try {
-      await confirmAndDeleteTracks(
-        context: context,
-        ids: paths,
-        message: context.l10n.collectionDeleteFilesMessage(paths.length),
-        deleteItem: deleteFile,
-        persistDeletedItems: (deleted) =>
-            removeDeletedLibraryFileEntries(container, deleted),
-        onExitSelectionMode: () {
-          if (mounted) exitSelectionMode();
-        },
-      );
-    } catch (error) {
-      if (mounted) showCannotOpenFileSnackBar(context, error);
-    } finally {
-      if (mounted) setState(() => _trackActionInProgress = false);
-    }
-  }
-
-  Widget _buildSelectionBottomBar(
-    BuildContext context,
-    ColorScheme colorScheme,
-    List<CollectionTrackEntry> entries,
-    List<String> ids,
-    double bottomPadding,
-  ) {
-    final selectedCount = selectedIds.length;
-    final isWishlist = widget.mode == LibraryTracksFolderMode.wishlist;
-    final files = selectedCount == 0
-        ? const <PlayableMedia>[]
-        : ref
-                  .watch(
-                    collectionTrackFilesProvider(_selectedTrackFiles(entries)),
-                  )
-                  .value ??
-              const <PlayableMedia>[];
-    final showPlayer = ref.watch(playerUiEnabledProvider);
-    final localCount = files
-        .where((item) => !item.isNetwork)
-        .map((item) => item.source)
-        .toSet()
-        .length;
-    final canPlay = files.isNotEmpty && !_trackActionInProgress;
-    final deleteLabel = context.l10n.selectionDeleteTracksCount(localCount);
-
-    return buildSelectionBar(
-      ids: ids,
-      bottomPadding: bottomPadding,
-      children: [
-        SelectionActionGrid(
-          children: [
-            SelectionActionButton(
-              icon: Icons.play_arrow,
-              label: context.l10n.tooltipPlay,
-              onPressed: canPlay ? () => _playSelectedFiles(files) : null,
-            ),
-            if (showPlayer)
-              for (final next in [true, false])
-                SelectionActionButton(
-                  icon: next ? Icons.playlist_play : Icons.queue_music,
-                  label: next
-                      ? context.l10n.trackPlayNext
-                      : context.l10n.trackAddToQueue,
-                  onPressed: canPlay
-                      ? () => _playSelectedFiles(files, playNext: next)
-                      : null,
-                ),
-            if (isWishlist)
-              SelectionActionButton(
-                icon: Icons.download,
-                label: '${context.l10n.settingsDownload} ($selectedCount)',
-                onPressed: selectedCount > 0
-                    ? () => _downloadSelected(entries)
-                    : null,
-              ),
-            SelectionActionButton(
-              icon: Icons.playlist_add,
-              label: '${context.l10n.collectionAddToPlaylist} ($selectedCount)',
-              onPressed: selectedCount > 0
-                  ? () => _addSelectedToPlaylist(entries)
-                  : null,
-            ),
-            // Removing entries keeps the files, so it stays a plain action.
-            // the Library selection bar.
-            SelectionActionButton(
-              onPressed: selectedCount > 0
-                  ? () => _removeSelected(entries)
-                  : null,
-              icon: Icons.remove_circle_outline,
-              label: selectedCount > 0
-                  ? '${widget.mode == LibraryTracksFolderMode.playlist ? context.l10n.collectionRemoveFromPlaylist : context.l10n.collectionRemoveFromFolder} ($selectedCount)'
-                  : widget.mode == LibraryTracksFolderMode.playlist
-                  ? context.l10n.collectionRemoveFromPlaylist
-                  : context.l10n.collectionRemoveFromFolder,
-            ),
-          ],
-        ),
-        if (localCount > 0) ...[
-          const SizedBox(height: 8),
-          DestructiveSelectionButton(
-            count: _trackActionInProgress ? 0 : localCount,
-            colorScheme: colorScheme,
-            label: deleteLabel,
-            onPressed: () => _deleteSelectedFiles(files),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Future<void> _pickCoverImage() async {
-    final playlistId = widget.playlistId;
-    if (playlistId == null) return;
-
-    final picked = await FilePicker.pickFile(type: FileType.image);
-    if (picked == null) return;
-
-    Directory? materializedDir;
-    try {
-      var sourcePath = picked.path;
-      if (sourcePath == null || sourcePath.isEmpty) {
-        materializedDir = await Directory.systemTemp.createTemp(
-          'sistrum_playlist_cover_',
-        );
-        final pickedExtension = p.extension(picked.name);
-        final materializedFile = File(
-          p.join(
-            materializedDir.path,
-            'selected_cover${pickedExtension.isEmpty ? '.img' : pickedExtension}',
-          ),
-        );
-        await materializedFile.writeAsBytes(
-          await picked.readAsBytes(),
-          flush: true,
-        );
-        sourcePath = materializedFile.path;
-      }
-
-      await ref
-          .read(libraryCollectionsProvider.notifier)
-          .setPlaylistCover(playlistId, sourcePath);
-    } finally {
-      try {
-        if (materializedDir != null && await materializedDir.exists()) {
-          await materializedDir.delete(recursive: true);
-        }
-      } catch (_) {
-        // The cover has already been normalized into app storage.
-      }
-    }
-  }
-
-  Future<void> _removeCoverImage() async {
-    final playlistId = widget.playlistId;
-    if (playlistId == null) return;
-
-    await ref
-        .read(libraryCollectionsProvider.notifier)
-        .removePlaylistCover(playlistId);
-  }
-
   Widget _buildAppBar(
     BuildContext context,
     ColorScheme colorScheme,
-    String title,
     List<CollectionTrackEntry> entries,
-    UserPlaylistCollection? playlist,
   ) {
-    final customCoverPath = playlist?.coverImagePath;
-    final isLovedMode = widget.mode == LibraryTracksFolderMode.loved;
-    final isPlaylistMode = widget.mode == LibraryTracksFolderMode.playlist;
-    final rawCoverUrl = isLovedMode ? null : _firstRawCoverUrl(entries);
-    final localCoverUrl =
-        rawCoverUrl == null && !isLovedMode && entries.isNotEmpty
+    final title = context.l10n.collectionWishlist;
+    final rawCoverUrl = firstRawCollectionCover(
+      entries.map((entry) => entry.track),
+    );
+    final localCoverUrl = rawCoverUrl == null && entries.isNotEmpty
         ? ref
               .watch(
-                localLibraryFirstCoverProvider(_coverBatchRequest(entries)),
+                localLibraryFirstCoverProvider(
+                  collectionCoverBatchRequest(
+                    entries.map((entry) => entry.track),
+                  ),
+                ),
               )
               .maybeWhen(data: (cover) => cover, orElse: () => null)
         : null;
     final coverUrl = rawCoverUrl ?? localCoverUrl;
-    final hasCustomCover =
-        customCoverPath != null && customCoverPath.isNotEmpty;
     final hasCoverUrl = coverUrl != null;
     // is connected.
     final dpr = MediaQuery.devicePixelRatioOf(context);
@@ -736,21 +265,22 @@ class _LibraryTracksFolderScreenState
     );
     final coverFallback = Container(
       color: colorScheme.surfaceContainerHighest,
-      child: Icon(_modeIcon(), size: 80, color: colorScheme.onSurfaceVariant),
+      child: Icon(
+        Icons.bookmark,
+        size: 80,
+        color: colorScheme.onSurfaceVariant,
+      ),
     );
     Widget squarePlaceholder() => Container(
       color: colorScheme.surfaceContainerHighest,
-      child: Icon(_modeIcon(), size: 48, color: colorScheme.onSurfaceVariant),
+      child: Icon(
+        Icons.bookmark,
+        size: 48,
+        color: colorScheme.onSurfaceVariant,
+      ),
     );
 
-    final Widget background = hasCustomCover
-        ? LocalOrNetworkCoverImage(
-            url: customCoverPath,
-            localCacheWidth: cacheWidth,
-            fadeInDuration: Duration.zero,
-            placeholder: (_) => coverFallback,
-          )
-        : hasCoverUrl
+    final Widget background = hasCoverUrl
         ? LocalOrNetworkCoverImage(
             url: coverUrl,
             fit: BoxFit.cover,
@@ -764,7 +294,7 @@ class _LibraryTracksFolderScreenState
 
     return AlbumDetailHeader(
       title: title,
-      appBarTitle: _editingOrder
+      appBarTitle: editingOrder
           ? context.l10n.playlistEditOrder
           : isSelectionMode
           ? context.l10n.selectionSelected(selectedIds.length)
@@ -773,17 +303,6 @@ class _LibraryTracksFolderScreenState
       showTitleListenable: showTitleNotifier,
       background: background,
       coverBuilder: (context, coverSize) {
-        if (hasCustomCover) {
-          return Image.file(
-            File(customCoverPath),
-            fit: BoxFit.cover,
-            width: coverSize,
-            height: coverSize,
-            cacheWidth: cacheWidth,
-            gaplessPlayback: true,
-            errorBuilder: (_, _, _) => squarePlaceholder(),
-          );
-        }
         if (hasCoverUrl) {
           return LocalOrNetworkCoverImage(
             url: coverUrl,
@@ -803,13 +322,13 @@ class _LibraryTracksFolderScreenState
               items: [
                 HeaderMetaItem(
                   context.l10n.tracksCount(entries.length),
-                  icon: _modeIcon(),
+                  icon: Icons.bookmark,
                 ),
               ],
             )
           : null,
       // Play is the one wide action, between Download All and Shuffle.
-      actions: entries.isNotEmpty && !_editingOrder
+      actions: entries.isNotEmpty && !editingOrder
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -830,15 +349,15 @@ class _LibraryTracksFolderScreenState
             )
           : null,
       appBarActions: [
-        if (_editingOrder)
+        if (editingOrder)
           TextButton(
             key: const ValueKey('collection-order-save'),
-            onPressed: !_orderChanged || _savingOrder || _draggingOrder
+            onPressed: !orderChanged || savingOrder || draggingOrder
                 ? null
-                : _saveOrder,
+                : saveOrder,
             child: Text(context.l10n.dialogSave),
           ),
-        if (!_editingOrder) ...[
+        if (!editingOrder) ...[
           if (!isSelectionMode && entries.isNotEmpty)
             NetworkOfflineTracksButton(
               tracks: [for (final entry in entries) entry.track],
@@ -848,7 +367,9 @@ class _LibraryTracksFolderScreenState
               icon: Icons.ios_share,
               iconSize: 20,
               tooltip: context.l10n.collectionExportM3u,
-              onPressed: () => _exportAsM3u8(context, title, entries),
+              onPressed: () => exportCollectionAsM3u8(context, ref, title, [
+                for (final entry in entries) entry.track,
+              ]),
             ),
           if (!isSelectionMode && entries.length > 1) ...[
             const SizedBox(width: 8),
@@ -857,30 +378,7 @@ class _LibraryTracksFolderScreenState
               icon: Icons.swap_vert,
               iconSize: 20,
               tooltip: context.l10n.playlistEditOrder,
-              onPressed: () => _editOrder(entries),
-            ),
-          ],
-          if (isPlaylistMode && !isSelectionMode) ...[
-            const SizedBox(width: 8),
-            HeaderCircleButton(
-              icon: Icons.edit_outlined,
-              iconSize: 20,
-              tooltip: context.l10n.collectionRenamePlaylist,
-              onPressed: () {
-                final id = widget.playlistId ?? playlist?.id;
-                if (id == null || id.isEmpty) return;
-                _showRenamePlaylistDialog(context, id, playlist?.name ?? title);
-              },
-            ),
-            const SizedBox(width: 8),
-            Builder(
-              builder: (buttonContext) => HeaderCircleButton(
-                icon: Icons.camera_alt_outlined,
-                iconSize: 20,
-                tooltip: context.l10n.collectionPlaylistChangeCover,
-                onPressed: () =>
-                    _showCoverOptionsSheet(buttonContext, hasCustomCover),
-              ),
+              onPressed: () => _startEditOrder(entries),
             ),
           ],
         ],
@@ -888,14 +386,14 @@ class _LibraryTracksFolderScreenState
       // Centered so the tight leading slot cannot stretch it.
       leading: Center(
         child: HeaderCircleButton(
-          icon: isSelectionMode || _editingOrder
+          icon: isSelectionMode || editingOrder
               ? Icons.close
               : Icons.arrow_back,
-          tooltip: isSelectionMode || _editingOrder
+          tooltip: isSelectionMode || editingOrder
               ? MaterialLocalizations.of(context).closeButtonTooltip
               : MaterialLocalizations.of(context).backButtonTooltip,
-          onPressed: _editingOrder
-              ? _cancelOrder
+          onPressed: editingOrder
+              ? cancelOrder
               : isSelectionMode
               ? exitSelectionMode
               : () => Navigator.pop(context),
@@ -909,7 +407,9 @@ class _LibraryTracksFolderScreenState
     return HeaderFilledButton(
       icon: Icons.play_arrow_rounded,
       label: context.l10n.tooltipPlay,
-      onPressed: tracks.isEmpty ? null : () => _playAll(tracks),
+      onPressed: tracks.isEmpty
+          ? null
+          : () => playCollectionTracks(context, ref, tracks, shuffle: false),
     );
   }
 
@@ -924,36 +424,8 @@ class _LibraryTracksFolderScreenState
     );
   }
 
-  Future<void> _playAll(List<Track> tracks) async {
-    if (tracks.isEmpty) return;
-
-    try {
-      await ref.read(musicPlayerControllerProvider).setShuffle(false);
-      await ref.read(playbackProvider.notifier).playTrackList(tracks);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.snackbarCannotOpenFile('$e'))),
-      );
-    }
-  }
-
-  /// Turns shuffle on and starts from a random song, as album headers do.
-  Future<void> _shuffleAll(List<Track> tracks) async {
-    if (tracks.isEmpty) return;
-
-    try {
-      await ref.read(musicPlayerControllerProvider).setShuffle(true);
-      await ref
-          .read(playbackProvider.notifier)
-          .playTrackList(tracks, startIndex: Random().nextInt(tracks.length));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.snackbarCannotOpenFile('$e'))),
-      );
-    }
-  }
+  Future<void> _shuffleAll(List<Track> tracks) =>
+      playCollectionTracks(context, ref, tracks, shuffle: true);
 
   void _confirmDownloadAll(List<Track> tracks) {
     confirmDownloadAllDialog(
@@ -964,143 +436,18 @@ class _LibraryTracksFolderScreenState
   }
 
   Future<void> _downloadAll(List<Track> tracks) async {
-    final playlistName = widget.mode == LibraryTracksFolderMode.playlist
-        ? playlist?.name ?? context.l10n.collectionPlaylist
-        : null;
     await queueTracksSkippingDownloaded(
       context,
       ref,
       tracks,
-      artistNameForPicker: switch (widget.mode) {
-        LibraryTracksFolderMode.wishlist => context.l10n.collectionWishlist,
-        LibraryTracksFolderMode.loved => context.l10n.collectionLoved,
-        LibraryTracksFolderMode.playlist => context.l10n.collectionPlaylist,
-      },
-      playlistName: playlistName,
+      artistNameForPicker: context.l10n.collectionWishlist,
       resolveDefaultService: false,
-    );
-  }
-
-  void _showCoverOptionsSheet(BuildContext context, bool hasCustomCover) {
-    final colorScheme = Theme.of(context).colorScheme;
-    showAppModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const AppSheetHandle(),
-            const SizedBox(height: 16),
-            AppSheetOption(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 4,
-              ),
-              leading: Icon(
-                mornyeIconFor(Icons.image_outlined),
-                color: colorScheme.primary,
-              ),
-              title: Text(context.l10n.collectionPlaylistChangeCover),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                _pickCoverImage();
-              },
-            ),
-            if (hasCustomCover)
-              AppSheetOption(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 4,
-                ),
-                leading: Icon(
-                  mornyeIconFor(Icons.delete_outline),
-                  color: colorScheme.primary,
-                ),
-                title: Text(context.l10n.collectionPlaylistRemoveCover),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  _removeCoverImage();
-                },
-              ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _showRenamePlaylistDialog(
-    BuildContext context,
-    String playlistId,
-    String currentName,
-  ) async {
-    final nextName = await promptPlaylistName(
-      context,
-      title: context.l10n.collectionRenamePlaylist,
-      confirmLabel: context.l10n.dialogSave,
-      initialName: currentName,
-    );
-
-    if (nextName == null || nextName.trim().isEmpty || !context.mounted) {
-      return;
-    }
-
-    await ref
-        .read(libraryCollectionsProvider.notifier)
-        .renamePlaylist(playlistId, nextName.trim());
-
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.collectionPlaylistRenamed)),
-    );
-  }
-}
-
-class _EmptyFolderState extends StatelessWidget {
-  final String title;
-  final String subtitle;
-
-  const _EmptyFolderState({required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.folder_open,
-              size: 60,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
 
 class _CollectionTrackTile extends ConsumerWidget {
   final CollectionTrackEntry entry;
-  final LibraryTracksFolderMode mode;
   final List<Track> folderTracks;
   final int trackIndex;
   final bool isInHistory;
@@ -1111,7 +458,6 @@ class _CollectionTrackTile extends ConsumerWidget {
 
   const _CollectionTrackTile({
     required this.entry,
-    required this.mode,
     required this.folderTracks,
     required this.trackIndex,
     required this.isInHistory,
@@ -1124,7 +470,7 @@ class _CollectionTrackTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final track = entry.track;
-    final rawCoverUrl = _resolveRawCoverUrl(track);
+    final rawCoverUrl = rawCollectionCoverUrl(track);
     final localCoverUrl = rawCoverUrl == null
         ? ref
               .watch(
@@ -1233,14 +579,7 @@ class _CollectionTrackTile extends ConsumerWidget {
           : null,
       onTap: isSelectionMode
           ? onTap
-          : () {
-              if (mode == LibraryTracksFolderMode.wishlist) {
-                _downloadTrack(context, ref);
-                return;
-              }
-
-              _navigateToMetadata(context, ref);
-            },
+          : () => downloadSingleTrack(context, ref, entry.track),
       onLongPress: isSelectionMode ? onTap : onLongPress,
     );
   }
@@ -1275,72 +614,4 @@ class _CollectionTrackTile extends ConsumerWidget {
       placeholder: (_) => placeholder(),
     );
   }
-
-  void _downloadTrack(BuildContext context, WidgetRef ref) {
-    downloadSingleTrack(context, ref, entry.track);
-  }
-
-  Future<void> _navigateToMetadata(BuildContext context, WidgetRef ref) =>
-      _openCollectionTrack(context, ref, entry.track);
-}
-
-Future<void> _openCollectionTrack(
-  BuildContext context,
-  WidgetRef ref,
-  Track track,
-) async {
-  final historyNotifier = ref.read(downloadHistoryProvider.notifier);
-
-  var historyItem = await historyNotifier.getBySpotifyIdAsync(track.id);
-  if (!context.mounted) return;
-
-  if (historyItem == null && track.isrc != null && track.isrc!.isNotEmpty) {
-    historyItem = await historyNotifier.getByIsrcAsync(track.isrc!);
-    if (!context.mounted) return;
-  }
-
-  historyItem ??= await historyNotifier.findByTrackAndArtistAsync(
-    track.name,
-    track.artistName,
-  );
-  if (!context.mounted) return;
-
-  if (historyItem != null) {
-    final embeddedCoverPath =
-        await DownloadedEmbeddedCoverResolver.resolveOrExtract(
-          historyItem.filePath,
-        );
-    if (!context.mounted) return;
-    await precacheMetadataBackdrop(
-      context,
-      embeddedCoverPath ?? historyItem.coverUrl,
-    );
-    if (!context.mounted) return;
-    await Navigator.of(
-      context,
-    ).push(slidePageRoute<void>(page: TrackMetadataScreen(item: historyItem)));
-    return;
-  }
-
-  final localItem = ref.read(settingsProvider).localLibraryEnabled
-      ? await ref
-            .read(localLibraryProvider.notifier)
-            .findExistingAsync(
-              isrc: track.isrc,
-              trackName: track.name,
-              artistName: track.artistName,
-            )
-      : null;
-  if (!context.mounted) return;
-
-  if (localItem != null) {
-    await precacheMetadataBackdrop(context, localItem.coverPath);
-    if (!context.mounted) return;
-    await Navigator.of(context).push(
-      slidePageRoute<void>(page: TrackMetadataScreen(localItem: localItem)),
-    );
-    return;
-  }
-
-  downloadSingleTrack(context, ref, track);
 }

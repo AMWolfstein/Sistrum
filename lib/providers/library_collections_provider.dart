@@ -686,7 +686,6 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     LibraryTracksFolderMode mode,
     List<String> orderedKeys,
   ) => _mutate(() async {
-    if (mode == LibraryTracksFolderMode.playlist) return false;
     final entries = mode == LibraryTracksFolderMode.loved
         ? state.loved
         : state.wishlist;

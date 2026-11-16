@@ -701,11 +701,12 @@ void main() {
       );
       addTearDown(container.dispose);
       final playlist = await container.read(
-        libraryPlaylistTracksProvider('playlist-1').future,
+        libraryPlaylistEntriesProvider('playlist-1').future,
       );
-      final loved = await container.read(libraryLovedTracksProvider.future);
-      expect(_names(playlist), ['Saved Song']);
-      expect(_names(loved), ['Saved Song']);
+      final loved = await container.read(libraryLovedEntriesProvider.future);
+      expect(_names(playlist.map((entry) => entry.track)), ['Saved Song']);
+      expect(playlist.single.key, isNotEmpty);
+      expect(_names(loved.map((entry) => entry.track)), ['Saved Song']);
     });
   });
 

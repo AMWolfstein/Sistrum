@@ -7,9 +7,10 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -97,10 +98,7 @@ class _History extends DownloadHistoryNotifier {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  Future<_Collections> open(
-    WidgetTester tester, {
-    LibraryTracksFolderMode mode = LibraryTracksFolderMode.loved,
-  }) async {
+  Future<_Collections> open(WidgetTester tester) async {
     tester.view.physicalSize = const Size(430, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -110,6 +108,10 @@ void main() {
         overrides: [
           settingsProvider.overrideWith(FixedSettingsNotifier.new),
           libraryCollectionsProvider.overrideWith(() => collections),
+          // The rows come from the library database; the fake keeps them.
+          libraryLovedEntriesProvider.overrideWith(
+            (ref) async => ref.watch(libraryCollectionsProvider).loved,
+          ),
           localLibraryProvider.overrideWith(_Library.new),
           downloadHistoryProvider.overrideWith(_History.new),
           downloadHistoryVisibleBatchExistsProvider.overrideWith(
@@ -124,17 +126,14 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: LibraryTracksFolderScreen(
-            mode: mode,
-            playlistId: mode == LibraryTracksFolderMode.playlist ? 'mix' : null,
-          ),
+          home: const PlaylistScreen.libraryLoved(),
         ),
       ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('collection-edit-order')));
     await tester.pumpAndSettle();
-    expect(find.byType(LibraryTracksFolderScreen), findsOneWidget);
+    expect(find.byType(PlaylistScreen), findsOneWidget);
     expect(find.byType(CollectionReorderSliver), findsOneWidget);
     return collections;
   }

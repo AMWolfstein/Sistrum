@@ -9,10 +9,11 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -109,6 +110,9 @@ void main() {
         libraryCollectionsProvider.overrideWith(
           () => LibraryCollectionsNotifier(database: database),
         ),
+        libraryLovedEntriesProvider.overrideWith(
+          (ref) async => ref.watch(libraryCollectionsProvider).loved,
+        ),
         settingsProvider.overrideWith(FixedSettingsNotifier.new),
         localLibraryProvider.overrideWith(_Library.new),
         downloadHistoryProvider.overrideWith(_History.new),
@@ -136,9 +140,7 @@ void main() {
                 builder: (context) => TextButton(
                   onPressed: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
-                      builder: (_) => const LibraryTracksFolderScreen(
-                        mode: LibraryTracksFolderMode.loved,
-                      ),
+                      builder: (_) => const PlaylistScreen.libraryLoved(),
                     ),
                   ),
                   child: const Text('Open Liked Songs'),

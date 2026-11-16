@@ -62,6 +62,7 @@ import 'package:sistrum/screens/favorite_artists_screen.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/completion_bridge_tracker.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';

@@ -14,7 +14,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -151,7 +150,7 @@ void main() {
     'artist',
     'downloaded album',
     'local album',
-    'library folder',
+    'library playlist',
   ]) {
     testWidgets('$page title flip leaves the page unbuilt in '
         'Sistrum', (tester) async {
@@ -195,6 +194,16 @@ void main() {
                       UnifiedLibraryItem.fromDownloadHistory(track),
                   ],
           ),
+          libraryPlaylistEntriesProvider('example-playlist').overrideWith(
+            (ref) async => [
+              for (final track in _tracks)
+                CollectionTrackEntry(
+                  key: track.id,
+                  track: track,
+                  addedAt: DateTime(2026),
+                ),
+            ],
+          ),
           localLibraryProvider.overrideWith(_Library.new),
           downloadHistoryProvider.overrideWith(_History.new),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
@@ -228,13 +237,12 @@ void main() {
             'Example artist',
           ),
         ),
-        _ => const LibraryTracksFolderScreen(
-          mode: LibraryTracksFolderMode.playlist,
-          playlistId: 'example-playlist',
+        _ => const PlaylistScreen.libraryPlaylist(
+          libraryPlaylistId: 'example-playlist',
         ),
       };
       // The Mornye folder header always shows its toolbar title.
-      final fades = !(page == 'library folder');
+      final fades = !(page == 'library playlist');
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,

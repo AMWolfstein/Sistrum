@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
@@ -88,16 +89,17 @@ final libraryAlbumTracksProvider = FutureProvider.autoDispose
       ],
     );
 
-/// Every song of a playlist in playlist order. shortcut: -1 is SQLite's no
-/// limit, so long playlists are not cut short.
-final libraryPlaylistTracksProvider = FutureProvider.autoDispose
-    .family<List<Track>, String>(
+/// Every song of a playlist in playlist order, with the keys that edits need.
+/// shortcut: -1 is SQLite's no limit, so long playlists are not cut short.
+/// Edits refresh it through the page, which watches the collections.
+final libraryPlaylistEntriesProvider = FutureProvider.autoDispose
+    .family<List<CollectionTrackEntry>, String>(
       (ref, playlistId) => LibraryCollectionsDatabase.instance
-          .loadPlaylistTracks(playlistId, limit: -1),
+          .loadPlaylistEntries(playlistId, limit: -1),
     );
 
-/// Every loved song, most recently loved first. shortcut: as the playlist
-/// provider, no limit.
-final libraryLovedTracksProvider = FutureProvider.autoDispose<List<Track>>(
-  (ref) => LibraryCollectionsDatabase.instance.loadLovedTracks(limit: -1),
-);
+/// Every loved song, most recently loved first, with its keys.
+final libraryLovedEntriesProvider =
+    FutureProvider.autoDispose<List<CollectionTrackEntry>>(
+      (ref) => LibraryCollectionsDatabase.instance.loadLovedEntries(limit: -1),
+    );

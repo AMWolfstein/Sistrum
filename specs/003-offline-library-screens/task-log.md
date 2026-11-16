@@ -432,3 +432,70 @@ Checks (`scratchpad/t003/`):
 - `targeted.log`: task-related test files, the 163 tests reported (incl. `library_detail_data_test.dart`): all passed, exit 0.
 - `full.json`, `full.exit` (0), `full_counts.txt`: 3985 passed including the 7 `loading` entries (all pass), 10 skipped, 0 failed. Excluding `loading`: 3978; T002 logged 3974, so +4 = the new file.
 - `validate.json`: PASS (3 missions, 12 reserved, 33 completed; T002 logged 13 and 32 when it ran).
+
+## M003-T004
+
+Playlists and Loved songs use the playlist design (FR-004). Base `baa7749`.
+Uncommitted; independent review not run; `task complete` not run.
+
+Map: refreshed first (`scratchpad/t004/map_start.json`: 34551 symbols, 1719 sources, 0 partial, 0 unindexed); end `map_update.json` (34654, 1723, 0, 0).
+
+What changed:
+- `PlaylistScreen.libraryPlaylist(libraryPlaylistId:)` and `PlaylistScreen.libraryLoved()`; body in part `playlist_screen_library.dart`. Extension path untouched.
+- Header: cover, title, count; `CollectionHeaderActions` with compact Play and Shuffle, Love all, Add to playlist; no Download. Appbar: save offline, export M3U8, edit order, rename and cover (playlist only).
+- Rows: `AlbumTrackTile` (number, title, artist). Tap opens metadata; long-press selects; play button plays from that row.
+- Shared: `lib/controllers/collection_order_editing.dart` (reorder mixin), `lib/widgets/collection_track_actions.dart` (selection bar, `CollectionTrackActions` mixin, M3U export, play/shuffle, metadata open, empty state, cover helpers).
+- `LibraryTracksFolderScreen` is wishlist-only (no mode/playlistId). `LibraryTracksFolderMode.playlist` removed.
+- T001 providers now return keyed entries: `libraryPlaylistEntriesProvider`, `libraryLovedEntriesProvider`; loaders `loadPlaylistEntries`/`loadLovedEntries` added.
+- Refresh: `ref.listen` on the collection state reloads rows after any edit, including edits from other screens.
+- Entry points: `queue_tab_navigation.dart`, `library_search_results.dart`. Home recents need no change (library playlists are never recorded as recents).
+- `AlbumPlayActions` compact wrapped in `FittedBox` (shared with T003) to stop Arabic overflow.
+- Strings: no ARB change; every key the removed code used still has a reader. Loved removal label is now `trackOptionRemoveFromLoved`.
+
+Action table (old library playlist/Loved folder -> new page):
+
+| Action | Result |
+|---|---|
+| Play, Shuffle (header) | kept, compact |
+| Download All (header) | dropped, online download |
+| Love all, Add to playlist (header) | added (album design) |
+| Save offline (appbar) | kept |
+| Export M3U8 (appbar) | kept |
+| Rename playlist, change/remove cover (playlist) | kept |
+| Edit order, drag, discard, save | kept; back during Edit order asks to discard a changed order and stays, as the Wishlist does (an unchanged order leaves edit mode) |
+| Row tap: metadata; long-press: selection | kept |
+| Row play button | kept, now always shown (was only for in-library tracks) |
+| In-library badge on rows | dropped (album row design) |
+| Selection: play, play next, add to queue | kept |
+| Selection: add to playlist | kept |
+| Selection: remove from playlist / Loved | kept (Loved label "Remove from Loved") |
+| Selection: delete files | kept |
+| Selection: download | not on these lists (wishlist only, unchanged) |
+| Empty states | kept |
+| Extension suggestions (playlist) | dropped, online |
+
+Deleted tests:
+- `test/library_tracks_folder_data_test.dart` "newest-first seeds track additions, edits, order and empty lists" (suggestion order, dropped).
+- Its newestFirst assertions removed from "unchanged collection snapshot does no additional full-list reads" (kept).
+
+Ported tests (behaviour kept): `collection_reorder_ui_test` (Loved), `liked_local_tracks_test`, `collapsing_title_rebuild_test` (library playlist), `playlist_playback_test` (per-list removal loop; header and row expectations), `library_detail_data_test` (entry types).
+
+New: `test/library_playlist_screen_test.dart`, 13 tests: header design and no Download, Loved design, empty states, rename, cover sheet, reorder, removal refresh for playlist and Loved, outside-edit refresh, back during Edit order (changed order shows the discard dialog and stays; unchanged order leaves edit mode), Wishlist still opens.
+
+Open decisions (owner):
+1. Rows use the album design (number, title, artist) rather than FR-007's small cover. T006 applies FR-007 to these pages; owner to confirm.
+2. Download All dropped (online). Save offline kept. Extension suggestions dropped (online).
+3. Love all and Add to playlist added to the header. On Loved, Love all toggles removal.
+4. Row play button always shown; in-library badge removed.
+5. Loved keeps the heart fallback cover (old behaviour).
+6. T001 providers renamed and retyped to keyed entries (remove and reorder need the keys).
+7. `AlbumPlayActions` compact `FittedBox` also changes the T003 album page.
+
+Checks (`scratchpad/t004/`):
+- `analyze.log`: `flutter analyze lib test integration_test`, No issues found, exit 0.
+- `format.log`: `dart format --set-exit-if-changed --output=none` on the 21 changed Dart files (`changed_dart_files.txt`), 0 changed, exit 0. `format_write.log` and `format_check_before.log` record the formatting run.
+- `targeted.log`: 21 task and related test files, 147 passed, exit 0.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3997 passed (including 7 `loading` entries, all passed), 10 skipped, 0 failed; 4007 non-hidden testDone. Baseline 3985 passed incl 7 loading. Difference +12 = 13 new tests minus 1 deleted.
+- `validate.json`: `python3 workflow/work.py validate`: PASS (3 missions, 11 reserved, 34 completed).
+- `map_update.json`: 34654 symbols, 1723 sources, 0 partial, 0 unindexed.
+- gen-l10n: no ARB change, no log.

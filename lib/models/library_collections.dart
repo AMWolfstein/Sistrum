@@ -3,7 +3,8 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:sistrum/models/track.dart';
 
-enum LibraryTracksFolderMode { wishlist, loved, playlist }
+/// The saved-track lists with a stored order: wishlist and Loved songs.
+enum LibraryTracksFolderMode { wishlist, loved }
 
 /// Shared identity for catalog, downloaded, and local playlist entries.
 String libraryTrackCollectionKey({

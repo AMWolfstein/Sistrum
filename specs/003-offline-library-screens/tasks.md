@@ -91,7 +91,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
     `lib/screens/downloaded_album_screen.dart`, `lib/screens/local_album_screen.dart`,
     the entry-point files, tests.
 
-- [ ] M003-T004 Playlists and Loved songs use the playlist design
+- [x] M003-T004 Playlists and Loved songs use the playlist design
   - Acceptance: FR-004. Library playlists and Loved songs open `PlaylistScreen` in
     library mode with every current offline action (Play, Shuffle, rename, cover
     change/remove, reorder, remove, export M3U, selection actions, delete files);

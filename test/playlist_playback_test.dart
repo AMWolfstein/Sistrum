@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -17,9 +18,11 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
+import 'package:sistrum/widgets/album_track_tile.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
@@ -227,6 +230,7 @@ Widget _selectionApp({
   bool internalPlayer = true,
 }) => ProviderScope(
   overrides: [
+    ..._entriesOverrides(),
     settingsProvider.overrideWith(_Settings.new),
     playerUiEnabledProvider.overrideWithValue(internalPlayer),
     musicPlayerControllerProvider.overrideWithValue(player),
@@ -245,10 +249,7 @@ Widget _selectionApp({
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: const SelectionOverlayHost(
-      child: LibraryTracksFolderScreen(
-        mode: LibraryTracksFolderMode.playlist,
-        playlistId: 'playlist',
-      ),
+      child: PlaylistScreen.libraryPlaylist(libraryPlaylistId: 'playlist'),
     ),
   ),
 );
@@ -293,6 +294,18 @@ class _DownloadExtensions extends ExtensionNotifier {
     ],
   );
 }
+
+/// The library rows of the fake collections; they follow the fake's edits.
+List<Override> _entriesOverrides() => [
+  libraryPlaylistEntriesProvider.overrideWith(
+    (ref, id) async =>
+        ref.watch(libraryCollectionsProvider).playlistById(id)?.tracks ??
+        const [],
+  ),
+  libraryLovedEntriesProvider.overrideWith(
+    (ref) async => ref.watch(libraryCollectionsProvider).loved,
+  ),
+];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -423,6 +436,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ..._entriesOverrides(),
           settingsProvider.overrideWith(_Settings.new),
           libraryCollectionsProvider.overrideWith(_LocalCollections.new),
           localLibraryProvider.overrideWith(_Library.new),
@@ -439,9 +453,8 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.playlist,
-            playlistId: 'playlist',
+          home: const PlaylistScreen.libraryPlaylist(
+            libraryPlaylistId: 'playlist',
           ),
         ),
       ),
@@ -466,6 +479,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ..._entriesOverrides(),
           settingsProvider.overrideWith(_Settings.new),
           musicPlayerControllerProvider.overrideWithValue(_Player()),
           playbackProvider.overrideWith(_Playback.new),
@@ -492,9 +506,7 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.wishlist,
-          ),
+          home: const LibraryTracksFolderScreen(),
         ),
       ),
     );
@@ -520,10 +532,15 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mode in LibraryTracksFolderMode.values) {
-    testWidgets('selection dispatches one ${mode.name} removal', (
-      tester,
-    ) async {
+  for (final (kind, page) in <(String, Widget)>[
+    ('wishlist', const LibraryTracksFolderScreen()),
+    ('loved', const PlaylistScreen.libraryLoved()),
+    (
+      'playlist',
+      const PlaylistScreen.libraryPlaylist(libraryPlaylistId: 'playlist'),
+    ),
+  ]) {
+    testWidgets('selection dispatches one $kind removal', (tester) async {
       tester.view.physicalSize = const Size(400, 850);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -531,6 +548,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            ..._entriesOverrides(),
             settingsProvider.overrideWith(_Settings.new),
             musicPlayerControllerProvider.overrideWithValue(_Player()),
             playbackProvider.overrideWith(_Playback.new),
@@ -554,12 +572,7 @@ void main() {
             theme: MornyeTheme.build(Brightness.dark),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: LibraryTracksFolderScreen(
-              mode: mode,
-              playlistId: mode == LibraryTracksFolderMode.playlist
-                  ? 'playlist'
-                  : null,
-            ),
+            home: page,
           ),
         ),
       );
@@ -577,13 +590,13 @@ void main() {
       await tester.tap(findAppIcon(Icons.remove_circle_outline));
       await tester.pumpAndSettle();
       expect(calls, hasLength(1));
-      expect(calls.single.$1, mode.name);
+      expect(calls.single.$1, kind);
       expect(calls.single.$2, ['First', 'Unavailable']);
       expect(find.text('First'), findsNothing);
       expect(find.text('Unavailable'), findsNothing);
       expect(findAppIcon(Icons.remove_circle_outline), findsNothing);
       final l10n = AppLocalizations.of(
-        tester.element(find.byType(LibraryTracksFolderScreen)),
+        tester.element(find.byType(Scaffold).first),
       );
       expect(find.text(l10n.selectionSelected(2)), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -595,6 +608,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ..._entriesOverrides(),
           settingsProvider.overrideWith(_Settings.new),
           musicPlayerControllerProvider.overrideWithValue(player),
           playbackProvider.overrideWith(_Playback.new),
@@ -616,9 +630,8 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.playlist,
-            playlistId: 'playlist',
+          home: const PlaylistScreen.libraryPlaylist(
+            libraryPlaylistId: 'playlist',
           ),
         ),
       ),
@@ -630,7 +643,7 @@ void main() {
     );
     await tester.scrollUntilVisible(row, 200);
     await tester.tap(
-      find.descendant(of: row, matching: findAppIcon(Icons.play_arrow)),
+      find.descendant(of: row, matching: find.byType(AlbumTrackPlayButton)),
     );
     await tester.pumpAndSettle();
 
@@ -652,6 +665,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ..._entriesOverrides(),
           settingsProvider.overrideWith(_Settings.new),
           musicPlayerControllerProvider.overrideWithValue(player),
           playbackProvider.overrideWith(_Playback.new),
@@ -667,15 +681,14 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.playlist,
-            playlistId: 'playlist',
+          home: const PlaylistScreen.libraryPlaylist(
+            libraryPlaylistId: 'playlist',
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('collection-shuffle')));
+    await tester.tap(find.byTooltip('Shuffle'));
     await tester.pumpAndSettle();
 
     expect(player.shuffle, isTrue);
@@ -696,6 +709,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ..._entriesOverrides(),
           settingsProvider.overrideWith(_Settings.new),
           musicPlayerControllerProvider.overrideWithValue(_Player()),
           playbackProvider.overrideWith(_Playback.new),
@@ -712,9 +726,8 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.playlist,
-            playlistId: 'playlist',
+          home: const PlaylistScreen.libraryPlaylist(
+            libraryPlaylistId: 'playlist',
           ),
         ),
       ),
@@ -727,16 +740,14 @@ void main() {
       tester.getCenter(find.byTooltip('رجوع').first).dx,
       greaterThan(width / 2),
     );
-    // Download All, Play and Shuffle run from the right, and only Play
-    // carries a label.
-    final download = tester.getCenter(
-      find.byKey(const ValueKey('collection-download-all')),
+    // The library playlist has no download; Play carries its label and sits
+    // at the reading start of Shuffle.
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(Scaffold).first),
     );
-    final play = tester.getCenter(find.byType(HeaderFilledButton));
-    final shuffle = tester.getCenter(
-      find.byKey(const ValueKey('collection-shuffle')),
-    );
-    expect(download.dx, greaterThan(play.dx));
+    expect(find.byKey(const ValueKey('collection-download-all')), findsNothing);
+    final play = tester.getCenter(find.text(l10n.tooltipPlay));
+    final shuffle = tester.getCenter(find.byTooltip(l10n.actionShuffle));
     expect(play.dx, greaterThan(shuffle.dx));
     expect(tester.takeException(), isNull);
   });
@@ -749,6 +760,7 @@ void main() {
     playback = _Playback();
     container = ProviderContainer(
       overrides: [
+        ..._entriesOverrides(),
         settingsProvider.overrideWith(_Settings.new),
         musicPlayerControllerProvider.overrideWithValue(player),
         playbackProvider.overrideWith(() => playback),

@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:sistrum/controllers/track_history_snapshot.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_header_actions.dart';
@@ -26,6 +30,21 @@ import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/collection_suggestions_section.dart';
 import 'package:sistrum/widgets/downloadable_cover.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
+import 'package:sistrum/controllers/collection_order_editing.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/widgets/album_track_tile.dart';
+import 'package:sistrum/widgets/collection_reorder_sliver.dart';
+import 'package:sistrum/widgets/collection_track_actions.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/network_offline_actions.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+
+part 'playlist_screen_library.dart';
 
 class PlaylistScreen extends ConsumerStatefulWidget {
   final String playlistName;
@@ -36,6 +55,14 @@ class PlaylistScreen extends ConsumerStatefulWidget {
   final String? metadataProviderId;
   final String? recommendedService;
 
+  /// Set in library mode: the library playlist's id.
+  final String? libraryPlaylistId;
+
+  /// Set in library mode: the library's Loved songs.
+  final bool libraryLoved;
+
+  bool get isLibrary => libraryLoved || libraryPlaylistId != null;
+
   const PlaylistScreen({
     super.key,
     required this.playlistName,
@@ -45,7 +72,34 @@ class PlaylistScreen extends ConsumerStatefulWidget {
     this.playlistId,
     this.metadataProviderId,
     this.recommendedService,
-  });
+  }) : libraryPlaylistId = null,
+       libraryLoved = false;
+
+  const PlaylistScreen._library({
+    super.key,
+    this.libraryPlaylistId,
+    required this.libraryLoved,
+  }) : playlistName = '',
+       coverUrl = null,
+       headerVideoUrl = null,
+       tracks = const [],
+       playlistId = null,
+       metadataProviderId = null,
+       recommendedService = null;
+
+  /// A library playlist, edited in the library's collections.
+  const PlaylistScreen.libraryPlaylist({
+    Key? key,
+    required String libraryPlaylistId,
+  }) : this._library(
+         key: key,
+         libraryPlaylistId: libraryPlaylistId,
+         libraryLoved: false,
+       );
+
+  /// The library's Loved songs, edited in the library's collections.
+  const PlaylistScreen.libraryLoved({Key? key})
+    : this._library(key: key, libraryLoved: true);
 
   @override
   ConsumerState<PlaylistScreen> createState() => _PlaylistScreenState();
@@ -54,7 +108,9 @@ class PlaylistScreen extends ConsumerStatefulWidget {
 class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
     with
         SelectionModeMixin<PlaylistScreen>,
-        CollapsingHeaderScrollMixin<PlaylistScreen> {
+        CollapsingHeaderScrollMixin<PlaylistScreen>,
+        CollectionOrderEditing<PlaylistScreen>,
+        CollectionTrackActions<PlaylistScreen> {
   final _historySnapshot = TrackHistorySnapshot();
 
   List<Track>? _fetchedTracks;
@@ -239,7 +295,24 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
   }
 
   @override
+  void leaveSelectionAfterTrackAction() => exitSelectionMode();
+
+  /// Library mode stores the order in the library's collections.
+  @override
+  Future<bool> saveOrderKeys(List<String> orderedKeys) {
+    final notifier = ref.read(libraryCollectionsProvider.notifier);
+    final playlistId = widget.libraryPlaylistId;
+    return playlistId == null
+        ? notifier.reorderSavedTracks(
+            LibraryTracksFolderMode.loved,
+            orderedKeys,
+          )
+        : notifier.reorderPlaylistTracks(playlistId, orderedKeys);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (widget.isLibrary) return _buildLibrary(context);
     return MornyeArtistSurface(
       imageSource: _coverUrl,
       neutralActions: true,

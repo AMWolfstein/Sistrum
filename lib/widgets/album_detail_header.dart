@@ -426,26 +426,30 @@ class AlbumPlayActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (compact) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _MornyeHeaderButton(
-            icon: isPlaying
-                ? CupertinoIcons.pause_fill
-                : CupertinoIcons.play_fill,
-            label: playLabel,
-            onPressed: onPlay,
-            prominent: true,
-            compact: true,
-          ),
-          const SizedBox(width: 8),
-          HeaderCircleButton(
-            icon: CupertinoIcons.shuffle,
-            tooltip: shuffleTooltip,
-            onPressed: onShuffle,
-            tonal: true,
-          ),
-        ],
+      // Scales down rather than overflowing a narrow header, as in Arabic.
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _MornyeHeaderButton(
+              icon: isPlaying
+                  ? CupertinoIcons.pause_fill
+                  : CupertinoIcons.play_fill,
+              label: playLabel,
+              onPressed: onPlay,
+              prominent: true,
+              compact: true,
+            ),
+            const SizedBox(width: 8),
+            HeaderCircleButton(
+              icon: CupertinoIcons.shuffle,
+              tooltip: shuffleTooltip,
+              onPressed: onShuffle,
+              tonal: true,
+            ),
+          ],
+        ),
       );
     }
     return Row(

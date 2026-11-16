@@ -34,3 +34,4 @@
 - M003-T001 — Library data for the detail screens
 - M003-T002 — Artist screen reads the library
 - M003-T003 — Album screen reads the library
+- M003-T004 — Playlists and Loved songs use the playlist design

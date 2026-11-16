@@ -663,9 +663,16 @@ class LibraryCollectionsDatabase {
   // native job needs the backend channel an Activity registers.
 
   /// Loved songs, the most recently loved first.
-  Future<List<Track>> loadLovedTracks({int limit = 500}) async => _decodeTracks(
+  Future<List<Track>> loadLovedTracks({int limit = 500}) async => [
+    for (final entry in await loadLovedEntries(limit: limit)) entry.track,
+  ];
+
+  /// Loved songs, newest first, with their keys for editing.
+  Future<List<CollectionTrackEntry>> loadLovedEntries({
+    int limit = 500,
+  }) async => _decodeEntries(
     await (await database).rawQuery(
-      'SELECT track_json FROM $_tableLoved '
+      'SELECT track_key, track_json, added_at FROM $_tableLoved '
       'ORDER BY added_at DESC, rowid DESC LIMIT ?',
       [limit],
     ),
@@ -706,16 +713,36 @@ class LibraryCollectionsDatabase {
   Future<List<Track>> loadPlaylistTracks(
     String playlistId, {
     int limit = 500,
-  }) async => _decodeTracks(
+  }) async => [
+    for (final entry in await loadPlaylistEntries(playlistId, limit: limit))
+      entry.track,
+  ];
+
+  /// A playlist's songs in playlist order, with the keys that edits need.
+  Future<List<CollectionTrackEntry>> loadPlaylistEntries(
+    String playlistId, {
+    int limit = 500,
+  }) async => _decodeEntries(
     await (await database).rawQuery(
-      'SELECT track_json FROM $_tablePlaylistTracks WHERE playlist_id = ? '
-      'ORDER BY added_at ASC, rowid ASC LIMIT ?',
+      'SELECT track_key, track_json, added_at FROM $_tablePlaylistTracks '
+      'WHERE playlist_id = ? ORDER BY added_at ASC, rowid ASC LIMIT ?',
       [playlistId, limit],
     ),
   );
 
-  static List<Track> _decodeTracks(List<Map<String, Object?>> rows) => [
-    for (final row in rows) ?_decodeTrack(row['track_json']),
+  static List<CollectionTrackEntry> _decodeEntries(
+    List<Map<String, Object?>> rows,
+  ) => [
+    for (final row in rows)
+      if (row['track_key'] case final String key when key.isNotEmpty)
+        if (_decodeTrack(row['track_json']) case final track?)
+          CollectionTrackEntry(
+            key: key,
+            track: track,
+            addedAt:
+                DateTime.tryParse(row['added_at'] as String? ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0),
+          ),
   ];
 
   static Track? _decodeTrack(Object? json) {
@@ -1117,7 +1144,6 @@ class LibraryCollectionsDatabase {
     final table = switch (mode) {
       LibraryTracksFolderMode.loved => _tableLoved,
       LibraryTracksFolderMode.wishlist => _tableWishlist,
-      LibraryTracksFolderMode.playlist => throw ArgumentError.value(mode),
     };
     if (addedAtByKey.isEmpty) return;
     await sqlite.transactionWithBusyRetry(await database, (txn) async {
