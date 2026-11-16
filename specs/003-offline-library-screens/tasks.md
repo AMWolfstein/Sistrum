@@ -156,7 +156,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
 
 ## Owner extras
 
-- [ ] M003-TOR014 Remove the online versions of the converted screens
+- [x] M003-TOR014 Remove the online versions of the converted screens
   - Request (owner, 2026-11-16): every screen this mission converts to the library
     loses its online version here: artist, album and playlist.
   - Acceptance: FR-020. Delete `ExtensionArtistScreen`, `ExtensionAlbumScreen`,

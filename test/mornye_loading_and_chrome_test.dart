@@ -15,7 +15,6 @@ void main() {
       addTearDown(tester.view.reset);
       for (final skeleton in const [
         ArtistScreenSkeleton(showCoverHeader: false),
-        AlbumTrackListSkeleton(showCoverHeader: true),
         TrackListSkeleton(showCoverHeader: true),
       ]) {
         await tester.pumpWidget(

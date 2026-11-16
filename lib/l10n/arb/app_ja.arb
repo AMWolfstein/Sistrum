@@ -722,16 +722,6 @@
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
   },
-  "artistMonthlyListeners": "{count} 人の月間リスナー",
-  "@artistMonthlyListeners": {
-    "description": "Monthly listener count display",
-    "placeholders": {
-      "count": {
-        "type": "String",
-        "description": "Formatted listener count"
-      }
-    }
-  },
   "trackMetadataService": "サービス",
   "@trackMetadataService": {
     "description": "Metadata field - download service used"
@@ -1254,15 +1244,6 @@
   "errorUrlFetchFailed": "Failed to load content from this link. Please try again.",
   "@errorUrlFetchFailed": {
     "description": "Error message - generic URL fetch failure"
-  },
-  "errorMissingExtensionSource": "{item} を読み込めません: 拡張ソースがありません",
-  "@errorMissingExtensionSource": {
-    "description": "Error - extension source not available",
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
   },
   "actionPause": "一時停止",
   "@actionPause": {
@@ -2552,95 +2533,6 @@
       }
     }
   },
-  "discographyDownload": "ディスコグラフィをダウンロード",
-  "@discographyDownload": {
-    "description": "Button - download artist discography"
-  },
-  "discographyDownloadAll": "すべてダウンロード",
-  "@discographyDownloadAll": {
-    "description": "Option - download entire discography"
-  },
-  "discographyDownloadAllSubtitle": "{albumCount} 個のリリースから {count} 個のトラック",
-  "@discographyDownloadAllSubtitle": {
-    "description": "Subtitle showing total tracks and albums",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyAlbumsOnly": "アルバムのみ",
-  "@discographyAlbumsOnly": {
-    "description": "Option - download only albums"
-  },
-  "discographyAlbumsOnlySubtitle": "{count} tracks from {albumCount} albums",
-  "@discographyAlbumsOnlySubtitle": {
-    "description": "Subtitle showing album tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySinglesOnly": "シングルと EP のみ",
-  "@discographySinglesOnly": {
-    "description": "Option - download only singles"
-  },
-  "discographySinglesOnlySubtitle": "{count} tracks from {albumCount} singles",
-  "@discographySinglesOnlySubtitle": {
-    "description": "Subtitle showing singles tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySelectAlbums": "アルバムを選択...",
-  "@discographySelectAlbums": {
-    "description": "Option - manually select albums to download"
-  },
-  "discographySelectAlbumsSubtitle": "Choose specific albums or singles",
-  "@discographySelectAlbumsSubtitle": {
-    "description": "Subtitle for select albums option"
-  },
-  "discographyFetchingTracks": "トラックを取得中です...",
-  "@discographyFetchingTracks": {
-    "description": "Progress - fetching album tracks"
-  },
-  "discographyFetchingAlbum": "Fetching {current} of {total}...",
-  "@discographyFetchingAlbum": {
-    "description": "Progress - fetching specific album",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyDownloadSelected": "選択済みをダウンロード",
-  "@discographyDownloadSelected": {
-    "description": "Button - download selected albums"
-  },
-  "discographyAddedToQueue": "{count} 個のトラックをキューに追加しました",
-  "@discographyAddedToQueue": {
-    "description": "Snackbar - tracks added from discography",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "discographySkippedDownloaded": "{added} added, {skipped} already downloaded",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
@@ -2652,14 +2544,6 @@
         "type": "int"
       }
     }
-  },
-  "discographyNoAlbums": "利用可能なアルバムがありません",
-  "@discographyNoAlbums": {
-    "description": "Error - no albums found for artist"
-  },
-  "discographyFailedToFetch": "一部のアルバムの取得に失敗しました",
-  "@discographyFailedToFetch": {
-    "description": "Error - some albums failed to load"
   },
   "sectionStorageAccess": "ストレージアクセス",
   "@sectionStorageAccess": {
@@ -5770,10 +5654,6 @@
   "@logIssueTrackNotFoundSuggestion": {
     "description": "Diagnostic badge suggestion when a track is unavailable"
   },
-  "clickableLookingUpArtist": "Looking up artist...",
-  "@clickableLookingUpArtist": {
-    "description": "Snackbar shown while clickable artist metadata is being resolved"
-  },
   "clickableInformationUnavailable": "{type} information not available",
   "@clickableInformationUnavailable": {
     "description": "Snackbar shown when clickable metadata cannot open a destination",
@@ -5862,15 +5742,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11ySelectAlbum": "Select album {albumName}",
-  "@a11ySelectAlbum": {
-    "description": "Accessibility label for selecting an album",
-    "placeholders": {
-      "albumName": {
         "type": "String"
       }
     }
@@ -6401,10 +6272,6 @@
   "@storeCategoryIntegration": {
     "description": "Store extension category - integration"
   },
-  "artistReleases": "Releases",
-  "@artistReleases": {
-    "description": "Section header for all artist releases"
-  },
   "editMetadataSelectNone": "なし",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
@@ -6437,22 +6304,6 @@
   "dialogDisableAndClear": "Turn off and clear",
   "@dialogDisableAndClear": {
     "description": "Confirmation action to disable download history and clear existing entries"
-  },
-  "openInOtherServices": "Open in Other Services",
-  "@openInOtherServices": {
-    "description": "Title and tooltip for finding the current collection in other services"
-  },
-  "shareSheetNoExtensions": "No other compatible services",
-  "shareSheetNotFound": "Not found",
-  "@shareSheetNotFound": {
-    "description": "Cross-service share sheet row subtitle when a service has no match"
-  },
-  "shareSheetCopyLink": "Copy Link",
-  "shareSheetLinkCopied": "{service} link copied",
-  "@shareSheetLinkCopied": {
-    "placeholders": {
-      "service": {}
-    }
   },
   "libraryPlayback": "再生",
   "@libraryPlayback": {
@@ -6500,13 +6351,6 @@
       }
     }
   },
-  "concertGetTickets": "Get Tickets",
-  "concertSetList": "Concert Set List",
-  "concertSetListButton": "Set List",
-  "concertAddToCalendar": "Add to Calendar",
-  "concertOpenMaps": "Open Maps",
-  "concertDetailsUnavailable": "Concert details are currently unavailable.",
-  "concertCalendarUnavailable": "Unable to open the calendar.",
   "nowPlayingAudioOutputUnavailable": "Unable to open audio output settings.",
   "@nowPlayingUpNext": {
     "description": "Title for the playback queue sheet"
@@ -7601,9 +7445,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "artistUpcomingConcerts": "Upcoming Concerts",
-  "artistAllUpcomingConcerts": "All Upcoming Concerts",
-  "artistNoUpcomingConcerts": "No upcoming concerts.",
   "motionArtwork": "Animated artwork",
   "listeningStats": "Listening statistics",
   "listeningStatsRecord": "Record listening",
@@ -8359,26 +8200,6 @@
   "recognizeClearHistoryMessage": "Remove every song from this list?",
   "@recognizeClearHistoryMessage": {
     "description": "Confirmation message before clearing the identification history"
-  },
-  "collectionSuggestionsTitle": "Suggested songs",
-  "@collectionSuggestionsTitle": {
-    "description": "Heading of the songs suggested below an album, single or playlist"
-  },
-  "collectionSuggestionsRelated": "Based on the songs above",
-  "@collectionSuggestionsRelated": {
-    "description": "Line under the suggestions heading when an extension suggested songs like the album's or playlist's"
-  },
-  "collectionSuggestionsByArtists": "More from these artists",
-  "@collectionSuggestionsByArtists": {
-    "description": "Line under the suggestions heading when the songs were found by searching the album's or playlist's artists"
-  },
-  "collectionSuggestionsRefresh": "Suggest other songs",
-  "@collectionSuggestionsRefresh": {
-    "description": "Tooltip of the button that loads other suggestions"
-  },
-  "collectionSuggestionsAddHere": "Add to this playlist",
-  "@collectionSuggestionsAddHere": {
-    "description": "Tooltip of the button that adds a suggested song to the user's playlist shown above"
   },
   "sectionExistingDownloads": "Existing Files",
   "@sectionExistingDownloads": {

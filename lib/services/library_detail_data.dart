@@ -8,6 +8,7 @@ import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
+import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/utils/release_type_utils.dart';
 
@@ -139,6 +140,49 @@ Future<List<Track>> loadLibraryArtistPopularTracks(
     picked.addAll(others.take(fill));
   }
   return [for (final song in picked) song.toTrack()];
+}
+
+/// Whether the library has a song crediting [artist] in any role.
+Future<bool> libraryHasArtist(
+  String artist, {
+  required TagCreditScope credits,
+  required bool includeLocal,
+}) async {
+  final page = await LibraryDatabase.instance.getQueueTrackPageResult(
+    _artistQuery(
+      artist,
+      credits: credits,
+      includeLocal: includeLocal,
+      role: LibraryArtistCredit.credited,
+    ),
+  );
+  return page.rows.isNotEmpty;
+}
+
+/// The key of the library album titled [albumName], preferring the one by
+/// [artistName] when several share the title; null when there is none.
+Future<String?> libraryAlbumKeyFor(
+  String albumName, {
+  String? artistName,
+  required bool includeLocal,
+}) async {
+  final title = LibraryDatabase.normalizeLookupText(albumName);
+  if (title.isEmpty) return null;
+  final artist = LibraryDatabase.normalizeLookupText(artistName);
+  final sameTitle = [
+    for (final hit in await LibraryDatabase.instance.searchLibrary(
+      query: albumName,
+      kind: LibrarySearchKind.albums,
+      includeLocal: includeLocal,
+    ))
+      if (LibraryDatabase.normalizeLookupText(hit.title) == title) hit,
+  ];
+  final byArtist = sameTitle.where(
+    (hit) =>
+        artist.isNotEmpty &&
+        LibraryDatabase.normalizeLookupText(hit.artist) == artist,
+  );
+  return (byArtist.firstOrNull ?? sameTitle.firstOrNull)?.id;
 }
 
 /// The songs of the album with [albumKey], downloaded and scanned alike, in

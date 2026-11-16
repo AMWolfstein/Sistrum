@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 36,
+  "next_completion": 37,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -536,13 +536,19 @@
       "title": "Refresh the library row after a metadata save"
     },
     "M003-TOR014": {
-      "completion": null,
+      "completion": 36,
+      "evidence": {
+        "checks": "Round 1 NEEDS_FIXES (dead code left by the deletion: buildTrackListFooter, formatReleaseDate, SkeletonCrossfade, AlbumTrackListSkeleton, ConcertDetail) fixed; round 2 PASS. Saved evidence scratchpad/tor014: flutter analyze lib test integration_test no issues; dart format 41 files 0 changed; targeted 17 passed; full flutter test exit 0, 3933 passed excluding 7 loading entries, 10 skipped, 0 failed; work.py validate PASS. Home/Search taps left inert for TOR015; no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a10662fd",
+        "round": 2
+      },
       "final": false,
       "kind": "TOR",
       "mission": "M003",
       "nonce": "207febdbfeaa4fd89c8da67c325905e2",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove the online versions of the converted screens"
     },
     "M003-TOR015": {

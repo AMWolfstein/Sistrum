@@ -843,8 +843,8 @@ void main() {
 
     test('every collection screen goes through the shared shell', () {
       const screens = [
-        'album_screen.dart',
-        'playlist_screen.dart',
+        'album_screen_library.dart',
+        'playlist_screen_library.dart',
         'library_tracks_folder_screen.dart',
       ];
       final offenders = <String>[];
@@ -874,8 +874,12 @@ void main() {
       final source = playlist.readAsStringSync();
 
       expect(source, contains('SelectionModeMixin<PlaylistScreen>'));
-      expect(source, contains('SelectionBottomBar('));
-      expect(source, contains('isSelectionMode: isSelectionMode'));
+      final library = _libSources().firstWhere(
+        (file) => _basename(file) == 'playlist_screen_library.dart',
+      );
+      final librarySource = library.readAsStringSync();
+      expect(librarySource, contains('buildSelectionBar('));
+      expect(librarySource, contains('isSelectionMode: showsSelectionBar'));
     });
   });
 

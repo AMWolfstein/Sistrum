@@ -9,13 +9,13 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
-import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -110,28 +110,6 @@ class _History extends DownloadHistoryNotifier {
   DownloadHistoryState build() => DownloadHistoryState();
 }
 
-class _Recent extends RecentAccessNotifier {
-  @override
-  RecentAccessState build() => const RecentAccessState(isLoaded: true);
-
-  @override
-  void recordAlbumAccess({
-    required String id,
-    required String name,
-    String? artistName,
-    String? imageUrl,
-    String? providerId,
-  }) {}
-
-  @override
-  void recordArtistAccess({
-    required String id,
-    required String name,
-    String? imageUrl,
-    String? providerId,
-  }) {}
-}
-
 /// Opacity of every faded title in the pinned toolbars.
 List<double> _titleOpacities(WidgetTester tester) => [
   for (final fade in tester.widgetList<FadeTransition>(
@@ -145,8 +123,6 @@ List<double> _titleOpacities(WidgetTester tester) => [
 
 void main() {
   for (final page in [
-    'album',
-    'playlist',
     'artist',
     'downloaded album',
     'local album',
@@ -167,7 +143,6 @@ void main() {
         overrides: [
           settingsProvider.overrideWith(FixedSettingsNotifier.new),
           libraryCollectionsProvider.overrideWith(_Collections.new),
-          recentAccessProvider.overrideWith(_Recent.new),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(null),
           ),
@@ -211,25 +186,20 @@ void main() {
             (ref, request) async => null,
           ),
           playerMotionArtworkProvider.overrideWith((ref, album) async => null),
+          libraryArtistOverviewProvider(
+            'Example artist',
+          ).overrideWith((ref) async => LibraryArtistOverview(_albums)),
+          libraryArtistPopularTracksProvider(
+            'Example artist',
+          ).overrideWith((ref) async => _tracks.take(10).toList()),
+          libraryArtistFeaturedTracksProvider(
+            'Example artist',
+          ).overrideWith((ref) async => const <Track>[]),
         ],
       );
       addTearDown(container.dispose);
       final Widget screen = switch (page) {
-        'album' => AlbumScreen(
-          albumId: 'example-album',
-          albumName: 'Example album',
-          tracks: _tracks,
-        ),
-        'playlist' => PlaylistScreen(
-          playlistName: 'Example playlist',
-          tracks: _tracks,
-        ),
-        'artist' => ArtistScreen(
-          artistId: 'example-artist',
-          artistName: 'Example artist',
-          albums: _albums,
-          topTracks: _tracks.take(10).toList(),
-        ),
+        'artist' => const ArtistScreen(artistName: 'Example artist'),
         'downloaded album' || 'local album' => AlbumScreen.library(
           albumKey: LibraryDatabase.albumKeyFor(
             'Example album',

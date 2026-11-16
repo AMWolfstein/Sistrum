@@ -722,16 +722,6 @@
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
   },
-  "artistMonthlyListeners": "{count} auditeurs mensuels",
-  "@artistMonthlyListeners": {
-    "description": "Monthly listener count display",
-    "placeholders": {
-      "count": {
-        "type": "String",
-        "description": "Formatted listener count"
-      }
-    }
-  },
   "trackMetadataService": "Service",
   "@trackMetadataService": {
     "description": "Metadata field - download service used"
@@ -1254,15 +1244,6 @@
   "errorUrlFetchFailed": "Impossible de charger le contenu de ce lien. Veuillez réessayer.",
   "@errorUrlFetchFailed": {
     "description": "Error message - generic URL fetch failure"
-  },
-  "errorMissingExtensionSource": "Impossible de charger {item} : source de l'extension manquante",
-  "@errorMissingExtensionSource": {
-    "description": "Error - extension source not available",
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
   },
   "actionPause": "Pause",
   "@actionPause": {
@@ -2552,95 +2533,6 @@
       }
     }
   },
-  "discographyDownload": "Télécharger la discographie",
-  "@discographyDownload": {
-    "description": "Button - download artist discography"
-  },
-  "discographyDownloadAll": "Tout télécharger",
-  "@discographyDownloadAll": {
-    "description": "Option - download entire discography"
-  },
-  "discographyDownloadAllSubtitle": "{count} titres issus de {albumCount} albums",
-  "@discographyDownloadAllSubtitle": {
-    "description": "Subtitle showing total tracks and albums",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyAlbumsOnly": "Albums uniquement",
-  "@discographyAlbumsOnly": {
-    "description": "Option - download only albums"
-  },
-  "discographyAlbumsOnlySubtitle": "{count} titres issus de {albumCount} albums",
-  "@discographyAlbumsOnlySubtitle": {
-    "description": "Subtitle showing album tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySinglesOnly": "Uniquement les singles et les EP",
-  "@discographySinglesOnly": {
-    "description": "Option - download only singles"
-  },
-  "discographySinglesOnlySubtitle": "{count} titres issus de {albumCount} singles",
-  "@discographySinglesOnlySubtitle": {
-    "description": "Subtitle showing singles tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySelectAlbums": "Sélectionner des albums...",
-  "@discographySelectAlbums": {
-    "description": "Option - manually select albums to download"
-  },
-  "discographySelectAlbumsSubtitle": "Choisissez des albums ou des titres spécifiques",
-  "@discographySelectAlbumsSubtitle": {
-    "description": "Subtitle for select albums option"
-  },
-  "discographyFetchingTracks": "Chargement des pistes...",
-  "@discographyFetchingTracks": {
-    "description": "Progress - fetching album tracks"
-  },
-  "discographyFetchingAlbum": "Récupération de {current} sur {total}...",
-  "@discographyFetchingAlbum": {
-    "description": "Progress - fetching specific album",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyDownloadSelected": "Télécharger la sélection",
-  "@discographyDownloadSelected": {
-    "description": "Button - download selected albums"
-  },
-  "discographyAddedToQueue": "{count} titres ont été ajoutés à la file d'attente",
-  "@discographyAddedToQueue": {
-    "description": "Snackbar - tracks added from discography",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "discographySkippedDownloaded": "{added} ajouté, {skipped} déjà téléchargé",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
@@ -2652,14 +2544,6 @@
         "type": "int"
       }
     }
-  },
-  "discographyNoAlbums": "Aucun album disponible",
-  "@discographyNoAlbums": {
-    "description": "Error - no albums found for artist"
-  },
-  "discographyFailedToFetch": "Impossible de récupérer certains albums",
-  "@discographyFailedToFetch": {
-    "description": "Error - some albums failed to load"
   },
   "sectionStorageAccess": "Accès au stockage",
   "@sectionStorageAccess": {
@@ -5770,10 +5654,6 @@
   "@logIssueTrackNotFoundSuggestion": {
     "description": "Diagnostic badge suggestion when a track is unavailable"
   },
-  "clickableLookingUpArtist": "Recherche d'artiste...",
-  "@clickableLookingUpArtist": {
-    "description": "Snackbar shown while clickable artist metadata is being resolved"
-  },
   "clickableInformationUnavailable": "Informations sur {type} non disponibles",
   "@clickableInformationUnavailable": {
     "description": "Snackbar shown when clickable metadata cannot open a destination",
@@ -5862,15 +5742,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11ySelectAlbum": "Sélectionnez l'album {albumName}",
-  "@a11ySelectAlbum": {
-    "description": "Accessibility label for selecting an album",
-    "placeholders": {
-      "albumName": {
         "type": "String"
       }
     }
@@ -6401,10 +6272,6 @@
   "@storeCategoryIntegration": {
     "description": "Store extension category - integration"
   },
-  "artistReleases": "Sorties",
-  "@artistReleases": {
-    "description": "Section header for all artist releases"
-  },
   "editMetadataSelectNone": "Aucun",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
@@ -6437,22 +6304,6 @@
   "dialogDisableAndClear": "Désactiver et effacer",
   "@dialogDisableAndClear": {
     "description": "Confirmation action to disable download history and clear existing entries"
-  },
-  "openInOtherServices": "Ouvrir dans d'autres services",
-  "@openInOtherServices": {
-    "description": "Title and tooltip for finding the current collection in other services"
-  },
-  "shareSheetNoExtensions": "Aucun autre service compatible",
-  "shareSheetNotFound": "Introuvable",
-  "@shareSheetNotFound": {
-    "description": "Cross-service share sheet row subtitle when a service has no match"
-  },
-  "shareSheetCopyLink": "Copier le lien",
-  "shareSheetLinkCopied": "Lien {service} copié",
-  "@shareSheetLinkCopied": {
-    "placeholders": {
-      "service": {}
-    }
   },
   "libraryPlayback": "Lecture",
   "@libraryPlayback": {
@@ -6500,13 +6351,6 @@
       }
     }
   },
-  "concertGetTickets": "Acheter des billets",
-  "concertSetList": "Liste des morceaux du concert",
-  "concertSetListButton": "Liste des morceaux",
-  "concertAddToCalendar": "Ajouter au calendrier",
-  "concertOpenMaps": "Ouvrir Maps",
-  "concertDetailsUnavailable": "Les informations concernant le concert ne sont pas disponibles pour le moment.",
-  "concertCalendarUnavailable": "Impossible d'ouvrir le calendrier.",
   "nowPlayingAudioOutputUnavailable": "Impossible d'ouvrir les paramètres de sortie audio.",
   "@nowPlayingUpNext": {
     "description": "Title for the playback queue sheet"
@@ -7601,9 +7445,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "artistUpcomingConcerts": "Prochains concerts",
-  "artistAllUpcomingConcerts": "Tous les concerts à venir",
-  "artistNoUpcomingConcerts": "Aucun concert prévu.",
   "motionArtwork": "Animated artwork",
   "listeningStats": "Listening statistics",
   "listeningStatsRecord": "Record listening",
@@ -8359,26 +8200,6 @@
   "recognizeClearHistoryMessage": "Remove every song from this list?",
   "@recognizeClearHistoryMessage": {
     "description": "Confirmation message before clearing the identification history"
-  },
-  "collectionSuggestionsTitle": "Suggested songs",
-  "@collectionSuggestionsTitle": {
-    "description": "Heading of the songs suggested below an album, single or playlist"
-  },
-  "collectionSuggestionsRelated": "Based on the songs above",
-  "@collectionSuggestionsRelated": {
-    "description": "Line under the suggestions heading when an extension suggested songs like the album's or playlist's"
-  },
-  "collectionSuggestionsByArtists": "More from these artists",
-  "@collectionSuggestionsByArtists": {
-    "description": "Line under the suggestions heading when the songs were found by searching the album's or playlist's artists"
-  },
-  "collectionSuggestionsRefresh": "Suggest other songs",
-  "@collectionSuggestionsRefresh": {
-    "description": "Tooltip of the button that loads other suggestions"
-  },
-  "collectionSuggestionsAddHere": "Add to this playlist",
-  "@collectionSuggestionsAddHere": {
-    "description": "Tooltip of the button that adds a suggested song to the user's playlist shown above"
   },
   "sectionExistingDownloads": "Existing Files",
   "@sectionExistingDownloads": {

@@ -5,7 +5,6 @@ import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
 /// Share the same artwork-derived dark surface while loading and after the
@@ -15,12 +14,10 @@ class MornyeArtistSurface extends StatefulWidget {
     super.key,
     required this.imageSource,
     required this.child,
-    this.logoSource,
     this.neutralActions = false,
   });
 
   final String? imageSource;
-  final String? logoSource;
   final Widget child;
 
   /// Album and playlist actions use white controls over the artwork tint.
@@ -112,69 +109,47 @@ class _MornyeArtistSurfaceState extends State<MornyeArtistSurface> {
               surface: surface,
             );
           }
-          return CoverPaletteBuilder(
-            imageSource: widget.neutralActions ? null : widget.logoSource,
-            builder: (context, _) {
-              final logo = widget.logoSource;
-              // Use the logo's original pixels, including white lettering,
-              // without Material's pastel accent mapping.
-              final logoColor = logo == null
-                  ? null
-                  : CoverPalette.sourceColor(logo, Brightness.dark);
-              // Keep the artwork accent for colorful portraits. A neutral
-              // portrait can acquire a blue Material accent; use white there,
-              // while allowing an explicit logo color to take precedence.
-              final primary = widget.neutralActions
-                  ? Colors.white
-                  : logoColor ?? (useAccent ? palette.primary : Colors.white);
-              final primaryLuminance = primary.computeLuminance();
-              final surfaceContrast =
-                  (primaryLuminance + 0.05) /
-                  (surface.computeLuminance() + 0.05);
-              final onPrimary = widget.neutralActions
-                  ? Colors.black
-                  : logoColor == null && useAccent
-                  ? palette.onPrimary
-                  : surfaceContrast >= 4.5
-                  ? surface
-                  : primaryLuminance > 0.179
-                  ? Colors.black
-                  : Colors.white;
-              final innerKey = (
-                surface,
-                primary,
-                onPrimary,
-                widget.neutralActions,
-              );
-              if (innerKey != _innerKey) {
-                _innerKey = innerKey;
-                _innerTheme = darkTheme.copyWith(
-                  scaffoldBackgroundColor: surface,
-                  colorScheme: darkTheme.colorScheme.copyWith(
-                    primary: primary,
-                    onPrimary: onPrimary,
-                    onSurfaceVariant: widget.neutralActions
-                        ? Colors.white70
-                        : null,
-                    surface: surface,
-                    surfaceContainer: Color.alphaBlend(
-                      Colors.white.withValues(alpha: 0.08),
-                      surface,
-                    ),
-                    surfaceContainerHigh: Color.alphaBlend(
-                      Colors.white.withValues(alpha: 0.12),
-                      surface,
-                    ),
-                  ),
-                );
-              }
-              final page = HeaderPalette(
-                scheme: _innerTheme.colorScheme,
-                child: widget.child,
-              );
-              return Theme(data: _innerTheme, child: page);
-            },
+          final primary = widget.neutralActions
+              ? Colors.white
+              : (useAccent ? palette.primary : Colors.white);
+          final primaryLuminance = primary.computeLuminance();
+          final surfaceContrast =
+              (primaryLuminance + 0.05) / (surface.computeLuminance() + 0.05);
+          final onPrimary = widget.neutralActions
+              ? Colors.black
+              : useAccent
+              ? palette.onPrimary
+              : surfaceContrast >= 4.5
+              ? surface
+              : primaryLuminance > 0.179
+              ? Colors.black
+              : Colors.white;
+          final innerKey = (surface, primary, onPrimary, widget.neutralActions);
+          if (innerKey != _innerKey) {
+            _innerKey = innerKey;
+            _innerTheme = darkTheme.copyWith(
+              scaffoldBackgroundColor: surface,
+              colorScheme: darkTheme.colorScheme.copyWith(
+                primary: primary,
+                onPrimary: onPrimary,
+                onSurfaceVariant: widget.neutralActions ? Colors.white70 : null,
+                surface: surface,
+                surfaceContainer: Color.alphaBlend(
+                  Colors.white.withValues(alpha: 0.08),
+                  surface,
+                ),
+                surfaceContainerHigh: Color.alphaBlend(
+                  Colors.white.withValues(alpha: 0.12),
+                  surface,
+                ),
+              ),
+            );
+          }
+          final page = HeaderPalette(
+            scheme: _innerTheme.colorScheme,
+            child: widget.child,
           );
+          return Theme(data: _innerTheme, child: page);
         },
       ),
     );
@@ -191,9 +166,6 @@ class MornyeArtistHeader extends StatelessWidget {
     required this.actions,
     required this.showTitle,
     this.toolbarActions = const [],
-    this.listeners,
-    this.logoUrl,
-    this.badge,
   });
 
   final String name;
@@ -203,10 +175,6 @@ class MornyeArtistHeader extends StatelessWidget {
   /// Grouped in the glass capsule at the toolbar's trailing end.
   final List<Widget> toolbarActions;
   final bool showTitle;
-
-  final String? listeners;
-  final String? logoUrl;
-  final Widget? badge;
 
   // A SliverMainAxisGroup clamps negative overlap, preventing this header from
   // receiving the overscroll used for its stretch animation.
@@ -243,8 +211,8 @@ class MornyeArtistHeader extends StatelessWidget {
     return height;
   }
 
-  /// The header's full height, the identity block's, and the listeners row's.
-  ({double expanded, double identity, double listeners}) _mobileMetrics(
+  /// The header's full height and the identity block's.
+  ({double expanded, double identity}) _mobileMetrics(
     BuildContext context,
     double width,
   ) {
@@ -255,27 +223,9 @@ class MornyeArtistHeader extends StatelessWidget {
       TextStyle(fontSize: _nameSize, fontWeight: FontWeight.bold),
       textWidth,
     );
-    final hasLogo = logoUrl?.trim().isNotEmpty == true;
-    final identityHeight = hasLogo
-        ? nameHeight.clamp(_logoSize.height, double.infinity)
-        : nameHeight;
-    final listenersHeight = listeners == null
-        ? 0.0
-        : 7 +
-              _textHeight(
-                context,
-                listeners!,
-                const TextStyle(fontSize: 13),
-                textWidth,
-              );
     final photoHeight = (width * 0.76).clamp(240.0, 340.0);
-    final contentHeight =
-        identityHeight + listenersHeight + (actions.isEmpty ? 0 : 94) + 32;
-    return (
-      expanded: photoHeight + contentHeight,
-      identity: identityHeight,
-      listeners: listenersHeight,
-    );
+    final contentHeight = nameHeight + (actions.isEmpty ? 0 : 94) + 32;
+    return (expanded: photoHeight + contentHeight, identity: nameHeight);
   }
 
   /// The photo or video and the identity scroll away with the page, like the
@@ -396,28 +346,20 @@ class MornyeArtistHeader extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (badge != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: badge,
-                                ),
                               ConstrainedBox(
                                 constraints: BoxConstraints(
                                   maxHeight: metrics.identity,
                                 ),
-                                child: _buildIdentity(context),
-                              ),
-                              if (listeners != null) ...[
-                                const SizedBox(height: 7),
-                                Text(
-                                  listeners!,
+                                child: Text(
+                                  name,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontSize: _nameSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
-                              ],
+                              ),
                               if (actions.isNotEmpty) ...[
                                 const SizedBox(height: 16),
                                 SizedBox(
@@ -445,42 +387,4 @@ class MornyeArtistHeader extends StatelessWidget {
   }
 
   static double get _nameSize => 30;
-  static Size get _logoSize => const Size(320, 96);
-
-  Widget _buildIdentity(BuildContext context) {
-    final fallback = Text(
-      name,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: _nameSize,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    );
-    final logoSize = _logoSize;
-    final logo = logoUrl?.trim();
-    if (logo == null || logo.isEmpty) return fallback;
-    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-    return Semantics(
-      label: name,
-      image: true,
-      excludeSemantics: true,
-      child: Image(
-        image: ResizeImage(
-          cachedCoverImageProvider(logo),
-          width: (logoSize.width * pixelRatio).ceil(),
-          height: (logoSize.height * pixelRatio).ceil(),
-          policy: ResizeImagePolicy.fit,
-        ),
-        fit: BoxFit.contain,
-        frameBuilder: (_, child, frame, _) => frame == null
-            ? fallback
-            : ConstrainedBox(
-                constraints: BoxConstraints.loose(logoSize),
-                child: child,
-              ),
-        errorBuilder: (_, _, _) => fallback,
-      ),
-    );
-  }
 }

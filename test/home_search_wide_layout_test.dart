@@ -72,15 +72,6 @@ void main() {
       expect(find.text('Example artist 0'), findsOneWidget);
       expect(find.byIcon(Icons.chevron_right), findsNothing);
 
-      // A tap opens the album through the same route as the phone row.
-      await tester.tap(find.text('Found album 0'));
-      await tester.pump();
-      expect(
-        find.text('Cannot load album: missing extension source'),
-        findsOneWidget,
-      );
-      await _dismissSnackBars(tester);
-
       // Long press on the cover opens the save-cover action.
       await tester.longPress(cells.first);
       await tester.pump();

@@ -177,7 +177,7 @@ ones.
 | --- | --- | --- |
 | `main.dart`, `app.dart` | Startup, `ProviderScope`, `SistrumApp`, and the `GoRouter` (`/`, `/setup`, `/tutorial`) | Any folder |
 | `screens/` | Routes and tab roots; large screens split into `<screen>_*.dart` files; settings pages in `screens/settings/` | Any folder |
-| `widgets/` | Reusable widgets and design-system components | Any folder except `screens/`; exceptions: `library_search_results.dart`, `artist_concerts_button.dart`, `mini_player.dart` |
+| `widgets/` | Reusable widgets and design-system components | Any folder except `screens/`; exceptions: `library_search_results.dart`, `mini_player.dart` |
 | `controllers/` | UI logic shared by screens and widgets: selection mixins, batch actions, the metadata editor | controllers, widgets, providers, services, models, utils, theme, l10n; `clickable_metadata.dart` also imports `screens/` |
 | `providers/` | Riverpod notifiers and state; large notifiers split into `part` files | providers, services, models, utils, constants |
 | `services/` | `PlatformBridge`, SQLite stores, the music player, FFmpeg, network storage, notifications | services, models, utils, constants; exceptions: re-export stubs into `providers/` and `controllers/`, and `notification_service.dart` imports `l10n/` |

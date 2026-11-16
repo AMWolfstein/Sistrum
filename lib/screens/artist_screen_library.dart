@@ -46,8 +46,6 @@ extension _ArtistLibrarySections on _ArtistScreenState {
           ..._buildHeader(
             context,
             colorScheme,
-            albums: albums,
-            hasDiscography: false,
             libraryImageUrl: data?.imageCover,
           ),
           if (overview.hasError)

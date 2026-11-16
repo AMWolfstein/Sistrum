@@ -160,8 +160,9 @@ tracks of one artist, open the artist from the library and check each section.
 - **FR-012**: Now Playing MUST offer the synced lyric preview line with a translated
   on/off setting (port of Mornye #847, adapted), without its unrelated changes (the
   `.gitignore` entry, disabling Android lint, the deleted Material layout).
-- **FR-013**: The online pages opened from extension (Apple Music) searches MUST keep
-  working until the next mission removes them.
+- **FR-013**: The online pages opened from extension (Apple Music) searches are removed by
+  this mission at the owner's request: the artist, album and playlist pages by TOR014, and the
+  Home and Search entries that opened them by TOR015.
 - **FR-015**: Artist and genre tags MUST be split into credits with the Tag separators
   rules (port of AMWolfstein/Private `new-blur`): configurable artist and genre
   delimiters with chips, All, custom separators and Keep together, applied by one

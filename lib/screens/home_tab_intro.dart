@@ -1148,7 +1148,7 @@ class _HomeTopPicksShelf extends StatelessWidget {
     required String eyebrow,
     required String subtitle,
     required double width,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
   }) {
     return Semantics(
       button: true,
@@ -1206,15 +1206,6 @@ class _HomeTopPicksShelf extends StatelessWidget {
                       ? item.artists
                       : item.description ?? '',
                   width: width,
-                  onTap: () => pushPage<void>(
-                    context,
-                    (_) => ExtensionPlaylistScreen(
-                      extensionId: item.providerId ?? '',
-                      playlistId: item.id,
-                      playlistName: item.name,
-                      coverUrl: item.coverUrl,
-                    ),
-                  ),
                 );
               }
               final view = mixes[index];

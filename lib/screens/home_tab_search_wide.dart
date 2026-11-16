@@ -144,13 +144,11 @@ extension _HomeTabSearchWideUI on _HomeTabState {
               key: ValueKey('top-album-${albums[index].id}'),
               item: albums[index],
               kindLabel: context.l10n.recentTypeAlbum,
-              onTap: () => _navigateToExtensionAlbum(albums[index]),
             ),
             _ => _SearchTopCollectionCard(
               key: ValueKey('top-playlist-${playlists[index].id}'),
               item: playlists[index],
               kindLabel: context.l10n.recentTypePlaylist,
-              onTap: () => _navigateToExtensionPlaylist(playlists[index]),
             ),
           },
       ];
@@ -173,25 +171,10 @@ extension _HomeTabSearchWideUI on _HomeTabState {
       songsAdded = true;
     }
 
-    for (final (items, kind, title, open) in [
-      (
-        buckets.artistItems,
-        'artist',
-        context.l10n.searchArtists,
-        _navigateToExtensionArtist,
-      ),
-      (
-        buckets.albumItems,
-        'album',
-        context.l10n.searchAlbums,
-        _navigateToExtensionAlbum,
-      ),
-      (
-        buckets.playlistItems,
-        'playlist',
-        context.l10n.searchPlaylists,
-        _navigateToExtensionPlaylist,
-      ),
+    for (final (items, kind, title) in [
+      (buckets.artistItems, 'artist', context.l10n.searchArtists),
+      (buckets.albumItems, 'album', context.l10n.searchAlbums),
+      (buckets.playlistItems, 'playlist', context.l10n.searchPlaylists),
     ]) {
       // Songs follow the albums under the mixed preview.
       if (topResults && kind == 'playlist' && songs.isNotEmpty) {
@@ -206,7 +189,6 @@ extension _HomeTabSearchWideUI on _HomeTabState {
             key: ValueKey('$kind-${sorted[index].id}'),
             item: sorted[index],
             extent: extent,
-            onTap: () => open(sorted[index]),
             onSaveCover: () => _saveSearchResultCover(sorted[index]),
           );
       slivers
@@ -376,7 +358,7 @@ class _SearchTopResultCard extends StatelessWidget {
     required this.artistName,
     required this.explicit,
     required this.trailing,
-    required this.onTap,
+    this.onTap,
     this.onLongPress,
   });
 
@@ -389,7 +371,7 @@ class _SearchTopResultCard extends StatelessWidget {
   final String artistName;
   final bool explicit;
   final Widget trailing;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
   @override
@@ -544,12 +526,10 @@ class _SearchTopCollectionCard extends StatelessWidget {
     super.key,
     required this.item,
     required this.kindLabel,
-    required this.onTap,
   });
 
   final Track item;
   final String kindLabel;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -560,7 +540,6 @@ class _SearchTopCollectionCard extends StatelessWidget {
       kindLabel: kindLabel,
       artistName: item.artistName,
       explicit: item.explicit == true,
-      onTap: onTap,
       trailing: Padding(
         padding: const EdgeInsetsDirectional.only(end: 12),
         child: Icon(
@@ -732,7 +711,6 @@ class _SearchCoverCell extends StatelessWidget {
     super.key,
     required this.item,
     required this.extent,
-    required this.onTap,
     required this.onSaveCover,
   });
 
@@ -740,7 +718,6 @@ class _SearchCoverCell extends StatelessWidget {
 
   /// The side of the cover.
   final double extent;
-  final VoidCallback onTap;
   final VoidCallback onSaveCover;
 
   @override
@@ -799,7 +776,6 @@ class _SearchCoverCell extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        onTap: onTap,
         borderRadius: radius,
         child: Column(
           crossAxisAlignment: isArtist

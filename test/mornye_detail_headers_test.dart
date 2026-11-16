@@ -1,90 +1,31 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 void main() {
-  testWidgets('artist logo uses a bounded aspect-preserving shared decode', (
-    tester,
-  ) async {
-    const name = 'An artist with a name spanning several lines';
-    tester.view.physicalSize = const Size(780, 1688);
-    tester.view.devicePixelRatio = 2;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark),
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(
-              context,
-            ).copyWith(textScaler: const TextScaler.linear(2)),
-            child: child!,
-          ),
-          home: const Scaffold(
-            body: CustomScrollView(
-              slivers: [
-                MornyeArtistHeader(
-                  name: name,
-                  logoUrl: 'https://example.invalid/large-logo.png',
-                  artwork: ColoredBox(color: Colors.orange),
-                  actions: [],
-                  showTitle: false,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    final image = tester.widget<Image>(find.byType(Image));
-    final resized = image.image as ResizeImage;
-    expect(resized.width, 640);
-    expect(resized.height, 192);
-    expect(resized.policy, ResizeImagePolicy.fit);
-    final source = resized.imageProvider as CachedNetworkImageProvider;
-    expect(source.cacheManager, same(CoverCacheManager.instance));
-    await tester.pumpAndSettle();
-    final fallback = find.descendant(
-      of: find.byKey(const ValueKey('artist-header')),
-      matching: find.text(name),
-    );
-    expect(tester.getSize(fallback).height, greaterThan(96));
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('artist actions preserve artwork and logo accents', (
-    tester,
-  ) async {
+  testWidgets('artist actions preserve artwork accents', (tester) async {
     final directory = Directory.systemTemp.createTempSync('artist-palette-');
     addTearDown(() => directory.deleteSync(recursive: true));
     final neutralCover = File('${directory.path}/neutral.png');
     final coloredCover = File('${directory.path}/colored.png');
-    final whiteLogo = File('${directory.path}/white-logo.png');
-    final coloredLogo = File('${directory.path}/colored-logo.png');
     await tester.runAsync(() async {
-      for (final (file, color, isLogo) in [
-        (neutralCover, const Color(0xff9da4a9), false),
-        (coloredCover, Colors.deepOrange, false),
-        (whiteLogo, Colors.white, true),
-        (coloredLogo, Colors.amber, true),
+      for (final (file, color) in [
+        (neutralCover, const Color(0xff9da4a9)),
+        (coloredCover, Colors.deepOrange),
       ]) {
         final recorder = ui.PictureRecorder();
         final canvas = Canvas(recorder);
         canvas.drawRect(
-          isLogo
-              ? const Rect.fromLTWH(20, 40, 60, 20)
-              : const Rect.fromLTWH(0, 0, 100, 100),
+          const Rect.fromLTWH(0, 0, 100, 100),
           Paint()..color = color,
         );
         final picture = recorder.endRecording();
@@ -102,18 +43,15 @@ void main() {
     )!.primary;
     expect(artworkAccent, isNot(Colors.white));
     for (final brightness in Brightness.values) {
-      for (final (cover, logo, expected) in [
-        (neutralCover, null, Colors.white),
-        (coloredCover, null, artworkAccent),
-        (coloredCover, whiteLogo, Colors.white),
-        (neutralCover, coloredLogo, Colors.amber),
+      for (final (cover, expected) in [
+        (neutralCover, Colors.white),
+        (coloredCover, artworkAccent),
       ]) {
         await tester.pumpWidget(
           MaterialApp(
             theme: MornyeTheme.build(brightness),
             home: MornyeArtistSurface(
               imageSource: cover.path,
-              logoSource: logo?.path,
               child: const Text('Artist action'),
             ),
           ),
@@ -271,53 +209,6 @@ void main() {
     expect(scheme.surface.toARGB32(), tinted.toARGB32());
     expect(scheme.surface.r, isNot(scheme.surface.b));
     await tester.pumpWidget(const SizedBox());
-  });
-
-  testWidgets('unavailable artist logo keeps the name and actions readable', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(390, 844);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark),
-          home: Scaffold(
-            body: CustomScrollView(
-              slivers: const [
-                MornyeArtistHeader(
-                  name: 'Example Artist',
-                  logoUrl: 'https://example.invalid/unavailable-logo.png',
-                  artwork: ColoredBox(color: Colors.orange),
-                  actions: [Text('Artist action')],
-                  showTitle: false,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(
-      find
-          .descendant(
-            of: find.byKey(const ValueKey('artist-header')),
-            matching: find.text('Example Artist'),
-          )
-          .hitTestable(),
-      findsOneWidget,
-    );
-    expect(find.text('Artist action').hitTestable(), findsOneWidget);
-    final background = tester.getRect(
-      find.byKey(const ValueKey('artist-header')),
-    );
-    final action = tester.getRect(find.text('Artist action'));
-    expect(background.contains(action.center), isTrue);
-    expect(background.bottom - action.bottom, inInclusiveRange(32, 60));
-    expect(action.center.dy, lessThan(480));
-    expect(tester.takeException(), isNull);
   });
 
   testWidgets(

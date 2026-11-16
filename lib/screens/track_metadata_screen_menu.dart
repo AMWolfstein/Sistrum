@@ -62,7 +62,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
             screenContext,
             albumName: albumName,
             artistName: albumArtist ?? artistName,
-            coverUrl: _coverUrl,
           ),
         ),
       _MetadataOption(

@@ -132,9 +132,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
               children: [
                 ClickableArtistName(
                   artistName: item.track.artistName,
-                  artistId: item.track.artistId,
-                  coverUrl: item.track.coverUrl,
-                  extensionId: item.track.source,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -887,7 +884,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
             // artist lookups use the user's search provider instead.
             ClickableArtistName(
               artistName: item.artistName,
-              coverUrl: item.coverUrl,
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: textColor),
@@ -1126,7 +1122,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
       // Not the history service: see the list row above.
       subtitle: ClickableArtistName(
         artistName: item.artistName,
-        coverUrl: item.coverUrl,
         style: Theme.of(
           context,
         ).textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),

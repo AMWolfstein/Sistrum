@@ -16,14 +16,7 @@ Future<void> openPlayingArtist(
   WidgetRef ref,
   MediaItem mediaItem,
 ) async {
-  final track = ref.read(playerCollectionTrackProvider(mediaItem)).value;
-  // A downloaded track's source is the service its audio came from, not a
-  // metadata catalog; the lookup uses the user's search provider instead.
-  await navigateToArtistCredits(
-    context,
-    artistNames: mediaItem.artist ?? '',
-    artistIds: track?.artistId,
-  );
+  await navigateToArtistCredits(context, artistNames: mediaItem.artist ?? '');
 }
 
 /// Opens the album of the song playing as [mediaItem] from [source].
@@ -85,6 +78,5 @@ Future<void> openPlayingAlbum(
     context,
     albumName: albumName,
     artistName: mediaItem.artist,
-    coverUrl: mediaItem.artUri?.toString(),
   );
 }

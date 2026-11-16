@@ -867,7 +867,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
             ),
             ClickableArtistName(
               artistName: artistName,
-              coverUrl: coverUrl,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),

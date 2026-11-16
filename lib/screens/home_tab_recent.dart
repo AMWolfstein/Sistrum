@@ -265,46 +265,15 @@ extension _HomeTabRecentUI on _HomeTabState {
     );
   }
 
-  bool _isEnabledMetadataExtension(String? providerId) {
-    final normalized = providerId?.trim();
-    if (normalized == null || normalized.isEmpty) return false;
-
-    return ref
-        .read(extensionProvider)
-        .extensions
-        .any(
-          (ext) =>
-              ext.enabled && ext.hasMetadataProvider && ext.id == normalized,
-        );
-  }
-
   Future<void> _navigateToRecentItem(RecentAccessItem item) async {
     _searchFocusNode.unfocus();
 
     switch (item.type) {
       case RecentAccessType.artist:
-        if (_isEnabledMetadataExtension(item.providerId)) {
-          pushPage<void>(
-            context,
-            (context) => ExtensionArtistScreen(
-              extensionId: item.providerId!,
-              artistId: item.id,
-              artistName: item.name,
-              coverUrl: item.imageUrl,
-            ),
-          );
-        } else {
-          pushPage<void>(
-            context,
-            (context) => ArtistScreen(
-              artistId: item.id,
-              artistName: item.name,
-              coverUrl: item.imageUrl,
-            ),
-          );
-        }
+        // Recorded artists are online ones; their pages are removed.
         return;
       case RecentAccessType.album:
+        // Only library albums open; recorded online albums do not.
         if (item.providerId == 'download') {
           pushPage<void>(
             context,
@@ -314,25 +283,6 @@ extension _HomeTabRecentUI on _HomeTabState {
                 null,
                 item.subtitle ?? '',
               ),
-            ),
-          );
-        } else if (_isEnabledMetadataExtension(item.providerId)) {
-          pushPage<void>(
-            context,
-            (context) => ExtensionAlbumScreen(
-              extensionId: item.providerId!,
-              albumId: item.id,
-              albumName: item.name,
-              coverUrl: item.imageUrl,
-            ),
-          );
-        } else {
-          pushPage<void>(
-            context,
-            (context) => AlbumScreen(
-              albumId: item.id,
-              albumName: item.name,
-              coverUrl: item.imageUrl,
             ),
           );
         }
@@ -355,31 +305,8 @@ extension _HomeTabRecentUI on _HomeTabState {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(context.l10n.recentPlaylistInfo(item.name))),
           );
-          return;
         }
-
-        if (_isEnabledMetadataExtension(item.providerId)) {
-          pushPage<void>(
-            context,
-            (context) => ExtensionPlaylistScreen(
-              extensionId: item.providerId!,
-              playlistId: item.id,
-              playlistName: item.name,
-              coverUrl: item.imageUrl,
-            ),
-          );
-        } else {
-          pushPage<void>(
-            context,
-            (context) => PlaylistScreen(
-              playlistName: item.name,
-              coverUrl: item.imageUrl,
-              tracks: const [],
-              playlistId: item.id,
-              metadataProviderId: item.providerId,
-            ),
-          );
-        }
+        // Recorded playlists are online ones; their pages are removed.
         return;
     }
   }

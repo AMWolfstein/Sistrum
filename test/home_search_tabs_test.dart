@@ -505,18 +505,9 @@ void main() {
       tester.getCenter(find.text('Sort')).dy,
       closeTo(tester.getCenter(find.text('Artists').last).dy, 24),
     );
+    // Online rows no longer open a page, so they show no guard message.
     for (final kind in ['artist', 'album', 'playlist']) {
       expect(find.byKey(ValueKey('$kind-$kind-0')), findsOneWidget);
-      await tester.tap(find.text('Found $kind'));
-      await tester.pump();
-      expect(
-        find.text('Cannot load $kind: missing extension source'),
-        findsOneWidget,
-      );
-      ScaffoldMessenger.of(
-        tester.element(find.byType(HomeTab)),
-      ).removeCurrentSnackBar();
-      await tester.pumpAndSettle();
     }
     expect(find.byType(HomeTab), findsOneWidget);
     expect(tester.takeException(), isNull);

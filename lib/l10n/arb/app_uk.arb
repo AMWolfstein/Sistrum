@@ -722,16 +722,6 @@
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
   },
-  "artistMonthlyListeners": "{count} Слухачів щомісяця",
-  "@artistMonthlyListeners": {
-    "description": "Monthly listener count display",
-    "placeholders": {
-      "count": {
-        "type": "String",
-        "description": "Formatted listener count"
-      }
-    }
-  },
   "trackMetadataService": "Сервіс",
   "@trackMetadataService": {
     "description": "Metadata field - download service used"
@@ -1254,15 +1244,6 @@
   "errorUrlFetchFailed": "Не вдалося завантажити вміст за цим посиланням. Спробуйте ще раз.",
   "@errorUrlFetchFailed": {
     "description": "Error message - generic URL fetch failure"
-  },
-  "errorMissingExtensionSource": "Не вдається завантажити {item}: відсутній вихідний код розширення",
-  "@errorMissingExtensionSource": {
-    "description": "Error - extension source not available",
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
   },
   "actionPause": "Пауза",
   "@actionPause": {
@@ -2552,95 +2533,6 @@
       }
     }
   },
-  "discographyDownload": "Завантажити дискографію",
-  "@discographyDownload": {
-    "description": "Button - download artist discography"
-  },
-  "discographyDownloadAll": "Завантажити все",
-  "@discographyDownloadAll": {
-    "description": "Option - download entire discography"
-  },
-  "discographyDownloadAllSubtitle": "{count} Треків з {albumCount} релізів",
-  "@discographyDownloadAllSubtitle": {
-    "description": "Subtitle showing total tracks and albums",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyAlbumsOnly": "Тільки альбоми",
-  "@discographyAlbumsOnly": {
-    "description": "Option - download only albums"
-  },
-  "discographyAlbumsOnlySubtitle": "{count} Треків з {albumCount} альбомів",
-  "@discographyAlbumsOnlySubtitle": {
-    "description": "Subtitle showing album tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySinglesOnly": "Тільки сингли та мініальбоми",
-  "@discographySinglesOnly": {
-    "description": "Option - download only singles"
-  },
-  "discographySinglesOnlySubtitle": "{count} Треків з {albumCount} синглів",
-  "@discographySinglesOnlySubtitle": {
-    "description": "Subtitle showing singles tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySelectAlbums": "Вибрати альбоми...",
-  "@discographySelectAlbums": {
-    "description": "Option - manually select albums to download"
-  },
-  "discographySelectAlbumsSubtitle": "Виберіть конкретні альбоми або сингли",
-  "@discographySelectAlbumsSubtitle": {
-    "description": "Subtitle for select albums option"
-  },
-  "discographyFetchingTracks": "Отримання треків...",
-  "@discographyFetchingTracks": {
-    "description": "Progress - fetching album tracks"
-  },
-  "discographyFetchingAlbum": "Отримання {current} з {total}...",
-  "@discographyFetchingAlbum": {
-    "description": "Progress - fetching specific album",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyDownloadSelected": "Завантажити вибране",
-  "@discographyDownloadSelected": {
-    "description": "Button - download selected albums"
-  },
-  "discographyAddedToQueue": "Додано {count} треків до черги",
-  "@discographyAddedToQueue": {
-    "description": "Snackbar - tracks added from discography",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "discographySkippedDownloaded": "{added} Додано, {skipped} вже завантажено",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
@@ -2652,14 +2544,6 @@
         "type": "int"
       }
     }
-  },
-  "discographyNoAlbums": "Немає доступних альбомів",
-  "@discographyNoAlbums": {
-    "description": "Error - no albums found for artist"
-  },
-  "discographyFailedToFetch": "Не вдалося отримати деякі альбоми",
-  "@discographyFailedToFetch": {
-    "description": "Error - some albums failed to load"
   },
   "sectionStorageAccess": "Доступ до сховища",
   "@sectionStorageAccess": {
@@ -5770,10 +5654,6 @@
   "@logIssueTrackNotFoundSuggestion": {
     "description": "Diagnostic badge suggestion when a track is unavailable"
   },
-  "clickableLookingUpArtist": "Пошук виконавця...",
-  "@clickableLookingUpArtist": {
-    "description": "Snackbar shown while clickable artist metadata is being resolved"
-  },
   "clickableInformationUnavailable": "Інформація {type} недоступна",
   "@clickableInformationUnavailable": {
     "description": "Snackbar shown when clickable metadata cannot open a destination",
@@ -5862,15 +5742,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11ySelectAlbum": "Вибрати альбом {albumName}",
-  "@a11ySelectAlbum": {
-    "description": "Accessibility label for selecting an album",
-    "placeholders": {
-      "albumName": {
         "type": "String"
       }
     }
@@ -6401,10 +6272,6 @@
   "@storeCategoryIntegration": {
     "description": "Store extension category - integration"
   },
-  "artistReleases": "Релізи",
-  "@artistReleases": {
-    "description": "Section header for all artist releases"
-  },
   "editMetadataSelectNone": "Нічого",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
@@ -6437,22 +6304,6 @@
   "dialogDisableAndClear": "Вимкнути та очистити",
   "@dialogDisableAndClear": {
     "description": "Confirmation action to disable download history and clear existing entries"
-  },
-  "openInOtherServices": "Відкрити в інших сервісах",
-  "@openInOtherServices": {
-    "description": "Title and tooltip for finding the current collection in other services"
-  },
-  "shareSheetNoExtensions": "Немає інших сумісних сервісів",
-  "shareSheetNotFound": "Не знайдено",
-  "@shareSheetNotFound": {
-    "description": "Cross-service share sheet row subtitle when a service has no match"
-  },
-  "shareSheetCopyLink": "Скопіювати посилання",
-  "shareSheetLinkCopied": "Посилання на {service} скопійовано",
-  "@shareSheetLinkCopied": {
-    "placeholders": {
-      "service": {}
-    }
   },
   "libraryPlayback": "Відтворення",
   "@libraryPlayback": {
@@ -6500,13 +6351,6 @@
       }
     }
   },
-  "concertGetTickets": "Купити квитки",
-  "concertSetList": "Список пісень",
-  "concertSetListButton": "Перелік композицій",
-  "concertAddToCalendar": "Додати в календар",
-  "concertOpenMaps": "Відкрити карту",
-  "concertDetailsUnavailable": "Деталі концерту наразі недоступні.",
-  "concertCalendarUnavailable": "Неможливо відкрити календар.",
   "nowPlayingAudioOutputUnavailable": "Не вдалося відкрити налаштування аудіовиходу.",
   "@nowPlayingUpNext": {
     "description": "Title for the playback queue sheet"
@@ -7601,9 +7445,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "artistUpcomingConcerts": "Майбутні концерти",
-  "artistAllUpcomingConcerts": "Всі майбутні концерти",
-  "artistNoUpcomingConcerts": "Немає майбутніх концертів.",
   "motionArtwork": "Анімована обкладинка",
   "listeningStats": "Статистика прослуховувань",
   "listeningStatsRecord": "Запис прослуховувань",
@@ -8359,26 +8200,6 @@
   "recognizeClearHistoryMessage": "Remove every song from this list?",
   "@recognizeClearHistoryMessage": {
     "description": "Confirmation message before clearing the identification history"
-  },
-  "collectionSuggestionsTitle": "Suggested songs",
-  "@collectionSuggestionsTitle": {
-    "description": "Heading of the songs suggested below an album, single or playlist"
-  },
-  "collectionSuggestionsRelated": "Based on the songs above",
-  "@collectionSuggestionsRelated": {
-    "description": "Line under the suggestions heading when an extension suggested songs like the album's or playlist's"
-  },
-  "collectionSuggestionsByArtists": "More from these artists",
-  "@collectionSuggestionsByArtists": {
-    "description": "Line under the suggestions heading when the songs were found by searching the album's or playlist's artists"
-  },
-  "collectionSuggestionsRefresh": "Suggest other songs",
-  "@collectionSuggestionsRefresh": {
-    "description": "Tooltip of the button that loads other suggestions"
-  },
-  "collectionSuggestionsAddHere": "Add to this playlist",
-  "@collectionSuggestionsAddHere": {
-    "description": "Tooltip of the button that adds a suggested song to the user's playlist shown above"
   },
   "sectionExistingDownloads": "Existing Files",
   "@sectionExistingDownloads": {

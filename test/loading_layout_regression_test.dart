@@ -30,7 +30,6 @@ void main() {
         addTearDown(tester.view.reset);
         for (final skeleton in const [
           TrackListSkeleton(itemCount: 3),
-          AlbumTrackListSkeleton(itemCount: 3),
           HomeSearchSkeleton(),
         ]) {
           await tester.pumpWidget(

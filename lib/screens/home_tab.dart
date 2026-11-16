@@ -50,8 +50,6 @@ import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/music_player_service.dart' show PlayableMedia;
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/screens/album_screen.dart';
-import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/screens/extension_collection_screens.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/home_search_logic.dart';
 import 'package:sistrum/controllers/track_history_snapshot.dart';
@@ -62,7 +60,6 @@ import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/file_access.dart';
-import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/widgets/download_service_picker.dart';
 import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -79,8 +76,6 @@ import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
 import 'package:sistrum/widgets/profile_avatar.dart';
 import 'package:sistrum/widgets/downloadable_cover.dart';
 import 'package:sistrum/widgets/app_crash_banner.dart';
-
-export 'package:sistrum/screens/extension_collection_screens.dart';
 
 part 'home_tab_helpers.dart';
 part 'home_tab_explore.dart';
@@ -195,12 +190,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
     ) {
       if (!_showsSearch) return;
       _onTrackStateChanged(previous, next);
-      if (previous != null &&
-          previous.isLoading &&
-          !next.isLoading &&
-          next.error == null) {
-        _navigateToDetailIfNeeded();
-      }
     });
 
     _extensionInitSub = ref.listenManual<bool>(
@@ -615,90 +604,11 @@ class _HomeTabState extends ConsumerState<HomeTab>
           ),
         );
         ref.read(trackProvider.notifier).clear();
-      } else {
-        _navigateToDetailIfNeeded();
       }
     } else {
       await ref.read(trackProvider.notifier).search(url);
     }
     ref.read(settingsProvider.notifier).setHasSearchedBefore();
-  }
-
-  void _navigateToDetailIfNeeded() {
-    final trackState = ref.read(trackProvider);
-
-    if (trackState.albumId != null &&
-        trackState.albumName != null &&
-        trackState.tracks.isNotEmpty) {
-      final extensionId = trackState.searchExtensionId;
-      pushPage<void>(
-        context,
-        (context) => AlbumScreen(
-          albumId: trackState.albumId!,
-          albumName: trackState.albumName!,
-          description: trackState.albumDescription,
-          coverUrl: trackState.coverUrl,
-          tracks: trackState.tracks,
-          extensionId: extensionId,
-        ),
-      );
-      ref.read(trackProvider.notifier).clear();
-      _urlController.clear();
-      return;
-    }
-
-    if (trackState.playlistName != null && trackState.tracks.isNotEmpty) {
-      final playlistProviderId = trackState.searchExtensionId ?? 'spotify';
-      ref
-          .read(recentAccessProvider.notifier)
-          .recordPlaylistAccess(
-            id: trackState.playlistId ?? trackState.playlistName!,
-            name: trackState.playlistName!,
-            imageUrl: trackState.coverUrl,
-            providerId: playlistProviderId,
-          );
-
-      pushPage<void>(
-        context,
-        (context) => PlaylistScreen(
-          playlistName: trackState.playlistName!,
-          coverUrl: trackState.coverUrl,
-          tracks: trackState.tracks,
-          playlistId: trackState.playlistId,
-          metadataProviderId: playlistProviderId,
-          recommendedService:
-              trackState.searchExtensionId ?? trackState.searchSource,
-        ),
-      );
-      ref.read(trackProvider.notifier).clear();
-      _urlController.clear();
-      return;
-    }
-
-    if (trackState.artistId != null &&
-        trackState.artistName != null &&
-        trackState.artistAlbums != null) {
-      final extensionId = trackState.searchExtensionId;
-      pushPage<void>(
-        context,
-        (context) => ArtistScreen(
-          artistId: trackState.artistId!,
-          artistName: trackState.artistName!,
-          coverUrl: trackState.coverUrl,
-          headerImageUrl: trackState.headerImageUrl,
-          headerVideoUrl: trackState.headerVideoUrl,
-          headerLogoUrl: trackState.headerLogoUrl,
-          concerts: trackState.artistConcerts,
-          albumsNext: trackState.artistAlbumsNext,
-          albums: trackState.artistAlbums!,
-          topTracks: trackState.artistTopTracks,
-          extensionId: extensionId,
-        ),
-      );
-      ref.read(trackProvider.notifier).clear();
-      _urlController.clear();
-      return;
-    }
   }
 
   void _downloadTrack(int index, {bool forceQualityPicker = false}) {

@@ -722,16 +722,6 @@
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
   },
-  "artistMonthlyListeners": "월별 청취자 {count}",
-  "@artistMonthlyListeners": {
-    "description": "Monthly listener count display",
-    "placeholders": {
-      "count": {
-        "type": "String",
-        "description": "Formatted listener count"
-      }
-    }
-  },
   "trackMetadataService": "제공자",
   "@trackMetadataService": {
     "description": "Metadata field - download service used"
@@ -1254,15 +1244,6 @@
   "errorUrlFetchFailed": "이 링크에서 콘텐츠를 불러오는 데 실패하였습니다. 다시 시도해 주세요",
   "@errorUrlFetchFailed": {
     "description": "Error message - generic URL fetch failure"
-  },
-  "errorMissingExtensionSource": "'{item}'을 불러올 수 없음: 확장 소스가 누락됨",
-  "@errorMissingExtensionSource": {
-    "description": "Error - extension source not available",
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
   },
   "actionPause": "일시 중지",
   "@actionPause": {
@@ -2552,95 +2533,6 @@
       }
     }
   },
-  "discographyDownload": "디스코그래피 다운로드",
-  "@discographyDownload": {
-    "description": "Button - download artist discography"
-  },
-  "discographyDownloadAll": "모두 다운로드",
-  "@discographyDownloadAll": {
-    "description": "Option - download entire discography"
-  },
-  "discographyDownloadAllSubtitle": "{albumCount} 개의 발매 음악에서 {count} 개의 트랙",
-  "@discographyDownloadAllSubtitle": {
-    "description": "Subtitle showing total tracks and albums",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyAlbumsOnly": "앨범만",
-  "@discographyAlbumsOnly": {
-    "description": "Option - download only albums"
-  },
-  "discographyAlbumsOnlySubtitle": "{albumCount} 개의 앨범에서 {count} 개의 트랙",
-  "@discographyAlbumsOnlySubtitle": {
-    "description": "Subtitle showing album tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySinglesOnly": "싱글 및 EP만",
-  "@discographySinglesOnly": {
-    "description": "Option - download only singles"
-  },
-  "discographySinglesOnlySubtitle": "{albumCount} 개의 싱글에서 {count} 개의 트랙",
-  "@discographySinglesOnlySubtitle": {
-    "description": "Subtitle showing singles tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySelectAlbums": "앨범 검색...",
-  "@discographySelectAlbums": {
-    "description": "Option - manually select albums to download"
-  },
-  "discographySelectAlbumsSubtitle": "특정 앨범 또는 싱글을 선택하세요",
-  "@discographySelectAlbumsSubtitle": {
-    "description": "Subtitle for select albums option"
-  },
-  "discographyFetchingTracks": "트랙을 가져오는 중...",
-  "@discographyFetchingTracks": {
-    "description": "Progress - fetching album tracks"
-  },
-  "discographyFetchingAlbum": "{total} 개 중 {current} 개를 가져오는 중...",
-  "@discographyFetchingAlbum": {
-    "description": "Progress - fetching specific album",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyDownloadSelected": "선택 항목 다운로드",
-  "@discographyDownloadSelected": {
-    "description": "Button - download selected albums"
-  },
-  "discographyAddedToQueue": "다운로드 목록에 {count} 개의 트랙이 추가됨",
-  "@discographyAddedToQueue": {
-    "description": "Snackbar - tracks added from discography",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "discographySkippedDownloaded": "{added} 개 추가됨, {skipped} 개 이미 다운로드됨",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
@@ -2652,14 +2544,6 @@
         "type": "int"
       }
     }
-  },
-  "discographyNoAlbums": "사용 가능한 앨범이 없음",
-  "@discographyNoAlbums": {
-    "description": "Error - no albums found for artist"
-  },
-  "discographyFailedToFetch": "일부 앨범 가져오기 실패",
-  "@discographyFailedToFetch": {
-    "description": "Error - some albums failed to load"
   },
   "sectionStorageAccess": "저장소 접근",
   "@sectionStorageAccess": {
@@ -5770,10 +5654,6 @@
   "@logIssueTrackNotFoundSuggestion": {
     "description": "Diagnostic badge suggestion when a track is unavailable"
   },
-  "clickableLookingUpArtist": "아티스트를 검색하는 중...",
-  "@clickableLookingUpArtist": {
-    "description": "Snackbar shown while clickable artist metadata is being resolved"
-  },
   "clickableInformationUnavailable": "{type} 정보를 사용할 수 없음",
   "@clickableInformationUnavailable": {
     "description": "Snackbar shown when clickable metadata cannot open a destination",
@@ -5862,15 +5742,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11ySelectAlbum": "앨범 '{albumName}' 선택",
-  "@a11ySelectAlbum": {
-    "description": "Accessibility label for selecting an album",
-    "placeholders": {
-      "albumName": {
         "type": "String"
       }
     }
@@ -6401,10 +6272,6 @@
   "@storeCategoryIntegration": {
     "description": "Store extension category - integration"
   },
-  "artistReleases": "발매 음악",
-  "@artistReleases": {
-    "description": "Section header for all artist releases"
-  },
   "editMetadataSelectNone": "없음",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
@@ -6437,22 +6304,6 @@
   "dialogDisableAndClear": "끄고 지우기",
   "@dialogDisableAndClear": {
     "description": "Confirmation action to disable download history and clear existing entries"
-  },
-  "openInOtherServices": "다른 서비스에서 열기",
-  "@openInOtherServices": {
-    "description": "Title and tooltip for finding the current collection in other services"
-  },
-  "shareSheetNoExtensions": "호환되는 다른 서비스가 없음",
-  "shareSheetNotFound": "찾을 수 없음",
-  "@shareSheetNotFound": {
-    "description": "Cross-service share sheet row subtitle when a service has no match"
-  },
-  "shareSheetCopyLink": "링크 복사",
-  "shareSheetLinkCopied": "{service} 링크가 복사됨",
-  "@shareSheetLinkCopied": {
-    "placeholders": {
-      "service": {}
-    }
   },
   "libraryPlayback": "재생",
   "@libraryPlayback": {
@@ -6500,13 +6351,6 @@
       }
     }
   },
-  "concertGetTickets": "티켓 구매",
-  "concertSetList": "콘서트 세트리스트",
-  "concertSetListButton": "세트리스트",
-  "concertAddToCalendar": "캘린더에 추가",
-  "concertOpenMaps": "지도 열기",
-  "concertDetailsUnavailable": "콘서트 세부 정보를 현재 사용할 수 없습니다",
-  "concertCalendarUnavailable": "캘린더를 열 수 없습니다",
   "nowPlayingAudioOutputUnavailable": "오디오 출력 설정을 열 수 없습니다",
   "@nowPlayingUpNext": {
     "description": "Title for the playback queue sheet"
@@ -7601,9 +7445,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "artistUpcomingConcerts": "예정된 콘서트",
-  "artistAllUpcomingConcerts": "모든 예정된 콘서트",
-  "artistNoUpcomingConcerts": "예정된 콘서트가 없습니다",
   "motionArtwork": "애니메이션 아트워크",
   "listeningStats": "청취 통계",
   "listeningStatsRecord": "청취 기록",
@@ -8359,26 +8200,6 @@
   "recognizeClearHistoryMessage": "Remove every song from this list?",
   "@recognizeClearHistoryMessage": {
     "description": "Confirmation message before clearing the identification history"
-  },
-  "collectionSuggestionsTitle": "Suggested songs",
-  "@collectionSuggestionsTitle": {
-    "description": "Heading of the songs suggested below an album, single or playlist"
-  },
-  "collectionSuggestionsRelated": "Based on the songs above",
-  "@collectionSuggestionsRelated": {
-    "description": "Line under the suggestions heading when an extension suggested songs like the album's or playlist's"
-  },
-  "collectionSuggestionsByArtists": "More from these artists",
-  "@collectionSuggestionsByArtists": {
-    "description": "Line under the suggestions heading when the songs were found by searching the album's or playlist's artists"
-  },
-  "collectionSuggestionsRefresh": "Suggest other songs",
-  "@collectionSuggestionsRefresh": {
-    "description": "Tooltip of the button that loads other suggestions"
-  },
-  "collectionSuggestionsAddHere": "Add to this playlist",
-  "@collectionSuggestionsAddHere": {
-    "description": "Tooltip of the button that adds a suggested song to the user's playlist shown above"
   },
   "sectionExistingDownloads": "Existing Files",
   "@sectionExistingDownloads": {

@@ -4,10 +4,7 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/screens/extension_collection_screens.dart'
-    show ExtensionAlbumScreen;
 import 'package:sistrum/services/background_favorites.dart';
 import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/history_database.dart';
@@ -237,48 +234,6 @@ void main() {
       expect(fetches, 0);
     },
   );
-
-  testWidgets('Go to album leaves a network cover behind', (tester) async {
-    final pushed = <Route<dynamic>>[];
-    late BuildContext context;
-    await tester.pumpWidget(
-      MaterialApp(
-        navigatorObservers: [_Pushes(pushed)],
-        home: Builder(
-          builder: (inner) {
-            context = inner;
-            return const SizedBox();
-          },
-        ),
-      ),
-    );
-    const web = 'https://example.com/cover.jpg';
-    for (final cover in [_ref, web]) {
-      await navigateToTrackAlbum(
-        context,
-        Track(
-          id: 'song',
-          name: 'Song',
-          artistName: 'Artist',
-          albumName: 'Album',
-          albumId: 'album',
-          coverUrl: cover,
-          duration: 180,
-          source: 'example',
-        ),
-      );
-    }
-    // The pages are never shown: the test ends before the next frame.
-    expect(
-      [
-        for (final route in pushed)
-          ((route as MaterialPageRoute<void>).builder(context)
-                  as ExtensionAlbumScreen)
-              .coverUrl,
-      ],
-      [null, web],
-    );
-  });
 }
 
 class _NoLibrary implements LibraryDatabase {
@@ -320,16 +275,4 @@ class _LovedRows implements LibraryCollectionsDatabase {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-/// Records pushed routes after the first.
-class _Pushes extends NavigatorObserver {
-  _Pushes(this.pushed);
-
-  final List<Route<dynamic>> pushed;
-
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    if (previousRoute != null) pushed.add(route);
-  }
 }

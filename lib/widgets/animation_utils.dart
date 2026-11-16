@@ -248,40 +248,6 @@ class TrackListSkeleton extends StatelessWidget {
   }
 }
 
-/// Album track list skeleton – mimics the album screen track list layout
-/// (track number + title + artist + trailing icon, no cover art thumbnail).
-class AlbumTrackListSkeleton extends StatelessWidget {
-  final int itemCount;
-
-  /// Whether the skeleton draws the collection header.
-  final bool showCoverHeader;
-
-  const AlbumTrackListSkeleton({
-    super.key,
-    this.itemCount = 10,
-    this.showCoverHeader = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ShimmerLoading(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            if (showCoverHeader) const _CollectionHeaderSkeleton(),
-            for (var index = 0; index < itemCount; index++)
-              _MornyeTrackSkeleton(
-                numbered: true,
-                index: index,
-                showPreview: true,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// Mirrors Mornye's collection header: full-width square artwork and a
 /// compact primary action between two circular controls.
 class _CollectionHeaderSkeleton extends StatelessWidget {
@@ -393,8 +359,8 @@ class ArtistHeaderActionsSkeleton extends StatelessWidget {
   );
 }
 
-/// Artist screen skeleton shown below the SliverAppBar header while the
-/// discography loads: optional cover placeholder, "Popular" section, and the
+/// Artist screen skeleton shown below the SliverAppBar header while a library
+/// artist loads: optional cover placeholder, "Popular" section, and the
 /// horizontal album sections.
 class ArtistScreenSkeleton extends StatelessWidget {
   static const int _popularCount = 5;
@@ -970,38 +936,6 @@ class _TopResultsSkeleton extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-}
-
-/// Crossfades when the child's runtime type changes — used to swap a loading
-/// skeleton for the loaded screen without a single-frame hard cut.
-class SkeletonCrossfade extends StatelessWidget {
-  final Widget child;
-
-  const SkeletonCrossfade({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
-      // Loading and loaded screens may carry the same Hero tag (both render
-      // the header cover); mute the outgoing child's heroes so a pop during
-      // the fade doesn't find duplicate tags.
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: AnimatedBuilder(
-          animation: animation,
-          child: child,
-          builder: (context, child) => HeroMode(
-            enabled:
-                animation.status == AnimationStatus.forward ||
-                animation.status == AnimationStatus.completed,
-            child: child!,
-          ),
-        ),
-      ),
-      child: child,
     );
   }
 }

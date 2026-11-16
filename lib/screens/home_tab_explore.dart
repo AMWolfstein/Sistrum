@@ -242,8 +242,6 @@ extension _HomeTabExploreUI on _HomeTabState {
                 if (item.artists.isNotEmpty && !isArtist)
                   ClickableArtistName(
                     artistName: item.artists,
-                    coverUrl: item.coverUrl,
-                    extensionId: item.providerId,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: isTablet ? 14 : 12,
@@ -288,66 +286,15 @@ extension _HomeTabExploreUI on _HomeTabState {
     return null;
   }
 
-  void _showMissingExploreProviderMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.extensionsNoHomeFeedExtensions)),
-    );
-  }
-
-  void _navigateToExploreItem(
-    ExploreItem item,
-    BuildContext itemContext,
-  ) async {
-    final extensionId = _providerIdForExploreItem(item);
-
+  void _navigateToExploreItem(ExploreItem item, BuildContext itemContext) {
     switch (item.type) {
       case 'track':
         _showTrackBottomSheet(item, itemContext);
         return;
       case 'album':
-        if (extensionId == null) {
-          _showMissingExploreProviderMessage();
-          return;
-        }
-        pushPage<void>(
-          context,
-          (context) => ExtensionAlbumScreen(
-            extensionId: extensionId,
-            albumId: item.id,
-            albumName: item.name,
-            coverUrl: item.coverUrl,
-          ),
-        );
-        return;
       case 'playlist':
-        if (extensionId == null) {
-          _showMissingExploreProviderMessage();
-          return;
-        }
-        pushPage<void>(
-          context,
-          (context) => ExtensionPlaylistScreen(
-            extensionId: extensionId,
-            playlistId: item.id,
-            playlistName: item.name,
-            coverUrl: item.coverUrl,
-          ),
-        );
-        return;
       case 'artist':
-        if (extensionId == null) {
-          _showMissingExploreProviderMessage();
-          return;
-        }
-        pushPage<void>(
-          context,
-          (context) => ExtensionArtistScreen(
-            extensionId: extensionId,
-            artistId: item.id,
-            artistName: item.name,
-            coverUrl: item.coverUrl,
-          ),
-        );
+        // Explore's online pages are removed; TOR015 removes this feed.
         return;
       default:
         ScaffoldMessenger.of(
@@ -445,23 +392,7 @@ extension _HomeTabExploreUI on _HomeTabState {
   }
 
   Future<void> _navigateToTrackAlbum(ExploreItem item) async {
-    if (item.albumId != null && item.albumId!.isNotEmpty) {
-      final extensionId = _providerIdForExploreItem(item);
-      if (extensionId == null) {
-        _showMissingExploreProviderMessage();
-        return;
-      }
-
-      pushPage<void>(
-        context,
-        (context) => ExtensionAlbumScreen(
-          extensionId: extensionId,
-          albumId: item.albumId!,
-          albumName: item.albumName ?? 'Album',
-          coverUrl: item.coverUrl,
-        ),
-      );
-    } else {
+    if (item.albumId == null || item.albumId!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.homeAlbumInfoUnavailable)),
       );

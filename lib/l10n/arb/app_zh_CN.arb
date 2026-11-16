@@ -722,16 +722,6 @@
   "@artistPopular": {
     "description": "Section header for popular/top tracks"
   },
-  "artistMonthlyListeners": "{count} 位月听众",
-  "@artistMonthlyListeners": {
-    "description": "Monthly listener count display",
-    "placeholders": {
-      "count": {
-        "type": "String",
-        "description": "Formatted listener count"
-      }
-    }
-  },
   "trackMetadataService": "服务商",
   "@trackMetadataService": {
     "description": "Metadata field - download service used"
@@ -1254,15 +1244,6 @@
   "errorUrlFetchFailed": "无法从此链接加载内容，请重试。",
   "@errorUrlFetchFailed": {
     "description": "Error message - generic URL fetch failure"
-  },
-  "errorMissingExtensionSource": "无法加载 {item}：缺少扩展源",
-  "@errorMissingExtensionSource": {
-    "description": "Error - extension source not available",
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
   },
   "actionPause": "暂停",
   "@actionPause": {
@@ -2552,95 +2533,6 @@
       }
     }
   },
-  "discographyDownload": "下载作品集",
-  "@discographyDownload": {
-    "description": "Button - download artist discography"
-  },
-  "discographyDownloadAll": "全部下载",
-  "@discographyDownloadAll": {
-    "description": "Option - download entire discography"
-  },
-  "discographyDownloadAllSubtitle": "{albumCount} 个发行中的 {count} 首曲目",
-  "@discographyDownloadAllSubtitle": {
-    "description": "Subtitle showing total tracks and albums",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyAlbumsOnly": "仅专辑",
-  "@discographyAlbumsOnly": {
-    "description": "Option - download only albums"
-  },
-  "discographyAlbumsOnlySubtitle": "{albumCount} 张专辑中的 {count} 首曲目",
-  "@discographyAlbumsOnlySubtitle": {
-    "description": "Subtitle showing album tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySinglesOnly": "仅单曲和EP",
-  "@discographySinglesOnly": {
-    "description": "Option - download only singles"
-  },
-  "discographySinglesOnlySubtitle": "{albumCount} 张单曲中的 {count} 首曲目",
-  "@discographySinglesOnlySubtitle": {
-    "description": "Subtitle showing singles tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "albumCount": {
-        "type": "int"
-      }
-    }
-  },
-  "discographySelectAlbums": "选择专辑…",
-  "@discographySelectAlbums": {
-    "description": "Option - manually select albums to download"
-  },
-  "discographySelectAlbumsSubtitle": "选择特定专辑或单曲",
-  "@discographySelectAlbumsSubtitle": {
-    "description": "Subtitle for select albums option"
-  },
-  "discographyFetchingTracks": "正在获取曲目…",
-  "@discographyFetchingTracks": {
-    "description": "Progress - fetching album tracks"
-  },
-  "discographyFetchingAlbum": "正在获取 {current}/{total}…",
-  "@discographyFetchingAlbum": {
-    "description": "Progress - fetching specific album",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "discographyDownloadSelected": "下载所选",
-  "@discographyDownloadSelected": {
-    "description": "Button - download selected albums"
-  },
-  "discographyAddedToQueue": "已添加 {count} 首曲目到队列",
-  "@discographyAddedToQueue": {
-    "description": "Snackbar - tracks added from discography",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "discographySkippedDownloaded": "已添加 {added} 首，跳过 {skipped} 首已下载",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
@@ -2652,14 +2544,6 @@
         "type": "int"
       }
     }
-  },
-  "discographyNoAlbums": "暂无专辑",
-  "@discographyNoAlbums": {
-    "description": "Error - no albums found for artist"
-  },
-  "discographyFailedToFetch": "获取某些专辑失败",
-  "@discographyFailedToFetch": {
-    "description": "Error - some albums failed to load"
   },
   "sectionStorageAccess": "存储访问",
   "@sectionStorageAccess": {
@@ -5770,10 +5654,6 @@
   "@logIssueTrackNotFoundSuggestion": {
     "description": "Diagnostic badge suggestion when a track is unavailable"
   },
-  "clickableLookingUpArtist": "正在查找艺术家…",
-  "@clickableLookingUpArtist": {
-    "description": "Snackbar shown while clickable artist metadata is being resolved"
-  },
   "clickableInformationUnavailable": "{type} 信息不可用",
   "@clickableInformationUnavailable": {
     "description": "Snackbar shown when clickable metadata cannot open a destination",
@@ -5862,15 +5742,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11ySelectAlbum": "选择专辑 {albumName}",
-  "@a11ySelectAlbum": {
-    "description": "Accessibility label for selecting an album",
-    "placeholders": {
-      "albumName": {
         "type": "String"
       }
     }
@@ -6401,10 +6272,6 @@
   "@storeCategoryIntegration": {
     "description": "Store extension category - integration"
   },
-  "artistReleases": "发行作品",
-  "@artistReleases": {
-    "description": "Section header for all artist releases"
-  },
   "editMetadataSelectNone": "无",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
@@ -6437,22 +6304,6 @@
   "dialogDisableAndClear": "关闭并清除",
   "@dialogDisableAndClear": {
     "description": "Confirmation action to disable download history and clear existing entries"
-  },
-  "openInOtherServices": "在其他服务中打开",
-  "@openInOtherServices": {
-    "description": "Title and tooltip for finding the current collection in other services"
-  },
-  "shareSheetNoExtensions": "没有其他兼容服务",
-  "shareSheetNotFound": "未找到",
-  "@shareSheetNotFound": {
-    "description": "Cross-service share sheet row subtitle when a service has no match"
-  },
-  "shareSheetCopyLink": "复制链接",
-  "shareSheetLinkCopied": "{service} 链接已复制",
-  "@shareSheetLinkCopied": {
-    "placeholders": {
-      "service": {}
-    }
   },
   "libraryPlayback": "播放",
   "@libraryPlayback": {
@@ -6500,13 +6351,6 @@
       }
     }
   },
-  "concertGetTickets": "购票",
-  "concertSetList": "演唱会曲目单",
-  "concertSetListButton": "曲目单",
-  "concertAddToCalendar": "添加到日历",
-  "concertOpenMaps": "打开地图",
-  "concertDetailsUnavailable": "演唱会详情目前不可用。",
-  "concertCalendarUnavailable": "无法打开日历。",
   "nowPlayingAudioOutputUnavailable": "无法打开音频输出设置。",
   "@nowPlayingUpNext": {
     "description": "Title for the playback queue sheet"
@@ -7601,9 +7445,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "artistUpcomingConcerts": "即将到来的演唱会",
-  "artistAllUpcomingConcerts": "所有即将到来的演唱会",
-  "artistNoUpcomingConcerts": "暂无即将到来的演唱会。",
   "motionArtwork": "动态封面",
   "listeningStats": "收听统计",
   "listeningStatsRecord": "记录收听",
@@ -8359,26 +8200,6 @@
   "recognizeClearHistoryMessage": "Remove every song from this list?",
   "@recognizeClearHistoryMessage": {
     "description": "Confirmation message before clearing the identification history"
-  },
-  "collectionSuggestionsTitle": "Suggested songs",
-  "@collectionSuggestionsTitle": {
-    "description": "Heading of the songs suggested below an album, single or playlist"
-  },
-  "collectionSuggestionsRelated": "Based on the songs above",
-  "@collectionSuggestionsRelated": {
-    "description": "Line under the suggestions heading when an extension suggested songs like the album's or playlist's"
-  },
-  "collectionSuggestionsByArtists": "More from these artists",
-  "@collectionSuggestionsByArtists": {
-    "description": "Line under the suggestions heading when the songs were found by searching the album's or playlist's artists"
-  },
-  "collectionSuggestionsRefresh": "Suggest other songs",
-  "@collectionSuggestionsRefresh": {
-    "description": "Tooltip of the button that loads other suggestions"
-  },
-  "collectionSuggestionsAddHere": "Add to this playlist",
-  "@collectionSuggestionsAddHere": {
-    "description": "Tooltip of the button that adds a suggested song to the user's playlist shown above"
   },
   "sectionExistingDownloads": "Existing Files",
   "@sectionExistingDownloads": {

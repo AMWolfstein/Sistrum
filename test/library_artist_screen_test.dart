@@ -155,11 +155,7 @@ Future<_Playback> _pumpLibraryArtist(
         theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const ArtistScreen(
-          artistId: _dana,
-          artistName: _dana,
-          library: true,
-        ),
+        home: const ArtistScreen(artistName: _dana),
       ),
     ),
   );

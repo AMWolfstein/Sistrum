@@ -121,16 +121,7 @@ class FavoriteArtistsScreen extends ConsumerWidget {
                     onTap: () {
                       Navigator.of(context).push(
                         slidePageRoute<void>(
-                          page: ArtistScreen(
-                            artistId: artist.artistId,
-                            artistName: artist.name,
-                            coverUrl: artist.imageUrl,
-                            extensionId:
-                                artist.providerId != null &&
-                                    artist.providerId!.isNotEmpty
-                                ? artist.providerId
-                                : null,
-                          ),
+                          page: ArtistScreen(artistName: artist.name),
                         ),
                       );
                     },

@@ -324,25 +324,10 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     // Phone results sort from the first section.
     bool sortButtonShown = toolsBesideFilters;
 
-    for (final (items, kind, title, open) in [
-      (
-        artistItems,
-        'artist',
-        context.l10n.searchArtists,
-        _navigateToExtensionArtist,
-      ),
-      (
-        albumItems,
-        'album',
-        context.l10n.searchAlbums,
-        _navigateToExtensionAlbum,
-      ),
-      (
-        playlistItems,
-        'playlist',
-        context.l10n.searchPlaylists,
-        _navigateToExtensionPlaylist,
-      ),
+    for (final (items, kind, title) in [
+      (artistItems, 'artist', context.l10n.searchArtists),
+      (albumItems, 'album', context.l10n.searchAlbums),
+      (playlistItems, 'playlist', context.l10n.searchPlaylists),
     ]) {
       if (items.isEmpty) continue;
       slivers.addAll(
@@ -355,7 +340,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
             key: ValueKey('$kind-${items[index].id}'),
             item: items[index],
             showDivider: showDivider,
-            onTap: () => open(items[index]),
             onSaveCover: () => _saveSearchResultCover(items[index]),
           ),
         ),
@@ -659,95 +643,6 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
       child: Text(
         context.l10n.searchShowAll,
         semanticsLabel: context.l10n.searchShowAllCategory(title),
-      ),
-    );
-  }
-
-  String? _extensionSourceOrWarn(Track item, String kind) {
-    final extensionId = item.source;
-    if (extensionId == null || extensionId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.errorMissingExtensionSource(kind))),
-      );
-      return null;
-    }
-
-    ref.read(settingsProvider.notifier).setHasSearchedBefore();
-    return extensionId;
-  }
-
-  void _navigateToExtensionAlbum(Track albumItem) async {
-    final extensionId = _extensionSourceOrWarn(albumItem, 'album');
-    if (extensionId == null) return;
-
-    ref
-        .read(recentAccessProvider.notifier)
-        .recordAlbumAccess(
-          id: albumItem.id,
-          name: albumItem.name,
-          artistName: albumItem.artistName,
-          imageUrl: albumItem.coverUrl,
-          providerId: extensionId,
-        );
-
-    pushPage<void>(
-      context,
-      (context) => ExtensionAlbumScreen(
-        extensionId: extensionId,
-        albumId: albumItem.id,
-        albumName: albumItem.name,
-        coverUrl: albumItem.coverUrl,
-        initialAlbumType: albumItem.albumType,
-        initialTotalTracks: albumItem.totalTracks,
-      ),
-    );
-  }
-
-  void _navigateToExtensionPlaylist(Track playlistItem) async {
-    final extensionId = _extensionSourceOrWarn(playlistItem, 'playlist');
-    if (extensionId == null) return;
-
-    ref
-        .read(recentAccessProvider.notifier)
-        .recordPlaylistAccess(
-          id: playlistItem.id,
-          name: playlistItem.name,
-          ownerName: playlistItem.artistName,
-          imageUrl: playlistItem.coverUrl,
-          providerId: extensionId,
-        );
-
-    pushPage<void>(
-      context,
-      (context) => ExtensionPlaylistScreen(
-        extensionId: extensionId,
-        playlistId: playlistItem.id,
-        playlistName: playlistItem.name,
-        coverUrl: playlistItem.coverUrl,
-      ),
-    );
-  }
-
-  void _navigateToExtensionArtist(Track artistItem) {
-    final extensionId = _extensionSourceOrWarn(artistItem, 'artist');
-    if (extensionId == null) return;
-
-    ref
-        .read(recentAccessProvider.notifier)
-        .recordArtistAccess(
-          id: artistItem.id,
-          name: artistItem.name,
-          imageUrl: artistItem.coverUrl,
-          providerId: extensionId,
-        );
-
-    pushPage<void>(
-      context,
-      (context) => ExtensionArtistScreen(
-        extensionId: extensionId,
-        artistId: artistItem.id,
-        artistName: artistItem.name,
-        coverUrl: artistItem.coverUrl,
       ),
     );
   }

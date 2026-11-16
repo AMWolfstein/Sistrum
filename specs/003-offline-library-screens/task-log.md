@@ -499,3 +499,79 @@ Checks (`scratchpad/t004/`):
 - `validate.json`: `python3 workflow/work.py validate`: PASS (3 missions, 11 reserved, 34 completed).
 - `map_update.json`: 34654 symbols, 1723 sources, 0 partial, 0 unindexed.
 - gen-l10n: no ARB change, no log.
+
+## M003-TOR014
+
+Online versions of the converted screens removed (FR-020, FR-014). Base `ac2162f`.
+Uncommitted; independent review not run; `task complete` not run.
+
+Map: start `scratchpad/tor014/map_start.json` (34654 symbols, 1723 sources, 0 partial); end `map_update.json` (34095, 1702, 0, 0).
+
+Deleted (files): `lib/screens/extension_collection_screens.dart` (ExtensionArtist/Album/PlaylistScreen),
+`artist_screen_discography.dart`, `artist_concerts_screen.dart`, `concert_detail_screen.dart`,
+`widgets/artist_concerts_button.dart`, `services/concert_calendar_service.dart`, `utils/ttl_cache.dart`,
+`widgets/album_description.dart`, `widgets/collection_suggestions_section.dart`,
+`widgets/cross_extension_share_sheet.dart`, `widgets/track_list_tile.dart`,
+`providers/collection_suggestions_provider.dart`, `services/collection_suggestions.dart`,
+`services/cross_extension_share_service.dart`, `docs/artist_concerts.md`.
+Review-fix deletions (dead after this change): `track_detail_actions.dart` `buildTrackListFooter` and
+`formatReleaseDate` (and its adaptive_layout import); `animation_utils.dart` `SkeletonCrossfade` and
+`AlbumTrackListSkeleton` (two test uses removed; other assertions kept); `artist_concert.dart` `ConcertDetail`.
+No ARB key became unused (lost-key scan: 0).
+Rewritten to library-only: `ArtistScreen({artistName})` (library flag removed); `AlbumScreen.library`
+and `PlaylistScreen.libraryPlaylist/libraryLoved` kept as the only constructors (named constructors kept).
+Trimmed: `mornye_artist_header.dart` (logoUrl, listeners, badge, logoSource removed; online-only).
+Strings: 40 ARB keys with no reader removed from all 21 ARBs; `flutter gen-l10n` run.
+
+Entry points: `navigateToArtist`, `navigateToAlbum`, `navigateToTrackAlbum`, `navigateToArtistCredits`
+(Now Playing, track menus, Go to artist) open library pages. Lookups: `libraryHasArtist`,
+`libraryAlbumKeyFor` (`services/library_detail_data.dart`, database reads only). Not in library: message
+"{type} information not available" (existing string), no page, no backend call. `ClickableAlbumName`
+deleted (no readers); `ClickableArtistName` takes the name only. Favourite artists open the library page.
+
+Home/Search call sites left for TOR015 (removed navigation; surfaces otherwise intact):
+- `home_tab.dart`: `_navigateToDetailIfNeeded` removed with its two calls; export/import of extension screens removed.
+- `home_tab_recent.dart`: `_navigateToRecentItem`: artist and playlist taps inert; album only the library branch.
+- `home_tab_intro.dart`: extension playlist card has no tap (`_card` onTap optional).
+- `home_tab_explore.dart`: album/playlist/artist taps and Go to album inert; `_showMissingExploreProviderMessage` removed.
+- `home_tab_search_results.dart`: `_navigateToExtension{Album,Playlist,Artist}`, `_extensionSourceOrWarn` removed; rows not tappable.
+- `home_tab_search_wide.dart`: top album/playlist cards and cover cells not tappable.
+- `home_tab_widgets.dart`: `_CollectionItemWidget` tap removed.
+Also left for TOR015 (no page reader now): `TrackState` URL-fetch artist/album fields and their writes in
+`track_provider.dart`; `models/artist_concert.dart` (read by TrackState); `RecentAccess` store and
+`recordArtist/Album/PlaylistAccess` (no lib writer).
+
+Deleted tests (online behaviour): `artist_concerts_test.dart` (8), `concert_detail_screen_test.dart` (3),
+`album_description_test.dart` (4), `collection_suggestions_widget_test.dart` (1), `ttl_cache_test.dart` (3),
+`collection_suggestions_test.dart` (18), `artist_album_selection_test.dart` (2), `detail_page_navigation_test.dart` (3);
+single cases in `collection_network_cover_test` ("Go to album leaves a network cover behind"),
+`track_list_tile_selection_test` (2 row tests), `collection_track_rebuild_test` ("queue progress ..."
+and the playlist variant of "Love All isolates"), `collapsing_title_rebuild_test` (album, playlist),
+`album_track_metadata_test` (online cases), `collection_track_metadata_test` (online entries),
+`mornye_detail_headers_test` (2 logo cases), `home_search_tabs_test` and `home_search_wide_layout_test`
+(guard assertions for removed taps).
+
+Ported tests: `collection_selection_bar_test` (library album and playlist select-all); `album_track_metadata_test`
+(disc groups, library album); `track_list_tile_selection_test` (navbar case, library album); `collection_track_rebuild_test`
+(Love All isolation, library album); `collapsing_title_rebuild_test` (artist to library artist);
+`collection_track_metadata_test` (2 unit tests of `UnifiedLibraryItem.toTrack`); `mornye_detail_headers_test`
+(artwork accents kept); `library_artist_screen_test` (constructor); `design_system_test` (source checks on library parts).
+New: `test/library_navigation_test.dart` (6 tests: lookups; Go to artist/album open library pages; missing artist/album
+message and no backend call; track without album name).
+
+Open decisions:
+- FR-013 conflict: the owner's TOR014 request removes the Apple Music pages now; FR-013 updated in spec.md.
+- Album lookup by name: when titles match but no artist matches, the first title match is used.
+- Library headers and album cards drop the disabled DownloadableCover wrapper (no visual change; "Download cover" semantics label goes).
+- Library tracks never carried genre/label/copyright/quality; those online-only checks are dropped.
+- Library playlist "Love All isolates the page" not ported (Loved page reloads rows by design).
+- Pre-existing orphans left alone: `lib/widgets/lastfm_settings.dart`, `lib/widgets/pinned_section_sliver_list.dart`.
+- `tasks.md` checkbox left open (no `task complete`).
+
+Checks (`scratchpad/tor014/`):
+- `map_start.json`, `map_update.json`: ok; `gen_l10n.log`: exit 0 (pre-existing ICU warnings in ar ARB).
+- `analyze.log`: `flutter analyze lib test integration_test`: No issues found.
+- `format.log`: `dart format --set-exit-if-changed --output=none` on `changed_dart_files.txt` (41 files): exit 0.
+- `targeted.log`: `loading_layout_regression_test`, `mornye_loading_and_chrome_test`, `library_navigation_test`, `track_list_tile_selection_test`: All tests passed (17).
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3933 passed excluding loading (3950 non-hidden testDone; 7 loading entries, all passed), 10 skipped, 0 failed.
+- `validate.json`: PASS (3 missions, 10 reserved, 35 completed).

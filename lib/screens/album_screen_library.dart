@@ -5,7 +5,7 @@ part of 'album_screen.dart';
 /// actions (metadata, playback, selection). Online actions are not offered.
 extension _AlbumLibrarySections on _AlbumScreenState {
   Widget _buildLibrary(BuildContext context) {
-    final albumKey = widget.libraryAlbumKey!;
+    final albumKey = widget.albumKey;
     return ref
         .watch(libraryAlbumItemsProvider(albumKey))
         .when(

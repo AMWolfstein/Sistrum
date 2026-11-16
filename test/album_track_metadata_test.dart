@@ -1,160 +1,88 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
-import 'package:sistrum/screens/home_tab.dart';
-import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/album_description.dart';
-import 'package:sistrum/widgets/audio_quality_badges.dart';
+import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/disc_separator_chip.dart';
-import 'package:sistrum/widgets/track_list_tile.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
+
+import 'support/fixed_settings.dart';
+
+// Ported from the online album page's disc groups: the library album shows a
+// separator per disc and keeps the rows selectable.
+class _History extends DownloadHistoryNotifier {
+  @override
+  DownloadHistoryState build() => DownloadHistoryState();
+}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-  const backendChannel = MethodChannel('com.amwolfstein.sistrum/backend');
-  final backendMessenger =
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-    backendMessenger.setMockMethodCallHandler(
-      backendChannel,
-      (_) async => null,
-    );
-    await PlatformBridge.clearTrackCache();
-  });
-  tearDown(() async {
-    backendMessenger.setMockMethodCallHandler(
-      backendChannel,
-      (_) async => null,
-    );
-    await PlatformBridge.clearTrackCache();
-    backendMessenger.setMockMethodCallHandler(backendChannel, null);
-  });
-
-  for (final nested in [true, false]) {
-    for (final fetchedName in ['Actual Album Title', '  ']) {
-      testWidgets(
-        'extension album resolves its title (nested: $nested, name: "$fetchedName")',
-        (tester) async {
-          SharedPreferences.setMockInitialValues({});
-          await tester.binding.setSurfaceSize(const Size(430, 1200));
-          addTearDown(() => tester.binding.setSurfaceSize(null));
-          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
-          final messenger = tester.binding.defaultBinaryMessenger;
-          var requests = 0;
-          messenger.setMockMethodCallHandler(channel, (call) async {
-            if (call.method != 'getProviderMetadata') return null;
-            requests++;
-            final info = <String, dynamic>{
-              'name': fetchedName,
-              'artists': 'Example Artist',
-              'total_tracks': 1,
-              'editorial_notes': {
-                'standard': '<p>A <i>new direction</i> for the band.</p>',
-                'short': 'A new direction.',
-              },
-            };
-            final tracks = [
-              {
-                'id': 'example-song',
-                'name': 'Example Song',
-                'artists': 'Example Artist',
-                'album_name': '',
-                'duration_ms': 180000,
-              },
-            ];
-            return jsonEncode(
-              nested
-                  ? {'album_info': info, 'track_list': tracks}
-                  : {...info, 'tracks': tracks},
-            );
-          });
-          addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-          await tester.pumpWidget(
-            ProviderScope(
-              child: MaterialApp(
-                theme: MornyeTheme.build(Brightness.light),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: const ExtensionAlbumScreen(
-                  extensionId: 'example-metadata',
-                  albumId: 'example-album',
-                  albumName: 'Album',
-                ),
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          final expected = fetchedName.trim().isEmpty ? 'Album' : fetchedName;
-          final album = tester.widget<AlbumScreen>(find.byType(AlbumScreen));
-          expect(album.albumName, expected);
-          expect(
-            album.description,
-            '<p>A <i>new direction</i> for the band.</p>',
-          );
-          expect(album.tracks!.single.albumName, expected);
-          expect(find.text(expected), findsWidgets);
-          expect(requests, 1);
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox());
-          await tester.pumpAndSettle();
-        },
-      );
-    }
-  }
+  final albumKey = LibraryDatabase.albumKeyFor(
+    'Example Album',
+    null,
+    'Example Artist',
+  );
 
   for (final discs in [1, 2]) {
-    testWidgets('online album disc groups (discs: $discs)', (tester) async {
+    testWidgets('library album disc groups (discs: $discs)', (tester) async {
+      SharedPreferences.setMockInitialValues({});
       await tester.binding.setSurfaceSize(const Size(430, 1200));
       addTearDown(() => tester.binding.setSurfaceSize(null));
-      backendMessenger.setMockMethodCallHandler(backendChannel, (call) async {
-        if (call.method != 'getProviderMetadata') return null;
-        return jsonEncode({
-          'album_info': {'name': 'Example Album', 'total_tracks': 2},
-          'track_list': [
-            for (var index = 0; index < 2; index++)
-              {
-                'id': 'song-$index',
-                'name': 'Song $index',
-                'artists': 'Example Artist',
-                'disc_number': index == 0 ? 1 : discs,
-                'total_discs': discs,
-                'track_number': discs == 1 ? index + 1 : 1,
-              },
-          ],
-        });
-      });
+      final container = ProviderContainer(
+        overrides: [
+          settingsProvider.overrideWith(FixedSettingsNotifier.new),
+          downloadHistoryProvider.overrideWith(_History.new),
+          libraryAlbumItemsProvider(albumKey).overrideWith(
+            (ref) async => [
+              for (var index = 0; index < 2; index++)
+                UnifiedLibraryItem.fromDownloadHistory(
+                  DownloadHistoryItem(
+                    id: 'song-$index',
+                    trackName: 'Song $index',
+                    artistName: 'Example Artist',
+                    albumName: 'Example Album',
+                    filePath: '/music/song-$index.flac',
+                    service: 'example-provider',
+                    downloadedAt: DateTime.utc(2026),
+                    discNumber: index == 0 ? 1 : discs,
+                    totalDiscs: discs,
+                    trackNumber: discs == 1 ? index + 1 : 1,
+                    duration: 180,
+                  ),
+                ),
+            ],
+          ),
+          currentMediaItemProvider.overrideWithBuild(
+            (ref, notifier) => Stream.value(null),
+          ),
+          playbackPlayingProvider.overrideWith((ref) => false),
+          playbackLoadingProvider.overrideWith((ref) => false),
+        ],
+      );
+      addTearDown(container.dispose);
       await tester.pumpWidget(
-        ProviderScope(
+        UncontrolledProviderScope(
+          container: container,
           child: MaterialApp(
             theme: MornyeTheme.build(Brightness.dark),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: ExtensionAlbumScreen(
-              extensionId: 'example-metadata',
-              albumId: 'disc-album-$discs',
-              albumName: 'Example Album',
+            home: SelectionOverlayHost(
+              child: AlbumScreen.library(albumKey: albumKey),
             ),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      final tiles = tester.widgetList<TrackListTile>(
-        find.byType(TrackListTile),
-      );
-      expect(tiles.map((tile) => tile.track.discNumber), [1, discs]);
-      expect(tiles.map((tile) => tile.track.totalDiscs), [discs, discs]);
-      expect(
-        tiles.map((tile) => tile.track.trackNumber),
-        discs == 1 ? [1, 2] : [1, 1],
-      );
+
       if (discs == 1) {
         expect(find.byType(DiscSeparatorChip), findsNothing);
       } else {
@@ -169,126 +97,18 @@ void main() {
             tester.getTopLeft(find.text('Song 1')).dy,
           ),
         );
-        await tester.longPress(find.text('Song 1'));
-        await tester.pumpAndSettle();
-        expect(
-          tester
-              .widgetList<TrackListTile>(find.byType(TrackListTile))
-              .map((tile) => tile.isSelected),
-          [false, true],
-        );
       }
+      await tester.longPress(find.text('Song 1'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widgetList<AlbumTrackTile>(find.byType(AlbumTrackTile))
+            .map((tile) => tile.isSelected),
+        [false, true],
+      );
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     });
   }
-
-  testWidgets('album tracks retain the extended tags supplied in search', (
-    tester,
-  ) async {
-    SharedPreferences.setMockInitialValues({});
-    await tester.binding.setSurfaceSize(const Size(430, 1200));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
-    const payload = <String, dynamic>{
-      'id': 'song-1',
-      'spotify_id': 'song-1',
-      'name': 'Example Song',
-      'artists': 'Example Artist',
-      'album_name': 'Example Album',
-      'duration_ms': 180000,
-      'track_number': 1,
-      'genre': 'Example Genre',
-      'label': 'Example Label',
-      'copyright': 'Example Copyright',
-      'comment': 'Example Comment',
-      'upc': '0123456789012',
-      'audio_quality': '16-bit',
-      'audio_modes': 'DOLBY_ATMOS',
-      'explicit': true,
-    };
-    var albumRequests = 0;
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async {
-          if (call.method == 'getProviderMetadata') {
-            expect(call.arguments, {
-              'provider_id': 'example-metadata',
-              'resource_type': 'album',
-              'resource_id': 'metadata-album',
-            });
-            albumRequests++;
-            return jsonEncode({
-              'track_list': [payload],
-              'album_info': {
-                'name': 'Example Album',
-                'total_tracks': 1,
-                'album_type': 'album',
-                'audio_traits': ['lossless', 'dolby_atmos'],
-                'editorial_notes': {'standard': '<p>A new direction.</p>'},
-              },
-            });
-          }
-          return null;
-        });
-    addTearDown(() {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, null);
-    });
-
-    final searchTrack = Track.fromBackendMap(payload);
-    expect(searchTrack.genre, 'Example Genre');
-    expect(searchTrack.label, 'Example Label');
-    expect(searchTrack.copyright, 'Example Copyright');
-
-    final page = ProviderScope(
-      child: MaterialApp(
-        theme: MornyeTheme.build(Brightness.light),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const AlbumScreen(
-          albumId: 'metadata-album',
-          albumName: 'Example Album',
-          extensionId: 'example-metadata',
-        ),
-      ),
-    );
-    await tester.pumpWidget(page);
-    await tester.pumpAndSettle();
-    expect(albumRequests, 1);
-    expect(find.byType(AlbumDescription), findsOneWidget);
-    final albumTrack = tester
-        .widget<TrackListTile>(find.byType(TrackListTile).first)
-        .track;
-    expect(albumTrack.id, searchTrack.id);
-    expect(albumTrack.name, searchTrack.name);
-    expect(albumTrack.genre, searchTrack.genre);
-    expect(albumTrack.label, searchTrack.label);
-    expect(albumTrack.copyright, searchTrack.copyright);
-    expect(albumTrack.comment, searchTrack.comment);
-    expect(albumTrack.upc, searchTrack.upc);
-    expect(albumTrack.albumId, 'metadata-album');
-    expect(albumTrack.albumType, 'album');
-    expect(albumTrack.totalTracks, 1);
-    expect(albumTrack.audioQuality, '16-bit');
-    expect(find.text('Lossless'), findsOneWidget);
-    expect(find.text('Dolby Atmos'), findsNothing);
-    expect(find.byTooltip('Dolby Atmos'), findsOneWidget);
-    expect(find.byType(AudioQualityBadge), findsNothing);
-    expect(find.byType(DolbyAtmosBadge), findsNothing);
-    expect(find.byType(ExplicitBadge), findsOneWidget);
-    await tester.pumpWidget(const SizedBox());
-    await tester.pumpAndSettle();
-    await tester.pumpWidget(page);
-    await tester.pumpAndSettle();
-    expect(albumRequests, 1);
-    expect(
-      tester
-          .widget<AlbumDescription>(find.byType(AlbumDescription))
-          .description,
-      '<p>A new direction.</p>',
-    );
-    await tester.pumpWidget(const SizedBox());
-    await tester.pumpAndSettle();
-  });
 }

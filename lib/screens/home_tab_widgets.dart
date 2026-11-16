@@ -300,9 +300,6 @@ class _TrackItemWithStatus extends ConsumerWidget {
                       TrackMetadataBadgesLine(
                         primary: ClickableArtistName(
                           artistName: track.artistName,
-                          artistId: track.artistId,
-                          coverUrl: track.coverUrl,
-                          extensionId: extensionId,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: colorScheme.onSurfaceVariant),
                         ),
@@ -402,14 +399,12 @@ class _TrackItemWithStatus extends ConsumerWidget {
 class _CollectionItemWidget extends StatelessWidget {
   final Track item;
   final bool showDivider;
-  final VoidCallback onTap;
   final VoidCallback onSaveCover;
 
   const _CollectionItemWidget({
     super.key,
     required this.item,
     required this.showDivider,
-    required this.onTap,
     required this.onSaveCover,
   });
 
@@ -465,7 +460,6 @@ class _CollectionItemWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         InkWell(
-          onTap: onTap,
           splashColor: colorScheme.primary.withValues(alpha: 0.12),
           highlightColor: colorScheme.primary.withValues(alpha: 0.08),
           child: Padding(
@@ -808,8 +802,6 @@ class _QuickPicksPageViewState extends State<_QuickPicksPageView> {
                   if (item.artists.isNotEmpty)
                     ClickableArtistName(
                       artistName: item.artists,
-                      coverUrl: item.coverUrl,
-                      extensionId: item.providerId,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: widget.colorScheme.onSurfaceVariant,
                       ),

@@ -136,8 +136,7 @@
       </p>
       <p>
         Rewind recaps your listening, personalized autoplay learns on your
-        device, music haptics let you feel the beat, and artist pages show
-        upcoming concerts.
+        device, and music haptics let you feel the beat.
       </p>
       <p></p>
     </td>

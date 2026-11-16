@@ -136,10 +136,7 @@ class _WeeklyReleasesScreenState extends ConsumerState<WeeklyReleasesScreen> {
                                 onTap: () => navigateToAlbum(
                                   context,
                                   albumName: release.name,
-                                  albumId: release.id,
                                   artistName: release.artist,
-                                  coverUrl: release.coverUrl,
-                                  extensionId: release.providerId,
                                 ),
                               ),
                           ],
