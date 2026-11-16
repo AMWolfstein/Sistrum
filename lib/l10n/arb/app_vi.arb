@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Dùng phông chữ hệ thống",
   "appearanceUseSystemFontSubtitle": "Sử dụng kiểu chữ mặc định của thiết bị cho toàn bộ văn bản trong ứng dụng.",
   "@@locale": "vi",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "Phát hành mới",
+  "homeTopArtists": "Nghệ sĩ hàng đầu của bạn",
+  "homeYourPlaylists": "Danh sách phát của bạn",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,23 +508,23 @@
     }
   },
   "optionsArtistTagMode": "Chế độ ghi tag Nghệ sĩ",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparators": "Dấu phân tách thẻ",
+  "tagSeparatorsDescription": "Chọn các dấu phân tách để tách thẻ nghệ sĩ và thể loại thành các tên riêng trong thư viện. Các tên trong Giữ nguyên không bao giờ bị tách. Thay đổi có hiệu lực mà không cần quét lại.",
+  "tagSeparatorsArtists": "Nghệ sĩ",
+  "tagSeparatorsArtistsFields": "Nghệ sĩ và nghệ sĩ album",
+  "tagSeparatorsGenre": "Thể loại",
+  "tagSeparatorsAll": "Tất cả",
+  "tagSeparatorsAdd": "Thêm dấu phân tách",
+  "tagSeparatorsAddHint": "Dấu phân tách (1–16 ký tự)",
+  "tagSeparatorsDuplicate": "Dấu phân tách này đã có sẵn.",
+  "tagSeparatorsRemoveTitle": "Xóa dấu phân tách?",
+  "tagSeparatorsRemoveMessage": "Tên sẽ không còn bị tách theo dấu phân tách này nữa.",
+  "tagKeepTogether": "Giữ nguyên",
+  "tagKeepTogetherDescription": "Các tên được liệt kê ở đây không bao giờ bị tách, ngay cả khi chứa dấu phân tách, chẳng hạn như Tyler, The Creator.",
+  "tagKeepTogetherHint": "Tên cần giữ nguyên",
+  "tagKeepTogetherAdd": "Thêm tên",
+  "tagKeepTogetherRemoveTooltip": "Xóa tên",
+  "tagKeepTogetherDuplicate": "Tên này đã có trong danh sách.",
   "metadataSeparatorInvalid": "Sử dụng từ 1–16 ký tự, không chứa dấu xuống dòng hoặc ký tự điều khiển.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Bài hát",
-  "libraryGenres": "Genres",
+  "libraryGenres": "Thể loại",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Đã xóa {count} bài hát khỏi mục Yêu thích",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "Đã xóa {count} bài hát khỏi danh sách phát",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

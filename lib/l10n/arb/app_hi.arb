@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Use system font",
   "appearanceUseSystemFontSubtitle": "Use your device’s default typeface for app text.",
   "@@locale": "hi",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "नई रिलीज़",
+  "homeTopArtists": "आपके शीर्ष कलाकार",
+  "homeYourPlaylists": "आपकी प्लेलिस्ट",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,24 +508,24 @@
     }
   },
   "optionsArtistTagMode": "Artist Tag Mode",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
-  "metadataSeparatorInvalid": "Use 1–16 characters without line breaks or control characters.",
+  "tagSeparators": "टैग विभाजक",
+  "tagSeparatorsDescription": "वे विभाजक चुनें जो लाइब्रेरी में कलाकार और शैली टैग को अलग-अलग नामों में बाँटें। \"साथ रखें\" में दिए नाम कभी नहीं बाँटे जाते। बदलाव बिना दोबारा स्कैन किए लागू होते हैं।",
+  "tagSeparatorsArtists": "कलाकार",
+  "tagSeparatorsArtistsFields": "कलाकार और एल्बम कलाकार",
+  "tagSeparatorsGenre": "शैली",
+  "tagSeparatorsAll": "सभी",
+  "tagSeparatorsAdd": "विभाजक जोड़ें",
+  "tagSeparatorsAddHint": "विभाजक (1–16 अक्षर)",
+  "tagSeparatorsDuplicate": "यह विभाजक पहले से मौजूद है।",
+  "tagSeparatorsRemoveTitle": "विभाजक हटाएँ?",
+  "tagSeparatorsRemoveMessage": "इस विभाजक पर अब नाम नहीं बाँटे जाएँगे।",
+  "tagKeepTogether": "साथ रखें",
+  "tagKeepTogetherDescription": "यहाँ सूचीबद्ध नाम कभी नहीं बाँटे जाते, भले ही उनमें विभाजक हो, जैसे Tyler, The Creator।",
+  "tagKeepTogetherHint": "साथ रखने वाला नाम",
+  "tagKeepTogetherAdd": "नाम जोड़ें",
+  "tagKeepTogetherRemoveTooltip": "नाम हटाएँ",
+  "tagKeepTogetherDuplicate": "यह नाम पहले से सूचीबद्ध है।",
+  "metadataSeparatorInvalid": "1–16 अक्षरों का उपयोग करें, बिना लाइन ब्रेक या नियंत्रण अक्षरों के।",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
   },
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Songs",
-  "libraryGenres": "Genres",
+  "libraryGenres": "शैलियाँ",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Removed {count} tracks from Loved",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "प्लेलिस्ट से {count} ट्रैक हटाए गए",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

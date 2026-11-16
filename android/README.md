@@ -172,7 +172,7 @@ Dart listens in platform_bridge.dart.
 
 | Channel | Owner |
 | --- | --- |
-| `com.amwolfstein.sistrum/concert_calendar`, `com.amwolfstein.sistrum/audio_output` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySmallChannels.kt` |
+| `com.amwolfstein.sistrum/audio_output` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySmallChannels.kt` |
 | `com.amwolfstein.sistrum/usb_pcm`, `com.amwolfstein.sistrum/usb_pcm/events` (EventChannel), `com.amwolfstein.sistrum/audio_route` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/UsbBitPerfectPlugin.kt` |
 | `com.amwolfstein.sistrum/haptics` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MusicHapticsPlugin.kt` |
 | `com.amwolfstein.sistrum/local_network` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/LocalNetworkPlugin.kt` |

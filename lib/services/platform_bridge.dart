@@ -210,8 +210,6 @@ class PlatformBridge {
   static Future<void> processPendingExtensionCallbacks() =>
       _channel.invokeMethod<void>('processPendingExtensionCallbacks');
 
-  // method, and the session and device list as events.
-
   static void _ensureBackendEventHandler() {
     if (_backendEventHandlerInstalled) return;
     _backendEventHandlerInstalled = true;

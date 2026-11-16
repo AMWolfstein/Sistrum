@@ -18,7 +18,6 @@ class SistrumApplication : Application() {
                 "mipmap/ic_launcher" -> R.mipmap.ic_launcher
                 "drawable/ic_launcher_monochrome" -> R.drawable.ic_launcher_monochrome
                 "drawable/ic_stat_sistrum" -> R.drawable.ic_stat_sistrum
-                "drawable/ic_notification_airplay" -> R.drawable.ic_notification_airplay
                 "drawable/ic_notification_star" -> R.drawable.ic_notification_star
                 "drawable/ic_notification_star_filled" -> R.drawable.ic_notification_star_filled
                 "drawable/ic_notification_shuffle" -> R.drawable.ic_notification_shuffle

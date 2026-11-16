@@ -47,7 +47,6 @@ class AppBottomSheet extends StatelessWidget {
   const AppBottomSheet({
     super.key,
     required this.child,
-    this.showHandle = true,
     this.title,
     this.titleTrailing,
     this.subtitle,
@@ -55,7 +54,6 @@ class AppBottomSheet extends StatelessWidget {
   });
 
   final Widget child;
-  final bool showHandle;
 
   /// Leading title row. Rendered with the app's single sheet-title style
   /// instead of the three variants that had accumulated across sheets.
@@ -81,7 +79,7 @@ class AppBottomSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (showHandle) const AppSheetHandle(),
+        const AppSheetHandle(),
         if (title != null)
           Padding(
             padding: EdgeInsetsDirectional.fromSTEB(

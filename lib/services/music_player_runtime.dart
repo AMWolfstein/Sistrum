@@ -284,13 +284,22 @@ class MusicPlayerRuntime {
   bool _coversPrepared = false;
   static const _coverTrimDelay = Duration(minutes: 2);
 
+  TagCreditScope? _tagCredits;
+
+  /// Pushed by the app whenever the library or its credit rules change.
+  void configureTagCredits(TagCreditScope scope) => _tagCredits = scope;
+
   /// The Library that media browsers such as Android Auto show.
   late final browser = MediaLibraryBrowser(
     library: dependencies.libraryDatabase,
     history: dependencies.historyDatabase,
     collections: dependencies.collectionsDatabase,
     includeLocal: () => _settings.localLibraryEnabled,
-    tagRules: () => TagCreditRules.fromSettings(_settings.tagCredits),
+    tagCredits: () =>
+        _tagCredits ??
+        TagCreditScope(
+          rules: TagCreditRules.fromSettings(_settings.tagCredits),
+        ),
     strings: () => appLocalizationsFor(_settings.locale),
     covers: dependencies.coverStore,
   );

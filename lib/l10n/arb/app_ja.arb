@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "システムフォントを使用",
   "appearanceUseSystemFontSubtitle": "アプリのテキストにデバイスのデフォルトのフォントを使用します。",
   "@@locale": "ja",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "新着リリース",
+  "homeTopArtists": "トップアーティスト",
+  "homeYourPlaylists": "マイプレイリスト",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,24 +508,24 @@
     }
   },
   "optionsArtistTagMode": "Artist Tag Mode",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
-  "metadataSeparatorInvalid": "Use 1–16 characters without line breaks or control characters.",
+  "tagSeparators": "タグの区切り文字",
+  "tagSeparatorsDescription": "ライブラリでアーティストタグとジャンルタグを別々の名前に分割する区切り文字を選びます。「まとめて扱う」の名前は分割されません。変更はライブラリの再スキャンなしで適用されます。",
+  "tagSeparatorsArtists": "アーティスト",
+  "tagSeparatorsArtistsFields": "アーティストとアルバムアーティスト",
+  "tagSeparatorsGenre": "ジャンル",
+  "tagSeparatorsAll": "すべて",
+  "tagSeparatorsAdd": "区切り文字を追加",
+  "tagSeparatorsAddHint": "区切り文字（1～16文字）",
+  "tagSeparatorsDuplicate": "この区切り文字はすでに候補にあります。",
+  "tagSeparatorsRemoveTitle": "区切り文字を削除しますか？",
+  "tagSeparatorsRemoveMessage": "この区切り文字では、名前が分割されなくなります。",
+  "tagKeepTogether": "まとめて扱う",
+  "tagKeepTogetherDescription": "ここに登録された名前は、Tyler, The Creator のように区切り文字を含んでいても分割されません。",
+  "tagKeepTogetherHint": "まとめて扱う名前",
+  "tagKeepTogetherAdd": "名前を追加",
+  "tagKeepTogetherRemoveTooltip": "名前を削除",
+  "tagKeepTogetherDuplicate": "この名前はすでに登録されています。",
+  "metadataSeparatorInvalid": "改行や制御文字を含まない1～16文字で入力してください。",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
   },
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "曲",
-  "libraryGenres": "Genres",
+  "libraryGenres": "ジャンル",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Removed {count} tracks from Loved",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "プレイリストから {count} 曲を削除しました",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

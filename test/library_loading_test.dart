@@ -135,9 +135,12 @@ class _Library extends LocalLibraryNotifier {
   }
 }
 
+// Background work may include real file I/O (the default availability probe),
+// which can take longer than a fixed number of zero-delay event-loop turns.
 Future<void> _waitFor(bool Function() condition) async {
-  for (var i = 0; i < 50 && !condition(); i++) {
-    await Future<void>.delayed(Duration.zero);
+  final deadline = DateTime.now().add(const Duration(seconds: 10));
+  while (!condition() && DateTime.now().isBefore(deadline)) {
+    await Future<void>.delayed(const Duration(milliseconds: 5));
   }
   expect(condition(), isTrue);
 }

@@ -68,26 +68,6 @@ void main() {
       expect(releaseTrack.albumName, 'Real Album');
     });
 
-    test('exposes collection, source, and quality flags', () {
-      const album = Track(
-        id: 'album-1',
-        name: 'Album',
-        artistName: 'Artist',
-        albumName: 'Album',
-        duration: 0,
-        itemType: 'album',
-        source: 'extension.example',
-        audioQuality: 'FLAC 1411kbps',
-        audioModes: 'STEREO,DOLBY_ATMOS',
-      );
-
-      expect(album.isAlbumItem, isTrue);
-      expect(album.isPlaylistItem, isFalse);
-      expect(album.isArtistItem, isFalse);
-      expect(album.isCollection, isTrue);
-      expect(album.isDolbyAtmos, isTrue);
-    });
-
     test('detects singles and eps case-insensitively', () {
       const single = Track(
         id: 'track-1',

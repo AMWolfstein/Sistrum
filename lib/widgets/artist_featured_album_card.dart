@@ -2,87 +2,26 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/artist_album.dart';
-import 'package:sistrum/utils/editorial_notes.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 
-/// The artist's newest album, with a short note and one action: download on
-/// an online artist page, play on the library's.
-///
-/// The note is the provider's editorial text. Most providers have none, and
-/// those albums describe themselves by their type, year and track count.
-class ArtistFeaturedAlbumCard extends StatefulWidget {
+/// The artist's newest album, described by its type, year and track count,
+/// with one action: play.
+class ArtistFeaturedAlbumCard extends StatelessWidget {
   const ArtistFeaturedAlbumCard({
     super.key,
     required this.album,
     required this.onTap,
-    this.onDownload,
-    this.onPlay,
-    this.loadMetadata,
-  }) : assert(
-         (onDownload == null) != (onPlay == null),
-         'Give exactly one of onDownload and onPlay',
-       );
+    required this.onPlay,
+  });
 
   final ArtistAlbum album;
   final VoidCallback onTap;
-  final VoidCallback? onDownload;
-  final VoidCallback? onPlay;
-
-  /// Reads the album's metadata for its editorial note; null when no provider
-  /// can be asked.
-  final Future<Map<String, dynamic>> Function()? loadMetadata;
-
-  @override
-  State<ArtistFeaturedAlbumCard> createState() =>
-      _ArtistFeaturedAlbumCardState();
-}
-
-class _ArtistFeaturedAlbumCardState extends State<ArtistFeaturedAlbumCard> {
-  String? _note;
-  int _noteGeneration = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadNote();
-  }
-
-  @override
-  void didUpdateWidget(ArtistFeaturedAlbumCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.album.id == widget.album.id &&
-        oldWidget.album.providerId == widget.album.providerId) {
-      return;
-    }
-    _note = null;
-    _loadNote();
-  }
-
-  Future<void> _loadNote() async {
-    final generation = ++_noteGeneration;
-    final load = widget.loadMetadata;
-    if (load == null) return;
-    final String? note;
-    try {
-      final metadata = await load();
-      final info = metadata['album_info'];
-      final html = albumDescriptionFromMetadata(
-        info is Map<String, dynamic> ? info : metadata,
-      );
-      note = html == null ? null : parseEditorialNotes(html).text?.trim();
-    } catch (_) {
-      // The card already reads well without its note.
-      return;
-    }
-    if (!mounted || generation != _noteGeneration || note == null) return;
-    setState(() => _note = note);
-  }
+  final VoidCallback onPlay;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final album = widget.album;
     final caption = TextStyle(
       fontSize: 13,
       height: 1.25,
@@ -104,7 +43,7 @@ class _ArtistFeaturedAlbumCardState extends State<ArtistFeaturedAlbumCard> {
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: widget.onTap,
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
@@ -139,7 +78,7 @@ class _ArtistFeaturedAlbumCardState extends State<ArtistFeaturedAlbumCard> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _note ?? summary,
+                        summary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: caption,
@@ -149,16 +88,12 @@ class _ArtistFeaturedAlbumCardState extends State<ArtistFeaturedAlbumCard> {
                 ),
                 const SizedBox(width: 12),
                 HeaderCircleButton(
-                  icon: widget.onPlay != null
-                      ? CupertinoIcons.play_fill
-                      : CupertinoIcons.arrow_down,
+                  icon: CupertinoIcons.play_fill,
                   buttonSize: 32,
                   iconSize: 16,
                   tonal: true,
-                  tooltip: widget.onPlay != null
-                      ? l10n.tooltipPlay
-                      : l10n.dialogDownload,
-                  onPressed: widget.onPlay ?? widget.onDownload,
+                  tooltip: l10n.tooltipPlay,
+                  onPressed: onPlay,
                 ),
               ],
             ),

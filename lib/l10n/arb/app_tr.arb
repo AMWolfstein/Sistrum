@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Sistem yazı tipini kullan",
   "appearanceUseSystemFontSubtitle": "Uygulama metinleri için cihazınızın varsayılan yazı tipini kullanın.",
   "@@locale": "tr",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "Yeni Çıkanlar",
+  "homeTopArtists": "En Çok Dinlediğin Sanatçılar",
+  "homeYourPlaylists": "Çalma Listelerin",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,23 +508,23 @@
     }
   },
   "optionsArtistTagMode": "Sanatçı Etiketi Modu",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparators": "Etiket ayırıcıları",
+  "tagSeparatorsDescription": "Kitaplıkta sanatçı ve tür etiketlerini ayrı adlara bölecek ayırıcıları seçin. Birlikte tut listesindeki adlar asla bölünmez. Değişiklikler yeniden taramadan uygulanır.",
+  "tagSeparatorsArtists": "Sanatçılar",
+  "tagSeparatorsArtistsFields": "Sanatçı ve albüm sanatçısı",
+  "tagSeparatorsGenre": "Tür",
+  "tagSeparatorsAll": "Tümü",
+  "tagSeparatorsAdd": "Ayırıcı ekle",
+  "tagSeparatorsAddHint": "Ayırıcı (1–16 karakter)",
+  "tagSeparatorsDuplicate": "Bu ayırıcı zaten sunuluyor.",
+  "tagSeparatorsRemoveTitle": "Ayırıcı kaldırılsın mı?",
+  "tagSeparatorsRemoveMessage": "Adlar artık bu ayırıcıdan bölünmeyecek.",
+  "tagKeepTogether": "Birlikte tut",
+  "tagKeepTogetherDescription": "Burada listelenen adlar, Tyler, The Creator gibi bir ayırıcı içerseler bile asla bölünmez.",
+  "tagKeepTogetherHint": "Birlikte tutulacak ad",
+  "tagKeepTogetherAdd": "Ad ekle",
+  "tagKeepTogetherRemoveTooltip": "Adı kaldır",
+  "tagKeepTogetherDuplicate": "Bu ad zaten listede.",
   "metadataSeparatorInvalid": "Satır sonu veya kontrol karakteri içermeyen 1–16 karakter kullanın.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Şarkılar",
-  "libraryGenres": "Genres",
+  "libraryGenres": "Türler",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Sevilen albümünden {count} parça kaldırıldı",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "Çalma listesinden {count} parça kaldırıldı",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

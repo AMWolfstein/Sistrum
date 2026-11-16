@@ -625,29 +625,6 @@ class DownloadHistoryNotifier extends Notifier<DownloadHistoryState> {
     return DownloadHistoryItem.fromJson(json);
   }
 
-  Future<DownloadHistoryItem?> findExistingTrackAsync(
-    HistoryLookupRequest request,
-  ) async {
-    final bySpotifyId = state.getBySpotifyId(request.spotifyId);
-    if (bySpotifyId != null) return bySpotifyId;
-
-    final isrc = request.isrc?.trim();
-    if (isrc != null && isrc.isNotEmpty) {
-      final byIsrc = state.getByIsrc(isrc);
-      if (byIsrc != null) return byIsrc;
-    }
-
-    final byTrackArtist = state.findByTrackAndArtist(
-      request.trackName,
-      request.artistName,
-    );
-    if (byTrackArtist != null) return byTrackArtist;
-
-    final json = await _db.findExistingTrack(request);
-    if (json == null) return null;
-    return DownloadHistoryItem.fromJson(json);
-  }
-
   Future<({DownloadHistoryItem item, int index})?> _historyItemForUpdate(
     String id,
   ) async {

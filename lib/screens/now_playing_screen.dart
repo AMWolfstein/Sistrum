@@ -829,7 +829,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         .read(downloadHistoryProvider.notifier)
         .getByFilePathAsync(filePath);
     if (!mounted) return;
-    await confirmRemoveTrackFromDevice(
+    final removed = await confirmRemoveTrackFromDevice(
       context,
       ref,
       filePath: filePath,
@@ -837,6 +837,10 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       networkItem: false,
       isActive: () => mounted,
     );
+    if (!removed || !mounted) return;
+    await ref
+        .read(musicPlayerControllerProvider)
+        .removeDeletedPlaying(mediaItem);
   }
 
   Future<void> _showSleepTimerSheet(

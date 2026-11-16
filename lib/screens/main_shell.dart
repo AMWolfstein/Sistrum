@@ -12,6 +12,7 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/saf_migration_prompt_store.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/network_upload_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -119,6 +120,7 @@ class _MainShellState extends ConsumerState<MainShell>
     );
     final settings = ref.read(settingsProvider);
     playback.configure(settings);
+    playback.configureTagCredits(ref.read(tagCreditScopeProvider));
     listeningRecorder.setEnabled(settings.listeningStatisticsEnabled);
     // Deezer & co. localize artist/genre names by IP unless told the app's
     // language (issue #480).
@@ -247,8 +249,6 @@ class _MainShellState extends ConsumerState<MainShell>
     );
     final homeNavigator = _navigatorForTab(0, showStore);
     homeNavigator?.popUntil((route) => route.isFirst);
-    // Unfocus BEFORE clear so _onTrackStateChanged can properly
-    // clear _urlController (it checks !_searchFocusNode.hasFocus)
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
@@ -303,8 +303,7 @@ class _MainShellState extends ConsumerState<MainShell>
 
     if (_currentIndex != index) {
       HapticFeedback.selectionClick();
-      // Stop any preview snippet when leaving the current tab. (_onPageChanged
-      // cannot do this because _currentIndex is already updated below.)
+      // Stop any preview snippet when leaving the current tab.
       ref.read(previewPlayerProvider.notifier).stop();
       setState(() => _currentIndex = index);
       ShellNavigationService.syncState(
@@ -415,6 +414,11 @@ class _MainShellState extends ConsumerState<MainShell>
     ref.listen(settingsProvider, (_, settings) {
       ref.read(musicPlayerRuntimeProvider).configure(settings);
     });
+    ref.listen(
+      tagCreditScopeProvider,
+      (_, scope) =>
+          ref.read(musicPlayerRuntimeProvider).configureTagCredits(scope),
+    );
     ref.listen(
       settingsProvider.select((s) => s.listeningStatisticsEnabled),
       (_, enabled) => listeningRecorder.setEnabled(enabled),

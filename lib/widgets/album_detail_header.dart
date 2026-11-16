@@ -16,8 +16,8 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
-/// Collapsing album-detail header shared by the album, local-album,
-/// downloaded-album, playlist, mix and folder screens: full-bleed
+/// Collapsing album-detail header shared by the album, playlist, mix and
+/// library folder screens: full-bleed
 /// [background], bottom gradient, centered square cover, title, optional
 /// subtitle/meta/actions rows, and a circular back button. Content fades out
 /// below 30% expansion; the [title] fades into the toolbar instead.
@@ -61,7 +61,7 @@ class AlbumDetailHeader extends StatelessWidget {
   /// "•"-joined meta row under the subtitle.
   final Widget? meta;
 
-  /// Action row (play/shuffle, download-all, ...) under the meta row.
+  /// Action row (play/shuffle, love, add to playlist) under the meta row.
   final Widget? actions;
 
   /// Extra toolbar actions (top-right).
@@ -396,8 +396,8 @@ class _RenderAlbumOverlayToolbar extends RenderProxySliver {
   }
 }
 
-/// Primary "play" pill + shuffle circle used by the local and downloaded album
-/// headers. Colours follow the [HeaderPalette].
+/// Primary "play" pill + shuffle circle used by album-style headers and lists.
+/// Colours follow the [HeaderPalette].
 class AlbumPlayActions extends StatelessWidget {
   const AlbumPlayActions({
     super.key,
@@ -472,7 +472,7 @@ class AlbumPlayActions extends StatelessWidget {
   }
 }
 
-/// Primary action pill in a detail header (download all, play all). Reads its
+/// Primary action pill in a detail header (e.g. play all). Reads its
 /// colours from [HeaderPalette] so it works on light and dark headers alike.
 class HeaderFilledButton extends StatelessWidget {
   const HeaderFilledButton({
@@ -509,8 +509,6 @@ class HeaderCircleButton extends ConsumerWidget {
     required this.onPressed,
     this.iconColor,
     this.tonal = false,
-    this.glassTintColor,
-    this.glassTintOpacity,
     this.buttonSize,
     this.iconSize = 22,
   });
@@ -522,12 +520,9 @@ class HeaderCircleButton extends ConsumerWidget {
   /// Overrides the palette foreground, e.g. to mark an active "loved" state.
   final Color? iconColor;
 
-  /// Uses the same translucent fill as the local album's Play/Shuffle pills.
+  /// Uses the same translucent fill as the album's Play/Shuffle pills.
   final bool tonal;
 
-  /// Optional tint for controls floating over artwork-colored surfaces.
-  final Color? glassTintColor;
-  final double? glassTintOpacity;
   final double? buttonSize;
   final double iconSize;
 
@@ -597,14 +592,10 @@ class HeaderCircleButton extends ConsumerWidget {
         enabled: onPressed != null,
         child: MornyeGlass.navigation(
           radius: (buttonSize ?? 48) / 2,
-          tintColor:
-              glassTintColor ??
-              (scheme.brightness == Brightness.dark
-                  ? Colors.black
-                  : Colors.white),
-          tintOpacity:
-              glassTintOpacity ??
-              (scheme.brightness == Brightness.dark ? 0.45 : 0.55),
+          tintColor: scheme.brightness == Brightness.dark
+              ? Colors.black
+              : Colors.white,
+          tintOpacity: scheme.brightness == Brightness.dark ? 0.45 : 0.55,
           blurEnabled: blurEnabled,
           child: button,
         ),

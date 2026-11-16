@@ -256,14 +256,6 @@ Future<void> _exercise() async {
   await history.getPhysicalFileIds(['/Users/me/Downloads/D1/1.flac']);
   await history.getBySpotifyId('track11');
   await history.getByIsrc('USBBB2600011');
-  await history.findExistingTrack(
-    const HistoryLookupRequest(
-      spotifyId: 'track21',
-      isrc: 'USBBB2600021',
-      trackName: 'Song 1',
-      artistName: 'Artist 2',
-    ),
-  );
   await history.findExistingTracks(const [
     HistoryLookupRequest(
       spotifyId: 'none',

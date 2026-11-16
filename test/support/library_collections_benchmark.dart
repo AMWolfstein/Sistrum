@@ -242,7 +242,9 @@ Future<Map<String, dynamic>> benchmarkPlaylistMetadataCopy({
         }
         return updated;
       });
-      if (!result.value.isTrackInAnyPlaylist('example:${rows * 2 - 1}') ||
+      if (!result.value.playlists.any(
+            (p) => p.containsTrackKey('example:${rows * 2 - 1}'),
+          ) ||
           result.value.playlists.first.name != 'Renamed 9') {
         throw StateError('Metadata membership parity failed');
       }

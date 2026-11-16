@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -6,29 +5,23 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 
-/// Love all, download all and add to playlist buttons of a track collection
-/// while [tracks] is empty.
+/// Love, play/shuffle and add to playlist buttons of a track collection;
+/// disabled while [tracks] is empty.
 class CollectionHeaderActions extends StatelessWidget {
   const CollectionHeaderActions({
     super.key,
     required this.tracks,
     required this.onLoveAll,
+    required this.playActions,
     required this.addToPlaylistIcon,
     required this.onAddToPlaylist,
-    this.onDownloadAll,
-    this.playActions,
-    this.tonalDownload = false,
-  }) : assert(onDownloadAll != null || playActions != null);
+  });
 
   final List<Track> tracks;
   final VoidCallback onLoveAll;
 
-  /// The download pill; replaced by [playActions] when that is given.
-  final VoidCallback? onDownloadAll;
-
-  /// Play and shuffle beside Love and Add to playlist, in place of download.
-  final Widget? playActions;
-  final bool tonalDownload;
+  /// Play and shuffle beside Love and Add to playlist.
+  final Widget playActions;
   final IconData addToPlaylistIcon;
   final VoidCallback onAddToPlaylist;
 
@@ -52,17 +45,6 @@ class CollectionHeaderActions extends StatelessWidget {
         );
       },
     );
-    final download =
-        playActions ??
-        SizedBox(
-          width: 172,
-          child: HeaderFilledButton(
-            icon: CupertinoIcons.arrow_down_circle_fill,
-            tonal: tonalDownload,
-            label: context.l10n.dialogDownload,
-            onPressed: enabled ? onDownloadAll : null,
-          ),
-        );
     final addToPlaylist = HeaderCircleButton(
       icon: addToPlaylistIcon,
       tonal: true,
@@ -74,7 +56,7 @@ class CollectionHeaderActions extends StatelessWidget {
       children: [
         love,
         const SizedBox(width: 16),
-        Flexible(child: download),
+        Flexible(child: playActions),
         const SizedBox(width: 16),
         addToPlaylist,
       ],

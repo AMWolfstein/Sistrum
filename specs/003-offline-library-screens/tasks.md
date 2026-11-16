@@ -18,7 +18,7 @@ Common checks: `flutter gen-l10n` (after ARB changes), `flutter analyze`, full
 `flutter test` (baseline 0 failed, 10 skipped), and the task's searches.
 
 Execution order (IDs are allocator order, not run order): T012, T014, T001, T002,
-T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
+T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, TOR016, T011.
 
 ## Implementation
 
@@ -185,6 +185,18 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
     Search tab searches the library only; an artist result shows the same image as
     the library artist page (T001 `imageCover`).
   - Dependencies: TOR014 and T013 (the Genres shelf opens the T013 page).
+
+- [x] M003-TOR016 Full source audit and fixes before the M003 final review
+  - Request (owner, 2026-11-16): before T011, a new TOR that audits the full source
+    and fixes everything found.
+  - Acceptance: every area of the repository (Dart `lib`, tests, `integration_test`,
+    Rust `rust_backend`, Android Kotlin and resources, ARB files, assets, docs, workflow
+    records) is audited; confirmed defects (behaviour, data safety, dead code, unread or
+    missing strings, stale docs and comments, broken tests) are fixed; risky or
+    ambiguous findings are listed in the task record and not changed; wishlist stays
+    untouched (out of scope); no APK. One commit after the checks and an independent
+    review.
+  - Dependencies: T006 to T010.
 
 ## Final cumulative review
 

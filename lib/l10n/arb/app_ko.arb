@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "시스템 글꼴 사용",
   "appearanceUseSystemFontSubtitle": "앱 텍스트에 기기 기본 글꼴을 사용합니다",
   "@@locale": "ko",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "새 릴리스",
+  "homeTopArtists": "나의 인기 아티스트",
+  "homeYourPlaylists": "내 재생목록",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,23 +508,23 @@
     }
   },
   "optionsArtistTagMode": "아티스트 태그 모드",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparators": "태그 구분 기호",
+  "tagSeparatorsDescription": "라이브러리에서 아티스트 및 장르 태그를 별도의 이름으로 나눌 구분 기호를 선택하세요. 함께 유지의 이름은 나뉘지 않습니다. 변경 사항은 다시 스캔하지 않아도 적용됩니다.",
+  "tagSeparatorsArtists": "아티스트",
+  "tagSeparatorsArtistsFields": "아티스트 및 앨범 아티스트",
+  "tagSeparatorsGenre": "장르",
+  "tagSeparatorsAll": "전체",
+  "tagSeparatorsAdd": "구분 기호 추가",
+  "tagSeparatorsAddHint": "구분 기호 (1–16자)",
+  "tagSeparatorsDuplicate": "이 구분 기호는 이미 제공되어 있습니다.",
+  "tagSeparatorsRemoveTitle": "구분 기호를 삭제할까요?",
+  "tagSeparatorsRemoveMessage": "이 구분 기호에서는 더 이상 이름이 나뉘지 않습니다.",
+  "tagKeepTogether": "함께 유지",
+  "tagKeepTogetherDescription": "여기 나열된 이름은 Tyler, The Creator처럼 구분 기호가 포함되어도 나뉘지 않습니다.",
+  "tagKeepTogetherHint": "함께 유지할 이름",
+  "tagKeepTogetherAdd": "이름 추가",
+  "tagKeepTogetherRemoveTooltip": "이름 삭제",
+  "tagKeepTogetherDuplicate": "이 이름은 이미 목록에 있습니다.",
   "metadataSeparatorInvalid": "줄 바꿈이나 제어 문자 없이 1~16자를 사용하세요",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "노래",
-  "libraryGenres": "Genres",
+  "libraryGenres": "장르",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "'좋아요 표시한 음악'에서 {count} 개의 트랙이 제거됨",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "'플레이리스트'에서 {count} 개의 트랙이 제거됨",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

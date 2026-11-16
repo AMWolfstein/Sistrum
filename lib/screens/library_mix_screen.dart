@@ -281,7 +281,8 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       meta: HeaderMetaRow(
         items: [
           HeaderMetaItem(l10n.tracksCount(_items.length)),
-          if (minutes > 0) HeaderMetaItem('$minutes min'),
+          if (minutes > 0)
+            HeaderMetaItem(context.l10n.listeningStatsMinutes(minutes)),
           HeaderMetaItem(l10n.homeMixUpdatedDaily),
         ],
       ),

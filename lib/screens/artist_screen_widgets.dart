@@ -50,7 +50,8 @@ extension _ArtistScreenSections on _ArtistScreenState {
                 label: isFavoriteArtist
                     ? context.l10n.artistOptionRemoveFromFavorites
                     : context.l10n.artistOptionAddToFavorites,
-                onSelected: () => _toggleFavoriteArtist(context),
+                onSelected: () =>
+                    _toggleFavoriteArtist(context, libraryImageUrl),
               ),
             ],
           ],
@@ -84,7 +85,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
           tooltip: isFavoriteArtist
               ? context.l10n.artistOptionRemoveFromFavorites
               : context.l10n.artistOptionAddToFavorites,
-          onPressed: () => _toggleFavoriteArtist(context),
+          onPressed: () => _toggleFavoriteArtist(context, libraryImageUrl),
         ),
       ],
     ).buildSlivers(context);
@@ -120,14 +121,17 @@ extension _ArtistScreenSections on _ArtistScreenState {
     ).showSnackBar(SnackBar(content: Text(context.l10n.artistShuffleEmpty)));
   }
 
-  Future<void> _toggleFavoriteArtist(BuildContext context) async {
+  Future<void> _toggleFavoriteArtist(
+    BuildContext context,
+    String? libraryImageUrl,
+  ) async {
     final added = await ref
         .read(libraryCollectionsProvider.notifier)
         .toggleFavoriteArtist(
           artistId: _favoriteArtistId,
           providerId: _favoriteProviderId(),
           name: widget.artistName,
-          imageUrl: null,
+          imageUrl: libraryImageUrl,
         );
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

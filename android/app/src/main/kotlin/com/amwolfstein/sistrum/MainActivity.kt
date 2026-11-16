@@ -72,7 +72,6 @@ class MainActivity: FlutterFragmentActivity() {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     internal var backendChannel: MethodChannel? = null
     internal var audioOutputChannel: MethodChannel? = null
-    internal var concertCalendarChannel: MethodChannel? = null
     internal val coreBackend: CoreBackend by lazy { createCoreBackend(applicationContext) }
     private val nativeBackendMethods = setOf(
         "getAndroidSdkVersion",
@@ -446,8 +445,6 @@ class MainActivity: FlutterFragmentActivity() {
             pendingSafTreeResult = null
             pending?.success(null)
         }
-        concertCalendarChannel?.setMethodCallHandler(null)
-        concertCalendarChannel = null
         audioOutputChannel?.setMethodCallHandler(null)
         audioOutputChannel = null
         libraryStorageReceiver?.let {
@@ -486,7 +483,6 @@ class MainActivity: FlutterFragmentActivity() {
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         preferredDisplayController?.close()
         preferredDisplayController = PreferredDisplayController(this)
-        registerConcertCalendarChannel(messenger)
         registerAudioOutputChannel(messenger)
 
         registerProgressStreams(messenger)

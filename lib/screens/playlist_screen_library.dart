@@ -402,11 +402,17 @@ extension _PlaylistLibrarySections on _PlaylistScreenState {
       await notifier.removeTracksFromPlaylist(view.playlistId!, keys);
     }
 
-    exitSelectionMode();
-
     if (!mounted) return;
+    exitSelectionMode();
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.selectionSelected(count))),
+      SnackBar(
+        content: Text(
+          view.loved
+              ? l10n.snackbarRemovedTracksFromLoved(count)
+              : l10n.snackbarRemovedTracksFromPlaylist(count),
+        ),
+      ),
     );
   }
 

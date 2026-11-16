@@ -237,9 +237,6 @@ class AppSettings {
   /// Align AI translations and readings to sung words instead of whole lines.
   final bool lyricsAiWordSync;
 
-  final String
-  lastSeenVersion; // Last app version the user has acknowledged (e.g. '3.7.0')
-
   final bool deduplicateDownloads;
   final bool allowQualityVariants;
   final bool saveDownloadHistory;
@@ -364,7 +361,6 @@ class AppSettings {
     this.lyricsAutoTranslate = false,
     this.lyricsAiRomanize = true,
     this.lyricsAiWordSync = false,
-    this.lastSeenVersion = '',
     this.deduplicateDownloads = true,
     this.allowQualityVariants = false,
     this.saveDownloadHistory = true,
@@ -495,7 +491,6 @@ class AppSettings {
     bool? lyricsAutoTranslate,
     bool? lyricsAiRomanize,
     bool? lyricsAiWordSync,
-    String? lastSeenVersion,
     bool? deduplicateDownloads,
     bool? allowQualityVariants,
     bool? saveDownloadHistory,
@@ -647,7 +642,6 @@ class AppSettings {
       lyricsAutoTranslate: lyricsAutoTranslate ?? this.lyricsAutoTranslate,
       lyricsAiRomanize: lyricsAiRomanize ?? this.lyricsAiRomanize,
       lyricsAiWordSync: lyricsAiWordSync ?? this.lyricsAiWordSync,
-      lastSeenVersion: lastSeenVersion ?? this.lastSeenVersion,
       deduplicateDownloads: deduplicateDownloads ?? this.deduplicateDownloads,
       allowQualityVariants: allowQualityVariants ?? this.allowQualityVariants,
       saveDownloadHistory: saveDownloadHistory ?? this.saveDownloadHistory,

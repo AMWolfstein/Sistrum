@@ -505,24 +505,24 @@
     }
   },
   "optionsArtistTagMode": "وضع وسم الفنان",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
-  "metadataSeparatorInvalid": "Use 1–16 characters without line breaks or control characters.",
+  "tagSeparators": "فواصل الوسوم",
+  "tagSeparatorsDescription": "اختر الفواصل التي تقسم وسوم الفنان والنوع إلى أسماء منفصلة في المكتبة. لا تُقسَّم الأسماء الموجودة في «الإبقاء معاً» أبداً. تُطبَّق التغييرات دون إعادة فحص.",
+  "tagSeparatorsArtists": "الفنانون",
+  "tagSeparatorsArtistsFields": "الفنان وفنان الألبوم",
+  "tagSeparatorsGenre": "النوع",
+  "tagSeparatorsAll": "الكل",
+  "tagSeparatorsAdd": "إضافة فاصل",
+  "tagSeparatorsAddHint": "الفاصل (من 1 إلى 16 حرفاً)",
+  "tagSeparatorsDuplicate": "هذا الفاصل موجود بالفعل.",
+  "tagSeparatorsRemoveTitle": "إزالة الفاصل؟",
+  "tagSeparatorsRemoveMessage": "لن تُقسَّم الأسماء على هذا الفاصل بعد الآن.",
+  "tagKeepTogether": "الإبقاء معاً",
+  "tagKeepTogetherDescription": "الأسماء المدرجة هنا لا تُقسَّم أبداً حتى عندما تحتوي على فاصل، مثل Tyler, The Creator.",
+  "tagKeepTogetherHint": "اسم للإبقاء معاً",
+  "tagKeepTogetherAdd": "إضافة اسم",
+  "tagKeepTogetherRemoveTooltip": "إزالة الاسم",
+  "tagKeepTogetherDuplicate": "هذا الاسم مدرج بالفعل.",
+  "metadataSeparatorInvalid": "استخدم من 1–16 حرفاً بدون فواصل أسطر أو محارف تحكم.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
   },
@@ -1237,7 +1237,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "أغاني",
-  "libraryGenres": "Genres",
+  "libraryGenres": "الأنواع",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4096,6 +4096,15 @@
   "snackbarRemovedTracksFromLoved": "Removed {count} tracks from Loved",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "تمت إزالة {count} مقطع من قائمة التشغيل",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"
@@ -6979,9 +6988,9 @@
     "description": "Home section header for the newest downloaded and scanned tracks"
   },
   "homeOnRepeat": "On repeat",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "أحدث الإصدارات",
+  "homeTopArtists": "أكثر الفنانين استماعاً",
+  "homeYourPlaylists": "قوائم التشغيل الخاصة بك",
   "@homeOnRepeat": {
     "description": "Home section header for the most played tracks of the last four weeks"
   },

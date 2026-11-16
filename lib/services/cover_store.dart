@@ -101,7 +101,7 @@ class CoverStore {
   String? _root;
 
   /// References whose stored cover moved to a new path because its bytes
-  /// changed; [cachedFile] answers the new path.
+  /// changed; [indexedFile] answers the new path.
   Stream<String> get changes => _changes.stream;
 
   /// Whether [ref] names a cover the store fetches (`network://`).
@@ -121,21 +121,11 @@ class CoverStore {
   /// network cover a server answers, not one only [adopt] stores.
   static bool refetches(String? ref) => fetches(ref) && !_adoptedOnly(ref!);
 
-  /// Reads which covers are stored, so [cachedFile] answers covers saved
+  /// Reads which covers are stored, so [indexedFile] answers covers saved
   /// in earlier runs. [file] and [trim] wait for it themselves.
   Future<void> warmUp() {
     if (_root != null) return Future.value();
     return _warming ??= _readIndex().whenComplete(() => _warming = null);
-  }
-
-  /// The durable local file for [ref] when it is on disk now, without
-  /// fetching: an existing absolute path or `file://` file, or a network
-  /// cover stored earlier (covers of earlier runs once [warmUp] is done).
-  /// Safe on the first frame.
-  String? cachedFile(String? ref) {
-    if (ref == null || ref.isEmpty) return null;
-    final path = fetches(ref) ? indexedFile(ref) : _localPath(ref);
-    return path != null && File(path).existsSync() ? path : null;
   }
 
   /// The file the store names for the network cover [ref], read from memory

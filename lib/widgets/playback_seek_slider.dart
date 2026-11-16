@@ -9,9 +9,6 @@ class PlaybackSeekSlider extends StatefulWidget {
   final Future<void> Function(Duration) onSeek;
   final PlaybackSeekPreview? preview;
 
-  /// player capsule.
-  final bool hairline;
-
   /// The track reaches both ends of the slider instead of leaving room for
   /// the thumb, to line up with the artwork above it.
   final bool edgeAligned;
@@ -22,7 +19,6 @@ class PlaybackSeekSlider extends StatefulWidget {
     required this.duration,
     required this.onSeek,
     this.preview,
-    this.hairline = false,
     this.edgeAligned = false,
   });
 
@@ -115,11 +111,9 @@ class _PlaybackSeekSliderState extends State<PlaybackSeekSlider> {
               SliderTheme.of(context).inactiveTrackColor ?? Colors.white12,
           value: enabled ? currentMs : 0,
           max: maxMs,
-          trackHeight: widget.hairline ? 2 : 6,
-          height: widget.hairline ? 10 : 44,
-          inset: widget.hairline || widget.edgeAligned
-              ? 0
-              : MornyePlayerSlider.horizontalInset,
+          trackHeight: 6,
+          height: 44,
+          inset: widget.edgeAligned ? 0 : MornyePlayerSlider.horizontalInset,
           onChangeStart: _start,
           onChanged: _preview,
           onChangeEnd: _commit,

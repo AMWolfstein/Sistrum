@@ -240,11 +240,8 @@ service notes in the app.
 <summary><b>Can I download whole albums and playlists?</b></summary>
 <br>
 
-Yes. Paste an album or playlist link into the search bar on Home and the app
-fetches every track and queues it. An artist link opens the artist page, where
-**Download Discography** queues their releases. To bring in a list from elsewhere,
-tap the search bar and use the import button to load a CSV or M3U playlist
-file.
+Not from links. To bring in a list from elsewhere, tap the search bar on Home
+and use the import button to load a CSV or M3U playlist file.
 
 </details>
 
@@ -342,9 +339,7 @@ inspected directly in this repository.
 <br>
 
 Some countries have restricted access to certain streaming service APIs. If
-downloads are failing, try a VPN to connect through a different region. For
-the Home feed only, **Settings > Extensions > Home feed country** shows
-another country's recommendations without a VPN.
+downloads are failing, try a VPN to connect through a different region.
 
 </details>
 

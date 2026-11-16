@@ -104,7 +104,7 @@ class MediaLibraryBrowser {
     required this.history,
     required this.collections,
     required this.includeLocal,
-    required this.tagRules,
+    required this.tagCredits,
     required this.strings,
     CoverStore? covers,
     Future<BrowserCoverProvider?> Function() coverProvider =
@@ -118,7 +118,10 @@ class MediaLibraryBrowser {
 
   /// Whether scanned songs belong to the Library, as on the Library tab.
   final bool Function() includeLocal;
-  final TagCreditRules Function() tagRules;
+
+  /// The versioned credits scope of the app's library, so repeated browses reuse
+  /// the built credits table.
+  final TagCreditScope Function() tagCredits;
   final AppLocalizations Function() strings;
 
   final CoverStore? _coverStore;
@@ -340,7 +343,7 @@ class MediaLibraryBrowser {
         limit: listLimit,
         sortMode: 'a-z',
         includeLocal: includeLocal(),
-        tagCredits: TagCreditScope(rules: tagRules()),
+        tagCredits: tagCredits(),
       ),
     );
     return [
@@ -360,7 +363,7 @@ class MediaLibraryBrowser {
       QueueLibraryDbQuery(
         limit: listLimit,
         includeLocal: includeLocal(),
-        tagCredits: TagCreditScope(rules: tagRules()),
+        tagCredits: tagCredits(),
       ),
     );
     return [
@@ -460,7 +463,7 @@ class MediaLibraryBrowser {
         limit: listLimit,
         sortMode: 'a-z',
         includeLocal: includeLocal(),
-        tagCredits: TagCreditScope(rules: tagRules()),
+        tagCredits: tagCredits(),
       ),
     );
     final albums = await Future.wait([

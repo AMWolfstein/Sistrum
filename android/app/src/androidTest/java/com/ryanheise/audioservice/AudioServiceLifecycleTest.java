@@ -84,7 +84,7 @@ public class AudioServiceLifecycleTest {
         String[] resources = {
             "mipmap/ic_launcher", "drawable/ic_launcher_monochrome",
             "drawable/ic_stat_sistrum",
-            "drawable/ic_notification_airplay", "drawable/ic_notification_star",
+            "drawable/ic_notification_star",
             "drawable/ic_notification_star_filled", "drawable/ic_notification_shuffle",
             "drawable/ic_notification_shuffle_on", "drawable/ic_widget_previous",
             "drawable/ic_widget_next", "drawable/ic_widget_play", "drawable/ic_widget_pause",

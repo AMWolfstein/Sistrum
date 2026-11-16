@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Use system font",
   "appearanceUseSystemFontSubtitle": "Use your device’s default typeface for app text.",
   "@@locale": "zh_TW",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "新發行",
+  "homeTopArtists": "你的熱門藝人",
+  "homeYourPlaylists": "你的播放清單",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,24 +508,24 @@
     }
   },
   "optionsArtistTagMode": "演出者標籤模式",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
-  "metadataSeparatorInvalid": "Use 1–16 characters without line breaks or control characters.",
+  "tagSeparators": "標籤分隔符號",
+  "tagSeparatorsDescription": "選擇要用來將藝人和類型標籤拆分為資料庫中獨立名稱的分隔符號。「保持完整」中的名稱永遠不會被拆分。變更無需重新掃描即可生效。",
+  "tagSeparatorsArtists": "藝人",
+  "tagSeparatorsArtistsFields": "藝人和專輯藝人",
+  "tagSeparatorsGenre": "類型",
+  "tagSeparatorsAll": "全部",
+  "tagSeparatorsAdd": "新增分隔符號",
+  "tagSeparatorsAddHint": "分隔符號（1–16 個字元）",
+  "tagSeparatorsDuplicate": "此分隔符號已在列表中。",
+  "tagSeparatorsRemoveTitle": "移除分隔符號？",
+  "tagSeparatorsRemoveMessage": "名稱將不再以此分隔符號拆分。",
+  "tagKeepTogether": "保持完整",
+  "tagKeepTogetherDescription": "此處列出的名稱永遠不會被拆分，即使包含分隔符號，例如 Tyler, The Creator。",
+  "tagKeepTogetherHint": "要保持完整的名稱",
+  "tagKeepTogetherAdd": "新增名稱",
+  "tagKeepTogetherRemoveTooltip": "移除名稱",
+  "tagKeepTogetherDuplicate": "此名稱已在列表中。",
+  "metadataSeparatorInvalid": "請使用 1–16 個字元，不要包含換行或控制字元。",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
   },
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Songs",
-  "libraryGenres": "Genres",
+  "libraryGenres": "類型",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Removed {count} tracks from Loved",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "已從播放清單中移除 {count} 首曲目",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

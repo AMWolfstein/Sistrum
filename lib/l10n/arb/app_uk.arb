@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Використовувати системний шрифт",
   "appearanceUseSystemFontSubtitle": "Використовуйте стандартний шрифт вашого пристрою для тексту в додатку.",
   "@@locale": "uk",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "Нові релізи",
+  "homeTopArtists": "Ваші топ-виконавці",
+  "homeYourPlaylists": "Ваші плейлісти",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,24 +508,24 @@
     }
   },
   "optionsArtistTagMode": "Режим тегу виконавця",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
-  "metadataSeparatorInvalid": "Використовуйте від 1 до 16 символів без розділів і керівних символів.",
+  "tagSeparators": "Роздільники тегів",
+  "tagSeparatorsDescription": "Виберіть роздільники, за якими теги виконавця та жанру розділяються на окремі назви в медіатеці. Назви зі списку «Утримувати разом» ніколи не розділяються. Зміни застосовуються без повторного сканування.",
+  "tagSeparatorsArtists": "Виконавці",
+  "tagSeparatorsArtistsFields": "Виконавець і виконавець альбому",
+  "tagSeparatorsGenre": "Жанр",
+  "tagSeparatorsAll": "Усі",
+  "tagSeparatorsAdd": "Додати роздільник",
+  "tagSeparatorsAddHint": "Роздільник (1–16 символів)",
+  "tagSeparatorsDuplicate": "Цей роздільник уже є в списку.",
+  "tagSeparatorsRemoveTitle": "Видалити роздільник?",
+  "tagSeparatorsRemoveMessage": "Назви більше не розділятимуться за цим роздільником.",
+  "tagKeepTogether": "Утримувати разом",
+  "tagKeepTogetherDescription": "Назви зі списку ніколи не розділяються, навіть якщо містять роздільник, наприклад Tyler, The Creator.",
+  "tagKeepTogetherHint": "Назва, яку слід утримувати разом",
+  "tagKeepTogetherAdd": "Додати назву",
+  "tagKeepTogetherRemoveTooltip": "Видалити назву",
+  "tagKeepTogetherDuplicate": "Ця назва вже є в списку.",
+  "metadataSeparatorInvalid": "Використовуйте від 1 до 16 символів без розривів рядків і керувальних символів.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
   },
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Пісні",
-  "libraryGenres": "Genres",
+  "libraryGenres": "Жанри",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Видалено {count} треків з уподобань",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "Видалено {count} треків з плейлиста",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

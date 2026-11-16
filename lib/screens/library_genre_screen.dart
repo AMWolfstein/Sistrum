@@ -151,9 +151,7 @@ class LibraryGenreScreen extends ConsumerWidget {
         ? Random().nextInt(playable.length)
         : 0;
     try {
-      if (start == null) {
-        await ref.read(musicPlayerControllerProvider).setShuffle(shuffle);
-      }
+      await ref.read(musicPlayerControllerProvider).setShuffle(shuffle);
       await ref
           .read(playbackProvider.notifier)
           .playMediaQueue(

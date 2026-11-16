@@ -566,7 +566,6 @@ class MornyeMenuAction {
     this.subtitle,
     this.selected = false,
     this.destructive = false,
-    this.disclosure = false,
   });
 
   /// Null for a text-only row.
@@ -576,9 +575,6 @@ class MornyeMenuAction {
   final VoidCallback? onPressed;
   final bool selected;
   final bool destructive;
-
-  /// Marks a row that leads to more choices with a trailing chevron.
-  final bool disclosure;
 }
 
 /// One frosted popover, with compact shortcuts and separated action groups.
@@ -740,12 +736,6 @@ class MornyeContextMenu extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (action.disclosure)
-                    Icon(
-                      CupertinoIcons.chevron_forward,
-                      size: 15,
-                      color: color,
-                    ),
                 ],
               ),
       ),

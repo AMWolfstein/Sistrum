@@ -89,6 +89,17 @@ void main() {
       ]);
     });
 
+    test('a shorter kept name saved first does not break a longer one', () {
+      const overlap = TagCreditRules(
+        keepTogether: ['Tyler', 'Tyler, The Creator', 'AC', 'AC/DC'],
+      );
+      expect(_artist('Tyler, The Creator, AC/DC', rules: overlap), [
+        'Tyler, The Creator',
+        'AC/DC',
+      ]);
+      expect(_artist('Tyler, AC', rules: overlap), ['Tyler', 'AC']);
+    });
+
     test('matching ignores case and returns the spelling from the tag', () {
       expect(_artist('tyler, the creator, Kali', rules: keep), [
         'tyler, the creator',

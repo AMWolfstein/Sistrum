@@ -218,17 +218,27 @@ extension _ArtistLibrarySections on _ArtistScreenState {
   }
 
   Future<void> _playLibraryArtist() async {
-    final tracks = await ref.read(
-      libraryArtistTracksProvider(widget.artistName).future,
-    );
-    if (!mounted) return;
-    await _playLibraryTracks(tracks);
+    try {
+      final tracks = await ref.read(
+        libraryArtistTracksProvider(widget.artistName).future,
+      );
+      if (!mounted) return;
+      await _playLibraryTracks(tracks);
+    } catch (e) {
+      if (mounted) showCannotOpenFileSnackBar(context, e);
+    }
   }
 
   Future<void> _playLibraryAlbum(ArtistAlbum album) async {
-    final tracks = await ref.read(libraryAlbumTracksProvider(album.id).future);
-    if (!mounted) return;
-    await _playLibraryTracks(tracks);
+    try {
+      final tracks = await ref.read(
+        libraryAlbumTracksProvider(album.id).future,
+      );
+      if (!mounted) return;
+      await _playLibraryTracks(tracks);
+    } catch (e) {
+      if (mounted) showCannotOpenFileSnackBar(context, e);
+    }
   }
 
   Future<void> _playLibraryTracks(

@@ -100,7 +100,10 @@ void main() {
     expect(renamed.containsTrackKey('example:song'), isTrue);
     expect(() => renamed.trackKeys.clear(), throwsUnsupportedError);
     final state = LibraryCollectionsState(playlists: [renamed]);
-    expect(state.isTrackInAnyPlaylist('example:song'), isTrue);
+    expect(
+      state.playlists.any((p) => p.containsTrackKey('example:song')),
+      isTrue,
+    );
     expect(state.copyWith(isLoaded: true).hasPlaylistTracks, isTrue);
     final loaded = renamed.copyWith(tracks: []);
     expect(loaded.tracksLoaded, isTrue);
@@ -129,14 +132,16 @@ void main() {
           first,
         ],
       );
-      expect(renamed.isTrackInAnyPlaylist('example:first'), isTrue);
-      expect(renamed.isTrackInAnyPlaylist('example:second'), isTrue);
+      bool inAnyPlaylist(LibraryCollectionsState state, String key) =>
+          state.playlists.any((p) => p.containsTrackKey(key));
+      expect(inAnyPlaylist(renamed, 'example:first'), isTrue);
+      expect(inAnyPlaylist(renamed, 'example:second'), isTrue);
       final replaced = renamed.copyWith(playlists: [first, first]);
-      expect(replaced.isTrackInAnyPlaylist('example:first'), isTrue);
-      expect(replaced.isTrackInAnyPlaylist('example:second'), isFalse);
+      expect(inAnyPlaylist(replaced, 'example:first'), isTrue);
+      expect(inAnyPlaylist(replaced, 'example:second'), isFalse);
       final removed = renamed.copyWith(playlists: [second]);
-      expect(removed.isTrackInAnyPlaylist('example:first'), isFalse);
-      expect(removed.isTrackInAnyPlaylist('example:second'), isTrue);
+      expect(inAnyPlaylist(removed, 'example:first'), isFalse);
+      expect(inAnyPlaylist(removed, 'example:second'), isTrue);
     },
   );
 }

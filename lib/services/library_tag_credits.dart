@@ -33,9 +33,6 @@ class TagCreditRules {
   final List<String> genreDelimiters;
   final List<String> keepTogether;
 
-  List<String> delimitersFor(TagCreditField field) =>
-      field == TagCreditField.genre ? genreDelimiters : artistDelimiters;
-
   @override
   bool operator ==(Object other) =>
       other is TagCreditRules &&
@@ -63,35 +60,64 @@ class TagCreditScope {
 
 const _letterOrDigit = r'\p{L}\p{N}';
 
-/// Splits one tag value into its names, in order, without duplicates.
-///
-/// Keep-together names are protected first, so their own separators survive.
-/// Word delimiters such as `feat.` only match as whole words. A newline always
-/// separates, and genres never keep names together.
+/// Splits tag values by one set of [TagCreditRules]. The patterns are compiled
+/// once here, so a caller splitting many rows keeps one splitter for them.
+class TagCreditSplitter {
+  TagCreditSplitter(TagCreditRules rules)
+    : _rules = rules,
+      _protections = [
+        for (final name in _longestFirst(rules.keepTogether))
+          if (name.trim().isNotEmpty) _protectionPattern(name.trim()),
+      ];
+
+  final TagCreditRules _rules;
+  final List<RegExp> _protections;
+  late final RegExp _artistPattern = _delimiterPattern(_rules.artistDelimiters);
+  late final RegExp _genrePattern = _delimiterPattern(_rules.genreDelimiters);
+
+  /// Splits one tag value into its names, in order, without duplicates.
+  ///
+  /// Keep-together names are protected longest first, so a name that contains
+  /// a shorter kept name ("Tyler, The Creator" and "Tyler") keeps its own
+  /// separators. Word delimiters such as `feat.` only match as whole words. A
+  /// newline always separates, and genres never keep names together.
+  List<String> split(String? raw, TagCreditField field) {
+    final source = raw ?? '';
+    if (source.trim().isEmpty) return const [];
+    final kept = <String>[];
+    var text = source;
+    if (field != TagCreditField.genre) {
+      for (final pattern in _protections) {
+        text = text.replaceAllMapped(pattern, (match) {
+          kept.add(match[0]!);
+          return _marker(kept.length - 1);
+        });
+      }
+    }
+    final pattern = field == TagCreditField.genre
+        ? _genrePattern
+        : _artistPattern;
+    final names = <String>[];
+    final seen = <String>{};
+    for (final part in text.split(pattern)) {
+      final name = _restore(_stripStrayBrackets(part.trim()), kept).trim();
+      if (name.isEmpty) continue;
+      if (seen.add(sqlite.normalizeLookupText(name))) names.add(name);
+    }
+    return names;
+  }
+}
+
+/// Splits one tag value with a fresh [TagCreditSplitter]; loops over many rows
+/// should build one splitter instead.
 List<String> splitTagCredits(
   String? raw,
   TagCreditField field,
   TagCreditRules rules,
-) {
-  final source = raw ?? '';
-  if (source.trim().isEmpty) return const [];
-  final kept = <String>[];
-  var text = source;
-  if (field != TagCreditField.genre) {
-    for (final name in rules.keepTogether) {
-      text = _protect(text, name, kept);
-    }
-  }
-  final pattern = _delimiterPattern(rules.delimitersFor(field));
-  final names = <String>[];
-  final seen = <String>{};
-  for (final part in text.split(pattern)) {
-    final name = _restore(_stripStrayBrackets(part.trim()), kept).trim();
-    if (name.isEmpty) continue;
-    if (seen.add(sqlite.normalizeLookupText(name))) names.add(name);
-  }
-  return names;
-}
+) => TagCreditSplitter(rules).split(raw, field);
+
+Iterable<String> _longestFirst(List<String> names) =>
+    [...names]..sort((a, b) => b.trim().length.compareTo(a.trim().length));
 
 String _escape(String value) => value.replaceAllMapped(
   RegExp(r'[.*+?^$(){}\[\]|\\/]'),
@@ -123,19 +149,11 @@ RegExp _delimiterPattern(List<String> delimiters) {
 /// A marker that cannot occur in a tag, standing in for a protected name.
 String _marker(int index) => '\u0000$index\u0000';
 
-String _protect(String text, String name, List<String> kept) {
-  final trimmed = name.trim();
-  if (trimmed.isEmpty) return text;
-  final pattern = RegExp(
-    '(?<![$_letterOrDigit])${_escape(trimmed)}(?![$_letterOrDigit])',
-    caseSensitive: false,
-    unicode: true,
-  );
-  return text.replaceAllMapped(pattern, (match) {
-    kept.add(match[0]!);
-    return _marker(kept.length - 1);
-  });
-}
+RegExp _protectionPattern(String name) => RegExp(
+  '(?<![$_letterOrDigit])${_escape(name)}(?![$_letterOrDigit])',
+  caseSensitive: false,
+  unicode: true,
+);
 
 String _restore(String part, List<String> kept) => part.replaceAllMapped(
   RegExp('\u0000(\\d+)\u0000'),
@@ -201,11 +219,12 @@ class LibraryTagCreditsCache {
         position INTEGER NOT NULL
       )
     ''');
+    final splitter = TagCreditSplitter(scope.rules);
     // One transaction keeps a concurrent query from reading a half-built table.
     await db.transaction((txn) async {
       await txn.execute('DELETE FROM $tempTable');
-      await _copyRows(txn, 'l', LibrarySchema.visibleView, scope.rules);
-      await _copyRows(txn, 'h', 'history_db.history', scope.rules);
+      await _copyRows(txn, 'l', LibrarySchema.visibleView, splitter);
+      await _copyRows(txn, 'h', 'history_db.history', splitter);
       await txn.execute(
         'CREATE INDEX IF NOT EXISTS ${tempTable}_key '
         'ON $tempTable(field, name_key, source)',
@@ -224,7 +243,7 @@ class LibraryTagCreditsCache {
     Transaction txn,
     String source,
     String table,
-    TagCreditRules rules,
+    TagCreditSplitter splitter,
   ) async {
     var after = '';
     while (true) {
@@ -238,7 +257,7 @@ class LibraryTagCreditsCache {
       for (final row in rows) {
         final id = '${row['id']}';
         for (final field in TagCreditField.values) {
-          final names = splitTagCredits(_rawValue(row, field), field, rules);
+          final names = splitter.split(_rawValue(row, field), field);
           for (var i = 0; i < names.length; i++) {
             batch.insert(tempTable, {
               'source': source,

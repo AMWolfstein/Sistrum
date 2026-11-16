@@ -278,7 +278,7 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
         return Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 2),
           child: Semantics(
-            button: true,
+            button: widget.onTap != null,
             label: context.l10n.lyricPreviewLabel(currentText),
             child: InkWell(
               onTap: widget.onTap == null

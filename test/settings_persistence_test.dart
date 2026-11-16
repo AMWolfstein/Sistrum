@@ -275,4 +275,31 @@ void main() {
       await retry;
     },
   );
+
+  test('a restored backup is normalised like the stored settings', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [
+        settingsProvider.overrideWith(
+          () => _Settings.withLoader(() async => preferences),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(settingsProvider.notifier).restoreFromBackup({
+      'songLinkRegion': 'not a region',
+      'embeddedCoverMaxDimension': 777,
+      'extensionVerificationBrowserMode': 'sideways',
+      'downloadFallbackExtensionIds': ['ext.a', ' ext.a ', ''],
+      'useExtensionProviders': false,
+    });
+
+    final restored = container.read(settingsProvider);
+    expect(restored.songLinkRegion, 'US');
+    expect(restored.embeddedCoverMaxDimension, 0);
+    expect(restored.extensionVerificationBrowserMode, 'in_app_first');
+    expect(restored.downloadFallbackExtensionIds, ['ext.a']);
+    expect(restored.useExtensionProviders, isTrue);
+  });
 }

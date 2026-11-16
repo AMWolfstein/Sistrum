@@ -212,7 +212,10 @@ MediaLibraryBrowser _browser({
   history: history ?? _History(),
   collections: collections ?? _Collections(),
   includeLocal: () => includeLocal,
-  tagRules: () => rules ?? const TagCreditRules(),
+  tagCredits: () => TagCreditScope(
+    rules: rules ?? const TagCreditRules(),
+    version: 'test-library',
+  ),
   strings: () => lookupAppLocalizations(const Locale('en')),
   covers: covers,
   coverProvider: coverProvider ?? BrowserCoverProvider.load,
@@ -411,6 +414,7 @@ void main() {
       final tyler = await browser.children(listed.first.id);
       expect(_titles(tyler), ['Flower Boy']);
       expect(library.albumRequests.last.tagCredits.rules, rules);
+      expect(library.albumRequests.last.tagCredits.version, 'test-library');
       expect(_titles(await browser.children(tyler.single.id)), ['Song t1']);
 
       final malcolm = await browser.children(listed.last.id);

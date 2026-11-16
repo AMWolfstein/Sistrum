@@ -3,8 +3,8 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
-/// Shared shell for every track-collection screen: album, playlist, local
-/// album, downloaded album and library folders.
+/// Shared shell for every track-collection screen: album, playlist, mix and
+/// library folder screens.
 ///
 /// * back gesture exits selection mode instead of popping the route,
 /// * the selection bar is mounted in the root overlay so it floats above the
@@ -111,9 +111,7 @@ class _CollectionScaffoldState extends State<CollectionScaffold> {
             SliverToBoxAdapter(
               child: SizedBox(
                 key: const ValueKey('collection-selection-spacer'),
-                height: widget.isSelectionMode
-                    ? _selectionBarHeight
-                    : 32,
+                height: widget.isSelectionMode ? _selectionBarHeight : 32,
               ),
             ),
             NavBarSliverSpacer(bottomInset: widget.bottomInset),

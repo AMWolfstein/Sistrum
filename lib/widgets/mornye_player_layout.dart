@@ -59,7 +59,6 @@ class MornyePlayerLayout extends ConsumerWidget {
     required this.onTrackNavigation,
     required this.onMoreActions,
     this.artworkAspectRatio,
-    this.controlsHeadroom = 0,
   });
 
   final MediaItem mediaItem;
@@ -70,9 +69,6 @@ class MornyePlayerLayout extends ConsumerWidget {
   final Widget motionArtwork;
   final double? artworkAspectRatio;
 
-  /// Spare height kept above the volume row while portrait has it to give,
-  /// which holds the track header and timeline higher than the toolbar.
-  final double controlsHeadroom;
   final bool insetArtwork;
   final double artworkTopInset;
   final MornyePlayerArtworkKeys artworkKeys;
@@ -371,10 +367,6 @@ class MornyePlayerLayout extends ConsumerWidget {
         // Controls keep their intrinsic height. Small portrait screens and
         // large accessibility text can scroll instead of clipping the volume.
         final minHeight = 480.0 + (scale - 1).clamp(0, 3) * 120;
-        final headroom = (constraints.maxHeight - minHeight).clamp(
-          0.0,
-          controlsHeadroom,
-        );
         Widget controls() => AnimatedBuilder(
           animation: artworkForeground,
           builder: (context, _) => PlayerPlaybackControls(
@@ -458,7 +450,7 @@ class MornyePlayerLayout extends ConsumerWidget {
               children: [
                 controls(),
                 if (showVolume) ...[
-                  SizedBox(height: volumeGap - transportShift + headroom),
+                  SizedBox(height: volumeGap - transportShift),
                   AnimatedBuilder(
                     animation: artworkForeground,
                     builder: (context, _) => PlayerVolumeControl(
@@ -467,7 +459,7 @@ class MornyePlayerLayout extends ConsumerWidget {
                     ),
                   ),
                 ],
-                SizedBox(height: showVolume ? 8 : 8 + headroom),
+                const SizedBox(height: 8),
               ],
             ),
           ),

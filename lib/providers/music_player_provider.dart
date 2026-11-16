@@ -429,6 +429,24 @@ class MusicPlayerController {
   void removeQueuedItem(MediaItem item) {
     _handler?.removeQueuedItem(item);
   }
+
+  /// Drops the playing entry [item] after its file was deleted: playback moves
+  /// to the next entry, or stops when it was the last one.
+  Future<void> removeDeletedPlaying(MediaItem item) async {
+    final handler = _handler;
+    if (handler == null) return;
+    final queue = handler.queue.value;
+    final index = handler.playbackState.value.queueIndex;
+    if (index == null || index < 0 || index >= queue.length) return;
+    final playing = queue[index];
+    if (playing.id != item.id) return;
+    if (index + 1 < queue.length) {
+      await handler.skipToNext();
+    } else {
+      await handler.stop();
+    }
+    removeQueuedItem(playing);
+  }
 }
 
 /// The controller the player screens use.

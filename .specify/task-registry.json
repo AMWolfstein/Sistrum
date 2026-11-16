@@ -19,9 +19,9 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 45,
+  "next_completion": 46,
   "next_mission": 4,
-  "next_tor": 16,
+  "next_tor": 17,
   "tasks": {
     "M001-T001": {
       "completion": 22,
@@ -608,6 +608,22 @@
       "record": "specs/003-offline-library-screens/tasks.md",
       "status": "complete",
       "title": "Offline Home and Search"
+    },
+    "M003-TOR016": {
+      "completion": 45,
+      "evidence": {
+        "checks": "Review: round 1 found headless tag-credits scope regression, two orphaned bits, stale manifest comment, uk translation, record wording; all fixed; round 2 PASS. analyze clean; full suite exit 0, 3887 passed 10 skipped 0 failed (scratchpad tor016/full_c_counts.txt); cargo check sistrum-mobile exit 0",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewers (Dart part and native/docs part)",
+        "round": 2
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": "M003",
+      "nonce": "f783153efcaa4235b5af6124cba79f24",
+      "record": "specs/003-offline-library-screens/tasks.md",
+      "status": "complete",
+      "title": "Full source audit and fixes before the M003 final review"
     },
     "TOR001": {
       "completion": 1,

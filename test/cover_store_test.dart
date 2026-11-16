@@ -141,14 +141,14 @@ void main() {
       expect(p.isWithin(directory.path, path!), isTrue);
       expect(await File(path).readAsBytes(), bytes);
       expect(await covers.file(ref), path);
-      expect(covers.cachedFile(ref), path);
+      expect(covers.indexedFile(ref), path);
       expect(requests, 1);
 
       // A later run finds the same file without fetching it.
       final restarted = store(fetch: network.downloadCover);
-      expect(restarted.cachedFile(ref), isNull);
+      expect(restarted.indexedFile(ref), isNull);
       await restarted.warmUp();
-      expect(restarted.cachedFile(ref), path);
+      expect(restarted.indexedFile(ref), path);
       expect(await restarted.file(ref), path);
       expect(requests, 1);
     },
@@ -358,7 +358,7 @@ void main() {
       // A stale cover shows at once while it is fetched again.
       expect(await covers.file(ref), first);
       expect(await changed.timeout(const Duration(seconds: 10)), ref);
-      final second = covers.cachedFile(ref)!;
+      final second = covers.indexedFile(ref)!;
       expect(second, isNot(first));
       expect(await File(second).readAsBytes(), bytes);
       expect(fetches, 2);
@@ -369,7 +369,7 @@ void main() {
         fetch: (_, _) async => fail('A stored cover is not fetched again'),
       );
       await restarted.warmUp();
-      expect(restarted.cachedFile(ref), second);
+      expect(restarted.indexedFile(ref), second);
 
       await File(second).setLastModified(stale);
       var events = 0;
@@ -380,7 +380,7 @@ void main() {
       await covers.dispose();
       expect(fetches, 3);
       expect(events, 0);
-      expect(covers.cachedFile(ref), second);
+      expect(covers.indexedFile(ref), second);
       final checked = (await File(second).stat()).modified;
       expect(checked.isAfter(stale.add(const Duration(days: 1))), isTrue);
     },
@@ -410,7 +410,7 @@ void main() {
       final changed = covers.changes.first;
       await covers.file(a);
       await changed.timeout(const Duration(seconds: 10));
-      final pathA = covers.cachedFile(a)!;
+      final pathA = covers.indexedFile(a)!;
 
       final abandoned = File('${directory.path}/abandoned.tmp')
         ..writeAsBytesSync(_jpeg(9));
@@ -424,8 +424,8 @@ void main() {
         [p.basename(pathA), p.basename(pathC), 'fresh.tmp', 'notes.txt']
           ..sort(),
       );
-      expect(covers.cachedFile(b), isNull);
-      expect(covers.cachedFile(c), pathC);
+      expect(covers.indexedFile(b), isNull);
+      expect(covers.indexedFile(c), pathC);
 
       // A trimmed cover is fetched again when asked for.
       final fetched = fetches;
@@ -436,9 +436,9 @@ void main() {
       await File(pathA).setLastModified(now.subtract(const Duration(hours: 1)));
       final budget = store(maxBytes: _jpeg(0).length, fetch: fetch);
       await budget.trim();
-      expect(budget.cachedFile(b), pathB);
-      expect(budget.cachedFile(a), isNull);
-      expect(budget.cachedFile(c), isNull);
+      expect(budget.indexedFile(b), pathB);
+      expect(budget.indexedFile(a), isNull);
+      expect(budget.indexedFile(c), isNull);
       expect(names(), [p.basename(pathB), 'fresh.tmp', 'notes.txt']..sort());
     },
   );
@@ -454,7 +454,7 @@ void main() {
     const ref = 'network://server/subsonic/cover/YQ.image';
     final path = (await covers.file(ref))!;
     await directory.delete(recursive: true);
-    expect(covers.cachedFile(ref), isNull);
+    expect(File(path).existsSync(), isFalse);
     expect(await covers.file(ref), path);
     expect(await File(path).readAsBytes(), _jpeg(1));
     expect(fetches, 2);
@@ -488,14 +488,14 @@ void main() {
     final otherPath = (await changed.file(other))!;
     await changed.dispose();
     expect(fetches, 4);
-    final newer = changed.cachedFile(ref)!;
+    final newer = changed.indexedFile(ref)!;
     expect(newer, isNot(path));
 
     Future<void> refetch(String ref, File output) async =>
         fail('A stored cover is not fetched again');
     final restarted = store(fetch: refetch);
     await restarted.warmUp();
-    expect(restarted.cachedFile(ref), newer);
+    expect(restarted.indexedFile(ref), newer);
     await restarted.trim();
     expect(names(), [p.basename(newer), p.basename(otherPath)]..sort());
 
@@ -506,7 +506,7 @@ void main() {
     ).setLastModified(DateTime.now().subtract(const Duration(hours: 2)));
     final budget = store(maxFiles: 1, fetch: refetch);
     await budget.trim();
-    expect(budget.cachedFile(ref), isNull);
+    expect(budget.indexedFile(ref), isNull);
     expect(names(), [p.basename(otherPath)]);
   });
 
@@ -517,7 +517,6 @@ void main() {
     final file = File('${directory.path}/cover.jpg')
       ..writeAsBytesSync(_jpeg(1));
     for (final ref in [file.path, file.uri.toString()]) {
-      expect(covers.cachedFile(ref), file.path, reason: ref);
       expect(await covers.file(ref), file.path, reason: ref);
       expect(CoverStore.fetches(ref), isFalse);
     }
@@ -529,7 +528,7 @@ void main() {
       'https://example.test/cover.jpg',
       'content://media/external/images/media/1',
     ]) {
-      expect(covers.cachedFile(ref), isNull, reason: ref);
+      expect(covers.indexedFile(ref), isNull, reason: ref);
       expect(await covers.file(ref), isNull, reason: ref);
       expect(CoverStore.fetches(ref), isFalse);
     }
@@ -548,7 +547,6 @@ void main() {
     // file() finds out and fetches it again.
     await File(path).delete();
     expect(covers.indexedFile(ref), path);
-    expect(covers.cachedFile(ref), isNull);
     expect(await covers.file(ref), path);
 
     final restarted = store(fetch: (_, _) async => fail('Stored already'));

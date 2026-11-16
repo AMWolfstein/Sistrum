@@ -419,8 +419,14 @@ void main() {
         expect(playlist.previewCover, 'cover');
         expect(playlist.updatedAt, playlist.createdAt);
         expect(actual.playlistById('other')!.previewCover, isNull);
-        expect(actual.isTrackInAnyPlaylist('example:2'), isTrue);
-        expect(actual.isTrackInAnyPlaylist('example:orphan'), isFalse);
+        expect(
+          actual.playlists.any((p) => p.containsTrackKey('example:2')),
+          isTrue,
+        );
+        expect(
+          actual.playlists.any((p) => p.containsTrackKey('example:orphan')),
+          isFalse,
+        );
         expect(actual.isLoaded, isTrue);
       },
     );

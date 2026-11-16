@@ -208,7 +208,8 @@ extension _AlbumLibrarySections on _AlbumScreenState {
           if (_releaseYear(tracks.first.releaseDate) case final year?)
             HeaderMetaItem(year),
           HeaderMetaItem(context.l10n.queueTrackCount(items.length)),
-          if (totalMinutes > 0) HeaderMetaItem('$totalMinutes min'),
+          if (totalMinutes > 0)
+            HeaderMetaItem(context.l10n.listeningStatsMinutes(totalMinutes)),
           if (quality != null && quality.isNotEmpty)
             HeaderMetaItem(quality, icon: Icons.graphic_eq),
         ],
@@ -345,7 +346,7 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         onEnterSelectionMode: () => enterSelectionMode(item.id),
         onPlay: playback.isCurrent
             ? toggle
-            : () => _playLibraryItem(item, items),
+            : () => _playLibraryRow(item, items),
       ),
     );
   }
@@ -431,10 +432,21 @@ extension _AlbumLibrarySections on _AlbumScreenState {
     }
   }
 
-  Future<void> _playAllLibrary(List<UnifiedLibraryItem> items) async {
-    if (items.isEmpty) return;
+  /// A tapped row plays in order, so a previous Shuffle is switched off.
+  Future<void> _playLibraryRow(
+    UnifiedLibraryItem item,
+    List<UnifiedLibraryItem> items,
+  ) async {
     await ref.read(musicPlayerControllerProvider).setShuffle(false);
-    await _playLibraryItem(items.first, items);
+    await _playLibraryItem(item, items);
+  }
+
+  Future<void> _playAllLibrary(List<UnifiedLibraryItem> items) async {
+    final playable = items
+        .where((item) => !isCueVirtualPath(item.filePath))
+        .toList();
+    if (playable.isEmpty) return;
+    await _playLibraryRow(playable.first, items);
   }
 
   Future<void> _shuffleLibrary(List<UnifiedLibraryItem> items) async {

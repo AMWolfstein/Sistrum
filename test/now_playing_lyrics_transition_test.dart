@@ -1676,9 +1676,9 @@ void main() {
       final container = ProviderScope.containerOf(
         tester.element(find.byType(NowPlayingScreen)),
       );
-      final star = findAppIcon(CupertinoIcons.heart).hitTestable();
-      expect(star, findsOneWidget);
-      await tester.tap(star);
+      final heart = findAppIcon(CupertinoIcons.heart).hitTestable();
+      expect(heart, findsOneWidget);
+      await tester.tap(heart);
       await settlePlayer(tester);
       expect(
         findAppIcon(CupertinoIcons.heart_fill).hitTestable(),
@@ -1693,7 +1693,7 @@ void main() {
       await tester.tap(find.text('Favorited'));
       await settlePlayer(tester);
       expect(container.read(libraryCollectionsProvider).loved, isEmpty);
-      expect(star, findsOneWidget);
+      expect(heart, findsOneWidget);
       await tester.tap(findAppIcon(CupertinoIcons.ellipsis).hitTestable());
       await settlePlayer(tester);
       await tester.tap(find.text('Favorite'));

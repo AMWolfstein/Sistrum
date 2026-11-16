@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Usar la fuente del sistema",
   "appearanceUseSystemFontSubtitle": "Utiliza la fuente predeterminada de tu dispositivo para el texto de la aplicación.",
   "@@locale": "es_ES",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "Novedades",
+  "homeTopArtists": "Tus artistas principales",
+  "homeYourPlaylists": "Tus listas de reproducción",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,23 +508,23 @@
     }
   },
   "optionsArtistTagMode": "Modo de etiqueta de artista",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparators": "Separadores de etiquetas",
+  "tagSeparatorsDescription": "Elige los separadores que dividen las etiquetas de artista y de género en nombres separados en la biblioteca. Los nombres de Mantener juntos nunca se dividen. Los cambios se aplican sin volver a escanear.",
+  "tagSeparatorsArtists": "Artistas",
+  "tagSeparatorsArtistsFields": "Artista e intérprete del álbum",
+  "tagSeparatorsGenre": "Género",
+  "tagSeparatorsAll": "Todos",
+  "tagSeparatorsAdd": "Añadir separador",
+  "tagSeparatorsAddHint": "Separador (1–16 caracteres)",
+  "tagSeparatorsDuplicate": "Este separador ya está disponible.",
+  "tagSeparatorsRemoveTitle": "¿Quitar separador?",
+  "tagSeparatorsRemoveMessage": "Los nombres ya no se dividirán con este separador.",
+  "tagKeepTogether": "Mantener juntos",
+  "tagKeepTogetherDescription": "Los nombres listados aquí nunca se dividen, incluso si contienen un separador, como Tyler, The Creator.",
+  "tagKeepTogetherHint": "Nombre para mantener junto",
+  "tagKeepTogetherAdd": "Añadir nombre",
+  "tagKeepTogetherRemoveTooltip": "Quitar nombre",
+  "tagKeepTogetherDuplicate": "Este nombre ya está en la lista.",
   "metadataSeparatorInvalid": "Usa de 1 a 16 caracteres, sin saltos de línea ni caracteres de control.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Canciones",
-  "libraryGenres": "Genres",
+  "libraryGenres": "Géneros",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Eliminadas {count} pistas de Favoritos",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "Eliminadas {count} pistas de la lista de reproducción",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

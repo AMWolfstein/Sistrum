@@ -77,14 +77,6 @@ class Track {
     _ => false,
   };
 
-  bool get isAlbumItem => itemType == 'album';
-
-  bool get isPlaylistItem => itemType == 'playlist';
-
-  bool get isArtistItem => itemType == 'artist';
-
-  bool get isCollection => isAlbumItem || isPlaylistItem || isArtistItem;
-
   factory Track.fromJson(Map<String, dynamic> json) => _$TrackFromJson(json);
   Map<String, dynamic> toJson() => _$TrackToJson(this);
 
@@ -218,9 +210,6 @@ class Track {
       upc: upc ?? this.upc,
     );
   }
-
-  bool get isDolbyAtmos =>
-      audioModes != null && audioModes!.contains('DOLBY_ATMOS');
 
   bool get isExplicit => explicit == true;
 

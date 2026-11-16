@@ -598,7 +598,12 @@ void main() {
       final l10n = AppLocalizations.of(
         tester.element(find.byType(Scaffold).first),
       );
-      expect(find.text(l10n.selectionSelected(2)), findsOneWidget);
+      final snackbar = switch (kind) {
+        'loved' => l10n.snackbarRemovedTracksFromLoved(2),
+        'playlist' => l10n.snackbarRemovedTracksFromPlaylist(2),
+        _ => l10n.selectionSelected(2),
+      };
+      expect(find.text(snackbar), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

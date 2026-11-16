@@ -4206,6 +4206,15 @@
       }
     }
   },
+  "snackbarRemovedTracksFromPlaylist": "Removed {count} tracks from playlist",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "snackbarAddedTracksToLoved": "Added {count} tracks to Loved",
   "@snackbarAddedTracksToLoved": {
     "description": "Snackbar after adding multiple tracks to Loved folder",

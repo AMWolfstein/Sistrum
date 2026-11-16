@@ -484,22 +484,28 @@ class _HomeSection extends StatelessWidget {
                 ? heading
                 : Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onShowAll,
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(child: heading),
-                            const SizedBox(width: 4),
-                            Icon(
-                              CupertinoIcons.chevron_forward,
-                              size: 15,
-                              color: colorScheme.onSurfaceVariant,
+                    child: Semantics(
+                      button: true,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onShowAll,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 48),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(child: heading),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  CupertinoIcons.chevron_forward,
+                                  size: 15,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

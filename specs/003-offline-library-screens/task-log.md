@@ -870,3 +870,105 @@ Checks:
 Not run: independent review, `task complete`, commit, push; `tasks.md` left unchanged.
 
 Count note: T009's full run (3878 passed) predates its follow-up test (every-RTL-script), so this run's 3890 is +12 over it: 11 new preview tests plus that one test. Known untested: the preview inside the full layout with the setting on, and under an Arabic UI locale (the Row would mirror).
+
+## M003-TOR016 (Dart code part)
+
+Audit fixes from `findings_ui.md` and `findings_services.md`. Evidence in `scratchpad/tor016/`. The native, docs, ARB-translation and test-flakiness items are left to the second implementer.
+
+Fixed (UI):
+- UI-01 `lib/widgets/collection_header_actions.dart`: download pill removed, `playActions` required.
+- UI-02 `lib/widgets/artist_featured_album_card.dart`: online download and note branch removed; `lib/utils/editorial_notes.dart` deleted (no readers left). Test rewritten.
+- UI-03 dead constructor params removed: `track_metadata_edit_sheet.dart` (saveTags), `playback_seek_slider.dart` (hairline), `app_bottom_sheet.dart` (showHandle), `mornye_context_menu.dart` (disclosure), `animation_utils.dart` (staggerDelay), `album_detail_header.dart` (glass tint), `mornye_player_layout.dart` (controlsHeadroom).
+- UI-04 `lib/widgets/audio_quality_badges.dart`: `buildQualityBadges` and the classes orphaned with it (`TrackMetadataBadgesLine`, Dolby Atmos badge/logo/painter); `test/track_metadata_badges_line_test.dart` deleted.
+- UI-05 `lib/screens/library_genres_screen.dart`: hiding search clears the query; empty cover check.
+- UI-06 `lib/screens/playlist_screen_library.dart`: mounted check first; Loved and playlist snackbar text. New ARB key `snackbarRemovedTracksFromPlaylist` in all 21 ARB files.
+- UI-07 `lib/screens/artist_screen_library.dart`: play awaits wrapped in error handling.
+- UI-08 `album_screen_library.dart`, `library_mix_screen.dart`: `listeningStatsMinutes`.
+- UI-09 `lib/screens/listening_statistics_screen.dart`: retry tooltip.
+- UI-10 stale comments in `main_shell.dart`, `track_metadata_screen.dart`, `album_detail_header.dart`, `collection_scaffold.dart`; `home_tab.dart` `_urlController` renamed `_searchController`.
+- S01/S02 `lib/services/library_tag_credits.dart`: `TagCreditSplitter` compiles once, keep-together names longest first; new overlap test.
+- S03 `media_library_browser.dart`, `music_player_runtime.dart`, `main_shell.dart`: browser takes the versioned `tagCreditScopeProvider` scope.
+- S04 `library_detail_data.dart`: `libraryHasArtist` uses limit 1.
+- S05 `lastSeenVersion` removed: `models/settings.dart`, `settings.g.dart` (hand edit), `settings_provider.dart`.
+- S06 dead declarations removed with their test lines: `findExistingTrackAsync` (and DB `findExistingTrack`, orphaned), `restorePersistedPlaybackSession`, `syncedLyricsCenterPadding`, `isTrackInAnyPlaylist` (tests use `playlists.any`), `CoverStore.cachedFile` (tests use `indexedFile` or `File.existsSync`), `Track.isCollection`, `isAlbumItem`, `isPlaylistItem`, `isArtistItem` (orphaned), `isDolbyAtmos`.
+- S07 `lib/utils/provider_resource_ids.dart`: comment names the real caller.
+- S08 `settings_provider.dart`: `_normalizedSettings` used by load and restore; restore test added.
+- UI-11 (1) `artist_screen_widgets.dart`: favourite keeps the library cover; key logic unchanged.
+- UI-11 (3) `album_screen_library.dart`, `library_genre_screen.dart`: row tap resets shuffle; album play-all skips CUE tracks like shuffle.
+- UI-11 (4) `now_playing_screen.dart`, `providers/music_player_provider.dart` (`removeDeletedPlaying`): deleted playing file is skipped or stopped and dropped from the queue; 2 tests in `music_player_runtime_test.dart`.
+- UI-11 (5) `home_tab_intro.dart`: show-all title has button semantics and a 48dp minimum height; this changes the header's box height (no layout-neutral 48dp target in Flutter).
+- UI-11 (6) `player_lyric_preview.dart`: button semantics only when tappable.
+
+Skipped: none of the requested items were rejected; the zero-reader claims were re-verified by grep.
+
+Intentionally left: UI-11 #2, #6 alignment, #7, #8; R01-R05; `album_play.dart` and `collection_track_actions.dart` docs (checked, accurate).
+
+Checks:
+- `gen_l10n_a.log`: `flutter gen-l10n` exit 0 (existing ICU warnings only).
+- `analyze_a.log`: `flutter analyze lib test integration_test`: no issues.
+- `changed_dart_files_a.txt`: `dart format` applied to these files only.
+- `targeted_a.log`: targeted widget and service run; one genre expectation and two playlist snackbar expectations were then updated to the new behaviour; `playlist_playback_test.dart` passes after the update.
+- `full_a.json`, `full_a.status`: full run before the playlist test fix: 3885 passed, 10 skipped, 2 errors (the two playlist selection tests, now fixed). Not rerun after the fix.
+- `map_update_a.json`: `workflow/codegraph/code_tools.py update`.
+
+Not run when written: independent review, `task complete`, commit, push. `.specify/task-registry.json` and `tasks.md` only carry the TOR016 reservation and its tasks.md entry.
+
+## M003-TOR016 (native, docs, translations, tests part)
+
+Evidence in `scratchpad/tor016/` (suffix `_b`). Wishlist and online/extension features are untouched.
+
+Fixed (native):
+- F05 `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySmallChannels.kt`, `MainActivity.kt`: unused `concert_calendar` channel removed (no Dart caller). `android/README.md` channel table updated.
+- F06 `AudioOutputActivity.kt` deleted with its manifest entry, `res/drawable/ic_notification_airplay.xml`, the resolver line in `SistrumApplication.kt`, and the `androidTest` icon list (`AudioServiceLifecycleTest.java`).
+- F07 `android/app/src/main/AndroidManifest.xml`: `SEND text/plain` and the https VIEW filters (Spotify, Deezer, Tidal, YouTube Music) removed; audio, `sistrum://callback` and `spotify-callback` kept. `share_intent_service.dart` states shared links are not handled.
+- F08 `android/app/src/main/res/xml/locale_config.xml`: `hi`, `nl`, `zh` replaced by `uk`, `vi`, `zh-CN`, matching `supported_locales.dart`.
+- F09 `rust_backend/crates/mobile/src/extensions.rs`: `resolve_callback_state` UniFFI wrapper removed; inner `environment.rs` function kept.
+- F13 `lib/services/platform_bridge.dart`: orphan comment line removed.
+
+Fixed (docs, tests, translations):
+- S02 all 21 ARBs: the 4 M003 keys translated in the 20 non-English files.
+- S03 all ARBs: the 18 tag-separator keys translated where they were English copies; `metadataSeparatorInvalid`: 10 files already had a translation (kept), 7 English copies replaced, and the key was missing from `app_es`, `app_pt`, `app_zh` and is added. Placeholders and the `Tyler, The Creator` example are unchanged. `flutter gen-l10n` run.
+- S04 `test/library_loading_test.dart`: `_waitFor` polls for up to 10 s of real time, 5 ms per step.
+- S05 `test/track_metadata_lyrics_test.dart`: per-test temp directory (deleted synchronously). Deviation: a Completer does not work here, because the mocked ffmpeg call runs in the fake-async zone and its completion never reaches the awaiting real-time zone. The test polls the captured value against a 30 s real-time deadline instead.
+- S06 `pubspec.yaml`: `timezone` removed; `pubspec.lock` refreshed with `flutter pub get --offline` (it is now transitive).
+- S07 `README.md` FAQ: link-paste, discography and Home feed country sentences removed; CSV/M3U import kept.
+- S08 `CONTRIBUTING.md`: the Search/URL row now names `library_search_provider.dart`, `library_search_results.dart`, `home_tab.dart`, `home_tab_import.dart`; `ffmpeg_service.dart` removed. The Rust paths on that row are kept for the next mission.
+- S10 `integration_test/README.md`: `download_pipeline_performance_test.dart` and `playback_pipeline_performance_test.dart` replaced by `pipeline_performance_test.dart` and `player_performance_test.dart`; the 7 missing test files added; table sorted.
+- S11 `test/README.md`: 15 support files listed; a Skip Switches table added (benchmark dart-defines, `TEST_SMB`, `TEST_SMB_GUEST_PORT`, `TEST_SMB_UPLOAD`, `TEST_SMB_ADDRESS`, `--enable-vmservice`) with the tests each gates.
+- S13 `test/now_playing_lyrics_transition_test.dart`: `star` renamed `heart`. `test/music_player_runtime_test.dart` left unchanged (see below).
+
+Skipped (not changed):
+- S13 `music_player_runtime_test.dart` ~2791 and ~2825: the test title and comment describe the notification favourite action, which uses the notification star icon. Left as notification-star wording; the owner can rename them if wanted.
+- F05/F06 `audio_output` channel: kept, because `lib/widgets/audio_output_button.dart` calls it.
+
+RISKY, not changed:
+- S01 109 keys missing in 16 languages, and more in es/pt/zh/id: translation work; delete the online/Last.fm keys first.
+- S09 `NETWORK_STORAGE.md` song-menu offline/upload claim: needs the owner's decision after the next mission.
+- S12 tutorial and onboarding strings promise online search: belong to the online-removal mission.
+- S14 root `logo.svg` has no references: owner decision.
+- F01-F04 extension search, related tracks, pending auth, URL handler and home feed: next mission.
+- F10 CastBridge event queue never drained on Android: changes the `sistrum-cast` API.
+- F11 `MainActivity.scope` never cancelled: cancelling could stop library scans.
+- F12 unknown backend methods throw a plain error instead of `notImplemented`: behaviour change.
+- R01 non-native history restore clears the table before writing (`backup_service.dart:377`).
+- R02 backup restore applies settings before the destructive history step (`backup_restore_page.dart:136-165`).
+- R03 credits table fully rebuilt on each revision bump (`library_tag_credits_provider.dart:14-24`).
+- R04 N+1 `getById` in history maintenance (`download_history_provider.dart:448,:1090`).
+- R05 `app_settings_corrupt_backup` key written but never read (`settings_provider.dart:22,163`).
+- UI-11 #2 duplicate favourite toggle in the artist header: possibly intended port.
+- UI-11 #7 duplicate song artwork widgets: consolidation, not a defect.
+- UI-11 #8 Home CSV import and `showExtensionStore`: online feature for the next mission.
+
+Checks:
+- `cargo_check_b.log`: `cargo check -p sistrum-mobile --offline` exit 0. `cargo_test_nobuild_b.log`: mobile tests compile, exit 0. Not run on Android. The ignored `rust_backend/target/bindings` Kotlin output still lists `resolveCallbackState` until the next build regenerates it.
+- `pub_get_b.log`: `flutter pub get --offline` exit 0.
+- `gen_l10n_b.log`: `flutter gen-l10n` exit 0.
+- `analyze_b.log`: `flutter analyze lib test integration_test`: no issues.
+- `targeted_b.log`: `library_loading_test.dart` 3 runs, 18/18 each; `track_metadata_lyrics_test.dart` 3 runs, 11/11 each; `now_playing_lyrics_transition_test.dart` 85/85.
+- `full_b.json`, `full_b.status`: full run exit 0: 3887 passed, 10 skipped, 0 failed (excluding `loading` entries).
+- `map_update_b.json`: `code_tools.py update` (no partial or unindexed sources).
+- `validate_b.log`: `work.py validate` PASS.
+
+Not run when written: independent review, `task complete`, commit, push. Registry and `tasks.md` only carry the TOR016 reservation and its entry.
+
+Follow-up after review: (1) the headless Android Auto path (`_startBackgroundPlayback`, no `MainShell`) now falls back to a scope built from the settings' tag-credit rules until the app pushes a versioned one (`music_player_runtime.dart`); (2) removed `HistoryDatabase._firstRow(columns:)` and `SettingsNotifier._normalizeSongLinkRegionIfNeeded` (the shared normalisation covers it; a bad stored region is now corrected in memory on load like the other settings and saved with the next save); (3) manifest comment for the removed SEND filter deleted; Ukrainian `metadataSeparatorInvalid` fixed. No test covers the headless fallback scope (the browser's scope is private to the runtime).

@@ -51,7 +51,13 @@ class _LibraryGenresScreenState extends ConsumerState<LibraryGenresScreen> {
               IconButton(
                 tooltip: context.l10n.librarySearchHint,
                 icon: const Icon(Icons.search),
-                onPressed: () => setState(() => _showSearch = !_showSearch),
+                onPressed: () => setState(() {
+                  if (_showSearch) {
+                    _search.clear();
+                    _query = '';
+                  }
+                  _showSearch = !_showSearch;
+                }),
               ),
             ],
           ),
@@ -149,7 +155,7 @@ class _GenreCover extends StatelessWidget {
         child: Icon(Icons.category_outlined, color: colors.onSurfaceVariant),
       ),
     );
-    if (cover == null) return fallback();
+    if (cover == null || cover!.isEmpty) return fallback();
     return CachedCoverImage(
       imageUrl: cover!,
       fit: BoxFit.cover,

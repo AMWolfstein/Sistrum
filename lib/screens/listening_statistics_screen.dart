@@ -138,6 +138,7 @@ class _ListeningStatisticsScreenState
                         child: ListTile(
                           title: Text(context.l10n.listeningStatsLoadError),
                           trailing: IconButton(
+                            tooltip: context.l10n.dialogRetry,
                             icon: const Icon(Icons.refresh),
                             onPressed: () => ref.invalidate(
                               listeningSummaryProvider(period),

@@ -20,8 +20,8 @@ String stripPrefixedResourceId(String value) {
 }
 
 /// Resolves the metadata provider id to fetch a resource from, preferring a
-/// caller-supplied [knownProviderId] (e.g. from a recent-access entry that
-/// already recorded its source) over guessing from [resourceId]'s shape.
+/// caller-supplied [knownProviderId] (e.g. the source a download already
+/// recorded) over guessing from [resourceId]'s shape.
 ///
 /// [legacyProviderIdFromResourceId] only recognizes legacy-prefixed ids
 /// ("deezer:...", "spotify:...", etc.); anything else - including a plain,

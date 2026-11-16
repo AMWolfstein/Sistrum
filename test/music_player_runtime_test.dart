@@ -858,6 +858,48 @@ void main() {
     },
   );
 
+  group('removing a deleted playing song', () {
+    List<PlayableMedia> songs() => [
+      for (var i = 0; i < 3; i++)
+        PlayableMedia(
+          id: '$i',
+          source: '/$i.flac',
+          title: 'Song $i',
+          artist: 'Artist',
+        ),
+    ];
+
+    test('moves on to the next song and drops the deleted entry', () async {
+      final runtime = _runtime();
+      final handler = await runtime.initialize();
+      await handler.setQueueAndPlay(songs(), initialIndex: 1);
+
+      await MusicPlayerController(
+        runtime: runtime,
+      ).removeDeletedPlaying(handler.queue.value[1]);
+
+      expect(handler.queue.value.map((item) => item.id), ['0', '2']);
+      expect(handler.mediaItem.value?.id, '2');
+    });
+
+    test(
+      'stops and drops the deleted entry when it was the last song',
+      () async {
+        final runtime = _runtime();
+        final handler = await runtime.initialize();
+        await handler.setQueueAndPlay(songs(), initialIndex: 2);
+
+        await MusicPlayerController(
+          runtime: runtime,
+        ).removeDeletedPlaying(handler.queue.value[2]);
+
+        expect(handler.queue.value.map((item) => item.id), ['0', '1']);
+        expect(handler.mediaItem.value, isNull);
+        expect(handler.playbackState.value.playing, isFalse);
+      },
+    );
+  });
+
   test('dismissing a paused player ends the saved session and permits new '
       'playback', () async {
     final store = _SessionStore();

@@ -221,9 +221,9 @@
   "appearanceUseSystemFont": "Использовать системный шрифт",
   "appearanceUseSystemFontSubtitle": "Использовать системный шрифт вашего устройства для текста приложения.",
   "@@locale": "ru",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "Новые релизы",
+  "homeTopArtists": "Ваши топ-исполнители",
+  "homeYourPlaylists": "Ваши плейлисты",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -508,23 +508,23 @@
     }
   },
   "optionsArtistTagMode": "Режим тега исполнителя",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparators": "Разделители тегов",
+  "tagSeparatorsDescription": "Выберите разделители, по которым теги исполнителя и жанра делятся на отдельные имена в медиатеке. Имена из списка «Не разделять» никогда не делятся. Изменения применяются без повторного сканирования.",
+  "tagSeparatorsArtists": "Исполнители",
+  "tagSeparatorsArtistsFields": "Исполнитель и исполнитель альбома",
+  "tagSeparatorsGenre": "Жанр",
+  "tagSeparatorsAll": "Все",
+  "tagSeparatorsAdd": "Добавить разделитель",
+  "tagSeparatorsAddHint": "Разделитель (1–16 символов)",
+  "tagSeparatorsDuplicate": "Такой разделитель уже есть в списке.",
+  "tagSeparatorsRemoveTitle": "Удалить разделитель?",
+  "tagSeparatorsRemoveMessage": "Имена больше не будут делиться по этому разделителю.",
+  "tagKeepTogether": "Не разделять",
+  "tagKeepTogetherDescription": "Имена из этого списка никогда не делятся, даже если содержат разделитель, например Tyler, The Creator.",
+  "tagKeepTogetherHint": "Имя, которое не нужно делить",
+  "tagKeepTogetherAdd": "Добавить имя",
+  "tagKeepTogetherRemoveTooltip": "Удалить имя",
+  "tagKeepTogetherDuplicate": "Это имя уже есть в списке.",
   "metadataSeparatorInvalid": "Используйте 1-16 символов без управляющих символов и разделителей строк.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -1240,7 +1240,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Песни",
-  "libraryGenres": "Genres",
+  "libraryGenres": "Жанры",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4099,6 +4099,15 @@
   "snackbarRemovedTracksFromLoved": "Удалено {count, plural, one {{count} трек} few {{count} трека} other {{count} треков}} из Любимых",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "Удалено {count, plural, one {{count} трек} few {{count} трека} other {{count} треков}} из плейлиста",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

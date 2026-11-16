@@ -29,7 +29,12 @@ void main() {
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
           const path = 'content://library/document/song.opus';
-          final workingPath = '${Directory.systemTemp.path}/lyrics-test.opus';
+          // Per-test directory: the embed work writes beside the working copy.
+          final tempDir = (await tester.runAsync(
+            () => Directory.systemTemp.createTemp('lyrics_embed_'),
+          ))!;
+          addTearDown(() => tempDir.deleteSync(recursive: true));
+          final workingPath = '${tempDir.path}/lyrics-test.opus';
           const lyrics = '[00:01.00]Fresh online lyrics';
           List<String>? embedArguments;
           const ffmpeg = MethodChannel('flutter.arthenica.com/ffmpeg_kit');
@@ -38,7 +43,7 @@ void main() {
           );
           const paths = MethodChannel('plugins.flutter.io/path_provider');
           messenger.setMockMethodCallHandler(paths, (_) async {
-            return Directory.systemTemp.path;
+            return tempDir.path;
           });
           messenger.setMockMethodCallHandler(events, (_) async => null);
           messenger.setMockMethodCallHandler(ffmpeg, (call) async {
@@ -147,7 +152,11 @@ void main() {
           // Start the file work outside the fake clock so its cleanup can finish.
           await tester.runAsync(() async {
             await tester.tap(find.text('Embed Lyrics'));
-            for (var i = 0; i < 100 && embedArguments == null; i++) {
+            // The mock writes from the fake-async zone, so poll the captured
+            // value in real time instead of awaiting a Completer.
+            final deadline = DateTime.now().add(const Duration(seconds: 30));
+            while (embedArguments == null &&
+                DateTime.now().isBefore(deadline)) {
               await Future<void>.delayed(const Duration(milliseconds: 10));
             }
             await Future<void>.delayed(const Duration(milliseconds: 50));

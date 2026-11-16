@@ -5,18 +5,18 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 
 /// Wraps a child in a staggered fade-in + slide-up animation.
 ///
-/// [index] controls the stagger delay (each item delayed by [staggerDelay]).
+/// [index] controls the stagger delay (each item delayed by 40 ms).
 /// Set [animate] to false to skip the animation. Only the list's first
 /// reveal animates: a lazy list builds rows again as they scroll into view,
 /// and those appear at once, so no row replays it or animates while others
 /// do not.
 class StaggeredListItem extends StatelessWidget {
   static const int _maxAnimatedItems = 10;
+  static const Duration _staggerStep = Duration(milliseconds: 40);
 
   final int index;
   final Widget child;
   final Duration duration;
-  final Duration staggerDelay;
   final bool animate;
 
   const StaggeredListItem({
@@ -24,7 +24,6 @@ class StaggeredListItem extends StatelessWidget {
     required this.index,
     required this.child,
     this.duration = const Duration(milliseconds: 250),
-    this.staggerDelay = const Duration(milliseconds: 40),
     this.animate = true,
   });
 
@@ -42,7 +41,7 @@ class StaggeredListItem extends StatelessWidget {
       return child;
     }
     final cappedIndex = index.clamp(0, _maxAnimatedItems - 1);
-    final delay = staggerDelay * cappedIndex;
+    final delay = _staggerStep * cappedIndex;
     final totalDuration = duration + delay;
 
     return TweenAnimationBuilder<double>(

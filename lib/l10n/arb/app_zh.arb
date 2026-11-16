@@ -1,8 +1,8 @@
 {
   "@@locale": "zh",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "新发行",
+  "homeTopArtists": "你的热门艺人",
+  "homeYourPlaylists": "你的播放列表",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -195,23 +195,24 @@
       }
     }
   },
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
-  "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparators": "标签分隔符",
+  "tagSeparatorsDescription": "选择用于将艺术家和流派标签拆分为资料库中独立名称的分隔符。“保持完整”中的名称永远不会被拆分。更改无需重新扫描即可生效。",
+  "tagSeparatorsArtists": "艺术家",
+  "tagSeparatorsArtistsFields": "艺术家和专辑艺术家",
+  "tagSeparatorsGenre": "流派",
+  "tagSeparatorsAll": "全部",
+  "tagSeparatorsAdd": "添加分隔符",
+  "tagSeparatorsAddHint": "分隔符（1–16 个字符）",
+  "tagSeparatorsDuplicate": "该分隔符已在列表中。",
+  "tagSeparatorsRemoveTitle": "删除分隔符？",
+  "tagSeparatorsRemoveMessage": "名称将不再按此分隔符拆分。",
+  "tagKeepTogether": "保持完整",
+  "tagKeepTogetherDescription": "此处列出的名称永远不会被拆分，即使其中包含分隔符，例如 Tyler, The Creator。",
+  "tagKeepTogetherHint": "需保持完整的名称",
+  "tagKeepTogetherAdd": "添加名称",
+  "tagKeepTogetherRemoveTooltip": "删除名称",
+  "tagKeepTogetherDuplicate": "该名称已在列表中。",
+  "metadataSeparatorInvalid": "请使用 1–16 个字符，不要包含换行或控制字符。",
   "optionsArtistTagMode": "艺术家标签模式",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -875,7 +876,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Songs",
-  "libraryGenres": "Genres",
+  "libraryGenres": "流派",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -3557,6 +3558,15 @@
   "snackbarRemovedTracksFromLoved": "Removed {count} tracks from Loved",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "已从播放列表中移除 {count} 首曲目",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

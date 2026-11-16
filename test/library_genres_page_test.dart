@@ -170,9 +170,10 @@ void main() {
     expect(player.shuffles, [true]);
     expect(playback.played.single.titles, ['Song 0', 'Song 1', 'Song 2']);
 
+    // A tapped row plays in order, so the earlier Shuffle is switched off.
     await tester.tap(find.text('Song 1'));
     await tester.pumpAndSettle();
     expect(playback.played.last.startIndex, 1);
-    expect(player.shuffles, [true]);
+    expect(player.shuffles, [true, false]);
   });
 }

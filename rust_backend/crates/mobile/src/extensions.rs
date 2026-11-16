@@ -233,12 +233,6 @@ impl ExtensionEnvironment {
         }))
     }
 
-    pub fn resolve_callback_state(&self, state: String) -> Result<String, JsExtensionError> {
-        self.inner
-            .resolve_callback_state(&state, false)
-            .map_err(Into::into)
-    }
-
     pub fn consume_callback_state(&self, state: String) -> Result<String, JsExtensionError> {
         self.inner
             .resolve_callback_state(&state, true)

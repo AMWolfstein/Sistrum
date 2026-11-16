@@ -314,12 +314,10 @@ class HistoryDatabase {
     Database db,
     String where,
     List<Object?> whereArgs, {
-    List<String>? columns,
     bool newestFirst = true,
   }) async {
     final rows = await db.query(
       'history',
-      columns: columns,
       where: where,
       whereArgs: whereArgs,
       orderBy: newestFirst ? 'sort_added DESC, id DESC' : null,
@@ -388,40 +386,7 @@ class HistoryDatabase {
   Future<Map<String, dynamic>?> getByIsrc(String isrc) async =>
       _firstRow(await database, 'isrc = ?', [isrc]);
 
-  Future<Map<String, dynamic>?> findExistingTrack(
-    HistoryLookupRequest request, {
-    List<String>? columns,
-  }) async {
-    final db = await database;
-    final spotifyCandidates = spotifyLookupCandidates(request.spotifyId);
-    if (spotifyCandidates.isNotEmpty) {
-      final placeholders = List.filled(spotifyCandidates.length, '?').join(',');
-      final normalized = spotifyCandidates
-          .map(HistoryRowMapper.normalizeSpotifyId)
-          .toList();
-      final row = await _firstRow(
-        db,
-        'spotify_id IN ($placeholders) OR spotify_id_norm IN ($placeholders)',
-        [...spotifyCandidates, ...normalized],
-        columns: columns,
-      );
-      if (row != null) return row;
-    }
-
-    final isrcNorm = normalizeIsrc(request.isrc);
-    if (isrcNorm.isNotEmpty) {
-      final row = await _firstRow(db, 'isrc_norm = ?', [
-        isrcNorm,
-      ], columns: columns);
-      if (row != null) return row;
-    }
-
-    final matchKey = matchKeyFor(request.trackName, request.artistName);
-    if (matchKey.isEmpty) return null;
-    return _firstRow(db, 'match_key = ?', [matchKey], columns: columns);
-  }
-
-  /// Batch variant used by playlist playback and bulk existence checks. A
+  /// Used by playlist playback and bulk existence checks. A
   /// compact candidates CTE resolves all identifiers in one indexed lookup per
   /// bounded chunk, returning only the id/path reference those callers need.
   Future<List<Map<String, dynamic>?>> findExistingTracks(

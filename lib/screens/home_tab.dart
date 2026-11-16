@@ -89,7 +89,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
     with AutomaticKeepAliveClientMixin {
   bool get _showsSearch => widget.mode == HomeTabMode.search;
   bool get _showsHome => widget.mode == HomeTabMode.browse;
-  final _urlController = TextEditingController();
+  final _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final _homeScrollController = ScrollController();
   bool _isCsvImporting = false;
@@ -100,7 +100,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
   @override
   void initState() {
     super.initState();
-    _urlController.addListener(_onSearchChanged);
+    _searchController.addListener(_onSearchChanged);
     ShellNavigationService.searchRequests.addListener(_focusSearchFromShell);
   }
 
@@ -108,8 +108,8 @@ class _HomeTabState extends ConsumerState<HomeTab>
   void dispose() {
     ShellNavigationService.searchRequests.removeListener(_focusSearchFromShell);
     _homeScrollController.dispose();
-    _urlController.removeListener(_onSearchChanged);
-    _urlController.dispose();
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
   }
@@ -139,14 +139,14 @@ class _HomeTabState extends ConsumerState<HomeTab>
   }
 
   void _onSearchChanged() {
-    final text = _urlController.text.trim();
+    final text = _searchController.text.trim();
     ref.read(homeSearchTextProvider.notifier).set(text);
     if (mounted) setState(() {});
   }
 
   Future<void> _pasteFromClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
-    if (data?.text != null) _urlController.text = data!.text!;
+    if (data?.text != null) _searchController.text = data!.text!;
   }
 
   @override
@@ -154,11 +154,11 @@ class _HomeTabState extends ConsumerState<HomeTab>
     super.build(context);
     // The shell clears the Search text on back.
     ref.listen<String>(homeSearchTextProvider, (previous, next) {
-      if (_showsSearch && next.isEmpty && _urlController.text.isNotEmpty) {
-        _urlController.clear();
+      if (_showsSearch && next.isEmpty && _searchController.text.isNotEmpty) {
+        _searchController.clear();
       }
     });
-    final searchText = _showsSearch ? _urlController.text.trim() : '';
+    final searchText = _showsSearch ? _searchController.text.trim() : '';
     final colorScheme = Theme.of(context).colorScheme;
     final sectionMotion = const AppMotionSpec(
       Duration(milliseconds: 250),
@@ -227,21 +227,21 @@ class _HomeTabState extends ConsumerState<HomeTab>
   }
 
   Widget _buildSearchBar() {
-    final hasText = _urlController.text.isNotEmpty;
+    final hasText = _searchController.text.isNotEmpty;
     return AppSearchField(
-      controller: _urlController,
+      controller: _searchController,
       samplesBackdrop: false,
       focusNode: _searchFocusNode,
       hintText: context.l10n.librarySearchHint,
       clearTooltip: context.l10n.dialogClear,
-      onClear: () => _urlController.clear(),
+      onClear: () => _searchController.clear(),
       suffixIcon: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (hasText)
             IconButton(
               icon: const Icon(Icons.clear),
-              onPressed: () => _urlController.clear(),
+              onPressed: () => _searchController.clear(),
               tooltip: context.l10n.dialogClear,
             )
           else ...[
@@ -277,6 +277,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
       (_) => const MusicRecognitionScreen(),
     );
     if (!mounted || query == null || query.trim().isEmpty) return;
-    _urlController.text = query.trim();
+    _searchController.text = query.trim();
   }
 }

@@ -97,14 +97,15 @@ Suites:
 | --- | --- |
 | `album_replaygain_completion_test.dart` | Full-queue album ReplayGain completion, with the native worker on Android |
 | `album_replaygain_readiness_test.dart` | Album readiness checks for large queues |
+| `android_background_playback_test.dart` | Local playback survives screen off and background resume; Android only, run with `android_background_playback_driver.dart` |
 | `android_cast_picker_test.dart` | Android with Google Play services: the real native bridge opens the Cast device picker; receiver playback needs a physical Cast device on the same network |
+| `android_keyboard_resume_test.dart` | Keyboard background and resume restore a usable viewport; run with `android_keyboard_resume_driver.dart` on a dedicated emulator |
 | `automix_analysis_test.dart` | Native decoding for AutoMix beats; Auto and crossfade playback |
 | `automix_effects_test.dart` | Bundled FFmpeg supports every AutoMix transition effect |
 | `collection_remove_batch_test.dart` | Removing 2000 tracks from a collection; rollback and retry |
 | `download_cancel_dispatch_test.dart` | Native cancel and clear of queued IDs; invalid batches |
 | `download_lossless_container_test.dart` | Foreground queue finalizes lossless M4A without provider hints |
 | `download_output_container_test.dart` | Foreground queue handles each returned container and extension |
-| `download_pipeline_performance_test.dart` | Native loopback downloads through conversion, metadata, durable history and notification; cancel/retry latency and FFmpeg process counts |
 | `download_queue_access_failure_test.dart` | A denied output folder fails only the queued requests |
 | `download_queue_selection_test.dart` | Enqueuing large track and playlist selections; persistence rollback |
 | `download_queue_workers_test.dart` | Queue restore with bounded real sqflite reads |
@@ -115,7 +116,6 @@ Suites:
 | `library_paging_performance_test.dart` | Long-scroll Library paging on real SQLite (performance) |
 | `library_pipeline_performance_test.dart` | Native SQLite startup, retained Library pages, artwork scrolling, scan ingestion and large collections with isolated fixtures |
 | `logs_performance_test.dart` | Production logs scrolling, log bursts and idle with 500 synthetic entries (performance) |
-| `playback_pipeline_performance_test.dart` | Native local and HTTP playback, metadata, seek, rapid source replacement, cancellation and paused idle with private storage |
 | `loved_batch_write_test.dart` | Love All add and remove on real SQLite |
 | `lyrics_file_access_test.dart` | Embedding, sidecar and export of lyrics outside Downloads |
 | `lyrics_timing_test.dart` | Native lyrics parser timing cases |
@@ -127,6 +127,7 @@ Suites:
 | `mornye_menu_presentation_test.dart` | Anchored glass menu presentation (performance) |
 | `mornye_rendering_performance_test.dart` | Mornye rendering at several glass clarities (performance) |
 | `mornye_screens_performance_test.dart` | Mornye screens with 2000-track data (performance) |
+| `native_backend_migration_test.dart` | Translation and file-hash replies reach the real native worker |
 | `native_backup_archive_test.dart` | Native ZIP backup routes, old archive formats, compression parity |
 | `native_cache_maintenance_test.dart` | Native cover cache budget, pruning and sweep |
 | `native_collection_restore_test.dart` | Native collection restore, exact rows, atomic rejection |
@@ -134,6 +135,8 @@ Suites:
 | `native_history_snapshot_test.dart` | Native history staging and publication through its owner |
 | `native_library_staging_test.dart` | Native library scan staging, publication, retries and cancellation |
 | `network_audio_analysis_test.dart` | Network audio cards with real FFmpeg and Rust analysers |
+| `network_http_connection_test.dart` | HTTP WebDAV verifies and saves through native parsing and secure storage, with and without redirects; NAS origin through a tunnel |
+| `network_library_incremental_test.dart` | Native WebDAV incremental scan survives database reopen and failures |
 | `network_playback_test.dart` | Native player prepare and seek through the network proxy |
 | `network_scan_overhead_test.dart` | Network scan component costs; failed output never published |
 | `network_scan_speed_test.dart` | Native WebDAV scan latency overlap |
@@ -141,6 +144,9 @@ Suites:
 | `network_smb_listing_test.dart` | Preparing large SMB listings |
 | `network_smb_test.dart` | SMB3 listing and seek ranges (needs a fixture) |
 | `network_webdav_encoding_test.dart` | WebDAV parent URI encodings and encoded album listing |
+| `network_webdav_http_test.dart` | WebDAV over HTTP transport, exercised without the Android 17 local-network permission prompt |
+| `pipeline_performance_test.dart` | Library, download, playback and lyrics pipelines with synthetic files and local HTTP fixtures; stage timelines, cancel/retry latency and FFmpeg process counts (performance) |
+| `player_performance_test.dart` | Lyrics, artwork transitions, seek and drag, and paused idle in one build (performance) |
 | `playlist_batch_write_test.dart` | Playlist publication parity, rollback and recovery on real SQLite |
 | `playlist_deletion_batch_test.dart` | Deleting many playlists with shared tracks |
 | `queue_candidate_selection_test.dart` | Selecting queued candidates by pattern |
@@ -148,6 +154,7 @@ Suites:
 | `queue_persistence_snapshot_test.dart` | Queue snapshot persistence, rollback and reload |
 | `queue_progress_selection_test.dart` | Selecting active items in large queues |
 | `queue_removal_test.dart` | Removing completed items; notifier publish and persist |
+| `subsonic_playback_test.dart` | Subsonic catalogue, metadata and native playback with seek, using the shared Subsonic fixture |
 
 All files listed here live in `integration_test/`. Shared fixtures and
 benchmarks come from `test/support/`.

@@ -266,6 +266,7 @@ Future<bool> libraryHasArtist(
       credits: credits,
       includeLocal: includeLocal,
       role: LibraryArtistCredit.credited,
+      limit: 1,
     ),
   );
   return page.rows.isNotEmpty;
@@ -351,12 +352,13 @@ QueueLibraryDbQuery _artistQuery(
   required bool includeLocal,
   required LibraryArtistCredit role,
   QueueLibraryDbCursor? cursor,
+  int limit = _pageSize,
 }) => QueueLibraryDbQuery(
   albumArtist: artist,
   artistCredit: role,
   includeSingleTrackAlbums: true,
   includeLocal: includeLocal,
-  limit: _pageSize,
+  limit: limit,
   cursor: cursor,
   tagCredits: credits,
 );

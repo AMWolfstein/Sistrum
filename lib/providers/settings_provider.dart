@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/models/automix_options.dart';
-import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/folder_path_template.dart';
 import 'package:sistrum/services/download_file_recovery.dart';
@@ -168,44 +167,9 @@ class SettingsNotifier extends Notifier<AppSettings> {
       }
 
       if (loaded != null) {
-        final sanitizedDownloadFallbackExtensionIds =
-            _sanitizeDownloadFallbackExtensionIds(
-              loaded.downloadFallbackExtensionIds,
-            );
-        state = loaded.copyWith(
-          useExtensionProviders: true,
-          downloadFallbackExtensionIds: sanitizedDownloadFallbackExtensionIds,
-          clearDownloadFallbackExtensionIds:
-              loaded.downloadFallbackExtensionIds != null &&
-              sanitizedDownloadFallbackExtensionIds == null,
-          libraryQualityLabelMode: normalizeLibraryQualityLabelMode(
-            loaded.libraryQualityLabelMode,
-          ),
-          autoConvertFormat: normalizeAutoConvertFormat(
-            loaded.autoConvertFormat,
-          ),
-          autoConvertBitrate: normalizeAutoConvertBitrate(
-            loaded.autoConvertBitrate,
-          ),
-          autoConvertMaxBitDepth: normalizeAutoConvertBitDepth(
-            loaded.autoConvertMaxBitDepth,
-          ),
-          autoConvertMaxSampleRate: normalizeAutoConvertSampleRate(
-            loaded.autoConvertMaxSampleRate,
-          ),
-          embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-            loaded.embeddedCoverMaxDimension,
-          ),
-          defaultService: loaded.defaultService,
-          searchProvider: loaded.searchProvider,
-          extensionVerificationBrowserMode:
-              _normalizeExtensionVerificationBrowserMode(
-                loaded.extensionVerificationBrowserMode,
-              ),
-        );
+        state = _normalizedSettings(loaded);
 
         await _runMigrations(prefs);
-        await _normalizeSongLinkRegionIfNeeded();
       }
     }
 
@@ -293,7 +257,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
               : updatedProviders,
         );
       }
-      state = state.copyWith(lastSeenVersion: AppInfo.version);
       // Migration 7/11: retired built-in services are now reconciled after
       // extensions load so manifest-declared replacements can adopt old prefs.
       if (!state.useExtensionProviders) {
@@ -386,9 +349,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
       rethrow;
     }
 
-    state = restored.copyWith(
-      // Always keep extension providers enabled (matches _loadSettings).
-      useExtensionProviders: true,
+    state = _normalizedSettings(restored).copyWith(
       // Preserve this device's storage location; the backup's values point at
       // the original device and would not resolve here.
       downloadDirectory: current.downloadDirectory,
@@ -396,9 +357,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       networkDownloadLabel: current.networkDownloadLabel,
       storageMode: current.storageMode,
       downloadTreeUri: current.downloadTreeUri,
-      embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-        restored.embeddedCoverMaxDimension,
-      ),
     );
 
     await _saveSettings();
@@ -407,6 +365,42 @@ class SettingsNotifier extends Notifier<AppSettings> {
     _syncLyricsSettingsToBackend();
     await _syncNetworkCompatibilitySettingsToBackend();
     await _syncExtensionFallbackSettingsToBackend();
+  }
+
+  /// The normalisation every decoded settings object goes through, from the
+  /// stored copy at start-up and from a restored backup alike.
+  AppSettings _normalizedSettings(AppSettings decoded) {
+    final fallbackIds = _sanitizeDownloadFallbackExtensionIds(
+      decoded.downloadFallbackExtensionIds,
+    );
+    return decoded.copyWith(
+      // Extension providers always stay enabled.
+      useExtensionProviders: true,
+      downloadFallbackExtensionIds: fallbackIds,
+      clearDownloadFallbackExtensionIds:
+          decoded.downloadFallbackExtensionIds != null && fallbackIds == null,
+      libraryQualityLabelMode: normalizeLibraryQualityLabelMode(
+        decoded.libraryQualityLabelMode,
+      ),
+      autoConvertFormat: normalizeAutoConvertFormat(decoded.autoConvertFormat),
+      autoConvertBitrate: normalizeAutoConvertBitrate(
+        decoded.autoConvertBitrate,
+      ),
+      autoConvertMaxBitDepth: normalizeAutoConvertBitDepth(
+        decoded.autoConvertMaxBitDepth,
+      ),
+      autoConvertMaxSampleRate: normalizeAutoConvertSampleRate(
+        decoded.autoConvertMaxSampleRate,
+      ),
+      embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
+        decoded.embeddedCoverMaxDimension,
+      ),
+      songLinkRegion: _normalizeSongLinkRegion(decoded.songLinkRegion),
+      extensionVerificationBrowserMode:
+          _normalizeExtensionVerificationBrowserMode(
+            decoded.extensionVerificationBrowserMode,
+          ),
+    );
   }
 
   String _normalizeSongLinkRegion(String region) {
@@ -431,12 +425,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     final normalized = providerId?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) return providerId;
     return _retiredBuiltInProviderIds.contains(normalized) ? null : providerId;
-  }
-
-  Future<void> _normalizeSongLinkRegionIfNeeded() async {
-    final normalized = _normalizeSongLinkRegion(state.songLinkRegion);
-    if (normalized == state.songLinkRegion) return;
-    await _commit(state.copyWith(songLinkRegion: normalized));
   }
 
   List<String>? _sanitizeDownloadFallbackExtensionIds(List<String>? ids) {

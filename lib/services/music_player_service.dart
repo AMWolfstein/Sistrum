@@ -2728,9 +2728,3 @@ class MusicPlayerHandler extends BaseAudioHandler
 }
 
 Future<MusicPlayerHandler> initMusicPlayer() => musicPlayerRuntime.initialize();
-
-/// Restores the last persisted playback session (if any) into a freshly
-/// initialized handler, paused. Entries whose plain file paths no longer
-/// exist are dropped; content URIs are kept and fail gracefully at play time.
-Future<void> restorePersistedPlaybackSession() =>
-    musicPlayerRuntime.restoreSession();

@@ -237,9 +237,9 @@
   "appearanceUseSystemFont": "Gunakan font sistem",
   "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
   "@@locale": "id",
-  "homeNewReleases": "New Releases",
-  "homeTopArtists": "Your Top Artists",
-  "homeYourPlaylists": "Your Playlists",
+  "homeNewReleases": "Rilisan Baru",
+  "homeTopArtists": "Artis Teratas Anda",
+  "homeYourPlaylists": "Playlist Anda",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -495,23 +495,23 @@
     }
   },
   "optionsArtistTagMode": "Mode Tag Artis",
-  "tagSeparators": "Tag separators",
-  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
-  "tagSeparatorsArtists": "Artists",
-  "tagSeparatorsArtistsFields": "Artist and album artist",
+  "tagSeparators": "Pemisah tag",
+  "tagSeparatorsDescription": "Pilih pemisah yang membagi tag artis dan genre menjadi nama terpisah di pustaka. Nama di Simpan bersama tidak pernah dipisah. Perubahan langsung berlaku tanpa memindai ulang.",
+  "tagSeparatorsArtists": "Artis",
+  "tagSeparatorsArtistsFields": "Artis dan artis album",
   "tagSeparatorsGenre": "Genre",
-  "tagSeparatorsAll": "All",
-  "tagSeparatorsAdd": "Add separator",
-  "tagSeparatorsAddHint": "Separator (1–16 characters)",
-  "tagSeparatorsDuplicate": "This separator is already offered.",
-  "tagSeparatorsRemoveTitle": "Remove separator?",
-  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
-  "tagKeepTogether": "Keep together",
-  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
-  "tagKeepTogetherHint": "Name to keep together",
-  "tagKeepTogetherAdd": "Add name",
-  "tagKeepTogetherRemoveTooltip": "Remove name",
-  "tagKeepTogetherDuplicate": "This name is already listed.",
+  "tagSeparatorsAll": "Semua",
+  "tagSeparatorsAdd": "Tambah pemisah",
+  "tagSeparatorsAddHint": "Pemisah (1–16 karakter)",
+  "tagSeparatorsDuplicate": "Pemisah ini sudah tersedia.",
+  "tagSeparatorsRemoveTitle": "Hapus pemisah?",
+  "tagSeparatorsRemoveMessage": "Nama tidak akan lagi dipisah pada pemisah ini.",
+  "tagKeepTogether": "Simpan bersama",
+  "tagKeepTogetherDescription": "Nama yang tercantum di sini tidak pernah dipisah, meskipun mengandung pemisah, seperti Tyler, The Creator.",
+  "tagKeepTogetherHint": "Nama untuk disimpan bersama",
+  "tagKeepTogetherAdd": "Tambah nama",
+  "tagKeepTogetherRemoveTooltip": "Hapus nama",
+  "tagKeepTogetherDuplicate": "Nama ini sudah tercantum.",
   "metadataSeparatorInvalid": "Gunakan 1–16 karakter tanpa baris baru atau karakter kontrol.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
@@ -1215,7 +1215,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Lagu",
-  "libraryGenres": "Genres",
+  "libraryGenres": "Genre",
   "@searchSongs": {
     "description": "Search result category - songs"
   },
@@ -4067,6 +4067,15 @@
   "snackbarRemovedTracksFromLoved": "Menghapus {count} lagu dari Disukai",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "snackbarRemovedTracksFromPlaylist": "Menghapus {count} lagu dari daftar putar",
+  "@snackbarRemovedTracksFromPlaylist": {
+    "description": "Snackbar after removing multiple tracks from a playlist",
     "placeholders": {
       "count": {
         "type": "int"

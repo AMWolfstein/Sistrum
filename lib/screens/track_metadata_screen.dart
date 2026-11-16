@@ -280,7 +280,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   @override
   double calculateExpandedHeight(BuildContext context) {
     final mediaSize = MediaQuery.sizeOf(context);
-    // height to leave the cover room (see _buildHeaderBackground).
+    // Height that leaves room for the cover.
     return (mediaSize.height * 0.55).clamp(360.0, 520.0);
   }
 

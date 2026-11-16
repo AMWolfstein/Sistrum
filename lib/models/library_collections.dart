@@ -336,10 +336,6 @@ class LibraryCollectionsState {
     return _playlistsById[playlistId];
   }
 
-  bool isTrackInAnyPlaylist(String trackKey) {
-    return _allPlaylistTrackKeys.contains(trackKey);
-  }
-
   bool get hasPlaylistTracks => _allPlaylistTrackKeys.isNotEmpty;
 
   LibraryCollectionsState copyWith({
