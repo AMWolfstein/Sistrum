@@ -41,3 +41,4 @@
 - M003-TOR015 — Offline Home and Search
 - M003-T006 — Library track rows use the album row
 - M003-T007 — Offline-only track menus
+- M003-T008 — Now Playing artist link, heart and menu

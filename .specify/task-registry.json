@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 42,
+  "next_completion": 43,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -472,13 +472,19 @@
       "title": "Offline-only track menus"
     },
     "M003-T008": {
-      "completion": null,
+      "completion": 42,
+      "evidence": {
+        "checks": "Review: round 1 found order-dependent delete test and wrong test count, fixed (delete flow in its own test file, record corrected); round 2 PASS. analyze clean; full suite exit 0, 3870 passed 10 skipped 0 failed (scratchpad t008/full_counts.txt)",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewers",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "7851dc3472af44f49c6b1eb63477e45c",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Now Playing artist link, heart and menu"
     },
     "M003-T009": {

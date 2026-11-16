@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
 import 'package:sistrum/controllers/player_track_navigation.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -18,6 +19,7 @@ import 'package:sistrum/routes/now_playing_route.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/screens/lyrics_share_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
@@ -25,7 +27,6 @@ import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/audio_output_button.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
 import 'package:sistrum/widgets/lyrics_screen_awake.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
@@ -781,28 +782,14 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       case 'artist':
         await _goToCurrentArtist(mediaItem);
         break;
-      case 'share':
-        await SharePlus.instance.share(
-          ShareParams(
-            text: '${mediaItem.title} — ${mediaItem.artist ?? ''}',
-            sharePositionOrigin:
-                anchor ??
-                Rect.fromCenter(
-                  center: MediaQuery.sizeOf(context).center(Offset.zero),
-                  width: 1,
-                  height: 1,
-                ),
-          ),
-        );
-        break;
       case 'album':
         await _goToCurrentAlbum(mediaItem: mediaItem, source: source);
         break;
       case 'shareLyrics':
         await _shareLyrics();
         break;
-      case 'networkOffline':
-        await savePlayingNetworkOffline(context, ref, mediaItem);
+      case 'remove':
+        await _removePlayingFromDevice(mediaItem, source);
         break;
       case 'details':
         unawaited(
@@ -826,6 +813,26 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         await _openExternally(source);
         break;
     }
+  }
+
+  /// The track page's Remove from device, for the local file being played.
+  Future<void> _removePlayingFromDevice(
+    MediaItem mediaItem,
+    String source,
+  ) async {
+    final filePath = DownloadedEmbeddedCoverResolver.cleanFilePath(source);
+    final history = await ref
+        .read(downloadHistoryProvider.notifier)
+        .getByFilePathAsync(filePath);
+    if (!mounted) return;
+    await confirmRemoveTrackFromDevice(
+      context,
+      ref,
+      filePath: filePath,
+      offlineCopy: history?.originFilePath != null,
+      networkItem: false,
+      isActive: () => mounted,
+    );
   }
 
   Future<void> _showSleepTimerSheet(

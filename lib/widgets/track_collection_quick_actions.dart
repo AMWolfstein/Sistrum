@@ -83,7 +83,7 @@ class _TrackOptionsSheet extends ConsumerWidget {
     return MornyeContextMenu(
       quickActions: [
         MornyeMenuAction(
-          icon: CupertinoIcons.star_fill,
+          icon: isLoved ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
           label: isLoved ? l10n.sistrumFavorited : l10n.sistrumFavorite,
           selected: isLoved,
           onPressed: () => _toggleLoved(context, ref),

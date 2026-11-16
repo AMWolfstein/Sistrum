@@ -30,7 +30,7 @@ import 'package:sistrum/utils/service_track_link.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:sistrum/providers/deleted_library_files.dart';
+import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
@@ -814,7 +814,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
             child: HeaderFilledButton(
               icon: CupertinoIcons.trash,
               label: context.l10n.trackMetadataDelete,
-              onPressed: () => _confirmDelete(context, ref, colorScheme),
+              onPressed: () => _confirmDelete(context, ref),
             ),
           ),
         ],

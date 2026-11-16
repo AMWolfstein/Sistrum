@@ -160,7 +160,7 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
               ? l10n.trackMetadataDelete
               : l10n.trackRemoveFromDevice,
           destructive: true,
-          onTap: () => _confirmDelete(screenContext, ref, colorScheme),
+          onTap: () => _confirmDelete(screenContext, ref),
         ),
     ];
   }

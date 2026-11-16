@@ -194,50 +194,21 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
     return true;
   }
 
-  Future<void> _confirmDelete(
-    BuildContext screenContext,
-    WidgetRef ref,
-    ColorScheme colorScheme,
-  ) async {
+  Future<void> _confirmDelete(BuildContext screenContext, WidgetRef ref) async {
     if (_isDeleting) return;
     final filePath = cleanFilePath;
-    final cueItem = _isCueVirtualTrack ? _localLibraryItem : null;
-    final l10n = screenContext.l10n;
-    final confirmed = await showAppConfirmDialog(
-      screenContext,
-      title: l10n.trackDeleteConfirmTitle,
-      message: _downloadItem?.originFilePath != null
-          ? l10n.offlineRemoveMessage
-          : _isNetworkItem
-          ? l10n.trackDeleteNetworkConfirmMessage
-          : l10n.trackDeleteConfirmMessage,
-      confirmLabel: l10n.dialogDelete,
-      destructive: true,
-      filled: false,
-      confirmStyle: TextButton.styleFrom(foregroundColor: colorScheme.error),
-    );
-    if (!confirmed || !mounted || filePath != cleanFilePath) return;
     _isDeleting = true;
-    final container = ProviderScope.containerOf(context, listen: false);
     try {
-      if (cueItem != null) {
-        await container
-            .read(localLibraryProvider.notifier)
-            .removeItem(cueItem.id);
-      } else {
-        if (!await deleteFile(filePath)) {
-          if (screenContext.mounted) {
-            ScaffoldMessenger.of(screenContext).showSnackBar(
-              SnackBar(
-                content: Text(screenContext.l10n.snackbarDeleteTracksFailed(1)),
-              ),
-            );
-          }
-          return;
-        }
-        await removeDeletedLibraryFileEntries(container, [filePath]);
-      }
-      if (!mounted || filePath != cleanFilePath) return;
+      final removed = await confirmRemoveTrackFromDevice(
+        screenContext,
+        ref,
+        filePath: filePath,
+        offlineCopy: _downloadItem?.originFilePath != null,
+        networkItem: _isNetworkItem,
+        cueItem: _isCueVirtualTrack ? _localLibraryItem : null,
+        isActive: () => mounted && filePath == cleanFilePath,
+      );
+      if (!removed || !mounted || filePath != cleanFilePath) return;
       if (ModalRoute.of(context)?.isCurrent != true) return;
       final navigator = Navigator.of(context);
       if (navigator.canPop()) navigator.pop(true);

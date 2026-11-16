@@ -163,6 +163,10 @@ void main() {
       expect(find.text(online), findsNothing, reason: online);
     }
     expect(find.textContaining('link'), findsNothing);
+    // Loving a song is a heart; the star is for favourite artists.
+    expect(find.byIcon(CupertinoIcons.heart), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.star), findsNothing);
+    expect(find.byIcon(CupertinoIcons.star_fill), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

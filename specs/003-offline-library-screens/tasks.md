@@ -124,7 +124,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/widgets/track_collection_quick_actions.dart`,
     `lib/widgets/track_lists/library_track_menu.dart`, `context_menu.dart`, tests.
 
-- [ ] M003-T008 Now Playing artist link, heart and menu
+- [x] M003-T008 Now Playing artist link, heart and menu
   - Acceptance: FR-008, FR-009, FR-010. Go to artist opens the library artist page;
     Love is a heart wherever a song is loved (favourite artists keep the star); the
     "..." sheet drops Save offline and Share and adds Remove from device with the

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:audio_service/audio_service.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/rendering.dart'
     show RenderParagraph, RenderRepaintBoundary, debugOnProfilePaint;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
@@ -24,6 +26,9 @@ import 'package:sistrum/services/motion_artwork_store.dart';
 import 'package:sistrum/services/network_metadata_service.dart';
 import 'package:sistrum/services/network_storage_service.dart';
 import 'package:video_player/video_player.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/screens/lyrics_share_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -164,6 +169,7 @@ void main() {
     MotionArtwork? motionArtwork,
     MusicPlayerController? controller,
     List<MediaItem> queue = const [],
+    List<Override> overrides = const [],
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -173,6 +179,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ...overrides,
           if (controller != null)
             musicPlayerControllerProvider.overrideWithValue(controller),
           currentMediaItemProvider.overrideWithBuild(
@@ -1489,7 +1496,12 @@ void main() {
       );
       expect(find.text('Go to Artist'), findsOneWidget);
       expect(find.text('Favorite'), findsOneWidget);
-      expect(find.text('Share'), findsOneWidget);
+      expect(find.text('Share'), findsNothing);
+      expect(
+        find.text(AppLocalizations.of(tester.element(panel)).offlineSave),
+        findsNothing,
+      );
+      expect(find.text('Remove from device'), findsOneWidget);
       expect(tester.widget<Text>(find.text('Go to Album')).style?.fontSize, 16);
       await tester.ensureVisible(find.text('Sleep timer'));
       await tester.tap(find.text('Sleep timer'));
@@ -1649,7 +1661,7 @@ void main() {
   );
 
   testWidgets(
-    'Sistrum star shares Library favorites across tracks and compact headers',
+    'Sistrum heart shares Library favorites across tracks and compact headers',
     (tester) async {
       await pumpNowPlaying(
         tester,
@@ -1661,12 +1673,12 @@ void main() {
       final container = ProviderScope.containerOf(
         tester.element(find.byType(NowPlayingScreen)),
       );
-      final star = findAppIcon(CupertinoIcons.star).hitTestable();
+      final star = findAppIcon(CupertinoIcons.heart).hitTestable();
       expect(star, findsOneWidget);
       await tester.tap(star);
       await settlePlayer(tester);
       expect(
-        findAppIcon(CupertinoIcons.star_fill).hitTestable(),
+        findAppIcon(CupertinoIcons.heart_fill).hitTestable(),
         findsOneWidget,
       );
       expect(
@@ -1690,16 +1702,16 @@ void main() {
       await tester.tap(findAppIcon(CupertinoIcons.list_bullet));
       await settlePlayer(tester);
       expect(
-        findAppIcon(CupertinoIcons.star_fill).hitTestable(),
+        findAppIcon(CupertinoIcons.heart_fill).hitTestable(),
         findsOneWidget,
       );
       mediaItems.add(item('second'));
       await settlePlayer(tester);
-      expect(findAppIcon(CupertinoIcons.star).hitTestable(), findsOneWidget);
+      expect(findAppIcon(CupertinoIcons.heart).hitTestable(), findsOneWidget);
       mediaItems.add(item('first'));
       await settlePlayer(tester);
       expect(
-        findAppIcon(CupertinoIcons.star_fill).hitTestable(),
+        findAppIcon(CupertinoIcons.heart_fill).hitTestable(),
         findsOneWidget,
       );
 
@@ -1713,7 +1725,7 @@ void main() {
           .read(libraryCollectionsProvider.notifier)
           .toggleLoved(track);
       await settlePlayer(tester);
-      expect(findAppIcon(CupertinoIcons.star).hitTestable(), findsOneWidget);
+      expect(findAppIcon(CupertinoIcons.heart).hitTestable(), findsOneWidget);
       expect(
         find.byType(MornyePlayerFavoriteButton).hitTestable(),
         findsOneWidget,
@@ -1721,6 +1733,29 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('Sistrum player menu Go to Artist opens the library artist', (
+    tester,
+  ) async {
+    await pumpNowPlaying(
+      tester,
+      theme: MornyeTheme.build(Brightness.dark),
+      size: const Size(393, 780),
+    );
+    mediaItems.add(item('first'));
+    await settlePlayer(tester);
+    await tester.tap(findAppIcon(CupertinoIcons.ellipsis).hitTestable());
+    await settlePlayer(tester);
+    await tester.tap(find.text('Go to Artist'));
+    // The artist page keeps a loading animation running; a settle would never end.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      tester.widget<ArtistScreen>(find.byType(ArtistScreen)).artistName,
+      'Artist',
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   for (final layout in ['portrait', 'landscape']) {
     testWidgets('instrumental dots follow intro, break and seeks ($layout)', (
@@ -3961,6 +3996,54 @@ void main() {
     expect(find.byType(PlayerVolumeControl), findsNothing);
     expect(tester.takeException(), isNull);
   });
+  testWidgets(
+    'Sistrum player Remove from device asks first and Cancel keeps the file',
+    (tester) async {
+      late File file;
+      await tester.runAsync(() async {
+        final dir = await Directory.systemTemp.createTemp('now-playing-remove');
+        file = File('${dir.path}/first.flac')..writeAsBytesSync([1, 2, 3]);
+      });
+      addTearDown(() => file.parent.deleteSync(recursive: true));
+      await pumpNowPlaying(
+        tester,
+        theme: MornyeTheme.build(Brightness.dark),
+        size: const Size(393, 780),
+        overrides: [
+          downloadHistoryProvider.overrideWith(_NoHistory.new),
+          localLibraryProvider.overrideWith(_NoLibrary.new),
+        ],
+      );
+      mediaItems.add(
+        MediaItem(
+          id: 'first',
+          title: 'First',
+          artist: 'Artist',
+          album: 'Album',
+          extras: {'source': file.path},
+        ),
+      );
+      await settlePlayer(tester);
+      await tester.tap(findAppIcon(CupertinoIcons.ellipsis).hitTestable());
+      await settlePlayer(tester);
+      await tester.ensureVisible(find.text('Remove from device'));
+      await tester.tap(find.text('Remove from device'));
+      await settlePlayer(tester);
+      expect(find.text('Remove from device?'), findsOneWidget);
+      expect(
+        find.text(
+          'This will permanently delete the downloaded file and remove it from your history.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await settlePlayer(tester);
+      expect(await tester.runAsync(file.exists), isTrue);
+
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 Map<String, dynamic> _lyricsDto(ParsedLyrics value) => {
@@ -3999,6 +4082,20 @@ Map<String, dynamic> _wordDto(LyricWord word) => {
   'endMs': word.end?.inMilliseconds,
   'text': word.text,
 };
+
+class _NoHistory extends DownloadHistoryNotifier {
+  @override
+  DownloadHistoryState build() => DownloadHistoryState();
+
+  @override
+  Future<DownloadHistoryItem?> getByFilePathAsync(String filePath) async =>
+      null;
+}
+
+class _NoLibrary extends LocalLibraryNotifier {
+  @override
+  LocalLibraryState build() => LocalLibraryState();
+}
 
 class _QueueController extends MusicPlayerController {
   _QueueController(this.onSelected);

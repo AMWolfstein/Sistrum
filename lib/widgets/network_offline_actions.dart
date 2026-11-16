@@ -2,14 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/deleted_library_files.dart';
 import 'package:sistrum/services/network_storage_service.dart';
@@ -31,42 +28,6 @@ String offlineDeviceFilterLabel(BuildContext context) =>
       TargetPlatform.android => context.l10n.offlineOnPhone,
       _ => context.l10n.offlineOnDevice,
     };
-
-Future<void> savePlayingNetworkOffline(
-  BuildContext context,
-  WidgetRef ref,
-  MediaItem media,
-) async {
-  final source = media.extras?['source']?.toString() ?? '';
-  if (!source.startsWith('network://')) return;
-  final history = await ref
-      .read(downloadHistoryProvider.notifier)
-      .getByFilePathAsync(source);
-  if (!context.mounted) return;
-  final local = history == null
-      ? await ref.read(localLibraryProvider.notifier).getById(media.id)
-      : null;
-  if (!context.mounted) return;
-  await saveNetworkOffline(context, ref, [
-    if (history != null)
-      UnifiedLibraryItem.fromDownloadHistory(history)
-    else
-      UnifiedLibraryItem.fromLocalLibrary(
-        local ??
-            LocalLibraryItem(
-              id: media.id,
-              filePath: source,
-              trackName: media.title,
-              artistName: media.artist ?? '',
-              albumName: media.album ?? '',
-              coverPath: media.artUri?.toString(),
-              duration: media.duration?.inSeconds,
-              format: media.extras?['format']?.toString(),
-              scannedAt: DateTime.now(),
-            ),
-      ),
-  ]);
-}
 
 String? offlineAvailabilityLabel(
   BuildContext context,

@@ -7,8 +7,8 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-import 'package:sistrum/services/network_offline_saver.dart';
 
 /// Navigation for the title/artist, separate from playback and file actions.
 class MornyePlayerNavigationMenu extends StatelessWidget {
@@ -69,6 +69,11 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
         (state) => track != null && state.isLoved(track),
       ),
     );
+    final source = mediaItem.extras?['source']?.toString() ?? '';
+    final removable =
+        source.isNotEmpty &&
+        !source.startsWith('network://') &&
+        !isCueVirtualPath(source);
     return _MornyePlayerMenuSurface(
       mediaItem: mediaItem,
       child: MornyeContextMenu(
@@ -78,15 +83,11 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
           _action(
             context,
             'favorite',
-            loved ? context.l10n.sistrumFavorited : context.l10n.sistrumFavorite,
-            CupertinoIcons.star_fill,
+            loved
+                ? context.l10n.sistrumFavorited
+                : context.l10n.sistrumFavorite,
+            loved ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
             selected: loved,
-          ),
-          _action(
-            context,
-            'share',
-            context.l10n.trackMetadataShare,
-            CupertinoIcons.share_solid,
           ),
         ],
         groups: [
@@ -127,14 +128,12 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
               context.l10n.lyricsShareTitle,
               CupertinoIcons.quote_bubble,
             ),
-            if (canSaveNetworkOfflineSource(
-              mediaItem.extras?['source']?.toString() ?? '',
-            ))
+            if (removable)
               _action(
                 context,
-                'networkOffline',
-                context.l10n.offlineSave,
-                CupertinoIcons.arrow_down_circle,
+                'remove',
+                context.l10n.trackRemoveFromDevice,
+                CupertinoIcons.trash,
               ),
           ],
           [
