@@ -613,3 +613,65 @@ Checks (`scratchpad/tor014/`):
 - `targeted.log`: `loading_layout_regression_test`, `mornye_loading_and_chrome_test`, `library_navigation_test`, `track_list_tile_selection_test`: All tests passed (17).
 - `full.json`, `full.exit` (0), `full_counts.txt`: 3933 passed excluding loading (3950 non-hidden testDone; 7 loading entries, all passed), 10 skipped, 0 failed.
 - `validate.json`: PASS (3 missions, 10 reserved, 35 completed).
+
+## M003-T013
+
+Library Genres page (FR-018). Base `0eb2df9`. Uncommitted; independent review not run;
+`task complete` not run (tasks.md checkbox left for it).
+
+Map: refreshed first (`scratchpad/t013/map_start.json`: 34122 symbols, 1701 sources, 0 partial,
+0 unindexed); end `map_update.json` (34227, 1705, 0, 0, 0 rejected).
+
+What changed:
+- Overview: a Genres row after Songs (`Icons.category_outlined`) opens the genres page.
+- Genres page (`lib/screens/library_genres_screen.dart`): one row per genre from the genre
+  credits, sorted by name, with a cover from one of its songs (a stored cover path or URL only,
+  no embedded-cover lookup) and "N tracks". The search toggle filters by normalised name.
+  Empty, retry and loading states follow the Artists list.
+- Genre songs (`lib/screens/library_genre_screen.dart`): title is the genre, a count line, compact
+  `AlbumPlayActions` (Play, Shuffle), then flat `TrackCard` rows. Tap plays from the row; Shuffle
+  turns shuffle on and starts at a random song (the Songs rule).
+- Data (`lib/services/library_detail_data.dart`): `LibraryGenreEntry`, `loadLibraryGenres`,
+  `loadLibraryGenreItems`. Providers (`lib/providers/library_detail_provider.dart`):
+  `libraryGenresProvider`, `libraryGenreItemsProvider`, keyed by `tagCreditScopeProvider`
+  (rules and index versions) and `localLibraryEnabled`.
+- SQL (`lib/services/library_queue_store.dart`): `artistPage` and the new `genrePage` share
+  `_creditPage` (artist SQL text unchanged). `_creditFilter` is shared by the album-artist and
+  new `QueueLibraryDbQuery.genre` filters on the history and scanned track rows.
+  `lib/services/library_database.dart`: `getQueueGenrePage`; `_creditsFor` (was
+  `_albumArtistCredits`) also ensures credits for a genre filter.
+- l10n: `libraryGenres` = "Genres" in all 21 ARB files, English everywhere (no translation
+  existed); `@libraryGenres` description in `app_en.arb`. `flutter gen-l10n` run.
+- Tests: new `test/library_genres_test.dart` (9 unit: split, sort, custom delimiter, Keep together
+  ignored, empty skipped, counts and case, local off, downloaded plus scanned, one listing per
+  file) and `test/library_genres_page_test.dart` (3 widget: overview row, genres list and search,
+  genre page Play/Shuffle and row play).
+
+Not changed (see open decisions 1 and 2):
+- The Songs filter sheet (`lib/screens/queue_tab_filter_sheet.dart`) has no genre-value filter.
+  Its only genre entry is `missing-genre`, a presence check. No ad-hoc genre matching was found
+  in the filter, so nothing was replaced. No splitter lost its last reader, so nothing was deleted.
+
+Checks (`scratchpad/t013/`):
+- `gen_l10n.log`: exit 0.
+- `analyze.log`: `flutter analyze lib test integration_test`: No issues found, exit 0 (final run,
+  after the last edit).
+- `format.log`: `dart format --set-exit-if-changed` on `changed_dart_files.txt` (10 files): exit 0,
+  0 changed (final run).
+- `targeted.log`: 13 library test files (pinned SQL and plan tests, T001 and T005 tests, the two
+  new files, overview and Songs widget tests): 91 passed, 0 failed. It ran before test-only
+  import and type edits; the full run covers the final tree.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3948 passed excluding the 7 `loading` entries
+  (all passed), 10 skipped, 0 failed; 3965 non-hidden testDone. Baseline 3936 plus 12 new.
+- `validate.json`: `python3 workflow/work.py validate`: PASS (3 missions, 8 reserved, 37 completed).
+
+Open decisions (owner):
+1. The filter genre item. The task names a genre filter that "matches a split credit" in the
+   Songs filter sheet. None exists. Options: (a) add a genre-value list to the sheet (new UI, then
+   the matching widget test can be written); (b) make `missing-genre` read the credits (differs
+   only for tags with delimiters alone). Neither was done.
+2. Home mixes (`library_mixes.dart` `_familiesOf`) still split genres with their own regex, not
+   the Genre delimiters. It has live readers, so it stays.
+3. Genre rows are flat `TrackCard`s without selection; T006 aligns library rows.
+4. The genre list is read whole, not paged; not measured on a large library.
+5. No device or walkthrough run.

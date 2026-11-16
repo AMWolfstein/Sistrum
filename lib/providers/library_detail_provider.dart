@@ -63,6 +63,30 @@ final libraryArtistPopularTracksProvider = FutureProvider.autoDispose
       );
     });
 
+/// Every genre of the library, sorted by name. The credits version covers the
+/// index changes that the songs of each genre depend on.
+final libraryGenresProvider =
+    FutureProvider.autoDispose<List<LibraryGenreEntry>>(
+      (ref) => loadLibraryGenres(
+        credits: ref.watch(tagCreditScopeProvider),
+        includeLocal: ref.watch(
+          settingsProvider.select((s) => s.localLibraryEnabled),
+        ),
+      ),
+    );
+
+/// The songs of one library genre, downloaded and scanned alike.
+final libraryGenreItemsProvider = FutureProvider.autoDispose
+    .family<List<UnifiedLibraryItem>, String>(
+      (ref, genreKey) => loadLibraryGenreItems(
+        genreKey,
+        credits: ref.watch(tagCreditScopeProvider),
+        includeLocal: ref.watch(
+          settingsProvider.select((s) => s.localLibraryEnabled),
+        ),
+      ),
+    );
+
 /// The songs of a library album by album key, downloaded and scanned alike.
 final libraryAlbumItemsProvider = FutureProvider.autoDispose
     .family<List<UnifiedLibraryItem>, String>((ref, albumKey) {

@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 38,
+  "next_completion": 39,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -516,13 +516,19 @@
       "title": "Tag separators for artist and genre credits"
     },
     "M003-T013": {
-      "completion": null,
+      "completion": 38,
+      "evidence": {
+        "checks": "Review round 1 PASS. Saved evidence scratchpad/t013: flutter analyze lib test integration_test no issues; dart format 10 files 0 changed; gen-l10n exit 0; full flutter test exit 0, 3948 passed excluding 7 loading entries, 10 skipped, 0 failed; work.py validate PASS. Genres list/songs read the genre credits; the filter sheet has no genre-value filter (owner decision); no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a4182b11",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "e77a3983bfeb4c878be217bc7f061d50",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Library Genres page"
     },
     "M003-T014": {

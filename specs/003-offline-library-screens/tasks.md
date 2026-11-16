@@ -105,7 +105,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
     the top (same widget as Folders).
   - Paths: `lib/screens/mornye_library_screen.dart`, `lib/screens/queue_tab*.dart`, tests.
 
-- [ ] M003-T013 Library Genres page
+- [x] M003-T013 Library Genres page
   - Acceptance: FR-018. The library overview gets a Genres row opening a page of
     genres read from the genre credits (Genre delimiters), each opening its songs
     with Play and Shuffle and the library track row; the genre filter uses the same

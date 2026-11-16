@@ -1299,6 +1299,7 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Songs",
+  "libraryGenres": "Genres",
   "@searchSongs": {
     "description": "Search result category - songs"
   },

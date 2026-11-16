@@ -142,6 +142,71 @@ Future<List<Track>> loadLibraryArtistPopularTracks(
   return [for (final song in picked) song.toTrack()];
 }
 
+/// A genre of the library: its name, its song count and a cover from one of
+/// its songs when the library has one.
+class LibraryGenreEntry {
+  const LibraryGenreEntry({
+    required this.key,
+    required this.name,
+    required this.trackCount,
+    this.cover,
+  });
+
+  /// The normalised genre name the credits are matched by.
+  final String key;
+  final String name;
+  final int trackCount;
+  final String? cover;
+}
+
+/// Every genre of the library's genre credits, sorted by name, downloaded and
+/// scanned songs alike; a scanned copy shadowed by a download counts once.
+Future<List<LibraryGenreEntry>> loadLibraryGenres({
+  required TagCreditScope credits,
+  required bool includeLocal,
+}) async {
+  final rows = await LibraryDatabase.instance.getQueueGenrePage(
+    QueueLibraryDbQuery(
+      includeLocal: includeLocal,
+      limit: -1,
+      tagCredits: credits,
+    ),
+  );
+  return [
+    for (final row in rows)
+      LibraryGenreEntry(
+        key: row['genre_key'] as String? ?? '',
+        name: row['genre_name'] as String? ?? '',
+        trackCount: (row['track_count'] as num?)?.toInt() ?? 0,
+        cover: [
+          row['cover_path'],
+          row['cover_url'],
+        ].whereType<String>().where((cover) => cover.isNotEmpty).firstOrNull,
+      ),
+  ];
+}
+
+/// The songs credited with the genre [genreKey], downloaded and scanned alike,
+/// in library order. Items keep their files, for playback.
+Future<List<UnifiedLibraryItem>> loadLibraryGenreItems(
+  String genreKey, {
+  required TagCreditScope credits,
+  required bool includeLocal,
+}) async {
+  final rows = await _allRows(
+    (cursor) => LibraryDatabase.instance.getQueueTrackPageResult(
+      QueueLibraryDbQuery(
+        genre: genreKey,
+        includeLocal: includeLocal,
+        limit: _pageSize,
+        cursor: cursor,
+        tagCredits: credits,
+      ),
+    ),
+  );
+  return [for (final row in rows) ?_libraryItem(row)];
+}
+
 /// Whether the library has a song crediting [artist] in any role.
 Future<bool> libraryHasArtist(
   String artist, {

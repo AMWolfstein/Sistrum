@@ -505,14 +505,14 @@ class LibraryDatabase {
     includeLocal: request.includeLocal,
     sizes: request,
     rebuild: isAlbumCompletenessFilter(request.metadata),
-    credits: _albumArtistCredits(request),
+    credits: _creditsFor(request),
   );
 
   Future<QueueLibraryCounts> getQueueCounts(QueueLibraryDbQuery request) =>
       _queueRead(
         (store) => store.counts(request),
         includeLocal: request.includeLocal,
-        credits: _albumArtistCredits(request),
+        credits: _creditsFor(request),
       );
 
   /// Ids, paths and covers of every Library song, for the Folders index.
@@ -551,7 +551,7 @@ class LibraryDatabase {
     (store) => store.albumPage(request),
     includeLocal: request.includeLocal,
     sizes: request,
-    credits: _albumArtistCredits(request),
+    credits: _creditsFor(request),
   );
 
   /// Album artists across downloaded and scanned music, excluding duplicate paths.
@@ -563,9 +563,21 @@ class LibraryDatabase {
     credits: request.tagCredits,
   );
 
-  /// The credits a page needs only when it filters by album artist.
-  static TagCreditScope? _albumArtistCredits(QueueLibraryDbQuery request) =>
-      request.albumArtist == null ? null : request.tagCredits;
+  /// Genres across downloaded and scanned music, from the genre credits. Pass
+  /// a limit of -1 to read them all.
+  Future<List<Map<String, dynamic>>> getQueueGenrePage(
+    QueueLibraryDbQuery request,
+  ) => _queueRead(
+    (store) => store.genrePage(request),
+    includeLocal: request.includeLocal,
+    credits: request.tagCredits,
+  );
+
+  /// The credits a page needs only when it filters by album artist or genre.
+  static TagCreditScope? _creditsFor(QueueLibraryDbQuery request) =>
+      request.albumArtist == null && request.genre == null
+      ? null
+      : request.tagCredits;
 
   Future<List<Map<String, dynamic>>> getQueueLocalAlbumTracks(
     String albumName,

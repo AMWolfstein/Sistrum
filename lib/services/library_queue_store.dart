@@ -317,9 +317,30 @@ class LibraryQueueStore {
   /// Credited artists across downloaded and scanned music, album artists and
   /// track artists alike, without loading tracks into Dart. Scanned paths
   /// already represented by downloads are excluded.
-  Future<List<Map<String, dynamic>>> artistPage(
-    QueueLibraryDbQuery request,
-  ) async {
+  Future<List<Map<String, dynamic>>> artistPage(QueueLibraryDbQuery request) =>
+      _creditPage(
+        request,
+        condition: "c.field IN ('artist', 'album_artist')",
+        keyAlias: 'artist_key',
+        nameAlias: 'artist_name',
+      );
+
+  /// Genres across downloaded and scanned music, from the genre credits, so a
+  /// song tagged `Rock; Pop` counts once in each. A limit of -1 reads them all.
+  Future<List<Map<String, dynamic>>> genrePage(QueueLibraryDbQuery request) =>
+      _creditPage(
+        request,
+        condition: "c.field = 'genre'",
+        keyAlias: 'genre_key',
+        nameAlias: 'genre_name',
+      );
+
+  Future<List<Map<String, dynamic>>> _creditPage(
+    QueueLibraryDbQuery request, {
+    required String condition,
+    required String keyAlias,
+    required String nameAlias,
+  }) async {
     final parts = <String>[
       '''
         SELECT 'h' AS source, id AS row_id, cover_url, NULL AS cover_path,
@@ -337,7 +358,7 @@ class LibraryQueueStore {
     final search = sqlite.normalizeLookupText(request.searchQuery);
     return _db.rawQuery(
       '''
-      SELECT c.name_key AS artist_key, MIN(c.name) AS artist_name,
+      SELECT c.name_key AS $keyAlias, MIN(c.name) AS $nameAlias,
         MAX(NULLIF(i.cover_url, '')) AS cover_url,
         MAX(NULLIF(i.cover_path, '')) AS cover_path,
         MAX(i.sample_file_path) AS sample_file_path,
@@ -345,7 +366,7 @@ class LibraryQueueStore {
       FROM ${LibraryTagCreditsCache.tempTable} c
       JOIN (${parts.join(' UNION ALL ')}) i
         ON i.source = c.source AND i.row_id = c.row_id
-      WHERE c.field IN ('artist', 'album_artist') AND c.name_key != ''
+      WHERE $condition AND c.name_key != ''
         ${search.isEmpty ? '' : "AND c.name_key LIKE ? ESCAPE '\\'"}
       GROUP BY c.name_key
       ORDER BY c.name_key
@@ -359,6 +380,20 @@ class LibraryQueueStore {
     );
   }
 
+  /// Rows of [alias] that hold a credit named [name] under [condition] (a
+  /// condition on the credits' `field`). Appends the normalised name to [args].
+  String _creditFilter(
+    String source,
+    String alias,
+    String condition,
+    String? name,
+    List<Object?> args,
+  ) {
+    args.add(sqlite.normalizeLookupText(name));
+    return '$alias.id IN (SELECT row_id FROM ${LibraryTagCreditsCache.tempTable} '
+        "WHERE source = '$source' AND $condition AND name_key = ?)";
+  }
+
   /// Rows of [alias] that the artist of [request] is credited with, by its
   /// artist credit role. Appends the normalised name to [args] once per subquery.
   String _artistCreditFilter(
@@ -367,11 +402,8 @@ class LibraryQueueStore {
     QueueLibraryDbQuery request,
     List<Object?> args,
   ) {
-    String inCredits(String fields) {
-      args.add(sqlite.normalizeLookupText(request.albumArtist));
-      return '$alias.id IN (SELECT row_id FROM ${LibraryTagCreditsCache.tempTable} '
-          "WHERE source = '$source' AND $fields AND name_key = ?)";
-    }
+    String inCredits(String condition) =>
+        _creditFilter(source, alias, condition, request.albumArtist, args);
 
     return switch (request.artistCredit) {
       LibraryArtistCredit.credited => inCredits(
@@ -838,6 +870,11 @@ class LibraryQueueStore {
     if (request.albumArtist != null) {
       where.add(_artistCreditFilter('h', 'h', request, args));
     }
+    if (request.genre != null) {
+      where.add(
+        _creditFilter('h', 'h', "field = 'genre'", request.genre, args),
+      );
+    }
     final query = sqlite.normalizeLookupText(request.searchQuery);
     if (query.isNotEmpty) {
       final ftsQuery = sqlite.ftsPhraseSearchQuery(query);
@@ -898,6 +935,11 @@ class LibraryQueueStore {
     }
     if (request.albumArtist != null) {
       where.add(_artistCreditFilter('l', 'l', request, args));
+    }
+    if (request.genre != null) {
+      where.add(
+        _creditFilter('l', 'l', "field = 'genre'", request.genre, args),
+      );
     }
     final query = sqlite.normalizeLookupText(request.searchQuery);
     if (query.isNotEmpty) {

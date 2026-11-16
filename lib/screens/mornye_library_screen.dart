@@ -9,6 +9,7 @@ import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
+import 'package:sistrum/screens/library_genres_screen.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
@@ -362,6 +363,14 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                         Icons.music_note_outlined,
                         context.l10n.searchSongs,
                         () => widget.onOpenSection('all'),
+                      ),
+                      (
+                        Icons.category_outlined,
+                        context.l10n.libraryGenres,
+                        () => pushPage<void>(
+                          context,
+                          (_) => const LibraryGenresScreen(),
+                        ),
                       ),
                       (
                         Icons.folder_outlined,

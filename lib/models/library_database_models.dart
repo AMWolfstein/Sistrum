@@ -326,6 +326,9 @@ class QueueLibraryDbQuery {
   final bool includeSingleTrackAlbums;
   final String? albumArtist;
   final LibraryArtistCredit artistCredit;
+
+  /// Only songs whose genre credits include this genre, by name.
+  final String? genre;
   final int limit;
   final int offset;
   final String filterMode;
@@ -344,6 +347,7 @@ class QueueLibraryDbQuery {
     this.includeSingleTrackAlbums = false,
     this.albumArtist,
     this.artistCredit = LibraryArtistCredit.credited,
+    this.genre,
     this.limit = 100,
     this.offset = 0,
     this.filterMode = 'all',

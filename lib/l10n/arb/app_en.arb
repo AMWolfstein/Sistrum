@@ -1363,6 +1363,10 @@
     "description": "Progress indicator - parsing CSV file"
   },
   "searchSongs": "Songs",
+  "libraryGenres": "Genres",
+  "@libraryGenres": {
+    "description": "Library view of the genres in the song tags, each opening its songs"
+  },
   "@searchSongs": {
     "description": "Search result category - songs"
   },
