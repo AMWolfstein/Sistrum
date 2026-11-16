@@ -63,3 +63,13 @@
   no composer; no Album Artists list.
 - **Adaptation**: Private has a different layout (`lib/core`, `lib/services/library/
   browse`); the port is by hand onto this tree's `library_database`/`library_queue_store`.
+
+## R8. Owner extras (2026-11-16)
+
+- Release type: track total tag, Apple Music rule (1-3 Single, 4-6 EP, 7+ Album),
+  EPs under Singles & EPs; a partial album stays an album (the tag counts the release,
+  not the owned tracks). Applied in T002.
+- TOR014: delete the online artist, album and playlist pages after T002 to T004; this
+  also removes the Now Playing case where Go to album fell back to the online page.
+- TOR015: offline Home (sections and order in tasks.md) and library-only Search;
+  "Your Top Songs" was dropped (On Repeat stays).

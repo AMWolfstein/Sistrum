@@ -18,7 +18,7 @@ Common checks: `flutter gen-l10n` (after ARB changes), `flutter analyze`, full
 `flutter test` (baseline 0 failed, 10 skipped), and the task's searches.
 
 Execution order (IDs are allocator order, not run order): T012, T014, T001, T002,
-T003, T004, T005, T013, T006, T007, T008, T009, T010, T011.
+T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
 
 ## Implementation
 
@@ -67,6 +67,11 @@ T003, T004, T005, T013, T006, T007, T008, T009, T010, T011.
     providers), `lib/utils/artist_utils.dart` (reuse), tests.
 
 - [ ] M003-T002 Artist screen reads the library
+  - Release type (owner): Album, Single or EP from the release's track total tag
+    (`total_tracks`), not the tracks owned, as Apple Music does: 1-3 Single, 4-6 EP,
+    7+ Album; duration only when the whole release is owned; no tag: a name ending in
+    " - Single"/" - EP", else Album. EPs show under Singles & EPs. Replaces T001's
+    owned-count rule.
   - Acceptance: FR-001, FR-002, FR-009 (library entry points). `ArtistScreen` in
     library mode: header play button instead of download, Latest Release card plays
     instead of downloading, Popular, Albums, Singles & EPs, Compilations; no Releases,
@@ -148,6 +153,38 @@ T003, T004, T005, T013, T006, T007, T008, T009, T010, T011.
     Material layout.
   - Paths: as listed, `lib/models/settings*.dart`, `lib/providers/settings_provider.dart`,
     `lib/screens/settings/lyrics_settings_page.dart`, tests.
+
+## Owner extras
+
+- [ ] M003-TOR014 Remove the online versions of the converted screens
+  - Request (owner, 2026-11-16): every screen this mission converts to the library
+    loses its online version here: artist, album and playlist.
+  - Acceptance: FR-020. Delete `ExtensionArtistScreen`, `ExtensionAlbumScreen`,
+    `ExtensionPlaylistScreen`, the extension data path inside `ArtistScreen`,
+    `AlbumScreen` and `PlaylistScreen` (fetching, download buttons, open in other
+    services, monthly listeners, video/logo header), the discography download
+    (`artist_screen_discography.dart`) and the concerts screens
+    (`artist_concerts_screen.dart`, `concert_detail_screen.dart`,
+    `artist_concerts_button.dart`). `navigateToArtist`, `navigateToAlbum`, Now Playing
+    Go to album/artist, favourite artists and the album cards open the library pages;
+    a name not in the library shows a message, never an online page. Home and Search
+    entries to these pages are handled in TOR015.
+  - Dependencies: T002, T003, T004.
+
+- [ ] M003-TOR015 Offline Home and Search
+  - Request (owner, 2026-11-16): keep the offline Home, add what Apple Music Home has
+    that works offline, delete every online Home; Search becomes library-only.
+  - Acceptance: FR-021, FR-022. Home sections in this order: Top Picks (library mixes
+    only), Recently Played (Continue Listening when nothing played), New Releases
+    (newest releases in the library by release date, from the most-played artists),
+    On Repeat, Your Top Artists (most-played artists, opening the library artist page),
+    Recently Added, Your Playlists, Genres (opening the T013 page). Deleted: the Explore
+    feed (`home_tab_explore.dart`, `exploreProvider`, `readExtensionHomeFeed`), the
+    online part of Top Picks (`homeTopPicksProvider`), Recently visited
+    (`recentAccessViewProvider` and its store), the Home feed setting and page. The
+    Search tab searches the library only; an artist result shows the same image as
+    the library artist page (T001 `imageCover`).
+  - Dependencies: TOR014 and T013 (the Genres shelf opens the T013 page).
 
 ## Final cumulative review
 

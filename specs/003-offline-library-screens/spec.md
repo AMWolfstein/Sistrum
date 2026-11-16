@@ -176,6 +176,18 @@ tracks of one artist, open the artist from the library and check each section.
   genre opening its songs.
 - **FR-019**: After Edit metadata saves, the library row and its cover MUST be
   refreshed from the saved file, and a failed index update MUST be reported.
+- **FR-020**: The online versions of the converted screens (artist, album, playlist),
+  their extension data path, discography download and concerts screens MUST be
+  deleted; every link opens the library page or reports that the item is not in the
+  library.
+- **FR-021**: Home MUST show only library content: Top Picks (library mixes), Recently
+  Played, New Releases, On Repeat, Your Top Artists, Recently Added, Your Playlists and
+  Genres, in that order; the online feed, online Top Picks, Recently visited and the
+  feed setting MUST be deleted.
+- **FR-022**: Search MUST search the library only; an artist result MUST show the same
+  image as the library artist page.
+- **FR-023**: A release MUST be Album, Single or EP by its track total tag (1-3 Single,
+  4-6 EP, 7+ Album), not by the tracks owned.
 - **FR-014**: Code, strings, tests and assets left without a reader by these changes
   MUST be deleted.
 
