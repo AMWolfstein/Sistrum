@@ -4,42 +4,51 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
-/// Album-style track row: track number, title/subtitle, and a trailing play
-/// button that's hidden once selection mode is active.
+/// Album-style track row: a leading cover or track number, title/subtitle, and
+/// a trailing play button (when [onPlay] is given) that's hidden once selection
+/// mode is active.
 ///
 /// A thin arrangement over [TrackCard]; the container, selection tick, padding
 /// and typography all come from there.
 class AlbumTrackTile extends StatelessWidget {
   const AlbumTrackTile({
     super.key,
-    required this.trackNumber,
+    this.trackNumber,
+    this.cover,
     required this.trackName,
     required this.subtitle,
     required this.isSelectionMode,
     required this.isSelected,
     required this.onToggleSelection,
     required this.onOpen,
-    required this.onEnterSelectionMode,
-    required this.onPlay,
+    this.onEnterSelectionMode,
+    this.onPlay,
     this.isCurrent = false,
     this.isPlaying = false,
+    this.toggleOnLongPress = false,
   });
 
   final int? trackNumber;
+
+  /// Shown in place of the track number, for library rows.
+  final Widget? cover;
   final String trackName;
   final Widget subtitle;
   final bool isSelectionMode;
   final bool isSelected;
-  final VoidCallback onToggleSelection;
+  final VoidCallback? onToggleSelection;
   final VoidCallback onOpen;
-  final VoidCallback onEnterSelectionMode;
-  final VoidCallback onPlay;
+  final VoidCallback? onEnterSelectionMode;
+  final VoidCallback? onPlay;
 
   /// The row is the player's current track. See [TrackCard.isCurrent].
   final bool isCurrent;
 
   /// The current track is playing: the button offers pause.
   final bool isPlaying;
+
+  /// A long press toggles the row while selecting, like library rows always did.
+  final bool toggleOnLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -48,19 +57,25 @@ class AlbumTrackTile extends StatelessWidget {
       isSelectionMode: isSelectionMode,
       isSelected: isSelected,
       onTap: isSelectionMode ? onToggleSelection : onOpen,
-      onLongPress: isSelectionMode ? null : onEnterSelectionMode,
-      leading: SizedBox(
-        width: 24,
-        // Takes the row's supporting colour, which follows a current fill.
-        child: Text(
-          trackNumber?.toString() ?? '-',
-          style: const TextStyle(fontWeight: FontWeight.w500),
-          textAlign: TextAlign.center,
-        ),
-      ),
+      onLongPress: isSelectionMode
+          ? (toggleOnLongPress ? onToggleSelection : null)
+          : onEnterSelectionMode,
+      leading:
+          cover ??
+          SizedBox(
+            width: 24,
+            // Takes the row's supporting colour, which follows a current fill.
+            child: Text(
+              trackNumber?.toString() ?? '-',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+            ),
+          ),
       title: trackName,
       subtitle: subtitle,
-      trailing: AlbumTrackPlayButton(isPlaying: isPlaying, onPlay: onPlay),
+      trailing: onPlay == null
+          ? null
+          : AlbumTrackPlayButton(isPlaying: isPlaying, onPlay: onPlay),
     );
   }
 }

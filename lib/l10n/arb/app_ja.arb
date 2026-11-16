@@ -2728,10 +2728,6 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceDownloaded": "ダウンロード済み",
-  "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Sistrum"
-  },
   "librarySourceLocal": "ローカル",
   "@librarySourceLocal": {
     "description": "Badge for tracks from local library scan"

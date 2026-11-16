@@ -15,6 +15,7 @@ import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
+import 'package:sistrum/widgets/collection_track_actions.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 
 import 'support/fixed_settings.dart';
@@ -125,9 +126,10 @@ UserPlaylistCollection _playlist({
 Future<ProviderContainer> _pump(
   WidgetTester tester,
   LibraryCollectionsState initial,
-  Widget page,
-) async {
-  tester.view.physicalSize = const Size(430, 1000);
+  Widget page, {
+  Size surface = const Size(430, 1000),
+}) async {
+  tester.view.physicalSize = surface;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   SharedPreferences.setMockInitialValues({});
@@ -224,6 +226,30 @@ void main() {
     expect(find.byTooltip(l10n.collectionPlaylistChangeCover), findsOneWidget);
     expect(find.byTooltip(l10n.collectionExportM3u), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('library rows show only the cover, title and artist', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      LibraryCollectionsState(isLoaded: true, loved: _entries),
+      const PlaylistScreen.libraryLoved(),
+    );
+    final row = find.widgetWithText(AlbumTrackTile, 'Alpha');
+    expect(row, findsOneWidget);
+    expect(
+      find.descendant(of: row, matching: find.byType(CollectionTrackCover)),
+      findsOne,
+    );
+    expect(
+      tester
+          .widgetList<Text>(
+            find.descendant(of: row, matching: find.byType(Text)),
+          )
+          .map((text) => text.data),
+      ['Alpha', 'Artist'],
+    );
   });
 
   testWidgets('Loved songs open the same design without playlist-only '
@@ -399,7 +425,14 @@ void main() {
     testWidgets('$name removal of the selection refreshes the rows', (
       tester,
     ) async {
-      final container = await _pump(tester, state, page);
+      // Cover rows are taller than the old number rows: keep Beta clear of the
+      // selection bar.
+      final container = await _pump(
+        tester,
+        state,
+        page,
+        surface: const Size(430, 1400),
+      );
       await tester.longPress(find.text('Alpha'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Beta'));

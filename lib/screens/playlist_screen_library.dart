@@ -352,7 +352,10 @@ extension _PlaylistLibrarySections on _PlaylistScreenState {
       child: StaggeredListItem(
         index: index,
         child: AlbumTrackTile(
-          trackNumber: index + 1,
+          cover: CollectionTrackCover(
+            track: entry.track,
+            size: context.tokens.coverList,
+          ),
           trackName: entry.track.name,
           subtitle: Text(
             entry.track.artistName,

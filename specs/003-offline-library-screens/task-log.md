@@ -757,3 +757,28 @@ Checks (`scratchpad/tor015/`):
   intermittent order or load dependence is suspected.
 - `map_update.json`: 33623 symbols, 1682 sources, 0 partial, 0 unindexed.
 - `validate.json`: PASS (3 missions, 7 reserved, 38 completed).
+
+## M003-T006
+
+FR-007: library track rows show only a cover, the title and the artist.
+
+Changed:
+- `AlbumTrackTile` (`lib/widgets/album_track_tile.dart`) takes an optional `cover` in place of the track number, and an optional `onPlay`, so library rows can use it without a play button.
+- Songs list (`queue_tab_item_widgets.dart`, `_buildUnifiedLibraryItem`): artist only. Source badge, date, quality and offline label removed; play or missing-file trailing kept.
+- Songs completion rows (`queue_tab_collection_items.dart`, `_buildBridgeItem`): artist only; the list-style quality badge branch is removed. The grid keeps its badge.
+- Folders (`library_directory_view.dart`, `_songRow`): `AlbumTrackTile` with the cover; quality removed from the artist line.
+- Library playlists and Loved (`playlist_screen_library.dart`, `_libraryRow`): cover from the new `CollectionTrackCover` (`collection_track_actions.dart`) instead of the track number.
+- ARB: `librarySourceDownloaded` removed from all 21 ARB files (no reader left). `libraryInLibrary` stays (Wishlist badge).
+- Wishlist (`LibraryTracksFolderScreen`) and `InLibraryBadge` untouched.
+- Tests: rows assert their exact text (title, artist) and a cover (`library_songs_page_test.dart`, `library_directory_view_test.dart`, `library_playlist_screen_test.dart`). The two playlist selection-removal tests use a 430x1400 surface because the cover rows are taller.
+
+Checks (evidence in `/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t006`):
+- `map_start.json`, `map_update.json`: update succeeded before and after, 0 partial, 0 unindexed sources.
+- `gen_l10n.log`: exit 0 after the ARB change.
+- `analyze.log`: `flutter analyze lib test integration_test`: no issues.
+- `format.log`: `dart format` on the 10 changed Dart files: 0 changed.
+- `targeted.log`: 19 touched test files (targeted_files.txt): 113 passed, exit 0; `targeted_new.log` 27 passed.
+- `full.json`, `full.exit` (1), `full_counts.txt`: 3893 non-hidden results: 3882 passed, 10 skipped, 1 failed. The failure is `initial index cannot overwrite a newer source remove` in `library_loading_test.dart`, a known intermittent file; it passed when re-run alone (`loading_rerun_1.log`, `loading_rerun_2.log`). The three new row tests passed.
+- `validate.json`: PASS.
+
+Not run: independent review, `task complete`, commit, push.

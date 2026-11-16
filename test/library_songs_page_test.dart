@@ -18,6 +18,7 @@ import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/track_card.dart';
 import 'package:sqflite/sqflite.dart';
 
 class _Settings extends SettingsNotifier {
@@ -224,6 +225,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('Songs rows show only the cover, title and artist', (
+    tester,
+  ) async {
+    await pumpQueue(
+      tester,
+      section: 'all',
+      player: _Player(),
+      playback: _Playback(),
+    );
+    final row = find.widgetWithText(TrackCard, 'Song 0');
+    expect(row, findsOneWidget);
+    expect(find.descendant(of: row, matching: find.byType(Hero)), findsOne);
+    expect(_rowTexts(tester, row), ['Song 0', 'Artist']);
+  });
+
   testWidgets('Songs page has no Create playlist and no drag to playlists', (
     tester,
   ) async {
@@ -275,3 +291,11 @@ Future<void> pumpBounded(WidgetTester tester) async {
     await tester.pump(const Duration(milliseconds: 50));
   }
 }
+
+/// The text a row shows, in order.
+List<String?> _rowTexts(WidgetTester tester, Finder row) => [
+  for (final text in tester.widgetList<Text>(
+    find.descendant(of: row, matching: find.byType(Text)),
+  ))
+    text.data,
+];

@@ -2725,10 +2725,6 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceDownloaded": "تم التنزيل",
-  "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Sistrum"
-  },
   "librarySourceLocal": "محلي",
   "@librarySourceLocal": {
     "description": "Badge for tracks from local library scan"

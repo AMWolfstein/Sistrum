@@ -840,18 +840,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
   }) {
     final fileExistsListenable = _fileExistsListenable(item.filePath);
     final isSelected = _selectedIds.contains(item.id);
-    final date = item.addedAt;
-    final dateStr =
-        '${shortMonthNames[date.month - 1]} ${date.day}, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-
-    final isDownloaded = item.source == LibraryItemSource.downloaded;
-    final quality = item.qualityForMode(_libraryQualityLabelMode);
-    final sourceLabel = isDownloaded
-        ? context.l10n.librarySourceDownloaded
-        : context.l10n.librarySourceLocal;
-    // The label text tells the sources apart; rows keep one neutral role.
-    final sourceColor = colorScheme.surfaceContainerHighest;
-    final sourceTextColor = colorScheme.onSurfaceVariant;
 
     final open = _libraryItemOpenAction(
       item,
@@ -870,78 +858,9 @@ extension _QueueTabItemWidgets on _QueueTabState {
         context.tokens.coverList,
       ),
     );
-    // The text reads the row's supporting colour, which follows the fill of
-    // the current track; the badges keep their own surfaces.
-    final subtitle = Builder(
-      builder: (context) {
-        final textColor = DefaultTextStyle.of(context).style.color;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // The history service is where the audio was downloaded from;
-            // artist lookups use the user's search provider instead.
-            ClickableArtistName(
-              artistName: item.artistName,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: textColor),
-            ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                Container(
-                  padding: context.tokens.badgePadding,
-                  decoration: BoxDecoration(
-                    color: sourceColor,
-                    borderRadius: context.tokens.borderRadiusBadge,
-                  ),
-                  child: Text(
-                    sourceLabel,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: sourceTextColor,
-                      fontSize: context.tokens.badgeFontSize,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    dateStr,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelSmall?.copyWith(color: textColor),
-                  ),
-                ),
-                if (quality != null && quality.isNotEmpty) ...[
-                  const SizedBox(width: 8),
-                  _buildLibraryQualityBadge(
-                    context,
-                    colorScheme,
-                    quality,
-                    listStyle: true,
-                  ),
-                ],
-                if (offlineAvailabilityLabel(context, item)
-                    case final status?) ...[
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      status,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        );
-      },
+    final subtitle = ClickableArtistName(
+      artistName: item.artistName,
+      style: Theme.of(context).textTheme.bodySmall,
     );
     final trailing = ValueListenableBuilder<bool>(
       valueListenable: fileExistsListenable,
@@ -966,7 +885,8 @@ extension _QueueTabItemWidgets on _QueueTabState {
         );
       },
     );
-    Widget card({bool current = false, bool playing = false}) => TrackCard(
+    final card = TrackCard(
+      style: TrackCardStyle.flat,
       isSelectionMode: _isSelectionMode,
       isSelected: isSelected,
       onTap: _isSelectionMode ? () => _toggleSelection(item.id) : open,
@@ -983,7 +903,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
       label: context.l10n.a11yTrackByArtist(item.trackName, item.artistName),
       selected: isSelected,
       // Rows show no current-track state.
-      child: card(),
+      child: card,
     );
   }
 

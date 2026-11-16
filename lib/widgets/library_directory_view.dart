@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 
@@ -24,6 +23,7 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
@@ -500,48 +500,33 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     List<UnifiedLibraryItem> items,
     UnifiedLibraryItem item,
   ) {
-    final qualityMode = ref.watch(
-      settingsProvider.select((s) => s.libraryQualityLabelMode),
-    );
-    final quality = item.qualityForMode(qualityMode);
     return Consumer(
       builder: (context, ref, _) {
         final playback = ref.watch(
           mediaItemPlaybackUiProvider(_playbackKey(item)),
         );
-        return TrackCard(
-          style: TrackCardStyle.flat,
-          leading: _SongArtwork(item: item, size: context.tokens.coverList),
-          title: item.trackName,
+        return AlbumTrackTile(
+          cover: _SongArtwork(item: item, size: context.tokens.coverList),
+          trackName: item.trackName,
           subtitle: Text(
-            [item.artistName, ?quality].join(' · '),
+            item.artistName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: IconButton(
-            tooltip: playback.isPlaying
-                ? context.l10n.actionPause
-                : context.l10n.tooltipPlay,
-            icon: Icon(
-              playback.isPlaying
-                  ? Icons.pause_rounded
-                  : Icons.play_arrow_rounded,
-            ),
-            // The current song pauses and resumes in place.
-            onPressed: playback.isCurrent
-                ? () => ref
-                      .read(musicPlayerControllerProvider)
-                      .togglePlayPause(playback.isPlaying)
-                : () => _play(items, start: item),
-          ),
           isSelectionMode: isSelectionMode,
           isSelected: selectedIds.contains(item.id),
-          onTap: isSelectionMode
-              ? () => toggleSelection(item.id)
-              : () => _openDetails(item),
-          onLongPress: isSelectionMode
-              ? () => toggleSelection(item.id)
-              : () => enterSelectionMode(item.id),
+          isCurrent: playback.isCurrent,
+          isPlaying: playback.isPlaying,
+          onToggleSelection: () => toggleSelection(item.id),
+          onOpen: () => _openDetails(item),
+          onEnterSelectionMode: () => enterSelectionMode(item.id),
+          toggleOnLongPress: true,
+          // The current song pauses and resumes in place.
+          onPlay: playback.isCurrent
+              ? () => ref
+                    .read(musicPlayerControllerProvider)
+                    .togglePlayPause(playback.isPlaying)
+              : () => _play(items, start: item),
         );
       },
     );

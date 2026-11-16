@@ -13,6 +13,7 @@ import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/services/library_directory_index.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/library_directory_view.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/track_card.dart';
@@ -166,6 +167,18 @@ void main() {
       isTrue,
     );
 
+    // A second long press while selecting toggles the row off.
+    await tester.longPress(find.widgetWithText(TrackCard, 'Song loose'));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TrackCard>(find.widgetWithText(TrackCard, 'Song loose'))
+          .isSelected,
+      isFalse,
+    );
+    await tester.longPress(find.widgetWithText(TrackCard, 'Song loose'));
+    await tester.pumpAndSettle();
+
     // Back ends the selection before it leaves the page.
     final navigator = tester.state<NavigatorState>(find.byType(Navigator));
     await navigator.maybePop();
@@ -202,6 +215,24 @@ void main() {
     await _pump(tester, home: const LibraryDirectoryScreen(folderKey: 'gone'));
 
     expect(find.text('This folder is no longer in your Library'), findsOne);
+  });
+
+  testWidgets('a song row shows only its cover, title and artist', (
+    tester,
+  ) async {
+    await _pump(tester);
+
+    final row = find.widgetWithText(AlbumTrackTile, 'Song loose');
+    expect(row, findsOneWidget);
+    expect(tester.widget<AlbumTrackTile>(row).cover, isNotNull);
+    expect(
+      tester
+          .widgetList<Text>(
+            find.descendant(of: row, matching: find.byType(Text)),
+          )
+          .map((text) => text.data),
+      ['Song loose', 'Artist'],
+    );
   });
 
   testWidgets('Sistrum lists folders and songs as flat rows', (tester) async {

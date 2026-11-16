@@ -113,7 +113,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/screens/mornye_library_screen.dart`, a new genres screen,
     `lib/screens/queue_tab_filter_sheet.dart`, ARB files, tests.
 
-- [ ] M003-T006 Library track rows use the album row
+- [x] M003-T006 Library track rows use the album row
   - Acceptance: FR-007. Songs, folders, library playlists and Loved songs rows: small
     cover, title, artist only.
   - Paths: `lib/screens/queue_tab_item_widgets.dart`, `lib/widgets/library_directory_view.dart`,

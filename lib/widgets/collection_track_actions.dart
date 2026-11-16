@@ -20,9 +20,11 @@ import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
+import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/track_detail_actions.dart';
 
 /// Play and delete for the selected songs of a saved list. The screen mixes
@@ -419,3 +421,49 @@ LocalLibraryCoverBatchRequest collectionCoverBatchRequest(
       artistName: track.artistName,
     ),
 ]);
+
+/// A song's cover in a collection row: its own art, else the library's art for
+/// it, else a placeholder.
+class CollectionTrackCover extends ConsumerWidget {
+  const CollectionTrackCover({
+    super.key,
+    required this.track,
+    required this.size,
+  });
+
+  final Track track;
+  final double size;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rawCoverUrl = rawCollectionCoverUrl(track);
+    final localCoverUrl = rawCoverUrl == null
+        ? ref
+              .watch(
+                localLibraryCoverProvider(
+                  LocalLibraryCoverRequest(
+                    isrc: track.isrc?.trim(),
+                    trackName: track.name,
+                    artistName: track.artistName,
+                  ),
+                ),
+              )
+              .maybeWhen(data: (cover) => cover, orElse: () => null)
+        : null;
+    final coverUrl = rawCoverUrl ?? localCoverUrl;
+    return ClipRRect(
+      borderRadius: context.tokens.borderRadiusThumb,
+      child: coverUrl != null && coverUrl.isNotEmpty
+          ? LocalOrNetworkCoverImage(
+              url: coverUrl,
+              width: size,
+              height: size,
+              networkCacheWidth: (size * 2).toInt(),
+              fadeInDuration: const Duration(milliseconds: 180),
+              fadeOutDuration: const Duration(milliseconds: 90),
+              placeholder: (_) => TrackCoverPlaceholder(size: size),
+            )
+          : TrackCoverPlaceholder(size: size),
+    );
+  }
+}

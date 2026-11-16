@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 40,
+  "next_completion": 41,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -440,13 +440,19 @@
       "title": "Library overview and Songs page"
     },
     "M003-T006": {
-      "completion": null,
+      "completion": 40,
+      "evidence": {
+        "checks": "Review: round 1 found Folders long-press regression and wrong file count, fixed; round 2 PASS. analyze clean; full run 3882 passed 10 skipped 1 failed (known flaky library_loading_test, passes alone twice); targeted 113 passed",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewers",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "6343c933ad634fc49e41e17a6a4bc066",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Library track rows use the album row"
     },
     "M003-T007": {

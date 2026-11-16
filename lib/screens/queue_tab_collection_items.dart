@@ -137,34 +137,14 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
           );
     if (!grid) {
       return TrackCard(
+        style: TrackCardStyle.flat,
         onTap: onTap,
         leading: Hero(tag: heroTag, child: cover),
         title: trackName,
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              artistName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            if (quality != null && quality.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: _buildLibraryQualityBadge(
-                  context,
-                  colorScheme,
-                  quality,
-                  listStyle: true,
-                ),
-              ),
-            ],
-          ],
+        subtitle: Text(
+          artistName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         trailing: playback,
       );
@@ -211,14 +191,11 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
   Widget _buildLibraryQualityBadge(
     BuildContext context,
     ColorScheme colorScheme,
-    String quality, {
-    bool listStyle = false,
-  }) {
+    String quality,
+  ) {
     final tokens = context.tokens;
     final isHighlightedQuality = shouldHighlightAudioQualityBadge(quality);
-    final displayQuality = listStyle
-        ? quality
-        : formatLibraryGridAudioQualityLabel(quality);
+    final displayQuality = formatLibraryGridAudioQualityLabel(quality);
     final isDetailed = isDetailedLibraryAudioQualityLabel(displayQuality);
     final label = Text(
       displayQuality,
@@ -226,25 +203,21 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
       softWrap: false,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
         color: isHighlightedQuality
-            ? listStyle
-                  ? colorScheme.onPrimaryContainer
-                  : colorScheme.onPrimary
+            ? colorScheme.onPrimary
             : colorScheme.onSurfaceVariant,
         fontSize: isDetailed ? tokens.badgeFontSize - 1 : tokens.badgeFontSize,
-        fontWeight: listStyle ? FontWeight.w500 : FontWeight.w600,
+        fontWeight: FontWeight.w600,
       ),
     );
     return Container(
       padding: tokens.badgePadding,
       decoration: BoxDecoration(
         color: isHighlightedQuality
-            ? listStyle
-                  ? colorScheme.primaryContainer
-                  : colorScheme.primary
+            ? colorScheme.primary
             : colorScheme.surfaceContainerHighest,
         borderRadius: tokens.borderRadiusBadge,
       ),
-      child: !listStyle && isDetailed
+      child: isDetailed
           ? FittedBox(
               fit: BoxFit.scaleDown,
               alignment: AlignmentDirectional.centerStart,
