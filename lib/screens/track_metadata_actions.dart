@@ -49,11 +49,11 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
     );
 
     if (saved == true && mounted && sourcePath == cleanFilePath) {
-      ScaffoldMessenger.of(this.context).showSnackBar(
-        SnackBar(content: Text(this.context.l10n.snackbarMetadataSaved)),
-      );
+      var indexed = true;
+      Map<String, dynamic>? tags;
       try {
         final refreshed = await readPlaybackFileMetadataWithRetry(sourcePath);
+        tags = refreshed;
         if (!mounted || sourcePath != cleanFilePath) return;
         final refreshedLyrics = refreshed['lyrics']?.toString().trim() ?? '';
         final refreshedInstrumental = isInstrumentalLyricsMarker(
@@ -84,13 +84,29 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
         });
         if (_isNetworkItem) await _syncNetworkLibraryMetadata(refreshed);
       } catch (_) {
+        // A network row that was not rewritten is reported as stale.
+        if (_isNetworkItem) indexed = false;
         if (mounted && sourcePath == cleanFilePath) _setState(() {});
       }
       if (!mounted || sourcePath != cleanFilePath) return;
+      if (!_isNetworkItem) indexed = await _reconcileLocalRow(tags);
+      if (!mounted || sourcePath != cleanFilePath) return;
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        SnackBar(
+          content: Text(
+            indexed
+                ? this.context.l10n.snackbarMetadataSaved
+                : this.context.l10n.snackbarMetadataSavedIndexStale,
+          ),
+        ),
+      );
       if (!_isNetworkItem) await _refreshEmbeddedCoverPreview(force: true);
       if (!mounted || sourcePath != cleanFilePath) return;
       _markMetadataChanged();
-      await _syncDownloadHistoryMetadata();
+      // A local (non-network) row is rewritten by the reconcile, so the
+      // explicit/hasLyrics write below is skipped for every local row, including
+      // on the stale path. A network row still syncs explicit and lyrics here.
+      if (!_isLocalItem || _isNetworkItem) await _syncDownloadHistoryMetadata();
     }
   }
 
@@ -154,6 +170,28 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
     if (!mounted || cleanFilePath != item.filePath) return;
     _setState(() => _currentLocalLibraryItem = LocalLibraryItem.fromJson(row));
     await ref.read(localLibraryProvider.notifier).reloadFromStorage();
+  }
+
+  /// Rewrites the saved local file's library row; false when the index is stale.
+  Future<bool> _reconcileLocalRow(Map<String, dynamic>? tags) async {
+    final item = _localLibraryItem;
+    if (item == null) return true;
+    final library = ref.read(localLibraryProvider.notifier);
+    final index = await const MetadataIndexReconciler().reconcile(
+      item,
+      tags: tags,
+    );
+    final saved = index.item;
+    if (saved == null) {
+      _log.w(
+        'Saved tags but the library index is stale (${index.failure}): ${index.error}',
+      );
+      return false;
+    }
+    _setState(() => _currentLocalLibraryItem = saved);
+    // Reloading bumps the library index revision, which invalidates the credits.
+    await library.reloadFromStorage();
+    return true;
   }
 
   Future<void> _confirmDelete(

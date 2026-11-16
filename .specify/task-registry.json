@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 31,
+  "next_completion": 32,
   "next_mission": 4,
   "next_tor": 14,
   "tasks": {
@@ -496,13 +496,19 @@
       "title": "Library Genres page"
     },
     "M003-T014": {
-      "completion": null,
+      "completion": 31,
+      "evidence": {
+        "checks": "Real review history: rounds 1-2 fixed code/test findings; owner-authorized extra rounds 4-13 found record-text issues only; round 13 PASS (helper accepts rounds 1-3 only). Final-tree evidence saved: flutter analyze exit 0 no issues; dart format exit 0; full flutter test exit 0, 3953 passed (incl 7 loading), 10 skipped, 0 failed; task tests 9/2/18 passed; work.py validate PASS. Not verified: edit-sheet save flow has no widget harness; no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a4533e22",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "a37fe852a4e4409ca76b2b3d8385f9e6",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Refresh the library row after a metadata save"
     },
     "TOR001": {

@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -25,6 +27,11 @@ class _Settings extends SettingsNotifier {
     await _ready;
     state = state.copyWith(localLibraryPath: _path);
   }
+}
+
+class _History extends DownloadHistoryNotifier {
+  @override
+  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _LibraryDatabase implements LibraryDatabase {
@@ -158,6 +165,7 @@ void main() {
     container = ProviderContainer(
       overrides: [
         settingsProvider.overrideWith(_Settings.new),
+        downloadHistoryProvider.overrideWith(_History.new),
         localLibraryProvider.overrideWith(
           () => library = _Library(database, (path) => probe(path)),
         ),
@@ -252,6 +260,25 @@ void main() {
       expect(container.read(localLibraryProvider).loadFailed, isFalse);
       expect(container.read(localLibraryProvider).totalCount, 2);
       expect(container.read(localLibraryProvider).sources.single.id, 'music');
+    },
+  );
+
+  test(
+    'reload bumps the index revision and the credits scope version',
+    () async {
+      container.read(localLibraryProvider);
+      await _waitFor(() => !container.read(localLibraryProvider).isLoading);
+      final before = container.read(localLibraryIndexRevisionProvider);
+      final beforeVersion = container.read(tagCreditScopeProvider).version;
+      await container.read(localLibraryProvider.notifier).reloadFromStorage();
+      expect(
+        container.read(localLibraryIndexRevisionProvider),
+        greaterThan(before),
+      );
+      expect(
+        container.read(tagCreditScopeProvider).version,
+        isNot(beforeVersion),
+      );
     },
   );
 

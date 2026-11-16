@@ -221,3 +221,52 @@ Open owner decisions (decisions, not defects):
 - O6 The rebuild cost is unmeasured. The credits table is rebuilt on each download-history version bump
   (and on every Android Auto artist list, which has no version). Measure on a large library before release.
 - O7 (new) Kotlin `metadata_separators` reader and its test: removed under F1 (no follow-up needed).
+
+## M003-T014
+
+Refresh the library row after a metadata save (FR-019). Port of Private `148e103b`
+(`MetadataIndexReconciler`), adapted by hand. Base `2399ca6`; uncommitted until completion.
+
+Map: refreshed first at `2399ca6` (34431 symbols, 1709 sources, 0 partial, 0 unindexed) and again on the
+final tree for the evidence below (`/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t014/final/map_update.json`: 34475 symbols, 1712 sources, 0 partial,
+0 unindexed, 0 rejected).
+
+What changed:
+- New `lib/services/metadata_index_reconciler.dart`: `reconcile(item, {tags})` refuses CUE virtual paths;
+  uses the screen's tags or rereads the file; a reader error map or a failed read is stale `read`; maps the
+  tags onto the row (identity and audio facts kept), extracts the cover (a failed extraction keeps the old
+  one), upserts with `upsertBatchExcludingHistory`; a failed upsert, or a row skipped because Download
+  History owns it, is stale `database`.
+- `lib/screens/track_metadata_actions.dart`: a local save reconciles its row with the tags the screen
+  already read; the snackbar comes after the reconcile and says `snackbarMetadataSavedIndexStale` when the
+  index is stale; a stale index is logged at warning level. `_syncDownloadHistoryMetadata` still runs for
+  download rows and network rows, as at HEAD; local non-network rows skip it. Network rows keep their own
+  `_syncNetworkLibraryMetadata` path.
+- `lib/screens/track_metadata_screen.dart`: Edit metadata (and so Embed lyrics) is hidden for CUE virtual
+  tracks; Share file refuses them with the same check.
+- 21 ARB files: `snackbarMetadataSavedIndexStale`, English in all (no translations supplied).
+- Tests: `test/metadata_index_reconciler_test.dart` (9), `test/track_metadata_cue_edit_test.dart` (2),
+  `test/library_loading_test.dart` (reload bumps the index revision and the credits scope version, so the
+  `library_tag_credits` table is rebuilt on the next query).
+
+Checks on the final tree (saved under `/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t014/final/`):
+- `flutter analyze`: No issues found, exit 0 (`analyze.log`).
+- `dart format --set-exit-if-changed` on the six changed Dart files: exit 0 (`format.log`).
+- Full `flutter test --reporter json`: exit 0; 3953 passed (7 of them `loading` entries, 3946 without),
+  10 skipped, 0 failed (`full.json`, `full_counts.txt`). The three task test files: 9, 2 and 18 passed
+  (`targeted_counts.txt`).
+- `python3 workflow/work.py validate`: PASS (`validate.json`).
+
+Not verified: the edit sheet save flow has no widget harness, so the network sync condition and the warning
+log are checked by reading only; no device run, no APK.
+
+Owner decisions (open):
+- A cover extracted before a skipped or failed upsert stays on disk until the next scan prunes it.
+- A save that finishes during a library load may be re-queried only at the next load (existing reload rule).
+- A stale local save writes neither the new row nor explicit/hasLyrics.
+- When the screen's reread fails, the stale snackbar can take about 2 s (two retry chains).
+- Embed lyrics is hidden for CUE virtual tracks.
+- Translations of the new string.
+
+Review: rounds 1 and 2 fixed code and test findings; the owner authorized extra rounds after round 3, and
+those rounds found record-text issues only. This section was rewritten from the saved evidence above.

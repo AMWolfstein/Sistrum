@@ -30,3 +30,4 @@
 - M001-T006 — Cumulative review
 - TOR013 — Audit the M001 Material theme removal
 - M003-T012 — Tag separators for artist and genre credits
+- M003-T014 — Refresh the library row after a metadata save

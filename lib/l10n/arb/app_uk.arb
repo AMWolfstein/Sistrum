@@ -4466,6 +4466,10 @@
   "@snackbarMetadataSaved": {
     "description": "Snackbar after successfully saving track metadata"
   },
+  "snackbarMetadataSavedIndexStale": "Metadata saved, but the library could not refresh",
+  "@snackbarMetadataSavedIndexStale": {
+    "description": "Snackbar after saving track metadata when the library index could not be refreshed"
+  },
   "snackbarFailedToEmbedLyrics": "Не вдалося вставити текст пісні",
   "@snackbarFailedToEmbedLyrics": {
     "description": "Snackbar when lyrics embedding fails"

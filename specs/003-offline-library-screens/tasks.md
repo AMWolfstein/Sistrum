@@ -47,7 +47,7 @@ T003, T004, T005, T013, T006, T007, T008, T009, T010, T011.
     `lib/controllers/clickable_metadata.dart`, download embedding/payload users of
     `metadataSeparators`, ARB files, tests.
 
-- [ ] M003-T014 Refresh the library row after a metadata save
+- [x] M003-T014 Refresh the library row after a metadata save
   - Acceptance: FR-019. Port Private's `MetadataIndexReconciler` (`148e103b`): after
     Edit metadata saves, reread the tags, map them onto the scanned row, refresh the
     extracted cover, upsert the index and report a stale index with its own message;

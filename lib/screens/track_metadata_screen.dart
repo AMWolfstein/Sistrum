@@ -16,6 +16,7 @@ import 'package:sistrum/services/file_access_check.dart';
 import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/network_library_scanner.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/metadata_index_reconciler.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/cue_split_library_service.dart';
@@ -178,7 +179,9 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   bool _networkFileDeletable = false;
   bool get _canDeleteFile => !_isNetworkItem || _networkFileDeletable;
   bool get _canEditMetadataFile =>
-      _fileExists && (!_isNetworkItem || _networkFileDeletable);
+      _fileExists &&
+      !_isCueVirtualTrack &&
+      (!_isNetworkItem || _networkFileDeletable);
   bool _isDeleting = false;
   int? get _fileSize => switch (_fileAccess) {
     FileAccessFound(:final stat) => stat.size,
