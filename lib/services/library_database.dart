@@ -583,16 +583,20 @@ class LibraryDatabase {
     return rows.map(LibraryRowMapper.decode).toList(growable: false);
   }
 
+  /// Scanned songs of the album, without those a download shadows (the same
+  /// file already listed as a download).
   Future<List<Map<String, dynamic>>> getQueueLocalAlbumTracksByKey(
     String albumKey,
   ) async {
     final db = await database;
-    final rows = await db.query(
-      visibleLibraryView,
-      where: 'album_key = ?',
-      whereArgs: [albumKey],
-      orderBy:
-          'COALESCE(disc_number, 0), COALESCE(track_number, 0), track_name',
+    await _ensureHistoryAttached(db);
+    final rows = await db.rawQuery(
+      '''
+      SELECT l.* FROM $visibleLibraryView l
+      WHERE l.album_key = ? AND ${sqlite.libraryNotShadowedSql('l')}
+      ORDER BY COALESCE(l.disc_number, 0), COALESCE(l.track_number, 0), l.track_name
+      ''',
+      [albumKey],
     );
     return rows.map(LibraryRowMapper.decode).toList(growable: false);
   }

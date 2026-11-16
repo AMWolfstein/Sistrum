@@ -291,10 +291,15 @@ class HistoryDatabase {
   Future<List<Map<String, dynamic>>> getAlbumTracks(
     String albumName,
     String artistName,
+  ) => getAlbumTracksByKey(
+    '${normalizeLookupText(albumName)}|${normalizeLookupText(artistName)}',
+  );
+
+  /// The downloaded songs of the album with [albumKey], in album order.
+  Future<List<Map<String, dynamic>>> getAlbumTracksByKey(
+    String albumKey,
   ) async {
     final db = await database;
-    final albumKey =
-        '${normalizeLookupText(albumName)}|${normalizeLookupText(artistName)}';
     final rows = await db.query(
       'history',
       where: 'album_key = ?',

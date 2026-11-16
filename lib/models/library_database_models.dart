@@ -309,9 +309,23 @@ class IsrcDuplicateGroup {
   const IsrcDuplicateGroup({required this.isrc, required this.entries});
 }
 
+/// Which credits of [QueueLibraryDbQuery.albumArtist] a row must hold.
+enum LibraryArtistCredit {
+  /// Album artist or track artist, as the Artists list counts them.
+  credited,
+
+  /// Album artist only, with the album artist falling back to the track artist.
+  albumArtist,
+
+  /// Track artist only: the artist is featured on a track whose album artist
+  /// is someone else.
+  featured,
+}
+
 class QueueLibraryDbQuery {
   final bool includeSingleTrackAlbums;
   final String? albumArtist;
+  final LibraryArtistCredit artistCredit;
   final int limit;
   final int offset;
   final String filterMode;
@@ -329,6 +343,7 @@ class QueueLibraryDbQuery {
   const QueueLibraryDbQuery({
     this.includeSingleTrackAlbums = false,
     this.albumArtist,
+    this.artistCredit = LibraryArtistCredit.credited,
     this.limit = 100,
     this.offset = 0,
     this.filterMode = 'all',

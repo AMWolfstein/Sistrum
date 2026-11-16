@@ -1,0 +1,76 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_detail_data.dart';
+
+/// The library artist's albums and singles, and the newest dated one.
+final libraryArtistOverviewProvider = FutureProvider.autoDispose
+    .family<LibraryArtistOverview, String>(
+      (ref, artist) => loadLibraryArtistOverview(
+        artist,
+        credits: ref.watch(tagCreditScopeProvider),
+        includeLocal: ref.watch(
+          settingsProvider.select((s) => s.localLibraryEnabled),
+        ),
+      ),
+    );
+
+/// The songs where the library artist is featured, for Compilations.
+final libraryArtistFeaturedTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>(
+      (ref, artist) => loadLibraryArtistFeaturedTracks(
+        artist,
+        credits: ref.watch(tagCreditScopeProvider),
+        includeLocal: ref.watch(
+          settingsProvider.select((s) => s.localLibraryEnabled),
+        ),
+      ),
+    );
+
+/// The library artist's Popular songs: most played, filled up at random.
+final libraryArtistPopularTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>((ref, artist) {
+      final settings = ref.watch(
+        settingsProvider.select(
+          (s) => (
+            includeLocal: s.localLibraryEnabled,
+            useStatistics: s.listeningStatisticsEnabled,
+          ),
+        ),
+      );
+      return loadLibraryArtistPopularTracks(
+        artist,
+        credits: ref.watch(tagCreditScopeProvider),
+        includeLocal: settings.includeLocal,
+        useStatistics: settings.useStatistics,
+      );
+    });
+
+/// The songs of a library album by album key, downloaded and scanned alike.
+final libraryAlbumTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>((ref, albumKey) {
+      // Reloads when the library index changes, as the credits do.
+      ref.watch(tagCreditScopeProvider.select((scope) => scope.version));
+      return loadLibraryAlbumTracks(
+        albumKey,
+        includeLocal: ref.watch(
+          settingsProvider.select((s) => s.localLibraryEnabled),
+        ),
+      );
+    });
+
+/// Every song of a playlist in playlist order. shortcut: -1 is SQLite's no
+/// limit, so long playlists are not cut short.
+final libraryPlaylistTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>(
+      (ref, playlistId) => LibraryCollectionsDatabase.instance
+          .loadPlaylistTracks(playlistId, limit: -1),
+    );
+
+/// Every loved song, most recently loved first. shortcut: as the playlist
+/// provider, no limit.
+final libraryLovedTracksProvider = FutureProvider.autoDispose<List<Track>>(
+  (ref) => LibraryCollectionsDatabase.instance.loadLovedTracks(limit: -1),
+);

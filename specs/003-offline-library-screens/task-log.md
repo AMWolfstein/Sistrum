@@ -270,3 +270,48 @@ Owner decisions (open):
 
 Review: rounds 1 and 2 fixed code and test findings; the owner authorized extra rounds after round 3, and
 those rounds found record-text issues only. This section was rewritten from the saved evidence above.
+
+## M003-T001
+
+Library data for the detail screens (data only, no UI). Base `ea46941`.
+
+Map: refreshed first at `ea46941` (`/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t001/map_start.log`: 34475 symbols, 1712 sources, 0 partial,
+0 unindexed) and on the final tree (`/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t001/map_update.json`: 34560 symbols, 1717 sources, 0 partial,
+0 unindexed, 0 rejected).
+
+What changed:
+- `QueueLibraryDbQuery.artistCredit` (`LibraryArtistCredit`: credited, albumArtist, featured) and the role
+  filter in `library_queue_store.dart`; the default (credited) keeps the existing SQL.
+- `HistoryDatabase.getAlbumTracksByKey`; `readPlaysForTracks` in `listening_statistics.dart` (all-time
+  plays per track key, chunked).
+- `lib/utils/release_type_utils.dart` `isSingleRelease`, moved out of the downloader (which now calls it).
+- `lib/services/library_detail_data.dart` and `lib/providers/library_detail_provider.dart`:
+  - `libraryArtistOverviewProvider`: albums and singles where the artist is album artist, Latest Release
+    (newest release date; undated never qualifies) and the artist image (its cover). Used by T002.
+  - `libraryArtistFeaturedTracksProvider`: tracks where the artist is a track artist but not the album
+    artist (Compilations). Used by T002.
+  - `libraryArtistPopularTracksProvider`: most played (statistics on), filled at random to 5. Used by T002.
+  - `libraryAlbumTracksProvider`: an album's tracks by album key, downloaded and scanned. Used by T003.
+  - `libraryPlaylistTracksProvider`, `libraryLovedTracksProvider`: existing collection rows. Used by T004.
+- `LibraryDatabase.getQueueLocalAlbumTracksByKey` drops scanned songs that a download shadows
+  (`libraryNotShadowedSql`, as the queue pages do), so a downloaded file that is also scanned is listed once.
+- Album tracks take `includeLocal`; `libraryAlbumTracksProvider` watches `localLibraryEnabled`.
+- Tests: `test/library_detail_data_test.dart` (17 tests), `test/release_type_utils_test.dart` (4 tests).
+
+Checks on the final tree (saved under `/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t001/`):
+- `flutter analyze lib test integration_test`: No issues found, exit 0 (`analyze.log`).
+- `dart format --set-exit-if-changed --output=none` on the 12 changed Dart files: exit 0 (`format.log`).
+- `flutter test --reporter expanded` on the two task test files and `test/library_queue_store_sql_test.dart` (pinned SQL): 22 passed, exit 0 (`targeted.log`).
+- Full `flutter test --reporter json`: exit 0 (`full.exit`); 3974 passed (7 `loading` entries, 3967 without), 10 skipped, 0 failed; 3984 non-hidden `testDone` (`full.json`, `full_counts.txt`).
+- `python3 workflow/codegraph/code_tools.py update`: 34560 symbols, 1717 sources, 0 partial, 0 unindexed (`map_update.json`).
+- `python3 workflow/work.py validate`: PASS (`validate.json`).
+
+Not verified: no UI uses these providers yet (T002 to T004); no device run.
+
+Open decisions (owner):
+- Popular shows 5 tracks; Latest Release counts singles and EPs as well as albums (by release date).
+- Plays are all-time and matched by file path.
+- Downloaded and scanned copies of one album key are merged into one album.
+- Scanned album covers are local file paths (T002 must show local paths).
+- Playlist and Loved providers are not refreshed by collection edits (T004 handles refresh).
+- Library tracks mapped to `Track` drop album type, total tracks and genre.

@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 32,
+  "next_completion": 33,
   "next_mission": 4,
   "next_tor": 14,
   "tasks": {
@@ -360,13 +360,19 @@
       "title": "Rename the remaining non-theme mornye names to sistrum"
     },
     "M003-T001": {
-      "completion": null,
+      "completion": 32,
+      "evidence": {
+        "checks": "Round 1 NEEDS_FIXES (shadowed duplicates, includeLocal, record count) fixed; round 2 PASS. Saved evidence scratchpad/t001: flutter analyze lib test integration_test no issues; dart format 12 files 0 changed; targeted 22 passed; full flutter test exit 0, 3974 passed (incl 7 loading), 10 skipped, 0 failed; work.py validate PASS. No UI uses the providers yet; no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a541e8a9",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "3f4056865835436996bf2ed027b26fce",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Library data for the detail screens"
     },
     "M003-T002": {

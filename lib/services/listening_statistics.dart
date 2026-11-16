@@ -523,6 +523,33 @@ Future<List<ListeningTotal>> readReplayableListeningTracks(
   ];
 }
 
+const _keysPerQuery = 400;
+
+/// All-time plays of each of [keys] (track keys), keys never played left out.
+Future<Map<String, int>> readPlaysForTracks(
+  DatabaseExecutor db,
+  Iterable<String> keys,
+) async {
+  final unique = keys.toSet().toList(growable: false);
+  final plays = <String, int>{};
+  for (var start = 0; start < unique.length; start += _keysPerQuery) {
+    final end = start + _keysPerQuery < unique.length
+        ? start + _keysPerQuery
+        : unique.length;
+    final chunk = unique.sublist(start, end);
+    final rows = await db.rawQuery(
+      'SELECT track_key, SUM(plays) AS plays FROM listening '
+      'WHERE track_key IN (${List.filled(chunk.length, '?').join(', ')}) '
+      'GROUP BY track_key HAVING SUM(plays) > 0',
+      chunk,
+    );
+    for (final row in rows) {
+      plays[row['track_key'] as String] = row['plays'] as int;
+    }
+  }
+  return plays;
+}
+
 final _listeningClock = Stopwatch()..start();
 final listeningRecorder = ListeningRecorder(
   write: ListeningStatisticsStore.instance.add,

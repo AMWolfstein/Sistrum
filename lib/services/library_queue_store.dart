@@ -359,12 +359,31 @@ class LibraryQueueStore {
     );
   }
 
-  /// Rows of [alias] credited to the artist as album artist or track artist.
-  /// The bound value is the artist's normalised name.
-  String _artistCreditFilter(String source, String alias) =>
-      '$alias.id IN (SELECT row_id FROM ${LibraryTagCreditsCache.tempTable} '
-      "WHERE source = '$source' AND field IN ('artist', 'album_artist') "
-      'AND name_key = ?)';
+  /// Rows of [alias] that the artist of [request] is credited with, by its
+  /// artist credit role. Appends the normalised name to [args] once per subquery.
+  String _artistCreditFilter(
+    String source,
+    String alias,
+    QueueLibraryDbQuery request,
+    List<Object?> args,
+  ) {
+    String inCredits(String fields) {
+      args.add(sqlite.normalizeLookupText(request.albumArtist));
+      return '$alias.id IN (SELECT row_id FROM ${LibraryTagCreditsCache.tempTable} '
+          "WHERE source = '$source' AND $fields AND name_key = ?)";
+    }
+
+    return switch (request.artistCredit) {
+      LibraryArtistCredit.credited => inCredits(
+        "field IN ('artist', 'album_artist')",
+      ),
+      LibraryArtistCredit.albumArtist => inCredits("field = 'album_artist'"),
+      // The track artist, unless the album artist is the same name.
+      LibraryArtistCredit.featured =>
+        '${inCredits("field = 'artist'")} AND NOT '
+            '${inCredits("field = 'album_artist'")}',
+    };
+  }
 
   String _escapeLikePattern(String value) {
     return value
@@ -814,8 +833,7 @@ class LibraryQueueStore {
       );
     }
     if (request.albumArtist != null) {
-      where.add(_artistCreditFilter('h', 'h'));
-      args.add(sqlite.normalizeLookupText(request.albumArtist));
+      where.add(_artistCreditFilter('h', 'h', request, args));
     }
     final query = sqlite.normalizeLookupText(request.searchQuery);
     if (query.isNotEmpty) {
@@ -876,8 +894,7 @@ class LibraryQueueStore {
       );
     }
     if (request.albumArtist != null) {
-      where.add(_artistCreditFilter('l', 'l'));
-      args.add(sqlite.normalizeLookupText(request.albumArtist));
+      where.add(_artistCreditFilter('l', 'l', request, args));
     }
     final query = sqlite.normalizeLookupText(request.searchQuery);
     if (query.isNotEmpty) {

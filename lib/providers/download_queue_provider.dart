@@ -59,6 +59,7 @@ import 'package:sistrum/utils/path_match_keys.dart';
 import 'package:sistrum/utils/download_error_type.dart';
 import 'package:sistrum/utils/lyrics_metadata_helper.dart';
 import 'package:sistrum/utils/progress_stream_poller.dart';
+import 'package:sistrum/utils/release_type_utils.dart';
 
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/services/native_download_history.dart';

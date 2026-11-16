@@ -55,7 +55,7 @@ T003, T004, T005, T013, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/screens/track_metadata_actions.dart`, `track_metadata_screen.dart`,
     a new `lib/services/metadata_index_reconciler.dart`, ARB files, tests.
 
-- [ ] M003-T001 Library data for the detail screens
+- [x] M003-T001 Library data for the detail screens
   - Acceptance: library queries and mappers (to `Track`/`ArtistAlbum`) for: an
     artist's albums and singles, newest album by release date (undated never
     qualifies), its cover as artist image, featured tracks (artist among
