@@ -15,17 +15,11 @@ const _dbFileName = 'app_state.db';
 const _dbVersion = 5;
 
 const _queueTable = 'download_queue_items';
-const _recentTable = 'recent_access_items';
-const _hiddenRecentTable = 'hidden_recent_downloads';
-const _recentStateTable = 'recent_access_state';
 const _playbackSessionTable = 'playback_session';
 
 const _legacyQueueKey = 'download_queue';
-const _legacyRecentAccessKey = 'recent_access_history';
-const _legacyHiddenDownloadsKey = 'hidden_downloads_in_recents';
 
 const _queueMigrationKey = 'app_state_migrated_queue_to_sqlite_v1';
-const _recentMigrationKey = 'app_state_migrated_recent_to_sqlite_v1';
 
 class AppStateDatabase {
   static final AppStateDatabase instance = AppStateDatabase._init();
@@ -91,25 +85,6 @@ class AppStateDatabase {
       'CREATE INDEX idx_${_queueTable}_created ON $_queueTable(created_at ASC)',
     );
 
-    await db.execute('''
-      CREATE TABLE $_recentTable (
-        unique_key TEXT PRIMARY KEY,
-        item_json TEXT NOT NULL,
-        accessed_at TEXT NOT NULL
-      )
-    ''');
-    await db.execute(
-      'CREATE INDEX idx_${_recentTable}_accessed ON $_recentTable(accessed_at DESC)',
-    );
-
-    await db.execute('''
-      CREATE TABLE $_hiddenRecentTable (
-        download_id TEXT PRIMARY KEY,
-        updated_at TEXT NOT NULL
-      )
-    ''');
-
-    await _createRecentStateTable(db);
     await _createPlaybackSessionTable(db);
     await PlaybackResumeStore.createSchema(db);
   }
@@ -120,24 +95,12 @@ class AppStateDatabase {
     int newVersion,
   ) async {
     _log.i('Upgrading app state database from v$oldVersion to v$newVersion');
-    if (oldVersion < 3) {
-      await _createRecentStateTable(db);
-    }
     if (oldVersion < 4) {
       await _migratePlaybackSessionToV4(db);
     }
     if (oldVersion < 5) {
       await PlaybackResumeStore.createSchema(db);
     }
-  }
-
-  static Future<void> _createRecentStateTable(Database db) {
-    return db.execute('''
-      CREATE TABLE IF NOT EXISTS $_recentStateTable (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        downloads_cleared_at TEXT
-      )
-    ''');
   }
 
   static Future<void> _createPlaybackSessionTable(Database db) {
@@ -254,70 +217,6 @@ class AppStateDatabase {
       return true;
     } catch (e, stack) {
       _log.e('Failed queue migration to SQLite: $e', e, stack);
-      return false;
-    }
-  }
-
-  Future<bool> migrateRecentAccessFromSharedPreferences() async {
-    final prefs = await _prefs;
-    if (prefs.getBool(_recentMigrationKey) == true) {
-      return false;
-    }
-
-    final rawRecent = prefs.getString(_legacyRecentAccessKey);
-    final hiddenIds = prefs.getStringList(_legacyHiddenDownloadsKey);
-    if ((rawRecent == null || rawRecent.isEmpty) &&
-        (hiddenIds == null || hiddenIds.isEmpty)) {
-      await prefs.setBool(_recentMigrationKey, true);
-      return false;
-    }
-
-    try {
-      final nowIso = DateTime.now().toIso8601String();
-      final db = await database;
-      await db.transaction((txn) async {
-        if (rawRecent != null && rawRecent.isNotEmpty) {
-          final decoded = jsonDecode(rawRecent);
-          if (decoded is List) {
-            final batch = txn.batch();
-            for (final entry in decoded.whereType<Map<Object?, Object?>>()) {
-              final map = Map<String, dynamic>.from(entry);
-              final type = map['type'] as String?;
-              final id = map['id'] as String?;
-              final providerId = map['providerId'] as String?;
-              if (type == null || id == null || type.isEmpty || id.isEmpty) {
-                continue;
-              }
-              final uniqueKey = '$type:${providerId ?? 'default'}:$id';
-              final accessedAt = map['accessedAt'] as String? ?? nowIso;
-              batch.insert(_recentTable, {
-                'unique_key': uniqueKey,
-                'item_json': jsonEncode(map),
-                'accessed_at': accessedAt,
-              }, conflictAlgorithm: ConflictAlgorithm.replace);
-            }
-            await batch.commit(noResult: true);
-          }
-        }
-
-        if (hiddenIds != null && hiddenIds.isNotEmpty) {
-          final batch = txn.batch();
-          for (final id in hiddenIds) {
-            if (id.isEmpty) continue;
-            batch.insert(_hiddenRecentTable, {
-              'download_id': id,
-              'updated_at': nowIso,
-            }, conflictAlgorithm: ConflictAlgorithm.replace);
-          }
-          await batch.commit(noResult: true);
-        }
-      });
-
-      await prefs.setBool(_recentMigrationKey, true);
-      _log.i('Migrated legacy recent-access data to SQLite');
-      return true;
-    } catch (e, stack) {
-      _log.e('Failed recent-access migration to SQLite: $e', e, stack);
       return false;
     }
   }
@@ -630,86 +529,4 @@ class AppStateDatabase {
       'INSERT OR REPLACE INTO $_queueTable '
       '(id, item_json, status, created_at, updated_at) VALUES '
       '${List.filled(rows, '(?, ?, ?, ?, ?)').join(', ')}';
-
-  Future<List<Map<String, dynamic>>> getRecentAccessRows({int? limit}) async {
-    final db = await database;
-    return db.query(
-      _recentTable,
-      orderBy: 'accessed_at DESC, rowid DESC',
-      limit: limit,
-    );
-  }
-
-  Future<void> upsertRecentAccessRow({
-    required String uniqueKey,
-    required String itemJson,
-    required String accessedAt,
-  }) async {
-    final db = await database;
-    await db.insert(_recentTable, {
-      'unique_key': uniqueKey,
-      'item_json': itemJson,
-      'accessed_at': accessedAt,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  Future<void> deleteRecentAccessRow(String uniqueKey) async {
-    final db = await database;
-    await db.delete(
-      _recentTable,
-      where: 'unique_key = ?',
-      whereArgs: [uniqueKey],
-    );
-  }
-
-  Future<DateTime?> getRecentDownloadsClearedAt() async {
-    final db = await database;
-    final rows = await db.query(
-      _recentStateTable,
-      columns: ['downloads_cleared_at'],
-      where: 'id = 1',
-      limit: 1,
-    );
-    if (rows.isEmpty) return null;
-    final value = rows.first['downloads_cleared_at'] as String?;
-    return value == null ? null : DateTime.tryParse(value);
-  }
-
-  Future<DateTime> clearAllRecentAccess() async {
-    final clearedAt = DateTime.now();
-    final db = await database;
-    await db.transaction((txn) async {
-      await txn.delete(_recentTable);
-      await txn.delete(_hiddenRecentTable);
-      await txn.insert(_recentStateTable, {
-        'id': 1,
-        'downloads_cleared_at': clearedAt.toIso8601String(),
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
-    });
-    return clearedAt;
-  }
-
-  Future<Set<String>> getHiddenRecentDownloadIds() async {
-    final db = await database;
-    final rows = await db.query(_hiddenRecentTable, columns: ['download_id']);
-    return rows
-        .map((row) => row['download_id'] as String?)
-        .whereType<String>()
-        .toSet();
-  }
-
-  Future<void> addHiddenRecentDownloadId(String downloadId) async {
-    final id = downloadId.trim();
-    if (id.isEmpty) return;
-    final db = await database;
-    await db.insert(_hiddenRecentTable, {
-      'download_id': id,
-      'updated_at': DateTime.now().toIso8601String(),
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  Future<void> clearHiddenRecentDownloadIds() async {
-    final db = await database;
-    await db.delete(_hiddenRecentTable);
-  }
 }

@@ -81,7 +81,6 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   isFirstLaunch: json['isFirstLaunch'] as bool? ?? true,
   checkForUpdates: json['checkForUpdates'] as bool? ?? true,
   updateChannel: json['updateChannel'] as String? ?? 'stable',
-  hasSearchedBefore: json['hasSearchedBefore'] as bool? ?? false,
   folderOrganization: json['folderOrganization'] as String? ?? 'none',
   folderPathTemplate:
       json['folderPathTemplate'] as String? ?? '{artist}/{album}',
@@ -104,9 +103,7 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
           ?.map((e) => e as String)
           .toList(),
   searchProvider: json['searchProvider'] as String?,
-  defaultSearchTab: json['defaultSearchTab'] as String? ?? 'all',
   searchViewMode: json['searchViewMode'] as String? ?? 'list',
-  homeFeedProvider: json['homeFeedProvider'] as String?,
   separateSingles: json['separateSingles'] as bool? ?? false,
   singleFilenameFormat:
       json['singleFilenameFormat'] as String? ?? '{title} - {artist}',
@@ -226,7 +223,6 @@ Map<String, dynamic> _$AppSettingsToJson(
   'isFirstLaunch': instance.isFirstLaunch,
   'checkForUpdates': instance.checkForUpdates,
   'updateChannel': instance.updateChannel,
-  'hasSearchedBefore': instance.hasSearchedBefore,
   'folderOrganization': instance.folderOrganization,
   'folderPathTemplate': instance.folderPathTemplate,
   'createPlaylistFolder': instance.createPlaylistFolder,
@@ -241,9 +237,7 @@ Map<String, dynamic> _$AppSettingsToJson(
   'useExtensionProviders': instance.useExtensionProviders,
   'downloadFallbackExtensionIds': instance.downloadFallbackExtensionIds,
   'searchProvider': instance.searchProvider,
-  'defaultSearchTab': instance.defaultSearchTab,
   'searchViewMode': instance.searchViewMode,
-  'homeFeedProvider': instance.homeFeedProvider,
   'separateSingles': instance.separateSingles,
   'singleFilenameFormat': instance.singleFilenameFormat,
   'albumFolderStructure': instance.albumFolderStructure,

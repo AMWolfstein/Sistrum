@@ -5,6 +5,7 @@ import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/library_lyrics_search_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -399,7 +400,9 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         ),
         child: SizedBox.square(
           dimension: 52,
-          child: hit.cover?.isNotEmpty == true
+          child: hit.kind == LibrarySearchKind.artists
+              ? _ArtistHitCover(artist: hit.title, fallback: fallback)
+              : hit.cover?.isNotEmpty == true
               ? LocalOrNetworkCoverImage(url: hit.cover!, placeholder: fallback)
               : fallback(context),
         ),
@@ -553,7 +556,12 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                   children: [
                     ClipRRect(
                       borderRadius: radius,
-                      child: hit.cover?.isNotEmpty == true
+                      child: artist
+                          ? _ArtistHitCover(
+                              artist: hit.title,
+                              fallback: fallback,
+                            )
+                          : hit.cover?.isNotEmpty == true
                           ? LocalOrNetworkCoverImage(
                               url: hit.cover!,
                               placeholder: fallback,
@@ -934,5 +942,24 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       WidgetsBinding.instance.addPostFrameCallback((_) => _syncSelectionBar());
     }
     return slivers;
+  }
+}
+
+/// A library artist's image, the same as on the artist page: the cover of its
+/// newest release.
+class _ArtistHitCover extends ConsumerWidget {
+  const _ArtistHitCover({required this.artist, required this.fallback});
+
+  final String artist;
+  final Widget Function(BuildContext) fallback;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cover = ref.watch(
+      libraryArtistOverviewProvider(artist).select((s) => s.value?.imageCover),
+    );
+    return cover?.isNotEmpty == true
+        ? LocalOrNetworkCoverImage(url: cover!, placeholder: fallback)
+        : fallback(context);
   }
 }

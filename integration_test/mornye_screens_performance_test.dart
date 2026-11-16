@@ -8,14 +8,11 @@ import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/queue_tab.dart';
@@ -86,21 +83,17 @@ void main() {
     addTearDown(index.dispose);
     final requests = <LibraryBrowseRequest>[];
     final pageOffsets = <int>[];
-    final search = _Search();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           settingsProvider.overrideWith(_Settings.new),
           libraryCollectionsProvider.overrideWith(_Collections.new),
           extensionProvider.overrideWith(_Extensions.new),
-          exploreProvider.overrideWith(_Explore.new),
           downloadHistoryProvider.overrideWith(_History.new),
           downloadHistoryBatchExistsProvider.overrideWith(
             (ref, request) async => <String>{},
           ),
           downloadQueueProvider.overrideWith(_Queue.new),
-          recentAccessProvider.overrideWith(_Recent.new),
-          trackProvider.overrideWith(() => search),
           userProfileProvider.overrideWith(_Profile.new),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(null),
@@ -242,27 +235,6 @@ void main() {
     );
 
     await tester.runAsync(() => select(2));
-    Future<void> searchRoundTrip() async {
-      final field = tester.widget<AppSearchField>(
-        find.byType(AppSearchField).hitTestable(),
-      );
-      for (final query in ['Fixture', 'Fixture song', 'Fixture song 1']) {
-        field.controller.text = query;
-        field.onChanged?.call(query);
-        await probe.wait(const Duration(milliseconds: 100));
-      }
-      await probe.wait(const Duration(milliseconds: 900));
-      expect(search._resultCount, greaterThan(0));
-      await tester.tap(find.byTooltip('Clear').hitTestable());
-      await probe.wait(const Duration(milliseconds: 400));
-      expect(field.controller.text, isEmpty);
-    }
-
-    await probe.measure(
-      'home_search_input_results_clear',
-      searchRoundTrip,
-      warmup: searchRoundTrip,
-    );
     Future<void> tabRoundTrip() async {
       for (final value in [0, 1, 2, 3, 0]) {
         await tester.tap(
@@ -303,7 +275,6 @@ void main() {
         'maximumBrowseLimit': requests
             .map((request) => request.limit)
             .reduce((a, b) => a > b ? a : b),
-        'searchRequests': search._requests,
         'settingsUnchanged': true,
         'databaseCalls': databaseCalls.length,
       },
@@ -358,15 +329,7 @@ class _Tabs extends StatelessWidget {
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() =>
-      const AppSettings(searchProvider: 'example', hasSearchedBefore: true);
-
-  @override
-  void setHasSearchedBefore() {
-    if (!state.hasSearchedBefore) {
-      state = state.copyWith(hasSearchedBefore: true);
-    }
-  }
+  AppSettings build() => const AppSettings(searchProvider: 'example');
 
   @override
   void setSearchProvider(String? provider) {
@@ -402,19 +365,6 @@ class _Extensions extends ExtensionNotifier {
   );
 }
 
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState(
-    sections: [
-      ExploreSection(
-        uri: 'example:featured',
-        title: 'Featured albums',
-        items: [],
-      ),
-    ],
-  );
-}
-
 class _History extends DownloadHistoryNotifier {
   @override
   DownloadHistoryState build() => DownloadHistoryState();
@@ -438,38 +388,7 @@ class _Queue extends DownloadQueueNotifier {
   );
 }
 
-class _Recent extends RecentAccessNotifier {
-  @override
-  RecentAccessState build() => const RecentAccessState(isLoaded: true);
-}
-
 class _Profile extends UserProfileNotifier {
   @override
   Future<UserProfile> build() async => const UserProfile();
-}
-
-class _Search extends TrackNotifier {
-  int _requests = 0;
-  int get _resultCount => state.tracks.length;
-
-  @override
-  Future<void> customSearch(
-    String extensionId,
-    String query, {
-    Map<String, dynamic>? options,
-    String? selectedFilter,
-    bool allowVerificationRetry = true,
-  }) async {
-    _requests++;
-    state = TrackState(
-      hasSearchText: true,
-      searchExtensionId: 'example',
-      tracks: _tracks
-          .where(
-            (track) => track.name.toLowerCase().contains(query.toLowerCase()),
-          )
-          .take(80)
-          .toList(),
-    );
-  }
 }

@@ -1,15 +1,16 @@
 import 'dart:math';
 
 import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/artist_utils.dart' show splitArtistTagValues;
 import 'package:sistrum/utils/release_type_utils.dart';
 
 /// Songs the library artist page lists under Popular, as the online page
@@ -67,6 +68,52 @@ Future<LibraryArtistOverview> loadLibraryArtistOverview(
   return LibraryArtistOverview([
     for (final copies in byKey.values) _libraryAlbum(copies),
   ]);
+}
+
+/// Every album, single and EP of the library with a release date, newest
+/// first. Albums of the [favored] artists (most played first) come before
+/// the rest.
+Future<List<ArtistAlbum>> loadLibraryNewReleases({
+  required List<String> favored,
+  required TagCreditScope credits,
+  required bool includeLocal,
+}) async {
+  final rows = await _allRows(
+    (cursor) => LibraryDatabase.instance.getQueueAlbumPageResult(
+      QueueLibraryDbQuery(
+        includeSingleTrackAlbums: true,
+        includeLocal: includeLocal,
+        limit: _pageSize,
+        cursor: cursor,
+        tagCredits: credits,
+      ),
+    ),
+  );
+  final byKey = <String, List<Map<String, dynamic>>>{};
+  for (final row in rows) {
+    byKey.putIfAbsent(row['album_key'] as String? ?? '', () => []).add(row);
+  }
+  int rankOf(ArtistAlbum album) {
+    final artists = splitArtistTagValues(album.artists);
+    for (var index = 0; index < favored.length; index++) {
+      if (artists.contains(favored[index])) return index;
+    }
+    return favored.length;
+  }
+
+  final ranked =
+      [
+        for (final copies in byKey.values)
+          if (_libraryAlbum(copies) case final album
+              when album.releaseDate.trim().isNotEmpty)
+            (album: album, rank: rankOf(album)),
+      ]..sort((a, b) {
+        final byRank = a.rank.compareTo(b.rank);
+        if (byRank != 0) return byRank;
+        final byDate = b.album.releaseDate.compareTo(a.album.releaseDate);
+        return byDate != 0 ? byDate : a.album.name.compareTo(b.album.name);
+      });
+  return [for (final entry in ranked) entry.album];
 }
 
 /// The tracks where the artist is a track artist but not the album artist.

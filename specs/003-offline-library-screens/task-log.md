@@ -675,3 +675,85 @@ Open decisions (owner):
 3. Genre rows are flat `TrackCard`s without selection; T006 aligns library rows.
 4. The genre list is read whole, not paged; not measured on a large library.
 5. No device or walkthrough run.
+
+## M003-TOR015
+
+Offline Home and library-only Search (FR-021, FR-022). Base `d6c428d`. Uncommitted; independent review
+not run; `task complete` not run (tasks.md checkbox left open).
+
+Map: start `scratchpad/tor015/map_start.json` (34227 symbols, 1705 sources, 0 partial); end
+`map_update.json` (33623 symbols, 1682 sources, 0 partial, 0 unindexed).
+
+Home (browse), in order: Top Picks (library mixes only), Recently Played or Continue Listening, New Releases
+(new: albums, singles and EPs with a release date, favoured artists first, then release date desc;
+`loadLibraryNewReleases`), On Repeat, Your Top Artists (new: all-time statistics, in-library artists, image from
+T001 `imageCover`), Recently Added, Your Playlists (new), Genres (new, T013 provider; "see all" opens the Genres
+page). An empty library shows "Your music will appear here" and the open-audio button.
+Search: library only, via `LibrarySearchResults(shelves: true)`. Artist hits show `imageCover`. Clear and the
+mic (recognition now searches the library) work.
+
+Deleted (lib): `screens/home_tab_explore.dart`, `home_tab_recent.dart`, `home_tab_search_results.dart`,
+`home_tab_search_wide.dart`; `providers/explore_provider.dart`, `home_top_picks_provider.dart`,
+`recent_access_provider.dart`, `track_provider.dart` (TrackState, search, URL fetch; ArtistAlbum moved to
+`models/artist_album.dart`); `controllers/home_search_logic.dart`; `models/artist_concert.dart`;
+`services/explore_cache_store.dart`; `utils/extension_country_name.dart`; `widgets/explore_featured_section.dart`,
+`home_feed_region_setting.dart`. Settings: `homeFeedProvider` (old JSON key ignored), `defaultSearchTab`,
+`hasSearchedBefore` (fields, setters, default-tab picker). In `app_state_database.dart`: recent-access tables
+(creation, row methods, legacy migration). `PlatformBridge.getExtensionHomeFeed`, `cancelExtensionHomeFeedRequests`,
+`findURLHandler`, `handleURLWithExtension` with its URL cache (its spill-file test case now runs through the metadata lookup only); extension `hasHomeFeed`, `homeFeedRegionSetting`, `setHomeFeedRegion`; explore cache row; home-feed
+settings rows and the country-option UI branch. 48 ARB keys with no reader removed from all 21 ARBs. Shared-link
+URL handling removed (`_handleSharedUrl`, URL parts of the share service); shared audio intake kept
+(`lib/services/share_intent_service.dart`, audio branch only, kept as a modified file, not deleted; `main.dart` matches HEAD).
+
+Added: `lib/services/retired_explore_cache.dart` (startup clears the explore cache blob and its two preference keys,
+called from settings load); `models/artist_album.dart`; the three Home providers and four shelves; strings
+`homeNewReleases`, `homeTopArtists`, `homeYourPlaylists` in all 21 ARBs (English).
+
+Kept, with reasons: `settings.searchProvider` and its row (weekly releases, download default and extension priority
+read it); `customSearchWithExtension` (weekly releases, metadata autofill); CSV import on the Search bar (extension
+matching, not Home/Search content); the three leftover recent-access tables on existing installs (not dropped;
+schema version stays 5; nothing reads them); `ArtistAlbum.providerId` (artist widgets read it); native Kotlin/Rust
+`getExtensionHomeFeed`, `findURLHandler`, `handleURLWithExtension` and MainActivity URL forwarding (no native file changed).
+
+Tests deleted (declaration counts at HEAD, not executed cases): `explore_cache_store_test` (6),
+`explore_featured_section_test` (5), `home_feed_region_test` (8), `home_search_narrow_layout_test` (1),
+`home_search_wide_layout_test` (2), `home_top_picks_test` (13), `live_search_cancellation_test` (3),
+`recent_access_clear_test` (3), `recent_access_persistence_test` (6), `track_provider_context_test` (1),
+`track_provider_url_failure_test` (2), `test/support/search_results_fixture.dart`; the "home search logic" group in
+`maintainability_contracts_test` (5 cases); the Home=true variant in `extension_icon_decode_test` (1 case).
+`home_search_tabs_test` (13 declarations) was split: ported to `home_offline_test` the resume card, the
+Continue-Listening-until-Recently-Played-settles test (2 cases) and the local-playback test; dropped the rest
+(explore feed layout, startup loading (3), feed-disabled startup, restored feed, Home layout menu over explore
+sections, Search keeping its query, failed-verification retry, collection sections, Search glass and scroll results,
+Search recent items), because they test the removed feed or online search.
+Ported: `app_settings_model_test` (old-settings JSON test added), `library_mixes_test` (album-hint expectation now
+"no plays"), `library_mix_ui_test`, `main_shell_keyboard_test`, `extension_icon_decode_test`,
+`cache_management_page_test` (explore row removed), `library_artist_screen_test`, `artist_album_sort_test`,
+`artist_featured_album_card_test`, `collapsing_title_rebuild_test` (imports), `library_album_screen_test` (entry
+list), `integration_test/mornye_screens_performance_test.dart` (online search measurement removed).
+New: `test/home_offline_test.dart` (13 widget tests: shelf order with Top Picks and Recently Played first, empty
+library, four shelf taps, Search library-only with no extension build, artist image, Search clear, and the three
+ported Continue Listening cases); `test/retired_explore_cache_test.dart` (1); `library_detail_data_test.dart` (+2 New
+Releases ordering).
+
+Open decisions (owner):
+1. Shared http/Spotify links no longer open Search; shared audio files still open. Native MainActivity still forwards URLs.
+2. Mixes lose the recently-visited album hint (no store writer since TOR014).
+3. New Releases: albums of the most-played artists first, then release date desc.
+4. Top Artists uses all-time statistics.
+5. Kept: `searchProvider` setting and row, CSV import on the Search bar, music recognition mic.
+6. Native `getExtensionHomeFeed` and `findURLHandler` handlers left in Kotlin and Rust.
+
+Checks (`scratchpad/tor015/`):
+- `analyze.log`: `flutter analyze lib test integration_test`: No issues found, exit 0.
+- `format.log` (`changed_dart_files.txt`, 47 files): `dart format --set-exit-if-changed`: exit 0, 0 changed.
+- `gen_l10n.log`: exit 0.
+- `targeted.log`: 22 touched or new test files: 178 passed, exit 0.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3875 passed excluding 7 `loading` entries (all passed), 10 skipped,
+  0 failed; 3892 non-hidden testDone. Baseline 3948 passed, so 73 fewer from the deleted tests above.
+- Earlier full runs: `library_album_screen_test` source list fixed. `library_loading_test` "a superseded summary cannot
+  restore stale lookup sets" and `track_metadata_lyrics_test` "lyrics embed preserves tags ... explicit=false" failed
+  once with no exception text in the JSON; both passed alone and in the final full run. Cause not established;
+  intermittent order or load dependence is suspected.
+- `map_update.json`: 33623 symbols, 1682 sources, 0 partial, 0 unindexed.
+- `validate.json`: PASS (3 missions, 7 reserved, 38 completed).

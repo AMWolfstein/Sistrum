@@ -142,7 +142,7 @@ void main() {
       'lib/screens/mornye_library_screen.dart',
       'lib/screens/queue_tab_navigation.dart',
       'lib/controllers/player_track_navigation.dart',
-      'lib/screens/home_tab_recent.dart',
+      'lib/screens/home_tab_intro.dart',
       'lib/widgets/library_search_results.dart',
       'lib/screens/artist_screen_library.dart',
     ];

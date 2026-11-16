@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/widgets/artist_featured_album_card.dart';
 
 const _album = ArtistAlbum(

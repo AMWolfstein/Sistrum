@@ -383,7 +383,6 @@ class _SettingItem extends StatefulWidget {
   final bool showDivider;
   final ValueChanged<dynamic> onChanged;
   final String extensionId;
-  final bool countryOptions;
   final Future<void> Function(Map<String, dynamic> payload)? onActionPayload;
 
   const _SettingItem({
@@ -392,7 +391,6 @@ class _SettingItem extends StatefulWidget {
     required this.value,
     required this.onChanged,
     required this.extensionId,
-    this.countryOptions = false,
     this.onActionPayload,
     this.showDivider = true,
   });
@@ -424,9 +422,7 @@ class _SettingItemState extends State<_SettingItem> {
             ? _showOptions
             : null;
         footer = Text(
-          widget.countryOptions
-              ? extensionCountryName(context, widget.value?.toString() ?? '')
-              : widget.value?.toString() ?? context.l10n.extensionSettingNotSet,
+          widget.value?.toString() ?? context.l10n.extensionSettingNotSet,
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
@@ -451,13 +447,7 @@ class _SettingItemState extends State<_SettingItem> {
                 colorScheme: colorScheme,
               )
             : Text(
-                widget.countryOptions
-                    ? extensionCountryName(
-                        context,
-                        widget.value?.toString() ?? '',
-                      )
-                    : widget.value?.toString() ??
-                          context.l10n.extensionSettingNotSet,
+                widget.value?.toString() ?? context.l10n.extensionSettingNotSet,
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
@@ -487,11 +477,7 @@ class _SettingItemState extends State<_SettingItem> {
           children: [
             for (final option in widget.setting.options ?? <String>[])
               AppSheetOption.choice(
-                title: Text(
-                  widget.countryOptions
-                      ? extensionCountryName(sheetContext, option)
-                      : option,
-                ),
+                title: Text(option),
                 selected: option == widget.value,
                 onTap: () => Navigator.pop(sheetContext, option),
               ),

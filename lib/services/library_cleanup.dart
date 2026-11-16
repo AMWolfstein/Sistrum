@@ -123,7 +123,6 @@ appLibraryCoverReferenceColumns() async {
     (database: appState, table: 'playback_session', column: 'media_json'),
     (database: appState, table: 'playback_resume', column: 'media_json'),
     (database: appState, table: 'playback_resume', column: 'preview_json'),
-    (database: appState, table: 'recent_access_items', column: 'item_json'),
     (database: appState, table: 'download_queue_items', column: 'item_json'),
     (database: history, table: 'history', column: 'cover_url'),
     (database: statistics, table: 'listening', column: 'artwork'),

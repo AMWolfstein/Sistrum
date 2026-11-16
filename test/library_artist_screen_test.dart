@@ -8,7 +8,7 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
-import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/theme/mornye_theme.dart';

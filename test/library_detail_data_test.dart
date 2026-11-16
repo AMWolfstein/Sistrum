@@ -710,6 +710,41 @@ void main() {
     });
   });
 
+  group('new releases', () {
+    test('albums, singles and EPs with a release date, newest first', () async {
+      final releases = await loadLibraryNewReleases(
+        favored: const [],
+        credits: _scope,
+        includeLocal: true,
+      );
+      final names = [for (final album in releases) album.name];
+      expect(names, isNot(contains('Undated Demo')));
+      expect(names, containsAll(['Mixtape', 'Lone Single', 'Long Play']));
+      final dates = [for (final album in releases) album.releaseDate];
+      expect(dates, everyElement(isNotEmpty));
+      for (var i = 1; i < dates.length; i++) {
+        expect(dates[i - 1].compareTo(dates[i]), greaterThanOrEqualTo(0));
+      }
+      expect(names.indexOf('Mixtape'), lessThan(names.indexOf('Lone Single')));
+    });
+
+    test('albums of the most-played artists come before newer ones', () async {
+      final releases = await loadLibraryNewReleases(
+        favored: const ['Kit'],
+        credits: _scope,
+        includeLocal: true,
+      );
+      final names = [for (final album in releases) album.name];
+      final kit = releases.firstWhere((album) => album.name == 'Kit Album');
+      expect(kit.artists, contains('Kit'));
+      expect(names.indexOf('Kit Album'), lessThan(names.indexOf('Mixtape')));
+      expect(
+        names.indexOf('Fallback Album'),
+        lessThan(names.indexOf('Mixtape')),
+      );
+    });
+  });
+
   test('the providers expose the library data to the screens', () async {
     final container = ProviderContainer(
       overrides: [

@@ -232,25 +232,9 @@ class Extension {
   bool get hasCustomMatching => trackMatching?.customMatching ?? false;
   bool get hasPostProcessing => postProcessing?.enabled ?? false;
   bool get hasServiceHealth => serviceHealth.isNotEmpty;
-  bool get hasHomeFeed => capabilities['homeFeed'] == true;
 
   /// Suggests songs like given ones (`getRelatedTracks`).
   bool get hasRelatedTracks => capabilities['relatedTracks'] == true;
-
-  /// The extension owns its country choices and the setting sent to its API.
-  ExtensionSetting? get homeFeedRegionSetting {
-    if (!hasHomeFeed) return null;
-    final key = capabilities['homeFeedRegionSetting'];
-    if (key is! String || key.isEmpty) return null;
-    return settings.where((setting) {
-      final options = setting.options;
-      return setting.key == key &&
-          (setting.type == 'select' || setting.type == 'string') &&
-          options != null &&
-          options.isNotEmpty &&
-          options.every((code) => RegExp(r'^[a-zA-Z]{2}$').hasMatch(code));
-    }).firstOrNull;
-  }
 
   ExtensionDownloadTransferPolicy get downloadTransferPolicy =>
       ExtensionDownloadTransferPolicy.fromCapabilities(capabilities);

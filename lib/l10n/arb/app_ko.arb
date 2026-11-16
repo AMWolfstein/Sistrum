@@ -221,6 +221,9 @@
   "appearanceUseSystemFont": "시스템 글꼴 사용",
   "appearanceUseSystemFontSubtitle": "앱 텍스트에 기기 기본 글꼴을 사용합니다",
   "@@locale": "ko",
+  "homeNewReleases": "New Releases",
+  "homeTopArtists": "Your Top Artists",
+  "homeYourPlaylists": "Your Playlists",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -245,18 +248,6 @@
   "homeTitle": "홈",
   "@homeTitle": {
     "description": "Home screen title"
-  },
-  "homeEmptyTitle": "아직 검색 제공자가 없음",
-  "@homeEmptyTitle": {
-    "description": "Title shown on home when no providers are available yet"
-  },
-  "homeEmptySubtitle": "계속하려면 확장 기능을 설치하세요",
-  "@homeEmptySubtitle": {
-    "description": "Subtitle shown on home when no providers are available yet"
-  },
-  "homeRecent": "최근 기록",
-  "@homeRecent": {
-    "description": "Section header for recent searches"
   },
   "historyFilterAll": "모두",
   "@historyFilterAll": {
@@ -315,10 +306,6 @@
   "settingsAbout": "정보",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadTitle": "다운로드",
-  "@downloadTitle": {
-    "description": "Download settings page title"
   },
   "downloadAskQualitySubtitle": "다운로드를 할 때마다 음질을 선택하도록 합니다",
   "@downloadAskQualitySubtitle": {
@@ -404,14 +391,6 @@
         "type": "String"
       }
     }
-  },
-  "optionsDefaultSearchTab": "기본 검색 탭",
-  "@optionsDefaultSearchTab": {
-    "description": "Title for the preferred default search tab setting"
-  },
-  "optionsDefaultSearchTabSubtitle": "새 검색 결과를 표시할 탭을 먼저 선택하세요",
-  "@optionsDefaultSearchTabSubtitle": {
-    "description": "Subtitle for the preferred default search tab setting"
   },
   "optionsAutoFallback": "자동 대체",
   "@optionsAutoFallback": {
@@ -949,10 +928,6 @@
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogClearAll": "모두 지우기",
-  "@dialogClearAll": {
-    "description": "Dialog title - clear all items"
-  },
   "dialogRemoveExtension": "확장 기능 제거",
   "@dialogRemoveExtension": {
     "description": "Dialog title - uninstall extension"
@@ -1121,24 +1096,6 @@
       }
     }
   },
-  "snackbarAlreadyDownloaded": "'{trackName}'은 이미 다운로드되어 있음",
-  "@snackbarAlreadyDownloaded": {
-    "description": "Snackbar - track already exists",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "snackbarAlreadyInLibrary": "라이브러리에 '{trackName}'이 이미 존재함",
-  "@snackbarAlreadyInLibrary": {
-    "description": "Snackbar - track already exists in local library",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarHistoryCleared": "기록 지워짐",
   "@snackbarHistoryCleared": {
     "description": "Snackbar - history deleted"
@@ -1225,25 +1182,9 @@
   "@errorRateLimitedMessage": {
     "description": "Error message - rate limit explanation"
   },
-  "errorNoTracksFound": "트랙을 찾을 수 없음",
-  "@errorNoTracksFound": {
-    "description": "Error - search returned no results"
-  },
   "searchEmptyResultSubtitle": "다른 키워드를 검색해 보세요",
   "@searchEmptyResultSubtitle": {
     "description": "Subtitle shown under the empty search result state on the home screen"
-  },
-  "errorUrlNotRecognized": "링크를 인식할 수 없음",
-  "@errorUrlNotRecognized": {
-    "description": "Error title - URL not handled by any extension or service"
-  },
-  "errorUrlNotRecognizedMessage": "이 링크는 지원되지 않습니다. URL이 올바른지, 호환되는 확장 기능이 설치되어 있는지 확인하세요",
-  "@errorUrlNotRecognizedMessage": {
-    "description": "Error message - URL not recognized explanation"
-  },
-  "errorUrlFetchFailed": "이 링크에서 콘텐츠를 불러오는 데 실패하였습니다. 다시 시도해 주세요",
-  "@errorUrlFetchFailed": {
-    "description": "Error message - generic URL fetch failure"
   },
   "actionPause": "일시 중지",
   "@actionPause": {
@@ -1315,27 +1256,9 @@
   "@searchPlaylists": {
     "description": "Search result category - playlists"
   },
-  "searchShowAll": "Show all",
-  "@searchShowAll": {
-    "description": "Button of a search result section on wide screens that shows every result of that kind"
-  },
-  "searchShowAllCategory": "Show all {category}",
-  "@searchShowAllCategory": {
-    "description": "Screen reader label of the Show all button of a search result section",
-    "placeholders": {
-      "category": {
-        "type": "String",
-        "example": "Albums"
-      }
-    }
-  },
   "searchSortTitle": "결과 정렬",
   "@searchSortTitle": {
     "description": "Bottom sheet title for search sort options"
-  },
-  "searchSortDefault": "기본값",
-  "@searchSortDefault": {
-    "description": "Sort option - default API order"
   },
   "searchSortTitleAZ": "제목 (오름차순)",
   "@searchSortTitleAZ": {
@@ -1352,14 +1275,6 @@
   "searchSortArtistZA": "아티스트 (내림차순)",
   "@searchSortArtistZA": {
     "description": "Sort option - artist descending"
-  },
-  "searchSortDurationShort": "재생시간 (짧은순)",
-  "@searchSortDurationShort": {
-    "description": "Sort option - shortest duration first"
-  },
-  "searchSortDurationLong": "재생시간 (긴순)",
-  "@searchSortDurationLong": {
-    "description": "Sort option - longest duration first"
   },
   "searchSortDateOldest": "발매일자 (오래된순)",
   "@searchSortDateOldest": {
@@ -1709,10 +1624,6 @@
   "settingsLogsSubtitle": "디버깅을 위한 앱 로그 보기",
   "@settingsLogsSubtitle": {
     "description": "Logs settings description"
-  },
-  "loadingSharedLink": "공유된 링크를 불러오는 중...",
-  "@loadingSharedLink": {
-    "description": "Status when opening shared URL"
   },
   "pressBackAgainToExit": "종료하려면 뒤로가기 버튼을 다시 탭하세요",
   "@pressBackAgainToExit": {
@@ -2496,43 +2407,9 @@
       }
     }
   },
-  "recentTypeArtist": "아티스트",
-  "@recentTypeArtist": {
-    "description": "Recent access item type - artist"
-  },
   "recentTypeAlbum": "앨범",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "recentTypeSong": "노래",
-  "@recentTypeSong": {
-    "description": "Recent access item type - song/track"
-  },
-  "recentTypePlaylist": "재생목록",
-  "@recentTypePlaylist": {
-    "description": "Recent access item type - playlist"
-  },
-  "recentEmpty": "최근 항목이 없음",
-  "@recentEmpty": {
-    "description": "Empty state text for recent access list"
-  },
-  "recentClearAllMessage": "최근 활동을 모두 지우시겠습니까? 다운로드 기록 및 음악 파일은 삭제되지 않습니다",
-  "@recentClearAllMessage": {
-    "description": "Confirmation message before clearing all recent activity"
-  },
-  "recentShowAllDownloads": "모든 다운로드 표시",
-  "@recentShowAllDownloads": {
-    "description": "Button label to unhide hidden downloads in recent access"
-  },
-  "recentPlaylistInfo": "재생목록: {name}",
-  "@recentPlaylistInfo": {
-    "description": "Snackbar message when tapping playlist in recent access",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "description": "Playlist name"
-      }
-    }
   },
   "discographySkippedDownloaded": "{added} 개 추가됨, {skipped} 개 이미 다운로드됨",
   "@discographySkippedDownloaded": {
@@ -3245,14 +3122,6 @@
   "@cacheAudioAnalysisDesc": {
     "description": "Description of what audio analysis cache contains"
   },
-  "cacheExploreFeed": "탐색 피드 캐시",
-  "@cacheExploreFeed": {
-    "description": "Cache item title for explore home feed cache"
-  },
-  "cacheExploreFeedDesc": "탐색 탭 콘텐츠(최신 발매 음악, 인기 콘텐츠)는 다음 방문 시 새로 고쳐집니다",
-  "@cacheExploreFeedDesc": {
-    "description": "Description of what explore feed cache contains"
-  },
   "cacheTrackLookup": "트랙 조회 캐시",
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
@@ -3278,15 +3147,6 @@
       },
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "cacheSizeOnly": "{size}",
-  "@cacheSizeOnly": {
-    "description": "Cache size only",
-    "placeholders": {
-      "size": {
-        "type": "String"
       }
     }
   },
@@ -4330,10 +4190,6 @@
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
   },
-  "homeAlbumInfoUnavailable": "앨범 정보를 사용할 수 없음",
-  "@homeAlbumInfoUnavailable": {
-    "description": "Snackbar when album info cannot be loaded"
-  },
   "snackbarLoadingCueSheet": "CUE 시트를 불러오는 중...",
   "@snackbarLoadingCueSheet": {
     "description": "Snackbar while loading a CUE sheet file"
@@ -5093,50 +4949,9 @@
   "@audioAnalysisRescanning": {
     "description": "Loading text while audio is being re-analyzed after an explicit refresh"
   },
-  "extensionsHomeFeedProvider": "홈 피드 제공자",
-  "@extensionsHomeFeedProvider": {
-    "description": "Extensions page - label for home feed provider selector"
-  },
-  "extensionsHomeFeedCountry": "홈 피드 국가",
-  "@extensionsHomeFeedCountry": {
-    "description": "Country picker for the active Home feed extension"
-  },
-  "extensionsHomeFeedCountryDescription": "VPN 없이 국가의 홈 추천을 선택하세요",
-  "@extensionsHomeFeedCountryDescription": {
-    "description": "Help for choosing regional Home recommendations"
-  },
-  "extensionsHomeFeedDescription": "메인 화면에 홈 피드를 제공하는 확장 기능을 선택하세요",
-  "@extensionsHomeFeedDescription": {
-    "description": "Extensions page - description for home feed provider picker"
-  },
   "extensionsHomeFeedAuto": "자동",
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
-  },
-  "extensionsHomeFeedAutoSubtitle": "사용 가능한 최적의 항목을 자동으로 선택합니다",
-  "@extensionsHomeFeedAutoSubtitle": {
-    "description": "Extensions page - subtitle for auto home feed option"
-  },
-  "extensionsHomeFeedOff": "끄기",
-  "@extensionsHomeFeedOff": {
-    "description": "Extensions page - home feed provider option: off"
-  },
-  "extensionsHomeFeedOffSubtitle": "메인 화면에 홈 피드를 표시하지 않습니다",
-  "@extensionsHomeFeedOffSubtitle": {
-    "description": "Extensions page - subtitle for off home feed option"
-  },
-  "extensionsHomeFeedUse": "{extensionName} 홈 피드 사용",
-  "@extensionsHomeFeedUse": {
-    "description": "Extensions page - subtitle for a specific extension home feed option",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionsNoHomeFeedExtensions": "홈 피드가 있는 확장 기능이 없음",
-  "@extensionsNoHomeFeedExtensions": {
-    "description": "Extensions page - shown when no installed extension has home feed"
   },
   "cancelDownloadTitle": "다운로드를 취소하시겠습니까?",
   "@cancelDownloadTitle": {
@@ -5417,30 +5232,9 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "searchTracks": "트랙",
-  "@searchTracks": {
-    "description": "Search filter label - tracks"
-  },
-  "homeSearchHintDefault": "지원되는 URL을 붙여넣거나 검색...",
-  "@homeSearchHintDefault": {
-    "description": "Default placeholder for the main search field on Home"
-  },
-  "homeSearchHintProvider": "{providerName}으로 검색...",
-  "@homeSearchHintProvider": {
-    "description": "Placeholder for the main search field when a provider is selected",
-    "placeholders": {
-      "providerName": {
-        "type": "String"
-      }
-    }
-  },
   "homeImportCsvTooltip": "재생목록 가져오기 (CSV, M3U)",
   "@homeImportCsvTooltip": {
     "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
-  "homeChangeSearchProviderTooltip": "검색 제공자 변경",
-  "@homeChangeSearchProviderTooltip": {
-    "description": "Tooltip for the Home search provider picker"
   },
   "actionPaste": "붙여넣기",
   "@actionPaste": {
@@ -5676,10 +5470,6 @@
   "@extensionUtilityFunctions": {
     "description": "Capability label for utility-only extensions"
   },
-  "actionDismiss": "닫기",
-  "@actionDismiss": {
-    "description": "Generic action - dismiss"
-  },
   "setupChangeFolderTooltip": "폴더 변경",
   "@setupChangeFolderTooltip": {
     "description": "Tooltip for editing the selected download folder"
@@ -5692,18 +5482,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11yOpenItem": "{itemType} {name} 열기",
-  "@a11yOpenItem": {
-    "description": "Accessibility label for opening a generic item",
-    "placeholders": {
-      "itemType": {
-        "type": "String"
-      },
-      "name": {
         "type": "String"
       }
     }
@@ -6962,14 +6740,6 @@
   "regionCountryUS": "미국",
   "@regionCountryUS": {
     "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIT": "이탈리아",
-  "@regionCountryIT": {
-    "description": "Country name for Italy"
-  },
-  "regionCountryES": "스페인",
-  "@regionCountryES": {
-    "description": "Country name for Spain"
   },
   "regionCountryGB": "영국",
   "@regionCountryGB": {

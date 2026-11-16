@@ -157,7 +157,6 @@ class PlatformBridge {
   static const _jsonResultFileKey = '__json_file';
   static const _backgroundJsonDecodeThresholdBytes = 128 * 1024;
   static const _metadataCacheTtl = Duration(minutes: 20);
-  static const _urlHandleCacheTtl = Duration(minutes: 5);
   static const _customSearchCacheTtl = Duration(minutes: 2);
   static const _bridgeCacheMaxEntries = 256;
   // Bound retained JSON containers as well as strings. Entry counts alone do
@@ -172,17 +171,11 @@ class PlatformBridge {
   static const _metadataPersistentCacheKey = 'bridge_metadata_lookup_cache_v1';
   static final Map<String, _BridgeCacheEntry<Map<String, dynamic>>>
   _metadataCache = {};
-  static final Map<String, _BridgeCacheEntry<Map<String, dynamic>>>
-  _urlHandleCache = {};
   static final Map<String, _BridgeCacheEntry<List<Map<String, dynamic>>>>
   _customSearchCache = {};
   static final Map<String, Future<Map<String, dynamic>>> _metadataInFlight = {};
-  static final Map<String, Future<Map<String, dynamic>?>> _urlHandleInFlight =
-      {};
   static final Map<String, _BridgeInFlight<List<Map<String, dynamic>>>>
   _customSearchInFlight = {};
-  static final Map<String, _BridgeInFlight<Map<String, dynamic>?>>
-  _homeFeedInFlight = {};
   static Future<void>? _persistentLookupCacheLoadFuture;
   static int _lookupCacheGeneration = 0;
   static Timer? _lookupCachePersistTimer;
@@ -407,13 +400,6 @@ class PlatformBridge {
     };
   }
 
-  static Map<String, dynamic>? _copyNullableStringMap(
-    Map<String, dynamic>? value,
-  ) {
-    if (value == null) return null;
-    return _copyStringMap(value);
-  }
-
   static List<Map<String, dynamic>> _copyMapList(
     List<Map<String, dynamic>> value,
   ) {
@@ -611,18 +597,12 @@ class PlatformBridge {
     await _cancelLookupCachePersistence();
     _persistentLookupCacheLoadFuture = null;
     _metadataCache.clear();
-    _urlHandleCache.clear();
     _customSearchCache.clear();
     _metadataInFlight.clear();
-    _urlHandleInFlight.clear();
     for (final inFlight in _customSearchInFlight.values) {
       _cancelExtensionRequestUnawaited(inFlight.requestId);
     }
-    for (final inFlight in _homeFeedInFlight.values) {
-      _cancelExtensionRequestUnawaited(inFlight.requestId);
-    }
     _customSearchInFlight.clear();
-    _homeFeedInFlight.clear();
     await _clearPersistentLookupCaches();
   }
 
@@ -661,13 +641,6 @@ class PlatformBridge {
       _customSearchInFlight.remove(entry.key);
       _cancelExtensionRequestUnawaited(entry.value.requestId);
     }
-  }
-
-  static void cancelExtensionHomeFeedRequests() {
-    for (final inFlight in _homeFeedInFlight.values) {
-      _cancelExtensionRequestUnawaited(inFlight.requestId);
-    }
-    _homeFeedInFlight.clear();
   }
 
   static int _lookupCacheSize() {
@@ -1899,69 +1872,6 @@ class PlatformBridge {
     return _decodeMapListResultAsync(result, 'getExtensionRelatedTracks');
   }
 
-  static Future<Map<String, dynamic>?> handleURLWithExtension(
-    String url,
-  ) async {
-    final cacheKey = url.trim();
-    if (cacheKey.isEmpty) return null;
-
-    final cached = _getCachedMap(_urlHandleCache, cacheKey);
-    if (cached != null) return cached;
-
-    final inFlight = _urlHandleInFlight[cacheKey];
-    if (inFlight != null) return _copyNullableStringMap(await inFlight);
-
-    final generation = _lookupCacheGeneration;
-    final future = (() async {
-      try {
-        final result = await _channel.invokeMethod('handleURLWithExtension', {
-          'url': url,
-        });
-        final decoded = await _decodeNullableMapResultAsync(
-          result,
-          'handleURLWithExtension',
-        );
-        if (generation == _lookupCacheGeneration &&
-            decoded != null &&
-            _isCacheableURLHandleResult(decoded)) {
-          _putMemoryCached<Map<String, dynamic>>(
-            _urlHandleCache,
-            cacheKey,
-            decoded,
-            _urlHandleCacheTtl,
-          );
-        }
-        return decoded;
-      } on PlatformException catch (e, stack) {
-        _log.e('Extension URL metadata failed', e, stack);
-        rethrow;
-      } catch (e) {
-        return null;
-      }
-    })();
-
-    _urlHandleInFlight[cacheKey] = future;
-    try {
-      return _copyNullableStringMap(await future);
-    } finally {
-      if (identical(_urlHandleInFlight[cacheKey], future)) {
-        _urlHandleInFlight.remove(cacheKey);
-      }
-    }
-  }
-
-  static bool _isCacheableURLHandleResult(Map<String, dynamic> result) {
-    final type = result['type']?.toString();
-    if (type == null || type.isEmpty) return false;
-    if (type == 'track') {
-      final track = result['track'];
-      if (track is! Map) return false;
-      final name = track['name']?.toString().trim() ?? '';
-      return name.isNotEmpty;
-    }
-    return type == 'album' || type == 'playlist' || type == 'artist';
-  }
-
   /// Admits [value] under the shared per-entry and per-cache budgets,
   /// evicting the oldest entries first. Each cache map is budgeted on its own.
   static void _putMemoryCached<T>(
@@ -2001,12 +1911,6 @@ class PlatformBridge {
     return _copyMapList(entry.value);
   }
 
-  static Future<String?> findURLHandler(String url) async {
-    final result = await _channel.invokeMethod('findURLHandler', {'url': url});
-    if (result == null || result == '') return null;
-    return result as String;
-  }
-
   /// MusicBrainz genre and album artist for an ISRC; empty strings when a
   /// lookup finds nothing. One channel call covers both fields to spare
   /// MusicBrainz's 1 req/s budget.
@@ -2041,51 +1945,6 @@ class PlatformBridge {
     return platforms.map(
       (key, value) => MapEntry(key.toString(), value.toString()),
     );
-  }
-
-  static Future<Map<String, dynamic>?> getExtensionHomeFeed(
-    String extensionId, {
-    bool cancelPrevious = false,
-  }) async {
-    final cacheKey = 'homeFeed:${extensionId.trim()}';
-    final inFlight = _homeFeedInFlight[cacheKey];
-    if (inFlight != null) {
-      if (!cancelPrevious) {
-        return _copyNullableStringMap(await inFlight.future);
-      }
-      _cancelExtensionRequestUnawaited(inFlight.requestId);
-      _homeFeedInFlight.remove(cacheKey);
-    }
-
-    final requestId = _nextExtensionRequestId('homeFeed', extensionId);
-    final future = (() async {
-      try {
-        final result = await _channel.invokeMethod('getExtensionHomeFeed', {
-          'extension_id': extensionId,
-          'request_id': requestId,
-        });
-        return await _decodeNullableMapResultAsync(
-          result,
-          'getExtensionHomeFeed',
-        );
-      } catch (e) {
-        _log.e('getExtensionHomeFeed failed: $e');
-        return null;
-      }
-    })();
-    final entry = _BridgeInFlight<Map<String, dynamic>?>(
-      requestId: requestId,
-      scopeKey: cacheKey,
-      future: future,
-    );
-    _homeFeedInFlight[cacheKey] = entry;
-    try {
-      return _copyNullableStringMap(await future);
-    } finally {
-      if (identical(_homeFeedInFlight[cacheKey], entry)) {
-        _homeFeedInFlight.remove(cacheKey);
-      }
-    }
   }
 
   // in the diagnostics session marker.
@@ -2354,18 +2213,6 @@ class PlatformBridge {
     }
     throw FormatException(
       'Expected map result from $method, got ${decoded.runtimeType}',
-    );
-  }
-
-  static Future<Map<String, dynamic>?> _decodeNullableMapResultAsync(
-    dynamic result,
-    String method,
-  ) async {
-    final decoded = await _decodeJsonResultAsync(result);
-    if (decoded == null) return null;
-    if (decoded is Map) return decoded.cast<String, dynamic>();
-    throw FormatException(
-      'Expected nullable map result from $method, got ${decoded.runtimeType}',
     );
   }
 

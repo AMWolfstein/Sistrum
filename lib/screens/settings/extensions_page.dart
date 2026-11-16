@@ -10,7 +10,6 @@ import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/download_fallback_extensions_page.dart';
 import 'package:sistrum/screens/settings/extension_detail_page.dart';
@@ -23,7 +22,6 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/home_feed_region_setting.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/extension_health.dart';
 
@@ -130,8 +128,6 @@ class _ExtensionsPageState extends ConsumerState<ExtensionsPage> {
                   _ExtensionPriorityLink(_PriorityLink.fallback),
                   _ExtensionPriorityLink(_PriorityLink.metadata),
                   _SearchProviderSelector(),
-                  _HomeFeedProviderSelector(),
-                  HomeFeedRegionSetting(),
                 ],
               ),
             ),

@@ -171,7 +171,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
     entries to these pages are handled in TOR015.
   - Dependencies: T002, T003, T004.
 
-- [ ] M003-TOR015 Offline Home and Search
+- [x] M003-TOR015 Offline Home and Search
   - Request (owner, 2026-11-16): keep the offline Home, add what Apple Music Home has
     that works offline, delete every online Home; Search becomes library-only.
   - Acceptance: FR-021, FR-022. Home sections in this order: Top Picks (library mixes

@@ -6,10 +6,8 @@ import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
-import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
@@ -283,17 +281,11 @@ Future<void> _pumpHome(
       overrides: [
         settingsProvider.overrideWith(
           () => FixedSettingsNotifier(
-            const AppSettings(
-              searchProvider: 'example',
-              homeFeedProvider: AppSettings.homeFeedProviderOff,
-              hasSearchedBefore: true,
-            ),
+            const AppSettings(searchProvider: 'example'),
           ),
         ),
         extensionProvider.overrideWith(_Extensions.new),
-        exploreProvider.overrideWith(_Explore.new),
         downloadHistoryProvider.overrideWith(_History.new),
-        recentAccessProvider.overrideWith(_Recent.new),
         libraryMixesProvider.overrideWith(
           mixesProvider ?? (ref) async => mixes,
         ),
@@ -323,20 +315,7 @@ class _Extensions extends ExtensionNotifier {
   ExtensionState build() => const ExtensionState();
 }
 
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-
-  @override
-  Future<void> fetchHomeFeed({bool forceRefresh = false}) async {}
-}
-
 class _History extends DownloadHistoryNotifier {
   @override
   DownloadHistoryState build() => DownloadHistoryState();
-}
-
-class _Recent extends RecentAccessNotifier {
-  @override
-  RecentAccessState build() => const RecentAccessState(isLoaded: true);
 }

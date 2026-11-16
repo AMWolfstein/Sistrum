@@ -9,10 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/main_shell.dart';
@@ -85,9 +83,7 @@ void main() {
             ),
           ],
           extensionProvider.overrideWith(() => _Extensions(search: search)),
-          exploreProvider.overrideWith(_Explore.new),
           downloadHistoryProvider.overrideWith(_History.new),
-          recentAccessProvider.overrideWith(_Recent.new),
         ],
         child: ValueListenableBuilder(
           valueListenable: locale,
@@ -209,7 +205,6 @@ class _Settings extends SettingsNotifier {
   @override
   AppSettings build() => AppSettings(
     searchProvider: 'example',
-    hasSearchedBefore: true,
     playerMode: externalPlayer ? 'external' : 'internal',
   );
 }
@@ -238,17 +233,7 @@ class _Extensions extends ExtensionNotifier {
   );
 }
 
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-}
-
 class _History extends DownloadHistoryNotifier {
   @override
   DownloadHistoryState build() => DownloadHistoryState();
-}
-
-class _Recent extends RecentAccessNotifier {
-  @override
-  RecentAccessState build() => const RecentAccessState(isLoaded: true);
 }

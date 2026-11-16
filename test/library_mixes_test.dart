@@ -252,7 +252,6 @@ void main() {
             ),
           ],
           queued: const ['/music/hh3-0.flac', '/music/hh3-1.flac'],
-          albums: [(album: songs.first.album, artist: 'Tyler, The Creator')],
         ),
         day,
       );
@@ -262,7 +261,7 @@ void main() {
       expect(plays, isNot(contains('local_jazz1-2')));
       expect(plays, isNot(contains('local_jazz2-0')));
       expect(plays['local_hh3-1'], 1);
-      expect(plays['local_hh0-0'], 0.5);
+      expect(plays, isNot(contains('local_hh0-0')));
       expect(plays, isNot(contains('local_hh1-0')));
 
       final mixes = buildLibraryMixes(

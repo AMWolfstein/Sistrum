@@ -1,4 +1,4 @@
-import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/models/artist_album.dart';
 
 final _releaseDatePattern = RegExp(
   r'^(\d{4})(?:-(\d{2})(?:-(\d{2})(?:T.*)?)?)?$',

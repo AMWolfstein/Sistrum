@@ -18,7 +18,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/playback_notification_provider.dart';
 import 'package:sistrum/providers/repo_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/providers/preview_player_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/repo_tab.dart';
@@ -28,7 +27,6 @@ import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/screens/settings/settings_tab.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/services/share_intent_service.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/notification_service.dart';
@@ -81,7 +79,6 @@ class _MainShellState extends ConsumerState<MainShell>
   bool _initialSafRepairComplete = false;
   bool _safRepairDialogVisible = false;
   bool _usbVolumeWarningShown = false;
-  StreamSubscription<String>? _shareSubscription;
   StreamSubscription<List<OpenAudioFile>>? _audioOpenSubscription;
   DateTime? _lastBackPress;
   final GlobalKey<NavigatorState> _homeTabNavigatorKey =
@@ -163,7 +160,7 @@ class _MainShellState extends ConsumerState<MainShell>
       // Library menus are built synchronously and offer an upload only once
       // the writable connections are known.
       ref.read(networkUploadConnectionsProvider);
-      _setupShareListener();
+      _setupAudioOpenListener();
       await _checkSafMigration();
       if (!mounted) return;
       await _checkForUpdates();
@@ -217,26 +214,12 @@ class _MainShellState extends ConsumerState<MainShell>
     }
   }
 
-  void _setupShareListener() {
+  void _setupAudioOpenListener() {
     final audio = AudioFileOpenService.instance;
     _audioOpenSubscription = audio.requests.listen(_openAudioFiles);
     for (final files in audio.takePending()) {
       unawaited(_openAudioFiles(files));
     }
-    final pendingUrl = ShareIntentService().consumePendingUrl();
-    if (pendingUrl != null) {
-      _handleSharedUrl(pendingUrl);
-    }
-
-    _shareSubscription = ShareIntentService().sharedUrlStream.listen(
-      (url) {
-        _handleSharedUrl(url);
-      },
-      onError: (Object error) {
-        _log.e('Share stream error: $error');
-      },
-      cancelOnError: false,
-    );
   }
 
   Future<void> _openAudioFiles(List<OpenAudioFile> files) async {
@@ -247,57 +230,11 @@ class _MainShellState extends ConsumerState<MainShell>
     }
   }
 
-  Future<void> _handleSharedUrl(String url) async {
-    if (!mounted) return;
-
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    _onShellTabRequested(ShellTab.search);
-    final searchNavigator = _searchTabNavigatorKey;
-    searchNavigator.currentState?.popUntil((route) => route.isFirst);
-    // Mount the lazy Search page before the metadata listener handles the link.
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) return;
-    ref.read(settingsProvider.notifier).setHasSearchedBefore();
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.loadingSharedLink)));
-    }
-    await ref.read(trackProvider.notifier).fetchFromUrl(url);
-    final trackState = ref.read(trackProvider);
-    if (trackState.error != null && mounted) {
-      final l10n = context.l10n;
-      final errorMsg = trackState.error!;
-      final isRateLimit =
-          errorMsg.contains('429') ||
-          errorMsg.toLowerCase().contains('rate limit') ||
-          errorMsg.toLowerCase().contains('too many requests');
-      final displayMessage = errorMsg == 'url_not_recognized'
-          ? l10n.errorUrlNotRecognizedMessage
-          : isRateLimit
-          ? l10n.errorRateLimitedMessage
-          : l10n.errorUrlFetchFailed;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(displayMessage),
-          // Retrying an unrecognized URL is deterministic; skip the action.
-          action: errorMsg == 'url_not_recognized'
-              ? null
-              : SnackBarAction(
-                  label: l10n.dialogRetry,
-                  onPressed: () => _handleSharedUrl(url),
-                ),
-        ),
-      );
-    }
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     usbAudioStatus.removeListener(_onUsbAudioStatusChanged);
     ShellNavigationService.unregisterTabSelectionHandler(this);
-    _shareSubscription?.cancel();
     _audioOpenSubscription?.cancel();
     _mornyeChrome.dispose();
     super.dispose();
@@ -417,35 +354,12 @@ class _MainShellState extends ConsumerState<MainShell>
 
     if (!mounted) return;
 
-    final trackState = ref.read(trackProvider);
     final isSearchTab = _currentIndex == ((showStore ? 3 : 2));
 
-    if (isSearchTab &&
-        trackState.isShowingRecentAccess &&
-        !trackState.isLoading &&
-        (trackState.hasSearchText || trackState.hasContent)) {
+    if (isSearchTab && ref.read(homeSearchTextProvider).isNotEmpty) {
       FocusManager.instance.primaryFocus?.unfocus();
       ref.read(previewPlayerProvider.notifier).stop();
-      ref.read(trackProvider.notifier).clear();
-      _lastBackPress = null;
-      return;
-    }
-
-    if (isSearchTab && trackState.isShowingRecentAccess) {
-      ref.read(trackProvider.notifier).setShowingRecentAccess(false);
-      FocusManager.instance.primaryFocus?.unfocus();
-      _lastBackPress = null;
-      return;
-    }
-
-    if (isSearchTab &&
-        !trackState.isLoading &&
-        (trackState.hasSearchText || trackState.hasContent)) {
-      // Unfocus BEFORE clear so _onTrackStateChanged can properly
-      // clear _urlController (it checks !_searchFocusNode.hasFocus)
-      FocusManager.instance.primaryFocus?.unfocus();
-      ref.read(previewPlayerProvider.notifier).stop();
-      ref.read(trackProvider.notifier).clear();
+      ref.read(homeSearchTextProvider.notifier).set('');
       _lastBackPress = null;
       return;
     }
@@ -459,10 +373,6 @@ class _MainShellState extends ConsumerState<MainShell>
     if (_currentIndex != 0) {
       _onNavTap(0);
       _lastBackPress = null;
-      return;
-    }
-
-    if (isSearchTab && trackState.isLoading) {
       return;
     }
 

@@ -221,6 +221,9 @@
   "appearanceUseSystemFont": "Dùng phông chữ hệ thống",
   "appearanceUseSystemFontSubtitle": "Sử dụng kiểu chữ mặc định của thiết bị cho toàn bộ văn bản trong ứng dụng.",
   "@@locale": "vi",
+  "homeNewReleases": "New Releases",
+  "homeTopArtists": "Your Top Artists",
+  "homeYourPlaylists": "Your Playlists",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -245,18 +248,6 @@
   "homeTitle": "Trang chủ",
   "@homeTitle": {
     "description": "Home screen title"
-  },
-  "homeEmptyTitle": "Chưa có nguồn tìm kiếm nào",
-  "@homeEmptyTitle": {
-    "description": "Title shown on home when no providers are available yet"
-  },
-  "homeEmptySubtitle": "Hãy cài đặt một tiện ích mở rộng để tiếp tục.",
-  "@homeEmptySubtitle": {
-    "description": "Subtitle shown on home when no providers are available yet"
-  },
-  "homeRecent": "Gần đây",
-  "@homeRecent": {
-    "description": "Section header for recent searches"
   },
   "historyFilterAll": "Tất cả",
   "@historyFilterAll": {
@@ -315,10 +306,6 @@
   "settingsAbout": "Giới thiệu",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadTitle": "Tải xuống",
-  "@downloadTitle": {
-    "description": "Download settings page title"
   },
   "downloadAskQualitySubtitle": "Hiện bảng chọn chất lượng trước mỗi lần tải",
   "@downloadAskQualitySubtitle": {
@@ -404,14 +391,6 @@
         "type": "String"
       }
     }
-  },
-  "optionsDefaultSearchTab": "Tab tìm kiếm mặc định",
-  "@optionsDefaultSearchTab": {
-    "description": "Title for the preferred default search tab setting"
-  },
-  "optionsDefaultSearchTabSubtitle": "Chọn tab sẽ mở ra đầu tiên khi hiển thị kết quả tìm kiếm mới.",
-  "@optionsDefaultSearchTabSubtitle": {
-    "description": "Subtitle for the preferred default search tab setting"
   },
   "optionsAutoFallback": "Tự động chuyển nguồn dự phòng",
   "@optionsAutoFallback": {
@@ -949,10 +928,6 @@
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogClearAll": "Xóa tất cả",
-  "@dialogClearAll": {
-    "description": "Dialog title - clear all items"
-  },
   "dialogRemoveExtension": "Gỡ tiện ích mở rộng",
   "@dialogRemoveExtension": {
     "description": "Dialog title - uninstall extension"
@@ -1121,24 +1096,6 @@
       }
     }
   },
-  "snackbarAlreadyDownloaded": "“{trackName}\" đã được tải về trước đó",
-  "@snackbarAlreadyDownloaded": {
-    "description": "Snackbar - track already exists",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "snackbarAlreadyInLibrary": "“{trackName}\" đã có sẵn trong thư viện của bạn",
-  "@snackbarAlreadyInLibrary": {
-    "description": "Snackbar - track already exists in local library",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarHistoryCleared": "Đã xóa lịch sử",
   "@snackbarHistoryCleared": {
     "description": "Snackbar - history deleted"
@@ -1225,25 +1182,9 @@
   "@errorRateLimitedMessage": {
     "description": "Error message - rate limit explanation"
   },
-  "errorNoTracksFound": "Không tìm thấy bài hát nào",
-  "@errorNoTracksFound": {
-    "description": "Error - search returned no results"
-  },
   "searchEmptyResultSubtitle": "Hãy thử từ khóa khác",
   "@searchEmptyResultSubtitle": {
     "description": "Subtitle shown under the empty search result state on the home screen"
-  },
-  "errorUrlNotRecognized": "Không nhận diện được liên kết",
-  "@errorUrlNotRecognized": {
-    "description": "Error title - URL not handled by any extension or service"
-  },
-  "errorUrlNotRecognizedMessage": "Liên kết này chưa được hỗ trợ. Hãy kiểm tra lại URL và đảm bảo bạn đã cài tiện ích mở rộng tương thích.",
-  "@errorUrlNotRecognizedMessage": {
-    "description": "Error message - URL not recognized explanation"
-  },
-  "errorUrlFetchFailed": "Không thể tải nội dung từ liên kết này. Vui lòng thử lại.",
-  "@errorUrlFetchFailed": {
-    "description": "Error message - generic URL fetch failure"
   },
   "actionPause": "Tạm dừng",
   "@actionPause": {
@@ -1315,27 +1256,9 @@
   "@searchPlaylists": {
     "description": "Search result category - playlists"
   },
-  "searchShowAll": "Hiển thị tất cả",
-  "@searchShowAll": {
-    "description": "Button of a search result section on wide screens that shows every result of that kind"
-  },
-  "searchShowAllCategory": "Hiển thị tất cả {category}",
-  "@searchShowAllCategory": {
-    "description": "Screen reader label of the Show all button of a search result section",
-    "placeholders": {
-      "category": {
-        "type": "String",
-        "example": "Albums"
-      }
-    }
-  },
   "searchSortTitle": "Sắp xếp kết quả",
   "@searchSortTitle": {
     "description": "Bottom sheet title for search sort options"
-  },
-  "searchSortDefault": "Mặc định",
-  "@searchSortDefault": {
-    "description": "Sort option - default API order"
   },
   "searchSortTitleAZ": "Tiêu đề (A-Z)",
   "@searchSortTitleAZ": {
@@ -1352,14 +1275,6 @@
   "searchSortArtistZA": "Nghệ sĩ (Z-A)",
   "@searchSortArtistZA": {
     "description": "Sort option - artist descending"
-  },
-  "searchSortDurationShort": "Thời lượng (Ngắn nhất)",
-  "@searchSortDurationShort": {
-    "description": "Sort option - shortest duration first"
-  },
-  "searchSortDurationLong": "Thời lượng (Dài nhất)",
-  "@searchSortDurationLong": {
-    "description": "Sort option - longest duration first"
   },
   "searchSortDateOldest": "Ngày phát hành (Cũ nhất)",
   "@searchSortDateOldest": {
@@ -1709,10 +1624,6 @@
   "settingsLogsSubtitle": "Xem nhật ký ứng dụng để gỡ lỗi",
   "@settingsLogsSubtitle": {
     "description": "Logs settings description"
-  },
-  "loadingSharedLink": "Đang tải liên kết được chia sẻ...",
-  "@loadingSharedLink": {
-    "description": "Status when opening shared URL"
   },
   "pressBackAgainToExit": "Nhấn Quay lại lần nữa để thoát",
   "@pressBackAgainToExit": {
@@ -2496,43 +2407,9 @@
       }
     }
   },
-  "recentTypeArtist": "Nghệ sĩ",
-  "@recentTypeArtist": {
-    "description": "Recent access item type - artist"
-  },
   "recentTypeAlbum": "Album",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "recentTypeSong": "Bài hát",
-  "@recentTypeSong": {
-    "description": "Recent access item type - song/track"
-  },
-  "recentTypePlaylist": "Danh sách phát",
-  "@recentTypePlaylist": {
-    "description": "Recent access item type - playlist"
-  },
-  "recentEmpty": "Chưa có mục gần đây nào",
-  "@recentEmpty": {
-    "description": "Empty state text for recent access list"
-  },
-  "recentClearAllMessage": "Xóa toàn bộ hoạt động gần đây? Lịch sử tải xuống và các tệp nhạc sẽ không bị xóa.",
-  "@recentClearAllMessage": {
-    "description": "Confirmation message before clearing all recent activity"
-  },
-  "recentShowAllDownloads": "Hiện tất cả mục tải xuống",
-  "@recentShowAllDownloads": {
-    "description": "Button label to unhide hidden downloads in recent access"
-  },
-  "recentPlaylistInfo": "Danh sách phát: {name}",
-  "@recentPlaylistInfo": {
-    "description": "Snackbar message when tapping playlist in recent access",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "description": "Playlist name"
-      }
-    }
   },
   "discographySkippedDownloaded": "{added} đã thêm, {skipped} đã được tải trước đó",
   "@discographySkippedDownloaded": {
@@ -3245,14 +3122,6 @@
   "@cacheAudioAnalysisDesc": {
     "description": "Description of what audio analysis cache contains"
   },
-  "cacheExploreFeed": "Bộ nhớ đệm trang Khám phá",
-  "@cacheExploreFeed": {
-    "description": "Cache item title for explore home feed cache"
-  },
-  "cacheExploreFeedDesc": "Nội dung tab Khám phá (nhạc mới, thịnh hành). Sẽ tự làm mới ở lần mở tiếp theo.",
-  "@cacheExploreFeedDesc": {
-    "description": "Description of what explore feed cache contains"
-  },
   "cacheTrackLookup": "Bộ nhớ đệm tra cứu bài hát",
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
@@ -3278,15 +3147,6 @@
       },
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "cacheSizeOnly": "{size}",
-  "@cacheSizeOnly": {
-    "description": "Cache size only",
-    "placeholders": {
-      "size": {
-        "type": "String"
       }
     }
   },
@@ -4330,10 +4190,6 @@
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
   },
-  "homeAlbumInfoUnavailable": "Chưa có thông tin album",
-  "@homeAlbumInfoUnavailable": {
-    "description": "Snackbar when album info cannot be loaded"
-  },
   "snackbarLoadingCueSheet": "Đang đọc tệp CUE sheet...",
   "@snackbarLoadingCueSheet": {
     "description": "Snackbar while loading a CUE sheet file"
@@ -5093,50 +4949,9 @@
   "@audioAnalysisRescanning": {
     "description": "Loading text while audio is being re-analyzed after an explicit refresh"
   },
-  "extensionsHomeFeedProvider": "Nguồn bảng tin Trang chủ",
-  "@extensionsHomeFeedProvider": {
-    "description": "Extensions page - label for home feed provider selector"
-  },
-  "extensionsHomeFeedCountry": "Quốc gia bảng tin Trang chủ",
-  "@extensionsHomeFeedCountry": {
-    "description": "Country picker for the active Home feed extension"
-  },
-  "extensionsHomeFeedCountryDescription": "Chọn quốc gia hiển thị gợi ý nhạc trên Trang chủ mà không cần dùng VPN.",
-  "@extensionsHomeFeedCountryDescription": {
-    "description": "Help for choosing regional Home recommendations"
-  },
-  "extensionsHomeFeedDescription": "Chọn tiện ích mở rộng cung cấp bảng tin khám phá trên màn hình chính",
-  "@extensionsHomeFeedDescription": {
-    "description": "Extensions page - description for home feed provider picker"
-  },
   "extensionsHomeFeedAuto": "Tự động",
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
-  },
-  "extensionsHomeFeedAutoSubtitle": "Tự động chọn chất lượng tốt nhất hiện có",
-  "@extensionsHomeFeedAutoSubtitle": {
-    "description": "Extensions page - subtitle for auto home feed option"
-  },
-  "extensionsHomeFeedOff": "Tắt",
-  "@extensionsHomeFeedOff": {
-    "description": "Extensions page - home feed provider option: off"
-  },
-  "extensionsHomeFeedOffSubtitle": "Không hiển thị bảng tin khám phá trên màn hình chính",
-  "@extensionsHomeFeedOffSubtitle": {
-    "description": "Extensions page - subtitle for off home feed option"
-  },
-  "extensionsHomeFeedUse": "Sử dụng {extensionName} bảng tin trang chủ",
-  "@extensionsHomeFeedUse": {
-    "description": "Extensions page - subtitle for a specific extension home feed option",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionsNoHomeFeedExtensions": "Chưa có tiện ích nào hỗ trợ bảng tin Trang chủ",
-  "@extensionsNoHomeFeedExtensions": {
-    "description": "Extensions page - shown when no installed extension has home feed"
   },
   "cancelDownloadTitle": "Hủy tải xuống?",
   "@cancelDownloadTitle": {
@@ -5417,30 +5232,9 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "searchTracks": "Bài hát",
-  "@searchTracks": {
-    "description": "Search filter label - tracks"
-  },
-  "homeSearchHintDefault": "Tìm kiếm hoặc dán URL được hỗ trợ...",
-  "@homeSearchHintDefault": {
-    "description": "Default placeholder for the main search field on Home"
-  },
-  "homeSearchHintProvider": "Tìm kiếm bằng {providerName}...",
-  "@homeSearchHintProvider": {
-    "description": "Placeholder for the main search field when a provider is selected",
-    "placeholders": {
-      "providerName": {
-        "type": "String"
-      }
-    }
-  },
   "homeImportCsvTooltip": "Nhập danh sách phát (CSV, M3U)",
   "@homeImportCsvTooltip": {
     "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
-  "homeChangeSearchProviderTooltip": "Đổi nguồn tìm kiếm",
-  "@homeChangeSearchProviderTooltip": {
-    "description": "Tooltip for the Home search provider picker"
   },
   "actionPaste": "Không hiển thị bảng tin khám phá trên màn hình chính",
   "@actionPaste": {
@@ -5676,10 +5470,6 @@
   "@extensionUtilityFunctions": {
     "description": "Capability label for utility-only extensions"
   },
-  "actionDismiss": "Bỏ qua",
-  "@actionDismiss": {
-    "description": "Generic action - dismiss"
-  },
   "setupChangeFolderTooltip": "Đổi thư mục",
   "@setupChangeFolderTooltip": {
     "description": "Tooltip for editing the selected download folder"
@@ -5692,18 +5482,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11yOpenItem": "Mở {itemType} {name}",
-  "@a11yOpenItem": {
-    "description": "Accessibility label for opening a generic item",
-    "placeholders": {
-      "itemType": {
-        "type": "String"
-      },
-      "name": {
         "type": "String"
       }
     }
@@ -6962,14 +6740,6 @@
   "regionCountryUS": "Hoa Kỳ",
   "@regionCountryUS": {
     "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIT": "Ý",
-  "@regionCountryIT": {
-    "description": "Country name for Italy"
-  },
-  "regionCountryES": "Tây Ban Nha",
-  "@regionCountryES": {
-    "description": "Country name for Spain"
   },
   "regionCountryGB": "Vương quốc Anh",
   "@regionCountryGB": {

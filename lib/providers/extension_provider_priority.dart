@@ -258,28 +258,6 @@ extension ExtensionNotifierProviderPriority on ExtensionNotifier {
     }
   }
 
-  Future<bool> setHomeFeedRegion(String extensionId, String region) async {
-    final extension = state.extensions
-        .where((extension) => extension.id == extensionId)
-        .firstOrNull;
-    final setting = extension?.homeFeedRegionSetting;
-    if (setting == null || !setting.options!.contains(region)) return false;
-    try {
-      final settings = await PlatformBridge.getExtensionSettings(extensionId);
-      if ((settings[setting.key] ?? setting.defaultValue) == region) {
-        return true;
-      }
-      return await setExtensionSettings(extensionId, {
-        ...settings,
-        setting.key: region,
-      });
-    } catch (error) {
-      _log.e('Failed to update home feed country: $error');
-      state = state.copyWith(error: error.toString());
-      return false;
-    }
-  }
-
   /// Shared load path for the download/metadata priority lists: prefs first
   /// (sanitized), falling back to backend defaults, then persist + push the
   /// result back to the backend.

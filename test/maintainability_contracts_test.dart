@@ -5,8 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/download_queue_state.dart';
-import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/controllers/home_search_logic.dart';
 import 'package:sistrum/services/audio_metadata_mapper.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/models/tag_credit_settings.dart';
@@ -33,134 +31,6 @@ void main() {
       itemType: itemType,
     );
   }
-
-  group('home search logic', () {
-    test('separates playable tracks from collection result types', () {
-      final results = [
-        track(id: 'track', name: 'Track'),
-        track(id: 'album', name: 'Album', itemType: 'album'),
-        track(id: 'playlist', name: 'Playlist', itemType: 'playlist'),
-        track(id: 'artist', name: 'Artist', itemType: 'artist'),
-      ];
-
-      final buckets = bucketHomeSearchResults(results);
-
-      expect(buckets.realTracks.map((item) => item.id), ['track']);
-      expect(buckets.realTrackIndexes, [0]);
-      expect(buckets.albumItems.single.id, 'album');
-      expect(buckets.playlistItems.single.id, 'playlist');
-      expect(buckets.artistItems.single.id, 'artist');
-    });
-
-    test('sorts a copy and preserves default result identity', () {
-      final results = [
-        track(
-          id: 'later',
-          name: 'Zulu',
-          artist: 'Beta',
-          duration: 220,
-          releaseDate: '2026-02-01',
-        ),
-        track(
-          id: 'earlier',
-          name: 'Alpha',
-          artist: 'Alpha',
-          duration: 120,
-          releaseDate: '2025-01-01',
-        ),
-      ];
-
-      final unchanged = sortHomeSearchItems(
-        items: results,
-        option: HomeSearchSortOption.defaultOrder,
-        nameOf: (item) => item.name,
-        artistOf: (item) => item.artistName,
-        durationOf: (item) => item.duration,
-        dateOf: (item) => item.releaseDate,
-      );
-      final sorted = sortHomeSearchItems(
-        items: results,
-        option: HomeSearchSortOption.titleAsc,
-        nameOf: (item) => item.name,
-        artistOf: (item) => item.artistName,
-        durationOf: (item) => item.duration,
-        dateOf: (item) => item.releaseDate,
-      );
-
-      expect(identical(unchanged, results), isTrue);
-      expect(identical(sorted, results), isFalse);
-      expect(sorted.map((item) => item.id), ['earlier', 'later']);
-      expect(results.first.id, 'later');
-    });
-
-    test('recognizes URLs and Spotify URIs without treating text as a URL', () {
-      expect(looksLikeUrlOrSpotifyUri('https://example.test/track'), isTrue);
-      expect(looksLikeUrlOrSpotifyUri('spotify:track:123'), isTrue);
-      expect(looksLikeUrlOrSpotifyUri('artist track title'), isFalse);
-    });
-
-    test('uses the primary enabled extension as the provider fallback', () {
-      final secondary = _searchExtension(id: 'secondary');
-      final primary = _searchExtension(id: 'primary', primary: true);
-      final disabled = _searchExtension(id: 'disabled', enabled: false);
-      final extensions = [secondary, primary, disabled];
-
-      expect(
-        HomeSearchProviderPolicy.resolveProvider(null, extensions),
-        'primary',
-      );
-      expect(
-        HomeSearchProviderPolicy.resolveProvider('secondary', extensions),
-        'secondary',
-      );
-      expect(
-        HomeSearchProviderPolicy.resolveProvider('disabled', extensions),
-        'primary',
-      );
-      expect(
-        HomeSearchProviderPolicy.hasProvider('missing', extensions),
-        isTrue,
-      );
-    });
-
-    test('canonicalizes built-in and extension search filters', () {
-      final extension = _searchExtension(
-        id: 'provider',
-        filters: const [
-          SearchFilter(id: 'songs', label: 'Tracks', icon: 'music'),
-          SearchFilter(id: 'records', label: 'Albums', icon: 'album'),
-        ],
-      );
-
-      expect(
-        HomeSearchProviderPolicy.sanitizeFilter('Music', null, const []),
-        'track',
-      );
-      expect(
-        HomeSearchProviderPolicy.sanitizeFilter('track', 'provider', [
-          extension,
-        ]),
-        'songs',
-      );
-      expect(extension.searchBehavior?.filterIdForKind('track'), 'songs');
-      expect(extension.searchBehavior?.filterIdForKind('album'), 'records');
-      expect(
-        HomeSearchProviderPolicy.displayFilterSelection(
-          null,
-          'album',
-          'provider',
-          [extension],
-        ),
-        'records',
-      );
-      expect(
-        HomeSearchProviderPolicy.sanitizeFilter('podcast', 'provider', [
-          extension,
-        ]),
-        isNull,
-      );
-    });
-  });
 
   group('FFmpeg value models', () {
     test('normalizes structured and legacy decryption descriptors', () {
@@ -400,26 +270,4 @@ int _sequenceCount(Uint8List bytes, List<int> sequence) {
     if (matches) count++;
   }
   return count;
-}
-
-Extension _searchExtension({
-  required String id,
-  bool enabled = true,
-  bool primary = false,
-  List<SearchFilter> filters = const [],
-}) {
-  return Extension(
-    id: id,
-    name: id,
-    displayName: id,
-    version: '1.0.0',
-    description: 'test',
-    enabled: enabled,
-    status: 'loaded',
-    searchBehavior: SearchBehavior(
-      enabled: true,
-      primary: primary,
-      filters: filters,
-    ),
-  );
 }

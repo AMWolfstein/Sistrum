@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/utils/editorial_notes.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';

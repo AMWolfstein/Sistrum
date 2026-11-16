@@ -254,7 +254,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
               title: context.l10n.sectionSearchSource,
               children: [
                 const _MetadataSourceSelector(),
-                const _DefaultSearchTabSelector(),
                 SettingsSwitchItem(
                   title: context.l10n.optionsAutoFallback,
                   subtitle: context.l10n.optionsAutoFallbackSubtitle,

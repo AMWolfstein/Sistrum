@@ -10,7 +10,7 @@ import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/models/unified_library_item.dart';

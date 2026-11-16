@@ -15,6 +15,7 @@ import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
+import 'package:sistrum/services/retired_explore_cache.dart';
 import 'package:sistrum/utils/logger.dart';
 
 const _settingsKey = 'app_settings';
@@ -101,13 +102,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     : _loadPreferences = preferences ?? SharedPreferences.getInstance;
 
   static final RegExp _isoRegionPattern = RegExp(r'^[A-Z]{2}$');
-  static const Set<String> _searchTabValues = {
-    'all',
-    'track',
-    'artist',
-    'album',
-    'playlist',
-  };
   static const Set<String> _extensionVerificationBrowserModeValues = {
     'external_first',
     'in_app_first',
@@ -178,16 +172,12 @@ class SettingsNotifier extends Notifier<AppSettings> {
             _sanitizeDownloadFallbackExtensionIds(
               loaded.downloadFallbackExtensionIds,
             );
-        final sanitizedDefaultSearchTab = _normalizeDefaultSearchTab(
-          loaded.defaultSearchTab,
-        );
         state = loaded.copyWith(
           useExtensionProviders: true,
           downloadFallbackExtensionIds: sanitizedDownloadFallbackExtensionIds,
           clearDownloadFallbackExtensionIds:
               loaded.downloadFallbackExtensionIds != null &&
               sanitizedDownloadFallbackExtensionIds == null,
-          defaultSearchTab: sanitizedDefaultSearchTab,
           libraryQualityLabelMode: normalizeLibraryQualityLabelMode(
             loaded.libraryQualityLabelMode,
           ),
@@ -220,6 +210,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
     }
 
     await _cleanupRetiredSpotifySettings();
+    try {
+      await clearRetiredExploreCache(prefs);
+    } catch (e) {
+      _log.w('Could not clear the retired explore cache: $e');
+    }
 
     LogBuffer.loggingEnabled = state.enableLogging;
 
@@ -418,12 +413,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     final normalized = region.trim().toUpperCase();
     if (_isoRegionPattern.hasMatch(normalized)) return normalized;
     return 'US';
-  }
-
-  String _normalizeDefaultSearchTab(String value) {
-    final normalized = value.trim().toLowerCase();
-    if (_searchTabValues.contains(normalized)) return normalized;
-    return 'all';
   }
 
   String _normalizeExtensionVerificationBrowserMode(String value) {
@@ -888,12 +877,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setUpdateChannel(String channel) =>
       _commit(state.copyWith(updateChannel: channel));
 
-  void setHasSearchedBefore() {
-    if (!state.hasSearchedBefore) {
-      _commit(state.copyWith(hasSearchedBefore: true));
-    }
-  }
-
   void setFolderOrganization(String organization) =>
       _commit(state.copyWith(folderOrganization: organization));
 
@@ -935,10 +918,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     );
   }
 
-  void setDefaultSearchTab(String tab) => _commit(
-    state.copyWith(defaultSearchTab: _normalizeDefaultSearchTab(tab)),
-  );
-
   void setSearchViewMode(String mode) =>
       _commit(state.copyWith(searchViewMode: mode));
 
@@ -946,12 +925,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state.copyWith(
       libraryQualityLabelMode: normalizeLibraryQualityLabelMode(mode),
     ),
-  );
-
-  void setHomeFeedProvider(String? provider) => _commit(
-    provider == null || provider.isEmpty
-        ? state.copyWith(clearHomeFeedProvider: true)
-        : state.copyWith(homeFeedProvider: provider),
   );
 
   void setEnableLogging(bool enabled) {

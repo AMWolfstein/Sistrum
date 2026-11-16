@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 39,
+  "next_completion": 40,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -564,13 +564,19 @@
       "title": "Remove the online versions of the converted screens"
     },
     "M003-TOR015": {
-      "completion": null,
+      "completion": 39,
+      "evidence": {
+        "checks": "Review: round 1 and 2 found missing ported tests, retired cache, dead handleURLWithExtension code, share service staged-deleted; all fixed; round 3 PASS. analyze clean; full suite 3875 passed 10 skipped 0 failed (scratchpad tor015/full_counts.txt); targeted 178 passed",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewers",
+        "round": 3
+      },
       "final": false,
       "kind": "TOR",
       "mission": "M003",
       "nonce": "c4c1c45323404e729ec6f353c151c258",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Offline Home and Search"
     },
     "TOR001": {

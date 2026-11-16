@@ -46,7 +46,6 @@ String librarySortModeFromJson(Object? value) =>
 
 @JsonSerializable(explicitToJson: true)
 class AppSettings {
-  static const String homeFeedProviderOff = '__off__';
   static const String libraryQualityLabelBitrate = 'bitrate';
   static const String libraryQualityLabelFileFormat = 'file_format';
   static const String libraryQualityLabelBitDepthOnly = 'bit_depth_only';
@@ -129,7 +128,6 @@ class AppSettings {
   final bool isFirstLaunch;
   final bool checkForUpdates;
   final String updateChannel;
-  final bool hasSearchedBefore;
   final String folderOrganization;
   final String folderPathTemplate;
   final bool createPlaylistFolder;
@@ -147,12 +145,10 @@ class AppSettings {
   final bool useExtensionProviders;
   final List<String>? downloadFallbackExtensionIds;
   final String? searchProvider;
-  final String defaultSearchTab;
 
   /// Search results on wide screens: 'list' keeps the phone rows, 'grid'
   /// shows cover grids and shelves.
   final String searchViewMode;
-  final String? homeFeedProvider;
   final bool separateSingles;
   final String singleFilenameFormat;
   final String albumFolderStructure;
@@ -301,7 +297,6 @@ class AppSettings {
     this.isFirstLaunch = true,
     this.checkForUpdates = true,
     this.updateChannel = 'stable',
-    this.hasSearchedBefore = false,
     this.folderOrganization = 'none',
     this.folderPathTemplate = '{artist}/{album}',
     this.createPlaylistFolder = false,
@@ -315,9 +310,7 @@ class AppSettings {
     this.useExtensionProviders = true,
     this.downloadFallbackExtensionIds,
     this.searchProvider,
-    this.defaultSearchTab = 'all',
     this.searchViewMode = 'list',
-    this.homeFeedProvider,
     this.separateSingles = false,
     this.singleFilenameFormat = '{title} - {artist}',
     this.albumFolderStructure = 'artist_album',
@@ -437,7 +430,6 @@ class AppSettings {
     bool? isFirstLaunch,
     bool? checkForUpdates,
     String? updateChannel,
-    bool? hasSearchedBefore,
     String? folderOrganization,
     String? folderPathTemplate,
     bool? createPlaylistFolder,
@@ -453,10 +445,7 @@ class AppSettings {
     bool clearDownloadFallbackExtensionIds = false,
     String? searchProvider,
     bool clearSearchProvider = false,
-    String? defaultSearchTab,
     String? searchViewMode,
-    String? homeFeedProvider,
-    bool clearHomeFeedProvider = false,
     bool? separateSingles,
     String? singleFilenameFormat,
     String? albumFolderStructure,
@@ -567,7 +556,6 @@ class AppSettings {
       isFirstLaunch: isFirstLaunch ?? this.isFirstLaunch,
       checkForUpdates: checkForUpdates ?? this.checkForUpdates,
       updateChannel: updateChannel ?? this.updateChannel,
-      hasSearchedBefore: hasSearchedBefore ?? this.hasSearchedBefore,
       folderOrganization: folderOrganization ?? this.folderOrganization,
       folderPathTemplate: folderPathTemplate ?? this.folderPathTemplate,
       createPlaylistFolder: createPlaylistFolder ?? this.createPlaylistFolder,
@@ -591,11 +579,7 @@ class AppSettings {
       searchProvider: clearSearchProvider
           ? null
           : (searchProvider ?? this.searchProvider),
-      defaultSearchTab: defaultSearchTab ?? this.defaultSearchTab,
       searchViewMode: searchViewMode ?? this.searchViewMode,
-      homeFeedProvider: clearHomeFeedProvider
-          ? null
-          : (homeFeedProvider ?? this.homeFeedProvider),
       separateSingles: separateSingles ?? this.separateSingles,
       singleFilenameFormat: singleFilenameFormat ?? this.singleFilenameFormat,
       albumFolderStructure: albumFolderStructure ?? this.albumFolderStructure,

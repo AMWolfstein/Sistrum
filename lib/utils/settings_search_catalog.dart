@@ -77,12 +77,6 @@ class SettingsSearchCatalog {
           keywords: const ['home search source'],
         ),
         SettingsSearchEntry(
-          icon: Icons.explore_outlined,
-          title: l10n.extensionsHomeFeedProvider,
-          subtitle: l10n.extensionsHomeFeedDescription,
-          keywords: const ['home provider', 'feed source'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.add,
           title: l10n.extensionsInstallButton,
           keywords: const ['add plugin', 'import extension'],
@@ -560,12 +554,6 @@ class SettingsSearchCatalog {
           keywords: const ['search source', 'metadata source'],
         ),
         SettingsSearchEntry(
-          icon: Icons.tab_outlined,
-          title: l10n.optionsDefaultSearchTab,
-          subtitle: l10n.optionsDefaultSearchTabSubtitle,
-          keywords: const ['track album artist playlist'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.sync,
           title: l10n.optionsAutoFallback,
           subtitle: l10n.optionsAutoFallbackSubtitle,
@@ -750,12 +738,6 @@ class SettingsSearchCatalog {
           title: l10n.cacheAudioAnalysis,
           subtitle: l10n.cacheAudioAnalysisDesc,
           keywords: const ['spectrogram cache'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.explore_outlined,
-          title: l10n.cacheExploreFeed,
-          subtitle: l10n.cacheExploreFeedDesc,
-          keywords: const ['home feed cache'],
         ),
         SettingsSearchEntry(
           icon: Icons.memory_outlined,

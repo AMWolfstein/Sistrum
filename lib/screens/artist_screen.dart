@@ -8,7 +8,7 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/widgets/artist_featured_album_card.dart';
 import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';

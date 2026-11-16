@@ -257,37 +257,24 @@ void main() {
     },
   );
 
-  for (final nullable in [false, true]) {
-    test(
-      'large spill file is decoded and deleted (nullable=$nullable)',
-      () async {
-        final directory = await Directory.systemTemp.createTemp(
-          'bridge-decode-',
-        );
-        addTearDown(() => directory.delete(recursive: true));
-        final file = File('${directory.path}/response.json');
-        final value = collection(3000);
-        await file.writeAsString(jsonEncode(value));
-        messenger.setMockMethodCallHandler(
-          channel,
-          (_) async => {'__json_file': file.path},
-        );
-        final result = nullable
-            ? await PlatformBridge.handleURLWithExtension(
-                'https://example.invalid/album',
-              )
-            : await load();
-        expect(result, value);
-        expect(await file.exists(), isFalse);
-        mutate(result!);
-        final cached = nullable
-            ? await PlatformBridge.handleURLWithExtension(
-                'https://example.invalid/album',
-              )
-            : await load();
-        expect(cached, value);
-      },
-    );
+  {
+    test('large spill file is decoded and deleted', () async {
+      final directory = await Directory.systemTemp.createTemp('bridge-decode-');
+      addTearDown(() => directory.delete(recursive: true));
+      final file = File('${directory.path}/response.json');
+      final value = collection(3000);
+      await file.writeAsString(jsonEncode(value));
+      messenger.setMockMethodCallHandler(
+        channel,
+        (_) async => {'__json_file': file.path},
+      );
+      final result = await load();
+      expect(result, value);
+      expect(await file.exists(), isFalse);
+      mutate(result);
+      final cached = await load();
+      expect(cached, value);
+    });
   }
 
   test('invalid spill file is deleted and does not poison retry', () async {
@@ -306,19 +293,4 @@ void main() {
     expect(await load(), collection());
     expect(calls, 2);
   });
-
-  test(
-    'nullable URL responses preserve null and reject encoded scalar strings',
-    () async {
-      for (final raw in ['null', jsonEncode(jsonEncode(collection()))]) {
-        messenger.setMockMethodCallHandler(channel, (_) async => raw);
-        expect(
-          await PlatformBridge.handleURLWithExtension(
-            'https://example.invalid/value',
-          ),
-          isNull,
-        );
-      }
-    },
-  );
 }

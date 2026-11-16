@@ -237,6 +237,9 @@
   "appearanceUseSystemFont": "Gunakan font sistem",
   "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
   "@@locale": "id",
+  "homeNewReleases": "New Releases",
+  "homeTopArtists": "Your Top Artists",
+  "homeYourPlaylists": "Your Playlists",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -261,18 +264,6 @@
   "homeTitle": "Beranda",
   "@homeTitle": {
     "description": "Home screen title"
-  },
-  "homeEmptyTitle": "Belum ada provider penelusuran",
-  "@homeEmptyTitle": {
-    "description": "Title shown on home when no providers are available yet"
-  },
-  "homeEmptySubtitle": "Instal ekstensi untuk melanjutkan.",
-  "@homeEmptySubtitle": {
-    "description": "Subtitle shown on home when no providers are available yet"
-  },
-  "homeRecent": "Terbaru",
-  "@homeRecent": {
-    "description": "Section header for recent searches"
   },
   "historyFilterAll": "Semua",
   "@historyFilterAll": {
@@ -302,10 +293,6 @@
   "settingsAbout": "Tentang",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadTitle": "Download",
-  "@downloadTitle": {
-    "description": "Download settings page title"
   },
   "downloadAskQualitySubtitle": "Tampilkan pemilih kualitas setiap mendownload",
   "@downloadAskQualitySubtitle": {
@@ -391,14 +378,6 @@
         "type": "String"
       }
     }
-  },
-  "optionsDefaultSearchTab": "Tab Penelusuran Default",
-  "@optionsDefaultSearchTab": {
-    "description": "Title for the preferred default search tab setting"
-  },
-  "optionsDefaultSearchTabSubtitle": "Pilih tab yang terbuka terlebih dahulu untuk hasil penelusuran baru.",
-  "@optionsDefaultSearchTabSubtitle": {
-    "description": "Subtitle for the preferred default search tab setting"
   },
   "optionsAutoFallback": "Layanan Cadangan",
   "@optionsAutoFallback": {
@@ -924,10 +903,6 @@
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogClearAll": "Hapus Semua",
-  "@dialogClearAll": {
-    "description": "Dialog title - clear all items"
-  },
   "dialogRemoveExtension": "Uninstal Ekstensi",
   "@dialogRemoveExtension": {
     "description": "Dialog title - uninstall extension"
@@ -1096,24 +1071,6 @@
       }
     }
   },
-  "snackbarAlreadyDownloaded": "\"{trackName}\" sudah didownload",
-  "@snackbarAlreadyDownloaded": {
-    "description": "Snackbar - track already exists",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "snackbarAlreadyInLibrary": "\"{trackName}\" sudah ada di Koleksi",
-  "@snackbarAlreadyInLibrary": {
-    "description": "Snackbar - track already exists in local library",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarHistoryCleared": "Histori dihapus",
   "@snackbarHistoryCleared": {
     "description": "Snackbar - history deleted"
@@ -1200,25 +1157,9 @@
   "@errorRateLimitedMessage": {
     "description": "Error message - rate limit explanation"
   },
-  "errorNoTracksFound": "Tidak ada lagu ditemukan",
-  "@errorNoTracksFound": {
-    "description": "Error - search returned no results"
-  },
   "searchEmptyResultSubtitle": "Coba kata kunci lain",
   "@searchEmptyResultSubtitle": {
     "description": "Subtitle shown under the empty search result state on the home screen"
-  },
-  "errorUrlNotRecognized": "Link tidak dikenali",
-  "@errorUrlNotRecognized": {
-    "description": "Error title - URL not handled by any extension or service"
-  },
-  "errorUrlNotRecognizedMessage": "Link ini tidak didukung. Pastikan URL sudah benar dan ekstensi yang sesuai sudah diinstal.",
-  "@errorUrlNotRecognizedMessage": {
-    "description": "Error message - URL not recognized explanation"
-  },
-  "errorUrlFetchFailed": "Konten dari link ini gagal dimuat. Silakan coba lagi.",
-  "@errorUrlFetchFailed": {
-    "description": "Error message - generic URL fetch failure"
   },
   "actionPause": "Jeda",
   "@actionPause": {
@@ -1290,27 +1231,9 @@
   "@searchPlaylists": {
     "description": "Search result category - playlists"
   },
-  "searchShowAll": "Tampilkan semua",
-  "@searchShowAll": {
-    "description": "Button of a search result section on wide screens that shows every result of that kind"
-  },
-  "searchShowAllCategory": "Tampilkan semua {category}",
-  "@searchShowAllCategory": {
-    "description": "Screen reader label of the Show all button of a search result section",
-    "placeholders": {
-      "category": {
-        "type": "String",
-        "example": "Albums"
-      }
-    }
-  },
   "searchSortTitle": "Urutkan Hasil",
   "@searchSortTitle": {
     "description": "Bottom sheet title for search sort options"
-  },
-  "searchSortDefault": "Default",
-  "@searchSortDefault": {
-    "description": "Sort option - default API order"
   },
   "searchSortTitleAZ": "Judul (A-Z)",
   "@searchSortTitleAZ": {
@@ -1327,14 +1250,6 @@
   "searchSortArtistZA": "Artis (Z-A)",
   "@searchSortArtistZA": {
     "description": "Sort option - artist descending"
-  },
-  "searchSortDurationShort": "Durasi (Terpendek)",
-  "@searchSortDurationShort": {
-    "description": "Sort option - shortest duration first"
-  },
-  "searchSortDurationLong": "Durasi (Terpanjang)",
-  "@searchSortDurationLong": {
-    "description": "Sort option - longest duration first"
   },
   "searchSortDateOldest": "Tanggal Rilis (Terlama)",
   "@searchSortDateOldest": {
@@ -1684,10 +1599,6 @@
   "settingsLogsSubtitle": "Lihat log aplikasi untuk debugging",
   "@settingsLogsSubtitle": {
     "description": "Logs settings description"
-  },
-  "loadingSharedLink": "Memuat link yang dibagikan...",
-  "@loadingSharedLink": {
-    "description": "Status when opening shared URL"
   },
   "pressBackAgainToExit": "Tekan kembali sekali lagi untuk keluar",
   "@pressBackAgainToExit": {
@@ -2471,43 +2382,9 @@
       }
     }
   },
-  "recentTypeArtist": "Artis",
-  "@recentTypeArtist": {
-    "description": "Recent access item type - artist"
-  },
   "recentTypeAlbum": "Album",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "recentTypeSong": "Lagu",
-  "@recentTypeSong": {
-    "description": "Recent access item type - song/track"
-  },
-  "recentTypePlaylist": "Playlist",
-  "@recentTypePlaylist": {
-    "description": "Recent access item type - playlist"
-  },
-  "recentEmpty": "Tidak ada baru-baru ini",
-  "@recentEmpty": {
-    "description": "Empty state text for recent access list"
-  },
-  "recentClearAllMessage": "Hapus semua baru-baru ini? Histori download dan file musik tidak akan dihapus.",
-  "@recentClearAllMessage": {
-    "description": "Confirmation message before clearing all recent activity"
-  },
-  "recentShowAllDownloads": "Tampilkan Semua Download",
-  "@recentShowAllDownloads": {
-    "description": "Button label to unhide hidden downloads in recent access"
-  },
-  "recentPlaylistInfo": "Download: {name}",
-  "@recentPlaylistInfo": {
-    "description": "Snackbar message when tapping playlist in recent access",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "description": "Playlist name"
-      }
-    }
   },
   "discographySkippedDownloaded": "{added} ditambahkan, {skipped} didownload",
   "@discographySkippedDownloaded": {
@@ -3204,14 +3081,6 @@
   "@cacheAudioAnalysisDesc": {
     "description": "Description of what audio analysis cache contains"
   },
-  "cacheExploreFeed": "Cache penjelajahan",
-  "@cacheExploreFeed": {
-    "description": "Cache item title for explore home feed cache"
-  },
-  "cacheExploreFeedDesc": "Cache dari konten termuat (rilis baru, trending). Akan direfresh setiap dibuka.",
-  "@cacheExploreFeedDesc": {
-    "description": "Description of what explore feed cache contains"
-  },
   "cacheTrackLookup": "Cache penelusuran lagu",
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
@@ -3237,15 +3106,6 @@
       },
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "cacheSizeOnly": "{size}",
-  "@cacheSizeOnly": {
-    "description": "Cache size only",
-    "placeholders": {
-      "size": {
-        "type": "String"
       }
     }
   },
@@ -4298,10 +4158,6 @@
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
   },
-  "homeAlbumInfoUnavailable": "Info album tidak tersedia",
-  "@homeAlbumInfoUnavailable": {
-    "description": "Snackbar when album info cannot be loaded"
-  },
   "snackbarLoadingCueSheet": "Memuat lembar CUE...",
   "@snackbarLoadingCueSheet": {
     "description": "Snackbar while loading a CUE sheet file"
@@ -5061,50 +4917,9 @@
   "@audioAnalysisRescanning": {
     "description": "Loading text while audio is being re-analyzed after an explicit refresh"
   },
-  "extensionsHomeFeedProvider": "Provider Feed Beranda",
-  "@extensionsHomeFeedProvider": {
-    "description": "Extensions page - label for home feed provider selector"
-  },
-  "extensionsHomeFeedCountry": "Negara beranda",
-  "@extensionsHomeFeedCountry": {
-    "description": "Country picker for the active Home feed extension"
-  },
-  "extensionsHomeFeedCountryDescription": "Pilih rekomendasi beranda suatu negara tanpa VPN.",
-  "@extensionsHomeFeedCountryDescription": {
-    "description": "Help for choosing regional Home recommendations"
-  },
-  "extensionsHomeFeedDescription": "Pilih ekstensi provider feed beranda di layar utama",
-  "@extensionsHomeFeedDescription": {
-    "description": "Extensions page - description for home feed provider picker"
-  },
   "extensionsHomeFeedAuto": "Otomatis",
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
-  },
-  "extensionsHomeFeedAutoSubtitle": "Pilih otomatis yang terbaik",
-  "@extensionsHomeFeedAutoSubtitle": {
-    "description": "Extensions page - subtitle for auto home feed option"
-  },
-  "extensionsHomeFeedOff": "Mati",
-  "@extensionsHomeFeedOff": {
-    "description": "Extensions page - home feed provider option: off"
-  },
-  "extensionsHomeFeedOffSubtitle": "Jangan tampilkan feed beranda di layar utama",
-  "@extensionsHomeFeedOffSubtitle": {
-    "description": "Extensions page - subtitle for off home feed option"
-  },
-  "extensionsHomeFeedUse": "Pakai feed beranda {extensionName}",
-  "@extensionsHomeFeedUse": {
-    "description": "Extensions page - subtitle for a specific extension home feed option",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionsNoHomeFeedExtensions": "Tak ada ekstensi feed beranda",
-  "@extensionsNoHomeFeedExtensions": {
-    "description": "Extensions page - shown when no installed extension has home feed"
   },
   "cancelDownloadTitle": "Batalkan download?",
   "@cancelDownloadTitle": {
@@ -5385,30 +5200,9 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "searchTracks": "Lagu",
-  "@searchTracks": {
-    "description": "Search filter label - tracks"
-  },
-  "homeSearchHintDefault": "Telusuri atau tempel URL yang didukung...",
-  "@homeSearchHintDefault": {
-    "description": "Default placeholder for the main search field on Home"
-  },
-  "homeSearchHintProvider": "Telusuri dengan {providerName}...",
-  "@homeSearchHintProvider": {
-    "description": "Placeholder for the main search field when a provider is selected",
-    "placeholders": {
-      "providerName": {
-        "type": "String"
-      }
-    }
-  },
   "homeImportCsvTooltip": "Impor playlist (CSV, M3U)",
   "@homeImportCsvTooltip": {
     "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
-  "homeChangeSearchProviderTooltip": "Ubah provider penelusuran",
-  "@homeChangeSearchProviderTooltip": {
-    "description": "Tooltip for the Home search provider picker"
   },
   "actionPaste": "Tempel",
   "@actionPaste": {
@@ -5644,10 +5438,6 @@
   "@extensionUtilityFunctions": {
     "description": "Capability label for utility-only extensions"
   },
-  "actionDismiss": "Abaikan",
-  "@actionDismiss": {
-    "description": "Generic action - dismiss"
-  },
   "setupChangeFolderTooltip": "Ubah folder",
   "@setupChangeFolderTooltip": {
     "description": "Tooltip for editing the selected download folder"
@@ -5660,18 +5450,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11yOpenItem": "Buka {itemType} {name}",
-  "@a11yOpenItem": {
-    "description": "Accessibility label for opening a generic item",
-    "placeholders": {
-      "itemType": {
-        "type": "String"
-      },
-      "name": {
         "type": "String"
       }
     }
@@ -6655,14 +6433,6 @@
   "regionCountryUS": "Amerika Serikat",
   "@regionCountryUS": {
     "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIT": "Italia",
-  "@regionCountryIT": {
-    "description": "Country name for Italy"
-  },
-  "regionCountryES": "Spanyol",
-  "@regionCountryES": {
-    "description": "Country name for Spain"
   },
   "regionCountryGB": "Inggris Raya",
   "@regionCountryGB": {

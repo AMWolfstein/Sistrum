@@ -221,6 +221,9 @@
   "appearanceUseSystemFont": "使用系统字体",
   "appearanceUseSystemFontSubtitle": "应用文本使用设备默认字体。",
   "@@locale": "zh_CN",
+  "homeNewReleases": "New Releases",
+  "homeTopArtists": "Your Top Artists",
+  "homeYourPlaylists": "Your Playlists",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -245,18 +248,6 @@
   "homeTitle": "主页",
   "@homeTitle": {
     "description": "Home screen title"
-  },
-  "homeEmptyTitle": "暂无搜索提供商",
-  "@homeEmptyTitle": {
-    "description": "Title shown on home when no providers are available yet"
-  },
-  "homeEmptySubtitle": "安装一个拓展以继续。",
-  "@homeEmptySubtitle": {
-    "description": "Subtitle shown on home when no providers are available yet"
-  },
-  "homeRecent": "最近",
-  "@homeRecent": {
-    "description": "Section header for recent searches"
   },
   "historyFilterAll": "全部",
   "@historyFilterAll": {
@@ -315,10 +306,6 @@
   "settingsAbout": "关于",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadTitle": "下载",
-  "@downloadTitle": {
-    "description": "Download settings page title"
   },
   "downloadAskQualitySubtitle": "为每次下载显示质量选择器",
   "@downloadAskQualitySubtitle": {
@@ -404,14 +391,6 @@
         "type": "String"
       }
     }
-  },
-  "optionsDefaultSearchTab": "默认搜索栏",
-  "@optionsDefaultSearchTab": {
-    "description": "Title for the preferred default search tab setting"
-  },
-  "optionsDefaultSearchTabSubtitle": "选择新搜索结果首先打开的标签页。",
-  "@optionsDefaultSearchTabSubtitle": {
-    "description": "Subtitle for the preferred default search tab setting"
   },
   "optionsAutoFallback": "自动回退",
   "@optionsAutoFallback": {
@@ -949,10 +928,6 @@
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogClearAll": "全部清除",
-  "@dialogClearAll": {
-    "description": "Dialog title - clear all items"
-  },
   "dialogRemoveExtension": "移除扩展",
   "@dialogRemoveExtension": {
     "description": "Dialog title - uninstall extension"
@@ -1121,24 +1096,6 @@
       }
     }
   },
-  "snackbarAlreadyDownloaded": "“{trackName}”已下载",
-  "@snackbarAlreadyDownloaded": {
-    "description": "Snackbar - track already exists",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "snackbarAlreadyInLibrary": "“{trackName}”已存在于你的乐库中",
-  "@snackbarAlreadyInLibrary": {
-    "description": "Snackbar - track already exists in local library",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarHistoryCleared": "历史记录已清除",
   "@snackbarHistoryCleared": {
     "description": "Snackbar - history deleted"
@@ -1225,25 +1182,9 @@
   "@errorRateLimitedMessage": {
     "description": "Error message - rate limit explanation"
   },
-  "errorNoTracksFound": "未找到曲目",
-  "@errorNoTracksFound": {
-    "description": "Error - search returned no results"
-  },
   "searchEmptyResultSubtitle": "尝试其他关键词",
   "@searchEmptyResultSubtitle": {
     "description": "Subtitle shown under the empty search result state on the home screen"
-  },
-  "errorUrlNotRecognized": "链接无法识别",
-  "@errorUrlNotRecognized": {
-    "description": "Error title - URL not handled by any extension or service"
-  },
-  "errorUrlNotRecognizedMessage": "不支持此链接。确保URL正确且已安装兼容的扩展。",
-  "@errorUrlNotRecognizedMessage": {
-    "description": "Error message - URL not recognized explanation"
-  },
-  "errorUrlFetchFailed": "无法从此链接加载内容，请重试。",
-  "@errorUrlFetchFailed": {
-    "description": "Error message - generic URL fetch failure"
   },
   "actionPause": "暂停",
   "@actionPause": {
@@ -1315,27 +1256,9 @@
   "@searchPlaylists": {
     "description": "Search result category - playlists"
   },
-  "searchShowAll": "Show all",
-  "@searchShowAll": {
-    "description": "Button of a search result section on wide screens that shows every result of that kind"
-  },
-  "searchShowAllCategory": "Show all {category}",
-  "@searchShowAllCategory": {
-    "description": "Screen reader label of the Show all button of a search result section",
-    "placeholders": {
-      "category": {
-        "type": "String",
-        "example": "Albums"
-      }
-    }
-  },
   "searchSortTitle": "排序结果",
   "@searchSortTitle": {
     "description": "Bottom sheet title for search sort options"
-  },
-  "searchSortDefault": "默认",
-  "@searchSortDefault": {
-    "description": "Sort option - default API order"
   },
   "searchSortTitleAZ": "标题（A-Z）",
   "@searchSortTitleAZ": {
@@ -1352,14 +1275,6 @@
   "searchSortArtistZA": "艺术家（Z-A）",
   "@searchSortArtistZA": {
     "description": "Sort option - artist descending"
-  },
-  "searchSortDurationShort": "时长（最短）",
-  "@searchSortDurationShort": {
-    "description": "Sort option - shortest duration first"
-  },
-  "searchSortDurationLong": "时长（最长）",
-  "@searchSortDurationLong": {
-    "description": "Sort option - longest duration first"
   },
   "searchSortDateOldest": "发行日期（最旧）",
   "@searchSortDateOldest": {
@@ -1709,10 +1624,6 @@
   "settingsLogsSubtitle": "查看应用日志以进行调试",
   "@settingsLogsSubtitle": {
     "description": "Logs settings description"
-  },
-  "loadingSharedLink": "正在加载共享链接…",
-  "@loadingSharedLink": {
-    "description": "Status when opening shared URL"
   },
   "pressBackAgainToExit": "再按一次返回以退出",
   "@pressBackAgainToExit": {
@@ -2496,43 +2407,9 @@
       }
     }
   },
-  "recentTypeArtist": "艺术家",
-  "@recentTypeArtist": {
-    "description": "Recent access item type - artist"
-  },
   "recentTypeAlbum": "专辑",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "recentTypeSong": "歌曲",
-  "@recentTypeSong": {
-    "description": "Recent access item type - song/track"
-  },
-  "recentTypePlaylist": "播放列表",
-  "@recentTypePlaylist": {
-    "description": "Recent access item type - playlist"
-  },
-  "recentEmpty": "暂无最近项目",
-  "@recentEmpty": {
-    "description": "Empty state text for recent access list"
-  },
-  "recentClearAllMessage": "清除所有最近活动？下载历史和音乐文件不会被删除。",
-  "@recentClearAllMessage": {
-    "description": "Confirmation message before clearing all recent activity"
-  },
-  "recentShowAllDownloads": "显示所有下载",
-  "@recentShowAllDownloads": {
-    "description": "Button label to unhide hidden downloads in recent access"
-  },
-  "recentPlaylistInfo": "播放列表：{name}",
-  "@recentPlaylistInfo": {
-    "description": "Snackbar message when tapping playlist in recent access",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "description": "Playlist name"
-      }
-    }
   },
   "discographySkippedDownloaded": "已添加 {added} 首，跳过 {skipped} 首已下载",
   "@discographySkippedDownloaded": {
@@ -3245,14 +3122,6 @@
   "@cacheAudioAnalysisDesc": {
     "description": "Description of what audio analysis cache contains"
   },
-  "cacheExploreFeed": "探索推荐缓存",
-  "@cacheExploreFeed": {
-    "description": "Cache item title for explore home feed cache"
-  },
-  "cacheExploreFeedDesc": "探索标签页内容（新发行、热门）。下次访问时刷新。",
-  "@cacheExploreFeedDesc": {
-    "description": "Description of what explore feed cache contains"
-  },
   "cacheTrackLookup": "曲目查找缓存",
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
@@ -3278,15 +3147,6 @@
       },
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "cacheSizeOnly": "{size}",
-  "@cacheSizeOnly": {
-    "description": "Cache size only",
-    "placeholders": {
-      "size": {
-        "type": "String"
       }
     }
   },
@@ -4330,10 +4190,6 @@
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
   },
-  "homeAlbumInfoUnavailable": "专辑信息不可用",
-  "@homeAlbumInfoUnavailable": {
-    "description": "Snackbar when album info cannot be loaded"
-  },
   "snackbarLoadingCueSheet": "正在加载CUE表…",
   "@snackbarLoadingCueSheet": {
     "description": "Snackbar while loading a CUE sheet file"
@@ -5093,50 +4949,9 @@
   "@audioAnalysisRescanning": {
     "description": "Loading text while audio is being re-analyzed after an explicit refresh"
   },
-  "extensionsHomeFeedProvider": "首页推荐提供商",
-  "@extensionsHomeFeedProvider": {
-    "description": "Extensions page - label for home feed provider selector"
-  },
-  "extensionsHomeFeedCountry": "首页推荐国家",
-  "@extensionsHomeFeedCountry": {
-    "description": "Country picker for the active Home feed extension"
-  },
-  "extensionsHomeFeedCountryDescription": "无需VPN即可选择某个国家的首页推荐。",
-  "@extensionsHomeFeedCountryDescription": {
-    "description": "Help for choosing regional Home recommendations"
-  },
-  "extensionsHomeFeedDescription": "选择哪个扩展提供主屏幕的首页推荐",
-  "@extensionsHomeFeedDescription": {
-    "description": "Extensions page - description for home feed provider picker"
-  },
   "extensionsHomeFeedAuto": "自动",
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
-  },
-  "extensionsHomeFeedAutoSubtitle": "自动选择最佳可用",
-  "@extensionsHomeFeedAutoSubtitle": {
-    "description": "Extensions page - subtitle for auto home feed option"
-  },
-  "extensionsHomeFeedOff": "关",
-  "@extensionsHomeFeedOff": {
-    "description": "Extensions page - home feed provider option: off"
-  },
-  "extensionsHomeFeedOffSubtitle": "主屏幕不显示首页推荐",
-  "@extensionsHomeFeedOffSubtitle": {
-    "description": "Extensions page - subtitle for off home feed option"
-  },
-  "extensionsHomeFeedUse": "使用 {extensionName} 首页推荐",
-  "@extensionsHomeFeedUse": {
-    "description": "Extensions page - subtitle for a specific extension home feed option",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionsNoHomeFeedExtensions": "没有带首页推荐的扩展",
-  "@extensionsNoHomeFeedExtensions": {
-    "description": "Extensions page - shown when no installed extension has home feed"
   },
   "cancelDownloadTitle": "取消下载？",
   "@cancelDownloadTitle": {
@@ -5417,30 +5232,9 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "searchTracks": "曲目",
-  "@searchTracks": {
-    "description": "Search filter label - tracks"
-  },
-  "homeSearchHintDefault": "Paste supported URL or search...",
-  "@homeSearchHintDefault": {
-    "description": "Default placeholder for the main search field on Home"
-  },
-  "homeSearchHintProvider": "用 {providerName} 搜索……",
-  "@homeSearchHintProvider": {
-    "description": "Placeholder for the main search field when a provider is selected",
-    "placeholders": {
-      "providerName": {
-        "type": "String"
-      }
-    }
-  },
   "homeImportCsvTooltip": "导入播放列表（CSV、M3U）",
   "@homeImportCsvTooltip": {
     "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
-  "homeChangeSearchProviderTooltip": "更改搜索提供商",
-  "@homeChangeSearchProviderTooltip": {
-    "description": "Tooltip for the Home search provider picker"
   },
   "actionPaste": "粘贴",
   "@actionPaste": {
@@ -5676,10 +5470,6 @@
   "@extensionUtilityFunctions": {
     "description": "Capability label for utility-only extensions"
   },
-  "actionDismiss": "忽略",
-  "@actionDismiss": {
-    "description": "Generic action - dismiss"
-  },
   "setupChangeFolderTooltip": "更改文件夹",
   "@setupChangeFolderTooltip": {
     "description": "Tooltip for editing the selected download folder"
@@ -5692,18 +5482,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11yOpenItem": "打开 {itemType} {name}",
-  "@a11yOpenItem": {
-    "description": "Accessibility label for opening a generic item",
-    "placeholders": {
-      "itemType": {
-        "type": "String"
-      },
-      "name": {
         "type": "String"
       }
     }
@@ -6962,14 +6740,6 @@
   "regionCountryUS": "美国",
   "@regionCountryUS": {
     "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIT": "意大利",
-  "@regionCountryIT": {
-    "description": "Country name for Italy"
-  },
-  "regionCountryES": "西班牙",
-  "@regionCountryES": {
-    "description": "Country name for Spain"
   },
   "regionCountryGB": "英国",
   "@regionCountryGB": {

@@ -11,8 +11,6 @@ import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/recent_access_provider.dart'
-    show RecentAccessItem, RecentAccessType;
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/app_state_database.dart';
 import 'package:sistrum/services/autoplay_signal.dart';
@@ -413,9 +411,8 @@ class _LibraryMixes {
     return (songs: songs, years: years, added: added);
   }
 
-  /// Loved songs, Autoplay's learning log while learning is on, the saved
-  /// queue up to its current song and the albums opened lately. A source
-  /// that cannot be read adds nothing.
+  /// Loved songs, Autoplay's learning log while learning is on, and the saved
+  /// queue up to its current song. A source that cannot be read adds nothing.
   static Future<LibraryMixHints> _hints(MusicPlayerRuntime runtime) async {
     Future<List<T>> read<T>(Future<List<T>> Function() load) async {
       try {
@@ -426,7 +423,7 @@ class _LibraryMixes {
       }
     }
 
-    final (loved, liked, queued, albums) = await (
+    final (loved, liked, queued) = await (
       read(() async {
         final tracks = await LibraryCollectionsDatabase.instance
             .loadLovedTracks();
@@ -454,33 +451,8 @@ class _LibraryMixes {
             if (item case {'source': final String source}) source,
         ];
       }),
-      read(() async {
-        final rows = await AppStateDatabase.instance.getRecentAccessRows(
-          limit: 30,
-        );
-        return [for (final row in rows) ?_recentAlbum(row['item_json'])];
-      }),
     ).wait;
-    return LibraryMixHints(
-      loved: loved,
-      liked: liked,
-      queued: queued,
-      albums: albums,
-    );
-  }
-
-  static ({String album, String? artist})? _recentAlbum(Object? json) {
-    if (json is! String) return null;
-    try {
-      final decoded = jsonDecode(json);
-      if (decoded is! Map<String, dynamic>) return null;
-      final item = RecentAccessItem.fromJson(decoded);
-      return item.type == RecentAccessType.album
-          ? (album: item.name, artist: item.subtitle)
-          : null;
-    } on Object {
-      return null;
-    }
+    return LibraryMixHints(loved: loved, liked: liked, queued: queued);
   }
 
   /// Plays of the last 90 days by song id, those of the last 14 counting

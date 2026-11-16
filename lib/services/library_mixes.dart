@@ -49,9 +49,8 @@ const _poolLimit = 1500;
 const libraryMixFavoritesMinPlayed = 8;
 
 /// How much each hint of taste counts, in plays, when listening statistics
-/// are off: a loved song, a song in the saved queue, a song of an album
-/// opened lately.
-const _lovedPlays = 3.0, _queuedPlays = 1.0, _albumPlays = 0.5;
+/// are off: a loved song or a song in the saved queue.
+const _lovedPlays = 3.0, _queuedPlays = 1.0;
 
 /// Mixes sharing more of their songs than this are one mix twice.
 const _maxOverlap = 0.6;
@@ -207,7 +206,6 @@ class LibraryMixHints {
     this.loved = const [],
     this.liked = const [],
     this.queued = const [],
-    this.albums = const [],
   });
 
   /// Loved songs.
@@ -219,9 +217,6 @@ class LibraryMixHints {
 
   /// Sources of the saved queue's songs, up to the one playing.
   final List<String> queued;
-
-  /// Albums opened lately; the artist when known.
-  final List<({String album, String? artist})> albums;
 }
 
 /// Plays by song id that [hints] stand for, as [LibraryMixRequest.plays]
@@ -248,26 +243,11 @@ Map<String, double> libraryMixHintPlays(
   for (final source in hints.queued) {
     bySource[source] = (bySource[source] ?? 0) + _queuedPlays;
   }
-  final albums = <String, Set<String>>{};
-  for (final album in hints.albums) {
-    final name = normalizeLookupText(album.album);
-    if (name.isEmpty) continue;
-    albums
-        .putIfAbsent(name, () => {})
-        .add(normalizeLookupText(album.artist ?? ''));
-  }
   final plays = <String, double>{};
   for (final song in songs) {
     var heard =
         (bySong[songKey(song.artist, song.title)] ?? 0) +
         (bySource[song.source] ?? 0);
-    final artist = normalizeLookupText(song.artist);
-    if (albums[normalizeLookupText(song.album)]?.any(
-          (album) => album.isEmpty || artist.contains(album),
-        ) ??
-        false) {
-      heard += _albumPlays;
-    }
     if (heard > 0) plays[song.id] = heard;
   }
   return plays;
@@ -526,7 +506,6 @@ String? libraryGenreFamilyLabel(String key) {
   }
   return null;
 }
-
 
 List<String> _familiesOf(String? tag, Map<String, String>? labels) {
   final protected = (tag ?? '')

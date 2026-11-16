@@ -9,15 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/repo_provider.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/repo/extension_details_screen.dart';
 import 'package:sistrum/screens/settings/extension_detail_page.dart';
-import 'package:sistrum/widgets/app_menu_button.dart';
 import 'package:sistrum/widgets/extension_icon_image.dart';
 
 import 'support/fixed_settings.dart';
@@ -49,21 +44,6 @@ class _Extensions extends ExtensionNotifier {
       ),
     ],
   );
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
-
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-}
-
-class _Recent extends RecentAccessNotifier {
-  @override
-  RecentAccessState build() => const RecentAccessState(isLoaded: true);
 }
 
 const _displays = [
@@ -292,10 +272,8 @@ void main() {
     }
   });
 
-  for (final home in [false, true]) {
-    testWidgets('installed icons decode the crop at live density, Home=$home', (
-      tester,
-    ) async {
+  {
+    testWidgets('Store icon decodes the crop at live density', (tester) async {
       final fixture = await tester.runAsync(
         () => _IconFixture.create(const Size(1024, 256), network: false),
       );
@@ -321,11 +299,6 @@ void main() {
                     () =>
                         _Extensions((fixture!.provider as FileImage).file.path),
                   ),
-                  if (home) ...[
-                    exploreProvider.overrideWith(_Explore.new),
-                    recentAccessProvider.overrideWith(_Recent.new),
-                    downloadHistoryProvider.overrideWith(_History.new),
-                  ],
                 ],
                 child: MaterialApp(
                   localizationsDelegates:
@@ -337,15 +310,13 @@ void main() {
                     ).copyWith(devicePixelRatio: density),
                     child: child!,
                   ),
-                  home: home
-                      ? const Scaffold(body: HomeTab(mode: HomeTabMode.search))
-                      : const ExtensionDetailPage(extensionId: 'example.icon'),
+                  home: const ExtensionDetailPage(extensionId: 'example.icon'),
                 ),
               ),
             );
           });
           await tester.pumpAndSettle();
-          final size = home ? 20.0 : 56.0;
+          const size = 56.0;
           Future<void> checkImages(int count) async {
             final images = tester
                 .widgetList<Image>(find.byType(Image))
@@ -361,11 +332,7 @@ void main() {
               );
               expect(
                 decoded,
-                home
-                    ? (density == 1 ? const Size(80, 20) : const Size(240, 60))
-                    : (density == 1
-                          ? const Size(224, 56)
-                          : const Size(672, 168)),
+                density == 1 ? const Size(224, 56) : const Size(672, 168),
               );
               final key = await image.image.obtainKey(ImageConfiguration.empty);
               if (count == 1) {
@@ -377,13 +344,6 @@ void main() {
           }
 
           await checkImages(1);
-          if (home) {
-            await tester.tap(find.byType(AppMenuButton<String>));
-            await tester.pumpAndSettle();
-            await checkImages(2);
-            await tester.tapAt(const Offset(5, 5));
-            await tester.pumpAndSettle();
-          }
           expect(tester.takeException(), isNull);
         }
         expect(keys[0], keys[2]);

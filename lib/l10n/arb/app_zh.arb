@@ -1,5 +1,8 @@
 {
   "@@locale": "zh",
+  "homeNewReleases": "New Releases",
+  "homeTopArtists": "Your Top Artists",
+  "homeYourPlaylists": "Your Playlists",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
   "@appName": {
@@ -25,18 +28,6 @@
   "@homeTitle": {
     "description": "Home screen title"
   },
-  "homeEmptyTitle": "暂无搜索提供商",
-  "@homeEmptyTitle": {
-    "description": "Title shown on home when no providers are available yet"
-  },
-  "homeEmptySubtitle": "安装一个拓展以继续。",
-  "@homeEmptySubtitle": {
-    "description": "Subtitle shown on home when no providers are available yet"
-  },
-  "homeRecent": "最近",
-  "@homeRecent": {
-    "description": "Section header for recent searches"
-  },
   "historyFilterAll": "全部",
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
@@ -60,10 +51,6 @@
   "settingsAbout": "关于",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadTitle": "下载",
-  "@downloadTitle": {
-    "description": "Download settings page title"
   },
   "downloadAskQualitySubtitle": "为每次下载显示质量选择器",
   "@downloadAskQualitySubtitle": {
@@ -125,14 +112,6 @@
         "type": "String"
       }
     }
-  },
-  "optionsDefaultSearchTab": "默认搜索栏",
-  "@optionsDefaultSearchTab": {
-    "description": "Title for the preferred default search tab setting"
-  },
-  "optionsDefaultSearchTabSubtitle": "选择新搜索结果首先打开的标签页。",
-  "@optionsDefaultSearchTabSubtitle": {
-    "description": "Subtitle for the preferred default search tab setting"
   },
   "optionsAutoFallback": "自动回退",
   "@optionsAutoFallback": {
@@ -600,10 +579,6 @@
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogClearAll": "全部清除",
-  "@dialogClearAll": {
-    "description": "Dialog title - clear all items"
-  },
   "dialogRemoveExtension": "移除扩展",
   "@dialogRemoveExtension": {
     "description": "Dialog title - uninstall extension"
@@ -756,24 +731,6 @@
       }
     }
   },
-  "snackbarAlreadyDownloaded": "“{trackName}”已下载",
-  "@snackbarAlreadyDownloaded": {
-    "description": "Snackbar - track already exists",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "snackbarAlreadyInLibrary": "“{trackName}”已存在于你的乐库中",
-  "@snackbarAlreadyInLibrary": {
-    "description": "Snackbar - track already exists in local library",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarHistoryCleared": "历史记录已清除",
   "@snackbarHistoryCleared": {
     "description": "Snackbar - history deleted"
@@ -860,25 +817,9 @@
   "@errorRateLimitedMessage": {
     "description": "Error message - rate limit explanation"
   },
-  "errorNoTracksFound": "未找到曲目",
-  "@errorNoTracksFound": {
-    "description": "Error - search returned no results"
-  },
   "searchEmptyResultSubtitle": "Try another keyword",
   "@searchEmptyResultSubtitle": {
     "description": "Subtitle shown under the empty search result state on the home screen"
-  },
-  "errorUrlNotRecognized": "Link not recognized",
-  "@errorUrlNotRecognized": {
-    "description": "Error title - URL not handled by any extension or service"
-  },
-  "errorUrlNotRecognizedMessage": "This link is not supported. Make sure the URL is correct and a compatible extension is installed.",
-  "@errorUrlNotRecognizedMessage": {
-    "description": "Error message - URL not recognized explanation"
-  },
-  "errorUrlFetchFailed": "Failed to load content from this link. Please try again.",
-  "@errorUrlFetchFailed": {
-    "description": "Error message - generic URL fetch failure"
   },
   "actionPause": "Pause",
   "@actionPause": {
@@ -954,10 +895,6 @@
   "@searchSortTitle": {
     "description": "Bottom sheet title for search sort options"
   },
-  "searchSortDefault": "Default",
-  "@searchSortDefault": {
-    "description": "Sort option - default API order"
-  },
   "searchSortTitleAZ": "Title (A-Z)",
   "@searchSortTitleAZ": {
     "description": "Sort option - title ascending"
@@ -973,14 +910,6 @@
   "searchSortArtistZA": "Artist (Z-A)",
   "@searchSortArtistZA": {
     "description": "Sort option - artist descending"
-  },
-  "searchSortDurationShort": "Duration (Shortest)",
-  "@searchSortDurationShort": {
-    "description": "Sort option - shortest duration first"
-  },
-  "searchSortDurationLong": "Duration (Longest)",
-  "@searchSortDurationLong": {
-    "description": "Sort option - longest duration first"
   },
   "searchSortDateOldest": "Release Date (Oldest)",
   "@searchSortDateOldest": {
@@ -1324,10 +1253,6 @@
   "settingsLogsSubtitle": "View app logs for debugging",
   "@settingsLogsSubtitle": {
     "description": "Logs settings description"
-  },
-  "loadingSharedLink": "Loading shared link...",
-  "@loadingSharedLink": {
-    "description": "Status when opening shared URL"
   },
   "pressBackAgainToExit": "Press back again to exit",
   "@pressBackAgainToExit": {
@@ -2076,43 +2001,9 @@
       }
     }
   },
-  "recentTypeArtist": "Artist",
-  "@recentTypeArtist": {
-    "description": "Recent access item type - artist"
-  },
   "recentTypeAlbum": "Album",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "recentTypeSong": "Song",
-  "@recentTypeSong": {
-    "description": "Recent access item type - song/track"
-  },
-  "recentTypePlaylist": "Playlist",
-  "@recentTypePlaylist": {
-    "description": "Recent access item type - playlist"
-  },
-  "recentEmpty": "No recent items yet",
-  "@recentEmpty": {
-    "description": "Empty state text for recent access list"
-  },
-  "recentClearAllMessage": "Clear all recent activity? Download history and music files will not be deleted.",
-  "@recentClearAllMessage": {
-    "description": "Confirmation message before clearing all recent activity"
-  },
-  "recentShowAllDownloads": "Show All Downloads",
-  "@recentShowAllDownloads": {
-    "description": "Button label to unhide hidden downloads in recent access"
-  },
-  "recentPlaylistInfo": "Playlist: {name}",
-  "@recentPlaylistInfo": {
-    "description": "Snackbar message when tapping playlist in recent access",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "description": "Playlist name"
-      }
-    }
   },
   "discographySkippedDownloaded": "{added} added, {skipped} already downloaded",
   "@discographySkippedDownloaded": {
@@ -2733,14 +2624,6 @@
   "@cacheAudioAnalysisDesc": {
     "description": "Description of what audio analysis cache contains"
   },
-  "cacheExploreFeed": "Explore feed cache",
-  "@cacheExploreFeed": {
-    "description": "Cache item title for explore home feed cache"
-  },
-  "cacheExploreFeedDesc": "Explore tab content (new releases, trending). Will refresh on next visit.",
-  "@cacheExploreFeedDesc": {
-    "description": "Description of what explore feed cache contains"
-  },
   "cacheTrackLookup": "Track lookup cache",
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
@@ -2766,15 +2649,6 @@
       },
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "cacheSizeOnly": "{size}",
-  "@cacheSizeOnly": {
-    "description": "Cache size only",
-    "placeholders": {
-      "size": {
-        "type": "String"
       }
     }
   },
@@ -3774,10 +3648,6 @@
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
   },
-  "homeAlbumInfoUnavailable": "Album info not available",
-  "@homeAlbumInfoUnavailable": {
-    "description": "Snackbar when album info cannot be loaded"
-  },
   "snackbarLoadingCueSheet": "Loading CUE sheet...",
   "@snackbarLoadingCueSheet": {
     "description": "Snackbar while loading a CUE sheet file"
@@ -4351,42 +4221,9 @@
   "@audioAnalysisRescanning": {
     "description": "Loading text while audio is being re-analyzed after an explicit refresh"
   },
-  "extensionsHomeFeedProvider": "Home Feed Provider",
-  "@extensionsHomeFeedProvider": {
-    "description": "Extensions page - label for home feed provider selector"
-  },
-  "extensionsHomeFeedDescription": "Choose which extension provides the home feed on the main screen",
-  "@extensionsHomeFeedDescription": {
-    "description": "Extensions page - description for home feed provider picker"
-  },
   "extensionsHomeFeedAuto": "Auto",
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
-  },
-  "extensionsHomeFeedAutoSubtitle": "Automatically select the best available",
-  "@extensionsHomeFeedAutoSubtitle": {
-    "description": "Extensions page - subtitle for auto home feed option"
-  },
-  "extensionsHomeFeedOff": "Off",
-  "@extensionsHomeFeedOff": {
-    "description": "Extensions page - home feed provider option: off"
-  },
-  "extensionsHomeFeedOffSubtitle": "Do not show the home feed on the main screen",
-  "@extensionsHomeFeedOffSubtitle": {
-    "description": "Extensions page - subtitle for off home feed option"
-  },
-  "extensionsHomeFeedUse": "Use {extensionName} home feed",
-  "@extensionsHomeFeedUse": {
-    "description": "Extensions page - subtitle for a specific extension home feed option",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "extensionsNoHomeFeedExtensions": "No extensions with home feed",
-  "@extensionsNoHomeFeedExtensions": {
-    "description": "Extensions page - shown when no installed extension has home feed"
   },
   "cancelDownloadTitle": "Cancel download?",
   "@cancelDownloadTitle": {
@@ -4650,30 +4487,9 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "searchTracks": "Tracks",
-  "@searchTracks": {
-    "description": "Search filter label - tracks"
-  },
-  "homeSearchHintDefault": "Paste supported URL or search...",
-  "@homeSearchHintDefault": {
-    "description": "Default placeholder for the main search field on Home"
-  },
-  "homeSearchHintProvider": "Search with {providerName}...",
-  "@homeSearchHintProvider": {
-    "description": "Placeholder for the main search field when a provider is selected",
-    "placeholders": {
-      "providerName": {
-        "type": "String"
-      }
-    }
-  },
   "homeImportCsvTooltip": "Import playlist (CSV, M3U)",
   "@homeImportCsvTooltip": {
     "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
-  "homeChangeSearchProviderTooltip": "Change search provider",
-  "@homeChangeSearchProviderTooltip": {
-    "description": "Tooltip for the Home search provider picker"
   },
   "actionPaste": "Paste",
   "@actionPaste": {
@@ -4909,10 +4725,6 @@
   "@extensionUtilityFunctions": {
     "description": "Capability label for utility-only extensions"
   },
-  "actionDismiss": "Dismiss",
-  "@actionDismiss": {
-    "description": "Generic action - dismiss"
-  },
   "setupChangeFolderTooltip": "Change folder",
   "@setupChangeFolderTooltip": {
     "description": "Tooltip for editing the selected download folder"
@@ -4925,18 +4737,6 @@
         "type": "String"
       },
       "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "a11yOpenItem": "Open {itemType} {name}",
-  "@a11yOpenItem": {
-    "description": "Accessibility label for opening a generic item",
-    "placeholders": {
-      "itemType": {
-        "type": "String"
-      },
-      "name": {
         "type": "String"
       }
     }

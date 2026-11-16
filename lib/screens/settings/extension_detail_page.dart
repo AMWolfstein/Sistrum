@@ -16,7 +16,6 @@ import 'package:sistrum/providers/repo_provider.dart';
 import 'package:sistrum/controllers/extension_action_forms.dart';
 import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/utils/extension_country_name.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
@@ -269,8 +268,6 @@ class _ExtensionDetailPageState extends ConsumerState<ExtensionDetailPage> {
                       final setting = entry.value;
                       return _SettingItem(
                         key: ValueKey(setting.key),
-                        countryOptions:
-                            setting.key == extension.homeFeedRegionSetting?.key,
                         setting: setting,
                         value: _settings[setting.key] ?? setting.defaultValue,
                         showDivider: index < extension.settings.length - 1,

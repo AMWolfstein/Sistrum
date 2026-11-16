@@ -32,6 +32,27 @@ void main() {
     }
   });
 
+  test(
+    'settings saved before the Home feed and search tab were removed load',
+    () {
+      final restored = AppSettings.fromJson({
+        'homeFeedProvider': '__off__',
+        'defaultSearchTab': 'artist',
+        'hasSearchedBefore': true,
+        'historySortMode': 'oldest',
+      });
+      expect(restored.historySortMode, 'oldest');
+      final saved = restored.toJson();
+      for (final key in [
+        'homeFeedProvider',
+        'defaultSearchTab',
+        'hasSearchedBefore',
+      ]) {
+        expect(saved.containsKey(key), isFalse, reason: key);
+      }
+    },
+  );
+
   test('retired Material-only settings in saved JSON are ignored', () {
     final restored = AppSettings.fromJson({
       'landscapeLyricsArtwork': true,
@@ -114,7 +135,6 @@ void main() {
       const settings = AppSettings(
         downloadFallbackExtensionIds: ['fallback.ext'],
         searchProvider: 'search.ext',
-        homeFeedProvider: 'feed.ext',
       );
 
       final updated = settings.copyWith(
@@ -128,7 +148,6 @@ void main() {
         libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
         clearDownloadFallbackExtensionIds: true,
         clearSearchProvider: true,
-        clearHomeFeedProvider: true,
       );
 
       expect(updated.defaultService, 'provider-a');
@@ -144,7 +163,6 @@ void main() {
       );
       expect(updated.downloadFallbackExtensionIds, isNull);
       expect(updated.searchProvider, isNull);
-      expect(updated.homeFeedProvider, isNull);
       expect(updated.audioQuality, settings.audioQuality);
     });
 
@@ -155,7 +173,6 @@ void main() {
         downloadTreeUri: 'content://tree/music',
         downloadFallbackExtensionIds: ['ext.a', 'ext.b'],
         searchProvider: 'search.ext',
-        homeFeedProvider: AppSettings.homeFeedProviderOff,
         useAllFilesAccess: true,
         networkCompatibilityMode: true,
         songLinkRegion: 'ID',
@@ -184,7 +201,6 @@ void main() {
       expect(decoded.downloadTreeUri, 'content://tree/music');
       expect(decoded.downloadFallbackExtensionIds, ['ext.a', 'ext.b']);
       expect(decoded.searchProvider, 'search.ext');
-      expect(decoded.homeFeedProvider, AppSettings.homeFeedProviderOff);
       expect(decoded.useAllFilesAccess, isTrue);
       expect(decoded.networkCompatibilityMode, isTrue);
       expect(decoded.songLinkRegion, 'ID');
