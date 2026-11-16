@@ -42,6 +42,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     required bool hasMoreLibrary,
     required bool isPageLoading,
     required List<DownloadHistoryItem> inMemoryHistoryItems,
+    required _QueueLibraryPageRequest pageRequest,
   }) {
     final showFilteringIndicator = filterData.showFilteringIndicator;
     final filteredGroupedAlbums = filterData.filteredGroupedAlbums;
@@ -259,51 +260,56 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       );
     }
 
-    // Songs drag onto playlists; singles do not.
-    final playlistDrag = filterMode == 'all';
-    Widget trackTile(UnifiedLibraryItem item, {required bool grid}) {
-      final tile = (grid ? _buildUnifiedGridItem : _buildUnifiedLibraryItem)(
-        context,
-        item,
-        colorScheme,
-        downloadedNavigationItems: downloadedNavigationItems,
-        downloadedNavigationIndex:
-            downloadedNavigationIndexByUnifiedId[item.id],
-        localNavigationItems: localNavigationItems,
-        localNavigationIndex: localNavigationIndexByUnifiedId[item.id],
-        libraryItems: filteredUnifiedItems,
-        playlistDragEnabled: playlistDrag,
-      );
-      if (!playlistDrag) return tile;
-      return LibraryPlaylistDragSource<UnifiedLibraryItem>(
-        data: item,
-        onSelect: () => _selectDraggedTrack(item, filteredUnifiedItems),
-        onDragStarted: _startLibraryTrackDrag,
-        onDragEnd: _endLibraryTrackDrag,
-        feedbackBuilder: (context) =>
-            _buildDragFeedback(context, item, colorScheme),
-        child: tile,
-      );
-    }
+    Widget trackTile(UnifiedLibraryItem item, {required bool grid}) =>
+        (grid ? _buildUnifiedGridItem : _buildUnifiedLibraryItem)(
+          context,
+          item,
+          colorScheme,
+          downloadedNavigationItems: downloadedNavigationItems,
+          downloadedNavigationIndex:
+              downloadedNavigationIndexByUnifiedId[item.id],
+          localNavigationItems: localNavigationItems,
+          localNavigationIndex: localNavigationIndexByUnifiedId[item.id],
+          libraryItems: filteredUnifiedItems,
+        );
 
     Widget trackCountHeader() => SliverToBoxAdapter(
       child: _countHeaderRow(
         context,
         context.l10n.queueTrackCount(totalTrackCount),
-        [
-          if (!_isSelectionMode) _buildFilterButton(context),
-          if (!_isSelectionMode && filteredUnifiedItems.isNotEmpty)
-            TextButton.icon(
-              onPressed: () => _showCreatePlaylistDialog(context),
-              icon: const Icon(Icons.add, size: 20),
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              label: Text(context.l10n.collectionCreatePlaylist),
-            ),
-        ],
+        [if (!_isSelectionMode) _buildFilterButton(context)],
       ),
     );
     final content = CustomScrollView(
       slivers: [
+        // Play and Shuffle take the list as filtered and sorted, as Folders do.
+        if (totalTrackCount > 0 && filterMode == 'all')
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(edge, 8, edge, 0),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: AlbumPlayActions(
+                    playLabel: context.l10n.tooltipPlay,
+                    shuffleTooltip: context.l10n.actionShuffle,
+                    onPlay: () => _playSongs(
+                      pageRequest,
+                      totalTrackCount,
+                      allFilteredUnifiedItems,
+                    ),
+                    onShuffle: () => _playSongs(
+                      pageRequest,
+                      totalTrackCount,
+                      allFilteredUnifiedItems,
+                      shuffle: true,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         // Rewind lives with the listening history it replays.
         if (totalTrackCount > 0 && filterMode == 'all') trackCountHeader(),
 

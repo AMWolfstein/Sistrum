@@ -30,34 +30,62 @@ extension _QueueTabNavigation on _QueueTabState {
     }
   }
 
-  /// Plays [item] and queues the rest of the merged library (downloaded + local
-  /// in display order) so playback continues to the next track. Honors player
-  /// mode and shuffle.
-  Future<void> _playLibraryItem(
-    UnifiedLibraryItem item,
-    List<UnifiedLibraryItem> libraryItems,
-  ) async {
+  /// Plays [libraryItems] from [start], or from the top, or shuffled. A
+  /// whole-list play sets shuffle, as Folders do; a row keeps the current mode.
+  Future<void> _playLibraryItems(
+    List<UnifiedLibraryItem> libraryItems, {
+    UnifiedLibraryItem? start,
+    bool shuffle = false,
+  }) async {
     final playableItems = libraryItems
         .where(
           (u) => u.filePath.trim().isNotEmpty && !isCueVirtualPath(u.filePath),
         )
-        .toList();
+        .toList(growable: false);
     if (playableItems.isEmpty) return;
 
-    var start = playableItems.indexWhere((u) => u.id == item.id);
-    if (start < 0) start = 0;
-
+    final index = start != null
+        ? max(0, playableItems.indexWhere((u) => u.id == start.id))
+        : shuffle
+        ? Random().nextInt(playableItems.length)
+        : 0;
     try {
+      if (start == null) {
+        await ref.read(musicPlayerControllerProvider).setShuffle(shuffle);
+      }
       await ref
           .read(playbackProvider.notifier)
           .playMediaQueue(
             playableItems.map(playableFromUnified),
-            startIndex: start,
-            externalPath: item.filePath,
+            startIndex: index,
+            externalPath: start?.filePath ?? playableItems[index].filePath,
           );
     } catch (e) {
       if (mounted) showCannotOpenFileSnackBar(context, e);
     }
+  }
+
+  /// Plays the Songs list as filtered and sorted. Pages not loaded yet are
+  /// read in one query, so a long list plays whole.
+  Future<void> _playSongs(
+    _QueueLibraryPageRequest request,
+    int total,
+    List<UnifiedLibraryItem> loaded, {
+    bool shuffle = false,
+  }) async {
+    var songs = loaded;
+    if (total > loaded.length) {
+      try {
+        final all = await ref.read(
+          _queueLibraryPageProvider(request.unpaged(total)).future,
+        );
+        if (all.items.isNotEmpty) songs = all.items;
+      } catch (e) {
+        if (mounted) showCannotOpenFileSnackBar(context, e);
+        return;
+      }
+    }
+    await _playLibraryItems(songs, shuffle: shuffle);
   }
 
   Future<void> _navigateToMetadataScreen(DownloadItem item) async {
@@ -388,45 +416,6 @@ extension _QueueTabNavigation on _QueueTabState {
           added
               ? context.l10n.collectionAddedToPlaylist(playlistName)
               : context.l10n.collectionAlreadyInPlaylist(playlistName),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDragFeedback(
-    BuildContext context,
-    UnifiedLibraryItem item,
-    ColorScheme colorScheme,
-  ) {
-    final isDraggingMultiple =
-        _isSelectionMode &&
-        _selectedIds.contains(item.id) &&
-        _selectedIds.length > 1;
-    final count = isDraggingMultiple ? _selectedIds.length : 1;
-
-    return Material(
-      elevation: 6,
-      borderRadius: BorderRadius.circular(12),
-      color: colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppIcon(Icons.playlist_add, size: 18, color: colorScheme.primary),
-            const SizedBox(width: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 180),
-              child: Text(
-                isDraggingMultiple ? '$count tracks' : item.trackName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
         ),
       ),
     );

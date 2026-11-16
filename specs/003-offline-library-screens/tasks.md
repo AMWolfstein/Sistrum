@@ -99,7 +99,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/screens/playlist_screen.dart`, `lib/screens/library_tracks_folder_screen.dart`,
     `lib/screens/queue_tab_navigation.dart`, home recents, tests.
 
-- [ ] M003-T005 Library overview and Songs page
+- [x] M003-T005 Library overview and Songs page
   - Acceptance: FR-005, FR-006. No Recently Added shelf (the sort option stays); the
     Songs page loses Create playlist and drag-to-playlist and gains Play and Shuffle at
     the top (same widget as Folders).

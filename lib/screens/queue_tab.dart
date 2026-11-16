@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:io';
 import 'package:flutter/foundation.dart'
     show ValueListenable, listEquals, setEquals;
 import 'package:flutter/material.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/album_play.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
@@ -24,7 +26,6 @@ import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
-import 'package:sistrum/widgets/library_playlist_drag_source.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/create_playlist_sheet.dart';
 import 'package:flutter/services.dart';
@@ -112,7 +113,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   final ValueNotifier<int> _embeddedCoverVersion = ValueNotifier<int>(0);
 
   bool _isSelectionMode = false;
-  bool _isDraggingLibraryTrack = false;
   final Set<String> _selectedIds = {};
   String? _selectionAnchorId;
   final SelectionOverlayController _selectionOverlay =
@@ -746,6 +746,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                       hasMoreLibrary: hasMoreLibrary,
                       isPageLoading: isLibraryPageLoading,
                       inMemoryHistoryItems: inMemoryHistoryItems,
+                      pageRequest: activePageRequest,
                     ),
             ),
           ),

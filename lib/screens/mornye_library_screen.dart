@@ -47,7 +47,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   bool _showSearch = false;
   String? _completeness;
   String _query = '';
-  late String _sort;
+  String _sort = 'a-z';
   List<LibraryBrowseEntry> _rows = const [];
   bool _loading = true;
 
@@ -64,11 +64,8 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   @override
   void initState() {
     super.initState();
-    _sort = _overview ? 'latest' : 'a-z';
     _scroll.addListener(() {
-      if (_scroll.position.extentAfter < 500 &&
-          !_loading &&
-          !(_overview && _query.isNotEmpty)) {
+      if (_scroll.position.extentAfter < 500 && !_loading && !_overview) {
         unawaited(
           ref.read(libraryBrowseProvider(_request).notifier).loadMore(),
         );
@@ -230,7 +227,8 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
     final colors = Theme.of(context).colorScheme;
     final searchingLibrary = _overview && _query.isNotEmpty;
     final listInset = wideListInset(context);
-    final result = searchingLibrary
+    // The overview shows categories only; its albums query is not needed.
+    final result = searchingLibrary || _overview
         ? const AsyncData(LibraryBrowseState([], hasMore: false))
         : ref.watch(libraryBrowseProvider(_request));
     _loading = result.isLoading || (result.value?.isLoadingMore ?? false);
@@ -288,7 +286,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
     ];
     return RefreshIndicator(
       onRefresh: () async {
-        if (searchingLibrary) return;
+        if (_overview) return;
         ref.invalidate(libraryBrowseProvider(_request));
         await ref.read(libraryBrowseProvider(_request).future);
       },
@@ -417,27 +415,6 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                   ),
                 ),
               ),
-            if (_overview)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    24 + listInset,
-                    8,
-                    24 + listInset,
-                    16,
-                  ),
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      _query.isEmpty
-                          ? context.l10n.libraryRecentlyAdded
-                          : context.l10n.searchAlbums,
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
             if (_rows.isNotEmpty)
               if (_artists)
                 SliverList.builder(
@@ -524,7 +501,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                   child: Center(child: CircularProgressIndicator.adaptive()),
                 ),
               )
-            else if (_rows.isEmpty)
+            else if (_rows.isEmpty && !_overview)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(child: Text(context.l10n.libraryEmptyCollection)),

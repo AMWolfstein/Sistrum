@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 37,
+  "next_completion": 38,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -424,13 +424,19 @@
       "title": "Playlists and Loved songs use the playlist design"
     },
     "M003-T005": {
-      "completion": null,
+      "completion": 37,
+      "evidence": {
+        "checks": "Review round 1 PASS. Saved evidence scratchpad/t005: flutter analyze lib test integration_test no issues; dart format 9 files 0 changed; targeted 97 passed; full flutter test exit 0, 3936 passed excluding 7 loading entries, 10 skipped, 0 failed; work.py validate PASS. Overview shows categories only; Songs has Play and Shuffle, no Create playlist, no drag; unpaged full-list play path untested (owner decision); no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-aef6cd18",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "9ab77727caba40b2af83f5be609792af",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Library overview and Songs page"
     },
     "M003-T006": {

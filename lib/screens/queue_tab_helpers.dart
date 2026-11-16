@@ -126,6 +126,20 @@ class _QueueLibraryPageRequest
     cursor: cursor,
   );
 
+  /// The same query with [total] rows from the start, for playing a whole list.
+  _QueueLibraryPageRequest unpaged(int total) => _QueueLibraryPageRequest(
+    filterMode: filterMode,
+    limit: total,
+    offset: 0,
+    searchQuery: searchQuery,
+    filterSource: filterSource,
+    filterQuality: filterQuality,
+    filterFormat: filterFormat,
+    filterMetadata: filterMetadata,
+    sortMode: sortMode,
+    localLibraryEnabled: localLibraryEnabled,
+  );
+
   bool get allowsInMemoryHistoryFallback =>
       offset == 0 &&
       searchQuery.trim().isEmpty &&

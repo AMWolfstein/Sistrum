@@ -500,6 +500,44 @@ Checks (`scratchpad/t004/`):
 - `map_update.json`: 34654 symbols, 1723 sources, 0 partial, 0 unindexed.
 - gen-l10n: no ARB change, no log.
 
+## M003-T005
+
+Library overview and Songs page (FR-005, FR-006, FR-014). Base `b242ea8`.
+Uncommitted; independent review not run; `task complete` not run (tasks.md checkbox left for it).
+
+Map: refreshed first (`scratchpad/t005/map_start.json`: 34095 symbols, 1702 sources, 0 partial, 0 unindexed); end `map_update.json` (34122, 1701, 0, 0).
+
+What changed:
+- Overview (`MornyeLibraryScreen`, overview page): the Recently Added header and album grid are gone. The overview no longer reads `libraryBrowseProvider`, so it shows no empty-collection text and its pull-to-refresh does nothing. The sort option "Recently Added" on the Albums page stays (`libraryRecentlyAdded` still read there).
+- Overview now shows: the Open audio, search and Downloads actions; category rows Playlists, Artists, Albums, Songs, Folders; the Rewind banner when listening statistics are on. Albums are opened from the Albums row.
+- Songs (`QueueTab`, section `all`): Play and Shuffle (`AlbumPlayActions`, non-compact, as Folders) sit above the count row, shown when the list has tracks. Play sets shuffle off and plays from the top; Shuffle sets it on and starts at a random track. Both use the list as filtered, sorted and searched. If the list is larger than the loaded pages, the full filtered list is read in one query (`_QueueLibraryPageRequest.unpaged`); otherwise the loaded list plays.
+- Songs header: Create playlist removed. Playlists page Create playlist kept (its only way to create a playlist; the Songs header was not one).
+- Drag-to-playlist removed: `LibraryPlaylistDragSource`, `_selectDraggedTrack`, `_startLibraryTrackDrag`, `_endLibraryTrackDrag`, `_buildDragFeedback`, `_isDraggingLibraryTrack`, `playlistDragEnabled`. Songs rows now use the normal long-press selection.
+- `_playLibraryItem` became `_playLibraryItems(libraryItems, {start, shuffle})`; row play is unchanged.
+
+Deleted (no reader left):
+- `lib/widgets/library_playlist_drag_source.dart`.
+- `test/library_playlist_drag_test.dart` (2 tests, list and grid: hold selects, drop on playlist). Behaviour removed, not ported. Plain long-press selection is not covered by this file; existing selection tests cover it.
+- Strings: none. No ARB change, no gen-l10n run (`collectionCreatePlaylist` is read by Playlists; `libraryRecentlyAdded` by the sort chooser).
+
+Tests:
+- Changed `test/mornye_library_browse_test.dart` "Library separates browsing and downloads": overview asserts no Recently Added, no `Album 0`, no grid (was: header and 2-column grid).
+- New in that file: "Albums sort still offers Recently Added".
+- New `test/library_songs_page_test.dart` (4): Play and Shuffle above the count; Play and Shuffle play the list in order (shuffle flag, queue titles, start index); no Create playlist and no `LongPressDraggable` on Songs; Playlists keeps Create playlist and shows no Songs Play or Shuffle.
+
+Open decisions (owner):
+1. Overview is categories only, since the album grid was its only content under that header. An empty library shows no message on the overview (the Albums page still does).
+2. Full-list Play on a library with unloaded pages is untested by widget tests (the fixture has no DB rows); it is covered by analyze and the full run only.
+3. Shuffle is the labelled pill of AlbumPlayActions (as in Folders), so it has no tooltip; the test finds it by label.
+4. Songs long-press now selects a row (drag owned it before).
+
+Checks (`scratchpad/t005/`):
+- `analyze.log`: `flutter analyze lib test integration_test`: No issues found, exit 0 (after removing two unused imports from the new test).
+- `format.log`: `dart format --set-exit-if-changed --output=none` on the 9 changed Dart files (`changed_dart_files.txt`): 0 changed, exit 0. `format_write.log` is the formatting run.
+- `targeted.log`: 16 related test files (library, queue, collection and playback tests): 97 passed, exit 0.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3936 passed excluding the 7 `loading` entries (all passed), 10 skipped, 0 failed; 3953 non-hidden testDone. Baseline 3933, plus 5 new, minus 2 deleted = 3936.
+- `validate.json`: `python3 workflow/work.py validate`: PASS (3 missions, 9 reserved, 36 completed).
+
 ## M003-TOR014
 
 Online versions of the converted screens removed (FR-020, FR-014). Base `ac2162f`.

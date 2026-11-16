@@ -837,7 +837,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     required List<LocalLibraryItem> localNavigationItems,
     required int? localNavigationIndex,
     required List<UnifiedLibraryItem> libraryItems,
-    bool playlistDragEnabled = false,
   }) {
     final fileExistsListenable = _fileExistsListenable(item.filePath);
     final isSelected = _selectedIds.contains(item.id);
@@ -954,7 +953,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
               item.trackName,
               item.artistName,
             ),
-            onPlay: () => _playLibraryItem(item, libraryItems),
+            onPlay: () => _playLibraryItems(libraryItems, start: item),
           );
         }
         return Tooltip(
@@ -971,9 +970,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
       isSelectionMode: _isSelectionMode,
       isSelected: isSelected,
       onTap: _isSelectionMode ? () => _toggleSelection(item.id) : open,
-      onLongPress: playlistDragEnabled
-          ? null
-          : _isSelectionMode
+      onLongPress: _isSelectionMode
           ? () => _selectRangeTo(item.id, libraryItems)
           : () => _enterSelectionMode(item.id),
       leading: leading,
@@ -999,7 +996,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     required List<LocalLibraryItem> localNavigationItems,
     required int? localNavigationIndex,
     required List<UnifiedLibraryItem> libraryItems,
-    bool playlistDragEnabled = false,
   }) {
     final fileExistsListenable = _fileExistsListenable(item.filePath);
     final isSelected = _selectedIds.contains(item.id);
@@ -1021,9 +1017,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
         item.artistName,
       ),
       onTap: _isSelectionMode ? () => _toggleSelection(item.id) : open,
-      onLongPress: playlistDragEnabled
-          ? null
-          : _isSelectionMode
+      onLongPress: _isSelectionMode
           ? () => _selectRangeTo(item.id, libraryItems)
           : () => _enterSelectionMode(item.id),
       cover: Hero(
@@ -1073,7 +1067,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
                       item.trackName,
                       item.artistName,
                     ),
-                    onPlay: () => _playLibraryItem(item, libraryItems),
+                    onPlay: () => _playLibraryItems(libraryItems, start: item),
                     grid: true,
                   );
                 }

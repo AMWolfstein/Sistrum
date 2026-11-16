@@ -182,16 +182,13 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Recently Added'), findsOneWidget);
+      // The overview is categories only: no Recently Added shelf or albums.
+      expect(find.text('Recently Added'), findsNothing);
+      expect(find.text('Album 0'), findsNothing);
+      expect(find.byType(SliverGrid), findsNothing);
       expect(find.text('1'), findsOneWidget);
       expect(find.text('Playlists'), findsOneWidget);
       expect(find.text('Songs'), findsOneWidget);
-      final grid = tester.widget<SliverGrid>(find.byType(SliverGrid));
-      expect(
-        (grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount)
-            .crossAxisCount,
-        2,
-      );
       await tester.tap(find.text('Downloads'));
       await tester.tap(find.text('Songs'));
       await tester.tap(find.text('Playlists'));
@@ -221,6 +218,40 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('Albums sort still offers Recently Added', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(_Settings.new),
+          downloadHistoryProvider.overrideWith(_History.new),
+          libraryBrowsePageLoaderProvider.overrideWithValue(
+            (page) async => LibraryBrowsePage([_album(0)]),
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: MornyeLibraryScreen(
+              page: MornyeLibraryPage.albums,
+              onOpenSection: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Sort Results'));
+    await tester.pumpAndSettle();
+    expect(find.text('Recently Added'), findsOneWidget);
+    expect(find.text('Title (A-Z)'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('Library search is local and album pages load on scroll', (
     tester,
