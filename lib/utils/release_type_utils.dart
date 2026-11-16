@@ -1,17 +1,18 @@
-import 'package:sistrum/utils/string_utils.dart';
+/// The release kind the library groups by, from the release's track total.
+enum LibraryReleaseKind { single, ep, album }
 
-/// Whether a release counts as a single: a stored album type decides, and
-/// without one a one-track release, or a release named Single(s) with at most
-/// two tracks, is a single. A missing track count counts as at most two.
-bool isSingleRelease({String? albumType, String? albumName, int? totalTracks}) {
-  final rawType = albumType?.toLowerCase();
-  if (rawType == 'single' || rawType == 'ep') return true;
-  final storedType = normalizeOptionalString(albumType)?.toLowerCase();
-  if (storedType != null && storedType.isNotEmpty) return false;
-  if (totalTracks == 1) return true;
-  final name = normalizeOptionalString(albumName)?.toLowerCase();
-  if (name == 'single' || name == 'singles') {
-    return totalTracks == null || totalTracks <= 2;
+/// Album, Single or EP as Apple Music reads it: a track total of 1-3 is a
+/// Single, 4-6 an EP and 7 or more an Album. Without a total tag a name ending
+/// in " - Single" or " - EP" decides, and anything else is an Album, so a
+/// partly owned album stays an Album.
+LibraryReleaseKind libraryReleaseKind({int? totalTracks, String? albumName}) {
+  if (totalTracks != null && totalTracks > 0) {
+    if (totalTracks <= 3) return LibraryReleaseKind.single;
+    if (totalTracks <= 6) return LibraryReleaseKind.ep;
+    return LibraryReleaseKind.album;
   }
-  return false;
+  final name = (albumName ?? '').trim().toLowerCase();
+  if (name.endsWith(' - single')) return LibraryReleaseKind.single;
+  if (name.endsWith(' - ep')) return LibraryReleaseKind.ep;
+  return LibraryReleaseKind.album;
 }

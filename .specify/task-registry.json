@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 33,
+  "next_completion": 34,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -376,13 +376,19 @@
       "title": "Library data for the detail screens"
     },
     "M003-T002": {
-      "completion": null,
+      "completion": 33,
+      "evidence": {
+        "checks": "Review round 1 PASS. Saved evidence scratchpad/t002: flutter analyze lib test integration_test no issues; dart format 26 files 0 changed; targeted 80 passed 1 skipped; full flutter test exit 0, 3974 passed excluding 7 loading entries, 10 skipped, 0 failed; work.py validate PASS. Duration rule from tasks.md not implemented (owner decision); no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-af5c600c",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "95723282094d4b83a3210604d9119327",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Artist screen reads the library"
     },
     "M003-T003": {

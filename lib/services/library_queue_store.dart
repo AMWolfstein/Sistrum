@@ -671,6 +671,7 @@ class LibraryQueueStore {
           NULL AS cover_path,
           MAX(h.file_path) AS sample_file_path,
           COUNT(*) AS track_count,
+          MAX(h.total_tracks) AS total_tracks,
           $completenessColumns
           ${unfiltered ? 'MAX(COALESCE(h.sort_added, 0))' : 'c.latest_added'} AS sort_added,
           MIN(COALESCE(h.sort_album, '')) AS sort_album,
@@ -736,6 +737,7 @@ class LibraryQueueStore {
           MAX(CASE WHEN l.cover_path IS NOT NULL AND l.cover_path != '' THEN l.cover_path END) AS cover_path,
           MAX(l.file_path) AS sample_file_path,
           COUNT(*) AS track_count,
+          MAX(l.total_tracks) AS total_tracks,
           $completenessColumns
           ${unfiltered ? 'MAX(COALESCE(l.sort_added, 0))' : 'c.latest_added'} AS sort_added,
           MIN(l.album_name_norm) AS sort_album,
@@ -783,6 +785,7 @@ class LibraryQueueStore {
           NULL AS cover_path,
           NULL AS sample_file_path,
           NULL AS track_count,
+          NULL AS total_tracks,
           NULL AS album_completeness,
           NULL AS album_present_tracks,
           NULL AS album_expected_tracks,

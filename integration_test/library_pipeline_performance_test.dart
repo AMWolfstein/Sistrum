@@ -28,7 +28,6 @@ import 'performance_probe.dart';
 
 const _browse = (
   artists: false,
-  artist: null,
   search: '',
   sort: 'a-z',
   limit: 40,

@@ -14,18 +14,20 @@ extension _ArtistScreenSections on _ArtistScreenState {
     ColorScheme colorScheme, {
     required List<ArtistAlbum> albums,
     required bool hasDiscography,
+    String? libraryImageUrl,
   }) {
-    String? imageUrl = _headerImageUrl;
+    String? imageUrl = widget.library ? libraryImageUrl : _headerImageUrl;
     if (imageUrl == null || imageUrl.isEmpty) {
       imageUrl = widget.headerImageUrl;
     }
     if (imageUrl == null || imageUrl.isEmpty) {
       imageUrl = widget.coverUrl;
     }
+    // A library cover is a file path; online covers are URLs.
     final hasValidImage =
         imageUrl != null &&
         imageUrl.isNotEmpty &&
-        Uri.tryParse(imageUrl)?.hasAuthority == true;
+        (widget.library || Uri.tryParse(imageUrl)?.hasAuthority == true);
     String? headerVideoUrl = _headerVideoUrl;
     if (headerVideoUrl == null || headerVideoUrl.isEmpty) {
       headerVideoUrl = widget.headerVideoUrl;
@@ -57,6 +59,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
           ? DownloadableCover(
               coverUrl: imageUrl,
               baseName: widget.artistName,
+              enabled: !widget.library,
               child: CachedCoverImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
@@ -79,11 +82,12 @@ extension _ArtistScreenSections on _ArtistScreenState {
         toolbarActions: isSelectionMode
             ? const []
             : [
-                HeaderCircleButton(
-                  icon: CupertinoIcons.square_arrow_up,
-                  tooltip: context.l10n.openInOtherServices,
-                  onPressed: () => _showShareSheet(context),
-                ),
+                if (!widget.library)
+                  HeaderCircleButton(
+                    icon: CupertinoIcons.square_arrow_up,
+                    tooltip: context.l10n.openInOtherServices,
+                    onPressed: () => _showShareSheet(context),
+                  ),
                 HeaderMoreButton(
                   groups: () => [
                     [
@@ -114,7 +118,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
             ? const []
             : [
                 // Balances the star, keeping the larger button centered.
-                if (_isLoadingDiscography || hasDiscography)
+                if (widget.library || _isLoadingDiscography || hasDiscography)
                   HeaderCircleButton(
                     icon: CupertinoIcons.shuffle,
                     tonal: true,
@@ -124,28 +128,24 @@ extension _ArtistScreenSections on _ArtistScreenState {
                     tooltip: context.l10n.actionShuffle,
                     onPressed: () => _shuffleArtist(context),
                   ),
-                if (_isLoadingDiscography)
+                if (widget.library)
+                  _headerPrimaryButton(
+                    colorScheme,
+                    icon: CupertinoIcons.play_fill,
+                    label: context.l10n.tooltipPlay,
+                    onPressed: _playLibraryArtist,
+                  )
+                else if (_isLoadingDiscography)
                   const ShimmerLoading(
                     child: SkeletonBox(width: 74, height: 74, borderRadius: 37),
                   )
                 else if (hasDiscography)
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    borderRadius: BorderRadius.circular(37),
-                    color: colorScheme.primary,
+                  _headerPrimaryButton(
+                    colorScheme,
+                    icon: CupertinoIcons.arrow_down,
+                    label: context.l10n.discographyDownload,
                     onPressed: () =>
                         _showDiscographyOptions(context, colorScheme, albums),
-                    child: SizedBox.square(
-                      dimension: 74,
-                      child: Semantics(
-                        label: context.l10n.discographyDownload,
-                        child: Icon(
-                          CupertinoIcons.arrow_down,
-                          size: 34,
-                          color: colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
                   ),
                 HeaderCircleButton(
                   icon: isFavoriteArtist
@@ -164,6 +164,26 @@ extension _ArtistScreenSections on _ArtistScreenState {
       ).buildSlivers(context);
     }
   }
+
+  /// The large primary circle in the header, Play or Download.
+  Widget _headerPrimaryButton(
+    ColorScheme colorScheme, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) => CupertinoButton(
+    padding: EdgeInsets.zero,
+    borderRadius: BorderRadius.circular(37),
+    color: colorScheme.primary,
+    onPressed: onPressed,
+    child: SizedBox.square(
+      dimension: 74,
+      child: Semantics(
+        label: label,
+        child: Icon(icon, size: 34, color: colorScheme.onPrimary),
+      ),
+    ),
+  );
 
   Future<void> _shuffleArtist(BuildContext context) async {
     final shuffled = await ref
@@ -610,12 +630,14 @@ extension _ArtistScreenSections on _ArtistScreenState {
         onTap: () {
           if (isSelectionMode) {
             toggleSelection(album.id);
+          } else if (widget.library) {
+            _openLibraryAlbum(album);
           } else {
             _navigateToAlbum(album);
           }
         },
         onLongPress: () {
-          if (!isSelectionMode) {
+          if (!isSelectionMode && !widget.library) {
             enterSelectionMode(album.id);
           }
         },
@@ -634,7 +656,7 @@ extension _ArtistScreenSections on _ArtistScreenState {
                     DownloadableCover(
                       coverUrl: album.coverUrl,
                       baseName: '${album.artists} - ${album.name}',
-                      enabled: !isSelectionMode,
+                      enabled: !isSelectionMode && !widget.library,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: album.coverUrl != null

@@ -7,6 +7,9 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/screens/artist_screen.dart';
+import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
@@ -46,6 +49,15 @@ void main() {
           overrides: [
             settingsProvider.overrideWith(_Settings.new),
             downloadHistoryProvider.overrideWith(_History.new),
+            libraryArtistOverviewProvider.overrideWith(
+              (ref, artist) async => const LibraryArtistOverview([]),
+            ),
+            libraryArtistPopularTracksProvider.overrideWith(
+              (ref, artist) async => const [],
+            ),
+            libraryArtistFeaturedTracksProvider.overrideWith(
+              (ref, artist) async => const [],
+            ),
             libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
               final request = page.browse;
               requests.add(request);
@@ -200,9 +212,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(requests.last.artists, isTrue);
       await tester.tap(find.text('Artist 0'));
-      await tester.pumpAndSettle();
-      expect(requests.last.artists, isFalse);
-      expect(requests.last.artist, 'Artist 0');
+      // The artist page keeps a looping shimmer, so it never settles.
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.byType(ArtistScreen), findsOneWidget);
+      await tester.pump(const Duration(seconds: 6));
       expect(tester.takeException(), isNull);
     });
   }

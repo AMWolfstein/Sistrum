@@ -177,107 +177,107 @@ final _filters =
 /// Library order, filter or paging SQL changed.
 const _expectedDigests = <String, String>{
   'sort:latest':
-      '32ffe03bb221e2fc726157498930566e85940a10bf20aceba69514b433a0e6d5',
+      '7535da954cd81ccea0d6d17ff94880c6d7e72531179167088ed23a8e72ccc38c',
   'sort:oldest':
-      'ba51c4e62b17d822161346ee6ced68794b782fcb5cbafe4fb0e4c08c5f18a4ee',
+      '22c297b6a7ba7614d57992b8ca4172c8deba1f4113c8747fe2ff96748c14df67',
   'sort:a-z':
-      '6dc7e3f325b8a9f2ae9444234f275fb0567fdb9ff2fcc65dc102645b2bcfe72e',
+      '21d93e8359d7730b4597ab75d4b7780772ca4579258c965c96135592328f737e',
   'sort:z-a':
-      '8d1361fc81213bf98e8ee6c1375771173f7b3a6f1cc7bc680ae204c0f72c520c',
+      'df42d781c554c4370bea21d44635cb32bb23fd1a6faedddad789d46eb7531775',
   'sort:artist-asc':
-      'e535993aec4175f1e00d6e74d0d4ee5d29e8b968d50c0c71299f4261ad0805a2',
+      'ae3bf3ccc74a5712bc5c4e9ff9d4b38fee40bf55d396d52f812ebe9d6ead7478',
   'sort:artist-desc':
-      '60fc7f31e3f897fbccea4a00e41440e2dc5f32b02f54f7af3b5af9ee443912b1',
+      '92a512806cf4f1e34b53708c5c670f007658d7b8d62ffcba888dbcd49e08f981',
   'sort:album-asc':
-      'a987ba7eb7473f3b1548fcae81b762ec2944443fadd3663a5eec23dc262481fc',
+      'f27c15d1107b1511d1a462f1b9f3685460c7c5cdd7e4ddcd60d3d92ddaa4e220',
   'sort:album-desc':
-      'b990d8b5ef7bf71f731469caf3d7018ac4c023f9c5711e2ea118b34313032c4a',
+      '4bb703f48cdc48969c3ff0032783f97f2b81bfe0305390d64f056d19ef882576',
   'sort:release-oldest':
-      '04a5e44291f4f04e2a2c4f1b942d48173fbf7cacf71ffe12dd5d1e3ef9dd1d7d',
+      'a1bb20850d0718b93bfce03173acbcb17ec2727cb4351c7b04135fd77ee68c02',
   'sort:release-newest':
-      '63d219f44e5a2c3c67347adbc3635b74c6025c3dd6f35b26bda3612cadcc3417',
+      '8eaabfa8dc546e7932681a078a35e52e8aef703df915d9839eb570f32d5a07bd',
   'sort:genre-asc':
-      'aaae49c02f9eca25ee01161414e899aca00b3a184c1f6cce67c1f431ed89ecd6',
+      'be4ba0ed4a707d0390af7145f210cfba2f81e4f62eb286af032aff5a73d1cc21',
   'sort:genre-desc':
-      'a8658b4c0661dd131b9ba5fad68817d4163772453ca727b43506a1a3d91d8675',
+      'e6140c76fbd03598c19972c37fa285e7cfddffade5e6b33b0e9eb841ccb8b804',
   'sort:size-asc':
-      '85218343e8e68e7c05d84bff284463fee4501e3b804f547b1957b24434dee79e',
+      '7954a6e8293d60b83fd1b90289e731c97d3022624f9246176a5eeccac0428058',
   'sort:size-desc':
-      '00ef42759ab1af305bda3c4a1875038b946b181185b1bb4a46fa043460e3c771',
+      'ed87459cc57a7dca5a85065535cf3e4a1166c6917b0ddc025a4e79c7906ccd0f',
   'sort:unknown-sort':
-      '32ffe03bb221e2fc726157498930566e85940a10bf20aceba69514b433a0e6d5',
+      '7535da954cd81ccea0d6d17ff94880c6d7e72531179167088ed23a8e72ccc38c',
   'filter:default':
-      '588fbdfe505f8e2e28eb49c0c8eb9601c113b56711acc827d5be62eec261e110',
+      '309e13237177b645f725eb37105912368df3fcbe357615907f081d03a647df79',
   'filter:source-downloaded':
-      'bcf0687b3fb8a4345935596127156c48702f86d79e57d707e79223d09fe9e45a',
+      '7adfb01d33ae6cfecaaad1fe96298a4ecc3acb3d3cbaed734e6ea5355955192d',
   'filter:source-local':
-      '05bf19117ef43e986e092eed6b17021d1eac845f547bf4032563234fa92bdd6f',
+      '09a8aa5726079700497de04b799115a1c23ab8032c48c647694cb8c35cb21e12',
   'filter:source-other':
-      '783acd72fc23be72a0ca6393994089dbfa849eb1b7473c8ad06db4926aa37dba',
+      '31eef3a5e4bacaca2596ab0f672368f595111ae4a53eaa8892561633244c4338',
   'filter:no-local':
-      '96a532054acdff17e9c0fcd48c29607446648ab8bb260132a86c80c05e87d997',
+      '6d901b42bd8b2661e6a0a39394ab7762168eddb746c8e2553c6ef37bad2aeb58',
   'filter:no-local-source-local':
-      'f21523a21af020542ee3bfb4f4221caa1c76254807dd44ce84ed8a23f8d03f93',
+      '38c5cb26d76e078cbc78f029f2521956a68473ae8f4da6d43f83294bd286004b',
   'filter:singles':
-      'd6852e9e0fd84f0a6b7cf8f4bd275961d3eec58a66cb8b6923fe38e0f6d49a27',
+      'dbd45dd08707a25fbc55c9229089a2dbc4fbee00b0909c6a0065214a3fef4f02',
   'filter:singles-downloaded':
-      '9c3ce8225c4286e4030b2fe08c1b0eaf01f70499405e3ebb042921da184c8890',
+      '2221aaa71e640659817f47f2a908f1a43f9e9d5437873a7714e54ce13a569596',
   'filter:search':
-      '0f8692f517d9500cdf118f2befd974ff4adce4e937965b9895d648cc424e394d',
+      'b92fe53c99199e2ea0f022586aa9344ccef8e08543394a70344437a9bca6bdaf',
   'filter:album-artist':
-      'e7a8ad23f7a2ef3a104e71a1f6c8ee9b2339fe7dab3cfcffbf8abf61ecc51ba9',
+      'a5346f40a1f99cc3ac5575c1407edcc61e2b64b51f1477351dd0fcafa33f3ba9',
   'filter:quality-hires':
-      '46a8cb87e87ee62d7b6c66dc3923e1e73485546a2cab087282f713c5b6e8497a',
+      'c4dcb77247ed52d7d944d6a04933d37096173b13111e8f2892e578ff3cb080c8',
   'filter:quality-cd':
-      '9fdf0e47e6bbd36d8b52ac41b5e34fb3630ff6439e9ddf7e9f39f90dabcaae39',
+      'fc4662dacf83f27af75062c78e201efe80d33891cc22d64b4cf53036f06b538f',
   'filter:quality-lossy':
-      '3cd033b57e9070395fcab55c91baee6fb71ac7705e149949ca9471ac02dd8b1b',
+      '6535b00da8f9895583bc5a8384c4643ba936593737019abffe0de692bda3bcc8',
   'filter:format-m4a':
-      'cc0834da2178c5292eec12066684da0091f60e432a802d6d4fcdf71b94375c3d',
+      'eef578c038e683fdfbc9cb0324533a0d8b4313058bacd3e09d2ead3404b16211',
   'filter:format-unknown':
-      '62224678a922f14eb44be37198377e8600fc6504c9c3cda2ddeca4214a1ff54a',
+      'e75d6bb004f6fdf06a81e1c4b2fa1ae3776572d933691001b2309da26fe82e71',
   'filter:metadata-complete':
-      '30eefb58cca3ffbfbc9739e7c21200666358dc38f28c56d4c0c7df198f7a45cf',
+      '9203f42a75055c2377471efd132e4b54df9d50a3a8a8988552fb9151e1d87a17',
   'filter:metadata-missing-any':
-      'fca5b77d85db26807f8e754de4eb1051fd32977803e49f2a8d22ba4c81eed0b3',
+      '41c18f31185c4abf6713a201d34900d7bb664b459a07596b85c093e75def6cfa',
   'filter:metadata-missing-year':
-      '537fdf96ff6d2855b54708e96b9582f28ab44efd3ea0392f6277b75647ac950d',
+      'e4e4679e8f23dd1c6b1069c5547447843ee8c94160aed971667eef882af6018f',
   'filter:metadata-missing-genre':
-      '892912bb0ee18a04c5626c517e52b998b81961d0285faf1aab12d7e17eeb618d',
+      '9e8e075a60d10bebe53534725ec89ece8b489faedbc24679564e8fd58f68c744',
   'filter:metadata-missing-album-artist':
-      '3b16c825374b2794368b2c2fb5dea4fed36610bb7129cb5faf605430f9e703e8',
+      '21a3e941f66205f98e19861ba595041d87d7ae0f3206e098be51a19d74a7f64b',
   'filter:metadata-missing-track-number':
-      'a30ac80991de2f5dd01f7d51893a7becf0e55aabcfcfe99ec37ea0eb6a8b3e0b',
+      '4f804efac24d231a74411e5ebd443b94bfd1d8e887c6d3ede08c0fa222841b00',
   'filter:metadata-missing-disc-number':
-      '8af211ee809163dda4f573ca73c306418b7d0bfbca48bb57de94cf1bc555f4a0',
+      'b9d823040b119e1eaefe7286c20e7dfe8603cd86a3addb1f4ca49a3b029dd8b3',
   'filter:metadata-missing-artist':
-      '2c5f438384811ac2688495a441d4e327fb62bd7f745d1a7a2d99fc2513a44bbe',
+      '3b045fc01250c945ab8c946d73d885caf1f66ee73dd6bd02a99d06e2d8150185',
   'filter:metadata-incorrect-isrc-format':
-      '5587aa9fc740386bab925aba63a7279a06bd63dd695c91bf441fd2d518b3ff35',
+      '1563653935fda1035b90a726b32dcdd8ec51134b6a205211f5e9434c85ba8984',
   'filter:metadata-missing-isrc':
-      'cffe985e03149038be776cda5fc8b66ad67faf336912002c4b5da9981cde6c6b',
+      '4e464cb0ada2c9efbccc334b1f5dc18ed35a1bfe6b6d5c9caa3539e8f532c2c8',
   'filter:metadata-missing-label':
-      'e0ccf58e56fb3c389e77d24d6ed9b5d0dbd8fb5b65b1affff4a2a1bb222ba9cb',
+      '0d3652a2c9a7c8edff1723fd29a7de101fbfe177f91ff201821bdcc8fc380789',
   'filter:metadata-missing-lyrics':
-      'eaeed025f63fbf471bd3bee3ee605d839035ab76a9da602828e15da5bbecb029',
+      '0e76050130a59cea2c1c2b4e849691c32b5e4cb8268d81a120c6098a64179579',
   'filter:metadata-has-replaygain':
-      '1c6414ef775ee02fcddd82d9ed9e58be033864333a2f2126f93ed60a91a4c836',
+      '0fdf365e12db280479da8b9336e076bec1d006a8ad329800fe8e6e4b3afadb55',
   'filter:metadata-missing-replaygain':
-      'fa4beb256c70e92c0db69cf291e9dc1d95305b3dad546e961c7056b016ae879c',
+      'e24d42d25c43de9100668916ce5ec23141efb7763147cf9971436bd4fa82497e',
   'filter:metadata-incomplete-album':
-      'dbe5b04dd8db92ec4179b828f8372aa1923c38e33eaf08447bacf82f03c53e32',
+      '5cb0d8b716b5720763682c976d1f7abf932a16b9a5f04d98c4cbb2e47db7e66d',
   'filter:metadata-unknown-album-completeness':
-      'f774eb5d629f9e40d3e91d50cc4e16524c375de28bce3318d711819f36cc79ba',
+      '389a2dda95f5e8fbac20c3f2e5db113590a6d77d0c2ccf32ec80748d95d5e811',
   'filter:metadata-unknown-metadata':
-      'adcc6c742e3e6003d23425bc3617a72c1db949223a825e761627ec6e3543f976',
+      '25828b8c42cad08f4099a920c4d9ce34cd7fb8096457cc111b089963d97f37fb',
   'filter:single-track-albums':
-      'f7c4131a9762c5cd6dab93fad84a4577220036df832555bebcff43dee227f7ce',
+      '804dea09bfbc56c890ee3efe25e0ba635fe65dd54353a0c8e847e5d022b0a223',
   'filter:single-track-albums-incomplete':
-      'dbe5b04dd8db92ec4179b828f8372aa1923c38e33eaf08447bacf82f03c53e32',
+      '5cb0d8b716b5720763682c976d1f7abf932a16b9a5f04d98c4cbb2e47db7e66d',
   'filter:combined':
-      '23a99ebca4c6b1e0b6e03fdeb9e97e9b8d0a0098c207e335e2ed2c2e46725c8b',
+      'c4fb57b7f221cb6f990b656ce52a73cc7d6653eb1a4f72260695e813207cd5b1',
   'filter:combined-local':
-      'd7c9aa378ceae1cca072ef96602a5e54695736bc90e9d2c4a7cd91dfd938761e',
+      'ba298ea7de986eab3c030b83e5476a5d356e82cec095c600c08427e5069e6118',
 };
 
 /// Each shadow check of the snapshot SQL, with the row check it replaces.

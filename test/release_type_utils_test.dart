@@ -2,30 +2,57 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/utils/release_type_utils.dart';
 
 void main() {
-  test('a stored album type decides, with single and ep as singles', () {
+  test('the track total tag sets the kind: 1-3 Single, 4-6 EP, 7+ Album', () {
+    for (final total in [1, 2, 3]) {
+      expect(
+        libraryReleaseKind(totalTracks: total),
+        LibraryReleaseKind.single,
+        reason: 'total $total',
+      );
+    }
+    for (final total in [4, 5, 6]) {
+      expect(
+        libraryReleaseKind(totalTracks: total),
+        LibraryReleaseKind.ep,
+        reason: 'total $total',
+      );
+    }
+    for (final total in [7, 12]) {
+      expect(
+        libraryReleaseKind(totalTracks: total),
+        LibraryReleaseKind.album,
+        reason: 'total $total',
+      );
+    }
+  });
+
+  test('the tag decides over the name', () {
     expect(
-      isSingleRelease(albumType: 'Single', albumName: 'Album', totalTracks: 9),
-      isTrue,
+      libraryReleaseKind(totalTracks: 12, albumName: 'Night Drive - Single'),
+      LibraryReleaseKind.album,
     );
-    expect(isSingleRelease(albumType: 'ep', totalTracks: 4), isTrue);
-    expect(isSingleRelease(albumType: 'album', totalTracks: 1), isFalse);
-    // A padded stored type is not single, as the download rule has always read it.
-    expect(isSingleRelease(albumType: ' single ', totalTracks: 1), isFalse);
   });
 
-  test('without a stored type, one track is a single', () {
-    expect(isSingleRelease(totalTracks: 1), isTrue);
-    expect(isSingleRelease(totalTracks: 2), isFalse);
+  test('without a total tag a name ending in Single or EP decides', () {
+    expect(
+      libraryReleaseKind(albumName: 'Night Drive - Single'),
+      LibraryReleaseKind.single,
+    );
+    expect(
+      libraryReleaseKind(albumName: 'Night Drive - EP'),
+      LibraryReleaseKind.ep,
+    );
+    expect(
+      libraryReleaseKind(albumName: ' night drive - ep ', totalTracks: 0),
+      LibraryReleaseKind.ep,
+    );
   });
 
-  test('a release named Single or Singles is a single up to two tracks', () {
-    expect(isSingleRelease(albumName: 'Singles', totalTracks: 2), isTrue);
-    expect(isSingleRelease(albumName: 'single', totalTracks: 3), isFalse);
-    expect(isSingleRelease(albumName: 'Singles'), isTrue);
-  });
-
-  test('a plain album without a track count is not a single', () {
-    expect(isSingleRelease(albumName: 'Album'), isFalse);
-    expect(isSingleRelease(), isFalse);
+  test('without a total tag a plain name is an Album', () {
+    expect(
+      libraryReleaseKind(albumName: 'Night Drive'),
+      LibraryReleaseKind.album,
+    );
+    expect(libraryReleaseKind(), LibraryReleaseKind.album);
   });
 }

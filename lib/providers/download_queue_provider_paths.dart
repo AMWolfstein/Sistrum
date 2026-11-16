@@ -173,11 +173,32 @@ extension _DownloadQueuePaths on DownloadQueueNotifier {
     _ensuredDirs.add(path);
   }
 
-  bool _shouldTreatAsSingleRelease(Track track) => isSingleRelease(
-    albumType: track.albumType,
-    albumName: track.albumName,
-    totalTracks: track.totalTracks,
-  );
+  bool _shouldTreatAsSingleRelease(Track track) {
+    if (track.isSingle) {
+      return true;
+    }
+
+    final normalizedAlbumType = normalizeOptionalString(
+      track.albumType,
+    )?.toLowerCase();
+    if (normalizedAlbumType != null && normalizedAlbumType.isNotEmpty) {
+      return false;
+    }
+
+    final totalTracks = track.totalTracks;
+    if (totalTracks == 1) {
+      return true;
+    }
+
+    final normalizedAlbumName = normalizeOptionalString(
+      track.albumName,
+    )?.toLowerCase();
+    if (normalizedAlbumName == 'single' || normalizedAlbumName == 'singles') {
+      return totalTracks == null || totalTracks <= 2;
+    }
+
+    return false;
+  }
 
   Future<String> _buildOutputDir(
     Track track,

@@ -38,6 +38,7 @@ Future<void> _scanned(
   int? number,
   String? releaseDate,
   String? cover,
+  int? totalTracks,
 }) async {
   final json = LocalLibraryItem(
     id: id,
@@ -52,6 +53,7 @@ Future<void> _scanned(
     trackNumber: number,
     discNumber: 1,
     releaseDate: releaseDate,
+    totalTracks: totalTracks,
     format: 'flac',
   ).toJson();
   await db.insert('library', LibraryRowMapper.encode(json));
@@ -69,6 +71,7 @@ Map<String, dynamic> _download(
   String? albumArtist,
   required int number,
   String? releaseDate,
+  int? totalTracks,
   String cover = 'https://covers.example/downloads.jpg',
 }) => {
   'id': id,
@@ -85,6 +88,7 @@ Map<String, dynamic> _download(
   'discNumber': 1,
   'totalDiscs': 1,
   'releaseDate': releaseDate,
+  'totalTracks': totalTracks,
   'quality': '320 kbps',
 };
 
@@ -110,6 +114,7 @@ Future<void> _seed() async {
     number: 1,
     releaseDate: '2020-05-01',
     cover: '/covers/long.jpg',
+    totalTracks: 12,
   );
   await _scanned(
     library,
@@ -141,6 +146,31 @@ Future<void> _seed() async {
     artist: dana,
     number: 1,
     releaseDate: '2021-01-01',
+    totalTracks: 1,
+  );
+  // Two of twelve owned: the tag makes it an album.
+  for (var n = 1; n <= 2; n++) {
+    await _scanned(
+      library,
+      id: 'partial-$n',
+      name: 'Partial $n',
+      path: '/music/partial/$n.flac',
+      album: 'Partial Album',
+      artist: dana,
+      number: n,
+      releaseDate: '2016-04-04',
+      totalTracks: 12,
+    );
+  }
+  await _scanned(
+    library,
+    id: 'ep-1',
+    name: 'Night Track',
+    path: '/music/night/1.flac',
+    album: 'Night Drive - EP',
+    artist: dana,
+    number: 1,
+    releaseDate: '2015-01-01',
   );
   await _scanned(
     library,
@@ -239,6 +269,7 @@ Future<void> _seed() async {
       artist: dana,
       number: 1,
       releaseDate: '2022-03-03',
+      totalTracks: 9,
       cover: 'https://covers.example/mixtape.jpg',
     ),
     _download(
@@ -249,6 +280,7 @@ Future<void> _seed() async {
       artist: dana,
       number: 2,
       releaseDate: '2022-03-03',
+      totalTracks: 9,
       cover: 'https://covers.example/mixtape.jpg',
     ),
     _download(
@@ -337,8 +369,8 @@ void main() {
   });
 
   group('artist albums and singles', () {
-    test('albums are album-artist credits, one per album key, '
-        'singles by track count', () async {
+    test('albums are album-artist credits, one per album key, kind and '
+        'size from the total tag', () async {
       final overview = await loadLibraryArtistOverview(
         'Dana Vale',
         credits: _scope,
@@ -354,12 +386,26 @@ void main() {
           'Fallback Album',
           'Mixtape',
           'Shared Album',
+          'Partial Album',
+          'Night Drive - EP',
         ]),
       );
-      expect(byName['Long Play']!.totalTracks, 3);
+      expect(byName['Long Play']!.totalTracks, 12);
       expect(byName['Long Play']!.albumType, 'album');
+      expect(byName['Lone Single']!.totalTracks, 1);
       expect(byName['Lone Single']!.albumType, 'single');
-      expect(byName['Mixtape']!.totalTracks, 2);
+      expect(byName['Mixtape']!.totalTracks, 9);
+      expect(byName['Mixtape']!.albumType, 'album');
+      expect(byName['Partial Album']!.totalTracks, 12);
+      expect(
+        byName['Partial Album']!.albumType,
+        'album',
+        reason: 'two of twelve owned stays an album',
+      );
+      expect(byName['Night Drive - EP']!.totalTracks, 0);
+      expect(byName['Night Drive - EP']!.albumType, 'ep');
+      expect(byName['Undated Demo']!.albumType, 'album');
+      expect(byName['Undated Demo']!.totalTracks, 0);
       expect(byName['Mixtape']!.coverUrl, 'https://covers.example/mixtape.jpg');
       expect(byName['Long Play']!.coverUrl, '/covers/long.jpg');
       expect(
@@ -599,8 +645,8 @@ void main() {
         overview.albums
             .firstWhere((album) => album.name == 'Mixtape')
             .totalTracks,
-        2,
-        reason: 'the shadowed scan is not counted in the album either',
+        9,
+        reason: 'the total tag, not the copies that are owned',
       );
     });
 

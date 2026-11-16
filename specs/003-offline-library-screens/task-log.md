@@ -315,3 +315,58 @@ Open decisions (owner):
 - Scanned album covers are local file paths (T002 must show local paths).
 - Playlist and Loved providers are not refreshed by collection edits (T004 handles refresh).
 - Library tracks mapped to `Track` drop album type, total tracks and genre.
+
+## M003-T002
+
+Artist screen reads the library (FR-001, FR-002, FR-009, FR-023). Base `e8e659c`.
+Uncommitted; independent review not run; `task complete` not run.
+
+Map: refreshed first (`scratchpad/t002/map_start.json`: 34560 symbols, 1717 sources, 0 partial,
+0 unindexed) and at the end (`map_update.json`: 34616 symbols, 1719 sources, 0 partial, 0 unindexed).
+
+What changed:
+- Release type (owner rule, replaces T001's owned-count rule): `libraryReleaseKind` in
+  `lib/utils/release_type_utils.dart` (enum single/ep/album). Total tag 1-3 Single, 4-6 EP,
+  7+ Album; no tag: name ending " - Single" / " - EP", else Album. `isSingleRelease` deleted.
+  The downloader's `_shouldTreatAsSingleRelease` is restored to its pre-T001 body (identical
+  to `ea46941`), so the downloader rule is unchanged.
+- `library_queue_store.dart`: album aggregate selects `MAX(total_tracks)` (history and local).
+  `library_detail_data.dart`: `ArtistAlbum.totalTracks` is the tag; `downloadedAlbumKeys` added to
+  the overview; `loadLibraryArtistTracks` (all credited songs) shares `_creditedSongs` with Popular.
+- `ArtistScreen(library: true)`: `artist_screen.dart`, new part `artist_screen_library.dart`,
+  header/card branches in `artist_screen_widgets.dart`. Header image = imageCover, play button
+  replaces download, Shuffle and favourite stay; Latest Release (play / open); Popular rows (tap
+  plays); Albums; Singles & EPs; Compilations (horizontal track cards, tap plays). Empty sections
+  hidden. No Releases, listeners, share, discography download, selection or concerts.
+- `ArtistFeaturedAlbumCard`: `onDownload` / `onPlay`, exactly one.
+- Entry points: `openLibraryArtist` (`clickable_metadata.dart`) used by Go to artist
+  (`navigateToArtistCredits`, `extensionId` removed), the Artists list and the search artist rows
+  (`mornye_library_screen.dart`, `queue_tab.dart`). The artist-filtered library page is gone
+  (`artist` removed from the library screen and from `LibraryBrowseRequest`).
+- Strings: none removed (no ARB change).
+
+Open decisions:
+- tasks.md's note "duration only when the whole release is owned" is not implemented; the owner's
+  rule in the brief is the numeric tag rule. Owner to confirm.
+- Album tap on the library artist page is interim: `DownloadedAlbumScreen` or `LocalAlbumScreen`
+  by `downloadedAlbumKeys`. T003 replaces it and removes `downloadedAlbumKeys`.
+- `ClickableArtistName` on library rows still uses the online `navigateToArtist` lookup; only the
+  three listed entry points changed. Revisit with T006/T007 or TOR014.
+- Library artist favourite star keys by name with the default provider id (existing semantics).
+- Recently visited skips library artists (intentional).
+- Popular shows five rows without paging in library mode; online keeps its pager.
+- Downloader release rule has no direct unit test (none existed before T001).
+- No device or screenshot check.
+
+Checks (saved under scratchpad/t002/):
+- `analyze.log`: `flutter analyze lib test integration_test`, No issues found, exit 0.
+- `format.log`: `dart format --set-exit-if-changed` on 26 changed Dart files, 0 changed, exit 0.
+- `targeted.log`: task test files, 80 passed, 1 skipped, 0 failed (before the final digest update).
+- `library_artist_screen_test.dart` 7 widget tests pass; `release_type_utils_test.dart` and
+  `library_detail_data_test.dart` pass; SQL digest pins updated in `library_queue_store_sql_test.dart`
+  (51) and `library_album_filter_test.dart` (19), both pass.
+- `full.json`, `full.exit` (0), `full_counts.txt`: full `flutter test --reporter json` on the final
+  tree: 3974 passed excluding `loading` entries (7 loading, all passed), 10 skipped, 0 failed.
+  The T001 baseline on the same count basis was 3967 (3974 including loading).
+- `validate.json`: `python3 workflow/work.py validate`: PASS (3 missions, 13 reserved, 32 completed).
+- `map_update.json`: 34616 symbols, 1719 sources, 0 partial, 0 unindexed.

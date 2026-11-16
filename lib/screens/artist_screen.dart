@@ -21,12 +21,16 @@ import 'package:sistrum/widgets/artist_concerts_button.dart';
 import 'package:sistrum/widgets/artist_featured_album_card.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/utils/artist_album_sort.dart';
@@ -35,6 +39,8 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/provider_resource_ids.dart';
 import 'package:sistrum/utils/ttl_cache.dart';
 import 'package:sistrum/screens/album_screen.dart';
+import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/extension_collection_screens.dart'
     show ExtensionAlbumScreen;
 import 'package:sistrum/controllers/clickable_metadata.dart';
@@ -54,10 +60,12 @@ import 'package:sistrum/widgets/cross_extension_share_sheet.dart';
 import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/downloadable_cover.dart';
+import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 
 part 'artist_screen_widgets.dart';
 part 'artist_screen_discography.dart';
+part 'artist_screen_library.dart';
 
 class _ArtistCache {
   static final _cache = TtlCache<_CacheEntry>(
@@ -134,6 +142,10 @@ class ArtistScreen extends ConsumerStatefulWidget {
   final List<ArtistConcert> concerts;
   final String? extensionId;
 
+  /// Shows the library's artist: its albums and songs come from the library
+  /// and no online data is read. [artistId] is the artist name.
+  final bool library;
+
   const ArtistScreen({
     super.key,
     required this.artistId,
@@ -148,6 +160,7 @@ class ArtistScreen extends ConsumerStatefulWidget {
     this.topTracks,
     this.concerts = const [],
     this.extensionId,
+    this.library = false,
   });
 
   @override
@@ -215,6 +228,9 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
     _concerts = widget.concerts;
 
     _scrollController.addListener(_onScroll);
+
+    // A library artist is not an online artist, so Recently visited skips it.
+    if (widget.library) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final providerId = _effectiveMetadataProviderIdFromArtistId();
@@ -608,6 +624,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.library) return _buildLibraryArtist(context);
     return MornyeArtistSurface(
       imageSource: _headerImageUrl ?? widget.headerImageUrl ?? widget.coverUrl,
       logoSource: _headerLogoUrl ?? widget.headerLogoUrl,

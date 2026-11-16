@@ -280,43 +280,43 @@ Future<List<Object?>> _pages(
 /// of 0331d5ec, which aggregated every album for a filtered page.
 const _expectedDigests = <String, String>{
   'unfiltered':
-      '5d3ad153fdab48e2a0154acb7d72345552e46328c1350d7f8a93ffdee913b5e4',
+      '97ab635a928bdfd8c2062f7e6648a38db8f697a161d941c8f81aeb5cb19fa69c',
   'artist Aurora Lane':
-      'e73120420037546d2e851f564ca0078696ecdcaccbf67552d9564822e52e53bc',
+      '3be5b1a2daf47cc72c2520d2d9339e44f47c40213f319645ef5b0c5e7630f0a7',
   'artist Night Shift':
-      '8e6b924208a3f56ff212ec2cc7a3a80c50a8a5b76fbe73e46a7b155c23f0b4e6',
+      '8a68113880849df209c714ff4213030f09525b2097520573567fa4603f9f39da',
   'artist Paper Moons':
-      '8da8a9c0d1a980b07d2aac0f396081357765a27a3740a8bfb801465c9083b310',
+      '3454a85a70b6d57efe06449d1f0de857af4778f5ddfcee54dbc2ca758aee1782',
   'artist  NIGHT Shift ':
-      '8e6b924208a3f56ff212ec2cc7a3a80c50a8a5b76fbe73e46a7b155c23f0b4e6',
+      '8a68113880849df209c714ff4213030f09525b2097520573567fa4603f9f39da',
   'search night':
-      'ba16ecf5dbdb4193d7079eb2e08ccff1f5b825bc1bbcc3e5f3f06991b39ba724',
+      '3d9e87c618a7fdb6b273ae7a963760e539b5bdaa3c331704119727417681cbc6',
   'search moons':
-      '8da8a9c0d1a980b07d2aac0f396081357765a27a3740a8bfb801465c9083b310',
+      '3454a85a70b6d57efe06449d1f0de857af4778f5ddfcee54dbc2ca758aee1782',
   'quality hires':
-      '775b6f7f3fa283575b8d2bd8225472405407a2f2663eadd47a7a0c4bec76a182',
+      '5a652e13184594fc7fcadc293e1e3073843e7b35718565830d75645073fd9f64',
   'quality cd':
-      '506f7a2e0e91b7affba6f0ac2ca1455fa7199c2f6eb7f06a98c32193967a4ec6',
+      'ee452e730d15cd8202eb510a0e48b702f9c1bd606aef1be2945aaab83445d64e',
   'quality lossy':
-      '8287855418a2632208b471d263b49ccd3690a5bd1d2076b4c27f982b8a1b32ef',
+      'c5f3f2112f63a50f9954e17cdb087040445019291d345c6273ffcb06faa1e8f7',
   'format flac':
-      '156e674f4a93cf5204c8b495e30433c45d806d59fbfb7f585e8e998636721b6c',
+      'fd54633fec45a10bab5ca5d23ececb9846fe5781f1b944a1717c1b580db5d346',
   'format m4a':
-      'd5f7fe651bc878e027edc2fb3d59bf93a76e5267d0a6278cb6d08410e8b55ce1',
+      'fe90f44b048c3eae120ada80624d154d185cdbb7f9de6eb97a4ac5951eac4997',
   'metadata missing-genre':
-      'c3e9bc564e69b869bda8ca107b65f62e430609713179d44715995cca12febb9c',
+      'a133962baa15a6e250981697c347c31c8a8ea2a287fed69014de06d94d800f7d',
   'metadata complete':
-      '1376ca7f6d4e4cf950634feadf805b56c872848e9206153806bfb2618bb0eb25',
+      '8df07c5d401fbb006d352deb877c012862911be48b598ec441def411206e1c89',
   'metadata incorrect-isrc-format':
-      'd4520fb9562b3a6b1bfd307bdabf3273266a04baa475d7aed586ca3cbf35c8c7',
+      '3788fe1b3e4a0ce9bc43493764994cb58d51a2a5b917974fe36307ac583f772d',
   'metadata incomplete-album':
-      'a4c24e8349b7aa6363c11465423d0a6694243c102f40fd22fde8b99bd3259bff',
+      '46d3899a617240bf0b20056b89bc791d1a5aa2bc7bf200fb7dc930d98d8a517b',
   'metadata unknown-album-completeness':
-      'b2065ca9d3d727e9aca8fd1348db214bc115a5a9c1141cea79f70a8fa15b9b7e',
+      'd6103617d467f45d98ec181e4e98ea2fa91fed76f2d01e0da680d0d5818b4ad9',
   'artist and search':
-      '6dddb60797543b4d5b79f0a39dcbb49bcf95c1eb152c9e5f0ff80de776fefded',
+      '07fe0c6a52d430792dfd4bcdbf2bb40f720c20eeca48c28e4ed139f3d80147ee',
   'artist and completeness':
-      'fdb1eddecb5b55aaedaa735be82fa617b33ec36bc2d8c879739a73b4bf278de6',
+      '5e937fb67a9f819719f50edefc24075b6cb2a8b967301d82d2cdf633df0c63db',
 };
 
 void main() {

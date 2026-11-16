@@ -43,7 +43,6 @@ void main() {
         artists: false,
         sort: 'a-z',
         search: '',
-        artist: null,
         completeness: null,
         limit: 40,
       );
@@ -87,7 +86,6 @@ void main() {
           artists: false,
           sort: 'a-z',
           search: '',
-          artist: null,
           completeness: null,
           limit: 2000,
         ),
@@ -131,53 +129,21 @@ void main() {
     () async {
       await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
       for (final scenario in [
+        (artists: false, sort: 'a-z', search: '', completeness: null),
+        (artists: false, sort: 'latest', search: '', completeness: null),
+        (artists: true, sort: 'a-z', search: '', completeness: null),
+        (artists: false, sort: 'a-z', search: 'Album 00', completeness: null),
+        (artists: false, sort: 'latest', search: '', completeness: null),
         (
           artists: false,
           sort: 'a-z',
           search: '',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'latest',
-          search: '',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: true,
-          sort: 'a-z',
-          search: '',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'a-z',
-          search: 'Album 00',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'latest',
-          search: '',
-          artist: 'Artist 0001',
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'a-z',
-          search: '',
-          artist: null,
           completeness: incompleteAlbumFilter,
         ),
         (
           artists: false,
           sort: 'latest',
           search: 'Album',
-          artist: null,
           completeness: unknownAlbumCompletenessFilter,
         ),
       ]) {
@@ -185,7 +151,6 @@ void main() {
           artists: scenario.artists,
           sort: scenario.sort,
           search: scenario.search,
-          artist: scenario.artist,
           completeness: scenario.completeness,
           limit: 40,
         );
@@ -223,7 +188,6 @@ void main() {
               artists: request.artists,
               sort: request.sort,
               search: request.search,
-              artist: request.artist,
               completeness: request.completeness,
               limit: 2000,
             ),
@@ -251,7 +215,6 @@ void main() {
           );
           if (!request.artists &&
               request.search.isEmpty &&
-              request.artist == null &&
               request.completeness == null) {
             expect(actual, hasLength(1000));
             expect(reads.skip(1).every((page) => page.cursor != null), true);

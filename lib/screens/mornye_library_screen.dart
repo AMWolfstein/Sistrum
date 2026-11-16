@@ -32,12 +32,10 @@ class MornyeLibraryScreen extends ConsumerStatefulWidget {
     super.key,
     required this.onOpenSection,
     this.page = MornyeLibraryPage.overview,
-    this.artist,
   });
 
   final ValueChanged<String> onOpenSection;
   final MornyeLibraryPage page;
-  final String? artist;
 
   @override
   ConsumerState<MornyeLibraryScreen> createState() =>
@@ -59,7 +57,6 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   bool get _artists => widget.page == MornyeLibraryPage.artists;
   LibraryBrowseRequest get _request => (
     artists: _artists,
-    artist: widget.artist,
     search: _query,
     sort: _sort,
     limit: 40,
@@ -100,13 +97,12 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
     });
   }
 
-  void _openPage(MornyeLibraryPage page, {String? artist}) {
+  void _openPage(MornyeLibraryPage page) {
     pushPage<void>(
       context,
       (_) => Scaffold(
         body: MornyeLibraryScreen(
           page: page,
-          artist: artist,
           onOpenSection: widget.onOpenSection,
         ),
       ),
@@ -272,13 +268,11 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
         : ref.watch(libraryBrowseProvider(_request));
     _loading = result.isLoading || (result.value?.isLoadingMore ?? false);
     if (result.hasValue) _rows = result.requireValue.entries;
-    final title =
-        widget.artist ??
-        (_overview
-            ? context.l10n.navLibrary
-            : _artists
-            ? context.l10n.searchArtists
-            : context.l10n.searchAlbums);
+    final title = _overview
+        ? context.l10n.navLibrary
+        : _artists
+        ? context.l10n.searchArtists
+        : context.l10n.searchAlbums;
     final actions = <Widget>[
       if (_overview) const OpenAudioButton(),
       IconButton(
@@ -369,8 +363,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
           if (searchingLibrary)
             LibrarySearchResults(
               query: _query,
-              onOpenArtist: (artist) =>
-                  _openPage(MornyeLibraryPage.albums, artist: artist),
+              onOpenArtist: (artist) => openLibraryArtist(context, artist),
             ),
           if (!searchingLibrary) ...[
             if (_overview && _query.isEmpty)
@@ -484,10 +477,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                   itemCount: _rows.length,
                   itemBuilder: (context, index) {
                     final entry = _rows[index];
-                    void open() => _openPage(
-                      MornyeLibraryPage.albums,
-                      artist: entry.artist,
-                    );
+                    void open() => openLibraryArtist(context, entry.artist);
                     return Column(
                       children: [
                         ListTile(

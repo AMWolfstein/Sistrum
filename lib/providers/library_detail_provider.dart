@@ -17,6 +17,18 @@ final libraryArtistOverviewProvider = FutureProvider.autoDispose
       ),
     );
 
+/// Every song that credits the library artist, in library order.
+final libraryArtistTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>(
+      (ref, artist) => loadLibraryArtistTracks(
+        artist,
+        credits: ref.watch(tagCreditScopeProvider),
+        includeLocal: ref.watch(
+          settingsProvider.select((s) => s.localLibraryEnabled),
+        ),
+      ),
+    );
+
 /// The songs where the library artist is featured, for Compilations.
 final libraryArtistFeaturedTracksProvider = FutureProvider.autoDispose
     .family<List<Track>, String>(

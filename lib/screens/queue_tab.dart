@@ -63,7 +63,6 @@ import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
-import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/completion_bridge_tracker.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
@@ -731,16 +730,8 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                       slivers: [
                         LibrarySearchResults(
                           query: _searchQuery,
-                          onOpenArtist: (artist) => pushPage<void>(
-                            context,
-                            (_) => Scaffold(
-                              body: MornyeLibraryScreen(
-                                page: MornyeLibraryPage.albums,
-                                artist: artist,
-                                onOpenSection: (_) {},
-                              ),
-                            ),
-                          ),
+                          onOpenArtist: (artist) =>
+                              openLibraryArtist(context, artist),
                         ),
                         const NavBarSliverSpacer(),
                       ],

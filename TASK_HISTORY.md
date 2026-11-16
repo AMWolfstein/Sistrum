@@ -32,3 +32,4 @@
 - M003-T012 — Tag separators for artist and genre credits
 - M003-T014 — Refresh the library row after a metadata save
 - M003-T001 — Library data for the detail screens
+- M003-T002 — Artist screen reads the library

@@ -134,7 +134,6 @@ Future<void> navigateToArtistCredits(
   BuildContext context, {
   required String artistNames,
   String? artistIds,
-  String? extensionId,
 }) async {
   final rules = ProviderScope.containerOf(
     context,
@@ -162,11 +161,19 @@ Future<void> navigateToArtistCredits(
           ),
         );
   if (!context.mounted || selected == null) return;
-  await navigateToArtist(
+  openLibraryArtist(context, selected.name);
+}
+
+/// Opens the library's artist page: its albums and songs come from the
+/// library's own files.
+void openLibraryArtist(BuildContext context, String artistName) {
+  pushViaPreferredNavigator(
     context,
-    artistName: selected.name,
-    artistId: selected.artistId,
-    extensionId: extensionId,
+    (context) => ArtistScreen(
+      artistId: artistName,
+      artistName: artistName,
+      library: true,
+    ),
   );
 }
 

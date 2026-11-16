@@ -24,7 +24,6 @@ class _Local extends LocalLibraryNotifier {
 Future<void> _browseAndClose(ProviderContainer container, String search) async {
   final provider = libraryBrowseProvider((
     artists: false,
-    artist: null,
     search: search,
     sort: 'a-z',
     limit: 40,

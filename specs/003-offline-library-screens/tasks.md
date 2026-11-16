@@ -66,7 +66,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/services/library_database*.dart`, `lib/providers/` (new library detail
     providers), `lib/utils/artist_utils.dart` (reuse), tests.
 
-- [ ] M003-T002 Artist screen reads the library
+- [x] M003-T002 Artist screen reads the library
   - Release type (owner): Album, Single or EP from the release's track total tag
     (`total_tracks`), not the tracks owned, as Apple Music does: 1-3 Single, 4-6 EP,
     7+ Album; duration only when the whole release is owned; no tag: a name ending in

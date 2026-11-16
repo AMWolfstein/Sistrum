@@ -21,9 +21,15 @@ const _pageSize = 500;
 /// A library artist's albums and singles: the albums the artist is the album
 /// artist of, one entry per album key.
 class LibraryArtistOverview {
-  const LibraryArtistOverview(this.albums);
+  const LibraryArtistOverview(
+    this.albums, {
+    this.downloadedAlbumKeys = const {},
+  });
 
   final List<ArtistAlbum> albums;
+
+  /// Keys of the albums with a downloaded copy, which open the downloaded page.
+  final Set<String> downloadedAlbumKeys;
 
   /// The newest album by release date. Undated albums never qualify.
   ArtistAlbum? get latestRelease {
@@ -63,9 +69,14 @@ Future<LibraryArtistOverview> loadLibraryArtistOverview(
   for (final row in rows) {
     byKey.putIfAbsent(row['album_key'] as String? ?? '', () => []).add(row);
   }
-  return LibraryArtistOverview([
-    for (final copies in byKey.values) _libraryAlbum(copies),
-  ]);
+  return LibraryArtistOverview(
+    [for (final copies in byKey.values) _libraryAlbum(copies)],
+    downloadedAlbumKeys: {
+      for (final entry in byKey.entries)
+        if (entry.value.any((row) => row['queue_source'] == 'downloaded'))
+          entry.key,
+    },
+  );
 }
 
 /// The tracks where the artist is a track artist but not the album artist.
@@ -88,6 +99,20 @@ Future<List<Track>> loadLibraryArtistFeaturedTracks(
   return [for (final row in rows) ?_libraryItem(row)?.toTrack()];
 }
 
+/// Every song that credits the artist, in library order: the play-all list.
+Future<List<Track>> loadLibraryArtistTracks(
+  String artist, {
+  required TagCreditScope credits,
+  required bool includeLocal,
+}) async {
+  final songs = await _creditedSongs(
+    artist,
+    credits: credits,
+    includeLocal: includeLocal,
+  );
+  return [for (final song in songs) song.toTrack()];
+}
+
 /// The artist's most-played songs, filled up with random songs of the artist
 /// to [libraryPopularTrackCount]. Plays are all-time and matched by file path,
 /// the key the statistics record; with [useStatistics] off, only random songs.
@@ -98,18 +123,11 @@ Future<List<Track>> loadLibraryArtistPopularTracks(
   required bool useStatistics,
   Random? random,
 }) async {
-  final rows = await _allRows(
-    (cursor) => LibraryDatabase.instance.getQueueTrackPageResult(
-      _artistQuery(
-        artist,
-        credits: credits,
-        includeLocal: includeLocal,
-        role: LibraryArtistCredit.credited,
-        cursor: cursor,
-      ),
-    ),
+  final songs = await _creditedSongs(
+    artist,
+    credits: credits,
+    includeLocal: includeLocal,
   );
-  final songs = [for (final row in rows) ?_libraryItem(row)];
   final plays = useStatistics && songs.isNotEmpty
       ? await ListeningStatisticsStore.instance.read(
           (db) => readPlaysForTracks(db, songs.map((song) => song.filePath)),
@@ -164,6 +182,26 @@ Future<List<Track>> loadLibraryAlbumTracks(
   ).tracks.toList(growable: false);
 }
 
+/// The songs that credit [artist] in any role, read page by page.
+Future<List<UnifiedLibraryItem>> _creditedSongs(
+  String artist, {
+  required TagCreditScope credits,
+  required bool includeLocal,
+}) async {
+  final rows = await _allRows(
+    (cursor) => LibraryDatabase.instance.getQueueTrackPageResult(
+      _artistQuery(
+        artist,
+        credits: credits,
+        includeLocal: includeLocal,
+        role: LibraryArtistCredit.credited,
+        cursor: cursor,
+      ),
+    ),
+  );
+  return [for (final row in rows) ?_libraryItem(row)];
+}
+
 QueueLibraryDbQuery _artistQuery(
   String artist, {
   required TagCreditScope credits,
@@ -210,15 +248,14 @@ UnifiedLibraryItem? _libraryItem(Map<String, dynamic> row) {
 }
 
 /// One album from its copies: a downloaded and a scanned copy of the same key
-/// are one album. The library stores no album type, so the download rule
-/// decides from the track count.
+/// are one album. Its size and kind come from the track total tag, not the
+/// tracks owned; a missing tag gives no count.
 ArtistAlbum _libraryAlbum(List<Map<String, dynamic>> copies) {
   final first = copies.first;
   final name = first['album_name'] as String? ?? '';
-  final trackCount = copies.fold<int>(
-    0,
-    (sum, row) => sum + ((row['track_count'] as num?)?.toInt() ?? 0),
-  );
+  final totalTracks = copies
+      .map((row) => (row['total_tracks'] as num?)?.toInt() ?? 0)
+      .fold<int>(0, max);
   final cover = copies
       .expand((row) => [row['cover_path'], row['cover_url']])
       .whereType<String>()
@@ -230,11 +267,12 @@ ArtistAlbum _libraryAlbum(List<Map<String, dynamic>> copies) {
     releaseDate: copies
         .map((row) => row['sort_release'] as String? ?? '')
         .reduce((a, b) => a.compareTo(b) >= 0 ? a : b),
-    totalTracks: trackCount,
+    totalTracks: totalTracks,
     coverUrl: cover,
-    albumType: isSingleRelease(albumName: name, totalTracks: trackCount)
-        ? 'single'
-        : 'album',
+    albumType: libraryReleaseKind(
+      albumName: name,
+      totalTracks: totalTracks,
+    ).name,
     artists: first['artist_name'] as String? ?? '',
   );
 }

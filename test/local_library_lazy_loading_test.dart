@@ -357,7 +357,6 @@ void main() {
       ));
       final browse = libraryBrowseProvider((
         artists: false,
-        artist: null,
         search: '',
         sort: 'latest',
         limit: 40,

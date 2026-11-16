@@ -6,7 +6,8 @@ import 'package:sistrum/utils/editorial_notes.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 
-/// The artist's newest album, with a short note and a download action.
+/// The artist's newest album, with a short note and one action: download on
+/// an online artist page, play on the library's.
 ///
 /// The note is the provider's editorial text. Most providers have none, and
 /// those albums describe themselves by their type, year and track count.
@@ -15,13 +16,18 @@ class ArtistFeaturedAlbumCard extends StatefulWidget {
     super.key,
     required this.album,
     required this.onTap,
-    required this.onDownload,
+    this.onDownload,
+    this.onPlay,
     this.loadMetadata,
-  });
+  }) : assert(
+         (onDownload == null) != (onPlay == null),
+         'Give exactly one of onDownload and onPlay',
+       );
 
   final ArtistAlbum album;
   final VoidCallback onTap;
-  final VoidCallback onDownload;
+  final VoidCallback? onDownload;
+  final VoidCallback? onPlay;
 
   /// Reads the album's metadata for its editorial note; null when no provider
   /// can be asked.
@@ -143,12 +149,16 @@ class _ArtistFeaturedAlbumCardState extends State<ArtistFeaturedAlbumCard> {
                 ),
                 const SizedBox(width: 12),
                 HeaderCircleButton(
-                  icon: CupertinoIcons.arrow_down,
+                  icon: widget.onPlay != null
+                      ? CupertinoIcons.play_fill
+                      : CupertinoIcons.arrow_down,
                   buttonSize: 32,
                   iconSize: 16,
                   tonal: true,
-                  tooltip: l10n.dialogDownload,
-                  onPressed: widget.onDownload,
+                  tooltip: widget.onPlay != null
+                      ? l10n.tooltipPlay
+                      : l10n.dialogDownload,
+                  onPressed: widget.onPlay ?? widget.onDownload,
                 ),
               ],
             ),
