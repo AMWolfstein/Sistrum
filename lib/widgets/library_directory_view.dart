@@ -8,7 +8,6 @@ import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_directory_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -16,7 +15,6 @@ import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_directory_index.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -32,7 +30,6 @@ import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/track_card.dart';
@@ -112,12 +109,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   Widget _buildSelectionBar(BuildContext _) {
     final items = _selectedItems;
     final allSelected = _items.isNotEmpty && items.length == _items.length;
-    final flacEligible = items.every((item) => item.localItem != null)
-        ? items
-              .map((item) => item.localItem!)
-              .where(LocalTrackRedownloadService.isFlacUpgradeEligible)
-              .toList(growable: false)
-        : const <LocalLibraryItem>[];
     return LibraryTrackSelectionBar(
       playbackActions: LibrarySelectionPlaybackActions(
         items: items,
@@ -130,15 +121,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           ? exitSelectionMode
           : () => selectAll(_items.map((item) => item.id)),
       bottomPadding: MediaQuery.paddingOf(context).bottom,
-      flacEligibleCount: flacEligible.length,
-      onQueueFlac: () => queueLocalTracksAsFlac(
-        context,
-        ref,
-        flacEligible,
-        isActive: () => mounted,
-        onComplete: exitSelectionMode,
-      ),
-      onReEnrich: () => _reEnrich(items),
       onConvert: () => showBatchConvertSheet(
         context,
         ref,
@@ -161,17 +143,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       onDelete: () => _delete(items),
     );
   }
-
-  Future<void> _reEnrich(List<UnifiedLibraryItem> items) =>
-      reEnrichLibraryTracks(
-        context,
-        ref,
-        items,
-        isActive: () => mounted,
-        onSelectionHide: () async => _hideSelectionBar(),
-        onSelectionRestore: _restoreSelectionBar,
-        onComplete: _finishSelectionAction,
-      );
 
   Future<void> _delete(List<UnifiedLibraryItem> items) => deleteLibraryTracks(
     context,
@@ -352,14 +323,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     shuffleTooltip: context.l10n.actionShuffle,
     onPlay: () => _playFolder(folder),
     onShuffle: () => _playFolder(folder, shuffle: true),
-    onDownload: !folder.key.startsWith('network://')
-        ? null
-        : () async {
-            final items = await ref.read(libraryDirectoryItemsLoaderProvider)(
-              folder.allTracks,
-            );
-            if (mounted) await saveNetworkOffline(context, ref, items);
-          },
   );
 
   List<Widget> _buildFolder(

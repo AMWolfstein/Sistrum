@@ -7,14 +7,11 @@ import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/library_database_models.dart'
-    show LocalLibraryItem;
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_mixes.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -188,20 +185,11 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
     );
   }
 
-  /// The Library selection bar of the album pages: playback, FLAC upgrade,
-  /// re-enrich, convert, ReplayGain and delete.
+  /// The Library selection bar of the album pages: playback, convert,
+  /// ReplayGain and delete.
   Widget _buildSelectionBar(BuildContext context, List<String> ids) {
     final items = _selectedItems;
     final allSelected = ids.isNotEmpty && selectedIds.length == ids.length;
-    final flacEligible = items.every((item) => item.localItem != null)
-        ? [
-            for (final item in items)
-              if (LocalTrackRedownloadService.isFlacUpgradeEligible(
-                item.localItem!,
-              ))
-                item.localItem!,
-          ]
-        : const <LocalLibraryItem>[];
     return LibraryTrackSelectionBar(
       selectedCount: selectedIds.length,
       allSelected: allSelected,
@@ -214,15 +202,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         items: items,
         onClose: exitSelectionMode,
       ),
-      flacEligibleCount: flacEligible.length,
-      onQueueFlac: () => queueLocalTracksAsFlac(
-        context,
-        ref,
-        flacEligible,
-        isActive: () => mounted,
-        onComplete: exitSelectionMode,
-      ),
-      onReEnrich: _reEnrichSelected,
       onConvert: () => _convertSelected(context),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
@@ -233,20 +212,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       onDelete: _deleteSelected,
     );
   }
-
-  Future<void> _reEnrichSelected() => reEnrichLibraryTracks(
-    context,
-    ref,
-    _selectedItems,
-    isActive: () => mounted,
-    onSelectionHide: () async {
-      setState(() => isSelectionMode = false);
-      // Allow the selection bar's 250 ms slide-out to finish.
-      await Future<void>.delayed(const Duration(milliseconds: 300));
-    },
-    onSelectionRestore: () => setState(() => isSelectionMode = true),
-    onComplete: exitSelectionMode,
-  );
 
   Future<void> _convertSelected(BuildContext context) => showBatchConvertSheet(
     context,

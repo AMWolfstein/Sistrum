@@ -3387,35 +3387,6 @@
   "@trackReEnrichFfmpegFailed": {
     "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
-  "queueFlacAction": "加入FLAC队列",
-  "@queueFlacAction": {
-    "description": "Action/button label for queueing FLAC redownloads for local tracks"
-  },
-  "queueFlacConfirmMessage": "为所选曲目搜索在线匹配并加入FLAC下载队列。\n\n现有文件不会被修改或删除。\n\n仅自动加入高置信度匹配。\n\n已选择 {count} 个",
-  "@queueFlacConfirmMessage": {
-    "description": "Confirmation dialog body before queueing FLAC redownloads for local tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "queueFlacNoReliableMatches": "未为所选内容找到可靠的在线匹配",
-  "@queueFlacNoReliableMatches": {
-    "description": "Snackbar when no safe FLAC redownload matches were found"
-  },
-  "queueFlacQueuedWithSkipped": "已添加 {addedCount} 首曲目到队列，跳过 {skippedCount} 首",
-  "@queueFlacQueuedWithSkipped": {
-    "description": "Snackbar when some selected local tracks were queued for FLAC redownload and some were skipped",
-    "placeholders": {
-      "addedCount": {
-        "type": "int"
-      },
-      "skippedCount": {
-        "type": "int"
-      }
-    }
-  },
   "trackSaveFailed": "失败：{error}",
   "@trackSaveFailed": {
     "description": "Snackbar when save operation fails",
@@ -3743,24 +3714,6 @@
       }
     }
   },
-  "collectionAddedToWishlist": "「{trackName}」已添加到心愿单",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "「{trackName}」已从心愿单中移除",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionAddedToFavoriteArtists": "「{artistName}」已添加到收藏艺术家",
   "@collectionAddedToFavoriteArtists": {
     "description": "Snackbar after adding artist to favorite artists",
@@ -3786,14 +3739,6 @@
   "trackOptionRemoveFromLoved": "从收藏移除",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
-  },
-  "trackOptionAddToWishlist": "添加到心愿单",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "从心愿单移除",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
   },
   "artistOptionAddToFavorites": "添加到收藏艺术家",
   "@artistOptionAddToFavorites": {
@@ -5605,10 +5550,6 @@
   "downloadQualityVariantsDescription": "保留每个质量版本；仅当名称已被使用时，将其测量质量添加到文件名",
   "@downloadQualityVariantsDescription": {
     "description": "Description for retaining multiple quality versions"
-  },
-  "trackOptionDownloadQualityVariant": "下载其他质量",
-  "@trackOptionDownloadQualityVariant": {
-    "description": "Track menu action to download another quality version"
   },
   "downloadFallbackExtensions": "回退扩展",
   "@downloadFallbackExtensions": {

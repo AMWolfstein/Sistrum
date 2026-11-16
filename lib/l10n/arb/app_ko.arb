@@ -3387,35 +3387,6 @@
   "@trackReEnrichFfmpegFailed": {
     "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
-  "queueFlacAction": "FLAC 다운로드 목록",
-  "@queueFlacAction": {
-    "description": "Action/button label for queueing FLAC redownloads for local tracks"
-  },
-  "queueFlacConfirmMessage": "선택한 트랙에 대한 온라인 일치 항목을 검색하고 FLAC을 다운로드 목록에 추가합니다\n\n기존 파일은 수정되거나 삭제되지 않습니다\n\n신뢰도가 높은 일치 항목만 자동으로 대기열에 추가됩니다\n\n{count} 개가 선택되었습니다",
-  "@queueFlacConfirmMessage": {
-    "description": "Confirmation dialog body before queueing FLAC redownloads for local tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "queueFlacNoReliableMatches": "선택한 항목에 대한 신뢰할 수 있는 온라인 일치 항목을 찾을 수 없음",
-  "@queueFlacNoReliableMatches": {
-    "description": "Snackbar when no safe FLAC redownload matches were found"
-  },
-  "queueFlacQueuedWithSkipped": "다운로드 목록에 {addedCount} 개의 트랙을 추가하고, {skippedCount} 개의 트랙을 건너뜀",
-  "@queueFlacQueuedWithSkipped": {
-    "description": "Snackbar when some selected local tracks were queued for FLAC redownload and some were skipped",
-    "placeholders": {
-      "addedCount": {
-        "type": "int"
-      },
-      "skippedCount": {
-        "type": "int"
-      }
-    }
-  },
   "trackSaveFailed": "실패: {error}",
   "@trackSaveFailed": {
     "description": "Snackbar when save operation fails",
@@ -3743,24 +3714,6 @@
       }
     }
   },
-  "collectionAddedToWishlist": "'{trackName}'가 위시리스트에 추가됨",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "'{trackName}'가 위시리스트에서 제거됨",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionAddedToFavoriteArtists": "'{artistName}'가 좋아하는 아티스트에 추가됨",
   "@collectionAddedToFavoriteArtists": {
     "description": "Snackbar after adding artist to favorite artists",
@@ -3786,14 +3739,6 @@
   "trackOptionRemoveFromLoved": "좋아요 표시한 음악에서 제거",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
-  },
-  "trackOptionAddToWishlist": "위시리스트에 추가",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "위시리스트에서 제거",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
   },
   "artistOptionAddToFavorites": "즐겨찾는 아티스트에 추가",
   "@artistOptionAddToFavorites": {
@@ -5605,10 +5550,6 @@
   "downloadQualityVariantsDescription": "모든 화질 버전을 유지하고, 같은 파일 이름이 이미 있는 경우에만 측정된 화질을 파일 이름에 추가합니다",
   "@downloadQualityVariantsDescription": {
     "description": "Description for retaining multiple quality versions"
-  },
-  "trackOptionDownloadQualityVariant": "다른 음질 다운로드",
-  "@trackOptionDownloadQualityVariant": {
-    "description": "Track menu action to download another quality version"
   },
   "downloadFallbackExtensions": "대체 확장 기능",
   "@downloadFallbackExtensions": {

@@ -938,12 +938,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         .whereType<UnifiedLibraryItem>()
         .toList(growable: false);
   }
-
-  bool _isLocalOnlySelection(List<UnifiedLibraryItem> allItems) {
-    final selectedItems = _selectedItemsFromAll(allItems);
-    return selectedItems.isNotEmpty &&
-        selectedItems.every((item) => item.localItem != null);
-  }
 }
 
 /// What a Library page derives from one list of loaded songs.

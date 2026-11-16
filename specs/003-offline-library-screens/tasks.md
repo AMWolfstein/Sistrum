@@ -119,7 +119,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/screens/queue_tab_item_widgets.dart`, `lib/widgets/library_directory_view.dart`,
     `lib/widgets/track_list_tile.dart` or `track_card.dart`, tests.
 
-- [ ] M003-T007 Offline-only track menus
+- [x] M003-T007 Offline-only track menus
   - Acceptance: FR-008 for the pages of this feature, research R5 lists.
   - Paths: `lib/widgets/track_collection_quick_actions.dart`,
     `lib/widgets/track_lists/library_track_menu.dart`, `context_menu.dart`, tests.

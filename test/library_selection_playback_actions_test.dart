@@ -89,7 +89,6 @@ void main() {
                   onClose: () => closed = true,
                   onToggleSelectAll: () {},
                   bottomPadding: 0,
-                  onReEnrich: () {},
                   onConvert: () {},
                   onReplayGain: ({required remove}) {},
                   onDelete: () {},
@@ -105,6 +104,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
+      expect(find.byIcon(Icons.download_for_offline_outlined), findsNothing);
+      expect(find.byIcon(Icons.cloud_upload_outlined), findsNothing);
       await tester.tap(find.text('Play next'));
       await tester.pumpAndSettle();
       expect(controller.enqueued, items.map((item) => item.id));

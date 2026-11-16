@@ -229,8 +229,6 @@ extension _PlaylistLibrarySections on _PlaylistScreenState {
           ),
         if (!editingOrder) ...[
           if (!isSelectionMode && hasTracks)
-            NetworkOfflineTracksButton(tracks: tracks),
-          if (!isSelectionMode && hasTracks)
             HeaderCircleButton(
               icon: Icons.ios_share,
               iconSize: 20,

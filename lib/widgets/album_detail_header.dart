@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderProxySliver;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/widgets/mornye_glass_lens_fade.dart';
-import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
@@ -407,7 +406,6 @@ class AlbumPlayActions extends StatelessWidget {
     required this.onPlay,
     required this.onShuffle,
     this.isPlaying = false,
-    this.onDownload,
     this.compact = false,
   });
 
@@ -416,8 +414,6 @@ class AlbumPlayActions extends StatelessWidget {
   final VoidCallback onPlay;
   final VoidCallback onShuffle;
   final bool isPlaying;
-
-  final VoidCallback? onDownload;
 
   /// Play pill sized to its label and a round shuffle, for a row of header
   /// actions beside other buttons.
@@ -454,14 +450,6 @@ class AlbumPlayActions extends StatelessWidget {
     }
     return Row(
       children: [
-        if (onDownload != null) ...[
-          HeaderCircleButton(
-            icon: Icons.download_for_offline_outlined,
-            tooltip: context.l10n.offlineSave,
-            onPressed: onDownload,
-          ),
-          const SizedBox(width: 12),
-        ],
         Expanded(
           child: HeaderFilledButton(
             icon: isPlaying

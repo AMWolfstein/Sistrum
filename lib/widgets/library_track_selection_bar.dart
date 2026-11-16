@@ -5,7 +5,6 @@ import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 /// Shared Library toolbar for playlist/queue actions and audio file operations.
-/// FLAC upgrade applies only to eligible local selections.
 class LibraryTrackSelectionBar extends StatelessWidget {
   const LibraryTrackSelectionBar({
     super.key,
@@ -14,12 +13,9 @@ class LibraryTrackSelectionBar extends StatelessWidget {
     required this.onClose,
     required this.onToggleSelectAll,
     required this.bottomPadding,
-    required this.onReEnrich,
     required this.onConvert,
     required this.onReplayGain,
     required this.onDelete,
-    this.flacEligibleCount = 0,
-    this.onQueueFlac,
     this.playbackActions,
     this.albumDelete = false,
   });
@@ -29,14 +25,10 @@ class LibraryTrackSelectionBar extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onToggleSelectAll;
   final double bottomPadding;
-  final VoidCallback onReEnrich;
   final VoidCallback onConvert;
   final void Function({required bool remove}) onReplayGain;
   final VoidCallback onDelete;
 
-  /// FLAC upgrade is offered when this is positive and [onQueueFlac] is set.
-  final int flacEligibleCount;
-  final VoidCallback? onQueueFlac;
   final Widget? playbackActions;
 
   /// downloaded album labels.
@@ -71,17 +63,6 @@ class LibraryTrackSelectionBar extends StatelessWidget {
           ),
         SelectionActionGrid(
           children: [
-            if (onQueueFlac != null && flacEligibleCount > 0)
-              SelectionActionButton(
-                icon: Icons.download_for_offline_outlined,
-                label: '${context.l10n.queueFlacAction} ($flacEligibleCount)',
-                onPressed: onQueueFlac,
-              ),
-            SelectionActionButton(
-              icon: Icons.auto_fix_high_outlined,
-              label: '${context.l10n.trackReEnrich} ($selectedCount)',
-              onPressed: hasSelection ? onReEnrich : null,
-            ),
             SelectionActionButton(
               icon: Icons.swap_horiz,
               label: context.l10n.selectionConvertCount(selectedCount),

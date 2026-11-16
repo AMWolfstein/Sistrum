@@ -4,11 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
 import 'package:sistrum/screens/network_storage_screen.dart';
 import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/network_upload_actions.dart';
 
 UnifiedLibraryItem song(String path) => UnifiedLibraryItem.fromLocalLibrary(
@@ -30,65 +28,6 @@ const nas = NetworkConnection(
 );
 
 void main() {
-  const label = 'Upload to network storage';
-
-  Future<void> pump(
-    WidgetTester tester, {
-    required List<UnifiedLibraryItem> items,
-    required List<NetworkConnection> writable,
-  }) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          networkUploadConnectionsProvider.overrideWith(
-            (ref) async => writable,
-          ),
-        ],
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: Column(
-              children: [
-                LibrarySelectionPlaybackActions(items: items, onClose: () {}),
-                NetworkUploadButton(items: items),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-  }
-
-  testWidgets('songs on this device offer the upload', (tester) async {
-    await pump(
-      tester,
-      items: [song('/music/a.flac'), song('network://nas/b.flac')],
-      writable: [nas],
-    );
-    expect(find.text(label), findsOneWidget);
-    expect(find.byTooltip(label), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('network songs never offer the upload', (tester) async {
-    await pump(
-      tester,
-      items: [song('network://nas/b.flac'), song('/music/album.cue#track01')],
-      writable: [nas],
-    );
-    expect(find.text(label), findsNothing);
-    expect(find.byTooltip(label), findsNothing);
-  });
-
-  testWidgets('no writable connection hides the upload', (tester) async {
-    await pump(tester, items: [song('/music/a.flac')], writable: const []);
-    expect(find.text(label), findsNothing);
-    expect(find.byTooltip(label), findsNothing);
-  });
-
   testWidgets('the folder browser returns the chosen folder', (tester) async {
     final service = _Folders();
     String? picked;

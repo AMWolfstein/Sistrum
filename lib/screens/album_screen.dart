@@ -29,7 +29,6 @@ import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
 import 'package:sistrum/controllers/batch_track_actions.dart';
-import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
@@ -39,8 +38,6 @@ import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 
@@ -69,24 +66,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
       _embeddedCoverRefreshScheduled = false;
       if (mounted) setState(() {});
     });
-  }
-
-  Future<void> _reEnrichSelected(List<UnifiedLibraryItem> selected) async {
-    await reEnrichLibraryTracks(
-      context,
-      ref,
-      selected,
-      isActive: () => mounted,
-      onSelectionHide: () async {
-        setState(() => isSelectionMode = false);
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-      },
-      onSelectionRestore: () => setState(() => isSelectionMode = true),
-      onComplete: () {
-        _onEmbeddedCoverChanged();
-        exitSelectionMode();
-      },
-    );
   }
 
   static final _releaseYearPattern = RegExp(r'(\d{4})');

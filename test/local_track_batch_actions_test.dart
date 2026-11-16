@@ -10,10 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
 import 'package:sistrum/services/batch_metadata_re_enrich.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 
 LocalLibraryItem item(String id) => LocalLibraryItem(
   id: id,
@@ -363,38 +361,6 @@ void main() {
       );
       expect(lookups, 2);
       expect(previews.single.item.id, '2');
-    },
-  );
-
-  test(
-    'FLAC matching retains reliable partial results and counts failures when cancelled',
-    () async {
-      var cancelled = false;
-      var calls = 0;
-      final result = await matchLocalTracksForFlac(
-        [item('1'), item('2'), item('3'), item('4'), item('5')],
-        shouldStop: () => cancelled,
-        onProgress: progress,
-        resolve: (local) async {
-          calls++;
-          if (local.id == '2') throw StateError('lookup failed');
-          if (local.id == '4') cancelled = true;
-          return LocalTrackRedownloadResolution(
-            match: local.id == '3'
-                ? null
-                : Track(
-                    id: local.id,
-                    name: local.trackName,
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    duration: 1,
-                  ),
-          );
-        },
-      );
-      expect(calls, 4);
-      expect(result.tracks.map((track) => track.id), ['1', '4']);
-      expect(result.skipped, 2);
     },
   );
 

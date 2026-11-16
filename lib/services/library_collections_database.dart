@@ -777,21 +777,6 @@ class LibraryCollectionsDatabase {
     await db.delete(table, where: '${prefix}_key = ?', whereArgs: [key]);
   }
 
-  Future<void> upsertWishlistEntry({
-    required String trackKey,
-    required String trackJson,
-    required String addedAt,
-  }) => _upsertEntry(
-    _tableWishlist,
-    'track',
-    key: trackKey,
-    json: trackJson,
-    addedAt: addedAt,
-  );
-
-  Future<void> deleteWishlistEntry(String trackKey) =>
-      _deleteEntry(_tableWishlist, 'track', trackKey);
-
   Future<void> deleteWishlistTracks(List<String> keys) async {
     if (keys.isEmpty) return;
     await deleteDatabaseWishlistTracks(await database, keys);

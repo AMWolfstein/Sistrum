@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
-import 'package:sistrum/services/network_offline_saver.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
 
 /// Context menu groups for library files (downloaded or scanned), acting on
-/// [items]: the selection the menu was opened on.
+/// [items]: the selection the menu was opened on. Offline options only.
 ///
 /// The playback and playlist actions match [LibrarySelectionPlaybackActions];
 /// the screen passes its own selection-bar callbacks for the rest, and omits
 /// those it does not offer. Actions that finish with the
-/// menu (play, queue, playlist, transfers, details) call [onDone] to end the
+/// menu (play, queue, playlist, go to, details) call [onDone] to end the
 /// selection; the bulk actions keep it and end it themselves.
 List<List<ContextMenuAction>> libraryTrackMenuGroups(
   BuildContext context,
@@ -25,7 +22,6 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
   VoidCallback? onPlay,
   VoidCallback? onOpenDetails,
   VoidCallback? onDone,
-  VoidCallback? onReEnrich,
   VoidCallback? onConvert,
   VoidCallback? onDelete,
 }) {
@@ -78,29 +74,24 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
       ),
     ],
     [
-      if (items.any((item) => networkOfflineOrigin(item) != null))
+      if (count == 1)
         ContextMenuAction(
-          icon: Icons.download_for_offline_outlined,
-          label: l10n.offlineSave,
+          icon: Icons.album_outlined,
+          label: l10n.homeGoToAlbum,
           onSelected: () {
             onDone?.call();
-            saveNetworkOffline(root, ref, items);
+            navigateToTrackAlbum(root, items.first.toTrack());
           },
         ),
-      if (networkUploadOffered(
-        ref.read(networkUploadConnectionsProvider).value,
-        items,
-      ))
+      if (count == 1)
         ContextMenuAction(
-          icon: Icons.cloud_upload_outlined,
-          label: l10n.networkUpload,
+          icon: Icons.person_outline,
+          label: l10n.sistrumGoToArtist,
           onSelected: () {
             onDone?.call();
-            uploadToNetworkStorage(root, ref, items);
+            navigateToArtistCredits(root, artistNames: items.first.artistName);
           },
         ),
-    ],
-    [
       if (onOpenDetails != null && count == 1)
         ContextMenuAction(
           icon: Icons.info_outline,
@@ -110,14 +101,6 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
             onOpenDetails();
           },
         ),
-      if (onReEnrich != null)
-        ContextMenuAction(
-          icon: Icons.auto_fix_high_outlined,
-          label: count == 1
-              ? l10n.trackReEnrich
-              : '${l10n.trackReEnrich} ($count)',
-          onSelected: onReEnrich,
-        ),
       if (onConvert != null)
         ContextMenuAction(
           icon: Icons.swap_horiz,
@@ -126,16 +109,6 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
         ),
     ],
     [
-      if (items.every((item) => item.historyItem?.originFilePath != null))
-        ContextMenuAction(
-          icon: Icons.cloud_off_outlined,
-          label: l10n.offlineDeleteServer,
-          destructive: true,
-          onSelected: () {
-            onDone?.call();
-            deleteOfflineServerCopies(root, ref, items);
-          },
-        ),
       if (onDelete != null)
         ContextMenuAction(
           icon: Icons.delete_outline,

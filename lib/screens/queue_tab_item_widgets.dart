@@ -10,7 +10,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     final selectedCount = _selectedIds.length;
     final allSelected =
         selectedCount == unifiedItems.length && unifiedItems.isNotEmpty;
-    final localOnlySelection = _isLocalOnlySelection(unifiedItems);
 
     return LibraryTrackSelectionBar(
       playbackActions: LibrarySelectionPlaybackActions(
@@ -28,11 +27,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
         }
       },
       bottomPadding: bottomPadding,
-      flacEligibleCount: localOnlySelection
-          ? _selectedFlacEligibleLocalItems(unifiedItems).length
-          : 0,
-      onQueueFlac: () => _queueSelectedLocalAsFlac(unifiedItems),
-      onReEnrich: () => _reEnrichSelectedFromQueue(unifiedItems),
       onConvert: () => _showBatchConvertSheet(context, unifiedItems),
       onReplayGain: ({required remove}) =>
           _runBatchReplayGain(unifiedItems, remove: remove),

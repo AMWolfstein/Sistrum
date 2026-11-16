@@ -3387,35 +3387,6 @@
   "@trackReEnrichFfmpegFailed": {
     "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
-  "queueFlacAction": "Черга FLAC",
-  "@queueFlacAction": {
-    "description": "Action/button label for queueing FLAC redownloads for local tracks"
-  },
-  "queueFlacConfirmMessage": "Пошук онлайн-збігів для вибраних треків та додавання завантажень FLAC до черги.\n\nЩо існують файли не будуть змінені або видалені.\n\nАвтоматично додаються до черги лише збіги з високою ймовірністю.\n\n{count} Вибрано",
-  "@queueFlacConfirmMessage": {
-    "description": "Confirmation dialog body before queueing FLAC redownloads for local tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "queueFlacNoReliableMatches": "Не знайдено надійних онлайн-відповідей для вибраного запиту",
-  "@queueFlacNoReliableMatches": {
-    "description": "Snackbar when no safe FLAC redownload matches were found"
-  },
-  "queueFlacQueuedWithSkipped": "Додано {addedCount} треків до черги, пропущено {skippedCount}",
-  "@queueFlacQueuedWithSkipped": {
-    "description": "Snackbar when some selected local tracks were queued for FLAC redownload and some were skipped",
-    "placeholders": {
-      "addedCount": {
-        "type": "int"
-      },
-      "skippedCount": {
-        "type": "int"
-      }
-    }
-  },
   "trackSaveFailed": "Не вдалося: {error}",
   "@trackSaveFailed": {
     "description": "Snackbar when save operation fails",
@@ -3743,24 +3714,6 @@
       }
     }
   },
-  "collectionAddedToWishlist": "\"{trackName}\" додано до списку бажань",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "\"{trackName}\" видалено зі списку бажань",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" видалено з улюблених Виконавців",
   "@collectionAddedToFavoriteArtists": {
     "description": "Snackbar after adding artist to favorite artists",
@@ -3786,14 +3739,6 @@
   "trackOptionRemoveFromLoved": "Видалити з улюблених",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
-  },
-  "trackOptionAddToWishlist": "Додати до списку бажань",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "Видалити зі списку бажань",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
   },
   "artistOptionAddToFavorites": "Додати до улюблених Виконавців",
   "@artistOptionAddToFavorites": {
@@ -5605,10 +5550,6 @@
   "downloadQualityVariantsDescription": "Зберігайте всі якісні версії; додавайте показник якості до імені файлу лише тоді, коли таке ім’я вже використовується",
   "@downloadQualityVariantsDescription": {
     "description": "Description for retaining multiple quality versions"
-  },
-  "trackOptionDownloadQualityVariant": "Завантажити іншу якість",
-  "@trackOptionDownloadQualityVariant": {
-    "description": "Track menu action to download another quality version"
   },
   "downloadFallbackExtensions": "Резервні розширення",
   "@downloadFallbackExtensions": {

@@ -3387,35 +3387,6 @@
   "@trackReEnrichFfmpegFailed": {
     "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
-  "queueFlacAction": "Encolar FLAC",
-  "@queueFlacAction": {
-    "description": "Action/button label for queueing FLAC redownloads for local tracks"
-  },
-  "queueFlacConfirmMessage": "Buscar coincidencias en línea para las pistas seleccionadas y en cola de descargas\n\nArchivos existentes no serán afectados o borrados.\n\nSolo coincidencia de alta confianza serán puestas automáticamente.\n\n{count} seleccionado",
-  "@queueFlacConfirmMessage": {
-    "description": "Confirmation dialog body before queueing FLAC redownloads for local tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "queueFlacNoReliableMatches": "Sin coincidencias en línea de confianza",
-  "@queueFlacNoReliableMatches": {
-    "description": "Snackbar when no safe FLAC redownload matches were found"
-  },
-  "queueFlacQueuedWithSkipped": "Añadido {addedCount} pistas a la cola, omitidas {skippedCount}",
-  "@queueFlacQueuedWithSkipped": {
-    "description": "Snackbar when some selected local tracks were queued for FLAC redownload and some were skipped",
-    "placeholders": {
-      "addedCount": {
-        "type": "int"
-      },
-      "skippedCount": {
-        "type": "int"
-      }
-    }
-  },
   "trackSaveFailed": "Error: {error}",
   "@trackSaveFailed": {
     "description": "Snackbar when save operation fails",
@@ -3743,24 +3714,6 @@
       }
     }
   },
-  "collectionAddedToWishlist": "\"{trackName}\" se agregó a la lista de deseos",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "\"{trackName}\" se eliminó de la lista de deseos",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" se agregó a Artistas favoritos",
   "@collectionAddedToFavoriteArtists": {
     "description": "Snackbar after adding artist to favorite artists",
@@ -3786,14 +3739,6 @@
   "trackOptionRemoveFromLoved": "Quitar de «Me gusta»",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
-  },
-  "trackOptionAddToWishlist": "Añadir a la lista de deseos",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "Quitar de la lista de deseos",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
   },
   "artistOptionAddToFavorites": "Añadir a artistas favoritos",
   "@artistOptionAddToFavorites": {
@@ -5605,10 +5550,6 @@
   "downloadQualityVariantsDescription": "Conserva todas las versiones de calidad; agrega su calidad medida al nombre del archivo solo cuando el nombre ya esté en uso",
   "@downloadQualityVariantsDescription": {
     "description": "Description for retaining multiple quality versions"
-  },
-  "trackOptionDownloadQualityVariant": "Descargar otra calidad",
-  "@trackOptionDownloadQualityVariant": {
-    "description": "Track menu action to download another quality version"
   },
   "downloadFallbackExtensions": "Reslpado de extensiones",
   "@downloadFallbackExtensions": {

@@ -307,11 +307,6 @@ class LibraryCollectionsState {
   int get playlistCount => playlists.length;
   int get favoriteArtistCount => favoriteArtists.length;
 
-  bool isInWishlist(Track track) {
-    final key = trackCollectionKey(track);
-    return _wishlistKeys.contains(key);
-  }
-
   bool isLoved(Track track) {
     final key = trackCollectionKey(track);
     return _lovedKeys.contains(key);

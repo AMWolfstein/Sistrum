@@ -782,3 +782,31 @@ Checks (evidence in `/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f1
 - `validate.json`: PASS.
 
 Not run: independent review, `task complete`, commit, push.
+
+## M003-T007
+
+FR-008 / User Story 5: track menus on this feature's pages offer only offline options.
+
+Changed:
+- Library track menu (`lib/widgets/track_lists/library_track_menu.dart`, search results): removed Save offline, Upload to network storage, Re-enrich, Delete offline server copy. Added Go to Album and Go to Artist (single track; artist via `navigateToArtistCredits`, so several credits offer a choice).
+- Quick actions (`lib/widgets/track_collection_quick_actions.dart`): removed Download, Download another quality, Add/Remove Wishlist, Share, Copy link; added Go to Artist. Kept Play (local), Go to Album, Add to playlist, Favorite, copy name/artist. Its only production caller was already gone at HEAD; kept because the goal names it and tests use it.
+- Selection bars (`LibraryTrackSelectionBar`, `LibrarySelectionPlaybackActions`): removed FLAC upgrade, Re-enrich, Save offline, Upload. Callers updated: queue tab, library mixes, album, folder and search screens.
+- Folders: network-folder download button removed. Library album header: download and upload buttons removed (US2). Library playlist header: Save offline removed; Export M3U kept.
+- Dead code deleted: `local_track_redownload_service.dart`, `track_collection_action_policy.dart` (+ test), `queueLocalTracksAsFlac`, `matchLocalTracksForFlac`, `NetworkOfflineButton`, `NetworkUploadButton`, unused imports.
+- ARB (all 21 files): removed `queueFlacAction`, `queueFlacConfirmMessage`, `queueFlacNoReliableMatches`, `queueFlacQueuedWithSkipped`, `collectionAddedToWishlist`, `collectionRemovedFromWishlist`, `trackOptionAddToWishlist`, `trackOptionRemoveFromWishlist`, `trackOptionDownloadQualityVariant`, `trackOptionCopyLink`. No other key lost its last Dart reader.
+- Tests: `mornye_collection_sheets_test.dart` (offline-only quick actions; replaces the copy-link tests), `selection_action_grid_test.dart`, `library_selection_playback_actions_test.dart`, `local_track_batch_actions_test.dart`, `library_search_results_test.dart`, `downloaded_album_reenrich_test.dart` (album re-enrich case removed), `network_upload_actions_test.dart` (upload offers removed; folder browser and offer tests kept). New `library_track_menu_offline_test.dart` asserts offline entries and absence of removed ones. Deleted `library_search_reenrich_test.dart` (only tested the removed search-menu re-enrich).
+
+Kept, out of scope: Now Playing sheet (T008), Wishlist (`LibraryTracksFolderScreen`, its download helpers and strings), track metadata page menu (save offline / upload / delete server, not in T007's page list, flagged for review), `allowQualityVariants` setting (still read by the download queue and settings), library-wide re-enrich (`library_re_enrich_all.dart`).
+
+Checks (evidence in `/tmp/claude-0/-home-user-Sistrum/6f2a99b7-2c8e-50d8-b242-f10db4d01b53/scratchpad/t007`):
+- `gen_l10n.log`: `flutter gen-l10n` exit 0 after the ARB change.
+- `analyze.log`: `flutter analyze lib test integration_test`: no issues (final).
+- `format.log`: `dart format` on the changed Dart files (`changed_dart_files.txt`).
+- `targeted.log`: first targeted run, 4 failures (re-enrich and upload expectations, fixed as above). `fix_rerun.log`: the two edited files pass.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3883 results: 3873 passed, 10 skipped, 0 failed. Baseline 3882 passed; 10 tests removed with their code, one new menu test added, two quick-action tests merged into one, and the intermittent `library_loading_test` now passes. Known intermittent `library_loading_test` and `track_metadata_lyrics_test` passed in this run.
+- `validate.json`: PASS.
+- `map_update.json`: update exit 0, 0 partial, 0 unindexed sources.
+
+Not run: independent review, `task complete`, commit, push.
+
+Follow-up after review: deleted dead code left by the menu removals: `AlbumPlayActions.onDownload` (field and button branch), `LibraryCollectionsState.isInWishlist`, `LibraryCollectionsNotifier.toggleWishlist`, `LibraryCollectionsDatabase.upsertWishlistEntry`/`deleteWishlistEntry` (the Wishlist screen still uses `removeWishlistTracks`/`deleteWishlistTracks`). The toggle tests in `library_collections_mutation_test.dart` now run on Loved. Re-checked after the edit: analyze clean, that test file 24 passed.

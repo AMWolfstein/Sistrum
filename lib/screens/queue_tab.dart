@@ -55,7 +55,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/album_completeness.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';

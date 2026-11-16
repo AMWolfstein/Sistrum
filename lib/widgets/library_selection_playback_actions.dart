@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -7,10 +5,6 @@ import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
-import 'package:sistrum/services/network_offline_saver.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
 
 /// Collection actions stay separate from actions that modify audio files.
 class LibrarySelectionPlaybackActions extends ConsumerWidget {
@@ -27,29 +21,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showPlayer = ref.watch(playerUiEnabledProvider);
     final actions = <Widget>[
-      if (items.any((item) => networkOfflineOrigin(item) != null))
-        SelectionActionButton(
-          icon: Icons.download_for_offline_outlined,
-          label: context.l10n.offlineSave,
-          onPressed: () {
-            final root = Navigator.of(context, rootNavigator: true).context;
-            unawaited(saveNetworkOffline(root, ref, items));
-            onClose();
-          },
-        ),
-      if (networkUploadOffered(
-        ref.watch(networkUploadConnectionsProvider).value,
-        items,
-      ))
-        SelectionActionButton(
-          icon: Icons.cloud_upload_outlined,
-          label: context.l10n.networkUpload,
-          onPressed: () {
-            final root = Navigator.of(context, rootNavigator: true).context;
-            unawaited(uploadToNetworkStorage(root, ref, items));
-            onClose();
-          },
-        ),
       SelectionActionButton(
         icon: Icons.playlist_add,
         label: context.l10n.collectionAddToPlaylist,

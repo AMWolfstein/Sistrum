@@ -126,23 +126,7 @@ void main() {
         .load();
   });
 
-  testWidgets('track menu copies the service link', (tester) async {
-    String? copied;
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'Clipboard.setData') {
-          copied = (call.arguments as Map)['text'] as String?;
-        }
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        null,
-      ),
-    );
+  testWidgets('track menu offers only offline actions', (tester) async {
     const linked = Track(
       id: 'example-track',
       name: 'Example track',
@@ -160,28 +144,26 @@ void main() {
     );
     await tester.tap(find.byType(TrackCollectionQuickActions));
     await tester.pumpAndSettle();
-    final action = find.text('Copy Deezer link');
-    await tester.ensureVisible(action);
-    await tester.tap(action);
-    await tester.pumpAndSettle();
-    expect(copied, 'https://www.deezer.com/track/42');
-    expect(find.text('Deezer URL copied to clipboard'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('track menu hides the link for an unknown service', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _app(
-        const TrackCollectionQuickActions(track: _track),
-        _Collections(),
-        brightness: Brightness.light,
-      ),
-    );
-    await tester.tap(find.byIcon(CupertinoIcons.ellipsis));
-    await tester.pumpAndSettle();
+    for (final offline in [
+      'Favorite',
+      'Go to Album',
+      'Go to Artist',
+      'Add to playlist',
+      'Copy track name',
+    ]) {
+      expect(find.text(offline), findsOneWidget, reason: offline);
+    }
+    for (final online in [
+      'Download',
+      'Download another quality',
+      'Copy Deezer link',
+      'Share',
+      'Add to Wishlist',
+    ]) {
+      expect(find.text(online), findsNothing, reason: online);
+    }
     expect(find.textContaining('link'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   for (final brightness in Brightness.values) {

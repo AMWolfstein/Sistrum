@@ -6,11 +6,9 @@ import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/re_enrich_result.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/deleted_library_files.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -18,7 +16,6 @@ import 'package:sistrum/services/batch_metadata_re_enrich.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/network_file_editor.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/ffmpeg_reenrich.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -27,117 +24,10 @@ import 'package:sistrum/utils/lyrics_metadata_helper.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/batch_progress_dialog.dart';
-import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/re_enrich_field_dialog.dart';
 import 'package:sistrum/widgets/re_enrich_review_sheet.dart';
 
 final _reEnrichLog = AppLogger('BatchReEnrich');
-
-Future<void> queueLocalTracksAsFlac(
-  BuildContext context,
-  WidgetRef ref,
-  List<LocalLibraryItem> selected, {
-  required bool Function() isActive,
-  required VoidCallback onComplete,
-}) async {
-  if (selected.isEmpty) {
-    return;
-  }
-
-  final confirmed = await showAppConfirmDialog(
-    context,
-    title: context.l10n.queueFlacAction,
-    message: context.l10n.queueFlacConfirmMessage(selected.length),
-    confirmLabel: context.l10n.queueFlacAction,
-  );
-
-  if (!confirmed || !context.mounted || !isActive()) {
-    return;
-  }
-
-  final settings = ref.read(settingsProvider);
-  final extensionState = ref.read(extensionProvider);
-  final includeExtensions =
-      settings.useExtensionProviders &&
-      extensionState.extensions.any(
-        (ext) => ext.enabled && ext.hasMetadataProvider,
-      );
-  final targetService = LocalTrackRedownloadService.preferredFlacService(
-    settings,
-    extensionState,
-  );
-  if (targetService.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.extensionsNoDownloadProvider)),
-    );
-    return;
-  }
-  final targetQuality =
-      LocalTrackRedownloadService.preferredFlacQualityForService(
-        targetService,
-        extensionState,
-      );
-
-  final total = selected.length;
-
-  var cancelled = false;
-  BatchProgressDialog.show(
-    context: context,
-    title: context.l10n.queueFlacAction,
-    total: total,
-    icon: Icons.queue_music,
-    onCancel: () {
-      cancelled = true;
-      BatchProgressDialog.dismiss(context);
-    },
-  );
-
-  final matches = await matchLocalTracksForFlac(
-    selected,
-    resolve: (item) => LocalTrackRedownloadService.resolveBestMatch(
-      item,
-      includeExtensions: includeExtensions,
-    ),
-    shouldStop: () => cancelled || !context.mounted || !isActive(),
-    onProgress: (index, item) =>
-        BatchProgressDialog.update(current: index + 1, detail: item.trackName),
-  );
-  final matchedTracks = matches.tracks;
-  final skippedCount = matches.skipped;
-
-  if (!context.mounted || !isActive()) {
-    return;
-  }
-
-  if (!cancelled) {
-    BatchProgressDialog.dismiss(context);
-  }
-
-  if (matchedTracks.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.queueFlacNoReliableMatches)),
-    );
-    return;
-  }
-
-  ref
-      .read(downloadQueueProvider.notifier)
-      .addMultipleToQueue(
-        matchedTracks,
-        targetService,
-        qualityOverride: targetQuality,
-      );
-
-  final summary = skippedCount == 0
-      ? context.l10n.snackbarAddedTracksToQueue(matchedTracks.length)
-      : context.l10n.queueFlacQueuedWithSkipped(
-          matchedTracks.length,
-          skippedCount,
-        );
-
-  showAppSnackBar(context, content: Text(summary));
-  onComplete();
-}
 
 Future<void> reEnrichLibraryTracks(
   BuildContext context,
@@ -585,34 +475,6 @@ class BatchReEnrichRunner {
       );
     }
   }
-}
-
-/// Cancellation stops further matching and retains reliable matches already
-/// resolved, matching the queue action's existing partial-completion behavior.
-Future<({List<Track> tracks, int skipped})> matchLocalTracksForFlac(
-  List<LocalLibraryItem> items, {
-  required Future<LocalTrackRedownloadResolution> Function(LocalLibraryItem)
-  resolve,
-  required bool Function() shouldStop,
-  required void Function(int, LocalLibraryItem) onProgress,
-}) async {
-  final tracks = <Track>[];
-  var skipped = 0;
-  for (var index = 0; index < items.length; index++) {
-    if (shouldStop()) break;
-    onProgress(index, items[index]);
-    try {
-      final resolution = await resolve(items[index]);
-      if (resolution.canQueue && resolution.match != null) {
-        tracks.add(resolution.match!);
-      } else {
-        skipped++;
-      }
-    } catch (_) {
-      skipped++;
-    }
-  }
-  return (tracks: tracks, skipped: skipped);
 }
 
 /// Confirms, then deletes the files behind [selected] and removes their

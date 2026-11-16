@@ -249,23 +249,6 @@ class _OfflineProgressState extends ConsumerState<_OfflineProgress> {
   }
 }
 
-class NetworkOfflineButton extends ConsumerWidget {
-  const NetworkOfflineButton({super.key, required this.items});
-  final List<UnifiedLibraryItem> items;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (!items.any((item) => networkOfflineOrigin(item) != null)) {
-      return const SizedBox.shrink();
-    }
-    return HeaderCircleButton(
-      icon: Icons.download_for_offline_outlined,
-      tooltip: context.l10n.offlineSave,
-      onPressed: () => saveNetworkOffline(context, ref, items),
-    );
-  }
-}
-
 class NetworkOfflineTracksButton extends ConsumerWidget {
   const NetworkOfflineTracksButton({super.key, required this.tracks});
   final List<Track> tracks;

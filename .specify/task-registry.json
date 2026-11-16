@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 41,
+  "next_completion": 42,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -456,13 +456,19 @@
       "title": "Library track rows use the album row"
     },
     "M003-T007": {
-      "completion": null,
+      "completion": 41,
+      "evidence": {
+        "checks": "Review: round 1 found dead onDownload/isInWishlist/toggleWishlist/wishlist DB methods, fixed; round 2 PASS. analyze clean; full run 3873 passed 10 skipped 0 failed (scratchpad t007/full_counts.txt); post-fix 412 related tests passed",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewers",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "169953f49c9042eea115423b823b2f75",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Offline-only track menus"
     },
     "M003-T008": {

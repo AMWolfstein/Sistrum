@@ -62,17 +62,9 @@ void main() {
     });
   }
 
-  testWidgets('selection grid retains conditional actions', (tester) async {
-    var queued = false;
-    var converted = false;
-    for (final (selectedCount, eligibleCount, canQueue) in [
-      (0, 0, true),
-      (1, 0, true),
-      (1, 1, false),
-      (1, 1, true),
-      (0, 0, true),
-    ]) {
-      converted = false;
+  testWidgets('selection bar keeps only offline actions', (tester) async {
+    for (final selectedCount in [0, 1]) {
+      var converted = false;
       await tester.pumpWidget(
         _app(
           LibraryTrackSelectionBar(
@@ -81,27 +73,22 @@ void main() {
             onClose: () {},
             onToggleSelectAll: () {},
             bottomPadding: 0,
-            onReEnrich: () {},
             onConvert: () => converted = true,
             onReplayGain: ({required remove}) {},
             onDelete: () {},
-            flacEligibleCount: eligibleCount,
-            onQueueFlac: canQueue ? () => queued = true : null,
           ),
         ),
       );
       await tester.pumpAndSettle();
-      final queue = find.byWidgetPredicate(
-        (widget) =>
-            widget is SelectionActionButton &&
-            widget.icon == Icons.download_for_offline_outlined,
-      );
-      final hasQueue = eligibleCount > 0 && canQueue;
-      expect(queue, hasQueue ? findsOneWidget : findsNothing);
-      expect(
-        find.byType(SelectionActionButton),
-        findsNWidgets(hasQueue ? 5 : 4),
-      );
+      // Re-enrich, FLAC upgrade and network uploads are online and absent.
+      for (final icon in [
+        Icons.auto_fix_high_outlined,
+        Icons.download_for_offline_outlined,
+        Icons.cloud_upload_outlined,
+      ]) {
+        expect(find.byIcon(icon), findsNothing);
+      }
+      expect(find.byType(SelectionActionButton), findsNWidgets(3));
       await tester.tap(
         find.byWidgetPredicate(
           (widget) =>
@@ -110,10 +97,6 @@ void main() {
         ),
       );
       expect(converted, selectedCount > 0);
-      if (hasQueue) {
-        await tester.tap(queue);
-        expect(queued, isTrue);
-      }
       expect(tester.takeException(), isNull);
     }
   });

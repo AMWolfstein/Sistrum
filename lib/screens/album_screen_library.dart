@@ -213,10 +213,6 @@ extension _AlbumLibrarySections on _AlbumScreenState {
             HeaderMetaItem(quality, icon: Icons.graphic_eq),
         ],
       ),
-      appBarActions: [
-        NetworkOfflineButton(items: items),
-        NetworkUploadButton(items: items),
-      ],
       actions: CollectionHeaderActions(
         tracks: tracks,
         onLoveAll: () => loveAllTracks(context, ref, tracks),
@@ -477,7 +473,6 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         items: selected,
         onClose: exitSelectionMode,
       ),
-      onReEnrich: () => _reEnrichSelected(selected),
       onConvert: () => showBatchConvertSheet(
         context,
         ref,

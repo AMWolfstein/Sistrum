@@ -201,15 +201,6 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     return true;
   });
 
-  Future<bool> toggleWishlist(Track track) => _toggleTrackEntry(
-    track,
-    contains: (key) => state.containsWishlistKey(key),
-    select: (state) => state.wishlist,
-    withList: (list) => state.copyWith(wishlist: list),
-    dbDelete: _db.deleteWishlistEntry,
-    dbUpsert: _db.upsertWishlistEntry,
-  );
-
   Future<bool> toggleLoved(Track track) async {
     final loved = await _toggleTrackEntry(
       track,

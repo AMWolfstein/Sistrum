@@ -10,7 +10,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/network_storage_screen.dart';
 import 'package:sistrum/services/network_library_upload.dart';
 import 'package:sistrum/services/network_storage_service.dart';
-import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
@@ -195,25 +194,6 @@ class _UploadProgressState extends ConsumerState<_UploadProgress> {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// The album header action: uploads the album's songs on this device.
-class NetworkUploadButton extends ConsumerWidget {
-  const NetworkUploadButton({super.key, required this.items});
-  final List<UnifiedLibraryItem> items;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final connections = ref.watch(networkUploadConnectionsProvider).value;
-    if (!networkUploadOffered(connections, items)) {
-      return const SizedBox.shrink();
-    }
-    return HeaderCircleButton(
-      icon: Icons.cloud_upload_outlined,
-      tooltip: context.l10n.networkUpload,
-      onPressed: () => uploadToNetworkStorage(context, ref, items),
     );
   }
 }

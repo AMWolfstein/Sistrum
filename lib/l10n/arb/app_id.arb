@@ -3346,35 +3346,6 @@
   "@trackReEnrichFfmpegFailed": {
     "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
-  "queueFlacAction": "Antrean FLAC",
-  "@queueFlacAction": {
-    "description": "Action/button label for queueing FLAC redownloads for local tracks"
-  },
-  "queueFlacConfirmMessage": "Menelusuri internet untuk mencari kecocokan lagu terpilih dan download antrean FLAC.\n\nFile yang sudah ada tidak akan dimodifikasi atau dihapus\n\nHanya kecocokan terbaik yang akan diantrekan.\n\n{count} terpilih",
-  "@queueFlacConfirmMessage": {
-    "description": "Confirmation dialog body before queueing FLAC redownloads for local tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "queueFlacNoReliableMatches": "Tidak ada kecocokan yang ditemukan untuk lagu terpilih",
-  "@queueFlacNoReliableMatches": {
-    "description": "Snackbar when no safe FLAC redownload matches were found"
-  },
-  "queueFlacQueuedWithSkipped": "Menambahkan {addedCount} lagu ke antrean, {skippedCount} dilewati",
-  "@queueFlacQueuedWithSkipped": {
-    "description": "Snackbar when some selected local tracks were queued for FLAC redownload and some were skipped",
-    "placeholders": {
-      "addedCount": {
-        "type": "int"
-      },
-      "skippedCount": {
-        "type": "int"
-      }
-    }
-  },
   "trackSaveFailed": "Gagal: {error}",
   "@trackSaveFailed": {
     "description": "Snackbar when save operation fails",
@@ -3711,24 +3682,6 @@
       }
     }
   },
-  "collectionAddedToWishlist": "\"{trackName}\" ditambahkan ke Wishlist",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "\"{trackName}\" dihapus dari Wishlist",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" ditambahkan ke Artis Favorit",
   "@collectionAddedToFavoriteArtists": {
     "description": "Snackbar after adding artist to favorite artists",
@@ -3754,14 +3707,6 @@
   "trackOptionRemoveFromLoved": "Hapus dari Disukai",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
-  },
-  "trackOptionAddToWishlist": "Tambah ke Wishlist",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "Hapus dari Wishlist",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
   },
   "artistOptionAddToFavorites": "Tambah ke Artis Favorit",
   "@artistOptionAddToFavorites": {
@@ -5573,10 +5518,6 @@
   "downloadQualityVariantsDescription": "Simpan versi setiap kualitas; tambahkan akhiran kualitas di nama file jika namanya sudah digunakan",
   "@downloadQualityVariantsDescription": {
     "description": "Description for retaining multiple quality versions"
-  },
-  "trackOptionDownloadQualityVariant": "Download kualitas lain",
-  "@trackOptionDownloadQualityVariant": {
-    "description": "Track menu action to download another quality version"
   },
   "downloadFallbackExtensions": "Ekstensi Cadangan",
   "@downloadFallbackExtensions": {
