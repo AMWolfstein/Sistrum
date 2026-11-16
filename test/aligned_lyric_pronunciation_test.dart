@@ -90,6 +90,58 @@ void main() {
     );
   });
 
+  test('mixed lines keep their first strong direction', () {
+    expect(lyricTextDirection('مرحبا Hello'), TextDirection.rtl);
+    expect(lyricTextDirection('Hello مرحبا'), TextDirection.ltr);
+    expect(lyricTextDirection('Hello', TextDirection.rtl), TextDirection.rtl);
+    expect(lyricTextDirection('123 !', TextDirection.rtl), TextDirection.rtl);
+    expect(lyricTextDirection('123 !'), TextDirection.ltr);
+  });
+
+  test('every right-to-left script reads right to left', () {
+    for (final text in [
+      'مرحبا', // Arabic
+      'שלום', // Hebrew
+      'سلام', // Persian
+      'ہیلو', // Urdu
+      'ܫܠܡܐ', // Syriac
+      'ހެލޯ', // Thaana
+      'ߊߟߎ߫', // N'Ko
+    ]) {
+      expect(isRtlLyricText(text), isTrue, reason: text);
+      expect(lyricTextDirection(text), TextDirection.rtl, reason: text);
+    }
+  });
+
+  test('does not split right-to-left lyrics into left-to-right word boxes', () {
+    expect(isRtlLyricText('كان عندك كام سنة'), isTrue);
+    expect(isRtlLyricText('kan andak kam sana'), isFalse);
+    expect(lyricTextDirection('كان عندك كام سنة'), TextDirection.rtl);
+    expect(lyricTextDirection('kan andak kam sana'), TextDirection.ltr);
+    expect(
+      _layout(
+        LyricLine(
+          time: Duration.zero,
+          text: 'كان عندك كام سنة',
+          words: [
+            _word('كان ', 0, 400),
+            _word('عندك ', 400, 800),
+            _word('كام ', 800, 1200),
+            _word('سنة', 1200, 1600),
+          ],
+          romanization: 'kan andak kam sana',
+          romanizationWords: [
+            _word('kan ', 0, 400),
+            _word('andak ', 400, 800),
+            _word('kam ', 800, 1200),
+            _word('sana', 1200, 1600),
+          ],
+        ),
+      ),
+      isNull,
+    );
+  });
+
   for (final width in [320.0, 170.0]) {
     for (final scale in [1.0, 1.8]) {
       testWidgets(

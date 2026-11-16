@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 43,
+  "next_completion": 44,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -488,13 +488,19 @@
       "title": "Now Playing artist link, heart and menu"
     },
     "M003-T009": {
-      "completion": null,
+      "completion": 43,
+      "evidence": {
+        "checks": "Review: round 1 found unread textDirection field (removed) ; round 2 PASS. analyze clean; full suite exit 0, 3878 non-loading passed 10 skipped 0 failed (scratchpad t009/full_counts.txt); lyric files 29 passed after fix",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewers",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "befedeea034b4e148ec97096d19d7433",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Port right-to-left lyrics (Mornye #844)"
     },
     "M003-T010": {

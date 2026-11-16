@@ -8,6 +8,7 @@ import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/widget_capture.dart';
+import 'package:sistrum/widgets/aligned_lyric_pronunciation.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
@@ -547,6 +548,10 @@ class _LineChoice extends StatelessWidget {
                         Expanded(
                           child: Text(
                             line.text,
+                            textDirection: lyricTextDirection(
+                              line.text,
+                              Directionality.of(context),
+                            ),
                             style:
                                 (line.background
                                         ? theme.textTheme.bodyMedium
@@ -614,6 +619,10 @@ class LyricsShareCard extends StatelessWidget {
     final secondary = foreground.withValues(alpha: 0.7);
     final fontSize = fontSizeFor(lines);
     final scheme = Theme.of(context).colorScheme;
+    final ambientDirection = Directionality.of(context);
+    final cardDirection = lines.any((line) => isRtlLyricText(line.text))
+        ? TextDirection.rtl
+        : ambientDirection;
     return MediaQuery.withNoTextScaling(
       child: SizedBox.fromSize(
         size: lyricsShareCardSize,
@@ -687,7 +696,9 @@ class LyricsShareCard extends StatelessWidget {
                           constraints: const BoxConstraints(maxHeight: 380),
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
-                            alignment: AlignmentDirectional.topStart,
+                            alignment: AlignmentDirectional.topStart.resolve(
+                              cardDirection,
+                            ),
                             child: SizedBox(
                               width: lyricsShareCardSize.width - 100,
                               child: lines.isEmpty
@@ -703,7 +714,7 @@ class LyricsShareCard extends StatelessWidget {
                                     )
                                   : Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.stretch,
                                       children: [
                                         for (final line in lines)
                                           Padding(
@@ -712,6 +723,10 @@ class LyricsShareCard extends StatelessWidget {
                                             ),
                                             child: Text(
                                               line.text,
+                                              textDirection: lyricTextDirection(
+                                                line.text,
+                                                ambientDirection,
+                                              ),
                                               style: TextStyle(
                                                 color: line.background
                                                     ? secondary

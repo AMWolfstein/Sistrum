@@ -14,6 +14,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/lyrics_draft.dart';
 import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/aligned_lyric_pronunciation.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -663,28 +664,35 @@ class _LyricsEditorRow extends StatelessWidget {
               timeChip,
               const SizedBox(width: 4),
               Expanded(
-                child: TextField(
-                  controller: line.text,
-                  focusNode: line.focus,
-                  minLines: 1,
-                  maxLines: null,
-                  // The field grows with its text, so it never needs to
-                  // scroll; a wheel or trackpad over a line then scrolls
-                  // the list instead of nudging the text inside its row.
-                  scrollPhysics: const NeverScrollableScrollPhysics(),
-                  textInputAction: TextInputAction.done,
-                  style: theme.textTheme.bodyLarge?.copyWith(color: onFill),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: false,
-                    hintText: l10n.lyricsEditLineHint,
-                    hintStyle: theme.textTheme.bodyLarge?.copyWith(
-                      color: onFill.withValues(alpha: 0.5),
+                child: ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: line.text,
+                  builder: (context, value, _) => TextField(
+                    controller: line.text,
+                    focusNode: line.focus,
+                    textDirection: lyricTextDirection(
+                      value.text,
+                      Directionality.of(context),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    minLines: 1,
+                    maxLines: null,
+                    // The field grows with its text, so it never needs to
+                    // scroll; a wheel or trackpad over a line then scrolls
+                    // the list instead of nudging the text inside its row.
+                    scrollPhysics: const NeverScrollableScrollPhysics(),
+                    textInputAction: TextInputAction.done,
+                    style: theme.textTheme.bodyLarge?.copyWith(color: onFill),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: false,
+                      hintText: l10n.lyricsEditLineHint,
+                      hintStyle: theme.textTheme.bodyLarge?.copyWith(
+                        color: onFill.withValues(alpha: 0.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
               ),

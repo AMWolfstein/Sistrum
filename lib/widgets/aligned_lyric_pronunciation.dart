@@ -4,12 +4,37 @@ import 'package:flutter/material.dart';
 import 'package:sistrum/widgets/lyric_supplement_transition.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 
+final _rtlLyricCharacter = RegExp(
+  r'[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF\u{10800}-\u{10FFF}\u{1EE00}-\u{1EEFF}]',
+  unicode: true,
+);
+
+final _firstLetter = RegExp(r'\p{L}', unicode: true);
+
+/// Whether [text] contains right-to-left script characters (such as Arabic or
+/// Hebrew).
+bool isRtlLyricText(String text) => _rtlLyricCharacter.hasMatch(text);
+
+/// Resolves the paragraph direction for [text]. Text without right-to-left
+/// script uses [ambient]. Mixed text keeps the direction of its first letter,
+/// so a line that starts in Latin stays left-to-right.
+TextDirection lyricTextDirection(
+  String text, [
+  TextDirection ambient = TextDirection.ltr,
+]) {
+  if (!isRtlLyricText(text)) return ambient;
+  final letter = _firstLetter.firstMatch(text);
+  if (letter == null) return TextDirection.rtl;
+  return _rtlLyricCharacter.hasMatch(letter.group(0)!)
+      ? TextDirection.rtl
+      : TextDirection.ltr;
+}
+
 /// Keeps each pronunciation phrase under the lyric with the same start time.
 /// Only shared word boundaries are used; line-only timing cannot identify
 /// which original characters a pronunciation belongs to.
 class LyricPronunciationLayout {
   final List<_PronunciationRow> _rows;
-
   const LyricPronunciationLayout._(this._rows);
 
   static const _phraseGap = 4.0;
@@ -42,7 +67,9 @@ class LyricPronunciationLayout {
     if (original.isEmpty ||
         pronunciation.isEmpty ||
         !maxWidth.isFinite ||
-        maxWidth <= 0) {
+        maxWidth <= 0 ||
+        isRtlLyricText(line.text) ||
+        isRtlLyricText(line.romanization ?? '')) {
       return null;
     }
     String normalize(String text) => text.replaceAll(_whitespaceRun, '');

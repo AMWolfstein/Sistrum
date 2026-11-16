@@ -134,7 +134,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
     `lib/widgets/track_collection_quick_actions.dart`, `lib/screens/now_playing_screen.dart`,
     tests.
 
-- [ ] M003-T009 Port right-to-left lyrics (Mornye #844)
+- [x] M003-T009 Port right-to-left lyrics (Mornye #844)
   - Acceptance: FR-011, SC-004. Hand port of `a45631a` to the seven existing files and
     its three tests; extra tests for wrapped RTL lines, translations and pronunciation
     lines; LTR unchanged.

@@ -205,6 +205,10 @@ class PlayerLyricsSection extends ConsumerWidget {
             child: LyricsTextScale(
               child: Text(
                 metadata.lyrics.plainText,
+                textDirection: lyricTextDirection(
+                  metadata.lyrics.plainText,
+                  Directionality.of(context),
+                ),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   height: 1.6,
                   color: colorScheme.onSurface,

@@ -821,3 +821,27 @@ Now Playing artist link, heart and menu (FR-008, FR-009, FR-010). Evidence in `s
 - Dead code deleted: `savePlayingNetworkOffline` (`network_offline_actions.dart`) and three imports. No ARB key lost its reader; ARBs unchanged.
 - Tests: in `now_playing_lyrics_transition_test.dart` the sheet has no Share/Save offline and has Remove from device, heart icons, Go to Artist opens the library artist, and Remove from device asks first and Cancel keeps the file. The confirm/delete flow itself is tested in the new `test/confirm_remove_track_from_device_test.dart` (Cancel keeps the file; Delete removes the file, the history and the library entry; a track that is no longer current is not deleted). A first version ran the real delete inside the lyrics file: its file deletion publishes through the `SourceDeletionEvents.instance` singleton and the next test in that file ("network lyrics use shared metadata") then hung; the cause inside that singleton chain was not found, so the delete case lives in its own file, where nothing follows it. No test in the lyrics file depends on order.
 - Checks: `map_start.json`; `analyze.log` clean; `format.log`; `targeted.log`; full suite `full_counts.txt` (exit 0, no failures; T008 added 5 tests, 2 in the lyrics file and 3 in the new file; counts differ from T007's by the loading-entry counting method); `validate.json`.
+
+## M003-T009
+
+Right-to-left lyrics (FR-011, SC-004): port of Mornye #844 (`a45631a`), hand-applied; `desktop_mini_player.dart` skipped (absent here). Evidence in `scratchpad/t009/`.
+
+- Direction helper (`lib/widgets/aligned_lyric_pronunciation.dart`): `isRtlLyricText` (any RTL script: Arabic, Hebrew, Persian, Urdu, Syriac, Thaana, N'Ko) and `lyricTextDirection`. Text without RTL script keeps the ambient direction. Mixed text follows its first letter, so `مرحبا Hello` is RTL and `Hello مرحبا` is LTR. The Mornye helper took any RTL character; the first-letter rule is an addition, kept so T010 can reuse it.
+- Pronunciation: per-word LTR layout is skipped when the lyric or romanization has RTL script (`LyricPronunciationLayout.measure`).
+- Synced, unsynced, editor, share-card and plain lyric text take the resolved direction and align through `AlignmentDirectional.resolve`. Supplement lines (romanization, translation) follow their own script; a Latin pronunciation under an RTL line sits on the right edge (`_supplementTextAlign`).
+- Word-by-word sweep (`player_lyrics_word_sweep.dart`): RTL boxes are sorted right to left; highlight, feather, glow and the lifted pass run from the box's right edge to its left.
+- Files: `lib/widgets/aligned_lyric_pronunciation.dart`, `player_lyrics.dart`, `player_lyrics_line_style.dart`, `player_lyrics_section.dart`, `player_lyrics_word_sweep.dart`, `lib/widgets/lyrics_editor_sheet.dart`, `lib/screens/lyrics_share_screen.dart`.
+- Tests ported: `aligned_lyric_pronunciation_test.dart` (RTL pronunciation bypass), `player_lyrics_repaint_test.dart` (Arabic sweep and lift with romaji), `player_lyrics_wrapping_test.dart` (active Arabic wrap keeps height).
+- Tests added: `test/player_lyrics_rtl_test.dart` covers wrapped RTL lines (right-aligned, several rows), translations and Latin pronunciations of an RTL line, LTR lines left-aligned, and the sweep (SC-004): the highlight's leading edge moves from the right edge of the Arabic word to its left, and a Latin control moves left to right. `aligned_lyric_pronunciation_test.dart` also checks mixed-direction lines.
+
+Checks:
+- `map_start.json`, `map_update.json`: codegraph update exit 0, 0 partial or unindexed sources.
+- `analyze.log`: `flutter analyze lib test integration_test` clean.
+- `format.log`, `changed_dart_files.txt`: `dart format` on the changed Dart files only.
+- `targeted.log`: the 11 lyric, share and editor test files (80 tests) pass. `rtl.log`: the new file alone, 4 pass.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3878 non-loading passed, 10 skipped, 0 failed. The loading entries (513) all passed. Counting differs from earlier sections, so compare with the baseline only by failures.
+- `validate.json`: `workflow/work.py validate` PASS.
+
+Not run: independent review, `task complete`, commit, push; `tasks.md` left unchanged.
+
+Follow-up after review: removed the unread `LyricPronunciationLayout.textDirection` field (copied from Mornye, never read); added a test that Arabic, Hebrew, Persian, Urdu, Syriac, Thaana and N'Ko text all read right to left. Re-checked: analyze clean; the four lyric test files 29 passed. Not covered by a test: the sweep on a wrapped multi-row RTL word (alignment and height of wrapped RTL lines are covered).
