@@ -12,10 +12,12 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/screens/album_screen.dart';
+import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
-import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
@@ -72,6 +74,29 @@ void main() {
     messenger.setMockMethodCallHandler(channel, null);
     await directory.delete(recursive: true);
   });
+
+  final albumKey = LibraryDatabase.albumKeyFor('Album', null, 'Artist');
+  Widget albumPage(List<LocalLibraryItem> tracks) => ProviderScope(
+    overrides: [
+      settingsProvider.overrideWith(
+        () => FixedSettingsNotifier(
+          const AppSettings(localLibraryEnabled: false),
+        ),
+      ),
+      libraryAlbumItemsProvider(albumKey).overrideWith(
+        (ref) async => [
+          for (final track in tracks)
+            UnifiedLibraryItem.fromLocalLibrary(track),
+        ],
+      ),
+    ],
+    child: MaterialApp(
+      theme: MornyeTheme.build(Brightness.light),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: AlbumScreen.library(albumKey: albumKey),
+    ),
+  );
 
   Widget app(Widget home) => ProviderScope(
     overrides: [
@@ -230,24 +255,17 @@ void main() {
     await tester.runAsync(() async {
       await scannedCover.writeAsBytes(png);
       await tester.pumpWidget(
-        app(
-          LocalAlbumScreen(
-            albumName: 'Album',
+        albumPage([
+          LocalLibraryItem(
+            id: 'song',
+            trackName: 'Song',
             artistName: 'Artist',
-            coverPath: '   ',
-            tracks: [
-              LocalLibraryItem(
-                id: 'song',
-                trackName: 'Song',
-                artistName: 'Artist',
-                albumName: 'Album',
-                filePath: audio.path,
-                coverPath: scannedCover.path,
-                scannedAt: DateTime(2026),
-              ),
-            ],
+            albumName: 'Album',
+            filePath: audio.path,
+            coverPath: scannedCover.path,
+            scannedAt: DateTime(2026),
           ),
-        ),
+        ]),
       );
       await tester.pumpAndSettle();
     });
@@ -273,24 +291,17 @@ void main() {
       final preview = await playerPreview(tester);
       await tester.runAsync(() async {
         await tester.pumpWidget(
-          app(
-            LocalAlbumScreen(
-              albumName: 'Album',
+          albumPage([
+            LocalLibraryItem(
+              id: 'song',
+              trackName: 'Song',
               artistName: 'Artist',
+              albumName: 'Album',
+              filePath: audio.path,
               coverPath: stale ? scannedCover.path : null,
-              tracks: [
-                LocalLibraryItem(
-                  id: 'song',
-                  trackName: 'Song',
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  filePath: audio.path,
-                  coverPath: stale ? scannedCover.path : null,
-                  scannedAt: DateTime(2026),
-                ),
-              ],
+              scannedAt: DateTime(2026),
             ),
-          ),
+          ]),
         );
         await tester.pumpAndSettle();
       });

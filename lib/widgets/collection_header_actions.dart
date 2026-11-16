@@ -13,16 +13,21 @@ class CollectionHeaderActions extends StatelessWidget {
     super.key,
     required this.tracks,
     required this.onLoveAll,
-    required this.onDownloadAll,
     required this.addToPlaylistIcon,
     required this.onAddToPlaylist,
+    this.onDownloadAll,
+    this.playActions,
     this.tonalDownload = false,
-  });
+  }) : assert(onDownloadAll != null || playActions != null);
 
   final List<Track> tracks;
   final VoidCallback onLoveAll;
 
-  final VoidCallback onDownloadAll;
+  /// The download pill; replaced by [playActions] when that is given.
+  final VoidCallback? onDownloadAll;
+
+  /// Play and shuffle beside Love and Add to playlist, in place of download.
+  final Widget? playActions;
   final bool tonalDownload;
   final IconData addToPlaylistIcon;
   final VoidCallback onAddToPlaylist;
@@ -47,12 +52,17 @@ class CollectionHeaderActions extends StatelessWidget {
         );
       },
     );
-    final download = HeaderFilledButton(
-      icon: CupertinoIcons.arrow_down_circle_fill,
-      tonal: tonalDownload,
-      label: context.l10n.dialogDownload,
-      onPressed: enabled ? onDownloadAll : null,
-    );
+    final download =
+        playActions ??
+        SizedBox(
+          width: 172,
+          child: HeaderFilledButton(
+            icon: CupertinoIcons.arrow_down_circle_fill,
+            tonal: tonalDownload,
+            label: context.l10n.dialogDownload,
+            onPressed: enabled ? onDownloadAll : null,
+          ),
+        );
     final addToPlaylist = HeaderCircleButton(
       icon: addToPlaylistIcon,
       tonal: true,
@@ -64,7 +74,7 @@ class CollectionHeaderActions extends StatelessWidget {
       children: [
         love,
         const SizedBox(width: 16),
-        Flexible(child: SizedBox(width: 172, child: download)),
+        Flexible(child: download),
         const SizedBox(width: 16),
         addToPlaylist,
       ],

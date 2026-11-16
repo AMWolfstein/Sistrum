@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/screens/album_screen.dart';
+import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('PlayerTrackNavigation');
@@ -46,15 +46,14 @@ Future<void> openPlayingAlbum(
               .getByFilePathAsync(source);
     if (!context.mounted) return;
     if (historyItem != null) {
-      final albumArtist = (historyItem.albumArtist ?? '').trim();
       pushViaPreferredNavigator(
         context,
-        (_) => DownloadedAlbumScreen(
-          albumName: historyItem.albumName,
-          artistName: albumArtist.isNotEmpty
-              ? albumArtist
-              : historyItem.artistName,
-          coverUrl: historyItem.coverUrl,
+        (_) => AlbumScreen.library(
+          albumKey: LibraryDatabase.albumKeyFor(
+            historyItem.albumName,
+            historyItem.albumArtist,
+            historyItem.artistName,
+          ),
         ),
       );
       return;
@@ -64,21 +63,16 @@ Future<void> openPlayingAlbum(
   }
 
   try {
-    final album = await ref
+    // The row's album key still finds the album when every scanned song of it
+    // is shadowed by a download.
+    final item = await ref
         .read(musicPlayerControllerProvider)
         .localAlbumFor(mediaItem.id);
     if (!context.mounted) return;
-    if (album != null) {
-      final (:item, :tracks) = album;
-      final albumArtist = (item.albumArtist ?? '').trim();
+    if (item != null) {
       pushViaPreferredNavigator(
         context,
-        (_) => LocalAlbumScreen(
-          albumName: item.albumName,
-          artistName: albumArtist.isNotEmpty ? albumArtist : item.artistName,
-          coverPath: item.coverPath,
-          tracks: tracks,
-        ),
+        (_) => AlbumScreen.library(albumKey: item.albumKey),
       );
       return;
     }

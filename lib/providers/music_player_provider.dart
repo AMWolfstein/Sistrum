@@ -265,15 +265,9 @@ class MusicPlayerController {
 
   Future<void> playSingle(PlayableMedia item) => playAll([item]);
 
-  Future<({LocalLibraryItem item, List<LocalLibraryItem> tracks})?>
-  localAlbumFor(String mediaId) async {
-    final database = _runtime.dependencies.libraryDatabase;
-    final row = await database.getById(mediaId);
-    if (row == null) return null;
-    final item = LocalLibraryItem.fromJson(row);
-    final rows = await database.getQueueLocalAlbumTracksByKey(item.albumKey);
-    final tracks = rows.map(LocalLibraryItem.fromJson).toList(growable: false);
-    return tracks.isEmpty ? null : (item: item, tracks: tracks);
+  Future<LocalLibraryItem?> localAlbumFor(String mediaId) async {
+    final row = await _runtime.dependencies.libraryDatabase.getById(mediaId);
+    return row == null ? null : LocalLibraryItem.fromJson(row);
   }
 
   /// Plays every Library song, downloads and enabled scanned sources alike,

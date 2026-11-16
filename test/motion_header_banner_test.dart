@@ -12,8 +12,9 @@ import 'package:sistrum/providers/player_artwork_video_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -224,23 +225,35 @@ void main() {
                       ? null
                       : const MotionArtwork('file:///album-cover.mp4');
                 }),
-                downloadedAlbumTracksProvider(
-                  const DownloadedAlbumTracksRequest(
-                    albumName: 'Album',
-                    artistName: 'Album Artist',
-                  ),
+                libraryAlbumItemsProvider(
+                  LibraryDatabase.albumKeyFor('Album', null, 'Album Artist'),
                 ).overrideWith(
                   (ref) async => [
-                    DownloadHistoryItem(
-                      id: 'track',
-                      trackName: 'Track',
-                      artistName: 'Track Artist',
-                      albumName: 'Album',
-                      albumArtist: 'Album Artist',
-                      filePath: 'content://library/track.flac',
-                      service: 'provider-a',
-                      downloadedAt: DateTime(2026),
-                    ),
+                    if (downloaded)
+                      UnifiedLibraryItem.fromDownloadHistory(
+                        DownloadHistoryItem(
+                          id: 'track',
+                          trackName: 'Track',
+                          artistName: 'Track Artist',
+                          albumName: 'Album',
+                          albumArtist: 'Album Artist',
+                          filePath: 'content://library/track.flac',
+                          service: 'provider-a',
+                          downloadedAt: DateTime(2026),
+                        ),
+                      )
+                    else
+                      UnifiedLibraryItem.fromLocalLibrary(
+                        LocalLibraryItem(
+                          id: 'track',
+                          trackName: 'Track',
+                          artistName: 'Track Artist',
+                          albumName: 'Album',
+                          albumArtist: 'Album Artist',
+                          filePath: 'content://library/track.flac',
+                          scannedAt: DateTime(2026),
+                        ),
+                      ),
                   ],
                 ),
               ],
@@ -254,26 +267,13 @@ void main() {
                   ).copyWith(disableAnimations: mode == 'reduced motion'),
                   child: child!,
                 ),
-                home: downloaded
-                    ? const DownloadedAlbumScreen(
-                        albumName: 'Album',
-                        artistName: 'Album Artist',
-                      )
-                    : LocalAlbumScreen(
-                        albumName: 'Album',
-                        artistName: 'Album Artist',
-                        tracks: [
-                          LocalLibraryItem(
-                            id: 'track',
-                            trackName: 'Track',
-                            artistName: 'Track Artist',
-                            albumName: 'Album',
-                            albumArtist: 'Album Artist',
-                            filePath: 'content://library/track.flac',
-                            scannedAt: DateTime(2026),
-                          ),
-                        ],
-                      ),
+                home: AlbumScreen.library(
+                  albumKey: LibraryDatabase.albumKeyFor(
+                    'Album',
+                    null,
+                    'Album Artist',
+                  ),
+                ),
               ),
             ),
           );

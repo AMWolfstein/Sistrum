@@ -51,39 +51,13 @@ extension _QueueTabNavigation on _QueueTabState {
       await ref
           .read(playbackProvider.notifier)
           .playMediaQueue(
-            playableItems.map(_toPlayableMedia),
+            playableItems.map(playableFromUnified),
             startIndex: start,
             externalPath: item.filePath,
           );
     } catch (e) {
       if (mounted) showCannotOpenFileSnackBar(context, e);
     }
-  }
-
-  PlayableMedia _toPlayableMedia(UnifiedLibraryItem item) {
-    final history = item.historyItem;
-    if (history != null) return playableFromHistory(history);
-    final local = item.localItem;
-    if (local != null) return playableFromLocal(local);
-
-    final cover = item.coverUrl ?? item.localCoverPath ?? '';
-    String? art;
-    if (cover.isNotEmpty) {
-      art =
-          (cover.startsWith('http') ||
-              cover.startsWith('content://') ||
-              cover.startsWith('file://'))
-          ? cover
-          : Uri.file(cover).toString();
-    }
-    return PlayableMedia(
-      id: item.id,
-      source: item.filePath,
-      title: item.trackName,
-      artist: item.artistName,
-      album: item.albumName,
-      artUri: art,
-    );
   }
 
   Future<void> _navigateToMetadataScreen(DownloadItem item) async {
@@ -198,10 +172,12 @@ extension _QueueTabNavigation on _QueueTabState {
   void _navigateToDownloadedAlbum(_GroupedAlbum album) {
     _navigateWithUnfocus(
       slidePageRoute(
-        page: DownloadedAlbumScreen(
-          albumName: album.albumName,
-          artistName: album.artistName,
-          coverUrl: album.coverUrl,
+        page: AlbumScreen.library(
+          albumKey: LibraryDatabase.albumKeyFor(
+            album.albumName,
+            null,
+            album.artistName,
+          ),
         ),
       ),
     );
@@ -235,20 +211,8 @@ extension _QueueTabNavigation on _QueueTabState {
   }
 
   void _navigateToLocalAlbum(_GroupedLocalAlbum album) {
-    Future<List<LocalLibraryItem>> loadTracks() => _loadLocalAlbumTracks(album);
-
     _navigateWithUnfocus(
-      slidePageRoute(
-        page: LocalAlbumScreen(
-          albumName: album.albumName,
-          artistName: album.artistName,
-          coverPath: album.coverPath,
-          tracks: album.tracks,
-          loadTracks: album.tracks.isEmpty && album.displayTrackCount > 0
-              ? loadTracks
-              : null,
-        ),
-      ),
+      slidePageRoute(page: AlbumScreen.library(albumKey: album.albumKey)),
     );
   }
 

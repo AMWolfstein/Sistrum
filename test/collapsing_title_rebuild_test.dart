@@ -14,11 +14,11 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/track_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
-import 'package:sistrum/screens/playlist_screen.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -178,12 +178,23 @@ void main() {
           downloadHistoryVisibleBatchExistsProvider.overrideWith(
             (ref, request) => const <String>{},
           ),
-          downloadedAlbumTracksProvider(
-            const DownloadedAlbumTracksRequest(
-              albumName: 'Example album',
-              artistName: 'Example artist',
+          libraryAlbumItemsProvider(
+            LibraryDatabase.albumKeyFor(
+              'Example album',
+              null,
+              'Example artist',
             ),
-          ).overrideWith((ref) async => _downloaded),
+          ).overrideWith(
+            (ref) async => page == 'local album'
+                ? [
+                    for (final track in _local)
+                      UnifiedLibraryItem.fromLocalLibrary(track),
+                  ]
+                : [
+                    for (final track in _downloaded)
+                      UnifiedLibraryItem.fromDownloadHistory(track),
+                  ],
+          ),
           localLibraryProvider.overrideWith(_Library.new),
           downloadHistoryProvider.overrideWith(_History.new),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
@@ -210,14 +221,12 @@ void main() {
           albums: _albums,
           topTracks: _tracks.take(10).toList(),
         ),
-        'downloaded album' => const DownloadedAlbumScreen(
-          albumName: 'Example album',
-          artistName: 'Example artist',
-        ),
-        'local album' => LocalAlbumScreen(
-          albumName: 'Example album',
-          artistName: 'Example artist',
-          tracks: _local,
+        'downloaded album' || 'local album' => AlbumScreen.library(
+          albumKey: LibraryDatabase.albumKeyFor(
+            'Example album',
+            null,
+            'Example artist',
+          ),
         ),
         _ => const LibraryTracksFolderScreen(
           mode: LibraryTracksFolderMode.playlist,

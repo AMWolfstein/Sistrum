@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -99,6 +100,18 @@ class PlaybackController extends Notifier<PlaybackState> {
     (i) => i.id == startItem.id,
     (i) => i.filePath,
     playableFromLocal,
+  );
+
+  /// Plays a library album of either source starting at [startItem], queuing
+  /// the rest. Honors player mode.
+  Future<void> playLibraryQueue(
+    List<UnifiedLibraryItem> items, {
+    required UnifiedLibraryItem startItem,
+  }) => _playQueue(
+    items,
+    (i) => i.id == startItem.id,
+    (i) => i.filePath,
+    playableFromUnified,
   );
 
   /// Plays a downloaded-history album/list starting at [startItem], queuing the

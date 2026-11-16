@@ -82,7 +82,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
     `lib/widgets/artist_featured_album_card.dart`, `lib/screens/mornye_library_screen.dart`,
     `lib/controllers/clickable_metadata.dart`, tests.
 
-- [ ] M003-T003 Album screen reads the library
+- [x] M003-T003 Album screen reads the library
   - Acceptance: FR-003. `AlbumScreen` in library mode with compact Play and Shuffle
     (`AlbumPlayActions`) beside Love and Add to playlist; `DownloadedAlbumScreen`,
     `LocalAlbumScreen` deleted; all entry points (plan.md list) open it. First

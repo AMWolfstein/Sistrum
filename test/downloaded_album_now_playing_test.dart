@@ -9,7 +9,10 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/screens/album_screen.dart';
+import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
@@ -25,6 +28,7 @@ class _History extends DownloadHistoryNotifier {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  final albumKey = LibraryDatabase.albumKeyFor('Album', null, 'Artist');
 
   testWidgets('downloaded album rows follow playback', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -51,24 +55,21 @@ void main() {
         overrides: [
           settingsProvider.overrideWith(ReEnrichTestSettings.new),
           downloadHistoryProvider.overrideWith(_History.new),
-          downloadedAlbumTracksProvider(
-            const DownloadedAlbumTracksRequest(
-              albumName: 'Album',
-              artistName: 'Artist',
-            ),
-          ).overrideWith(
+          libraryAlbumItemsProvider(albumKey).overrideWith(
             (ref) async => [
               for (final (index, id) in ['first', 'second'].indexed)
-                DownloadHistoryItem(
-                  id: id,
-                  trackName: id == 'first' ? 'First' : 'Second',
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  filePath: '/music/$id.flac',
-                  service: 'example-provider',
-                  downloadedAt: DateTime(2026),
-                  trackNumber: index + 1,
-                  duration: 180,
+                UnifiedLibraryItem.fromDownloadHistory(
+                  DownloadHistoryItem(
+                    id: id,
+                    trackName: id == 'first' ? 'First' : 'Second',
+                    artistName: 'Artist',
+                    albumName: 'Album',
+                    filePath: '/music/$id.flac',
+                    service: 'example-provider',
+                    downloadedAt: DateTime(2026),
+                    trackNumber: index + 1,
+                    duration: 180,
+                  ),
                 ),
             ],
           ),
@@ -83,10 +84,7 @@ void main() {
           theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const DownloadedAlbumScreen(
-            albumName: 'Album',
-            artistName: 'Artist',
-          ),
+          home: AlbumScreen.library(albumKey: albumKey),
         ),
       ),
     );

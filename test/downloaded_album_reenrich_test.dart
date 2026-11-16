@@ -12,7 +12,8 @@ import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -256,29 +257,27 @@ void main() {
       });
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
       final history = _History();
+      final albumKey = LibraryDatabase.albumKeyFor('Album', null, 'Artist');
       final navigator = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             settingsProvider.overrideWith(ReEnrichTestSettings.new),
             downloadHistoryProvider.overrideWith(() => history),
-            downloadedAlbumTracksProvider(
-              const DownloadedAlbumTracksRequest(
-                albumName: 'Album',
-                artistName: 'Artist',
-              ),
-            ).overrideWith(
+            libraryAlbumItemsProvider(albumKey).overrideWith(
               (ref) async => [
                 for (final id in ['track', 'other'])
-                  DownloadHistoryItem(
-                    id: id,
-                    trackName: id == 'track' ? 'Track' : 'Other',
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    filePath: id == 'track' ? path : '/music/other.flac',
-                    service: 'example-provider',
-                    downloadedAt: DateTime(2026),
-                    duration: 180,
+                  UnifiedLibraryItem.fromDownloadHistory(
+                    DownloadHistoryItem(
+                      id: id,
+                      trackName: id == 'track' ? 'Track' : 'Other',
+                      artistName: 'Artist',
+                      albumName: 'Album',
+                      filePath: id == 'track' ? path : '/music/other.flac',
+                      service: 'example-provider',
+                      downloadedAt: DateTime(2026),
+                      duration: 180,
+                    ),
                   ),
               ],
             ),
@@ -288,11 +287,8 @@ void main() {
             theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const SelectionOverlayHost(
-              child: DownloadedAlbumScreen(
-                albumName: 'Album',
-                artistName: 'Artist',
-              ),
+            home: SelectionOverlayHost(
+              child: AlbumScreen.library(albumKey: albumKey),
             ),
           ),
         ),

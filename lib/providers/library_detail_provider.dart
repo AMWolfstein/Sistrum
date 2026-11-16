@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_collections_database.dart';
@@ -61,17 +63,30 @@ final libraryArtistPopularTracksProvider = FutureProvider.autoDispose
     });
 
 /// The songs of a library album by album key, downloaded and scanned alike.
-final libraryAlbumTracksProvider = FutureProvider.autoDispose
-    .family<List<Track>, String>((ref, albumKey) {
+final libraryAlbumItemsProvider = FutureProvider.autoDispose
+    .family<List<UnifiedLibraryItem>, String>((ref, albumKey) {
       // Reloads when the library index changes, as the credits do.
       ref.watch(tagCreditScopeProvider.select((scope) => scope.version));
-      return loadLibraryAlbumTracks(
+      ref.watch(
+        downloadHistoryProvider.select((state) => state.loadedIndexVersion),
+      );
+      return loadLibraryAlbumItems(
         albumKey,
         includeLocal: ref.watch(
           settingsProvider.select((s) => s.localLibraryEnabled),
         ),
       );
     });
+
+final libraryAlbumTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>(
+      (ref, albumKey) async => [
+        for (final item in await ref.watch(
+          libraryAlbumItemsProvider(albumKey).future,
+        ))
+          item.toTrack(),
+      ],
+    );
 
 /// Every song of a playlist in playlist order. shortcut: -1 is SQLite's no
 /// limit, so long playlists are not cut short.

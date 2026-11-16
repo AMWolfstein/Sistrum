@@ -4141,15 +4141,6 @@
       }
     }
   },
-  "downloadedAlbumDownloadedCount": "{count} đã tải xuống",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Đặt tên thư mục theo tag Nghệ sĩ album",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
     "description": "Subtitle when album artist is used for folder names"

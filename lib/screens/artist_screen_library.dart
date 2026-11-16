@@ -248,37 +248,8 @@ extension _ArtistLibrarySections on _ArtistScreenState {
     }
   }
 
-  /// Opens a library album on the offline page that matches its copies until
-  /// the album page reads the library itself.
+  /// Opens a library album on the library album page.
   void _openLibraryAlbum(ArtistAlbum album) {
-    final downloaded =
-        ref
-            .read(libraryArtistOverviewProvider(widget.artistName))
-            .value
-            ?.downloadedAlbumKeys
-            .contains(album.id) ??
-        false;
-    pushPage<void>(
-      context,
-      (_) => downloaded
-          ? DownloadedAlbumScreen(
-              albumName: album.name,
-              artistName: album.artists,
-              coverUrl: album.coverUrl,
-            )
-          : LocalAlbumScreen(
-              albumName: album.name,
-              artistName: album.artists,
-              coverPath: album.coverUrl,
-              loadTracks: () => _loadLocalAlbumItems(album.id),
-            ),
-    );
-  }
-
-  Future<List<LocalLibraryItem>> _loadLocalAlbumItems(String albumKey) async {
-    final rows = await LibraryDatabase.instance.getQueueLocalAlbumTracksByKey(
-      albumKey,
-    );
-    return rows.map(LocalLibraryItem.fromJson).toList(growable: false);
+    pushPage<void>(context, (_) => AlbumScreen.library(albumKey: album.id));
   }
 }

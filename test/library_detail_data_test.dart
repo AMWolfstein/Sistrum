@@ -13,6 +13,7 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
@@ -340,6 +341,10 @@ Future<void> _play(String path, int plays) async {
   ]);
 }
 
+List<String> _itemNames(Iterable<UnifiedLibraryItem> items) => [
+  for (final item in items) item.trackName,
+];
+
 List<String> _names(Iterable<Track> tracks) => [
   for (final track in tracks) track.name,
 ];
@@ -598,8 +603,8 @@ void main() {
 
     test('downloaded and scanned copies of one album key are both listed '
         'in album order', () async {
-      final tracks = await loadLibraryAlbumTracks(shared, includeLocal: true);
-      expect(_names(tracks), [
+      final tracks = await loadLibraryAlbumItems(shared, includeLocal: true);
+      expect(_itemNames(tracks), [
         'Shared One',
         'Shared Two',
         'Shared Three',
@@ -610,16 +615,13 @@ void main() {
     test(
       'an album only downloaded or only scanned is found by its key',
       () async {
-        final downloaded = await loadLibraryAlbumTracks(
+        final downloaded = await loadLibraryAlbumItems(
           mixtape,
           includeLocal: true,
         );
-        final scanned = await loadLibraryAlbumTracks(
-          single,
-          includeLocal: true,
-        );
-        expect(_names(downloaded), ['Mix One', 'Mix Two']);
-        expect(_names(scanned), ['Lone Song']);
+        final scanned = await loadLibraryAlbumItems(single, includeLocal: true);
+        expect(_itemNames(downloaded), ['Mix One', 'Mix Two']);
+        expect(_itemNames(scanned), ['Lone Song']);
       },
     );
 
@@ -634,8 +636,8 @@ void main() {
         artist: 'Dana Vale',
         number: 1,
       );
-      final tracks = await loadLibraryAlbumTracks(mixtape, includeLocal: true);
-      expect(_names(tracks), ['Mix One', 'Mix Two']);
+      final tracks = await loadLibraryAlbumItems(mixtape, includeLocal: true);
+      expect(_itemNames(tracks), ['Mix One', 'Mix Two']);
       final overview = await loadLibraryArtistOverview(
         'Dana Vale',
         credits: _scope,
@@ -653,12 +655,9 @@ void main() {
     test(
       'with the local library off, only downloaded songs are listed',
       () async {
-        final tracks = await loadLibraryAlbumTracks(
-          shared,
-          includeLocal: false,
-        );
-        expect(_names(tracks), ['Shared Three', 'Shared Four']);
-        final scanned = await loadLibraryAlbumTracks(
+        final tracks = await loadLibraryAlbumItems(shared, includeLocal: false);
+        expect(_itemNames(tracks), ['Shared Three', 'Shared Four']);
+        final scanned = await loadLibraryAlbumItems(
           single,
           includeLocal: false,
         );

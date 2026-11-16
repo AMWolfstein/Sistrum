@@ -10,9 +10,8 @@ import 'package:sistrum/providers/library_lyrics_search_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -362,29 +361,10 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
             ),
           );
         case LibrarySearchKind.albums:
-          if (hit.source == 'local') {
-            final rows = await LibraryDatabase.instance
-                .getQueueLocalAlbumTracksByKey(hit.id);
-            if (!mounted) return;
-            await pushPage<void>(
-              context,
-              (_) => LocalAlbumScreen(
-                albumName: hit.title,
-                artistName: hit.artist,
-                coverPath: hit.cover,
-                tracks: rows.map(LocalLibraryItem.fromJson).toList(),
-              ),
-            );
-          } else {
-            await pushPage<void>(
-              context,
-              (_) => DownloadedAlbumScreen(
-                albumName: hit.title,
-                artistName: hit.artist,
-                coverUrl: hit.cover,
-              ),
-            );
-          }
+          await pushPage<void>(
+            context,
+            (_) => AlbumScreen.library(albumKey: hit.id),
+          );
       }
     } catch (error) {
       if (!mounted) return;

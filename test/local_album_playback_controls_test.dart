@@ -7,9 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
@@ -49,12 +51,12 @@ class _Playback extends PlaybackController {
   final _started = <String>[];
 
   @override
-  Future<void> playLocalLibraryQueue(
-    List<LocalLibraryItem> items, {
-    required LocalLibraryItem startItem,
+  Future<void> playLibraryQueue(
+    List<UnifiedLibraryItem> items, {
+    required UnifiedLibraryItem startItem,
   }) async {
-    _started.add(startItem.id);
-    _start(startItem);
+    _started.add(startItem.localItem!.id);
+    _start(startItem.localItem!);
   }
 }
 
@@ -67,6 +69,8 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
+  final albumKey = LibraryDatabase.albumKeyFor('Album', null, 'Artist');
+
   testWidgets('local album controls pause and resume without restarting', (
     tester,
   ) async {
@@ -113,21 +117,23 @@ void main() {
           ),
           musicPlayerControllerProvider.overrideWithValue(player),
           playbackProvider.overrideWith(() => playback),
+          libraryAlbumItemsProvider(albumKey).overrideWith(
+            (ref) async => [
+              for (final track in tracks)
+                UnifiedLibraryItem.fromLocalLibrary(track),
+            ],
+          ),
         ],
         child: MaterialApp(
           theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: LocalAlbumScreen(
-            albumName: 'Album',
-            artistName: 'Artist',
-            tracks: tracks,
-          ),
+          home: AlbumScreen.library(albumKey: albumKey),
         ),
       ),
     );
     container = ProviderScope.containerOf(
-      tester.element(find.byType(LocalAlbumScreen)),
+      tester.element(find.byType(AlbumScreen)),
     );
     await _settle(tester);
     final header = find.byType(AlbumPlayActions);

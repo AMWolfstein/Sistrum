@@ -5,10 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -19,15 +20,17 @@ class _Playback extends PlaybackController {
   final played = <String>[];
 
   @override
-  Future<void> playLocalLibraryQueue(
-    List<LocalLibraryItem> items, {
-    required LocalLibraryItem startItem,
+  Future<void> playLibraryQueue(
+    List<UnifiedLibraryItem> items, {
+    required UnifiedLibraryItem startItem,
   }) async {
-    played.add(startItem.id);
+    played.add(startItem.localItem!.id);
   }
 }
 
 void main() {
+  final albumKey = LibraryDatabase.albumKeyFor('Album', null, 'Artist');
+
   testWidgets('downloaded album order survives empty and reload', (
     tester,
   ) async {
@@ -35,18 +38,13 @@ void main() {
     tester.view.physicalSize = const Size(430, 1200);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final loads = <Completer<List<DownloadHistoryItem>>>[];
-    final provider = downloadedAlbumTracksProvider(
-      const DownloadedAlbumTracksRequest(
-        albumName: 'Album',
-        artistName: 'Artist',
-      ),
-    );
+    final loads = <Completer<List<UnifiedLibraryItem>>>[];
+    final provider = libraryAlbumItemsProvider(albumKey);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           provider.overrideWith((ref) {
-            final load = Completer<List<DownloadHistoryItem>>();
+            final load = Completer<List<UnifiedLibraryItem>>();
             loads.add(load);
             return load.future;
           }),
@@ -55,10 +53,7 @@ void main() {
           theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const DownloadedAlbumScreen(
-            albumName: 'Album',
-            artistName: 'Artist',
-          ),
+          home: AlbumScreen.library(albumKey: albumKey),
         ),
       ),
     );
@@ -67,23 +62,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AlbumTrackTile), findsNothing);
     final container = ProviderScope.containerOf(
-      tester.element(find.byType(DownloadedAlbumScreen)),
+      tester.element(find.byType(AlbumScreen)),
     );
     container.invalidate(provider);
     await tester.pump();
     expect(find.byType(AppLoadingIndicator), findsOneWidget);
     loads.last.complete([
       for (final disc in [2, 1])
-        DownloadHistoryItem(
-          id: '$disc',
-          trackName: 'Disc $disc',
-          artistName: 'Artist',
-          albumName: 'Album',
-          filePath: '/missing/song-$disc.flac',
-          service: 'example',
-          downloadedAt: DateTime.utc(2026),
-          discNumber: disc,
-          trackNumber: 1,
+        UnifiedLibraryItem.fromDownloadHistory(
+          DownloadHistoryItem(
+            id: '$disc',
+            trackName: 'Disc $disc',
+            artistName: 'Artist',
+            albumName: 'Album',
+            filePath: '/missing/song-$disc.flac',
+            service: 'example',
+            downloadedAt: DateTime.utc(2026),
+            discNumber: disc,
+            trackNumber: 1,
+          ),
         ),
     ]);
     await tester.pumpAndSettle();
@@ -110,29 +107,32 @@ void main() {
     final navigator = GlobalKey<NavigatorState>();
     final tracks = [
       for (final number in [2, 1])
-        LocalLibraryItem(
-          id: '$number',
-          trackName: 'Song $number',
-          artistName: 'Artist',
-          albumName: 'Album',
-          filePath: '/missing/song-$number.flac',
-          trackNumber: number,
-          scannedAt: DateTime(2026),
+        UnifiedLibraryItem.fromLocalLibrary(
+          LocalLibraryItem(
+            id: '$number',
+            trackName: 'Song $number',
+            artistName: 'Artist',
+            albumName: 'Album',
+            filePath: '/missing/song-$number.flac',
+            trackNumber: number,
+            scannedAt: DateTime(2026),
+          ),
         ),
     ];
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [playbackProvider.overrideWith(() => playback)],
+        overrides: [
+          playbackProvider.overrideWith(() => playback),
+          libraryAlbumItemsProvider(
+            albumKey,
+          ).overrideWith((ref) async => tracks),
+        ],
         child: MaterialApp(
           navigatorKey: navigator,
           theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: LocalAlbumScreen(
-            albumName: 'Album',
-            artistName: 'Artist',
-            tracks: tracks,
-          ),
+          home: AlbumScreen.library(albumKey: albumKey),
         ),
       ),
     );

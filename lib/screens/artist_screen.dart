@@ -29,7 +29,6 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/string_utils.dart';
@@ -39,8 +38,6 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/provider_resource_ids.dart';
 import 'package:sistrum/utils/ttl_cache.dart';
 import 'package:sistrum/screens/album_screen.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/extension_collection_screens.dart'
     show ExtensionAlbumScreen;
 import 'package:sistrum/controllers/clickable_metadata.dart';

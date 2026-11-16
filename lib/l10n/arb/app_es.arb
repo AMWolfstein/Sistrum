@@ -1436,15 +1436,6 @@
   "@downloadedAlbumSelectToDelete": {
     "description": "Placeholder when nothing selected"
   },
-  "downloadedAlbumDownloadedCount": "{count} downloaded",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "navLibrary": "Library",
   "@navLibrary": {
     "description": "Bottom navigation - Library tab"

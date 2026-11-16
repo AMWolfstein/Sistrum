@@ -1411,7 +1411,6 @@ Set<String> _mergeVisibleHistoryKeys(
   return keys;
 }
 
-
 class _VisibleHistoryBatchExistsNotifier extends Notifier<Set<String>> {
   _VisibleHistoryBatchExistsNotifier(this.request);
 
@@ -1472,37 +1471,3 @@ final downloadHistoryVisibleBatchExistsProvider = Provider.autoDispose
     .family<Set<String>, HistoryBatchLookupRequest>(
       (ref, request) => ref.watch(_visibleHistoryBatchExistsProvider(request)),
     );
-
-class DownloadedAlbumTracksRequest {
-  final String albumName;
-  final String artistName;
-
-  const DownloadedAlbumTracksRequest({
-    required this.albumName,
-    required this.artistName,
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      other is DownloadedAlbumTracksRequest &&
-      other.albumName == albumName &&
-      other.artistName == artistName;
-
-  @override
-  int get hashCode => Object.hash(albumName, artistName);
-}
-
-final downloadedAlbumTracksProvider = FutureProvider.autoDispose
-    .family<List<DownloadHistoryItem>, DownloadedAlbumTracksRequest>((
-      ref,
-      request,
-    ) async {
-      ref.watch(
-        downloadHistoryProvider.select((state) => state.loadedIndexVersion),
-      );
-      final rows = await HistoryDatabase.instance.getAlbumTracks(
-        request.albumName,
-        request.artistName,
-      );
-      return rows.map(DownloadHistoryItem.fromJson).toList(growable: false);
-    });

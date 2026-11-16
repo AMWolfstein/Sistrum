@@ -3601,15 +3601,6 @@
       }
     }
   },
-  "downloadedAlbumDownloadedCount": "{count} downloaded",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Folder named after Album Artist tag",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
     "description": "Subtitle when album artist is used for folder names"

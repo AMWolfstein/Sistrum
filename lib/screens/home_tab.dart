@@ -63,7 +63,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/widgets/download_service_picker.dart';
 import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 import 'package:sistrum/widgets/animation_utils.dart';

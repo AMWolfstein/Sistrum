@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/music_player_runtime.dart';
 import 'package:sistrum/services/playback_metadata.dart';
@@ -240,5 +241,32 @@ PlayableMedia playableFromLocal(LocalLibraryItem item) {
     format: item.format,
     explicit: item.explicit,
     genre: item.genre,
+  );
+}
+
+/// A library row of either source; network items keep their own cover.
+PlayableMedia playableFromUnified(UnifiedLibraryItem item) {
+  final history = item.historyItem;
+  if (history != null) return playableFromHistory(history);
+  final local = item.localItem;
+  if (local != null) return playableFromLocal(local);
+
+  final cover = item.coverUrl ?? item.localCoverPath ?? '';
+  String? art;
+  if (cover.isNotEmpty) {
+    art =
+        (cover.startsWith('http') ||
+            cover.startsWith('content://') ||
+            cover.startsWith('file://'))
+        ? cover
+        : Uri.file(cover).toString();
+  }
+  return PlayableMedia(
+    id: item.id,
+    source: item.filePath,
+    title: item.trackName,
+    artist: item.artistName,
+    album: item.albumName,
+    artUri: art,
   );
 }

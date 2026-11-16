@@ -21,15 +21,9 @@ const _pageSize = 500;
 /// A library artist's albums and singles: the albums the artist is the album
 /// artist of, one entry per album key.
 class LibraryArtistOverview {
-  const LibraryArtistOverview(
-    this.albums, {
-    this.downloadedAlbumKeys = const {},
-  });
+  const LibraryArtistOverview(this.albums);
 
   final List<ArtistAlbum> albums;
-
-  /// Keys of the albums with a downloaded copy, which open the downloaded page.
-  final Set<String> downloadedAlbumKeys;
 
   /// The newest album by release date. Undated albums never qualify.
   ArtistAlbum? get latestRelease {
@@ -69,14 +63,9 @@ Future<LibraryArtistOverview> loadLibraryArtistOverview(
   for (final row in rows) {
     byKey.putIfAbsent(row['album_key'] as String? ?? '', () => []).add(row);
   }
-  return LibraryArtistOverview(
-    [for (final copies in byKey.values) _libraryAlbum(copies)],
-    downloadedAlbumKeys: {
-      for (final entry in byKey.entries)
-        if (entry.value.any((row) => row['queue_source'] == 'downloaded'))
-          entry.key,
-    },
-  );
+  return LibraryArtistOverview([
+    for (final copies in byKey.values) _libraryAlbum(copies),
+  ]);
 }
 
 /// The tracks where the artist is a track artist but not the album artist.
@@ -153,8 +142,8 @@ Future<List<Track>> loadLibraryArtistPopularTracks(
 }
 
 /// The songs of the album with [albumKey], downloaded and scanned alike, in
-/// album order.
-Future<List<Track>> loadLibraryAlbumTracks(
+/// album order. Items keep their files, for the offline row actions.
+Future<List<UnifiedLibraryItem>> loadLibraryAlbumItems(
   String albumKey, {
   required bool includeLocal,
 }) async {
@@ -164,21 +153,19 @@ Future<List<Track>> loadLibraryAlbumTracks(
   final scanned = includeLocal
       ? await LibraryDatabase.instance.getQueueLocalAlbumTracksByKey(albumKey)
       : const <Map<String, dynamic>>[];
-  final tracks = [
+  final items = [
     for (final row in downloaded)
-      UnifiedLibraryItem.fromDownloadHistory(
-        DownloadHistoryItem.fromJson(row),
-      ).toTrack(),
+      UnifiedLibraryItem.fromDownloadHistory(DownloadHistoryItem.fromJson(row)),
     for (final row in scanned)
-      UnifiedLibraryItem.fromLocalLibrary(
-        LocalLibraryItem.fromJson(row),
-      ).toTrack(),
+      UnifiedLibraryItem.fromLocalLibrary(LocalLibraryItem.fromJson(row)),
   ];
   return AlbumTrackOrder(
-    tracks,
-    discNumber: (track) => track.discNumber,
-    trackNumber: (track) => track.trackNumber,
-    trackName: (track) => track.name,
+    items,
+    discNumber: (item) =>
+        item.historyItem?.discNumber ?? item.localItem?.discNumber,
+    trackNumber: (item) =>
+        item.historyItem?.trackNumber ?? item.localItem?.trackNumber,
+    trackName: (item) => item.trackName,
   ).tracks.toList(growable: false);
 }
 

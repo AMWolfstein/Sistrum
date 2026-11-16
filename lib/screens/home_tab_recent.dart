@@ -308,10 +308,12 @@ extension _HomeTabRecentUI on _HomeTabState {
         if (item.providerId == 'download') {
           pushPage<void>(
             context,
-            (context) => DownloadedAlbumScreen(
-              albumName: item.name,
-              artistName: item.subtitle ?? '',
-              coverUrl: item.imageUrl,
+            (context) => AlbumScreen.library(
+              albumKey: LibraryDatabase.albumKeyFor(
+                item.name,
+                null,
+                item.subtitle ?? '',
+              ),
             ),
           );
         } else if (_isEnabledMetadataExtension(item.providerId)) {

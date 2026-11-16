@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 34,
+  "next_completion": 35,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -392,13 +392,19 @@
       "title": "Artist screen reads the library"
     },
     "M003-T003": {
-      "completion": null,
+      "completion": 34,
+      "evidence": {
+        "checks": "Round 1 NEEDS_FIXES (dead loader loadLibraryAlbumTracks) fixed; round 2 NEEDS_FIXES (a false count in the record) fixed; round 3 PASS. Saved evidence scratchpad/t003: flutter analyze lib test integration_test no issues; dart format 32 files 0 changed; targeted 163 passed; full flutter test exit 0, 3985 passed incl 7 loading (3978 without), 10 skipped, 0 failed; work.py validate PASS. Old DownloadedAlbumScreen/LocalAlbumScreen deleted, offline album actions ported; no device run.",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a2964945",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "efc05a014ac04005921a03bb76dee227",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Album screen reads the library"
     },
     "M003-T004": {

@@ -4141,15 +4141,6 @@
       }
     }
   },
-  "downloadedAlbumDownloadedCount": "{count} indirildi",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Klasör, Albüm Sanatçısı etiketine göre adlandırılır",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
     "description": "Subtitle when album artist is used for folder names"

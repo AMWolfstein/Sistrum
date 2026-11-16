@@ -4141,15 +4141,6 @@
       }
     }
   },
-  "downloadedAlbumDownloadedCount": "{count} descargado",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Carpeta nombrada según la etiqueta Artista del álbum",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
     "description": "Subtitle when album artist is used for folder names"

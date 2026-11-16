@@ -4141,15 +4141,6 @@
       }
     }
   },
-  "downloadedAlbumDownloadedCount": "{count} 개의 트랙 다운로드됨",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "앨범 아티스트 태그를 기준으로 폴더 이름을 지정합니다",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
     "description": "Subtitle when album artist is used for folder names"

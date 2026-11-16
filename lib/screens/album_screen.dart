@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
@@ -38,6 +39,33 @@ import 'package:sistrum/widgets/collection_suggestions_section.dart';
 import 'package:sistrum/widgets/downloadable_cover.dart';
 import 'package:sistrum/widgets/disc_separator_chip.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_detail_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/providers/player_motion_artwork_provider.dart';
+import 'package:sistrum/providers/deleted_library_files.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
+import 'package:sistrum/controllers/batch_track_actions.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/screens/track_metadata_screen.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
+import 'package:sistrum/utils/audio_quality_badge_policy.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/library_selection_playback_actions.dart';
+import 'package:sistrum/widgets/library_track_selection_bar.dart';
+import 'package:sistrum/widgets/local_library_artwork_builder.dart';
+import 'package:sistrum/widgets/network_offline_actions.dart';
+import 'package:sistrum/widgets/network_upload_actions.dart';
+import 'package:sistrum/widgets/album_track_tile.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+
+part 'album_screen_library.dart';
 
 class _AlbumCache {
   static final _cache = TtlCache<({List<Track> tracks, String? description})>(
@@ -65,6 +93,9 @@ class AlbumScreen extends ConsumerStatefulWidget {
   final String? artistName;
   final String? description;
 
+  /// Set in library mode: the album's key in the library.
+  final String? libraryAlbumKey;
+
   const AlbumScreen({
     super.key,
     required this.albumId,
@@ -78,7 +109,22 @@ class AlbumScreen extends ConsumerStatefulWidget {
     this.artistId,
     this.artistName,
     this.description,
-  });
+  }) : libraryAlbumKey = null;
+
+  /// The library album with [albumKey], read from the library's files.
+  const AlbumScreen.library({super.key, required String albumKey})
+    : libraryAlbumKey = albumKey,
+      albumId = '',
+      albumName = '',
+      coverUrl = null,
+      headerVideoUrl = null,
+      headerImageUrl = null,
+      audioTraits = null,
+      tracks = null,
+      extensionId = null,
+      artistId = null,
+      artistName = null,
+      description = null;
 
   @override
   ConsumerState<AlbumScreen> createState() => _AlbumScreenState();
@@ -99,6 +145,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
   String? _headerImageUrl;
   List<String> _audioTraits = const [];
   String? _description;
+  bool _embeddedCoverRefreshScheduled = false;
 
   String get _cacheKey =>
       '${_effectiveMetadataProviderIdFromAlbumId()}:${widget.albumId}';
@@ -113,9 +160,37 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
     );
   }
 
+  void _onEmbeddedCoverChanged() {
+    if (!mounted || _embeddedCoverRefreshScheduled) return;
+    _embeddedCoverRefreshScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _embeddedCoverRefreshScheduled = false;
+      if (mounted) setState(() {});
+    });
+  }
+
+  Future<void> _reEnrichSelected(List<UnifiedLibraryItem> selected) async {
+    await reEnrichLibraryTracks(
+      context,
+      ref,
+      selected,
+      isActive: () => mounted,
+      onSelectionHide: () async {
+        setState(() => isSelectionMode = false);
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      },
+      onSelectionRestore: () => setState(() => isSelectionMode = true),
+      onComplete: () {
+        _onEmbeddedCoverChanged();
+        exitSelectionMode();
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    if (widget.libraryAlbumKey != null) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final providerId = _effectiveMetadataProviderIdFromAlbumId();
@@ -155,6 +230,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (widget.libraryAlbumKey != null) return;
     DetailPage.mark(
       context,
       DetailPage.album(widget.albumId, providerId: widget.extensionId),
@@ -379,6 +455,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.libraryAlbumKey != null) return _buildLibrary(context);
     return MornyeArtistSurface(
       imageSource: widget.coverUrl ?? _headerImageUrl ?? widget.headerImageUrl,
       neutralActions: true,

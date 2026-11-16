@@ -4141,15 +4141,6 @@
       }
     }
   },
-  "downloadedAlbumDownloadedCount": "已下载 {count} 首",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "文件夹以专辑艺术家标签命名",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
     "description": "Subtitle when album artist is used for folder names"

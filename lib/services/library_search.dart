@@ -177,8 +177,8 @@ class LibrarySearchStore {
     }
     final rows = '(${parts.join(' UNION ALL ')})';
     // Album predicates use only album-level fields, preserving full track
-    // counts. Keep downloaded/local albums separate, as their detail screens
-    // resolve tracks from different stores. Artists merge both sources.
+    // counts. Downloaded and local albums stay separate rows; the library album
+    // page merges both sources by album key. Artists merge both sources.
     final select = switch (kind) {
       LibrarySearchKind.songs => 'SELECT *, 1 AS track_count FROM $rows',
       LibrarySearchKind.albums =>

@@ -408,6 +408,7 @@ class AlbumPlayActions extends StatelessWidget {
     required this.onShuffle,
     this.isPlaying = false,
     this.onDownload,
+    this.compact = false,
   });
 
   final String playLabel;
@@ -418,8 +419,35 @@ class AlbumPlayActions extends StatelessWidget {
 
   final VoidCallback? onDownload;
 
+  /// Play pill sized to its label and a round shuffle, for a row of header
+  /// actions beside other buttons.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
+    if (compact) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _MornyeHeaderButton(
+            icon: isPlaying
+                ? CupertinoIcons.pause_fill
+                : CupertinoIcons.play_fill,
+            label: playLabel,
+            onPressed: onPlay,
+            prominent: true,
+            compact: true,
+          ),
+          const SizedBox(width: 8),
+          HeaderCircleButton(
+            icon: CupertinoIcons.shuffle,
+            tooltip: shuffleTooltip,
+            onPressed: onShuffle,
+            tonal: true,
+          ),
+        ],
+      );
+    }
     return Row(
       children: [
         if (onDownload != null) ...[
@@ -620,12 +648,14 @@ class _MornyeHeaderButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.prominent = false,
+    this.compact = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
   final bool prominent;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -637,12 +667,14 @@ class _MornyeHeaderButton extends StatelessWidget {
         ? scheme.onPrimary
         : scheme.primary;
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 50),
+      constraints: BoxConstraints(minHeight: compact ? 44 : 50),
       child: MornyeGlassPress(
         radius: 28,
         enabled: onPressed != null,
         child: CupertinoButton(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: compact
+              ? const EdgeInsets.symmetric(horizontal: 14, vertical: 8)
+              : const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           borderRadius: BorderRadius.circular(28),
           color: filled
               ? scheme.primary

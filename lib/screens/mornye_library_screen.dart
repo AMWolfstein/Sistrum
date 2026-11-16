@@ -7,13 +7,11 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
-import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
-import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -109,39 +107,8 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
     );
   }
 
-  Future<void> _openAlbum(LibraryBrowseEntry entry) async {
-    if (entry.source != 'local') {
-      await pushPage<void>(
-        context,
-        (_) => DownloadedAlbumScreen(
-          albumName: entry.name,
-          artistName: entry.artist,
-          coverUrl: entry.cover,
-        ),
-      );
-      return;
-    }
-    Future<List<LocalLibraryItem>> loadTracks() => _loadLocalAlbum(entry);
-
-    await pushPage<void>(
-      context,
-      (_) => LocalAlbumScreen(
-        albumName: entry.name,
-        artistName: entry.artist,
-        coverPath: entry.cover,
-        loadTracks: loadTracks,
-      ),
-    );
-  }
-
-  Future<List<LocalLibraryItem>> _loadLocalAlbum(
-    LibraryBrowseEntry entry,
-  ) async {
-    final rows = await LibraryDatabase.instance.getQueueLocalAlbumTracksByKey(
-      entry.key,
-    );
-    return rows.map(LocalLibraryItem.fromJson).toList(growable: false);
-  }
+  Future<void> _openAlbum(LibraryBrowseEntry entry) =>
+      pushPage<void>(context, (_) => AlbumScreen.library(albumKey: entry.key));
 
   Future<void> _chooseSort(BuildContext buttonContext) async {
     final options = [

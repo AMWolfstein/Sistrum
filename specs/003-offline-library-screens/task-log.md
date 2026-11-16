@@ -370,3 +370,65 @@ Checks (saved under scratchpad/t002/):
   The T001 baseline on the same count basis was 3967 (3974 including loading).
 - `validate.json`: `python3 workflow/work.py validate`: PASS (3 missions, 13 reserved, 32 completed).
 - `map_update.json`: 34616 symbols, 1719 sources, 0 partial, 0 unindexed.
+
+## M003-T003
+
+Album screen reads the library (FR-003, FR-013, FR-014). Base `d695ac2`.
+Uncommitted; independent review not run; `task complete` not run.
+
+Map: `scratchpad/t003/map_start.json` (34616 symbols, 1719 sources, 0 partial, 0 unindexed); end `map_update.json` (34551, 1719, 0, 0).
+
+What changed:
+- Data: `loadLibraryAlbumItems` returns `UnifiedLibraryItem`s (files kept for offline actions); `libraryAlbumTracksProvider` maps them to Track for T002. New `libraryAlbumItemsProvider` (watches the history index like the old provider); `libraryAlbumTracksProvider` derives from it, so T002 is unchanged.
+- `AlbumScreen.library(albumKey:)`: `album_screen.dart` plus part `album_screen_library.dart`. The online path only gained null guards.
+- Header: cover, title, artist, year, count, minutes, quality from the tracks. `CollectionHeaderActions.playActions` replaces the download pill; `AlbumPlayActions(compact: true)` (sized Play pill, round Shuffle) sits beside Love and Add to playlist.
+- Rows: `AlbumTrackTile`; offline selection (`LibraryTrackSelectionBar` + `LibrarySelectionPlaybackActions`).
+- `playableFromUnified` moved to `playable_media.dart`; `PlaybackController.playLibraryQueue`.
+- Entry points: `mornye_library_screen` (`_openAlbum`), `queue_tab_navigation` (2), `player_track_navigation`, `home_tab_recent`, `library_search_results`, `artist_screen_library`. `downloadedAlbumKeys` removed from `LibraryArtistOverview`.
+- Go to album: `localAlbumFor` returns the playing row (it was null when every scanned copy was shadowed, so the online page opened); the page opens by its album key.
+- Deleted: `downloaded_album_screen.dart`, `local_album_screen.dart`, `downloadedAlbumTracksProvider`, `DownloadedAlbumTracksRequest`, string `downloadedAlbumDownloadedCount` (21 ARBs, gen-l10n), two names in the `design_system_test` screen list.
+
+Action table (DA = DownloadedAlbumScreen, LA = LocalAlbumScreen):
+
+| Action | Old | Library page |
+|---|---|---|
+| Play, Shuffle (header) | DA, LA | kept, compact |
+| Play/pause current row, row highlight | DA, LA | kept |
+| Save offline (header, selection) | DA, LA | kept |
+| Network upload (header, selection) | DA, LA | kept |
+| Row tap: metadata, prev/next, cover refresh | DA, LA | kept |
+| Selection: play, play next, queue, add to playlist | DA, LA | kept |
+| Selection: re-enrich, convert, ReplayGain, delete | DA, LA | kept |
+| Disc separators, select all | DA, LA | kept |
+| Cover (embedded or folder), motion banner | DA, LA | kept |
+| Header meta: count, minutes, quality | DA, LA | kept, year added |
+| Cue tracks: snackbar, shuffle skips, delete removes row | LA | kept |
+| Format label on rows | LA | kept |
+| Loading indicator, Retry | LA | kept; skeleton and header before data dropped |
+| Collection suggestions (extension lookups) | DA, LA | dropped, online |
+| Queue selected as FLAC (provider download) | LA | dropped, online |
+| Download (online header and selection) | online | dropped |
+| Open in other services, share link, quality picker | online | dropped |
+| Love, Add to playlist (header) | online | kept |
+
+Open decisions (owner):
+- Save offline and network upload are kept as offline actions (no internet needed). Confirm.
+- Until data arrives the page shows only the loading indicator, because the title comes from the tracks.
+- Metadata prev/next stays within one source (downloaded or scanned) in a mixed album.
+- The cover comes from the first song: embedded art for downloads, folder art for scanned.
+- `libraryAlbumTracksProvider` (Track form) stays for T002 in `artist_screen_library.dart`; `loadLibraryAlbumTracks` was deleted, its tests now call `loadLibraryAlbumItems`.
+
+Tests:
+- Ported, behaviour kept: `downloaded_album_now_playing_test`, `downloaded_album_reenrich_test`, `local_album_playback_controls_test`, `local_album_metadata_navigation_test`, `album_replaygain_action_test`, `collapsing_title_rebuild_test`, `local_library_artwork_test`, `motion_header_banner_test`.
+- Ported, expectation changed: `detail_route_loading_test` (entrance shows loading, then rows; Retry kept).
+- Deleted tests: none.
+- New: `test/library_album_screen_test.dart`: compact Play and Shuffle, Love and Add to playlist present, no Download; rows show number, title and artist; selection bar offline only; entry points (source scan of the six entry files and `artist_screen.dart`, no old names).
+- Shadowed duplicate listed once: T001 `test/library_detail_data_test.dart` "a downloaded file that is also scanned is listed once" (data layer). The album loader tests there now call `loadLibraryAlbumItems`; `loadLibraryAlbumTracks` was deleted (no production caller).
+
+Checks (`scratchpad/t003/`):
+- `gen_l10n.log`: `flutter gen-l10n` exit 0.
+- `analyze.log`: `flutter analyze lib test integration_test`: no issues, exit 0.
+- `format.log`: `dart format --set-exit-if-changed` on the 32 changed Dart files (`changed_dart_files.txt`): 0 changed, exit 0.
+- `targeted.log`: task-related test files, the 163 tests reported (incl. `library_detail_data_test.dart`): all passed, exit 0.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3985 passed including the 7 `loading` entries (all pass), 10 skipped, 0 failed. Excluding `loading`: 3978; T002 logged 3974, so +4 = the new file.
+- `validate.json`: PASS (3 missions, 12 reserved, 33 completed; T002 logged 13 and 32 when it ran).
