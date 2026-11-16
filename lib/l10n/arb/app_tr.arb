@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Şarkı sözlerini görüntülerken ekranı açık tut",
   "lyricsKeepScreenOnSubtitle": "Oynatma duraklatılmış olsa bile şarkı sözleri açıkken ekranın kapanmasını önler.",
+  "lyricsSnippetPreview": "Oynatıcıda şarkı sözü önizlemesi",
+  "lyricsSnippetPreviewEnabled": "Parça adının altında eşzamanlı bir söz satırı gösterir",
+  "lyricsSnippetPreviewDisabled": "Oynatıcı ekranında gizli",
+  "lyricPreviewLabel": "Şarkı sözü: {line}",
   "lyricsMode": "Şarkı Sözü Modu",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Запретить отключение экрана при открытом тексте песни, даже когда воспроизведение на паузе.",
+  "lyricsSnippetPreview": "Превью текста в плеере",
+  "lyricsSnippetPreviewEnabled": "Показывает одну синхронизированную строку под названием трека",
+  "lyricsSnippetPreviewDisabled": "Скрыто на экране плеера",
+  "lyricPreviewLabel": "Текст: {line}",
   "lyricsMode": "Режим текстов песен",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

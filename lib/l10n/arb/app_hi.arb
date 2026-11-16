@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Prevent screen timeout while lyrics are open, including when playback is paused.",
+  "lyricsSnippetPreview": "प्लेयर में गीत की झलक",
+  "lyricsSnippetPreviewEnabled": "शीर्षक के नीचे एक सिंक्रनाइज़ गीत-पंक्ति दिखाएँ",
+  "lyricsSnippetPreviewDisabled": "प्लेयर स्क्रीन पर छिपा",
+  "lyricPreviewLabel": "गीत: {line}",
   "lyricsMode": "Lyrics Mode",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

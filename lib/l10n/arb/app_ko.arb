@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "가사 보는 동안 화면 켜짐 유지",
   "lyricsKeepScreenOnSubtitle": "가사가 열려 있는 동안 재생이 일시정지된 경우를 포함하여 화면이 꺼지지 않도록 합니다",
+  "lyricsSnippetPreview": "플레이어 가사 미리보기",
+  "lyricsSnippetPreviewEnabled": "제목 아래에 동기화된 가사 한 줄을 표시",
+  "lyricsSnippetPreviewDisabled": "플레이어 화면에서 숨김",
+  "lyricPreviewLabel": "가사: {line}",
   "lyricsMode": "가사 설정",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

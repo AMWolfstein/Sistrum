@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Garder l'écran allumé pendant l'affichage des paroles",
   "lyricsKeepScreenOnSubtitle": "Empêcher la mise en veille de l'écran lorsque les paroles sont affichées, y compris lorsque la lecture est en pause.",
+  "lyricsSnippetPreview": "Aperçu des paroles dans le lecteur",
+  "lyricsSnippetPreviewEnabled": "Affiche une ligne synchronisée sous le titre",
+  "lyricsSnippetPreviewDisabled": "Masqué sur l'écran du lecteur",
+  "lyricPreviewLabel": "Paroles : {line}",
   "lyricsMode": "Mode Paroles",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

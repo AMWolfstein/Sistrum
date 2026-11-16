@@ -1190,6 +1190,10 @@
   "@sectionLyrics": {
     "description": "Settings section header"
   },
+  "lyricsSnippetPreview": "播放器中的歌词预览",
+  "lyricsSnippetPreviewEnabled": "在歌曲标题下方显示一行同步歌词",
+  "lyricsSnippetPreviewDisabled": "在播放器页面中隐藏",
+  "lyricPreviewLabel": "歌词：{line}",
   "lyricsMode": "Lyrics Mode",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

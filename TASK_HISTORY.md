@@ -43,3 +43,4 @@
 - M003-T007 — Offline-only track menus
 - M003-T008 — Now Playing artist link, heart and menu
 - M003-T009 — Port right-to-left lyrics (Mornye #844)
+- M003-T010 — Port the Now Playing lyric preview (Mornye #847)

@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Prevent screen timeout while lyrics are open, including when playback is paused.",
+  "lyricsSnippetPreview": "播放器中的歌詞預覽",
+  "lyricsSnippetPreviewEnabled": "在歌曲標題下方顯示一行同步歌詞",
+  "lyricsSnippetPreviewDisabled": "在播放器頁面中隱藏",
+  "lyricPreviewLabel": "歌詞：{line}",
   "lyricsMode": "Lyrics Mode",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

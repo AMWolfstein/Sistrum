@@ -58,6 +58,17 @@ class LyricsSettingsPage extends ConsumerWidget {
                       .read(settingsProvider.notifier)
                       .setKeepScreenOnLyrics(value),
                 ),
+                SettingsSwitchItem(
+                  key: const ValueKey('lyric-snippet-preview'),
+                  title: context.l10n.lyricsSnippetPreview,
+                  subtitle: settings.playerShowLyricSnippet
+                      ? context.l10n.lyricsSnippetPreviewEnabled
+                      : context.l10n.lyricsSnippetPreviewDisabled,
+                  value: settings.playerShowLyricSnippet,
+                  onChanged: (value) => ref
+                      .read(settingsProvider.notifier)
+                      .setPlayerShowLyricSnippet(value),
+                ),
                 SettingsItem(
                   key: const ValueKey('lyrics-ai-translation'),
                   title: context.l10n.lyricsAiTranslation,

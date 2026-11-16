@@ -1540,6 +1540,10 @@
   "@sectionLyrics": {
     "description": "Settings section header"
   },
+  "lyricsSnippetPreview": "Pré-visualização da letra no player",
+  "lyricsSnippetPreviewEnabled": "Mostra uma linha sincronizada abaixo do título",
+  "lyricsSnippetPreviewDisabled": "Oculta na tela do player",
+  "lyricPreviewLabel": "Letra: {line}",
   "lyricsMode": "Lyrics Mode",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

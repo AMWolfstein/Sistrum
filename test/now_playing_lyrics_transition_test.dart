@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -170,6 +171,7 @@ void main() {
     MusicPlayerController? controller,
     List<MediaItem> queue = const [],
     List<Override> overrides = const [],
+    AppSettings settings = const AppSettings(playerShowLyricSnippet: false),
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -179,6 +181,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          initialSettingsProvider.overrideWithValue(settings),
           ...overrides,
           if (controller != null)
             musicPlayerControllerProvider.overrideWithValue(controller),

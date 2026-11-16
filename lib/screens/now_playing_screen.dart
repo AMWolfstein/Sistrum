@@ -103,7 +103,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         unawaited(
           _trackMetadata.load(
             next.value,
-            inspectUnresolvedContentUri: _currentPage == 1,
+            inspectUnresolvedContentUri: _shouldInspectLyrics,
           ),
         );
       },
@@ -135,7 +135,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       unawaited(
         _trackMetadata.load(
           ref.read(currentMediaItemProvider).value,
-          inspectUnresolvedContentUri: _currentPage == 1,
+          inspectUnresolvedContentUri: _shouldInspectLyrics,
         ),
       );
     });
@@ -151,6 +151,10 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     }
     _scheduleLyricsControlsHide();
   }
+
+  /// The lyric preview under the title reads lyrics even while the lyrics page is closed.
+  bool get _shouldInspectLyrics =>
+      _currentPage == 1 || ref.read(settingsProvider).playerShowLyricSnippet;
 
   /// Whether the lyrics (1) or Up Next (2) toggle shows as selected.
   bool _showsPage(int page) => _currentPage == page;

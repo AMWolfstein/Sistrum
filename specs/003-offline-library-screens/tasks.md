@@ -141,7 +141,7 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, T011.
   - Paths: `lib/widgets/player_lyrics*.dart`, `aligned_lyric_pronunciation.dart`,
     `lyrics_editor_sheet.dart`, `lib/screens/lyrics_share_screen.dart`, tests.
 
-- [ ] M003-T010 Port the Now Playing lyric preview (Mornye #847)
+- [x] M003-T010 Port the Now Playing lyric preview (Mornye #847)
   - Acceptance: FR-012. `player_lyric_preview.dart`, `playerShowLyricSnippet`, a Lyrics
     settings switch with l10n keys in all 21 ARB files, wiring in
     `mornye_player_layout.dart`/`now_playing_screen.dart`; RTL direction and sweep from

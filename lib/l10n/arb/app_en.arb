@@ -1625,6 +1625,18 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Prevent screen timeout while lyrics are open, including when playback is paused.",
+  "lyricsSnippetPreview": "Lyric preview in player",
+  "lyricsSnippetPreviewEnabled": "Shows a synced lyric line below the track title",
+  "lyricsSnippetPreviewDisabled": "Hidden on the player screen",
+  "lyricPreviewLabel": "Lyrics: {line}",
+  "@lyricPreviewLabel": {
+    "description": "Accessibility label of the Now Playing lyric preview; {line} is the line shown",
+    "placeholders": {
+      "line": {
+        "type": "String"
+      }
+    }
+  },
   "lyricsMode": "Lyrics Mode",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

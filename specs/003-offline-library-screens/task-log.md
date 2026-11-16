@@ -845,3 +845,28 @@ Checks:
 Not run: independent review, `task complete`, commit, push; `tasks.md` left unchanged.
 
 Follow-up after review: removed the unread `LyricPronunciationLayout.textDirection` field (copied from Mornye, never read); added a test that Arabic, Hebrew, Persian, Urdu, Syriac, Thaana and N'Ko text all read right to left. Re-checked: analyze clean; the four lyric test files 29 passed. Not covered by a test: the sweep on a wrapped multi-row RTL word (alignment and height of wrapped RTL lines are covered).
+
+## M003-T010
+
+Now Playing lyric preview (FR-012): port of Mornye #847, hand-applied. Evidence in `scratchpad/t010/`.
+
+- Preview (`lib/widgets/player_lyric_preview.dart`): one synced lyric line, or its translation when translations show, under the track title; follows playback and seeking; tap opens full lyrics (`onPageChanged(1)`). Mornye-only styling branch dropped (no `isMornye` here).
+- RTL (reuses T009 `lyricTextDirection`, via `player_lyrics.dart`): an Arabic line is right-aligned beside the chevron, its word sweep runs right to left (`WordTimedLyricLine`), and it enters from the right and leaves to the right; LTR lines enter from below as before. A mixed line keeps its first strong direction.
+- Reduced motion: the line switch has no duration when `MediaQuery.disableAnimations` is set; the word sweep already drops its decorative motion there.
+- Setting: `playerShowLyricSnippet` (default on) in `lib/models/settings.dart`, `settings.g.dart`, `settings_provider.dart` (`setPlayerShowLyricSnippet`); saved and backed up with the other settings through the JSON model. Lyrics page switch in `lib/screens/settings/lyrics_settings_page.dart`; l10n keys `lyricsSnippetPreview`, `lyricsSnippetPreviewEnabled`, `lyricsSnippetPreviewDisabled`, `lyricPreviewLabel` in all 21 ARB files.
+- Wiring: `lib/widgets/mornye_player_layout.dart` (preview under the title on the main page, hidden on the lyrics and queue pages and in landscape); `lib/screens/now_playing_screen.dart` (lyrics are read while the preview is on, even with the lyrics page closed).
+- Not ported: `.gitignore`, lint `abortOnError` switch-off, Material layout.
+- Tests: new `test/player_lyric_preview_test.dart` (11 tests: Mornye's three, setting off hides it, RTL right alignment, LTR alignment, mixed line direction, RTL word-timed layout, transition direction for RTL and LTR, reduced motion, settings default and JSON). `test/now_playing_lyrics_transition_test.dart` defaults the setting off so its existing finds are unchanged.
+
+Checks:
+- `gen_l10n.log`: `flutter gen-l10n` exit 0.
+- `analyze.log`: `flutter analyze lib test integration_test`: no issues.
+- `format.log`, `changed_dart_files.txt`: `dart format` on the changed Dart files only.
+- `targeted.log`: 9 lyric and Now Playing test files, 136 tests pass.
+- `full.json`, `full.exit` (0), `full_counts.txt`: 3890 passed, 10 skipped, 0 failed (non-loading); 7 loading entries passed.
+- `map_start.json`, `map_update.json`: codegraph update exit 0, 0 partial or unindexed sources.
+- `validate.json`: `workflow/work.py validate` PASS.
+
+Not run: independent review, `task complete`, commit, push; `tasks.md` left unchanged.
+
+Count note: T009's full run (3878 passed) predates its follow-up test (every-RTL-script), so this run's 3890 is +12 over it: 11 new preview tests plus that one test. Known untested: the preview inside the full layout with the setting on, and under an Arabic UI locale (the Row would mirror).

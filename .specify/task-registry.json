@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 44,
+  "next_completion": 45,
   "next_mission": 4,
   "next_tor": 16,
   "tasks": {
@@ -504,13 +504,19 @@
       "title": "Port right-to-left lyrics (Mornye #844)"
     },
     "M003-T010": {
-      "completion": null,
+      "completion": 44,
+      "evidence": {
+        "checks": "Review round 1 PASS (no defects). analyze clean; full suite exit 0, 3890 passed 10 skipped 0 failed (scratchpad t010/full_counts.txt); targeted 136 passed; gen-l10n exit 0",
+        "result": "PASS",
+        "reviewer": "independent read-only reviewer",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "259d3d936f2e49d9ada5382434eea031",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Port the Now Playing lyric preview (Mornye #847)"
     },
     "M003-T011": {

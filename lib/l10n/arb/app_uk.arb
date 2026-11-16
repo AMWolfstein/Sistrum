@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Не вимикати екран під час перегляду тексту пісні",
   "lyricsKeepScreenOnSubtitle": "Запобігати вимкненню екрана, коли відкрито текст пісні, зокрема й під час паузи у відтворенні.",
+  "lyricsSnippetPreview": "Попередній перегляд тексту в плеєрі",
+  "lyricsSnippetPreviewEnabled": "Показує один синхронізований рядок під назвою треку",
+  "lyricsSnippetPreviewDisabled": "Приховано на екрані плеєра",
+  "lyricPreviewLabel": "Текст: {line}",
   "lyricsMode": "Режим тексту пісні",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

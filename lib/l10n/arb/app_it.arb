@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Prevent screen timeout while lyrics are open, including when playback is paused.",
+  "lyricsSnippetPreview": "Anteprima del testo nel player",
+  "lyricsSnippetPreviewEnabled": "Mostra una riga sincronizzata sotto il titolo",
+  "lyricsSnippetPreviewDisabled": "Nascosta nella schermata del player",
+  "lyricPreviewLabel": "Testo: {line}",
   "lyricsMode": "Modalità testi",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

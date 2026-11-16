@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Mantener la pantalla encendida mientras se ven las letras de las canciones",
   "lyricsKeepScreenOnSubtitle": "Evitar que la pantalla se apague mientras están abiertas las letras de las canciones, incluso cuando la reproducción está en pausa.",
+  "lyricsSnippetPreview": "Vista previa de letra en el reproductor",
+  "lyricsSnippetPreviewEnabled": "Muestra una línea sincronizada debajo del título",
+  "lyricsSnippetPreviewDisabled": "Oculta en la pantalla del reproductor",
+  "lyricPreviewLabel": "Letra: {line}",
   "lyricsMode": "Modo Letras",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

@@ -1536,6 +1536,10 @@
   },
   "lyricsKeepScreenOn": "Cegah layar mati saat melihat lirik",
   "lyricsKeepScreenOnSubtitle": "Mencegah layar mati saat sedang membuka layar lirik, berlaku saat pemutaran dijeda.",
+  "lyricsSnippetPreview": "Pratinjau lirik di pemutar",
+  "lyricsSnippetPreviewEnabled": "Menampilkan satu baris lirik tersinkron di bawah judul",
+  "lyricsSnippetPreviewDisabled": "Disembunyikan di layar pemutar",
+  "lyricPreviewLabel": "Lirik: {line}",
   "lyricsMode": "Mode Lirik",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

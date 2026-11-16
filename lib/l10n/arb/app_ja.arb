@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Prevent screen timeout while lyrics are open, including when playback is paused.",
+  "lyricsSnippetPreview": "プレーヤーの歌詞プレビュー",
+  "lyricsSnippetPreviewEnabled": "タイトルの下に同期された歌詞の1行を表示",
+  "lyricsSnippetPreviewDisabled": "プレーヤー画面では非表示",
+  "lyricPreviewLabel": "歌詞: {line}",
   "lyricsMode": "歌詞モード",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

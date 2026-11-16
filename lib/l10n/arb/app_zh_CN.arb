@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "查看歌词时保持屏幕常亮",
   "lyricsKeepScreenOnSubtitle": "歌词打开时防止屏幕超时，包括播放暂停时。",
+  "lyricsSnippetPreview": "播放器中的歌词预览",
+  "lyricsSnippetPreviewEnabled": "在歌曲标题下方显示一行同步歌词",
+  "lyricsSnippetPreviewDisabled": "在播放器页面中隐藏",
+  "lyricPreviewLabel": "歌词：{line}",
   "lyricsMode": "歌词模式",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

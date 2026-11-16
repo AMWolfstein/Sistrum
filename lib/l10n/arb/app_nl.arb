@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Keep screen on while viewing lyrics",
   "lyricsKeepScreenOnSubtitle": "Prevent screen timeout while lyrics are open, including when playback is paused.",
+  "lyricsSnippetPreview": "Songtekstvoorbeeld in de speler",
+  "lyricsSnippetPreviewEnabled": "Toont een gesynchroniseerde tekstregel onder de titel",
+  "lyricsSnippetPreviewDisabled": "Verborgen op het spelerscherm",
+  "lyricPreviewLabel": "Songtekst: {line}",
   "lyricsMode": "Lyrics Mode",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"

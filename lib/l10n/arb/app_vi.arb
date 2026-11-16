@@ -1561,6 +1561,10 @@
   },
   "lyricsKeepScreenOn": "Giữ sáng màn hình khi đang xem lời bài hát",
   "lyricsKeepScreenOnSubtitle": "Không tự tắt màn hình khi đang mở khung lời bài hát, kể cả khi nhạc đang tạm dừng.",
+  "lyricsSnippetPreview": "Xem trước lời trong trình phát",
+  "lyricsSnippetPreviewEnabled": "Hiển thị một dòng lời đồng bộ dưới tên bài hát",
+  "lyricsSnippetPreviewDisabled": "Ẩn trên màn hình trình phát",
+  "lyricPreviewLabel": "Lời: {line}",
   "lyricsMode": "Chế độ lưu lời bài hát",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"
