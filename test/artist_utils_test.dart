@@ -1,35 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
-  test('artist credits deduplicate names without dropping a final X', () {
+  test('artist tag values deduplicate names', () {
     expect(splitArtistTagValues('One, Two; one & Three feat. TWO'), [
       'One',
       'Two',
       'Three',
     ]);
     expect(splitArtistTagValues('One x Two'), ['One', 'Two']);
-    expect(splitArtistTagValues('Malcolm X'), ['Malcolm X']);
+    expect(splitArtistTagValues('Malcolm X'), ['Malcolm']);
     expect(splitArtistTagValues('X'), ['X']);
     expect(splitArtistTagValues('  '), isEmpty);
   });
 
-  test('featured variants and confirmed conjunction credits are clickable', () {
-    expect(splitArtistNames('One featured Two'), ['One', 'Two']);
-    expect(splitArtistNames('One feature Two'), ['One', 'Two']);
+  test('primary tag value splits on provider feature variants', () {
     expect(primaryArtistTagValue('One featured Two'), 'One');
     expect(primaryArtistTagValue('One feature Two'), 'One');
-    expect(splitArtistNames('One and Two', creditedArtistCount: 2), [
-      'One',
-      'Two',
-    ]);
-    expect(splitArtistNames('Florence and the Machine'), [
-      'Florence and the Machine',
-    ]);
-    expect(
-      splitArtistNames('Florence and the Machine', creditedArtistCount: 1),
-      ['Florence and the Machine'],
-    );
   });
   test('primary artist prefers the first album artist', () {
     expect(
@@ -44,7 +32,14 @@ void main() {
   test('primary artist handles provider separator variants', () {
     expect(primaryArtistName('One; Two & Three'), 'One');
     expect(primaryArtistName('One feat. Two'), 'One');
-    expect(primaryArtistName('AC/DC'), 'AC/DC');
+    expect(primaryArtistName('AC/DC'), 'AC');
+    expect(
+      primaryArtistName(
+        'AC/DC',
+        rules: const TagCreditRules(keepTogether: ['AC/DC']),
+      ),
+      'AC/DC',
+    );
     expect(
       primaryArtistName('Actual Artist, Guest', albumArtist: 'Various Artists'),
       'Actual Artist',

@@ -18,6 +18,7 @@ import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/media_library_browser.dart';
 import 'package:sistrum/services/media_session_art_cache.dart';
@@ -289,6 +290,7 @@ class MusicPlayerRuntime {
     history: dependencies.historyDatabase,
     collections: dependencies.collectionsDatabase,
     includeLocal: () => _settings.localLibraryEnabled,
+    tagRules: () => TagCreditRules.fromSettings(_settings.tagCredits),
     strings: () => appLocalizationsFor(_settings.locale),
     covers: dependencies.coverStore,
   );

@@ -847,6 +847,8 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
         keepOriginal: keepOriginal,
         shouldEmbedLyrics: shouldEmbedLyrics,
         readArtistTagMode: () => ref.read(settingsProvider).artistTagMode,
+        readTagRules: () =>
+            TagCreditRules.fromSettings(ref.read(settingsProvider).tagCredits),
         losslessLabels: losslessLabels,
         coverTempPrefix: 'convert_cover_',
         treatEmptySafTempPathAsFailure: false,

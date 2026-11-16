@@ -13,6 +13,7 @@ import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/services/track_file_resolver.dart';
 import 'package:sistrum/utils/file_access.dart' show isCueVirtualPath;
@@ -103,6 +104,7 @@ class MediaLibraryBrowser {
     required this.history,
     required this.collections,
     required this.includeLocal,
+    required this.tagRules,
     required this.strings,
     CoverStore? covers,
     Future<BrowserCoverProvider?> Function() coverProvider =
@@ -116,6 +118,7 @@ class MediaLibraryBrowser {
 
   /// Whether scanned songs belong to the Library, as on the Library tab.
   final bool Function() includeLocal;
+  final TagCreditRules Function() tagRules;
   final AppLocalizations Function() strings;
 
   final CoverStore? _coverStore;
@@ -337,6 +340,7 @@ class MediaLibraryBrowser {
         limit: listLimit,
         sortMode: 'a-z',
         includeLocal: includeLocal(),
+        tagCredits: TagCreditScope(rules: tagRules()),
       ),
     );
     return [
@@ -353,7 +357,11 @@ class MediaLibraryBrowser {
 
   Future<List<MediaItem>> _artistItems() async {
     final rows = await library.getQueueArtistPage(
-      QueueLibraryDbQuery(limit: listLimit, includeLocal: includeLocal()),
+      QueueLibraryDbQuery(
+        limit: listLimit,
+        includeLocal: includeLocal(),
+        tagCredits: TagCreditScope(rules: tagRules()),
+      ),
     );
     return [
       for (final row in rows)
@@ -452,6 +460,7 @@ class MediaLibraryBrowser {
         limit: listLimit,
         sortMode: 'a-z',
         includeLocal: includeLocal(),
+        tagCredits: TagCreditScope(rules: tagRules()),
       ),
     );
     final albums = await Future.wait([

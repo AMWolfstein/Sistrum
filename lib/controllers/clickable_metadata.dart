@@ -4,14 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/screens/album_screen.dart';
 import 'package:sistrum/screens/extension_collection_screens.dart'
     show ExtensionArtistScreen, ExtensionAlbumScreen;
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -135,7 +136,11 @@ Future<void> navigateToArtistCredits(
   String? artistIds,
   String? extensionId,
 }) async {
-  final artists = _buildArtistTapTargets(artistNames, artistIds);
+  final rules = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(tagCreditRulesProvider);
+  final artists = _buildArtistTapTargets(artistNames, artistIds, rules);
   if (artists.isEmpty) return;
   final selected = artists.length == 1
       ? artists.single
@@ -632,7 +637,14 @@ class _ClickableArtistNameState extends State<ClickableArtistName> {
 
   void _rebuildArtistTargets() {
     _disposeRecognizers();
-    _artistTargets = _buildArtistTapTargets(widget.artistName, widget.artistId);
+    _artistTargets = _buildArtistTapTargets(
+      widget.artistName,
+      widget.artistId,
+      ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).read(tagCreditRulesProvider),
+    );
     if (_artistTargets.length <= 1) return;
 
     for (final target in _artistTargets) {
@@ -723,11 +735,13 @@ class _ArtistTapTarget {
 List<_ArtistTapTarget> _buildArtistTapTargets(
   String rawArtistNames,
   String? rawArtistIds,
+  TagCreditRules rules,
 ) {
   final parsedIds = _parseArtistIds(rawArtistIds);
-  final parsedNames = splitArtistNames(
+  final parsedNames = splitTagCredits(
     rawArtistNames,
-    creditedArtistCount: parsedIds.length,
+    TagCreditField.artist,
+    rules,
   );
   if (parsedNames.isEmpty) return const [];
 

@@ -9,8 +9,9 @@ import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_media_identity.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
 export 'package:sistrum/services/playable_media.dart'
     show playableFromHistory, playableFromLocal;
@@ -283,12 +284,15 @@ class MusicPlayerController {
   Future<bool> shuffleLibrary({String? artist}) async {
     var media = await _runtime.browser.librarySongs();
     if (artist != null) {
-      final name = artist.trim().toLowerCase();
+      final name = sqlite.normalizeLookupText(artist);
+      final rules = TagCreditRules.fromSettings(_runtime.settings.tagCredits);
       media = [
         for (final song in media)
-          if (splitArtistNames(
+          if (splitTagCredits(
             song.artist,
-          ).any((credited) => credited.toLowerCase() == name))
+            TagCreditField.artist,
+            rules,
+          ).any((credited) => sqlite.normalizeLookupText(credited) == name))
             song,
       ];
     }

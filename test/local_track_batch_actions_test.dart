@@ -77,7 +77,12 @@ void main() {
         writeSidecar:
             ({required audioFilePath, required reEnrichResult}) async {},
         applyFfmpeg:
-            ({required item, required result, required artistTagMode}) async {
+            ({
+              required item,
+              required result,
+              required artistTagMode,
+              required tagRules,
+            }) async {
               events.add('ffmpeg:${item.id}');
               return item.id == '2';
             },
@@ -208,7 +213,12 @@ void main() {
               sidecars.add(audioFilePath);
             },
         applyFfmpeg:
-            ({required item, required result, required artistTagMode}) async {
+            ({
+              required item,
+              required result,
+              required artistTagMode,
+              required tagRules,
+            }) async {
               ffmpegModes.add(artistTagMode);
               return true;
             },

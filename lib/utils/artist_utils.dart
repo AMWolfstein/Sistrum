@@ -1,7 +1,4 @@
-final RegExp _artistNameSplitPattern = RegExp(
-  r'\s*(?:,|;|&)\s*|\s+x\s+|\s+\b(?:feat(?:uring|ured|ure)?|ft|with)\.?(?=\s|$)\s*',
-  caseSensitive: false,
-);
+import 'package:sistrum/services/library_tag_credits.dart';
 
 const artistTagModeJoined = 'joined';
 const artistTagModeSplitVorbis = 'split_vorbis';
@@ -22,31 +19,11 @@ final RegExp _primaryArtistSeparator = RegExp(
 );
 final RegExp _metadataKeyPunctuation = RegExp(r'[^A-Z0-9]');
 
-List<String> splitArtistNames(String rawArtists, {int? creditedArtistCount}) {
-  final raw = rawArtists.trim();
-  if (raw.isEmpty) return const [];
-
-  final names = raw
-      .split(_artistNameSplitPattern)
-      .map((part) => part.trim())
-      .where((part) => part.isNotEmpty)
-      .toList(growable: false);
-  // "and" can be part of a band's name. Only treat it as a separator when
-  // the provider's separate artist IDs confirm that many credited artists.
-  if (creditedArtistCount != null && creditedArtistCount > names.length) {
-    final expanded = names
-        .expand(
-          (name) => name.split(RegExp(r'\s+and\s+', caseSensitive: false)),
-        )
-        .map((name) => name.trim())
-        .where((name) => name.isNotEmpty)
-        .toList(growable: false);
-    if (expanded.length == creditedArtistCount) return expanded;
-  }
-  return names;
-}
-
-String primaryArtistName(String artists, {String? albumArtist}) {
+String primaryArtistName(
+  String artists, {
+  String? albumArtist,
+  TagCreditRules rules = const TagCreditRules(),
+}) {
   final preferred = albumArtist?.trim() ?? '';
   final normalizedPreferred = preferred.toLowerCase();
   final useAlbumArtist =
@@ -55,10 +32,10 @@ String primaryArtistName(String artists, {String? albumArtist}) {
       normalizedPreferred != 'various' &&
       normalizedPreferred != 'va';
   final source = useAlbumArtist ? preferred : artists.trim();
-  final split = splitArtistNames(source);
+  final split = splitTagCredits(source, TagCreditField.artist, rules);
   if (split.isNotEmpty) return split.first;
 
-  final fallback = splitArtistNames(artists);
+  final fallback = splitTagCredits(artists, TagCreditField.artist, rules);
   return fallback.isNotEmpty ? fallback.first : artists.trim();
 }
 
@@ -111,16 +88,13 @@ Map<String, String> applyArtistTagModeToMetadata(
   };
 }
 
-List<String> splitArtistTagValues(String rawArtists) {
-  final seen = <String>{};
-  final values = <String>[];
-  for (final part in splitArtistNames(rawArtists)) {
-    final key = part.toLowerCase();
-    if (seen.add(key)) {
-      values.add(part);
-    }
-  }
-
+/// Library writers (the split Vorbis writer) pass their settings [rules];
+/// statistics, rewind and mixes keep the default delimiters.
+List<String> splitArtistTagValues(
+  String rawArtists, {
+  TagCreditRules rules = const TagCreditRules(),
+}) {
+  final values = splitTagCredits(rawArtists, TagCreditField.artist, rules);
   if (values.isNotEmpty) {
     return values;
   }

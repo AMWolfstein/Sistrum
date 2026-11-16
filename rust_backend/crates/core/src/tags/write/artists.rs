@@ -32,39 +32,18 @@ pub(super) fn artist_mode_fields(fields: &Fields) -> Cow<'_, Fields> {
     let primary = fields
         .get("artist_tag_mode")
         .is_some_and(|mode| primary_artist_mode(mode));
-    if !primary
-        && ["artist", "album_artist", "composer", "genre"]
-            .iter()
-            .all(|key| tag_separator(fields, key).is_empty())
-    {
+    if !primary {
         return Cow::Borrowed(fields);
     }
     let mut fields = fields.clone();
-    for key in ["artist", "album_artist", "composer", "genre"] {
-        let separator = tag_separator(&fields, key).to_owned();
-        if let Some(value) = fields.get_mut(key) {
-            if primary && matches!(key, "artist" | "album_artist") && !value.trim().is_empty() {
-                *value = primary_artist(value);
-            }
-            *value = super::super::format_metadata_tag_value(value, &separator);
+    for key in ["artist", "album_artist"] {
+        if let Some(value) = fields.get_mut(key)
+            && !value.trim().is_empty()
+        {
+            *value = primary_artist(value);
         }
     }
     Cow::Owned(fields)
-}
-
-pub(super) fn tag_separator<'a>(fields: &'a Fields, key: &str) -> &'a str {
-    let key = match key {
-        "ARTIST" | "artist" => "artist_separator",
-        "ALBUMARTIST" | "album_artist" => "album_artist_separator",
-        "COMPOSER" | "composer" => "composer_separator",
-        "GENRE" | "genre" => "genre_separator",
-        _ => return "",
-    };
-    fields
-        .get(key)
-        .filter(|value| super::super::separators::valid_separator(value))
-        .map(String::as_str)
-        .unwrap_or_default()
 }
 
 pub(super) fn split_artists(value: &str) -> Vec<String> {

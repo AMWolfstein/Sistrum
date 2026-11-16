@@ -375,13 +375,14 @@ class SettingsSearchCatalog {
       metadata = [
         SettingsSearchEntry(
           icon: Icons.format_list_bulleted,
-          title: l10n.metadataSeparators,
+          title: l10n.tagSeparators,
           keywords: const [
             'separator',
             'delimiter',
-            'composer',
             'genre',
+            'artist',
             'album artist',
+            'keep together',
           ],
         ),
         SettingsSearchEntry(

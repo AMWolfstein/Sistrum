@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sistrum/models/automix_options.dart';
-import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 part 'settings.g.dart';
@@ -69,7 +69,7 @@ class AppSettings {
   final int embeddedCoverMaxDimension;
   final String
   artistTagMode; // 'joined', 'split_vorbis' (Vorbis formats), or 'primary'
-  final MetadataSeparators metadataSeparators;
+  final TagCreditSettings tagCredits;
   final bool embedLyrics;
   final bool embedReplayGain;
   // Apply ReplayGain/R128 tags as volume normalization in the built-in player.
@@ -268,7 +268,7 @@ class AppSettings {
     this.embedMetadata = true,
     this.embeddedCoverMaxDimension = 0,
     this.artistTagMode = artistTagModeJoined,
-    this.metadataSeparators = const MetadataSeparators(),
+    this.tagCredits = const TagCreditSettings(),
     this.embedLyrics = true,
     this.embedReplayGain = false,
     this.playbackNormalization = false,
@@ -404,7 +404,7 @@ class AppSettings {
     bool? embedMetadata,
     int? embeddedCoverMaxDimension,
     String? artistTagMode,
-    MetadataSeparators? metadataSeparators,
+    TagCreditSettings? tagCredits,
     bool? embedLyrics,
     bool? embedReplayGain,
     bool? playbackNormalization,
@@ -526,7 +526,7 @@ class AppSettings {
       embeddedCoverMaxDimension:
           embeddedCoverMaxDimension ?? this.embeddedCoverMaxDimension,
       artistTagMode: artistTagMode ?? this.artistTagMode,
-      metadataSeparators: metadataSeparators ?? this.metadataSeparators,
+      tagCredits: tagCredits ?? this.tagCredits,
       embedLyrics: embedLyrics ?? this.embedLyrics,
       embedReplayGain: embedReplayGain ?? this.embedReplayGain,
       playbackNormalization:

@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 
 typedef LibraryBrowseRequest = ({
   bool artists,
@@ -97,24 +99,30 @@ class LibraryBrowseState {
   });
 }
 
-QueueLibraryDbQuery libraryBrowseQuery(LibraryBrowsePageRequest request) =>
-    QueueLibraryDbQuery(
-      limit: request.browse.limit,
-      offset: request.offset,
-      cursor: request.cursor,
-      includeSingleTrackAlbums: true,
-      albumArtist: request.browse.artist,
-      searchQuery: request.browse.search,
-      sortMode: request.browse.sort,
-      includeLocal: request.includeLocal,
-      metadata: request.browse.completeness,
-    );
+QueueLibraryDbQuery libraryBrowseQuery(
+  LibraryBrowsePageRequest request, {
+  TagCreditScope tagCredits = const TagCreditScope(),
+}) => QueueLibraryDbQuery(
+  limit: request.browse.limit,
+  offset: request.offset,
+  cursor: request.cursor,
+  includeSingleTrackAlbums: true,
+  albumArtist: request.browse.artist,
+  searchQuery: request.browse.search,
+  sortMode: request.browse.sort,
+  includeLocal: request.includeLocal,
+  metadata: request.browse.completeness,
+  tagCredits: tagCredits,
+);
 
 /// One bounded read; callers retain earlier pages instead of querying a prefix.
 final libraryBrowsePageLoaderProvider =
     Provider<Future<LibraryBrowsePage> Function(LibraryBrowsePageRequest)>(
       (ref) => (request) async {
-        final query = libraryBrowseQuery(request);
+        final query = libraryBrowseQuery(
+          request,
+          tagCredits: ref.read(tagCreditScopeProvider),
+        );
         if (request.browse.artists) {
           return LibraryBrowsePage.fromRows(
             await LibraryDatabase.instance.getQueueArtistPage(query),

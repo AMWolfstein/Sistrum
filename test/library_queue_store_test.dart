@@ -6,6 +6,7 @@ import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/services/library_queue_store.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 
 import 'support/sqlite_process_database.dart';
 
@@ -552,6 +553,7 @@ void main() {
   );
 
   test('artist counts use the same filter as the track query', () async {
+    await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
     for (final artist in ['Artist', 'Another Artist', 'Missing Artist']) {
       final query = QueueLibraryDbQuery(albumArtist: artist);
       final counts = await store.counts(query);
@@ -669,6 +671,7 @@ void main() {
       await db.execute(
         'INSERT INTO history_db.history_search_fts(rowid, search_text) SELECT rowid, search_text FROM history_db.history',
       );
+      await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
       final expected = _tracks(
         await store.trackPage(const QueueLibraryDbQuery(searchQuery: 'Artist')),
       );
@@ -721,6 +724,7 @@ void main() {
   test(
     'artist pages aggregate visible inventory without loading track models',
     () async {
+      await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
       final artists = await store.artistPage(const QueueLibraryDbQuery());
       expect(artists.map((row) => row['artist_name']), [
         'Another Artist',

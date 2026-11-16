@@ -1,3 +1,4 @@
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 /// Pure metadata-key conversion used by the different audio containers.
@@ -197,10 +198,12 @@ class AudioMetadataMapper {
     List<String> arguments,
     Map<String, String> metadata, {
     String artistTagMode = artistTagModeJoined,
+    required TagCreditRules tagRules,
   }) {
     for (final entry in buildVorbisMetadataEntries(
       metadata,
       artistTagMode: artistTagMode,
+      tagRules: tagRules,
     )) {
       arguments
         ..add('-metadata')
@@ -222,6 +225,7 @@ class AudioMetadataMapper {
   static List<MapEntry<String, String>> buildVorbisMetadataEntries(
     Map<String, String> metadata, {
     String artistTagMode = artistTagModeJoined,
+    required TagCreditRules tagRules,
   }) {
     final vorbis = normalizeToVorbisComments(metadata);
     final entries = <MapEntry<String, String>>[];
@@ -237,17 +241,15 @@ class AudioMetadataMapper {
       entries,
       'ARTIST',
       vorbis['ARTIST'],
-      artistTagMode: (metadata['artist_separator'] ?? '').isEmpty
-          ? artistTagMode
-          : artistTagModeJoined,
+      artistTagMode: artistTagMode,
+      tagRules: tagRules,
     );
     _appendVorbisArtistEntries(
       entries,
       'ALBUMARTIST',
       vorbis['ALBUMARTIST'],
-      artistTagMode: (metadata['album_artist_separator'] ?? '').isEmpty
-          ? artistTagMode
-          : artistTagModeJoined,
+      artistTagMode: artistTagMode,
+      tagRules: tagRules,
     );
 
     return entries;
@@ -258,7 +260,6 @@ class AudioMetadataMapper {
     final m4a = <String, String>{};
 
     for (final entry in metadata.entries) {
-      if (entry.key.endsWith('_separator')) continue;
       final key = _normalizeKey(entry.key);
       final value = entry.value;
 
@@ -338,7 +339,6 @@ class AudioMetadataMapper {
     final id3 = <String, String>{};
 
     for (final entry in metadata.entries) {
-      if (entry.key.endsWith('_separator')) continue;
       final originalKey = entry.key.toUpperCase();
       final key = _normalizeKey(originalKey);
       final value = entry.value;
@@ -402,6 +402,7 @@ class AudioMetadataMapper {
     String key,
     String? rawValue, {
     String artistTagMode = artistTagModeJoined,
+    required TagCreditRules tagRules,
   }) {
     if (rawValue == null) return;
     final value = rawValue.trim();
@@ -416,7 +417,7 @@ class AudioMetadataMapper {
       return;
     }
 
-    for (final artist in splitArtistTagValues(value)) {
+    for (final artist in splitArtistTagValues(value, rules: tagRules)) {
       entries.add(MapEntry(key, artist));
     }
   }

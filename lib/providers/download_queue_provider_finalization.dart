@@ -38,6 +38,8 @@ extension _DownloadQueueFinalization on DownloadQueueNotifier {
           targetFormat: targetFormat,
           bitrate: bitrate,
           metadata: const {},
+          // No tags are written from empty metadata, so the rules are not read.
+          tagRules: const TagCreditRules(),
           deleteOriginal: deleteOriginal,
           losslessQuality: losslessQuality,
         ),

@@ -97,6 +97,7 @@ void main() {
                     required item,
                     required result,
                     required artistTagMode,
+                    required tagRules,
                   }) async {
                     expect(item.id, 'network_example');
                     await updateFile(item.filePath);
@@ -237,6 +238,7 @@ void main() {
                     required item,
                     required result,
                     required artistTagMode,
+                    required tagRules,
                   }) async => false,
             );
             final count = await runner.apply(

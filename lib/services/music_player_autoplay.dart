@@ -117,10 +117,15 @@ Future<List<PlayableMedia>> loadAutoplayLibrary(
   return result;
 }
 
-/// The genres of a tag such as `Pop; Dance/Electronic`, normalized.
+/// The genres of a tag such as `Pop; Dance/Electronic`, normalized, split
+/// with the default Genre delimiters.
 Set<String> _autoplayGenres(String? value) => {
-  for (final part in (value ?? '').split(RegExp(r'[,;/|&]')))
-    if (normalizeLookupText(part) case final genre when genre.isNotEmpty) genre,
+  for (final genre in splitTagCredits(
+    value,
+    TagCreditField.genre,
+    const TagCreditRules(),
+  ))
+    normalizeLookupText(genre),
 };
 
 /// Songs that play between two by one artist, while other artists fit.
@@ -135,7 +140,6 @@ const _autoplaySessionWindow = 12;
 /// seed's), `preference` (learned), `novelty` and `fatigue` (of the artist
 /// in this session), and `signal:<name>` and `follow:<name>` per signal.
 typedef AutoplayPick = ({PlayableMedia media, Map<String, double> parts});
-
 
 /// Rank once per refill, so the visible queue is the actual playback order.
 /// Songs score by how well their genres fit the listening session (the

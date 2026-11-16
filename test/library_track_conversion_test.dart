@@ -44,6 +44,7 @@ void main() {
         keepOriginal: true,
         shouldEmbedLyrics: false,
         readArtistTagMode: () => throw StateError('Stop before encoding'),
+        readTagRules: () => throw StateError('Stop before encoding'),
         losslessLabels: const LosslessConversionLabels(
           original: 'Original',
           originalQuality: 'Original quality',

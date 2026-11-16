@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 30,
+  "next_completion": 31,
   "next_mission": 4,
   "next_tor": 14,
   "tasks": {
@@ -470,13 +470,19 @@
       "title": "Cumulative review"
     },
     "M003-T012": {
-      "completion": null,
+      "completion": 30,
+      "evidence": {
+        "checks": "Real review history: round 1 NEEDS_FIXES (D1 Android Auto rules, D2 Vorbis writer rules, D3 Rust Save-with readers), round 2 NEEDS_FIXES (F1 Kotlin dead reader), round 3 NEEDS_FIXES (artist_utils doc comment), owner-authorized round 4 PASS (helper accepts rounds 1-3 only). flutter analyze no issues; full flutter test 3941 passed, 0 failed, 10 skipped (review1_full.json, predates the Kotlin edit; Dart coverage unaffected); cargo test --release -p sistrum-core -p sistrum-extensions exit 0; Kotlin not built or unit-tested (Gradle not run); settings preview not built (owner decision O4); new strings English in all ARBs (O5)",
+        "result": "PASS",
+        "reviewer": "independent-reviewer-a77f312e",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M003",
       "nonce": "fa51d332b091428e9dc04c24e4442e74",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Tag separators for artist and genre credits"
     },
     "M003-T013": {

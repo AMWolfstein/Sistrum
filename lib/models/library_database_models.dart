@@ -1,3 +1,4 @@
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/utils/audio_format_utils.dart';
 
@@ -323,6 +324,7 @@ class QueueLibraryDbQuery {
   final bool includeLocal;
   final bool excludeNetwork;
   final QueueLibraryDbCursor? cursor;
+  final TagCreditScope tagCredits;
 
   const QueueLibraryDbQuery({
     this.includeSingleTrackAlbums = false,
@@ -339,6 +341,7 @@ class QueueLibraryDbQuery {
     this.includeLocal = true,
     this.excludeNetwork = false,
     this.cursor,
+    this.tagCredits = const TagCreditScope(),
   });
 }
 

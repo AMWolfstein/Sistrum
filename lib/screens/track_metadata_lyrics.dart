@@ -501,6 +501,9 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
             coverPath: coverPath,
             metadata: metadata,
             artistTagMode: artistTagMode,
+            tagRules: TagCreditRules.fromSettings(
+              ref.read(settingsProvider).tagCredits,
+            ),
           );
         }
 
@@ -585,6 +588,9 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
           filePath: sourcePath,
           metadata: fields,
           artistTagMode: artistTagMode,
+          tagRules: TagCreditRules.fromSettings(
+            ref.read(settingsProvider).tagCredits,
+          ),
         ),
       );
       if (saved.failure != null) {
@@ -1025,6 +1031,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
               coverPath: effectiveCoverPath,
               metadata: metadata,
               artistTagMode: artistTagMode,
+              tagRules: TagCreditRules.fromSettings(settings.tagCredits),
             );
           }
 

@@ -5,17 +5,19 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/services/download_metadata_embedding.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 class EmbeddingHarness {
   final events = <String>[];
   final nativeWrites = <Map<String, String>>[];
   final fallbackWrites = <Map<String, String>>[];
+  final fallbackRules = <TagCreditRules>[];
   late final DownloadMetadataEmbedding service;
 
   EmbeddingHarness({
@@ -42,11 +44,13 @@ class EmbeddingHarness {
           'method': nativeSuccess ? 'rust' : 'ffmpeg',
         };
       },
-      writeWithFFmpeg: (path, format, cover, metadata, artistMode) async {
-        events.add('ffmpeg');
-        fallbackWrites.add(Map.of(metadata));
-        return path;
-      },
+      writeWithFFmpeg:
+          (path, format, cover, metadata, artistMode, tagRules) async {
+            events.add('ffmpeg');
+            fallbackWrites.add(Map.of(metadata));
+            fallbackRules.add(tagRules);
+            return path;
+          },
       scanReplayGain: (_) async {
         events.add('scan');
         return gain;
@@ -85,46 +89,6 @@ Future<void> _expectDeleted(Iterable<String> paths) => _eventually(() async {
 });
 
 void main() {
-  test(
-    'download separators reach native tags and FFmpeg fallback without changing the track',
-    () async {
-      const track = Track(
-        id: 'example',
-        name: 'Title, unchanged',
-        artistName: 'A, B',
-        albumName: 'Album',
-        albumArtist: 'C, D',
-        duration: 100,
-        composer: 'E; F',
-        genre: 'Rock, Pop',
-      );
-      const settings = AppSettings(
-        embedLyrics: false,
-        metadataSeparators: MetadataSeparators(
-          artist: ' / ',
-          albumArtist: '; ',
-          composer: ' | ',
-          genre: '; ',
-        ),
-      );
-      final harness = EmbeddingHarness(nativeSuccess: false);
-      await harness.service.embed(
-        '/example/song.mp3',
-        track,
-        settings: settings,
-        extensionState: const ExtensionState(),
-        format: 'mp3',
-      );
-      expect(harness.nativeWrites.single['artist'], 'A, B');
-      expect(harness.nativeWrites.single['artist_separator'], ' / ');
-      expect(harness.fallbackWrites.single['ARTIST'], 'A / B');
-      expect(harness.fallbackWrites.single['ALBUMARTIST'], 'C; D');
-      expect(harness.fallbackWrites.single['COMPOSER'], 'E | F');
-      expect(harness.fallbackWrites.single['GENRE'], 'Rock; Pop');
-      expect(harness.fallbackWrites.single['TITLE'], 'Title, unchanged');
-      expect(track.artistName, 'A, B');
-    },
-  );
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
@@ -312,6 +276,32 @@ void main() {
       },
     );
   }
+
+  test('the FFmpeg fallback writes with the settings tag rules', () async {
+    final harness = EmbeddingHarness(nativeSuccess: false);
+    final settings = AppSettings(
+      embedLyrics: false,
+      artistTagMode: artistTagModeSplitVorbis,
+      tagCredits: TagCreditSettings(
+        artistDelimiters: [
+          for (final token in kArtistDelimiterChoices)
+            if (token != '/') token,
+        ],
+      ),
+    );
+    await harness.service.embed(
+      '${directory.path}/song.flac',
+      track,
+      settings: settings,
+      extensionState: const ExtensionState(),
+      format: 'flac',
+    );
+    expect(
+      harness.fallbackRules.single,
+      TagCreditRules.fromSettings(settings.tagCredits),
+    );
+    expect(harness.fallbackRules.single.artistDelimiters, isNot(contains('/')));
+  });
 
   test(
     'AC-4 resolves primary credits and stops after the native MP4 writer',

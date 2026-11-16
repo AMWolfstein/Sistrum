@@ -6,6 +6,7 @@ import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/services/ffmpeg_probe.dart';
 import 'package:sistrum/services/ffmpeg_support.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -219,6 +220,7 @@ abstract final class FFmpegConversion {
     required Map<String, String> metadata,
     String? coverPath,
     String artistTagMode = artistTagModeJoined,
+    required TagCreditRules tagRules,
     bool deleteOriginal = true,
     int? sourceBitDepth,
     LosslessConversionQuality losslessQuality =
@@ -257,6 +259,7 @@ abstract final class FFmpegConversion {
         codec: format,
         coverPath: coverPath,
         artistTagMode: artistTagMode,
+        tagRules: tagRules,
         targetBitDepth: quality.targetBitDepth,
         targetSampleRate: quality.targetSampleRate,
         processing: losslessProcessing,
@@ -340,6 +343,7 @@ abstract final class FFmpegConversion {
           coverPath: coverPath,
           metadata: metadata,
           artistTagMode: artistTagMode,
+          tagRules: tagRules,
         ),
       };
       if (embedded == null) {
@@ -363,6 +367,7 @@ abstract final class FFmpegConversion {
     required String codec,
     String? coverPath,
     required String artistTagMode,
+    required TagCreditRules tagRules,
     int? targetBitDepth,
     int? targetSampleRate,
     required LosslessConversionProcessing processing,
@@ -415,6 +420,7 @@ abstract final class FFmpegConversion {
         arguments,
         metadata,
         artistTagMode: artistTagMode,
+        tagRules: tagRules,
       );
     }
     arguments.addAll([outputPath, '-y']);

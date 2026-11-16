@@ -19,10 +19,10 @@ Future<void> openPlayingArtist(
   final track = ref.read(playerCollectionTrackProvider(mediaItem)).value;
   // A downloaded track's source is the service its audio came from, not a
   // metadata catalog; the lookup uses the user's search provider instead.
-  await navigateToArtist(
+  await navigateToArtistCredits(
     context,
-    artistName: mediaItem.artist ?? '',
-    artistId: track?.artistId,
+    artistNames: mediaItem.artist ?? '',
+    artistIds: track?.artistId,
   );
 }
 

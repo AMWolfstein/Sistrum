@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/services/network_audio_analysis_input.dart';
@@ -85,6 +86,7 @@ void main() {
             MetadataSaveRequest(
               filePath: NetworkEditFixture.source,
               artistTagMode: artistTagModeJoined,
+              tagRules: const TagCreditRules(),
               preserveUnspecifiedTags: lyricsOnly,
               metadata: {
                 if (!lyricsOnly) 'title': 'New title',
@@ -255,26 +257,28 @@ void main() {
                       return {'method': 'ffmpeg'};
                     },
                     read: (_) async => Map<String, dynamic>.from(original),
-                    embed: (codec, path, coverPath, tags, mode) async {
-                      expect(coverPath, cover.path);
-                      expect(await File(coverPath!).exists(), isTrue);
-                      expect(tags['REPLAYGAIN_TRACK_GAIN'], '-4.20 dB');
-                      expect(tags['LYRICS'], '[00:01.00]Edited lyrics');
-                      expect(tags['TITLE'], 'Edited title');
-                      final old =
-                          jsonDecode(await File(path).readAsString()) as Map;
-                      await File(path).writeAsString(
-                        jsonEncode({
-                          ...old,
-                          'title': tags['TITLE'],
-                          'lyrics': tags['LYRICS'],
-                          'cover': base64Encode(
-                            await File(coverPath).readAsBytes(),
-                          ),
-                        }),
-                      );
-                      return path;
-                    },
+                    embed:
+                        (codec, path, coverPath, tags, mode, tagRules) async {
+                          expect(coverPath, cover.path);
+                          expect(await File(coverPath!).exists(), isTrue);
+                          expect(tags['REPLAYGAIN_TRACK_GAIN'], '-4.20 dB');
+                          expect(tags['LYRICS'], '[00:01.00]Edited lyrics');
+                          expect(tags['TITLE'], 'Edited title');
+                          final old =
+                              jsonDecode(await File(path).readAsString())
+                                  as Map;
+                          await File(path).writeAsString(
+                            jsonEncode({
+                              ...old,
+                              'title': tags['TITLE'],
+                              'lyrics': tags['LYRICS'],
+                              'cover': base64Encode(
+                                await File(coverPath).readAsBytes(),
+                              ),
+                            }),
+                          );
+                          return path;
+                        },
                   ).save(
                     MetadataSaveRequest(
                       filePath: source,
@@ -283,6 +287,7 @@ void main() {
                         'lyrics': '[00:01.00]Edited lyrics',
                       },
                       artistTagMode: artistTagModeJoined,
+                      tagRules: const TagCreditRules(),
                       selectedCoverPath: cover.path,
                     ),
                   );

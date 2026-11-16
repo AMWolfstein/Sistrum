@@ -1477,6 +1477,23 @@
   "@optionsReplayGainSubtitleOff": {
     "description": "Subtitle when ReplayGain is disabled"
   },
+  "tagSeparators": "Tag separators",
+  "tagSeparatorsDescription": "Choose the separators that split artist and genre tags into separate names in the library. Names in Keep together are never split. Changes apply without a rescan.",
+  "tagSeparatorsArtists": "Artists",
+  "tagSeparatorsArtistsFields": "Artist and album artist",
+  "tagSeparatorsGenre": "Genre",
+  "tagSeparatorsAll": "All",
+  "tagSeparatorsAdd": "Add separator",
+  "tagSeparatorsAddHint": "Separator (1–16 characters)",
+  "tagSeparatorsDuplicate": "This separator is already offered.",
+  "tagSeparatorsRemoveTitle": "Remove separator?",
+  "tagSeparatorsRemoveMessage": "Names will no longer be split on this separator.",
+  "tagKeepTogether": "Keep together",
+  "tagKeepTogetherDescription": "Names listed here are never split, even when they contain a separator, such as Tyler, The Creator.",
+  "tagKeepTogetherHint": "Name to keep together",
+  "tagKeepTogetherAdd": "Add name",
+  "tagKeepTogetherRemoveTooltip": "Remove name",
+  "tagKeepTogetherDuplicate": "This name is already listed.",
   "optionsArtistTagMode": "Artist Tag Mode",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"

@@ -5,10 +5,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/media_library_browser.dart';
@@ -84,7 +86,11 @@ class _Library implements LibraryDatabase {
       rows: [
         for (final album in albums)
           if (request.albumArtist == null ||
-              album['artist_name'] == request.albumArtist)
+              splitTagCredits(
+                album['artist_name'] as String?,
+                TagCreditField.albumArtist,
+                request.tagCredits.rules,
+              ).contains(request.albumArtist))
             album,
       ],
       nextCursor: null,
@@ -129,16 +135,23 @@ class _Library implements LibraryDatabase {
 }
 
 class _History implements HistoryDatabase {
-  _History({this.album = const [], this.byId = const {}});
+  _History({
+    this.album = const [],
+    this.byId = const {},
+    this.albumsByName = const {},
+  });
 
   final List<Map<String, dynamic>> album;
   final Map<String, Map<String, dynamic>> byId;
+  final Map<String, List<Map<String, dynamic>>> albumsByName;
 
   @override
   Future<List<Map<String, dynamic>>> getAlbumTracks(
     String albumName,
     String artistName,
-  ) async => albumName == 'Album' && artistName == 'Artist' ? album : const [];
+  ) async => albumName == 'Album' && artistName == 'Artist'
+      ? album
+      : albumsByName[albumName] ?? const [];
 
   @override
   Future<Map<String, dynamic>?> getById(String id) async => byId[id];
@@ -191,6 +204,7 @@ MediaLibraryBrowser _browser({
   _History? history,
   _Collections? collections,
   bool includeLocal = true,
+  TagCreditRules? rules,
   CoverStore? covers,
   Future<BrowserCoverProvider?> Function()? coverProvider,
 }) => MediaLibraryBrowser(
@@ -198,6 +212,7 @@ MediaLibraryBrowser _browser({
   history: history ?? _History(),
   collections: collections ?? _Collections(),
   includeLocal: () => includeLocal,
+  tagRules: () => rules ?? const TagCreditRules(),
   strings: () => lookupAppLocalizations(const Locale('en')),
   covers: covers,
   coverProvider: coverProvider ?? BrowserCoverProvider.load,
@@ -332,6 +347,92 @@ void main() {
     expect(_titles(albums), ['Album']);
     expect(library.albumRequests.last.albumArtist, 'Artist');
   });
+
+  test(
+    'an artist from the artist list finds its albums and songs under the settings rules',
+    () async {
+      // Keep together protects the comma in one name; the x chip is off, so
+      // Malcolm X stays one name. Every lookup must use these rules.
+      final rules = TagCreditRules(
+        artistDelimiters: [
+          for (final token in kArtistDelimiterChoices)
+            if (token != 'x') token,
+        ],
+        keepTogether: ['Tyler, The Creator'],
+      );
+      const artists = ['Tyler, The Creator', 'Malcolm X'];
+      final albums = [
+        {
+          'queue_source': 'downloaded',
+          'album_key': 'flower',
+          'album_name': 'Flower Boy',
+          'artist_name': 'Tyler, The Creator',
+        },
+        {
+          'queue_source': 'downloaded',
+          'album_key': 'ballots',
+          'album_name': 'Ballots',
+          'artist_name': 'Malcolm X',
+        },
+      ];
+      final history = _History(
+        albumsByName: {
+          'Flower Boy': [
+            _download('t1', album: 'Flower Boy', artist: 'Tyler, The Creator'),
+          ],
+          'Ballots': [_download('m1', album: 'Ballots', artist: 'Malcolm X')],
+        },
+      );
+      _Library libraryFor(String artist) => _Library(
+        artists: [
+          for (final name in artists) {'artist_key': name, 'artist_name': name},
+        ],
+        albums: albums,
+        hits: {
+          LibrarySearchKind.artists: [
+            LibrarySearchHit(
+              kind: LibrarySearchKind.artists,
+              id: artist,
+              title: artist,
+            ),
+          ],
+        },
+      );
+
+      final library = libraryFor('Tyler, The Creator');
+      final browser = _browser(
+        library: library,
+        history: history,
+        rules: rules,
+      );
+      final listed = await browser.children(MediaLibraryBrowser.artistsId);
+      expect(_titles(listed), artists);
+
+      final tyler = await browser.children(listed.first.id);
+      expect(_titles(tyler), ['Flower Boy']);
+      expect(library.albumRequests.last.tagCredits.rules, rules);
+      expect(_titles(await browser.children(tyler.single.id)), ['Song t1']);
+
+      final malcolm = await browser.children(listed.last.id);
+      expect(_titles(malcolm), ['Ballots']);
+
+      const artistFocus = {
+        'android.intent.extra.focus': 'vnd.android.cursor.item/artist',
+      };
+      final tylerSongs = await _browser(
+        library: libraryFor('Tyler, The Creator'),
+        history: history,
+        rules: rules,
+      ).queueForSearch('Tyler, The Creator', artistFocus);
+      expect([for (final media in tylerSongs!.items) media.id], ['t1']);
+      final malcolmSongs = await _browser(
+        library: libraryFor('Malcolm X'),
+        history: history,
+        rules: rules,
+      ).queueForSearch('Malcolm X', artistFocus);
+      expect([for (final media in malcolmSongs!.items) media.id], ['m1']);
+    },
+  );
 
   test(
     'playlists list Loved first and play the songs that have a file',

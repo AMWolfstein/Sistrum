@@ -7,6 +7,7 @@ import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/library_file_sizes.dart';
 import 'package:sistrum/services/library_cleanup.dart';
 import 'package:sistrum/services/library_search.dart';
@@ -468,9 +469,11 @@ class LibraryDatabase {
     required bool includeLocal,
     QueueLibraryDbQuery? sizes,
     bool rebuild = true,
+    TagCreditScope? credits,
   }) async {
     final db = await database;
     await _ensureHistoryAttached(db);
+    if (credits != null) await tagCreditsCacheFor(db).ensure(db, credits);
     if (sizes != null && isLibrarySizeSort(sizes.sortMode)) {
       await (_fileSizes ??= LibraryFileSizes(db)).refresh(
         includeLocal: sizes.includeLocal && sizes.source != 'downloaded',
@@ -502,12 +505,14 @@ class LibraryDatabase {
     includeLocal: request.includeLocal,
     sizes: request,
     rebuild: isAlbumCompletenessFilter(request.metadata),
+    credits: _albumArtistCredits(request),
   );
 
   Future<QueueLibraryCounts> getQueueCounts(QueueLibraryDbQuery request) =>
       _queueRead(
         (store) => store.counts(request),
         includeLocal: request.includeLocal,
+        credits: _albumArtistCredits(request),
       );
 
   /// Ids, paths and covers of every Library song, for the Folders index.
@@ -546,6 +551,7 @@ class LibraryDatabase {
     (store) => store.albumPage(request),
     includeLocal: request.includeLocal,
     sizes: request,
+    credits: _albumArtistCredits(request),
   );
 
   /// Album artists across downloaded and scanned music, excluding duplicate paths.
@@ -554,7 +560,12 @@ class LibraryDatabase {
   ) => _queueRead(
     (store) => store.artistPage(request),
     includeLocal: request.includeLocal,
+    credits: request.tagCredits,
   );
+
+  /// The credits a page needs only when it filters by album artist.
+  static TagCreditScope? _albumArtistCredits(QueueLibraryDbQuery request) =>
+      request.albumArtist == null ? null : request.tagCredits;
 
   Future<List<Map<String, dynamic>>> getQueueLocalAlbumTracks(
     String albumName,

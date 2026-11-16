@@ -15,6 +15,7 @@ import 'package:audio_session/audio_session.dart'
         AudioInterruptionType;
 import 'package:sistrum/services/listening_statistics.dart' show ListeningTrack;
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/app_state_database.dart';
 import 'package:sistrum/services/media_library_browser.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;

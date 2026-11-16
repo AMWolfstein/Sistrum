@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/string_utils.dart';
 
@@ -122,12 +123,15 @@ Track queuedDownloadTrack(Track track) =>
 /// split the files into separate albums. Keep the complete track artist credit
 /// intact, but reduce inconsistent album-artist credits to the artist names
 /// shared by every track in that album.
-List<Track> normalizeBatchAlbumArtists(List<Track> tracks) {
+List<Track> normalizeBatchAlbumArtists(
+  List<Track> tracks, {
+  TagCreditRules rules = const TagCreditRules(),
+}) {
   if (tracks.length < 2) return tracks;
 
   final albumGroups = <String, List<int>>{};
   for (var index = 0; index < tracks.length; index++) {
-    final key = _batchAlbumIdentity(tracks[index]);
+    final key = _batchAlbumIdentity(tracks[index], rules);
     if (key == null) continue;
     albumGroups.putIfAbsent(key, () => <int>[]).add(index);
   }
@@ -136,7 +140,7 @@ List<Track> normalizeBatchAlbumArtists(List<Track> tracks) {
   for (final indices in albumGroups.values) {
     if (indices.length < 2) continue;
     final albumTracks = [for (final index in indices) tracks[index]];
-    final canonicalArtist = _sharedBatchAlbumArtist(albumTracks);
+    final canonicalArtist = _sharedBatchAlbumArtist(albumTracks, rules);
     if (canonicalArtist == null) continue;
 
     for (final index in indices) {
@@ -150,7 +154,7 @@ List<Track> normalizeBatchAlbumArtists(List<Track> tracks) {
   return normalized ?? tracks;
 }
 
-String? _batchAlbumIdentity(Track track) {
+String? _batchAlbumIdentity(Track track, TagCreditRules rules) {
   final source = normalizeOptionalString(track.source)?.toLowerCase() ?? '';
   final albumId = normalizeOptionalString(track.albumId)?.toLowerCase();
   if (albumId != null) return '$source|id:$albumId';
@@ -168,11 +172,12 @@ String? _batchAlbumIdentity(Track track) {
   final primaryArtist = primaryArtistName(
     track.artistName,
     albumArtist: track.albumArtist,
+    rules: rules,
   ).trim().toLowerCase();
   return '$source|meta:$albumName|$releaseDate|$totalTracks|$primaryArtist';
 }
 
-String? _sharedBatchAlbumArtist(List<Track> tracks) {
+String? _sharedBatchAlbumArtist(List<Track> tracks, TagCreditRules rules) {
   final albumArtists = tracks
       .map((track) => normalizeOptionalString(track.albumArtist))
       .toList(growable: false);
@@ -187,7 +192,7 @@ String? _sharedBatchAlbumArtist(List<Track> tracks) {
   final credits = <List<String>>[];
   for (var index = 0; index < tracks.length; index++) {
     final rawCredit = albumArtists[index] ?? tracks[index].artistName;
-    final names = splitArtistNames(rawCredit);
+    final names = splitTagCredits(rawCredit, TagCreditField.artist, rules);
     if (names.isEmpty) return null;
     credits.add(names);
   }
@@ -202,8 +207,10 @@ String? _sharedBatchAlbumArtist(List<Track> tracks) {
   // Preserve a provider's original separator whenever one of its credits is
   // already exactly the shared album credit.
   for (final rawCredit in albumArtists.whereType<String>()) {
-    final keys = splitArtistNames(
+    final keys = splitTagCredits(
       rawCredit,
+      TagCreditField.artist,
+      rules,
     ).map((name) => name.toLowerCase()).toSet();
     if (keys.length == sharedKeys.length && keys.containsAll(sharedKeys)) {
       return rawCredit;

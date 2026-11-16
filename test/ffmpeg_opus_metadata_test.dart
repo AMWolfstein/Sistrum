@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -123,6 +124,7 @@ void main() {
         expect(
           await FFmpegMetadata.embedMetadataToOpus(
             opusPath: opusPath,
+            tagRules: const TagCreditRules(),
             coverPath: coverFile.path,
             metadata: const {'METADATA_BLOCK_PICTURE': 'obsolete cover'},
             execute: (arguments) async {
@@ -198,6 +200,7 @@ void main() {
         String? output;
         final embedding = FFmpegMetadata.embedMetadataToOpus(
           opusPath: source.path,
+          tagRules: const TagCreditRules(),
           coverPath: cover.path,
           metadata: {'lyrics': List.filled(4000, 'Lyrics line\n').join()},
           execute: (arguments) async {
@@ -317,6 +320,7 @@ void main() {
       expect(
         await FFmpegMetadata.embedMetadataToOpus(
           opusPath: path,
+          tagRules: const TagCreditRules(),
           coverPath: coverPath,
           metadata: scenario.metadata,
           preserveMetadata: scenario.preserve,

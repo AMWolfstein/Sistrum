@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
@@ -400,6 +401,7 @@ class BatchReEnrichRunner {
     required LocalLibraryItem item,
     required Map<String, dynamic> result,
     required String artistTagMode,
+    required TagCreditRules tagRules,
   })
   applyFfmpeg;
   final Future<void> Function(
@@ -552,6 +554,7 @@ class BatchReEnrichRunner {
           item: target,
           result: result,
           artistTagMode: settings.artistTagMode,
+          tagRules: TagCreditRules.fromSettings(settings.tagCredits),
         );
         if (!written) {
           _reEnrichLog.w('Metadata write failed for ${preview.item.id}');

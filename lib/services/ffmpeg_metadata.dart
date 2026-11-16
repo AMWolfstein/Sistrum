@@ -8,6 +8,7 @@ import 'package:sistrum/services/audio_metadata_mapper.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/services/ffmpeg_support.dart';
 import 'package:sistrum/services/id3v23_lyrics.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -127,6 +128,7 @@ abstract final class FFmpegMetadata {
     String? coverPath,
     Map<String, String>? metadata,
     String artistTagMode = artistTagModeJoined,
+    required TagCreditRules tagRules,
   }) async {
     final tempOutput = await FFmpegOutput.tempPath('.flac');
     final arguments = <String>['-v', 'error', '-hide_banner', '-i', flacPath];
@@ -145,6 +147,7 @@ abstract final class FFmpegMetadata {
         arguments,
         metadata,
         artistTagMode: artistTagMode,
+        tagRules: tagRules,
       );
     }
     arguments.addAll([tempOutput, '-y']);
@@ -269,6 +272,7 @@ abstract final class FFmpegMetadata {
     String? coverPath,
     Map<String, String>? metadata,
     String artistTagMode = artistTagModeJoined,
+    required TagCreditRules tagRules,
     bool preserveMetadata = false,
     @visibleForTesting Future<FFmpegResult> Function(List<String>)? execute,
   }) async {
@@ -292,6 +296,7 @@ abstract final class FFmpegMetadata {
           arguments,
           metadata,
           artistTagMode: artistTagMode,
+          tagRules: tagRules,
         );
       }
       if (coverPath != null) {

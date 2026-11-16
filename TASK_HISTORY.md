@@ -29,3 +29,4 @@
 - M001-TOR004 — Remove the Android home-screen widgets
 - M001-T006 — Cumulative review
 - TOR013 — Audit the M001 Material theme removal
+- M003-T012 — Tag separators for artist and genre credits

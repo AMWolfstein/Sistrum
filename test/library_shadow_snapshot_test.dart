@@ -13,6 +13,7 @@ import 'package:sistrum/services/library_queue_store.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/logger.dart';
 
 const _sources = ['legacy', 'music', 'offline', 'disabled'];
@@ -453,6 +454,7 @@ void main() {
         await LibraryDatabase.instance.getQueueCounts(
           const QueueLibraryDbQuery(),
         );
+        await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
         final sizes = (await db.rawQuery(
           'SELECT (SELECT COUNT(*) FROM library) AS library, '
           '(SELECT COUNT(*) FROM history_db.history) AS history',

@@ -7,6 +7,7 @@ import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 
 import 'support/fixed_settings.dart';
 import 'support/library_paging_fixture.dart';
@@ -128,6 +129,7 @@ void main() {
     '1000 albums preserve source ties, dedup, filters and order on paging',
     timeout: const Timeout(Duration(minutes: 2)),
     () async {
+      await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
       for (final scenario in [
         (
           artists: false,

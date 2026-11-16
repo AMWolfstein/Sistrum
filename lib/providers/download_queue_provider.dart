@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/network_download_staging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,7 @@ import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/download_result.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
@@ -523,7 +525,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       quality: quality,
       embedMetadata: settings.embedMetadata,
       artistTagMode: settings.artistTagMode,
-      metadataSeparators: settings.metadataSeparators,
       embedLyrics:
           settings.embedMetadata &&
           settings.embedLyrics &&
@@ -759,7 +760,10 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       final playlistPositions = batch.playlistPositions;
       final shouldAssignPlaylistPositions =
           playlistName != null && playlistName.trim().isNotEmpty;
-      final normalizedTracks = normalizeBatchAlbumArtists(batch.tracks);
+      final normalizedTracks = normalizeBatchAlbumArtists(
+        batch.tracks,
+        rules: ref.read(tagCreditRulesProvider),
+      );
       final fromBatch = normalizedTracks.length > 1;
       for (var index = 0; index < normalizedTracks.length; index++) {
         final track = normalizedTracks[index];
@@ -1686,7 +1690,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       }
     }
 
-
     if (!isSafMode && state.outputDir.isEmpty) {
       _log.d('Output dir empty, initializing...');
       await _initOutputDir();
@@ -1702,9 +1705,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
 
     try {
       await _runQueueLoop();
-    } finally {
-      
-    }
+    } finally {}
     final stoppedWhilePaused = state.isPaused;
     final keepConnectivityMonitoring =
         stoppedWhilePaused && _networkPausedByWifiOnly;
@@ -1723,7 +1724,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         _log.e('Failed to stop foreground service: $e');
       }
     }
-
 
     if (stoppedWhilePaused && _downloadCount > 0) {
       try {

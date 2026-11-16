@@ -1,4 +1,5 @@
 import 'package:path/path.dart' as p;
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/utils/artist_utils.dart';
@@ -19,6 +20,8 @@ Future<void> persistPlayerLyrics(String source, String lyrics) async {
         filePath: localPath,
         metadata: {'lyrics': lyrics},
         artistTagMode: artistTagModeJoined,
+        // Joined mode never splits, so the rules are not read.
+        tagRules: const TagCreditRules(),
         preserveUnspecifiedTags: true,
       ),
     );

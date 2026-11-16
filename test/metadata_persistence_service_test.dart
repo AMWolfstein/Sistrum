@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/utils/artist_utils.dart';
@@ -44,6 +45,7 @@ void main() {
     filePath: path,
     metadata: tags,
     artistTagMode: artistTagModeSplitVorbis,
+    tagRules: const TagCreditRules(),
     selectedCoverPath: selectedCover,
     currentCoverPath: currentCover,
     coverMaxDimension: dimension,
@@ -96,7 +98,7 @@ void main() {
             return {'method': 'ffmpeg'};
           },
           read: (_) async => const {},
-          embed: (codec, path, cover, tags, artistMode) async {
+          embed: (codec, path, cover, tags, artistMode, tagRules) async {
             expect(tags, {
               'LYRICS': '[00:01.00]Found',
               'UNSYNCEDLYRICS': '[00:01.00]Found',
@@ -109,6 +111,7 @@ void main() {
             filePath: 'song.$extension',
             metadata: const {'lyrics': '[00:01.00]Found'},
             artistTagMode: artistTagModeJoined,
+            tagRules: const TagCreditRules(),
             preserveUnspecifiedTags: true,
           ),
         );
@@ -136,7 +139,7 @@ void main() {
               'replaygain_album_peak': '1.234567',
             };
           },
-          embed: (codec, path, coverPath, metadata, mode) async {
+          embed: (codec, path, coverPath, metadata, mode, tagRules) async {
             expect(
               codec,
               isOpus
@@ -201,7 +204,7 @@ void main() {
           covers: covers,
           edit: (_, _) async => {'method': 'ffmpeg'},
           read: (_) async => throw StateError('Reader unavailable'),
-          embed: (_, path, _, metadata, _) async {
+          embed: (_, path, _, metadata, _, _) async {
             expect(metadata['LYRICS'], '');
             expect(metadata['UNSYNCEDLYRICS'], '');
             expect(metadata['TRACKNUMBER'], pair.$3);
@@ -302,7 +305,7 @@ void main() {
               'error': 'Backend failed',
           },
           read: (_) async => {},
-          embed: (_, path, coverPath, _, _) async {
+          embed: (_, path, coverPath, _, _, _) async {
             expect(path, staged.path);
             expect(coverPath, covers.extracted!.path);
             if (failure == MetadataSaveFailure.unexpected) {

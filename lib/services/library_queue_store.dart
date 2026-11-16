@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/library_file_sizes.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/utils/library_format_filters.dart';
@@ -313,23 +314,22 @@ class LibraryQueueStore {
     ]);
   }
 
-  /// Album artists across downloaded and scanned music, without loading tracks
-  /// into Dart. Scanned paths already represented by downloads are excluded.
+  /// Credited artists across downloaded and scanned music, album artists and
+  /// track artists alike, without loading tracks into Dart. Scanned paths
+  /// already represented by downloads are excluded.
   Future<List<Map<String, dynamic>>> artistPage(
     QueueLibraryDbQuery request,
   ) async {
     final parts = <String>[
       '''
-        SELECT sort_album_artist AS artist_key,
-          COALESCE(NULLIF(album_artist, ''), artist_name) AS artist_name,
-          cover_url, NULL AS cover_path, file_path AS sample_file_path
+        SELECT 'h' AS source, id AS row_id, cover_url, NULL AS cover_path,
+          file_path AS sample_file_path
         FROM history_db.history
       ''',
       if (request.includeLocal)
         '''
-          SELECT album_artist_norm AS artist_key,
-            COALESCE(NULLIF(album_artist, ''), artist_name) AS artist_name,
-            NULL AS cover_url, cover_path, file_path AS sample_file_path
+          SELECT 'l' AS source, id AS row_id, NULL AS cover_url, cover_path,
+            file_path AS sample_file_path
           FROM ${LibrarySchema.visibleView} l
           WHERE ${_notShadowedByHistory('l')}
         ''',
@@ -337,15 +337,18 @@ class LibraryQueueStore {
     final search = sqlite.normalizeLookupText(request.searchQuery);
     return _db.rawQuery(
       '''
-      SELECT artist_key, MIN(artist_name) AS artist_name,
-        MAX(NULLIF(cover_url, '')) AS cover_url,
-        MAX(NULLIF(cover_path, '')) AS cover_path,
-        MAX(sample_file_path) AS sample_file_path,
-        COUNT(*) AS track_count
-      FROM (${parts.join(' UNION ALL ')})
-      WHERE artist_key != '' ${search.isEmpty ? '' : "AND artist_key LIKE ? ESCAPE '\\'"}
-      GROUP BY artist_key
-      ORDER BY artist_key
+      SELECT c.name_key AS artist_key, MIN(c.name) AS artist_name,
+        MAX(NULLIF(i.cover_url, '')) AS cover_url,
+        MAX(NULLIF(i.cover_path, '')) AS cover_path,
+        MAX(i.sample_file_path) AS sample_file_path,
+        COUNT(DISTINCT c.source || c.row_id) AS track_count
+      FROM ${LibraryTagCreditsCache.tempTable} c
+      JOIN (${parts.join(' UNION ALL ')}) i
+        ON i.source = c.source AND i.row_id = c.row_id
+      WHERE c.field IN ('artist', 'album_artist') AND c.name_key != ''
+        ${search.isEmpty ? '' : "AND c.name_key LIKE ? ESCAPE '\\'"}
+      GROUP BY c.name_key
+      ORDER BY c.name_key
       LIMIT ? OFFSET ?
     ''',
       [
@@ -355,6 +358,13 @@ class LibraryQueueStore {
       ],
     );
   }
+
+  /// Rows of [alias] credited to the artist as album artist or track artist.
+  /// The bound value is the artist's normalised name.
+  String _artistCreditFilter(String source, String alias) =>
+      '$alias.id IN (SELECT row_id FROM ${LibraryTagCreditsCache.tempTable} '
+      "WHERE source = '$source' AND field IN ('artist', 'album_artist') "
+      'AND name_key = ?)';
 
   String _escapeLikePattern(String value) {
     return value
@@ -804,7 +814,7 @@ class LibraryQueueStore {
       );
     }
     if (request.albumArtist != null) {
-      where.add('h.sort_album_artist = ?');
+      where.add(_artistCreditFilter('h', 'h'));
       args.add(sqlite.normalizeLookupText(request.albumArtist));
     }
     final query = sqlite.normalizeLookupText(request.searchQuery);
@@ -866,7 +876,7 @@ class LibraryQueueStore {
       );
     }
     if (request.albumArtist != null) {
-      where.add('l.album_artist_norm = ?');
+      where.add(_artistCreditFilter('l', 'l'));
       args.add(sqlite.normalizeLookupText(request.albumArtist));
     }
     final query = sqlite.normalizeLookupText(request.searchQuery);

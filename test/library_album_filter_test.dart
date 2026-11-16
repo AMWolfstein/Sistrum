@@ -10,6 +10,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart'
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
@@ -349,6 +350,8 @@ void main() {
       await LibraryDatabase.instance.getQueueAlbumPageResult(
         const QueueLibraryDbQuery(sortMode: 'size-desc'),
       );
+      // The album-artist filters read the credits table that queries build.
+      await tagCreditsCacheFor(db).ensure(db, const TagCreditScope());
       final snapshot = sqlite.LibraryShadowSnapshot();
       final actual = <String, String>{};
       for (final MapEntry(key: name, value: build) in _filters.entries) {

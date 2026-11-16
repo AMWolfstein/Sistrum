@@ -12,9 +12,7 @@ pub(super) use id3::cover as embedded_cover;
 
 use super::{CheckedReader, MAX_TAG_BYTES, bytes, exact, pair, seek};
 use crate::matching::uppercase;
-use artists::{
-    artist_mode_fields, primary_artist, primary_artist_mode, split_artists, tag_separator,
-};
+use artists::{artist_mode_fields, primary_artist, primary_artist_mode, split_artists};
 use regex::Regex;
 use std::collections::BTreeMap;
 use std::io::{BufReader, Cursor, Read, Seek, SeekFrom, Write};
@@ -348,19 +346,14 @@ fn flac_header(
     };
     if let Some(mode) = embed_mode {
         for (key, value) in fields.iter().filter(|(_, value)| !value.is_empty()) {
-            if key.ends_with("_separator") {
-                continue;
-            }
-            let separator = tag_separator(fields, key);
             if matches!(key.as_str(), "ARTIST" | "ALBUMARTIST") {
-                let values =
-                    if mode.trim().eq_ignore_ascii_case("split_vorbis") && separator.is_empty() {
-                        split_artists(value)
-                    } else if primary_artist_mode(mode) {
-                        vec![primary_artist(value)]
-                    } else {
-                        vec![super::format_metadata_tag_value(value, separator)]
-                    };
+                let values = if mode.trim().eq_ignore_ascii_case("split_vorbis") {
+                    split_artists(value)
+                } else if primary_artist_mode(mode) {
+                    vec![primary_artist(value)]
+                } else {
+                    vec![value.clone()]
+                };
                 if !values.is_empty() {
                     set_comment(&mut comments, key, "");
                     for value in values.iter().filter(|value| !value.trim().is_empty()) {
@@ -368,11 +361,7 @@ fn flac_header(
                     }
                 }
             } else {
-                set_comment(
-                    &mut comments,
-                    key,
-                    &super::format_metadata_tag_value(value, separator),
-                );
+                set_comment(&mut comments, key, value);
             }
         }
     } else {
@@ -531,7 +520,6 @@ fn edit_comments(comments: &mut Vec<Vec<u8>>, fields: &Fields) {
             let values = if fields
                 .get("artist_tag_mode")
                 .is_some_and(|mode| mode.trim().eq_ignore_ascii_case("split_vorbis"))
-                && tag_separator(fields, field).is_empty()
             {
                 split_artists(value)
             } else {

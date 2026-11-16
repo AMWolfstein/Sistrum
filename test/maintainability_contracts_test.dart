@@ -9,7 +9,9 @@ import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/controllers/home_search_logic.dart';
 import 'package:sistrum/services/audio_metadata_mapper.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/services/id3v23_lyrics.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
@@ -259,10 +261,11 @@ void main() {
     });
 
     test('builds split Vorbis artist entries without losing other tags', () {
-      final entries = AudioMetadataMapper.buildVorbisMetadataEntries({
-        'ARTIST': 'First & Second',
-        'TITLE': 'Track',
-      }, artistTagMode: artistTagModeSplitVorbis);
+      final entries = AudioMetadataMapper.buildVorbisMetadataEntries(
+        {'ARTIST': 'First & Second', 'TITLE': 'Track'},
+        artistTagMode: artistTagModeSplitVorbis,
+        tagRules: const TagCreditRules(),
+      );
 
       expect(
         entries.where((entry) => entry.key == 'ARTIST').map((e) => e.value),
@@ -272,11 +275,15 @@ void main() {
         entries.where((entry) => entry.key == 'TITLE').single.value,
         'Track',
       );
-      final primary = AudioMetadataMapper.buildVorbisMetadataEntries({
-        'ARTIST': 'First & Second',
-        'ALBUMARTIST': 'First, Second',
-        'TITLE': 'Track',
-      }, artistTagMode: artistTagModePrimary);
+      final primary = AudioMetadataMapper.buildVorbisMetadataEntries(
+        {
+          'ARTIST': 'First & Second',
+          'ALBUMARTIST': 'First, Second',
+          'TITLE': 'Track',
+        },
+        artistTagMode: artistTagModePrimary,
+        tagRules: const TagCreditRules(),
+      );
       expect(
         primary.where((entry) => entry.key == 'ARTIST').map((e) => e.value),
         ['First'],
@@ -289,10 +296,40 @@ void main() {
       );
       final advisory = AudioMetadataMapper.buildVorbisMetadataEntries({
         'EXPLICIT': 'true',
-      }).single;
+      }, tagRules: const TagCreditRules()).single;
       expect(advisory.key, 'ITUNESADVISORY');
       expect(advisory.value, '1');
     });
+
+    test(
+      'split Vorbis artists follow the rules passed in, not the defaults',
+      () {
+        List<String> artists(String value, TagCreditRules rules) => [
+          for (final entry in AudioMetadataMapper.buildVorbisMetadataEntries(
+            {'ARTIST': value},
+            artistTagMode: artistTagModeSplitVorbis,
+            tagRules: rules,
+          ))
+            if (entry.key == 'ARTIST') entry.value,
+        ];
+        // The default delimiters include the / chip, so AC/DC splits.
+        expect(artists('AC/DC', const TagCreditRules()), ['AC', 'DC']);
+        // Settings without the / chip keep AC/DC whole in the written tags.
+        final withoutSlash = TagCreditRules(
+          artistDelimiters: [
+            for (final token in kArtistDelimiterChoices)
+              if (token != '/') token,
+          ],
+        );
+        expect(artists('AC/DC', withoutSlash), ['AC/DC']);
+        // A custom delimiter splits its own way; the default rules do not.
+        const pipe = TagCreditRules(artistDelimiters: ['|']);
+        expect(artists('Band | Guest', pipe), ['Band', 'Guest']);
+        expect(artists('Band | Guest', const TagCreditRules()), [
+          'Band | Guest',
+        ]);
+      },
+    );
 
     test('writes one ID3v2.3 USLT frame and replaces it on update', () {
       final audio = Uint8List.fromList([0xff, 0xfb, 0x90, 0x64]);

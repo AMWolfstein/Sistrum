@@ -22,7 +22,7 @@ T003, T004, T005, T013, T006, T007, T008, T009, T010, T011.
 
 ## Implementation
 
-- [ ] M003-T012 Tag separators for artist and genre credits
+- [x] M003-T012 Tag separators for artist and genre credits
   - Acceptance: FR-015, FR-016, FR-017. Port the final Tag separators of
     AMWolfstein/Private `new-blur` (`docs/TAG_CREDITS_PLAN.md`,
     `lib/core/models/tag_credit_settings.dart`,

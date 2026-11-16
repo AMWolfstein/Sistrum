@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/lyrics_metadata_helper.dart';
@@ -35,6 +36,7 @@ Future<bool> applyFfmpegReEnrichResult({
   required LocalLibraryItem item,
   required Map<String, dynamic> result,
   required String artistTagMode,
+  required TagCreditRules tagRules,
 }) async {
   final tempPath = result['temp_path'] as String?;
   final safUri = result['saf_uri'] as String?;
@@ -110,6 +112,7 @@ Future<bool> applyFfmpegReEnrichResult({
         coverPath: effectiveCoverPath,
         metadata: metadata,
         artistTagMode: artistTagMode,
+        tagRules: tagRules,
         preserveMetadata: true,
       );
     }

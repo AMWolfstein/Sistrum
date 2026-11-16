@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:sistrum/services/ffmpeg_metadata.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/network_file_editor.dart';
 import 'package:sistrum/services/platform_bridge.dart';
@@ -31,6 +32,7 @@ class MetadataSaveRequest {
   final String filePath;
   final Map<String, String> metadata;
   final String artistTagMode;
+  final TagCreditRules tagRules;
   final String? selectedCoverPath;
   final String? currentCoverPath;
   final int? coverMaxDimension;
@@ -40,6 +42,7 @@ class MetadataSaveRequest {
     required this.filePath,
     required Map<String, String> metadata,
     required this.artistTagMode,
+    required this.tagRules,
     this.selectedCoverPath,
     this.currentCoverPath,
     this.coverMaxDimension,
@@ -56,6 +59,7 @@ typedef MetadataEmbed =
       String? coverPath,
       Map<String, String> metadata,
       String artistTagMode,
+      TagCreditRules tagRules,
     );
 
 /// Writes tags without widget state, and owns resources until every writer ends.
@@ -87,6 +91,7 @@ class MetadataPersistenceService {
               filePath: path,
               metadata: request.metadata,
               artistTagMode: request.artistTagMode,
+              tagRules: request.tagRules,
               selectedCoverPath: request.selectedCoverPath,
               currentCoverPath: request.currentCoverPath,
               coverMaxDimension: request.coverMaxDimension,
@@ -182,6 +187,7 @@ class MetadataPersistenceService {
               codec == MetadataSaveCodec.opus
                   ? request.artistTagMode
                   : artistTagModeJoined,
+              request.tagRules,
             );
       if (output == null) {
         return const MetadataSaveResult.failed(MetadataSaveFailure.ffmpeg);
@@ -266,6 +272,7 @@ class MetadataPersistenceService {
     String? coverPath,
     Map<String, String> metadata,
     String artistTagMode,
+    TagCreditRules tagRules,
   ) => switch (codec) {
     MetadataSaveCodec.mp3 => FFmpegMetadata.embedMetadataToMp3(
       mp3Path: path,
@@ -284,6 +291,7 @@ class MetadataPersistenceService {
       coverPath: coverPath,
       metadata: metadata,
       artistTagMode: artistTagMode,
+      tagRules: tagRules,
       preserveMetadata: true,
     ),
   };

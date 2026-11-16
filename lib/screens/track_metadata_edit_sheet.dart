@@ -12,6 +12,7 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_autofill_service.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
@@ -305,6 +306,9 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
           filePath: widget.filePath,
           metadata: _form.saveMetadata(artistTagMode: widget.artistTagMode),
           artistTagMode: widget.artistTagMode,
+          tagRules: TagCreditRules.fromSettings(
+            container.read(settingsProvider).tagCredits,
+          ),
           selectedCoverPath: _selectedCoverPath,
           currentCoverPath: _currentCoverPath,
           coverMaxDimension: _coverMaxDimension,

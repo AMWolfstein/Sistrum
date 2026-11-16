@@ -1,5 +1,3 @@
-import 'package:sistrum/models/metadata_separators.dart';
-
 class DownloadRequestPayload {
   static const int nativeWorkerContractVersion = 1;
 
@@ -21,7 +19,6 @@ class DownloadRequestPayload {
   final String quality;
   final bool embedMetadata;
   final String artistTagMode;
-  final MetadataSeparators metadataSeparators;
   final bool embedLyrics;
   final bool embedReplayGain;
   final bool postProcessingEnabled;
@@ -87,7 +84,6 @@ class DownloadRequestPayload {
     this.quality = 'LOSSLESS',
     this.embedMetadata = true,
     this.artistTagMode = 'joined',
-    this.metadataSeparators = const MetadataSeparators(),
     this.embedLyrics = true,
     this.embedReplayGain = false,
     this.postProcessingEnabled = false,
@@ -156,8 +152,6 @@ class DownloadRequestPayload {
       'quality': quality,
       'embed_metadata': embedMetadata,
       'artist_tag_mode': artistTagMode,
-      if (!metadataSeparators.isDefault)
-        'metadata_separators': metadataSeparators.toJson(),
       'embed_lyrics': embedLyrics,
       'embed_replaygain': embedReplayGain,
       'post_processing_enabled': postProcessingEnabled,
@@ -229,7 +223,6 @@ class DownloadRequestPayload {
       quality: quality,
       embedMetadata: embedMetadata,
       artistTagMode: artistTagMode,
-      metadataSeparators: metadataSeparators,
       embedLyrics: embedLyrics,
       embedReplayGain: embedReplayGain,
       postProcessingEnabled: postProcessingEnabled,

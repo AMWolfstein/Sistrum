@@ -11,6 +11,7 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/conversion_library_service.dart';
 import 'package:sistrum/services/ffmpeg_conversion.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/replaygain_service.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
@@ -282,6 +283,7 @@ Future<void> _performBatchConversion(
       keepOriginal: keepOriginal,
       shouldEmbedLyrics: shouldEmbedLyrics,
       readArtistTagMode: () => settings.artistTagMode,
+      readTagRules: () => TagCreditRules.fromSettings(settings.tagCredits),
       losslessLabels: losslessLabels,
       coverTempPrefix: 'batch_cover_',
       treatEmptySafTempPathAsFailure: true,
@@ -329,7 +331,7 @@ Future<void> _performBatchConversion(
 /// returns. Shared by batch conversion and the track metadata screen.
 ///
 /// [metadata] holds the caller's fallback tags and is completed from the
-/// file. [readArtistTagMode] is read when FFmpeg starts.
+/// file. [readArtistTagMode] and [readTagRules] are read when FFmpeg starts.
 /// [coverTempPrefix] names the extracted cover in the temp directory.
 /// [treatEmptySafTempPathAsFailure] also fails an empty SAF temp copy path.
 /// [historySafFileNameFallback] is the original SAF file name used when
@@ -356,6 +358,7 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
   required bool keepOriginal,
   required bool shouldEmbedLyrics,
   required String Function() readArtistTagMode,
+  required TagCreditRules Function() readTagRules,
   required LosslessConversionLabels losslessLabels,
   required String coverTempPrefix,
   required bool treatEmptySafTempPathAsFailure,
@@ -441,6 +444,7 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
       metadata: metadata,
       coverPath: coverPath,
       artistTagMode: readArtistTagMode(),
+      tagRules: readTagRules(),
       deleteOriginal: !isSaf && !keepOriginal,
       sourceBitDepth: sourceBitDepth,
       losslessQuality: losslessQuality,

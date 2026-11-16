@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
@@ -9,14 +10,14 @@ import 'package:sistrum/utils/string_utils.dart';
 void main() {
   group('artist utils', () {
     test('splits common artist separators and removes duplicates for tags', () {
-      expect(splitArtistNames(' A, B & C feat. D x E with F '), [
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-      ]);
+      expect(
+        splitTagCredits(
+          ' A, B & C feat. D x E with F ',
+          TagCreditField.artist,
+          const TagCreditRules(),
+        ),
+        ['A', 'B', 'C', 'D', 'E', 'F'],
+      );
       expect(splitArtistTagValues('A, a & B'), ['A', 'B']);
       expect(splitArtistTagValues('   '), isEmpty);
       expect(shouldSplitVorbisArtistTags(artistTagModeSplitVorbis), isTrue);

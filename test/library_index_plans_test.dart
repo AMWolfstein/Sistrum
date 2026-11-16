@@ -460,6 +460,10 @@ void main() {
       await LibraryDatabase.instance.getQueueCounts(
         const QueueLibraryDbQuery(),
       );
+      // Builds the album-artist credits table that the filter reads.
+      await LibraryDatabase.instance.getQueueAlbumPageResult(
+        const QueueLibraryDbQuery(albumArtist: 'Artist 1'),
+      );
       for (final snapshot in [false, true]) {
         for (final request in const [
           QueueLibraryDbQuery(albumArtist: 'Artist 1'),
@@ -491,11 +495,11 @@ void main() {
             reason: plan.join('\n'),
           );
           expect(
-            plan,
-            containsAll([
-              contains('USING INDEX idx_library_album_artist_norm'),
-              contains('USING INDEX idx_history_sort_album_artist'),
-            ]),
+            plan.where(
+              (detail) =>
+                  detail.contains('USING INDEX library_tag_credits_key'),
+            ),
+            isNotEmpty,
             reason: plan.join('\n'),
           );
         }
