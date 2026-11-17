@@ -554,9 +554,7 @@ String? _familyOf(String text) {
 String _artistKey(String artist) => normalizeLookupText(artist);
 
 bool _remote(String source) =>
-    source.startsWith('http://') ||
-    source.startsWith('https://') ||
-    source.startsWith('network://');
+    source.startsWith('http://') || source.startsWith('https://');
 
 /// A stable 32-bit FNV-1a hash, since [String.hashCode] may change between
 /// runs.

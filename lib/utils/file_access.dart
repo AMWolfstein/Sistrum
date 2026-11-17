@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/utils/mime_utils.dart';
@@ -60,8 +59,6 @@ String stripCueTrackSuffix(String path) {
 
 Future<bool> fileExists(String? path) async {
   if (path == null || path.isEmpty) return false;
-  // Network identities are resolved by the built-in player, not File.exists.
-  if (path.startsWith('network://')) return true;
   final realPath = isCueVirtualPath(path) ? stripCueTrackSuffix(path) : path;
   if (isContentUri(realPath)) {
     // A phone's content URI can arrive with synced statistics; a computer has
@@ -88,10 +85,7 @@ Future<Map<String, bool?>> fileExistenceByPath(List<String> paths) async {
       // Missing native method on an older build is also inconclusive.
     }
   }
-  // Offline network paths remain inconclusive during destructive cleanup.
-  final local = unique
-      .where((path) => !isContentUri(path) && !path.startsWith('network://'))
-      .toList();
+  final local = unique.where((path) => !isContentUri(path)).toList();
   const concurrency = 16;
   for (var start = 0; start < local.length; start += concurrency) {
     final end = start + concurrency < local.length
@@ -132,7 +126,6 @@ Future<Map<String, bool?>> fileExistenceByPath(List<String> paths) async {
 Future<bool> deleteFile(
   String? path, {
   SourceDeletionEvents? deletionEvents,
-  NetworkStorageService? networkStorage,
 }) async {
   if (path == null || path.isEmpty) return false;
   if (path.startsWith('EXISTS:')) {
@@ -145,10 +138,7 @@ Future<bool> deleteFile(
   if (isCueVirtualPath(path)) return false;
   bool confirmedAbsent;
   try {
-    if (path.startsWith('network://')) {
-      confirmedAbsent = await (networkStorage ?? NetworkStorageService.instance)
-          .deleteFile(path);
-    } else if (isContentUri(path)) {
+    if (isContentUri(path)) {
       final deleted = await PlatformBridge.safDelete(path);
       confirmedAbsent = deleted || !await PlatformBridge.safExists(path);
     } else {
@@ -173,7 +163,6 @@ Future<bool> deleteFile(
 
 Future<FileAccessStat?> fileStat(String? path) async {
   if (path == null || path.isEmpty) return null;
-  if (path.startsWith('network://')) return const FileAccessStat();
   final realPath = isCueVirtualPath(path) ? stripCueTrackSuffix(path) : path;
   if (isContentUri(realPath)) {
     final stat = await PlatformBridge.safStat(realPath);

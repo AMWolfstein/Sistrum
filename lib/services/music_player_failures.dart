@@ -75,15 +75,7 @@ class _MusicFailures {
     if (!handler._isCurrentPlayRequest(generation, media)) return true;
     // A null local resolution can mean recovery from a paired device failed.
     // It is not evidence that the remotely recoverable song should be removed.
-    if (media.isNetwork ||
-        media.originSource != null ||
-        (resolved == null && !media.isContentUri) ||
-        const {
-          'http',
-          'https',
-        }.contains(Uri.tryParse(resolved ?? '')?.scheme)) {
-      return false;
-    }
+    if (resolved == null && !media.isContentUri) return false;
     final path = media.isContentUri ? media.source : resolved ?? media.source;
     if (path.isEmpty) return false;
     final access = await handler._dependencies.fileAccess(path);

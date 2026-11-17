@@ -3328,14 +3328,6 @@
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
   },
-  "downloadAllowLocalNetworkEnabled": "Requests to local/private addresses are allowed (for local proxy or custom DNS)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "Local/private addresses are blocked for security",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
-  },
   "downloadSelectServiceToEnable": "Select a provider with quality options to enable this option",
   "@downloadSelectServiceToEnable": {
     "description": "Subtitle when quality picker is disabled due to extension service"

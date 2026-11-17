@@ -18,7 +18,6 @@ internal object SharedEngineChannels {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     fun configure(context: Context, engine: FlutterEngine) {
-        engine.plugins.add(LocalNetworkPlugin())
         engine.plugins.add(UsbBitPerfectPlugin())
         engine.plugins.add(MusicHapticsPlugin())
         registerPlaybackBackend(context, MethodChannel(engine.dartExecutor.binaryMessenger, BACKEND_CHANNEL))

@@ -1193,57 +1193,6 @@ void main() {
     expect(native.playing, isEmpty);
   });
 
-  fakeTimeTest(
-    'network playback uses URL transport and does not analyze remote files',
-    () async {
-      setAutoMixEnabled(true);
-      const remote = PlayableMedia(
-        id: 'remote',
-        source: 'https://music.test/song.mp3',
-        title: 'Remote',
-        artist: 'Server',
-      );
-      await handler.setQueueAndPlay([remote, _tracks.first]);
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-      expect(
-        native.calls.lastWhere((c) => c.$2 == 'setSourceUrl').$3['isLocal'],
-        false,
-      );
-      expect(native.playing, {'music-player'});
-      expect(analyzer.calls, isEmpty);
-      await handler.skipToNext();
-      expect(
-        native.calls.lastWhere((c) => c.$2 == 'setSourceUrl').$3['isLocal'],
-        true,
-      );
-      await handler.skipToPrevious();
-      expect(handler.mediaItem.value?.id, remote.id);
-      expect(native.preparedContents['music-player'], remote.source);
-      expect(native.resumedSources.last, remote.source);
-      expect(
-        native.calls.lastWhere((c) => c.$2 == 'setSourceUrl').$3['isLocal'],
-        false,
-      );
-    },
-  );
-
-  fakeTimeTest('a next song still arriving is not mixed in', () async {
-    // A paired phone still sends it, or sends it again after the received
-    // folder pruned it.
-    final arrived = Completer<void>();
-    addTearDown(arrived.complete);
-    musicPlayerRuntime.streamWhileArriving(
-      '/two.flac',
-      url: 'http://127.0.0.1:1/two.flac',
-      done: arrived.future,
-    );
-    setAutoMixEnabled(true);
-    await handler.setQueueAndPlay(_tracks);
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    expect(native.live, {'music-player'});
-    expect(analyzer.calls, isEmpty);
-  });
-
   fakeTimeTest('repeat one never prepares another deck', () async {
     setAutoMixEnabled(true);
     await handler.setRepeatMode(AudioServiceRepeatMode.one);
@@ -1632,25 +1581,4 @@ void main() {
     native.positions['music-player'] = 235000;
     await _until(() => handler.mediaItem.value?.id == 'one');
   });
-
-  fakeTimeTest(
-    'a next song that arrives before the last 150 s is mixed in',
-    () async {
-      setLengths(const Duration(minutes: 4));
-      final arrived = Completer<void>();
-      musicPlayerRuntime.streamWhileArriving(
-        '/two.flac',
-        url: 'http://127.0.0.1:1/two.flac',
-        done: arrived.future,
-      );
-      setAutoMixEnabled(true);
-      await handler.setQueueAndPlay(_tracks);
-      native.positions['music-player'] = 10000;
-      await Future<void>.delayed(const Duration(seconds: 1));
-      arrived.complete();
-      native.positions['music-player'] = 200000;
-      await _until(() => native.calls.any((c) => c.$2 == 'setPlaybackRate'));
-      expect(native.sources[native.prepared], '/two.flac');
-    },
-  );
 }

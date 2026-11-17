@@ -24,8 +24,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/player_artwork_video_provider.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:video_player/video_player.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -3024,46 +3022,6 @@ void main() {
     await settlePlayer(tester);
 
     expect(find.byType(LyricsShareScreen), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('network lyrics use shared metadata instead of the audio URL', (
-    tester,
-  ) async {
-    final storage = NetworkStorageService.instance;
-    final source = NetworkStorageService.source('lyrics-test', 'song.flac');
-    await tester.runAsync(() async {
-      await storage.save(
-        const NetworkConnection(
-          id: 'lyrics-test',
-          name: 'Lyrics test',
-          protocol: NetworkProtocol.http,
-          address: 'https://nas.test/music/',
-        ),
-      );
-      await NetworkMetadataService.instance.read(source);
-    });
-    addTearDown(() async {
-      await storage.remove('lyrics-test');
-      await storage.dispose();
-    });
-    expect(metadataReads, hasLength(1));
-    await pumpNowPlaying(tester);
-    mediaItems.add(
-      MediaItem(
-        id: source,
-        title: 'Network song',
-        extras: {
-          'source': source,
-          'resolvedSource': 'http://127.0.0.1:9999/playback-only',
-        },
-      ),
-    );
-    await settlePlayer(tester);
-    await tester.tap(findAppIcon(CupertinoIcons.quote_bubble));
-    await settlePlayer(tester);
-    expect(find.text('First lyric'), findsOneWidget);
-    expect(metadataReads, hasLength(1));
     expect(tester.takeException(), isNull);
   });
 

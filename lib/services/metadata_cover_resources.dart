@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/ffmpeg_probe.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/logger.dart';
 
@@ -133,12 +132,6 @@ class MetadataCoverResources {
 
   Future<MetadataCoverPreview?> extract(String filePath) async {
     try {
-      if (filePath.startsWith('network://')) {
-        final metadata = await NetworkMetadataService.instance.read(filePath);
-        final cover = metadata['cover_path'];
-        if (cover is! String || cover.isEmpty) return null;
-        return await copyPicked(extension: 'jpg', sourcePath: cover);
-      }
       return await _create('metadata_embedded_cover_', 'cover.jpg', (
         path,
       ) async {

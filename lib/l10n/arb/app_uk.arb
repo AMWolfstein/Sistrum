@@ -2,174 +2,6 @@
   "linkFileReading": "Зчитування тегів...",
   "trackBpm": "BPM",
   "trackMood": "За настроєм",
-  "subsonicAddToLibrary": "Додати сервер до бібліотеки",
-  "subsonicLibraryAdded": "Сервер додано до бібліотеки",
-  "subsonicLibraryDescription": "Синхронізуйте каталог сервера та обкладинки з бібліотекою. Музика залишається на вашому сервері. Для оновлення каталогу виконайте повторне сканування в налаштуваннях локальної бібліотеки.",
-  "subsonicAuthentication": "Автентифікація",
-  "subsonicToken": "Хешований токен",
-  "subsonicPasswordAuth": "Пароль",
-  "subsonicApiKey": "Ключ API",
-  "subsonicUsername": "Ім'я користувача",
-  "subsonicPassword": "Пароль",
-  "subsonicSearch": "Пошук музики на сервері...",
-  "subsonicMoreAlbums": "Більше альбомів",
-  "subsonicErrorApi": "Сервер не підтримує цю версію API або метод автентифікації. Перевірте налаштування сервера та вибраний спосіб входу.",
-  "networkDownloadDestination": "Місце збереження мережевих завантажень",
-  "@networkDownloadDestination": {
-    "description": "Files settings item that opens network storage to choose a folder for downloaded music"
-  },
-  "networkUseForDownloads": "Завантажити в цю теку",
-  "@networkUseForDownloads": {
-    "description": "Action to select the current network folder as the download destination; also the settings subtitle when no network destination is selected"
-  },
-  "networkDownloadSelected": "Вибране місце для завантаження",
-  "@networkDownloadSelected": {
-    "description": "Status label replacing the download destination action when the current network folder is already selected"
-  },
-  "networkUseLocalDownloads": "Використовуйте локальну теку для завантаження",
-  "@networkUseLocalDownloads": {
-    "description": "Files settings action that clears the network download destination and returns downloads to the local folder"
-  },
-  "networkDownloadAccessFailed": "Не вдалося записати в цю теку.",
-  "@networkDownloadAccessFailed": {
-    "description": "Snackbar prefix when the write-access check fails while selecting a network download folder; followed by a specific network error message"
-  },
-  "networkUploading": "Завантаження до мережевого сховища",
-  "@networkUploading": {
-    "description": "Download queue status during upload of prepared audio to the network destination; a progress percentage may follow"
-  },
-  "networkDownloadDescription": "Підготуйте пісні на цьому пристрої, а потім завантажте їх на мережевий накопичувач NAS. Тримайте додаток відкритим до завершення завантаження. Повторна спроба використовує вже підготовлене аудіо. Наявні файли буде збережено; нові завантаження з такою ж назвою отримають цифровий суфікс.",
-  "@networkDownloadDescription": {
-    "description": "Help below the network download destination action explaining local preparation, upload, retry behavior, and preservation of existing files; NAS means network-attached storage"
-  },
-  "networkAddToLibrary": "Додати теку до бібліотеки",
-  "@networkAddToLibrary": {
-    "description": "Action that adds the current network folder as a Library source and starts scanning it"
-  },
-  "networkLibraryAdded": "Теку додано до бібліотеки",
-  "@networkLibraryAdded": {
-    "description": "Status label replacing the add-to-Library action after the network folder has been added as a source; does not mean scanning has finished"
-  },
-  "networkLibraryDescription": "Скануйте цю теку та її підтеки. Музика залишається на вашому сервері, а метадані та обкладинки зберігаються на цьому пристрої. Керуйте бібліотекою або повторно скануйте її в налаштуваннях.",
-  "@networkLibraryDescription": {
-    "description": "Help below the add-to-Library action explaining recursive scanning, local metadata and artwork storage, and management in Local Library settings"
-  },
-  "networkStorage": "Мережеве сховище",
-  "@networkStorage": {
-    "description": "Title and navigation label for the screen used to manage network connections and browse remote music folders"
-  },
-  "networkErrorUnreachable": "Не вдалося зв'язатися з сервером. Перевірте, чи має цей телефон доступ до мережі та чи запущено службу спільного доступу до файлів. Для SMB порт 445 має бути доступним.",
-  "@networkErrorUnreachable": {
-    "description": "Network access error for an unreachable server, with connection troubleshooting and the SMB port requirement"
-  },
-  "networkErrorTimeout": "Сервер не відповів вчасно. Перевірте з'єднання та спробуйте ще раз.",
-  "@networkErrorTimeout": {
-    "description": "Network access error when a server operation exceeds its time limit"
-  },
-  "networkErrorAuthentication": "Сервер відхилив вхід в систему. Перевірте ім'я користувача, пароль і домен. Залиште поле домену порожнім, якщо ваш сервер його не вимагає.",
-  "@networkErrorAuthentication": {
-    "description": "Network access error when the server rejects credentials; domain refers to the optional SMB authentication domain"
-  },
-  "networkErrorPermission": "Цей обліковий запис не має дозволу на відкриття цієї спільної теки або ресурсу. Перевірте його права на читання на сервері.",
-  "@networkErrorPermission": {
-    "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
-  },
-  "networkErrorLocalPermission": "Доступ до локальної мережі заборонено. Дозвольте доступ до пристроїв поблизу для Sistrum в налаштуваннях додатка Android, а потім спробуйте знову.",
-  "@networkErrorLocalPermission": {
-    "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
-  },
-  "networkErrorShare": "Спільний ресурс або теку не знайдено. Для протоколу SMB вказуйте ім'я спільної теки сервера після його адреси, наприклад smb://server/Music/.",
-  "@networkErrorShare": {
-    "description": "Network access error for a missing share or folder; share means an SMB shared folder and the example illustrates its URL path"
-  },
-  "networkErrorProtocol": "Цьому серверу та клієнту SMB не вдалося узгодити підтримуваний протокол. Увімкніть SMB2 або SMB3 на сервері. SMB1 не підтримується.",
-  "@networkErrorProtocol": {
-    "description": "Network access error for incompatible SMB protocol versions; preserve the version names SMB1, SMB2, and SMB3"
-  },
-  "networkErrorAddress": "Перевірте адресу сервера. Використовуйте протокол smb://server/share/ для SMB або адресу http:// чи https:// для WebDAV та HTTP.",
-  "@networkErrorAddress": {
-    "description": "Network access error for an invalid address, with URL scheme examples for SMB, WebDAV, and HTTP connections"
-  },
-  "networkConnections": "Збережені з'єднання",
-  "@networkConnections": {
-    "description": "Section heading above the list of saved network storage connections"
-  },
-  "networkServer": "Сервер",
-  "@networkServer": {
-    "description": "Connection form section heading above the display name and server or audio URL fields"
-  },
-  "networkCredentials": "Увійти (необов'язково)",
-  "@networkCredentials": {
-    "description": "Connection form section heading for optional server credentials"
-  },
-  "networkRefresh": "Оновити",
-  "@networkRefresh": {
-    "description": "Toolbar tooltip for reloading saved connections or the current network folder listing"
-  },
-  "networkStorageDescription": "Під'єднатися до вашого NAS або музичного сервера та перегляньте його теки. Дані для входу зберігаються надійно на цьому пристрої.",
-  "@networkStorageDescription": {
-    "description": "Introduction shown in the empty connections screen and connection form, explaining remote folder browsing and secure local credential storage; NAS means network-attached storage"
-  },
-  "networkAddConnection": "Додати з'єднання",
-  "@networkAddConnection": {
-    "description": "Action label, toolbar tooltip, and form title for adding a network storage connection"
-  },
-  "networkEditConnection": "Редагувати підключення",
-  "@networkEditConnection": {
-    "description": "Edit button tooltip and form title for changing an existing network storage connection"
-  },
-  "networkConnectionName": "Ім’я",
-  "@networkConnectionName": {
-    "description": "Required connection form field for a user-chosen display name identifying the saved connection"
-  },
-  "networkAddress": "Сервер або URL-адреса аудіо",
-  "@networkAddress": {
-    "description": "Required connection form field for the server or direct audio URL, using the scheme appropriate to the selected protocol"
-  },
-  "networkProtocol": "Протокол",
-  "@networkProtocol": {
-    "description": "Connection form section heading for choosing SMB, WebDAV, or HTTP / HTTPS"
-  },
-  "networkUsername": "Ім’я користувача (необов’язково)",
-  "@networkUsername": {
-    "description": "Optional connection form field for the server account username"
-  },
-  "networkPassword": "Пароль (необов'язково)",
-  "@networkPassword": {
-    "description": "Optional connection form field for the server account password, with input characters hidden"
-  },
-  "networkDomain": "Домен (необов'язково)",
-  "@networkDomain": {
-    "description": "Optional connection form field shown only for SMB; refers to the authentication domain, not the server's internet domain name"
-  },
-  "networkConnectSave": "З’єднати та зберегти",
-  "@networkConnectSave": {
-    "description": "Connection form action that checks access to the network source before saving the connection"
-  },
-  "networkErrorCertificate": "Не вдалося перевірити HTTPS-сертифікат сервера. Відредагуйте це підключення, щоб переглянути сертифікат і додати його до довірених, або перевірте конфігурацію HTTPS на сервері.",
-  "@networkErrorCertificate": {
-    "description": "Network access error for HTTPS certificate verification failure, directing the user to review the certificate in the connection form; unrelated to SMB authentication"
-  },
-  "networkCertificatePrompt": "Цей сервер використовує ненадійний сертифікат HTTPS. Роутери та мережевий накопичувач NAS часто використовують із власним підписом сертифікати. Перевірте адресу сервера та відбиток SHA-256, перш ніж довіряти йому. Довіра поширюється лише на цей сертифікат на цьому сервері; змінений сертифікат потребуватиме повторного підтвердження.",
-  "@networkCertificatePrompt": {
-    "description": "Connection form warning shown above the HTTPS origin and certificate SHA-256 fingerprint; approval trusts only that fingerprint for this connection's HTTPS origin, not a global certificate authority or an SMB server"
-  },
-  "networkTrustCertificate": "Сертифікат безпеки та повторна спроба",
-  "@networkTrustCertificate": {
-    "description": "Action approving the displayed certificate SHA-256 fingerprint for this connection's HTTPS origin and retrying connect-and-save; does not grant global certificate trust"
-  },
-  "networkRemoveConnection": "Скасувати підключення",
-  "@networkRemoveConnection": {
-    "description": "Connection form action that removes the saved connection and its credentials, without deleting files on the server"
-  },
-  "networkNoFiles": "Не знайдено підтримуваних музичних файлів або тек.",
-  "@networkNoFiles": {
-    "description": "Empty folder message when the network listing contains no directories or supported audio files"
-  },
-  "networkConnectionError": "Не вдалося отримати доступ до мережевого джерела. Перевірте адресу сервера, облікові дані та підключення, а потім повторіть спробу.",
-  "@networkConnectionError": {
-    "description": "Fallback network access error when the failure has no more specific classification"
-  },
   "extensionAccountTitle": "Обліковий запис розширення",
   "extensionAccountInvalidForm": "Розширення повернуло неправильну форму облікового запису.",
   "extensionAccountRestartLogin": "Перезапустіть вхід в обліковий запис, щоб продовжити.",
@@ -1767,7 +1599,6 @@
   "@trackDeleteConfirmTitle": {
     "description": "Delete confirmation title"
   },
-  "trackDeleteNetworkConfirmMessage": "Це безповоротно видалить файл із мережевого сховища та вилучить його з бібліотеки й історії.",
   "snackbarDeleteTracksFailed": "Не вдалося видалити {count} {count, plural, =1{трек} one{трек} few{треки} other{треків}}. Перевірте доступ до сховища та спробуйте ще раз.",
   "@snackbarDeleteTracksFailed": {
     "placeholders": {
@@ -3800,14 +3631,6 @@
   "downloadAllowLocalNetwork": "Дозволити доступ до локальної мережі",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadAllowLocalNetworkEnabled": "Дозволено надсилати запити на локальні або приватні адреси (для локального проксі-сервера чи власного DNS)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "Локальні/приватні Адреси заблоковано з міркувань безпеки",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
   },
   "downloadSelectServiceToEnable": "Виберіть провайдера, що пропонує якісні варіанти, щоб увімкнути цю функцію",
   "@downloadSelectServiceToEnable": {
@@ -6546,7 +6369,6 @@
   "audioInfoLocation": "Розташування",
   "audioInfoLocationLocal": "Пам’ять пристрою",
   "audioInfoLocationShared": "Загальна тека",
-  "audioInfoLocationNetwork": "Мережеве сховище",
   "audioInfoPcmRate": "Швидкість нестиснених даних",
   "audioInfoFrequencyRange": "Частотний діапазон",
   "audioInfoFrequencyRangeValue": "До {frequency} (Nyquist)",

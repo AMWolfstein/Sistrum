@@ -1,10 +1,5 @@
 import 'package:sistrum/utils/string_utils.dart';
 
-/// Another transfer published the same origin while this one was fetching.
-class OfflineCopyAlreadySaved implements Exception {
-  const OfflineCopyAlreadySaved();
-}
-
 class DownloadHistoryItem {
   final String id;
   final String trackName;

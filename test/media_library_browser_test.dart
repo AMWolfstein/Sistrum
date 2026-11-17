@@ -7,14 +7,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/media_library_browser.dart';
-import 'package:path/path.dart' as p;
 
 const _added = '2026-01-01T00:00:00.000Z';
 
@@ -206,7 +204,6 @@ MediaLibraryBrowser _browser({
   _Collections? collections,
   bool includeLocal = true,
   TagCreditRules? rules,
-  CoverStore? covers,
   Future<BrowserCoverProvider?> Function()? coverProvider,
 }) => MediaLibraryBrowser(
   library: library ?? _Library(),
@@ -218,11 +215,8 @@ MediaLibraryBrowser _browser({
     version: 'test-library',
   ),
   strings: () => lookupAppLocalizations(const Locale('en')),
-  covers: covers,
   coverProvider: coverProvider ?? BrowserCoverProvider.load,
 );
-
-const _jpeg = [0xFF, 0xD8, 0xFF, 0xE0, 0, 16, 0x4A, 0x46, 0x49, 0x46];
 
 List<String> _titles(List<MediaItem> items) => [
   for (final item in items) item.title,
@@ -504,23 +498,16 @@ void main() {
   group('the cover provider', () {
     const library = '/data/app/files/library_covers';
     late Directory directory;
-    late CoverStore covers;
     setUp(() async {
       directory = await Directory.systemTemp.createTemp('browser-covers');
-      covers = CoverStore(
-        directory: () async => Directory('${directory.path}/covers'),
-        fetch: (ref, output) => output.writeAsBytes(_jpeg),
-      );
     });
     tearDown(() async {
-      await covers.dispose();
       await directory.delete(recursive: true);
     });
 
     BrowserCoverProvider provider() => BrowserCoverProvider(
       authority: 'app.covers',
       folders: {
-        'covers': '${directory.path}/covers',
         'library_covers': library,
         // Even a folder the provider serves shows no temporary file.
         'temporary': Directory.systemTemp.path,
@@ -574,7 +561,6 @@ void main() {
       );
       final browser = _browser(
         library: rows,
-        covers: covers,
         coverProvider: () async {
           loads++;
           return provider();
@@ -609,11 +595,7 @@ void main() {
       expect(loads, 1);
 
       // Without the provider a car cannot load them.
-      final without = _browser(
-        library: rows,
-        covers: covers,
-        coverProvider: () async => null,
-      );
+      final without = _browser(library: rows, coverProvider: () async => null);
       expect(
         art(
           await without.children(MediaLibraryBrowser.albumsId),
@@ -627,7 +609,6 @@ void main() {
       var loads = 0;
       final browser = _browser(
         library: _Library(albums: [album('Path', '$library/a.jpg')]),
-        covers: covers,
         coverProvider: () async {
           final answer = answers[loads++];
           if (answer is Error) throw answer;
@@ -650,7 +631,6 @@ void main() {
       var loads = 0;
       final browser = _browser(
         library: _Library(albums: [album('Path', '$library/a.jpg')]),
-        covers: covers,
         coverProvider: () {
           loads++;
           return found.future;
@@ -666,57 +646,6 @@ void main() {
         cover('library_covers', 'a.jpg'),
       );
       expect(loads, 1);
-    });
-
-    test('shows the file the store keeps for a network cover', () async {
-      const stored = 'network://connection/covers/a.jpg';
-      const song = 'network://connection/music/song.flac';
-      final storedPath = (await covers.file(stored))!;
-      final tags = await File('${directory.path}/tags.jpg').writeAsBytes(_jpeg);
-      final adoptedPath = (await covers.adopt(
-        CoverStore.songCoverReference(song),
-        tags.path,
-      ))!;
-      final browser = _browser(
-        library: _Library(
-          songs: [
-            {
-              'source': 'local',
-              'item': {..._scanned('n'), 'filePath': song, 'coverPath': null},
-            },
-          ],
-          hits: {
-            LibrarySearchKind.albums: const [
-              LibrarySearchHit(
-                kind: LibrarySearchKind.albums,
-                id: 'stored',
-                title: 'Stored',
-                source: 'local',
-                cover: stored,
-              ),
-              LibrarySearchHit(
-                kind: LibrarySearchKind.albums,
-                id: 'missing',
-                title: 'Not stored',
-                source: 'local',
-                cover: 'network://connection/covers/b.jpg',
-              ),
-            ],
-          },
-        ),
-        covers: covers,
-        coverProvider: () async => provider(),
-      );
-
-      expect(art(await browser.search('stored')), {
-        'Stored': cover('covers', p.basename(storedPath)),
-        'Not stored': null,
-      });
-      final songs = await browser.children(MediaLibraryBrowser.songsId);
-      expect(
-        songs[1].artUri.toString(),
-        cover('covers', p.basename(adoptedPath)),
-      );
     });
   });
 

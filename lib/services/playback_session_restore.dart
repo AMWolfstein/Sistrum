@@ -23,7 +23,7 @@ Future<PlaybackResumePreview?> loadPlaybackResumePreview(
       Map<String, dynamic>.from(preview['media'] as Map),
     );
     if (saved == null) return null;
-    if (!saved.isNetwork && !await files.fileExists(saved.source)) {
+    if (!await files.fileExists(saved.source)) {
       if (!runtime.dependencies.isAndroid) return null;
       final replacement = await runtime.dependencies.recoverMovedDownload(
         saved.source,
@@ -42,10 +42,6 @@ Future<PlaybackResumePreview?> loadPlaybackResumePreview(
     final media = artwork == saved.artUri
         ? saved
         : PlayableMedia.fromJson({...saved.toJson(), 'artUri': artwork})!;
-    // Its item then shows a stored network cover from the start.
-    if (media.coverReference != null || CoverStore.fetches(media.source)) {
-      await runtime.dependencies.coverStore.warmUp();
-    }
     return (
       media: media,
       position: Duration(
@@ -91,9 +87,7 @@ prepareRestoredPlaybackMedia(
     var media = PlayableMedia.fromJson(Map<String, dynamic>.from(entry));
     if (media == null) return null;
     var sourceRelocated = false;
-    if (!media.isContentUri &&
-        !media.isNetwork &&
-        !await exists(media.source)) {
+    if (!media.isContentUri && !await exists(media.source)) {
       String? replacement;
       try {
         replacement = await recoverSource?.call(media);

@@ -50,30 +50,6 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
     }
   }
 
-  Future<LibraryScanNDJSONFile> _scanNetworkFolder(
-    String source, {
-    required String sourceId,
-    required bool forceFullScan,
-    required Future<void> Function() checkpoint,
-    required void Function(int processed, int errors, String name) onProgress,
-  }) async {
-    final scanner = NetworkLibraryScanner(
-      storage: _networkStorage,
-      readCachedRows: (paths) => _db.readNetworkScanRows(sourceId, paths),
-    );
-    _networkScanner = scanner;
-    try {
-      return await scanner.scan(
-        source,
-        forceFullScan: forceFullScan,
-        checkpoint: checkpoint,
-        onProgress: onProgress,
-      );
-    } finally {
-      if (identical(_networkScanner, scanner)) _networkScanner = null;
-    }
-  }
-
   Future<({int inserted, int skipped})?> _replaceFromFullScanStream({
     required String sourceId,
     required String folderPath,
@@ -81,45 +57,7 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
     required bool forceFullScan,
   }) async {
     if (_scanCancelRequested) return null;
-    final scanFile = folderPath.startsWith('network://')
-        ? await _scanNetworkFolder(
-            folderPath,
-            sourceId: sourceId,
-            forceFullScan: forceFullScan,
-            checkpoint: () async {
-              while (_scanPauseRequested &&
-                  !_scanCancelRequested &&
-                  ref.mounted) {
-                await Future<void>.delayed(const Duration(milliseconds: 100));
-              }
-              if (_scanCancelRequested || !ref.mounted) {
-                throw StateError('Network library scan cancelled');
-              }
-            },
-            onProgress: (processed, errors, name) {
-              if (!ref.mounted) return;
-              state = state.copyWith(
-                scannedFiles: processed,
-                scanErrorCount: errors,
-                scanCurrentFile: name,
-              );
-              if (_shouldShowScanProgressNotification(
-                progress: 0,
-                totalFiles: 0,
-                isComplete: false,
-              )) {
-                unawaited(
-                  _showScanProgressNotification(
-                    progress: 0,
-                    scannedFiles: processed,
-                    totalFiles: 0,
-                    currentFile: name,
-                  ),
-                );
-              }
-            },
-          )
-        : isSaf
+    final scanFile = isSaf
         ? await PlatformBridge.scanSafTreeToNDJSONFile(
             folderPath,
             forceFullScan: forceFullScan,
@@ -154,7 +92,7 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
       ingested = true;
       return result;
     } finally {
-      if (ingested || folderPath.startsWith('network://')) {
+      if (ingested) {
         await scanFile.delete();
       }
     }
@@ -257,7 +195,7 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
       }
       if (!ref.mounted || _scanCancelRequested) return;
 
-      if (!folderPath.startsWith('network://')) _startProgressPolling();
+      _startProgressPolling();
 
       String? resolvedPath;
       if (!ref.mounted || _scanCancelRequested) return;
@@ -266,9 +204,7 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
       final isSaf = isContentUri(effectiveFolderPath);
 
       final useStreamingFullScan =
-          effectiveFolderPath.startsWith('network://') ||
-          forceFullScan ||
-          await _db.getSourceCount(activeSourceId) == 0;
+          forceFullScan || await _db.getSourceCount(activeSourceId) == 0;
       if (useStreamingFullScan) {
         if (await _sourceForScan(activeSourceId) == null ||
             !ref.mounted ||
@@ -320,7 +256,6 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
           sourceId: activeSourceId,
           skippedDownloads: skippedDownloads,
           pruneCoverCache: true,
-          nativeScan: !effectiveFolderPath.startsWith('network://'),
           summary: () =>
               'Full scan complete: ${state.totalCount} tracks found, '
               '$skippedDownloads already in downloads, '
@@ -486,7 +421,6 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
           sourceId: activeSourceId,
           skippedDownloads: skippedDownloads,
           pruneCoverCache: false,
-          nativeScan: true,
           summary: () =>
               'Incremental scan complete: ${state.totalCount} total tracks '
               '($scannedCount new/updated, $skippedCount unchanged, '
@@ -562,16 +496,14 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
 
   /// Shared completion tail of a successful full or incremental scan.
   /// [summary] is evaluated after the final state update so it reads the
-  /// refreshed totals. A [nativeScan] reports which files it could not read;
-  /// a network scan only counts them.
+  /// refreshed totals.
   Future<void> _finishScan({
     required String sourceId,
     required int skippedDownloads,
     required bool pruneCoverCache,
-    required bool nativeScan,
     required String Function() summary,
   }) async {
-    final reported = nativeScan ? await _readNativeScanFailures() : null;
+    final reported = await _readNativeScanFailures();
     if (!ref.mounted) return;
     final failures =
         reported ??
@@ -763,12 +695,6 @@ extension _LocalLibraryScan on LocalLibraryNotifier {
     _lastScanNotificationAt = now;
     return true;
   }
-
-  bool get _isScanningNetwork => state.sources.any(
-    (source) =>
-        source.id == state.scanningSourceId &&
-        source.path.startsWith('network://'),
-  );
 
   Future<void> _releaseNativeScanPause() async {
     try {

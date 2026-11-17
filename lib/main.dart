@@ -78,9 +78,6 @@ void main() {
           'Inter',
         ], await rootBundle.loadString('assets/fonts/Inter-LICENSE.txt'));
         yield LicenseEntryWithLineBreaks(const [
-          'libsmb2',
-        ], await rootBundle.loadString('assets/licenses/libsmb2.txt'));
-        yield LicenseEntryWithLineBreaks(const [
           'Material Color Utilities (native palette)',
           'Dart SDK (native Random compatibility)',
         ], await rootBundle.loadString('assets/licenses/native_palette.txt'));
@@ -172,7 +169,6 @@ void main() {
           ),
         ),
       );
-      musicPlayerRuntime.prepareCovers();
       // Waits until startup settles, then analyzes how songs sound for
       // Autoplay. Media browsers that start without the app shell skip it.
       musicPlayerRuntime.startSongAnalysis();
@@ -266,9 +262,7 @@ Future<void> _startBackgroundPlayback() async {
     // An Activity that attached meanwhile runs the full startup instead.
     if (isActivityAttached(WidgetsBinding.instance)) return;
     final settings = loadBootstrapSettings(prefs);
-    final runtime = musicPlayerRuntime
-      ..configure(settings)
-      ..prepareCovers();
+    final runtime = musicPlayerRuntime..configure(settings);
     final l10n = appLocalizationsFor(settings.locale);
     runtime.updateStrings(
       unknownTitle: l10n.unknownTitle,
@@ -286,7 +280,6 @@ Future<void> _startBackgroundPlayback() async {
         library: dependencies.libraryDatabase,
         history: dependencies.historyDatabase,
         collections: dependencies.collectionsDatabase,
-        covers: dependencies.coverStore,
       ),
     );
     await runtime.restoreSession();

@@ -182,9 +182,6 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
   }
 
   Future<bool?> _probePathAvailability(String path) async {
-    // Network outages are transient. Keep the indexed collection visible;
-    // opening/scanning a source reports connectivity errors without dropping it.
-    if (path.startsWith('network://')) return true;
     try {
       if (_availabilityProbe != null) {
         return await _availabilityProbe(path);

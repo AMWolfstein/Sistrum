@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -46,15 +45,6 @@ Future<void> openLyricsEditor(
   if (item == null || source == null || !canEditPlayerLyrics(metadata)) {
     return;
   }
-  final l10n = context.l10n;
-  // Only SMB and WebDAV network songs can be rewritten in place.
-  if (source.startsWith('network://') &&
-      !await NetworkStorageService.instance.canEditFile(source)) {
-    if (context.mounted) {
-      showAppSnackBar(context, content: Text(l10n.lyricsEditReadOnly));
-    }
-    return;
-  }
   if (!context.mounted) return;
   final saved = await showAppModalBottomSheet<bool>(
     context: context,
@@ -66,7 +56,7 @@ Future<void> openLyricsEditor(
     builder: (_) => LyricsEditorSheet(metadata: metadata, item: item),
   );
   if (saved == true && context.mounted) {
-    showAppSnackBar(context, content: Text(l10n.lyricsEditSaved));
+    showAppSnackBar(context, content: Text(context.l10n.lyricsEditSaved));
   }
 }
 

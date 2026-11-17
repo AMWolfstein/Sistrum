@@ -95,7 +95,6 @@ void main() {
         ('opus', 'content://media/audio/1', 'opus', 4, 3),
         ('vorbis', '/music/song.ogg', 'vorbis', 4, 3),
         ('suffix', '/music/song.OPUS', null, 4, 3),
-        ('remote', 'network://peer/song.opus', 'opus', 4, 4),
         ('flac', '/music/song.flac', 'flac', 4, 4),
         ('legacy', '/music/legacy.opus', 'opus', 0, 0),
       ];

@@ -168,15 +168,13 @@ extension _ArtistLibrarySections on _ArtistScreenState {
         ref,
         items: [item],
         onPlay: () => _playLibraryTracks(tracks, startIndex: index),
-        onDelete: item.filePath.startsWith('network://')
-            ? null
-            : () => deleteLibraryTracks(
-                context,
-                ref,
-                [item],
-                isActive: () => mounted,
-                onComplete: refresh,
-              ),
+        onDelete: () => deleteLibraryTracks(
+          context,
+          ref,
+          [item],
+          isActive: () => mounted,
+          onComplete: refresh,
+        ),
       ),
     );
   }

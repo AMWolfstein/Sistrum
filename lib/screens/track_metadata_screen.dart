@@ -12,17 +12,9 @@ import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/services/file_access_check.dart';
-import 'package:sistrum/services/network_storage_service.dart';
-import 'package:sistrum/services/network_library_scanner.dart';
-import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_index_reconciler.dart';
-import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/cue_split_library_service.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
-import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -164,13 +156,8 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
 
   FileAccessCheck? _fileAccess;
   bool get _fileExists => _fileAccess is FileAccessFound;
-  bool get _isNetworkItem => cleanFilePath.startsWith('network://');
-  bool _networkFileDeletable = false;
-  bool get _canDeleteFile => !_isNetworkItem || _networkFileDeletable;
-  bool get _canEditMetadataFile =>
-      _fileExists &&
-      !_isCueVirtualTrack &&
-      (!_isNetworkItem || _networkFileDeletable);
+  bool get _canDeleteFile => true;
+  bool get _canEditMetadataFile => _fileExists && !_isCueVirtualTrack;
   bool _isDeleting = false;
   int? get _fileSize => switch (_fileAccess) {
     FileAccessFound(:final stat) => stat.size,
@@ -235,7 +222,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
         _lyricsLoading = false;
       });
       await _checkFile();
-      if (mounted && source == cleanFilePath && !_isNetworkItem) {
+      if (mounted && source == cleanFilePath) {
         unawaited(_refreshEmbeddedCoverPreview(force: true));
       }
     });
@@ -278,9 +265,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     final filePath = cleanFilePath;
 
     final check = await checkFileAccess(filePath);
-    final networkFileDeletable =
-        filePath.startsWith('network://') &&
-        await NetworkStorageService.instance.canDeleteFile(filePath);
     if (!mounted ||
         generation != _metadataLoadGeneration ||
         filePath != cleanFilePath) {
@@ -291,7 +275,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     }
     setState(() {
       _fileAccess = check;
-      _networkFileDeletable = networkFileDeletable;
     });
     if (!_fileExists) return;
 
@@ -301,7 +284,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     if (!_isCueVirtualTrack && !_hasLoadedResolvedAudioMetadata) {
       unawaited(_refreshResolvedAudioMetadataFromFile());
     }
-    if (!_isNetworkItem && !_hasPath(_embeddedCoverPreviewPath)) {
+    if (!_hasPath(_embeddedCoverPreviewPath)) {
       // The information card reports artwork embedded in the audio file, not
       // a resized Library thumbnail or remote cover. The shared resolver owns
       // extraction; this screen only caches validation data and dimensions.
@@ -345,9 +328,9 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     _hasLoadedResolvedAudioMetadata = true;
 
     try {
-      final metadata = _isNetworkItem
-          ? await readPlaybackFileMetadataWithRetry(sourcePath)
-          : await PlatformBridge.readDisplayAudioMetadata(sourcePath);
+      final metadata = await PlatformBridge.readDisplayAudioMetadata(
+        sourcePath,
+      );
       if (!mounted ||
           generation != _metadataLoadGeneration ||
           sourcePath != cleanFilePath) {
@@ -714,7 +697,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
           _currentLocalLibraryItem = widget.localNavigationItems![targetIndex];
         }
         _fileAccess = null;
-        _networkFileDeletable = false;
         _lyrics = null;
         _rawLyrics = null;
         _lyricsLoading = false;

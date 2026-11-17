@@ -267,7 +267,6 @@ class LibraryQueueStore {
     QueueLibraryDbQuery request,
   ) async {
     if (sqlite.normalizeLookupText(request.searchQuery).isNotEmpty ||
-        request.excludeNetwork ||
         request.albumArtist != null ||
         request.quality != null ||
         request.format != null ||
@@ -654,7 +653,6 @@ class LibraryQueueStore {
   }) {
     final unfiltered =
         sqlite.normalizeLookupText(request.searchQuery).isEmpty &&
-        !request.excludeNetwork &&
         request.albumArtist == null &&
         request.quality == null &&
         request.format == null &&
@@ -856,9 +854,6 @@ class LibraryQueueStore {
     bool hasCompletenessJoin = false,
     bool albumCompleteness = true,
   }) {
-    if (request.source == 'on-device') {
-      where.add("h.file_path NOT LIKE 'network://%'");
-    }
     if (albumCompleteness) {
       _appendAlbumCompletenessFilter(
         where,
@@ -922,9 +917,6 @@ class LibraryQueueStore {
     bool hasCompletenessJoin = false,
     bool albumCompleteness = true,
   }) {
-    if (request.source == 'on-device') {
-      where.add("l.file_path NOT LIKE 'network://%'");
-    }
     if (albumCompleteness) {
       _appendAlbumCompletenessFilter(
         where,
@@ -1029,9 +1021,6 @@ class LibraryQueueStore {
     required String lyricsKnownExpr,
     required String hasReplayGainExpr,
   }) {
-    if (request.excludeNetwork) {
-      where.add("COALESCE($filePathExpr, '') NOT LIKE 'network://%'");
-    }
     final quality = request.quality?.trim().toLowerCase();
     if (quality != null && quality.isNotEmpty) {
       final isHiRes =

@@ -107,26 +107,10 @@ void main() {
       expect(opaque.fileName, 'msf:1234');
     });
 
-    test('roots network files at their connection', () {
-      final file = libraryFileLocation(
-        'network://nas-1/Music/Album/01%20Song.flac',
-        networkNames: const {'nas-1': 'Home NAS'},
-      )!;
-      expect(file.root, 'network://nas-1');
-      expect(file.rootLabel, 'Home NAS');
-      expect(file.folders, ['Music', 'Album']);
-      expect(file.fileName, '01 Song.flac');
-      expect(
-        libraryFileLocation('network://nas-2/song.flac')!.rootLabel,
-        'nas-2',
-      );
-    });
-
     test('rejects paths that name no file', () {
       expect(libraryFileLocation(''), isNull);
       expect(libraryFileLocation('song.flac'), isNull);
       expect(libraryFileLocation('/'), isNull);
-      expect(libraryFileLocation('network://nas-1/'), isNull);
     });
   });
 
@@ -175,25 +159,20 @@ void main() {
       expect(_songs(index.root), ['b', 'a']);
     });
 
-    test('lists each volume and connection by its path', () {
-      final index = LibraryDirectoryIndex.build(
-        [
-          _entry('phone', '/storage/emulated/0/Music/Album/1.flac'),
-          _entry('phone2', '/storage/emulated/0/Music/Other/1.flac'),
-          _entry('card', 'SD Card/Music/Album/1.flac'),
-          _entry('nas', 'network://nas-1/Music/Album/1.flac'),
-        ],
-        networkNames: const {'nas-1': 'Home NAS'},
-      );
+    test('lists each volume by its path', () {
+      final index = LibraryDirectoryIndex.build([
+        _entry('phone', '/storage/emulated/0/Music/Album/1.flac'),
+        _entry('phone2', '/storage/emulated/0/Music/Other/1.flac'),
+        _entry('card', 'SD Card/Music/Album/1.flac'),
+      ]);
       final root = index.root;
       expect(root.key, isEmpty);
       expect(_names(root), [
         '/storage/emulated/0/Music',
-        'Home NAS/Music/Album',
         'SD Card/Music/Album',
       ]);
       expect(_names(root.folders.first), ['Album', 'Other']);
-      expect(root.trackCount, 4);
+      expect(root.trackCount, 3);
     });
 
     test('orders songs by file name, then disc and track number', () {

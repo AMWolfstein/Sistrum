@@ -70,10 +70,7 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
       ),
     );
     final source = mediaItem.extras?['source']?.toString() ?? '';
-    final removable =
-        source.isNotEmpty &&
-        !source.startsWith('network://') &&
-        !isCueVirtualPath(source);
+    final removable = source.isNotEmpty && !isCueVirtualPath(source);
     return _MornyePlayerMenuSurface(
       mediaItem: mediaItem,
       child: MornyeContextMenu(

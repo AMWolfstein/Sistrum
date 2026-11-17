@@ -24,7 +24,6 @@ import 'package:sistrum/controllers/library_tracks_folder_data.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 import 'package:sistrum/widgets/collection_track_actions.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/widgets/track_detail_actions.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
@@ -358,10 +357,6 @@ class _LibraryTracksFolderScreenState
             child: Text(context.l10n.dialogSave),
           ),
         if (!editingOrder) ...[
-          if (!isSelectionMode && entries.isNotEmpty)
-            NetworkOfflineTracksButton(
-              tracks: [for (final entry in entries) entry.track],
-            ),
           if (!isSelectionMode && entries.isNotEmpty)
             HeaderCircleButton(
               icon: Icons.ios_share,

@@ -161,18 +161,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
                     ],
                   ),
                 ],
-                if (item.status == DownloadStatus.finalizing &&
-                    item.preparationStage == 'network_upload') ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '${context.l10n.networkUploading}${item.bytesTotal > 0 ? ' • ${(100 * item.bytesReceived / item.bytesTotal).round()}%' : ''}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ],
                 if (item.status == DownloadStatus.failed) ...[
                   const SizedBox(height: 4),
                   _buildDownloadFailureMessage(context, item, colorScheme),
@@ -615,29 +603,14 @@ extension _QueueTabItemWidgets on _QueueTabState {
 
     // Scanned SAF tracks also recover artwork after a transient provider error.
     if (isDownloaded || item.filePath.startsWith('content://')) {
-      return OfflineAvailabilityCover(
-        item: item,
-        child: ValueListenableBuilder<int>(
-          valueListenable: _embeddedCoverVersion,
-          builder: (context, _, child) => _buildUnifiedCoverImageInner(
-            item,
-            colorScheme,
-            isDownloaded,
-            size,
-          ),
-        ),
+      return ValueListenableBuilder<int>(
+        valueListenable: _embeddedCoverVersion,
+        builder: (context, _, child) =>
+            _buildUnifiedCoverImageInner(item, colorScheme, isDownloaded, size),
       );
     }
 
-    return OfflineAvailabilityCover(
-      item: item,
-      child: _buildUnifiedCoverImageInner(
-        item,
-        colorScheme,
-        isDownloaded,
-        size,
-      ),
-    );
+    return _buildUnifiedCoverImageInner(item, colorScheme, isDownloaded, size);
   }
 
   Widget _buildUnifiedCoverImageInner(

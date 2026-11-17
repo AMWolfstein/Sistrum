@@ -122,7 +122,7 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
     `local_network_access_test`, `integration_test/android_cast_picker_test.dart`;
     edit `audio_output_button_test`. Rust `CastBridge` export stays until T010.
 
-- [ ] M004-T006 Remove network storage (SMB, WebDAV, Subsonic)
+- [x] M004-T006 Remove network storage (SMB, WebDAV, Subsonic)
   - Acceptance: FR-006, FR-012.
   - Remove `lib/services/network_*` (storage, Subsonic, upload, download, edit, delete,
     error, SMB client, certificate, library scanners, metadata, playback cache, offline

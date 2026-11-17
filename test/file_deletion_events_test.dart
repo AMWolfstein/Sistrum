@@ -164,28 +164,17 @@ void main() {
     );
   }
 
-  test(
-    'invalid, network and virtual CUE paths never publish deletions',
-    () async {
-      final directory = await Directory.systemTemp.createTemp('cue-deletion-');
-      addTearDown(() => directory.delete(recursive: true));
-      final cue = await File(
-        '${directory.path}/album.cue',
-      ).writeAsString('cue');
-      final events = SourceDeletionEvents();
-      final reactions = <String>[];
-      events.subscribe((source) async => reactions.add(source));
-      for (final path in [
-        null,
-        '',
-        'EXISTS:',
-        'network://song',
-        '${cue.path}#track01',
-      ]) {
-        expect(await deleteFile(path, deletionEvents: events), isFalse);
-      }
-      expect(reactions, isEmpty);
-      expect(await cue.exists(), isTrue);
-    },
-  );
+  test('invalid and virtual CUE paths never publish deletions', () async {
+    final directory = await Directory.systemTemp.createTemp('cue-deletion-');
+    addTearDown(() => directory.delete(recursive: true));
+    final cue = await File('${directory.path}/album.cue').writeAsString('cue');
+    final events = SourceDeletionEvents();
+    final reactions = <String>[];
+    events.subscribe((source) async => reactions.add(source));
+    for (final path in [null, '', 'EXISTS:', '${cue.path}#track01']) {
+      expect(await deleteFile(path, deletionEvents: events), isFalse);
+    }
+    expect(reactions, isEmpty);
+    expect(await cue.exists(), isTrue);
+  });
 }

@@ -144,56 +144,6 @@ void main() {
       },
     );
 
-    test(
-      'covers keep network references and drop older loopback ones',
-      () async {
-        const folder = 'network://nas/Album/cover.jpg';
-        const tags = 'network://nas/Else/song.flac#cover';
-        const firstCover = 'network://nas/First/cover.jpg';
-        const loopCover = 'network://nas/Third/song.flac#cover';
-        final rows = [
-          {
-            ..._row('2026-01-02', 'first', minutes: 3),
-            'artwork': 'http://127.0.0.1:41234/7f3a',
-          },
-          {..._row('2026-03-10', 'top', minutes: 90), 'artwork': folder},
-          {
-            ..._row('2026-03-11', 'other', artist: 'Other', album: 'Else'),
-            'artwork': tags,
-          },
-          {
-            ..._row('2026-06-01', 'loop', artist: 'Third', album: '', plays: 9),
-            'artwork': 'http://localhost:8080/cover',
-          },
-          // Played again by this build, which recorded their covers.
-          {..._row('2026-09-01', 'first'), 'artwork': firstCover},
-          {
-            ..._row('2026-09-02', 'loop', artist: 'Third', album: ''),
-            'artwork': loopCover,
-          },
-        ];
-        for (final row in rows) {
-          await db.insert('listening', row);
-        }
-        final rewind = await readListeningRewind(db, _yearRange, yearly: true);
-        expect(rewind.year?.firstPlay?.track.key, 'first');
-        expect(rewind.year?.firstPlay?.day, DateTime(2026, 1, 2));
-        expect(rewind.year?.firstPlay?.track.artwork, firstCover);
-        expect(rewind.replay?.track.key, 'loop');
-        expect(rewind.replay?.day, DateTime(2026, 6, 1));
-        expect(rewind.replay?.track.artwork, loopCover);
-        expect(
-          [for (final album in rewind.topAlbums) album.artwork],
-          [folder, tags],
-        );
-        expect(rewind.summary.artistArtwork, {
-          'Artist': folder,
-          'Other': tags,
-          'Third': loopCover,
-        });
-      },
-    );
-
     test('empty history has no invented yearly highlights', () async {
       final rewind = await readListeningRewind(db, _yearRange, yearly: true);
       expect(rewind.isEmpty, isTrue);

@@ -190,10 +190,6 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
   /// Fall back to the same local tag reader used by Now Playing before
   /// reporting that a file has no lyrics. Neither call fetches online lyrics.
   Future<Map<String, dynamic>> _readLocalLyrics(String sourcePath) async {
-    if (sourcePath.startsWith('network://')) {
-      final metadata = await readPlaybackFileMetadataWithRetry(sourcePath);
-      return {'lyrics': metadata['lyrics']?.toString() ?? '', 'source': ''};
-    }
     try {
       final result = await PlatformBridge.getLyricsLRCWithSource(
         '',
@@ -376,10 +372,6 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
 
   Future<void> _embedLyrics() async {
     if (_isEmbedding || _rawLyrics == null || !_fileExists) return;
-    if (_isNetworkItem) {
-      await _embedNetworkLyrics();
-      return;
-    }
 
     _setState(() => _isEmbedding = true);
 
@@ -550,70 +542,6 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
         try {
           await File(safTempPath).delete();
         } catch (_) {}
-      }
-    }
-  }
-
-  Future<void> _embedNetworkLyrics() async {
-    if (!_canEditMetadataFile) return;
-    final sourcePath = cleanFilePath;
-    final lyrics = _rawLyrics!;
-    final artistTagMode = artistTagModeForExistingTags(
-      ref.read(settingsProvider).artistTagMode,
-    );
-    final covers = MetadataCoverResources();
-    _setState(() => _isEmbedding = true);
-    try {
-      final current = await readPlaybackFileMetadataWithRetry(sourcePath);
-      if (!mounted || cleanFilePath != sourcePath) return;
-      final fields = _metadataEditorValues(current)..['lyrics'] = lyrics;
-      fields['track_total'] = fields.remove('total_tracks')!;
-      fields['disc_total'] = fields.remove('total_discs')!;
-      fields['compilation'] =
-          fields['album_type']?.toLowerCase() == 'compilation' ? '1' : '0';
-      final saved = await MetadataPersistenceService(covers: covers).save(
-        MetadataSaveRequest(
-          filePath: sourcePath,
-          metadata: fields,
-          artistTagMode: artistTagMode,
-          tagRules: TagCreditRules.fromSettings(
-            ref.read(settingsProvider).tagCredits,
-          ),
-        ),
-      );
-      if (saved.failure != null) {
-        throw saved.error ??
-            StateError('Could not save lyrics to network storage');
-      }
-      final refreshed = await readPlaybackFileMetadataWithRetry(sourcePath);
-      if (!mounted || cleanFilePath != sourcePath) return;
-      _setState(() {
-        _editedMetadata = refreshed;
-        _rawLyrics = lyrics;
-        _lyrics = cleanLyricsForDisplay(lyrics);
-        _lyricsEmbedded = true;
-        _embeddedLyricsChecked = true;
-      });
-      await _syncNetworkLibraryMetadata(refreshed);
-      if (!mounted || cleanFilePath != sourcePath) return;
-      _markMetadataChanged();
-      showAppSnackBar(context, content: Text(context.l10n.trackLyricsEmbedded));
-    } catch (error) {
-      if (mounted && cleanFilePath == sourcePath) {
-        showAppSnackBar(
-          context,
-          content: Text(
-            context.friendlyError(
-              error,
-              fallback: context.l10n.snackbarFailedToEmbedLyrics,
-            ),
-          ),
-        );
-      }
-    } finally {
-      await covers.dispose();
-      if (mounted && cleanFilePath == sourcePath) {
-        _setState(() => _isEmbedding = false);
       }
     }
   }

@@ -392,32 +392,6 @@ class DownloadHistoryNotifier extends Notifier<DownloadHistoryState> {
     ),
   );
 
-  /// Serialized with NAS transfers and ordinary History mutations.
-  /// A concurrent transfer must not publish a second row for one origin.
-  Future<void> saveOfflineCopy(DownloadHistoryItem item) =>
-      _enqueueHistoryWrite(() async {
-        final origin = item.originFilePath;
-        if (origin == null || !origin.startsWith('network://')) {
-          throw const FormatException('An offline copy needs a network origin');
-        }
-        final existing = await _db.findOfflineCopy(origin);
-        var incoming = item;
-        if (existing != null) {
-          final path = existing['filePath'] as String;
-          if (path != item.filePath && await fileExists(path)) {
-            throw const OfflineCopyAlreadySaved();
-          }
-          incoming = DownloadHistoryItem.fromJson(
-            item.toJson()..['id'] = existing['id'],
-          );
-        }
-        await _persistHistoryItem(
-          incoming,
-          'save offline copy',
-          preserveTrackVariant: true,
-        );
-      });
-
   Future<void> adoptNativeHistoryItem(
     DownloadHistoryItem item, {
     bool preserveTrackVariant = false,

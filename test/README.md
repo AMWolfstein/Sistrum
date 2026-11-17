@@ -20,9 +20,8 @@ Test files sit directly in `test/`; only shared code has subfolders.
   `test/album_completeness_test.dart`. Roughly half of the suites follow this.
 - Otherwise prefix by feature area and describe the behavior, for example
   `download_queue_persistence_test.dart`, `library_partial_scan_test.dart`,
-  `mornye_bottom_bar_test.dart`, `network_storage_service_test.dart`. The
-  common prefixes are `download_`, `library_`, `mornye_`, `network_`,
-  `track_`, `native_` and `extension_`.
+  `mornye_bottom_bar_test.dart`. The common prefixes are `download_`,
+  `library_`, `mornye_`, `track_`, `native_` and `extension_`.
 - Put a fake used by more than one suite in `test/support/`, not in a copy per
   file.
 
@@ -42,15 +41,11 @@ Test files sit directly in `test/`; only shared code has subfolders.
 | `test/support/download_scheduler_baseline.dart` | Original download scheduler, kept for paired device timing |
 | `test/support/library_collections_benchmark.dart` | Collection hydration and playlist search before optimization, for the collections benchmark |
 | `test/support/lyrics_usability_benchmark.dart` | Frozen lyrics display normalization; the oracle for differential tests |
-| `test/support/network_edit_fixture.dart` | The two writable NAS transports, sharing an in-memory filesystem |
-| `test/support/network_scan_output.dart` | Real filesystem NDJSON output with write boundaries and injected faults |
 | `test/support/playlist_batch_benchmark.dart` | Playlist batch preparation before the batch-write optimization |
 | `test/support/playlist_deletion_fixture.dart` | Fake `LibraryCollectionsDatabase` for playlist deletion tests |
 | `test/support/preference_blob_fixture.dart` | Temporary path_provider directory for preference blob tests |
 | `test/support/queue_persistence_baseline.dart` | Original queue snapshot, diff and encode pipeline for the device benchmark |
 | `test/support/queue_removal_benchmark.dart` | Exact list and index work of queue removal before optimization |
-| `test/support/smb_listing_benchmark.dart` | Frozen SMB listing adapter and sort comparator for the benchmark |
-| `test/support/subsonic_fixture.dart` | Local Subsonic server with a fake secure store |
 | `test/support/vm_service_probe.dart` | Calls a test VM service over HTTP, for the memory tests that need `--enable-vmservice` |
 
 ### Shared Contract Fixtures
@@ -145,13 +140,6 @@ same commit. Never delete these checks.
 (`.github/workflows/ci.yml`) installs `ffmpeg` before running the tests, so
 these cases are not skipped there.
 
-Optional SMB cases are skipped unless their environment is set:
-`TEST_SMB=1` (with `scripts/smb2_fixture_server.py`) and `TEST_SMB_GUEST_PORT`
-in `network_storage_service_test.dart`; `TEST_SMB_UPLOAD=1` in
-`network_smb_upload_test.dart`. `TEST_SMB_PORT` overrides the fixture port.
-`network_smb_transport_test.dart` runs against a loopback server with the
-native library bundled by dart_smb2's build hook, without a library override.
-
 ### Skip Switches
 
 Each switch below turns a skipped test on. Tests without a switch in this table
@@ -162,11 +150,6 @@ run by default.
 | `RUN_COLLECTIONS_BENCHMARK` | `--dart-define=RUN_COLLECTIONS_BENCHMARK=true` | `library_collections_benchmark_test.dart` |
 | `RUN_PLAYLIST_BATCH_BENCHMARK` | `--dart-define=RUN_PLAYLIST_BATCH_BENCHMARK=true` | `playlist_batch_benchmark_test.dart` |
 | `RUN_COLLECTION_ROWS_PARSER_BENCHMARK` | `--dart-define=RUN_COLLECTION_ROWS_PARSER_BENCHMARK=true` | `library_collections_rows_parser_benchmark_test.dart` |
-| `TEST_SMB=1` | environment variable | SMB cases in `network_storage_service_test.dart` (start `scripts/smb2_fixture_server.py` first) |
-| `TEST_SMB_GUEST_PORT` | environment variable, the guest SMB port | Guest SMB case in `network_storage_service_test.dart` |
-| `TEST_SMB_UPLOAD=1` | environment variable | `network_smb_upload_test.dart` |
-| `TEST_SMB_ADDRESS` | environment variable, the SMB address | `network_smb_memory_test.dart` (also needs `--enable-vmservice`) |
-| `--enable-vmservice` | `flutter test --enable-vmservice` flag | `network_smb_memory_test.dart`, `network_library_memory_test.dart`, `library_memory_release_test.dart` |
 
 ## Running
 

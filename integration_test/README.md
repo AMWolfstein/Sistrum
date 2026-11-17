@@ -9,7 +9,7 @@ CI formats and analyzes this folder but does not run it.
 Run one suite on a device:
 
 ```bash
-flutter test integration_test/network_playback_test.dart -d emulator-5554
+flutter test integration_test/library_paging_performance_test.dart -d emulator-5554
 ```
 
 Add `--dart-define=NAME=value` for the gated suites below. Android Gradle
@@ -54,18 +54,12 @@ SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
 ### Emulators and Fixtures
 
 - Android emulators reach the host loopback as `10.0.2.2`.
-- SMB suites need a fixture server on the host:
-  `python3 scripts/smb3_fixture_server.py` (Samba 4, port 1445 by default) or
-  `scripts/smb2_fixture_server.py` (impacket). See `NETWORK_STORAGE.md`.
 - `download_queue_access_failure_test.dart` uses SAF storage.
 
 ## Build-Time Defines
 
 | Define | Suite | Effect |
 | --- | --- | --- |
-| `SMB_TEST_URL` | `network_smb_test.dart` | SMB URL, for example `smb://10.0.2.2:1445/MUSIC/`; skipped when empty |
-| `SMB_TEST_URL` | `network_audio_analysis_test.dart` | Analyse a file on SMB; when empty, a local FFmpeg-made FLAC is used |
-| `TEST_SMB_ADDRESS` | `network_smb_file_actions_test.dart` | SMB address of `smb2_fixture_server.py --deletion`; skipped when empty |
 | `REPLAYGAIN_COMPLETION_BASELINE` | `album_replaygain_completion_test.dart` | Records a baseline run and skips the album-gain assertions |
 | `GLASS_PREVIEW` | `mornye_liquid_glass_test.dart` | Holds the Home screen for 25 s for manual viewing |
 | `SISTRUM_GLASS_FOCUS` | `mornye_rendering_performance_test.dart` | Measures only clarity 0.6 and 1.0 |
@@ -98,7 +92,6 @@ Suites:
 | `album_replaygain_completion_test.dart` | Full-queue album ReplayGain completion, with the native worker on Android |
 | `album_replaygain_readiness_test.dart` | Album readiness checks for large queues |
 | `android_background_playback_test.dart` | Local playback survives screen off and background resume; Android only, run with `android_background_playback_driver.dart` |
-| `android_cast_picker_test.dart` | Android with Google Play services: the real native bridge opens the Cast device picker; receiver playback needs a physical Cast device on the same network |
 | `android_keyboard_resume_test.dart` | Keyboard background and resume restore a usable viewport; run with `android_keyboard_resume_driver.dart` on a dedicated emulator |
 | `automix_analysis_test.dart` | Native decoding for AutoMix beats; Auto and crossfade playback |
 | `automix_effects_test.dart` | Bundled FFmpeg supports every AutoMix transition effect |
@@ -134,17 +127,6 @@ Suites:
 | `native_data_jobs_test.dart` | `runNativeDataJob` operations against the production parsers and schema |
 | `native_history_snapshot_test.dart` | Native history staging and publication through its owner |
 | `native_library_staging_test.dart` | Native library scan staging, publication, retries and cancellation |
-| `network_audio_analysis_test.dart` | Network audio cards with real FFmpeg and Rust analysers |
-| `network_http_connection_test.dart` | HTTP WebDAV verifies and saves through native parsing and secure storage, with and without redirects; NAS origin through a tunnel |
-| `network_library_incremental_test.dart` | Native WebDAV incremental scan survives database reopen and failures |
-| `network_playback_test.dart` | Native player prepare and seek through the network proxy |
-| `network_scan_overhead_test.dart` | Network scan component costs; failed output never published |
-| `network_scan_speed_test.dart` | Native WebDAV scan latency overlap |
-| `network_smb_file_actions_test.dart` | SMB file deletion keeps siblings (needs a fixture) |
-| `network_smb_listing_test.dart` | Preparing large SMB listings |
-| `network_smb_test.dart` | SMB3 listing and seek ranges (needs a fixture) |
-| `network_webdav_encoding_test.dart` | WebDAV parent URI encodings and encoded album listing |
-| `network_webdav_http_test.dart` | WebDAV over HTTP transport, exercised without the Android 17 local-network permission prompt |
 | `pipeline_performance_test.dart` | Library, download, playback and lyrics pipelines with synthetic files and local HTTP fixtures; stage timelines, cancel/retry latency and FFmpeg process counts (performance) |
 | `player_performance_test.dart` | Lyrics, artwork transitions, seek and drag, and paused idle in one build (performance) |
 | `playlist_batch_write_test.dart` | Playlist publication parity, rollback and recovery on real SQLite |
@@ -154,7 +136,6 @@ Suites:
 | `queue_persistence_snapshot_test.dart` | Queue snapshot persistence, rollback and reload |
 | `queue_progress_selection_test.dart` | Selecting active items in large queues |
 | `queue_removal_test.dart` | Removing completed items; notifier publish and persist |
-| `subsonic_playback_test.dart` | Subsonic catalogue, metadata and native playback with seek, using the shared Subsonic fixture |
 
 All files listed here live in `integration_test/`. Shared fixtures and
 benchmarks come from `test/support/`.

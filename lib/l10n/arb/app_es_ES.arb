@@ -2,174 +2,6 @@
   "linkFileReading": "Reading tags...",
   "trackBpm": "BPM",
   "trackMood": "Estado de ánimo",
-  "subsonicAddToLibrary": "Añadir servidor a la Biblioteca",
-  "subsonicLibraryAdded": "Servidor añadido a la Biblioteca",
-  "subsonicLibraryDescription": "Sincroniza el catálogo del servidor y las carátulas con la Biblioteca. La música permanece en tu servidor. Vuelve a escanearlo en los ajustes de Biblioteca local para actualizar el catálogo.",
-  "subsonicAuthentication": "Autenticación",
-  "subsonicToken": "Salted token",
-  "subsonicPasswordAuth": "Contraseña",
-  "subsonicApiKey": "API key",
-  "subsonicUsername": "Nombre de usuario",
-  "subsonicPassword": "Contraseña",
-  "subsonicSearch": "Buscar música del servidor...",
-  "subsonicMoreAlbums": "Más álbumes",
-  "subsonicErrorApi": "El servidor no admite esta versión de la API ni este método de autenticación. Comprueba los ajustes del servidor y el método de inicio de sesión seleccionado.",
-  "networkDownloadDestination": "Destino de descarga en red",
-  "@networkDownloadDestination": {
-    "description": "Files settings item that opens network storage to choose a folder for downloaded music"
-  },
-  "networkUseForDownloads": "Descargar en esta carpeta",
-  "@networkUseForDownloads": {
-    "description": "Action to select the current network folder as the download destination; also the settings subtitle when no network destination is selected"
-  },
-  "networkDownloadSelected": "Destino de descarga seleccionado",
-  "@networkDownloadSelected": {
-    "description": "Status label replacing the download destination action when the current network folder is already selected"
-  },
-  "networkUseLocalDownloads": "Usar la carpeta de descargas local",
-  "@networkUseLocalDownloads": {
-    "description": "Files settings action that clears the network download destination and returns downloads to the local folder"
-  },
-  "networkDownloadAccessFailed": "No se pudo escribir en esta carpeta.",
-  "@networkDownloadAccessFailed": {
-    "description": "Snackbar prefix when the write-access check fails while selecting a network download folder; followed by a specific network error message"
-  },
-  "networkUploading": "Subir archivos al almacenamiento en red",
-  "@networkUploading": {
-    "description": "Download queue status during upload of prepared audio to the network destination; a progress percentage may follow"
-  },
-  "networkDownloadDescription": "Prepara las canciones en este dispositivo y luego súbelas a tu NAS. Mantén la aplicación abierta hasta que termine la subida. La opción «Reintentar» reutiliza el audio preparado. Los archivos existentes se conservan; las nuevas descargas con el mismo nombre reciben un sufijo numérico.",
-  "@networkDownloadDescription": {
-    "description": "Help below the network download destination action explaining local preparation, upload, retry behavior, and preservation of existing files; NAS means network-attached storage"
-  },
-  "networkAddToLibrary": "Agregar carpeta a la biblioteca",
-  "@networkAddToLibrary": {
-    "description": "Action that adds the current network folder as a Library source and starts scanning it"
-  },
-  "networkLibraryAdded": "Carpeta agregada a la biblioteca",
-  "@networkLibraryAdded": {
-    "description": "Status label replacing the add-to-Library action after the network folder has been added as a source; does not mean scanning has finished"
-  },
-  "networkLibraryDescription": "Escanea esta carpeta y sus subcarpetas. La música se queda en tu servidor; los metadatos y las carátulas se guardan en este dispositivo. Puedes administrarla o volver a escanearla en la configuración de la Biblioteca local.",
-  "@networkLibraryDescription": {
-    "description": "Help below the add-to-Library action explaining recursive scanning, local metadata and artwork storage, and management in Local Library settings"
-  },
-  "networkStorage": "Almacenamiento en red",
-  "@networkStorage": {
-    "description": "Title and navigation label for the screen used to manage network connections and browse remote music folders"
-  },
-  "networkErrorUnreachable": "No se pudo establecer conexión con el servidor. Verifica que este teléfono pueda acceder a su red y que el servicio para compartir archivos esté en funcionamiento. Para SMB, el puerto 445 debe estar accesible.",
-  "@networkErrorUnreachable": {
-    "description": "Network access error for an unreachable server, with connection troubleshooting and the SMB port requirement"
-  },
-  "networkErrorTimeout": "El servidor no respondió a tiempo. Revisa la conexión e inténtalo de nuevo.",
-  "@networkErrorTimeout": {
-    "description": "Network access error when a server operation exceeds its time limit"
-  },
-  "networkErrorAuthentication": "El servidor rechazó el inicio de sesión. Verifica el nombre de usuario, la contraseña y el dominio. Deja el campo del dominio en blanco, a menos que tu servidor lo requiera.",
-  "@networkErrorAuthentication": {
-    "description": "Network access error when the server rejects credentials; domain refers to the optional SMB authentication domain"
-  },
-  "networkErrorPermission": "Esta cuenta no tiene permiso para abrir este recurso compartido o esta carpeta. Verifica sus permisos de lectura en el servidor.",
-  "@networkErrorPermission": {
-    "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
-  },
-  "networkErrorLocalPermission": "No se permite el acceso a la red local. Permite el acceso a Dispositivos cercanos para Sistrum en los ajustes de la aplicación de Android y vuelve a intentarlo.",
-  "@networkErrorLocalPermission": {
-    "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
-  },
-  "networkErrorShare": "No se encontró el recurso compartido ni la carpeta. Para SMB, utiliza el nombre de la carpeta compartida del servidor después de su dirección, por ejemplo, smb://server/Music/.",
-  "@networkErrorShare": {
-    "description": "Network access error for a missing share or folder; share means an SMB shared folder and the example illustrates its URL path"
-  },
-  "networkErrorProtocol": "El servidor y este cliente SMB no pudieron ponerse de acuerdo sobre un protocolo compatible. Habilita SMB2 o SMB3 en el servidor. SMB1 no es compatible.",
-  "@networkErrorProtocol": {
-    "description": "Network access error for incompatible SMB protocol versions; preserve the version names SMB1, SMB2, and SMB3"
-  },
-  "networkErrorAddress": "Verifica la dirección del servidor. Usa smb://server/share/ para SMB, o una dirección del tipo http:// o https:// address for WebDAV and HTTP.",
-  "@networkErrorAddress": {
-    "description": "Network access error for an invalid address, with URL scheme examples for SMB, WebDAV, and HTTP connections"
-  },
-  "networkConnections": "Conexiones guardadas",
-  "@networkConnections": {
-    "description": "Section heading above the list of saved network storage connections"
-  },
-  "networkServer": "Servidor",
-  "@networkServer": {
-    "description": "Connection form section heading above the display name and server or audio URL fields"
-  },
-  "networkCredentials": "Iniciar sesión (opcional)",
-  "@networkCredentials": {
-    "description": "Connection form section heading for optional server credentials"
-  },
-  "networkRefresh": "Actualizar",
-  "@networkRefresh": {
-    "description": "Toolbar tooltip for reloading saved connections or the current network folder listing"
-  },
-  "networkStorageDescription": "Conéctate a tu NAS o servidor de música y explora sus carpetas. Tus datos de inicio de sesión se guardan de manera segura en este dispositivo.",
-  "@networkStorageDescription": {
-    "description": "Introduction shown in the empty connections screen and connection form, explaining remote folder browsing and secure local credential storage; NAS means network-attached storage"
-  },
-  "networkAddConnection": "Agregar conexión",
-  "@networkAddConnection": {
-    "description": "Action label, toolbar tooltip, and form title for adding a network storage connection"
-  },
-  "networkEditConnection": "Editar conexión",
-  "@networkEditConnection": {
-    "description": "Edit button tooltip and form title for changing an existing network storage connection"
-  },
-  "networkConnectionName": "Nombre",
-  "@networkConnectionName": {
-    "description": "Required connection form field for a user-chosen display name identifying the saved connection"
-  },
-  "networkAddress": "Servidor o URL de audio",
-  "@networkAddress": {
-    "description": "Required connection form field for the server or direct audio URL, using the scheme appropriate to the selected protocol"
-  },
-  "networkProtocol": "Protocolo",
-  "@networkProtocol": {
-    "description": "Connection form section heading for choosing SMB, WebDAV, or HTTP / HTTPS"
-  },
-  "networkUsername": "Nombre de usuario (opcional)",
-  "@networkUsername": {
-    "description": "Optional connection form field for the server account username"
-  },
-  "networkPassword": "Contraseña (opcional)",
-  "@networkPassword": {
-    "description": "Optional connection form field for the server account password, with input characters hidden"
-  },
-  "networkDomain": "Dominio (opcional)",
-  "@networkDomain": {
-    "description": "Optional connection form field shown only for SMB; refers to the authentication domain, not the server's internet domain name"
-  },
-  "networkConnectSave": "Conéctate y guarda",
-  "@networkConnectSave": {
-    "description": "Connection form action that checks access to the network source before saving the connection"
-  },
-  "networkErrorCertificate": "No se pudo verificar el certificado HTTPS del servidor. Edita esta conexión para revisar el certificado y marcarlo como confiable, o revisa la configuración HTTPS del servidor.",
-  "@networkErrorCertificate": {
-    "description": "Network access error for HTTPS certificate verification failure, directing the user to review the certificate in the connection form; unrelated to SMB authentication"
-  },
-  "networkCertificatePrompt": "Este servidor utiliza un certificado HTTPS no confiable. Los enrutadores y los dispositivos NAS suelen utilizar certificados autofirmados. Verifica la dirección del servidor y la huella digital SHA-256 antes de considerarlo confiable. La confianza se aplica únicamente a este certificado en este servidor; si se cambia el certificado, será necesario volver a aprobarlo.",
-  "@networkCertificatePrompt": {
-    "description": "Connection form warning shown above the HTTPS origin and certificate SHA-256 fingerprint; approval trusts only that fingerprint for this connection's HTTPS origin, not a global certificate authority or an SMB server"
-  },
-  "networkTrustCertificate": "Certificado de confianza y reintento",
-  "@networkTrustCertificate": {
-    "description": "Action approving the displayed certificate SHA-256 fingerprint for this connection's HTTPS origin and retrying connect-and-save; does not grant global certificate trust"
-  },
-  "networkRemoveConnection": "Desconectar",
-  "@networkRemoveConnection": {
-    "description": "Connection form action that removes the saved connection and its credentials, without deleting files on the server"
-  },
-  "networkNoFiles": "No se encontraron archivos ni carpetas de música compatibles.",
-  "@networkNoFiles": {
-    "description": "Empty folder message when the network listing contains no directories or supported audio files"
-  },
-  "networkConnectionError": "No se pudo acceder al origen de red. Revisa la dirección del servidor, las credenciales y la conexión, y vuelve a intentarlo.",
-  "@networkConnectionError": {
-    "description": "Fallback network access error when the failure has no more specific classification"
-  },
   "extensionAccountTitle": "Cuenta de extensión",
   "extensionAccountInvalidForm": "La extensión devolvió un formulario de cuenta no válido.",
   "extensionAccountRestartLogin": "Inicia sesión de nuevo en tu cuenta para continuar.",
@@ -1767,7 +1599,6 @@
   "@trackDeleteConfirmTitle": {
     "description": "Delete confirmation title"
   },
-  "trackDeleteNetworkConfirmMessage": "Esto eliminará de forma permanente el archivo de tu almacenamiento en red y lo borrará de tu biblioteca y de tu historial.",
   "snackbarDeleteTracksFailed": "No se pudieron eliminar {count} {count, plural, =1{pista} other{pistas}}. Revisa el acceso al almacenamiento e inténtalo de nuevo.",
   "@snackbarDeleteTracksFailed": {
     "placeholders": {
@@ -3800,14 +3631,6 @@
   "downloadAllowLocalNetwork": "Permitir el acceso a la red local",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadAllowLocalNetworkEnabled": "Se permiten solicitudes a direcciones locales/privadas (para proxy local o DNS personalizado)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "Las direcciones locales/privadas están bloqueadas por seguridad",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
   },
   "downloadSelectServiceToEnable": "Selecciona un proveedor con opciones de calidad para habilitar esta opción",
   "@downloadSelectServiceToEnable": {
@@ -6546,7 +6369,6 @@
   "audioInfoLocation": "Location",
   "audioInfoLocationLocal": "Device storage",
   "audioInfoLocationShared": "Shared folder",
-  "audioInfoLocationNetwork": "Almacenamiento en red",
   "audioInfoPcmRate": "Uncompressed data rate",
   "audioInfoFrequencyRange": "Frequency range",
   "audioInfoFrequencyRangeValue": "Up to {frequency} (Nyquist)",

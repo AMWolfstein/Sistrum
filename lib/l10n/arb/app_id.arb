@@ -10,179 +10,9 @@
   },
   "libraryLyricsSearchIncomplete": "Beberapa lagu tidak dapat dibaca. Hasil mungkin belum lengkap.",
   "libraryLyricsRefresh": "Perbarui pencarian lirik",
-  "networkErrorListing": "Server merespons, tetapi daftar foldernya tidak dapat dibaca. Untuk WebDAV, gunakan endpoint WebDAV. Untuk HTTP, gunakan daftar direktori atau URL audio langsung.",
-  "networkErrorStorage": "Server berhasil diakses, tetapi perangkat ini tidak dapat menyimpan koneksi. Periksa log aplikasi lalu coba lagi.",
   "linkFileReading": "Membaca tag...",
   "trackBpm": "BPM",
   "trackMood": "Mood",
-  "subsonicAddToLibrary": "Tambahkan server ke Koleksi",
-  "subsonicLibraryAdded": "Server ditambahkan ke Koleksi",
-  "subsonicLibraryDescription": "Sinkronkan katalog dan foto cover server ke Koleksi. Musik tetap di server. Pindai ulang lewat setelan Koleksi Lokal untuk mengupdate katalog.",
-  "subsonicAuthentication": "Otentikasi",
-  "subsonicToken": "Salted token",
-  "subsonicPasswordAuth": "Sandi",
-  "subsonicApiKey": "Key API",
-  "subsonicUsername": "Nama pengguna",
-  "subsonicPassword": "Sandi",
-  "subsonicSearch": "Telusuri lagu server...",
-  "subsonicMoreAlbums": "Album lainnya",
-  "subsonicErrorApi": "Server tidak mendukung versi API atau metode autentikasi ini. Periksa setelan server dan metode masuk yang dipilih.",
-  "networkDownloadDestination": "Tujuan download jaringan",
-  "@networkDownloadDestination": {
-    "description": "Files settings item that opens network storage to choose a folder for downloaded music"
-  },
-  "networkUseForDownloads": "Download ke folder ini",
-  "@networkUseForDownloads": {
-    "description": "Action to select the current network folder as the download destination; also the settings subtitle when no network destination is selected"
-  },
-  "networkDownloadSelected": "Tujuan download terpilih",
-  "@networkDownloadSelected": {
-    "description": "Status label replacing the download destination action when the current network folder is already selected"
-  },
-  "networkUseLocalDownloads": "Gunakan folder download lokal",
-  "@networkUseLocalDownloads": {
-    "description": "Files settings action that clears the network download destination and returns downloads to the local folder"
-  },
-  "networkDownloadAccessFailed": "Tak dapat mengakses folder ini.",
-  "@networkDownloadAccessFailed": {
-    "description": "Snackbar prefix when the write-access check fails while selecting a network download folder; followed by a specific network error message"
-  },
-  "networkUploading": "Mengupload ke penyimpanan jaringan",
-  "@networkUploading": {
-    "description": "Download queue status during upload of prepared audio to the network destination; a progress percentage may follow"
-  },
-  "networkDownloadDescription": "Lagu disiapkan di perangkat, lalu diupload ke NAS. Biarkan aplikasi terbuka sampai upload selesai. Mencoba lagi akan gunakan audio yang disiapkan. File yang ada tetap disimpan; download baru dengan nama sama diberi akhiran nomor.",
-  "@networkDownloadDescription": {
-    "description": "Help below the network download destination action explaining local preparation, upload, retry behavior, and preservation of existing files; NAS means network-attached storage"
-  },
-  "networkAddToLibrary": "Tambahkan folder ke Koleksi",
-  "@networkAddToLibrary": {
-    "description": "Action that adds the current network folder as a Library source and starts scanning it"
-  },
-  "networkLibraryAdded": "Folder ditambahkan ke Koleksi",
-  "@networkLibraryAdded": {
-    "description": "Status label replacing the add-to-Library action after the network folder has been added as a source; does not mean scanning has finished"
-  },
-  "networkLibraryDescription": "Pindai folder ini beserta subfoldernya. Musik tetap di server; metadata dan cover disimpan di perangkat ini. Kelola atau pindai ulang lewat setelan Koleksi Lokal.",
-  "@networkLibraryDescription": {
-    "description": "Help below the add-to-Library action explaining recursive scanning, local metadata and artwork storage, and management in Local Library settings"
-  },
-  "networkStorage": "Penyimpanan jaringan",
-  "@networkStorage": {
-    "description": "Title and navigation label for the screen used to manage network connections and browse remote music folders"
-  },
-  "networkErrorUnreachable": "Server tidak dapat dijangkau. Pastikan ponsel ini dapat mengakses jaringannya dan layanan berbagi file sudah aktif. Untuk SMB, port 445 harus dapat diakses.",
-  "@networkErrorUnreachable": {
-    "description": "Network access error for an unreachable server, with connection troubleshooting and the SMB port requirement"
-  },
-  "networkErrorTimeout": "Server tidak merespons tepat waktu. Periksa koneksi lalu coba lagi.",
-  "@networkErrorTimeout": {
-    "description": "Network access error when a server operation exceeds its time limit"
-  },
-  "networkErrorAuthentication": "Server menolak info login. Periksa nama pengguna, sandi, dan domain. Kosongkan domain kecuali server memerlukannya.",
-  "@networkErrorAuthentication": {
-    "description": "Network access error when the server rejects credentials; domain refers to the optional SMB authentication domain"
-  },
-  "networkErrorPermission": "Akun ini tidak diizinkan membuka file atau folder ini. Periksa izin aksesnya di server.",
-  "@networkErrorPermission": {
-    "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
-  },
-  "networkErrorLocalPermission": "Akses jaringan lokal tak diizinkan. Izinkan Perangkat di sekitar untuk Sistrum di Setelan Android, lalu coba lagi.",
-  "@networkErrorLocalPermission": {
-    "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
-  },
-  "networkErrorShare": "File atau folder tidak ditemukan. Untuk SMB, tambah nama folder berbagi server setelah alamatnya, misalnya smb://server/Music/.",
-  "@networkErrorShare": {
-    "description": "Network access error for a missing share or folder; share means an SMB shared folder and the example illustrates its URL path"
-  },
-  "networkErrorProtocol": "Server dan klien SMB ini tidak menemukan protokol yang cocok. Aktifkan SMB2 atau SMB3 di server. SMB1 tidak didukung.",
-  "@networkErrorProtocol": {
-    "description": "Network access error for incompatible SMB protocol versions; preserve the version names SMB1, SMB2, and SMB3"
-  },
-  "networkErrorAddress": "Periksa alamat server. Gunakan smb://server/share/ untuk SMB, atau alamat http:// maupun https:// untuk WebDAV dan HTTP.",
-  "@networkErrorAddress": {
-    "description": "Network access error for an invalid address, with URL scheme examples for SMB, WebDAV, and HTTP connections"
-  },
-  "networkConnections": "Koneksi tersimpan",
-  "@networkConnections": {
-    "description": "Section heading above the list of saved network storage connections"
-  },
-  "networkServer": "Server",
-  "@networkServer": {
-    "description": "Connection form section heading above the display name and server or audio URL fields"
-  },
-  "networkCredentials": "Login (opsional)",
-  "@networkCredentials": {
-    "description": "Connection form section heading for optional server credentials"
-  },
-  "networkRefresh": "Refresh",
-  "@networkRefresh": {
-    "description": "Toolbar tooltip for reloading saved connections or the current network folder listing"
-  },
-  "networkStorageDescription": "Hubungkan NAS atau server musik dan jelajahi foldernya. Informasi akun disimpan dengan aman di perangkat ini.",
-  "@networkStorageDescription": {
-    "description": "Introduction shown in the empty connections screen and connection form, explaining remote folder browsing and secure local credential storage; NAS means network-attached storage"
-  },
-  "networkAddConnection": "Tambah koneksi",
-  "@networkAddConnection": {
-    "description": "Action label, toolbar tooltip, and form title for adding a network storage connection"
-  },
-  "networkEditConnection": "Edit koneksi",
-  "@networkEditConnection": {
-    "description": "Edit button tooltip and form title for changing an existing network storage connection"
-  },
-  "networkConnectionName": "Nama",
-  "@networkConnectionName": {
-    "description": "Required connection form field for a user-chosen display name identifying the saved connection"
-  },
-  "networkAddress": "URL server atau audio",
-  "@networkAddress": {
-    "description": "Required connection form field for the server or direct audio URL, using the scheme appropriate to the selected protocol"
-  },
-  "networkProtocol": "Protokol",
-  "@networkProtocol": {
-    "description": "Connection form section heading for choosing SMB, WebDAV, or HTTP / HTTPS"
-  },
-  "networkUsername": "Nama pengguna (opsional)",
-  "@networkUsername": {
-    "description": "Optional connection form field for the server account username"
-  },
-  "networkPassword": "Sandi (opsional)",
-  "@networkPassword": {
-    "description": "Optional connection form field for the server account password, with input characters hidden"
-  },
-  "networkDomain": "Domain (opsional)",
-  "@networkDomain": {
-    "description": "Optional connection form field shown only for SMB; refers to the authentication domain, not the server's internet domain name"
-  },
-  "networkConnectSave": "Hubungkan dan simpan",
-  "@networkConnectSave": {
-    "description": "Connection form action that checks access to the network source before saving the connection"
-  },
-  "networkErrorCertificate": "Sertifikat HTTPS server tidak dapat diverifikasi. Edit koneksi ini untuk memeriksa dan mempercayai sertifikatnya, atau periksa konfigurasi HTTPS server.",
-  "@networkErrorCertificate": {
-    "description": "Network access error for HTTPS certificate verification failure, directing the user to review the certificate in the connection form; unrelated to SMB authentication"
-  },
-  "networkCertificatePrompt": "Server ini menggunakan sertifikat HTTPS yang tidak dipercaya. Biasanya router dan perangkat NAS menggunakan sertifikatnya sendiri. Periksa alamat server dan sidik jari SHA-256 sebelum mempercayainya. Hanya mempercayai sertifikat server ini; bila berubah harus disetujui lagi.",
-  "@networkCertificatePrompt": {
-    "description": "Connection form warning shown above the HTTPS origin and certificate SHA-256 fingerprint; approval trusts only that fingerprint for this connection's HTTPS origin, not a global certificate authority or an SMB server"
-  },
-  "networkTrustCertificate": "Percayai sertifikat dan coba lagi",
-  "@networkTrustCertificate": {
-    "description": "Action approving the displayed certificate SHA-256 fingerprint for this connection's HTTPS origin and retrying connect-and-save; does not grant global certificate trust"
-  },
-  "networkRemoveConnection": "Hapus koneksi",
-  "@networkRemoveConnection": {
-    "description": "Connection form action that removes the saved connection and its credentials, without deleting files on the server"
-  },
-  "networkNoFiles": "Tak menemukan file lagu atau folder terdukung.",
-  "@networkNoFiles": {
-    "description": "Empty folder message when the network listing contains no directories or supported audio files"
-  },
-  "networkConnectionError": "Tidak dapat mengakses sumber jaringan. Periksa alamat server, kredensial, dan koneksi, lalu coba lagi.",
-  "@networkConnectionError": {
-    "description": "Fallback network access error when the failure has no more specific classification"
-  },
   "extensionAccountTitle": "Akun ekstensi",
   "extensionAccountInvalidForm": "Ekstensi mengembalikan bentuk akun yang tak valid.",
   "extensionAccountRestartLogin": "Restart akun login untuk lanjut.",
@@ -1754,7 +1584,6 @@
   "@trackDeleteConfirmTitle": {
     "description": "Delete confirmation title"
   },
-  "trackDeleteNetworkConfirmMessage": "Ini akan menghapus file secara permanen dari penyimpanan jaringan, koleksi, dan histori kamu.",
   "snackbarDeleteTracksFailed": "Tak dapat hapus {count} {count, plural, =1{lagu} other{lagu}}. Periksa akses penyimpanan dan coba lagi.",
   "@snackbarDeleteTracksFailed": {
     "placeholders": {
@@ -3796,14 +3625,6 @@
   "downloadAllowLocalNetwork": "Izinkan Akses Koneksi Lokal",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadAllowLocalNetworkEnabled": "Permintaan ke alamat lokal/pribadi diizinkan (untuk proxy lokal atau DNS kustom)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "Alamat lokal/pribadi diblokir untuk keamanan",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
   },
   "downloadSelectServiceToEnable": "Pilih provider dengan opsi kualitas untuk menghidupkan opsi ini",
   "@downloadSelectServiceToEnable": {
@@ -6310,7 +6131,6 @@
   "audioInfoLocation": "Lokasi",
   "audioInfoLocationLocal": "Penyimpanan perangkat",
   "audioInfoLocationShared": "Folder bersama",
-  "audioInfoLocationNetwork": "Penyimpanan jaringan",
   "audioInfoPcmRate": "Data rate tanpa kompresi",
   "audioInfoFrequencyRange": "Rentang frekuensi",
   "audioInfoFrequencyRangeValue": "Hingga {frequency} (Nyquist)",
@@ -6459,23 +6279,8 @@
   "playlistImportNoTracks": "Tidak ada lagu di file ini",
   "playlistImportFailed": "File playlist ini tidak dapat dibaca",
   "offlineSave": "Simpan offline",
-  "offlineOnDevice": "Di perangkat ini",
-  "offlineOnPhone": "Di ponsel",
-  "offlineServerOnly": "Hanya server",
-  "offlineServerAndDevice": "Server + perangkat",
-  "offlineDeviceOnly": "Hanya perangkat",
   "offlineRemove": "Hapus salinan offline",
   "offlineRemoveMessage": "Hapus salinan offline dari perangkat ini? File di server tetap disimpan.",
-  "offlineDeleteServer": "Hapus salinan server",
-  "offlineServerReadOnly": "Koneksi server ini tidak mendukung penghapusan file.",
-  "offlineDeleteServerMessage": "Hapus file asli dari server? Salinan offline di perangkat ini tetap disimpan.",
-  "offlineSaving": "Menyimpan offline",
-  "offlineResult": "Disimpan {saved}, sudah tersedia {skipped}, gagal {failed}",
-  "offlineFailed": "Gagal menyimpan salinan offline. Periksa koneksi server dan izin folder download.",
-  "offlineNoSongs": "Tidak ada lagu Library jaringan dalam pilihan ini.",
-  "offlineCopyUnavailable": "Salinan offline tidak tersedia. Simpan kembali sebelum menghapus salinan server.",
-  "offlinePlayingLocal": "Memutar dari perangkat ini",
-  "offlineStreaming": "Streaming dari {server}",
   "autoMixOn": "AutoMix hidup",
   "autoMixOff": "AutoMix mati"
 }

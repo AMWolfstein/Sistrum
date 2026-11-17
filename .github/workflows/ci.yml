@@ -128,8 +128,6 @@ jobs:
         run: >-
           flutter test --enable-vmservice
           test/library_memory_release_test.dart
-          test/network_smb_memory_test.dart
-          test/network_library_memory_test.dart
 
   rust:
     name: Rust checks & Android libraries

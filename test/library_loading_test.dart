@@ -338,26 +338,6 @@ void main() {
     },
   );
 
-  test('network collection survives local availability checks', () async {
-    database.sources = [
-      const LocalLibrarySource(
-        id: 'nas',
-        path: 'network://nas/Music/',
-        displayName: 'NAS / Music',
-        trackCount: 2,
-      ),
-    ];
-    container.read(localLibraryProvider);
-    await _waitFor(() => !container.read(localLibraryProvider).isLoading);
-    await container
-        .read(localLibraryProvider.notifier)
-        .refreshSourceAvailability();
-    final loaded = container.read(localLibraryProvider);
-    expect(loaded.sources.single.available, isTrue);
-    expect(loaded.sources.single.trackCount, 2);
-    expect(loaded.totalCount, 2);
-  });
-
   test(
     'unchanged overlapping availability refreshes share one probe',
     () async {

@@ -89,7 +89,6 @@ class _MusicGapless {
 
   /// How long before the end a network song stops waiting for its local
   /// copy and loads from the server instead.
-  static const _serverLead = Duration(seconds: 10);
 
   /// Prepares the next song while [remaining] of the current one plays.
   Future<void> _prepare(Duration remaining) async {
@@ -110,12 +109,6 @@ class _MusicGapless {
       final next = handler._media[nextIndex];
       // DSD needs the USB output, which the ordinary transition opens.
       if (MusicPlayerHandler._requiresDsd(next)) return;
-      // A network song still downloading may finish in time to open from
-      // disk, which a native queue needs to start it without a gap.
-      if (next.source.startsWith('network://')) {
-        await handler._prefetch.ready(next, remaining - _serverLead);
-        if (!_current(generation)) return;
-      }
       if (handler._dependencies.isAndroid && next.isContentUri) {
         try {
           lease = await PlatformBridge.openContentUriPlaybackLease(next.source);
@@ -182,14 +175,7 @@ class _MusicGapless {
       await deck.configureOutput();
       await deck.setVolume(volume);
       if (!_current(generation)) return;
-      if (const {'http', 'https'}.contains(Uri.tryParse(path)?.scheme)) {
-        await deck.setNetworkSource(
-          path,
-          arriving: handler._runtime.streamsArrivingFile(path),
-        );
-      } else {
-        await deck.setFileSource(path);
-      }
+      await deck.setFileSource(path);
       if (!_current(generation)) return;
       final duration = await deck.getDuration();
       if (!_current(generation)) return;
@@ -283,9 +269,6 @@ class _MusicGapless {
           ._toMediaItem(next, resolvedSource: _nextIsCopy ? path : null)
           .copyWith(duration: _nextDuration),
     );
-    handler._covers
-      ..fetchFor(next)
-      ..fetchAhead();
     handler._lastBroadcastPosition = Duration.zero;
     handler._lastPositionBroadcastAt = null;
     handler._broadcastPosition(Duration.zero, force: true);
@@ -296,12 +279,7 @@ class _MusicGapless {
     );
     handler._lastPeriodicPersistAt = DateTime.now();
     unawaited(handler._persistSession(position: Duration.zero));
-    if (!next.isNetwork) {
-      unawaited(handler._recoverEmbeddedArtwork(next, current));
-    }
-    if (next.source.startsWith('network://')) {
-      unawaited(handler._loadNetworkMetadata(next, current));
-    }
+    unawaited(handler._recoverEmbeddedArtwork(next, current));
     unawaited(handler._ensureDurationKnown(next, current));
     unawaited(handler._autoplay.fill());
     _log.d('Gapless transition');

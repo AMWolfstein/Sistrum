@@ -4,7 +4,6 @@ import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -18,15 +17,11 @@ class BackgroundFavorites {
     required this.library,
     required this.history,
     required this.collections,
-    this.covers,
   });
 
   final LibraryDatabase library;
   final HistoryDatabase history;
   final LibraryCollectionsDatabase collections;
-
-  /// The player's cover store, which chose the covers media items show.
-  final CoverStore? covers;
 
   Future<Track> _track(MediaItem item) async => collectionTrackForMedia(
     item,
@@ -41,7 +36,6 @@ class BackgroundFavorites {
       },
       library: library,
     ),
-    covers: covers,
   );
 
   Future<bool> isLoved(MediaItem item) async =>

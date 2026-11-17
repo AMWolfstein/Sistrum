@@ -339,7 +339,6 @@ class QueueLibraryDbQuery {
   final String? metadata;
   final String sortMode;
   final bool includeLocal;
-  final bool excludeNetwork;
   final QueueLibraryDbCursor? cursor;
   final TagCreditScope tagCredits;
 
@@ -358,7 +357,6 @@ class QueueLibraryDbQuery {
     this.metadata,
     this.sortMode = 'latest',
     this.includeLocal = true,
-    this.excludeNetwork = false,
     this.cursor,
     this.tagCredits = const TagCreditScope(),
   });

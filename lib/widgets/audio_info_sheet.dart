@@ -486,9 +486,6 @@ class _AudioFacts {
   String? get _location {
     final path = this.path;
     if (path == null || path.isEmpty) return null;
-    if (path.startsWith('network://')) {
-      return l10n.audioInfoLocationNetwork;
-    }
     if (path.startsWith('content://')) return l10n.audioInfoLocationShared;
     if (path.startsWith('/')) return l10n.audioInfoLocationLocal;
     return null;

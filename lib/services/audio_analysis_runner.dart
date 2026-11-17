@@ -10,7 +10,6 @@ import 'package:sistrum/services/audio_analysis_jobs.dart';
 import 'package:sistrum/services/audio_analysis_models.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/services/ffmpeg_support.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 
 class GeneratedSpectrogram {
@@ -112,7 +111,6 @@ class _LevelMetrics {
 /// and passes `isCancelled`, which the runner polls between awaited steps
 /// and answers by throwing [AudioAnalysisCancelled].
 class AudioAnalysisRunner {
-  final networkInput = NetworkAudioAnalysisInput();
   final _analysisJobs = AudioAnalysisJobs<FFmpegSessionResult>(
     start: FFmpegExecution.start,
     cancel: FFmpegExecution.cancel,
@@ -126,16 +124,14 @@ class AudioAnalysisRunner {
 
   final _nativeAnalysisRequests = <String>{};
 
-  /// Stops the owned FFmpeg session, network download and native data jobs.
+  /// Stops the owned FFmpeg session and native data jobs.
   void cancel() {
     _analysisJobs.invalidate();
-    networkInput.cancel();
     _cancelNativeAnalysis();
   }
 
   void dispose() {
     _analysisJobs.dispose();
-    networkInput.cancel();
     _cancelNativeAnalysis();
   }
 
@@ -159,12 +155,6 @@ class AudioAnalysisRunner {
     String? sourcePath,
   }) async {
     _checkCancelled(isCancelled);
-    if (NetworkAudioAnalysisInput.isNetwork(filePath)) {
-      return networkInput.withFile(
-        filePath,
-        (path) => runAnalysis(path, isCancelled, sourcePath: filePath),
-      );
-    }
     String workingPath = filePath;
     String? tempCopy;
     if (filePath.startsWith('content://')) {
@@ -262,19 +252,6 @@ class AudioAnalysisRunner {
     int? channels,
   }) async {
     _checkCancelled(isCancelled);
-    if (NetworkAudioAnalysisInput.isNetwork(filePath)) {
-      return networkInput.withFile(
-        filePath,
-        (path) => generateSpectrogramForFile(
-          path,
-          isCancelled: isCancelled,
-          channel: channel,
-          durationSeconds: durationSeconds,
-          sampleRate: sampleRate,
-          channels: channels,
-        ),
-      );
-    }
     String workingPath = filePath;
     String? tempCopy;
     if (filePath.startsWith('content://')) {

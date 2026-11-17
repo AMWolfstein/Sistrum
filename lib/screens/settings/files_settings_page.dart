@@ -12,9 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/screens/network_storage_screen.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -137,25 +135,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                   onTap: () => _pickDirectory(context, ref),
                   showDivider: false,
                 ),
-                SettingsItem(
-                  title: context.l10n.networkDownloadDestination,
-                  subtitle: settings.networkDownloadFolder.isEmpty
-                      ? context.l10n.networkUseForDownloads
-                      : settings.networkDownloadLabel,
-                  onTap: () => pushPage<void>(
-                    context,
-                    (_) => const NetworkStorageScreen(),
-                  ),
-                  showDivider: settings.networkDownloadFolder.isNotEmpty,
-                ),
-                if (settings.networkDownloadFolder.isNotEmpty)
-                  SettingsItem(
-                    title: context.l10n.networkUseLocalDownloads,
-                    onTap: () => ref
-                        .read(settingsProvider.notifier)
-                        .setNetworkDownloadFolder('', ''),
-                    showDivider: false,
-                  ),
               ],
             ),
             if (Platform.isAndroid &&

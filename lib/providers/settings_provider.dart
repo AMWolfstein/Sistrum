@@ -479,15 +479,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setStorageMode(String mode) =>
       _commit(state.copyWith(storageMode: mode == 'saf' ? 'saf' : 'app'));
 
-  Future<void> setNetworkDownloadFolder(String source, String label) async {
-    await _commit(
-      state.copyWith(
-        networkDownloadFolder: source,
-        networkDownloadLabel: label,
-      ),
-    );
-  }
-
   /// Atomically leaves SAF and persists a writable app-managed destination.
   ///
   /// Keeping these fields in one update avoids an intermediate saved state

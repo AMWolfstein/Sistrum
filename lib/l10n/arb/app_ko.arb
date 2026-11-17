@@ -2,174 +2,6 @@
   "linkFileReading": "Reading tags...",
   "trackBpm": "BPM",
   "trackMood": "분위기",
-  "subsonicAddToLibrary": "서버를 라이브러리에 추가",
-  "subsonicLibraryAdded": "서버가 라이브러리에 추가됨",
-  "subsonicLibraryDescription": "서버의 카탈로그와 앨범 아트를 라이브러리에 동기화합니다. 음악 파일은 서버에 그대로 유지됩니다. 카탈로그를 업데이트하려면 로컬 라이브러리 설정에서 다시 스캔하세요",
-  "subsonicAuthentication": "인증",
-  "subsonicToken": "솔트 토큰",
-  "subsonicPasswordAuth": "패스워드",
-  "subsonicApiKey": "API 키",
-  "subsonicUsername": "사용자 이름",
-  "subsonicPassword": "비밀번호",
-  "subsonicSearch": "서버 음악 검색...",
-  "subsonicMoreAlbums": "앨범 더보기",
-  "subsonicErrorApi": "서버가 이 API 버전 또는 인증 방식을 지원하지 않습니다. 서버 설정과 선택한 로그인 방식을 확인하세요",
-  "networkDownloadDestination": "네트워크 다운로드 대상",
-  "@networkDownloadDestination": {
-    "description": "Files settings item that opens network storage to choose a folder for downloaded music"
-  },
-  "networkUseForDownloads": "이 폴더에 다운로드",
-  "@networkUseForDownloads": {
-    "description": "Action to select the current network folder as the download destination; also the settings subtitle when no network destination is selected"
-  },
-  "networkDownloadSelected": "선택된 다운로드 대상",
-  "@networkDownloadSelected": {
-    "description": "Status label replacing the download destination action when the current network folder is already selected"
-  },
-  "networkUseLocalDownloads": "로컬 다운로드 폴더 사용",
-  "@networkUseLocalDownloads": {
-    "description": "Files settings action that clears the network download destination and returns downloads to the local folder"
-  },
-  "networkDownloadAccessFailed": "이 폴더에 쓸 수 없습니다",
-  "@networkDownloadAccessFailed": {
-    "description": "Snackbar prefix when the write-access check fails while selecting a network download folder; followed by a specific network error message"
-  },
-  "networkUploading": "네트워크 저장소에 업로드 중",
-  "@networkUploading": {
-    "description": "Download queue status during upload of prepared audio to the network destination; a progress percentage may follow"
-  },
-  "networkDownloadDescription": "이 기기에서 음악을 준비한 다음 NAS에 업로드하세요. 업로드가 완료될 때까지 앱을 열어 둔 상태로 유지하세요. 다시 시도하면 준비된 오디오를 다시 사용합니다. 기존 파일은 그대로 유지되며, 같은 이름으로 새로 다운로드한 파일에는 번호가 붙은 접미사가 추가됩니다.",
-  "@networkDownloadDescription": {
-    "description": "Help below the network download destination action explaining local preparation, upload, retry behavior, and preservation of existing files; NAS means network-attached storage"
-  },
-  "networkAddToLibrary": "라이브러리에 폴더 추가",
-  "@networkAddToLibrary": {
-    "description": "Action that adds the current network folder as a Library source and starts scanning it"
-  },
-  "networkLibraryAdded": "라이브러리에 폴더가 추가됨",
-  "@networkLibraryAdded": {
-    "description": "Status label replacing the add-to-Library action after the network folder has been added as a source; does not mean scanning has finished"
-  },
-  "networkLibraryDescription": "이 폴더와 그 하위 폴더를 검색합니다. 음악 파일은 서버에 저장되고, 메타데이터와 앨범 아트워크는 이 기기에 저장됩니다. 로컬 라이브러리 설정에서 관리하거나 다시 검색할 수 있습니다",
-  "@networkLibraryDescription": {
-    "description": "Help below the add-to-Library action explaining recursive scanning, local metadata and artwork storage, and management in Local Library settings"
-  },
-  "networkStorage": "네트워크 저장소",
-  "@networkStorage": {
-    "description": "Title and navigation label for the screen used to manage network connections and browse remote music folders"
-  },
-  "networkErrorUnreachable": "서버에 연결할 수 없습니다. 이 휴대폰에서 해당 네트워크에 접속할 수 있는지, 그리고 파일 공유 서비스가 실행 중인지 확인하세요. SMB의 경우 포트 445에 연결할 수 있어야 합니다",
-  "@networkErrorUnreachable": {
-    "description": "Network access error for an unreachable server, with connection troubleshooting and the SMB port requirement"
-  },
-  "networkErrorTimeout": "서버가 제때 응답하지 않았습니다. 연결 상태를 확인한 후 다시 시도하세요",
-  "@networkErrorTimeout": {
-    "description": "Network access error when a server operation exceeds its time limit"
-  },
-  "networkErrorAuthentication": "서버에서 로그인을 거부했습니다. 사용자 이름, 비밀번호 및 도메인을 확인하세요. 서버에서 도메인을 요구하지 않는 한 도메인 입력란은 비워 두세요",
-  "@networkErrorAuthentication": {
-    "description": "Network access error when the server rejects credentials; domain refers to the optional SMB authentication domain"
-  },
-  "networkErrorPermission": "이 계정에는 해당 공유 폴더 또는 폴더를 열 수 있는 권한이 없습니다. 서버에서 해당 계정의 읽기 권한을 확인하세요",
-  "@networkErrorPermission": {
-    "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
-  },
-  "networkErrorLocalPermission": "로컬 네트워크에 접근할 수 없습니다. Android 앱 설정에서 Sistrum의 주변 기기 접근 권한을 허용한 다음 다시 시도하세요",
-  "@networkErrorLocalPermission": {
-    "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
-  },
-  "networkErrorShare": "공유 폴더 또는 폴더를 찾을 수 없습니다. SMB의 경우 서버 주소 뒤에 서버의 공유 폴더 이름을 입력하세요 (예시: smb://server/Music/)",
-  "@networkErrorShare": {
-    "description": "Network access error for a missing share or folder; share means an SMB shared folder and the example illustrates its URL path"
-  },
-  "networkErrorProtocol": "서버와 이 SMB 클라이언트가 지원되는 프로토콜에 합의하지 못하였습니다. 서버에서 SMB2 또는 SMB3를 활성화하세요. SMB1은 지원되지 않습니다",
-  "@networkErrorProtocol": {
-    "description": "Network access error for incompatible SMB protocol versions; preserve the version names SMB1, SMB2, and SMB3"
-  },
-  "networkErrorAddress": "서버 주소를 확인하세요. SMB의 경우 smb://server/share/ 형식을 사용하고, WebDAV 및 HTTP의 경우 http:// 또는 https:// 주소를 사용하세요.",
-  "@networkErrorAddress": {
-    "description": "Network access error for an invalid address, with URL scheme examples for SMB, WebDAV, and HTTP connections"
-  },
-  "networkConnections": "저장된 연결",
-  "@networkConnections": {
-    "description": "Section heading above the list of saved network storage connections"
-  },
-  "networkServer": "서버",
-  "@networkServer": {
-    "description": "Connection form section heading above the display name and server or audio URL fields"
-  },
-  "networkCredentials": "로그인 (선택 사항)",
-  "@networkCredentials": {
-    "description": "Connection form section heading for optional server credentials"
-  },
-  "networkRefresh": "새로고침",
-  "@networkRefresh": {
-    "description": "Toolbar tooltip for reloading saved connections or the current network folder listing"
-  },
-  "networkStorageDescription": "NAS 또는 음악 서버에 연결하여 폴더를 탐색하세요. 로그인 정보는 이 기기에 안전하게 저장됩니다",
-  "@networkStorageDescription": {
-    "description": "Introduction shown in the empty connections screen and connection form, explaining remote folder browsing and secure local credential storage; NAS means network-attached storage"
-  },
-  "networkAddConnection": "연결 추가",
-  "@networkAddConnection": {
-    "description": "Action label, toolbar tooltip, and form title for adding a network storage connection"
-  },
-  "networkEditConnection": "연결 편집",
-  "@networkEditConnection": {
-    "description": "Edit button tooltip and form title for changing an existing network storage connection"
-  },
-  "networkConnectionName": "이름",
-  "@networkConnectionName": {
-    "description": "Required connection form field for a user-chosen display name identifying the saved connection"
-  },
-  "networkAddress": "서버 또는 오디오 URL",
-  "@networkAddress": {
-    "description": "Required connection form field for the server or direct audio URL, using the scheme appropriate to the selected protocol"
-  },
-  "networkProtocol": "프로토콜",
-  "@networkProtocol": {
-    "description": "Connection form section heading for choosing SMB, WebDAV, or HTTP / HTTPS"
-  },
-  "networkUsername": "사용자 이름 (선택 사항)",
-  "@networkUsername": {
-    "description": "Optional connection form field for the server account username"
-  },
-  "networkPassword": "비밀번호 (선택 사항)",
-  "@networkPassword": {
-    "description": "Optional connection form field for the server account password, with input characters hidden"
-  },
-  "networkDomain": "도메인 (선택 사항)",
-  "@networkDomain": {
-    "description": "Optional connection form field shown only for SMB; refers to the authentication domain, not the server's internet domain name"
-  },
-  "networkConnectSave": "연결 및 저장",
-  "@networkConnectSave": {
-    "description": "Connection form action that checks access to the network source before saving the connection"
-  },
-  "networkErrorCertificate": "서버의 HTTPS 인증서를 확인할 수 없습니다. 이 연결을 편집하여 인증서를 검토하고 신뢰하도록 설정하거나, 서버의 HTTPS 구성을 확인하세요",
-  "@networkErrorCertificate": {
-    "description": "Network access error for HTTPS certificate verification failure, directing the user to review the certificate in the connection form; unrelated to SMB authentication"
-  },
-  "networkCertificatePrompt": "이 서버는 신뢰할 수 없는 HTTPS 인증서를 사용하고 있습니다. 라우터와 NAS 장치는 자체 서명된 인증서를 사용하는 경우가 많습니다. 신뢰하기 전에 서버 주소와 SHA-256 지문을 확인하세요. 인증서 신뢰 설정은 이 서버의 해당 인증서에만 적용되며, 인증서가 변경되면 다시 승인이 필요합니다",
-  "@networkCertificatePrompt": {
-    "description": "Connection form warning shown above the HTTPS origin and certificate SHA-256 fingerprint; approval trusts only that fingerprint for this connection's HTTPS origin, not a global certificate authority or an SMB server"
-  },
-  "networkTrustCertificate": "인증서를 신뢰하고 다시 시도",
-  "@networkTrustCertificate": {
-    "description": "Action approving the displayed certificate SHA-256 fingerprint for this connection's HTTPS origin and retrying connect-and-save; does not grant global certificate trust"
-  },
-  "networkRemoveConnection": "연결 제거",
-  "@networkRemoveConnection": {
-    "description": "Connection form action that removes the saved connection and its credentials, without deleting files on the server"
-  },
-  "networkNoFiles": "지원되는 음악 파일이나 폴더를 찾을 수 없습니다",
-  "@networkNoFiles": {
-    "description": "Empty folder message when the network listing contains no directories or supported audio files"
-  },
-  "networkConnectionError": "네트워크 소스에 접근할 수 없습니다. 서버 주소, 로그인 정보 및 연결 상태를 확인한 후 다시 시도하세요",
-  "@networkConnectionError": {
-    "description": "Fallback network access error when the failure has no more specific classification"
-  },
   "extensionAccountTitle": "확장 계정",
   "extensionAccountInvalidForm": "확장 기능에서 잘못된 계정 양식을 반환했습니다",
   "extensionAccountRestartLogin": "계속하려면 계정 로그인을 다시 시작하세요",
@@ -1767,7 +1599,6 @@
   "@trackDeleteConfirmTitle": {
     "description": "Delete confirmation title"
   },
-  "trackDeleteNetworkConfirmMessage": "이렇게 하면 네트워크 저장소에서 파일이 영구적으로 삭제되고 라이브러리와 기록에서도 제거됩니다",
   "snackbarDeleteTracksFailed": "{count} 개의 {count, plural, =1{트랙} other{트랙}}을 삭제할 수 없습니다. 저장소 접근 권한을 확인하고 다시 시도하세요",
   "@snackbarDeleteTracksFailed": {
     "placeholders": {
@@ -3800,14 +3631,6 @@
   "downloadAllowLocalNetwork": "로컬 네트워크 접근 허용",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadAllowLocalNetworkEnabled": "로컬/사설 주소에 대한 요청이 허용됨 (로컬 프록시 또는 사용자 지정 DNS용)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "보안을 위해 로컬/사설 주소가 차단됨",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
   },
   "downloadSelectServiceToEnable": "이 옵션을 활성화하려면 음질 옵션이 있는 공급자를 선택하세요",
   "@downloadSelectServiceToEnable": {
@@ -6546,7 +6369,6 @@
   "audioInfoLocation": "위치",
   "audioInfoLocationLocal": "기기 저장소",
   "audioInfoLocationShared": "공유된 폴더",
-  "audioInfoLocationNetwork": "네트워크 저장소",
   "audioInfoPcmRate": "비압축 데이터 전송률",
   "audioInfoFrequencyRange": "주파수 범위",
   "audioInfoFrequencyRangeValue": "최대 {frequency} (나이퀴스트)",

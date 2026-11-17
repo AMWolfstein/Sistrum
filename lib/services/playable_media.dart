@@ -3,7 +3,6 @@ import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/music_player_runtime.dart';
 import 'package:sistrum/services/playback_metadata.dart';
 import 'package:sistrum/utils/file_access.dart' show isContentUri;
@@ -18,7 +17,6 @@ class PlayableMedia {
   final String artist;
   final String album;
   final String? artUri;
-  final String? networkArtworkSource;
   final Duration? duration;
   final int? bitDepth;
   final int? sampleRate;
@@ -37,7 +35,6 @@ class PlayableMedia {
     required this.artist,
     this.album = '',
     this.artUri,
-    this.networkArtworkSource,
     this.duration,
     this.bitDepth,
     this.sampleRate,
@@ -49,15 +46,7 @@ class PlayableMedia {
     this.displayMetadata = const {},
   });
 
-  /// The `network://` cover the cover store keeps for this song:
-  /// [networkArtworkSource], or [artUri] when it names one, as a cover
-  /// reference listening statistics recorded does.
-  String? get coverReference =>
-      networkArtworkSource ?? (CoverStore.fetches(artUri) ? artUri : null);
-
   bool get isContentUri => source.startsWith('content://');
-  bool get isNetwork =>
-      const {'network', 'http', 'https'}.contains(Uri.tryParse(source)?.scheme);
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -66,10 +55,7 @@ class PlayableMedia {
     'title': title,
     'artist': artist,
     'album': album,
-    if (artUri != null && artUri!.isNotEmpty && networkArtworkSource == null)
-      'artUri': artUri,
-    if (networkArtworkSource != null)
-      'networkArtworkSource': networkArtworkSource,
+    if (artUri != null && artUri!.isNotEmpty) 'artUri': artUri,
     if (duration != null) 'durationMs': duration!.inMilliseconds,
     if (bitDepth != null && bitDepth! > 0) 'bitDepth': bitDepth,
     if (sampleRate != null && sampleRate! > 0) 'sampleRate': sampleRate,
@@ -97,7 +83,6 @@ class PlayableMedia {
       artist: json['artist'] as String? ?? '',
       album: json['album'] as String? ?? '',
       artUri: artwork,
-      networkArtworkSource: json['networkArtworkSource'] as String?,
       duration: (durationMs != null && durationMs > 0)
           ? Duration(milliseconds: durationMs)
           : null,
@@ -112,27 +97,14 @@ class PlayableMedia {
     );
   }
 
-  /// The item players show. A network song shows the file [covers] stored
-  /// for it, the same on every play: the cover from its tags once read,
-  /// else its network cover ([coverReference]), which travels as
-  /// `extras['artworkRef']`, the reference to keep instead of the file. A
-  /// `network://` string is never the item's artUri.
+  /// The item players show.
   MediaItem toMediaItem({
     String? resolvedSource,
     String? resolvedArtwork,
     String? unknownTitle,
     String? unknownArtist,
-    CoverStore? covers,
   }) {
-    final reference = coverReference;
-    final stored = resolvedArtwork == null
-        ? (covers ?? musicPlayerRuntime.dependencies.coverStore).songCover(
-            source,
-            reference,
-          )
-        : null;
-    final artwork =
-        resolvedArtwork ?? (CoverStore.fetches(artUri) ? null : artUri);
+    final artwork = resolvedArtwork ?? artUri;
     return MediaItem(
       id: id,
       title: title.isEmpty
@@ -143,9 +115,7 @@ class PlayableMedia {
           : artist,
       album: album.isEmpty ? null : album,
       duration: duration,
-      artUri: stored != null
-          ? Uri.file(stored.path)
-          : (artwork != null && artwork.isNotEmpty)
+      artUri: artwork != null && artwork.isNotEmpty
           ? Uri.tryParse(artwork)
           : null,
       extras: {
@@ -154,7 +124,6 @@ class PlayableMedia {
         if (displayMetadata.isNotEmpty) 'displayMetadata': displayMetadata,
         if (resolvedSource != null && resolvedSource.isNotEmpty)
           'resolvedSource': resolvedSource,
-        'artworkRef': ?reference,
         if (bitDepth != null && bitDepth! > 0) 'bit_depth': bitDepth,
         if (sampleRate != null && sampleRate! > 0) 'sample_rate': sampleRate,
         if (bitrate != null && bitrate! > 0) 'bitrate': bitrate,
@@ -172,7 +141,6 @@ String? normalizeArtUri(String cover) {
   final value = cover.trim();
   if (value.isEmpty) return null;
   if (value.startsWith('http') ||
-      CoverStore.fetches(value) ||
       isContentUri(value) ||
       value.startsWith('file://')) {
     return value;
@@ -180,9 +148,7 @@ String? normalizeArtUri(String cover) {
   return Uri.file(value).toString();
 }
 
-/// A collection or catalog [track] that plays the file at [path]. A
-/// `network://` cover stays the reference, its [PlayableMedia.coverReference],
-/// while a network [path] plays; a local file shows its own cover instead.
+/// A collection or catalog [track] that plays the file at [path].
 PlayableMedia playableFromTrack(Track track, String path) {
   final cover = track.coverUrl ?? '';
   return PlayableMedia(
@@ -191,11 +157,7 @@ PlayableMedia playableFromTrack(Track track, String path) {
     title: track.name,
     artist: track.artistName,
     album: track.albumName,
-    artUri: !CoverStore.fetches(cover)
-        ? normalizeArtUri(cover)
-        : path.startsWith('network://')
-        ? cover
-        : null,
+    artUri: normalizeArtUri(cover),
     duration: track.duration > 0 ? Duration(seconds: track.duration) : null,
     explicit: track.isExplicit,
   );
@@ -244,7 +206,7 @@ PlayableMedia playableFromLocal(LocalLibraryItem item) {
   );
 }
 
-/// A library row of either source; network items keep their own cover.
+/// A library row of either source.
 PlayableMedia playableFromUnified(UnifiedLibraryItem item) {
   final history = item.historyItem;
   if (history != null) return playableFromHistory(history);

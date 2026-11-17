@@ -25,7 +25,7 @@
       "title": "Offline-only app: remove online features, network storage and conversion"
     }
   },
-  "next_completion": 53,
+  "next_completion": 54,
   "next_mission": 5,
   "next_tor": 18,
   "tasks": {
@@ -718,13 +718,19 @@
       "title": "Remove Cast and the local-network permission"
     },
     "M004-T006": {
-      "completion": null,
+      "completion": 53,
+      "evidence": {
+        "checks": "gen-l10n exit 0; flutter analyze no issues; flutter pub get --offline ok; full flutter test 3187 passed 0 failed (JSON count excluding hidden and loading); CoverStore helper test added; reviewer round 1 NEEDS_FIXES fixed (CI memory step, Kotlin CoverProviderFilesTest updated but Gradle not runnable here, integration README, task-log deferrals); round 2 PASS",
+        "result": "PASS",
+        "reviewer": "task-reviewer-sonnet",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M004",
       "nonce": "2f9bb15a2ab441a4bc0fe9a12b195fc4",
       "record": "specs/004-offline-only-app/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove network storage (SMB, WebDAV, Subsonic)"
     },
     "M004-T007": {

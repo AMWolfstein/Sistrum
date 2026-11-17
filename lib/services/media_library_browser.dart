@@ -8,8 +8,8 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/album_track_order.dart';
 import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
@@ -106,11 +106,9 @@ class MediaLibraryBrowser {
     required this.includeLocal,
     required this.tagCredits,
     required this.strings,
-    CoverStore? covers,
     Future<BrowserCoverProvider?> Function() coverProvider =
         BrowserCoverProvider.load,
-  }) : _coverStore = covers,
-       _loadCoverProvider = coverProvider;
+  }) : _loadCoverProvider = coverProvider;
 
   final LibraryDatabase library;
   final HistoryDatabase history;
@@ -124,12 +122,9 @@ class MediaLibraryBrowser {
   final TagCreditScope Function() tagCredits;
   final AppLocalizations Function() strings;
 
-  final CoverStore? _coverStore;
   final Future<BrowserCoverProvider?> Function() _loadCoverProvider;
   Future<void>? _coverProviderLoad;
   BrowserCoverProvider? _coverProvider;
-
-  CoverStore get _covers => _coverStore ?? CoverStore.instance;
 
   static const _scheme = 'sistrum-browse';
 
@@ -232,17 +227,15 @@ class MediaLibraryBrowser {
   MediaItem _shuffleItem() =>
       MediaItem(id: shuffleId, title: strings().nowPlayingShuffleLibrary);
 
-  /// Finds the cover provider and reads which network covers are stored,
-  /// so the items built next can show the app's cover files. Only a found
-  /// provider is kept: without one, as after an error, those items show no
-  /// local covers and the next browse looks again.
+  /// Finds the cover provider, so the items built next can show the app's
+  /// cover files. Only a found provider is kept: without one, as after an
+  /// error, those items show no local covers and the next browse looks
+  /// again.
   Future<void> _prepareCovers() async {
-    if (_coverProvider == null) {
-      final load = _coverProviderLoad ??= _findCoverProvider();
-      await load;
-      if (identical(_coverProviderLoad, load)) _coverProviderLoad = null;
-    }
-    if (_coverProvider != null) await _covers.warmUp();
+    if (_coverProvider != null) return;
+    final load = _coverProviderLoad ??= _findCoverProvider();
+    await load;
+    if (identical(_coverProviderLoad, load)) _coverProviderLoad = null;
   }
 
   Future<void> _findCoverProvider() async {
@@ -254,25 +247,18 @@ class MediaLibraryBrowser {
   }
 
   /// Artwork a car can load: a web cover as it is, and a cover file of the
-  /// app's own (a `network://` cover as the file the store keeps for it)
-  /// through the cover provider. Without the provider local covers are
-  /// left out; the playing song keeps its artwork either way. Loopback URLs
-  /// older builds stored in collections and temporary files are left out.
+  /// app's own through the cover provider. Without the provider local covers
+  /// are left out; the playing song keeps its artwork either way. Loopback
+  /// URLs older builds stored in collections and temporary files are left
+  /// out.
   Uri? _browserArt(String? art) {
     if (art == null || durableCoverReference(art) == null) return null;
     if (art.startsWith('http')) return Uri.tryParse(art);
-    return _coverProvider?.uriFor(
-      CoverStore.fetches(art) ? _covers.indexedFile(art) : art,
-    );
+    return _coverProvider?.uriFor(art);
   }
 
-  /// [_browserArt] for a song: the stored cover a network song shows when
-  /// it plays (see [CoverStore.songCover]), else its artwork.
-  Uri? _songArt(PlayableMedia media) =>
-      _coverProvider?.uriFor(
-        _covers.songCover(media.source, media.coverReference)?.path,
-      ) ??
-      _browserArt(media.artUri);
+  /// [_browserArt] for a song.
+  Uri? _songArt(PlayableMedia media) => _browserArt(media.artUri);
 
   static Map<String, dynamic>? _group(String? title) =>
       title == null ? null : {_groupTitleKey: title};

@@ -44,7 +44,6 @@ import 'package:sistrum/utils/saf_download_tree.dart';
 import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';

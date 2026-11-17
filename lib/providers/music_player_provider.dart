@@ -20,20 +20,11 @@ final musicPlayerRuntimeProvider = Provider<MusicPlayerRuntime>(
   (ref) => musicPlayerRuntime,
 );
 
-/// External apps own local-file playback. Network files still need
-/// the in-app controls when they use a Mornye player.
-final playerUiEnabledProvider = Provider<bool>((ref) {
-  if (ref.watch(settingsProvider.select((s) => s.playerMode == 'internal'))) {
-    return true;
-  }
-  return ref.watch(
-    localMediaItemProvider.select(
-      (state) =>
-          state.value?.extras?['source']?.toString().startsWith('network://') ??
-          false,
-    ),
-  );
-});
+/// External apps own local-file playback.
+final playerUiEnabledProvider = Provider<bool>(
+  (ref) =>
+      ref.watch(settingsProvider.select((s) => s.playerMode == 'internal')),
+);
 
 /// What the player screens show: the local player's track.
 final currentMediaItemProvider =
@@ -122,11 +113,7 @@ final playerCollectionTrackProvider = FutureProvider.autoDispose
         title: item.title,
         artist: item.artist ?? '',
       );
-      return collectionTrackForMedia(
-        item,
-        match,
-        covers: ref.watch(musicPlayerRuntimeProvider).dependencies.coverStore,
-      );
+      return collectionTrackForMedia(item, match);
     });
 
 final playbackStateProvider = StreamProvider<PlaybackState>((ref) {

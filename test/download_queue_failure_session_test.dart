@@ -73,11 +73,6 @@ class _Queue extends DownloadQueueNotifier {
       items: [
         _item('backend-failure'),
         _item('exception'),
-        _item(
-          'network-failure',
-          service: 'unavailable-provider',
-          networkDownloadFolder: 'smb://example.test/music',
-        ),
         _item('unavailable', service: 'unavailable-provider'),
         _item('cancelled'),
       ],
@@ -209,7 +204,7 @@ void main() {
       await finished.future.timeout(const Duration(seconds: 10));
       final first = container.read(downloadQueueProvider);
       expect(attempts, ['backend-failure', 'exception', 'cancelled']);
-      expect(first.lookup.failedCount, 4);
+      expect(first.lookup.failedCount, 3);
       expect(
         first.lookup.byItemId['cancelled']!.status,
         DownloadStatus.skipped,
@@ -223,16 +218,12 @@ void main() {
         contains('Fixture processing error'),
       );
       expect(
-        first.lookup.byItemId['network-failure']!.error,
-        startsWith('Network download failed. Retry keeps prepared audio:'),
-      );
-      expect(
         first.lookup.byItemId['unavailable']!.error,
         'Download provider is no longer available',
       );
       // Provider availability failures and cancellation have never contributed
       // to the session failure total, even though the queue retains their rows.
-      expect(summaries, ['0 downloaded, 3 failed']);
+      expect(summaries, ['0 downloaded, 2 failed']);
       expect(
         LogBuffer().entries.where(
           (entry) => entry.message.contains('Download queue processing failed'),
@@ -250,8 +241,8 @@ void main() {
         'cancelled',
         'backend-failure',
       ]);
-      expect(container.read(downloadQueueProvider).lookup.failedCount, 4);
-      expect(summaries, ['0 downloaded, 3 failed', '0 downloaded, 1 failed']);
+      expect(container.read(downloadQueueProvider).lookup.failedCount, 3);
+      expect(summaries, ['0 downloaded, 2 failed', '0 downloaded, 1 failed']);
       await queue.flushQueuePersistence();
       await (await AppStateDatabase.instance.database).close();
     },

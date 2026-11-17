@@ -37,22 +37,17 @@ class CoverProviderFilesTest {
     fun servesTheCoverFoldersBrowseListsName() {
         assertEquals(
             mapOf(
-                "covers" to File(app, "files/covers"),
                 "library_covers" to File(app, "files/library_covers"),
                 "embedded_cover_previews" to File(app, "cache/embedded_cover_previews"),
             ),
             folders.mapValues { it.value.directory },
         )
-        val stored = write("files/covers/0123_abcd.image")
         val thumbnail = write("files/library_covers/cover_0123.jpg")
         val png = write("files/library_covers/cover_4567.png")
-        val subsonic = write("files/library_covers/subsonic_0123_89ab.image")
         val embedded = write("cache/embedded_cover_previews/v2_hash_0.jpg")
 
-        assertEquals(stored, resolve("covers", "0123_abcd.image"))
         assertEquals(thumbnail, resolve("library_covers", "cover_0123.jpg"))
         assertEquals(png, resolve("library_covers", "cover_4567.png"))
-        assertEquals(subsonic, resolve("library_covers", "subsonic_0123_89ab.image"))
         assertEquals(embedded, resolve("embedded_cover_previews", "v2_hash_0.jpg"))
     }
 
@@ -64,7 +59,6 @@ class CoverProviderFilesTest {
         File(app, "files/library_covers/folder.jpg").mkdirs()
 
         assertNull(resolve("playlist_covers", "list.jpg"))
-        assertNull(resolve("files", "covers"))
         assertNull(resolve("library_covers"))
         assertNull(resolve("library_covers", "sub", "nested.jpg"))
         assertNull(resolve("library_covers", "sub/nested.jpg"))
@@ -82,27 +76,17 @@ class CoverProviderFilesTest {
         val secret = write("files/shared_prefs/settings.jpg")
         val thumbnail = write("files/library_covers/thumb.jpg")
         Files.createSymbolicLink(File(app, "files/library_covers/link.jpg").toPath(), secret.toPath())
-        Files.createSymbolicLink(File(app, "files/covers/0123_link.image").toPath(), thumbnail.toPath())
         Files.createSymbolicLink(File(app, "files/library_covers/folder.jpg").toPath(), secret.parentFile!!.toPath())
 
         assertNull(resolve("library_covers", "link.jpg"))
-        assertNull(resolve("covers", "0123_link.image"))
         assertNull(resolve("library_covers", "folder.jpg"))
     }
 
     @Test
     fun refusesNamesThatAreNotCoversByName() {
         val names = mapOf(
-            "covers" to listOf(
-                "0123_abcd.image.0001.tmp",
-                ".0123_abcd.image",
-                "0123.jpg",
-                ".image",
-            ),
             "library_covers" to listOf(
                 ".regenerate",
-                "subsonic_0123.image.current",
-                "subsonic_0123.image.0001.tmp",
                 "cover_0123.jpg.tmp",
                 "notes.txt",
                 "cover_0123.webp",
@@ -145,14 +129,13 @@ class CoverProviderFilesTest {
         val files = File(app, "files").path
         val cache = File(app, "cache").path
 
-        assertEquals("covers" to "0123_abcd.image", CoverProviderFiles.locate(folders, "$files/covers/0123_abcd.image"))
         assertEquals(
             "library_covers" to "cover 0123.jpg",
             CoverProviderFiles.locate(folders, "$files/library_covers/cover 0123.jpg"),
         )
         assertEquals(
             "library_covers" to "cover_0123.jpg",
-            CoverProviderFiles.locate(folders, "$files/covers/../library_covers/./cover_0123.jpg"),
+            CoverProviderFiles.locate(folders, "$files/library_covers/../library_covers/./cover_0123.jpg"),
         )
         assertEquals(
             "embedded_cover_previews" to "v2_hash_0.jpg",

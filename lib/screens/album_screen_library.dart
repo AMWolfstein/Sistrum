@@ -370,15 +370,13 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         items: [item],
         onPlay: () => _playLibraryRow(item, items),
         onOpenDetails: () => _openLibraryMetadata(item, items),
-        onDelete: item.filePath.startsWith('network://')
-            ? null
-            : () => deleteLibraryTracks(
-                context,
-                ref,
-                [item],
-                isActive: () => mounted,
-                onComplete: () {},
-              ),
+        onDelete: () => deleteLibraryTracks(
+          context,
+          ref,
+          [item],
+          isActive: () => mounted,
+          onComplete: () {},
+        ),
       ),
     );
   }
@@ -574,9 +572,7 @@ List<UnifiedLibraryItem> deletableLibraryItems(
   Set<String> selectedIds,
 ) => [
   for (final item in items)
-    if (selectedIds.contains(item.id) &&
-        !item.filePath.startsWith('network://'))
-      item,
+    if (selectedIds.contains(item.id)) item,
 ];
 
 /// Builds one track's row from its playback state, so a track change

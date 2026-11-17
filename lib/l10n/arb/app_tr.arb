@@ -2,174 +2,6 @@
   "linkFileReading": "Etiketler okunuyor...",
   "trackBpm": "BPM",
   "trackMood": "Ruh hali",
-  "subsonicAddToLibrary": "Sunucuyu Kitaplığa ekle",
-  "subsonicLibraryAdded": "Sunucu Kitaplığa eklendi",
-  "subsonicLibraryDescription": "Sunucu kataloğunu ve kapak resimlerini Kitaplık ile eşitleyin. Müzik sunucunuzda kalır. Kataloğu güncellemek için Yerel Kitaplık ayarlarından yeniden tarayın.",
-  "subsonicAuthentication": "Kimlik doğrulama",
-  "subsonicToken": "Tuzlanmış token",
-  "subsonicPasswordAuth": "Parola",
-  "subsonicApiKey": "API anahtarı",
-  "subsonicUsername": "Kullanıcı adı",
-  "subsonicPassword": "Parola",
-  "subsonicSearch": "Sunucu müziğinde ara...",
-  "subsonicMoreAlbums": "Daha fazla albüm",
-  "subsonicErrorApi": "Sunucu bu API sürümünü veya kimlik doğrulama yöntemini desteklemiyor. Sunucu ayarlarını ve seçilen oturum açma yöntemini kontrol edin.",
-  "networkDownloadDestination": "Ağ indirme hedefi",
-  "@networkDownloadDestination": {
-    "description": "Files settings item that opens network storage to choose a folder for downloaded music"
-  },
-  "networkUseForDownloads": "Bu klasöre indir",
-  "@networkUseForDownloads": {
-    "description": "Action to select the current network folder as the download destination; also the settings subtitle when no network destination is selected"
-  },
-  "networkDownloadSelected": "Seçili indirme hedefi",
-  "@networkDownloadSelected": {
-    "description": "Status label replacing the download destination action when the current network folder is already selected"
-  },
-  "networkUseLocalDownloads": "Yerel indirme klasörünü kullan",
-  "@networkUseLocalDownloads": {
-    "description": "Files settings action that clears the network download destination and returns downloads to the local folder"
-  },
-  "networkDownloadAccessFailed": "Bu klasöre yazılamadı.",
-  "@networkDownloadAccessFailed": {
-    "description": "Snackbar prefix when the write-access check fails while selecting a network download folder; followed by a specific network error message"
-  },
-  "networkUploading": "Ağ depolamasına yükleniyor",
-  "@networkUploading": {
-    "description": "Download queue status during upload of prepared audio to the network destination; a progress percentage may follow"
-  },
-  "networkDownloadDescription": "Şarkıları bu cihazda hazırlayın, ardından NAS'ınıza yükleyin. Yükleme bitene kadar uygulamayı açık tutun. Yeniden deneme, hazırlanan sesi yeniden kullanır. Mevcut dosyalar korunur; aynı ada sahip yeni indirmeler numaralı bir son ek alır.",
-  "@networkDownloadDescription": {
-    "description": "Help below the network download destination action explaining local preparation, upload, retry behavior, and preservation of existing files; NAS means network-attached storage"
-  },
-  "networkAddToLibrary": "Klasörü Kitaplığa ekle",
-  "@networkAddToLibrary": {
-    "description": "Action that adds the current network folder as a Library source and starts scanning it"
-  },
-  "networkLibraryAdded": "Klasör Kitaplığa eklendi",
-  "@networkLibraryAdded": {
-    "description": "Status label replacing the add-to-Library action after the network folder has been added as a source; does not mean scanning has finished"
-  },
-  "networkLibraryDescription": "Bu klasörü ve alt klasörlerini tarayın. Müzik sunucunuzda kalır; meta veriler ve kapak resimleri bu cihaza kaydedilir. Yerel Kitaplık ayarlarından yönetebilir veya yeniden tarayabilirsiniz.",
-  "@networkLibraryDescription": {
-    "description": "Help below the add-to-Library action explaining recursive scanning, local metadata and artwork storage, and management in Local Library settings"
-  },
-  "networkStorage": "Ağ depolaması",
-  "@networkStorage": {
-    "description": "Title and navigation label for the screen used to manage network connections and browse remote music folders"
-  },
-  "networkErrorUnreachable": "Sunucuya ulaşılamadı. Bu telefonun ağa erişebildiğinden ve dosya paylaşım hizmetinin çalıştığından emin olun. SMB için 445 numaralı bağlantı noktası erişilebilir olmalıdır.",
-  "@networkErrorUnreachable": {
-    "description": "Network access error for an unreachable server, with connection troubleshooting and the SMB port requirement"
-  },
-  "networkErrorTimeout": "Sunucu zamanında yanıt vermedi. Bağlantıyı kontrol edip tekrar deneyin.",
-  "@networkErrorTimeout": {
-    "description": "Network access error when a server operation exceeds its time limit"
-  },
-  "networkErrorAuthentication": "Sunucu oturum açmayı reddetti. Kullanıcı adını, parolayı ve etki alanını kontrol edin. Sunucunuz gerektirmedikçe etki alanını boş bırakın.",
-  "@networkErrorAuthentication": {
-    "description": "Network access error when the server rejects credentials; domain refers to the optional SMB authentication domain"
-  },
-  "networkErrorPermission": "Bu hesabın bu paylaşımı veya klasörü açma izni yok. Sunucudaki okuma izinlerini kontrol edin.",
-  "@networkErrorPermission": {
-    "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
-  },
-  "networkErrorLocalPermission": "Yerel ağ erişimine izin verilmiyor. Android uygulama ayarlarından Sistrum için Yakındaki cihazlar iznini verin, ardından tekrar deneyin.",
-  "@networkErrorLocalPermission": {
-    "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
-  },
-  "networkErrorShare": "Paylaşım veya klasör bulunamadı. SMB için adresin ardından sunucunun paylaşılan klasör adını kullanın: örneğin smb://sunucu/Music/.",
-  "@networkErrorShare": {
-    "description": "Network access error for a missing share or folder; share means an SMB shared folder and the example illustrates its URL path"
-  },
-  "networkErrorProtocol": "Sunucu ile bu SMB istemcisi desteklenen bir protokol üzerinde anlaşamadı. Sunucuda SMB2 veya SMB3'ü etkinleştirin. SMB1 desteklenmez.",
-  "@networkErrorProtocol": {
-    "description": "Network access error for incompatible SMB protocol versions; preserve the version names SMB1, SMB2, and SMB3"
-  },
-  "networkErrorAddress": "Sunucu adresini kontrol edin. SMB için smb://sunucu/paylasim/ veya WebDAV ve HTTP için http:// ya da https:// adresi kullanın.",
-  "@networkErrorAddress": {
-    "description": "Network access error for an invalid address, with URL scheme examples for SMB, WebDAV, and HTTP connections"
-  },
-  "networkConnections": "Kayıtlı bağlantılar",
-  "@networkConnections": {
-    "description": "Section heading above the list of saved network storage connections"
-  },
-  "networkServer": "Sunucu",
-  "@networkServer": {
-    "description": "Connection form section heading above the display name and server or audio URL fields"
-  },
-  "networkCredentials": "Oturum aç (isteğe bağlı)",
-  "@networkCredentials": {
-    "description": "Connection form section heading for optional server credentials"
-  },
-  "networkRefresh": "Yenile",
-  "@networkRefresh": {
-    "description": "Toolbar tooltip for reloading saved connections or the current network folder listing"
-  },
-  "networkStorageDescription": "NAS'ınıza veya müzik sunucunuza bağlanın ve klasörlerine göz atın. Oturum açma bilgileriniz bu cihazda güvenle saklanır.",
-  "@networkStorageDescription": {
-    "description": "Introduction shown in the empty connections screen and connection form, explaining remote folder browsing and secure local credential storage; NAS means network-attached storage"
-  },
-  "networkAddConnection": "Bağlantı ekle",
-  "@networkAddConnection": {
-    "description": "Action label, toolbar tooltip, and form title for adding a network storage connection"
-  },
-  "networkEditConnection": "Bağlantıyı düzenle",
-  "@networkEditConnection": {
-    "description": "Edit button tooltip and form title for changing an existing network storage connection"
-  },
-  "networkConnectionName": "Ad",
-  "@networkConnectionName": {
-    "description": "Required connection form field for a user-chosen display name identifying the saved connection"
-  },
-  "networkAddress": "Sunucu veya ses URL'si",
-  "@networkAddress": {
-    "description": "Required connection form field for the server or direct audio URL, using the scheme appropriate to the selected protocol"
-  },
-  "networkProtocol": "Protokol",
-  "@networkProtocol": {
-    "description": "Connection form section heading for choosing SMB, WebDAV, or HTTP / HTTPS"
-  },
-  "networkUsername": "Kullanıcı adı (isteğe bağlı)",
-  "@networkUsername": {
-    "description": "Optional connection form field for the server account username"
-  },
-  "networkPassword": "Parola (isteğe bağlı)",
-  "@networkPassword": {
-    "description": "Optional connection form field for the server account password, with input characters hidden"
-  },
-  "networkDomain": "Etki alanı (isteğe bağlı)",
-  "@networkDomain": {
-    "description": "Optional connection form field shown only for SMB; refers to the authentication domain, not the server's internet domain name"
-  },
-  "networkConnectSave": "Bağlan ve kaydet",
-  "@networkConnectSave": {
-    "description": "Connection form action that checks access to the network source before saving the connection"
-  },
-  "networkErrorCertificate": "Sunucunun HTTPS sertifikası doğrulanamadı. Sertifikayı incelemek ve güvenmek için bu bağlantıyı düzenleyin ya da sunucunun HTTPS yapılandırmasını kontrol edin.",
-  "@networkErrorCertificate": {
-    "description": "Network access error for HTTPS certificate verification failure, directing the user to review the certificate in the connection form; unrelated to SMB authentication"
-  },
-  "networkCertificatePrompt": "Bu sunucu güvenilmeyen bir HTTPS sertifikası kullanıyor. Yönlendiriciler ve NAS cihazları genellikle kendinden imzalı sertifikalar kullanır. Güvenmeden önce sunucu adresini ve SHA-256 parmak izini doğrulayın. Güven yalnızca bu sunucudaki bu sertifika için geçerlidir; sertifika değişirse yeniden onay gerekir.",
-  "@networkCertificatePrompt": {
-    "description": "Connection form warning shown above the HTTPS origin and certificate SHA-256 fingerprint; approval trusts only that fingerprint for this connection's HTTPS origin, not a global certificate authority or an SMB server"
-  },
-  "networkTrustCertificate": "Sertifikaya güven ve yeniden dene",
-  "@networkTrustCertificate": {
-    "description": "Action approving the displayed certificate SHA-256 fingerprint for this connection's HTTPS origin and retrying connect-and-save; does not grant global certificate trust"
-  },
-  "networkRemoveConnection": "Bağlantıyı kaldır",
-  "@networkRemoveConnection": {
-    "description": "Connection form action that removes the saved connection and its credentials, without deleting files on the server"
-  },
-  "networkNoFiles": "Desteklenen müzik dosyası veya klasörü bulunamadı.",
-  "@networkNoFiles": {
-    "description": "Empty folder message when the network listing contains no directories or supported audio files"
-  },
-  "networkConnectionError": "Ağ kaynağına erişilemedi. Sunucu adresini, kimlik bilgilerini ve bağlantıyı kontrol edip yeniden deneyin.",
-  "@networkConnectionError": {
-    "description": "Fallback network access error when the failure has no more specific classification"
-  },
   "extensionAccountTitle": "Eklenti hesabı",
   "extensionAccountInvalidForm": "Eklenti geçersiz bir hesap formu döndürdü.",
   "extensionAccountRestartLogin": "Devam etmek için hesap oturumunu yeniden başlatın.",
@@ -1767,7 +1599,6 @@
   "@trackDeleteConfirmTitle": {
     "description": "Delete confirmation title"
   },
-  "trackDeleteNetworkConfirmMessage": "Bu işlem dosyayı ağ depolamanızdan kalıcı olarak siler ve kitaplığınızdan ve geçmişinizden kaldırır.",
   "snackbarDeleteTracksFailed": "{count} {count, plural, =1{parça} other{parça}} silinemedi. Depolama erişimini kontrol edip tekrar deneyin.",
   "@snackbarDeleteTracksFailed": {
     "placeholders": {
@@ -3800,14 +3631,6 @@
   "downloadAllowLocalNetwork": "Yerel ağ erişimine izin ver",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadAllowLocalNetworkEnabled": "Yerel/özel adreslere yapılan isteklere izin verilir (yerel proxy veya özel DNS için)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "Güvenlik nedeniyle yerel/özel adresler engellenir",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
   },
   "downloadSelectServiceToEnable": "Bu seçeneği etkinleştirmek için kalite seçenekleri sunan bir sağlayıcı seçin",
   "@downloadSelectServiceToEnable": {
@@ -6546,7 +6369,6 @@
   "audioInfoLocation": "Konum",
   "audioInfoLocationLocal": "Cihaz depolaması",
   "audioInfoLocationShared": "Paylaşılan klasör",
-  "audioInfoLocationNetwork": "Ağ depolaması",
   "audioInfoPcmRate": "Sıkıştırılmamış veri hızı",
   "audioInfoFrequencyRange": "Frekans aralığı",
   "audioInfoFrequencyRangeValue": "En fazla {frequency} (Nyquist)",

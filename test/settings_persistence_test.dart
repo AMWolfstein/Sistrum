@@ -177,8 +177,8 @@ void main() {
     final notifier = container.read(settingsProvider.notifier);
     final first = notifier.useAppFolderStorage('/output/first');
     await preferences.whenStarted(0);
-    final second = notifier.setNetworkDownloadFolder('remote:first', 'First');
-    final third = notifier.setNetworkDownloadFolder('remote:latest', 'Latest');
+    final second = notifier.useAppFolderStorage('/output/second');
+    final third = notifier.useAppFolderStorage('/output/latest');
     var firstCompleted = false;
     var secondCompleted = false;
     var thirdCompleted = false;
@@ -194,9 +194,7 @@ void main() {
     preferences.release(0).complete(true);
     await preferences.whenStarted(1);
     expect(preferences.writes.length, 2);
-    expect(preferences.writes.last['networkDownloadFolder'], 'remote:latest');
-    expect(preferences.writes.last['networkDownloadLabel'], 'Latest');
-    expect(preferences.writes.last['downloadDirectory'], '/output/first');
+    expect(preferences.writes.last['downloadDirectory'], '/output/latest');
     expect(
       [firstCompleted, secondCompleted, thirdCompleted],
       [false, false, false],
@@ -223,10 +221,7 @@ void main() {
       final notifier = container.read(settingsProvider.notifier);
       final first = notifier.useAppFolderStorage('/output/first');
       await preferences.whenStarted(0);
-      final queued = notifier.setNetworkDownloadFolder(
-        'remote:queued',
-        'Queued',
-      );
+      final queued = notifier.useAppFolderStorage('/output/queued');
       preferences.release(0).completeError(StateError('settings_save_failed'));
       await Future.wait([first, queued]);
       expect(
@@ -241,7 +236,6 @@ void main() {
       final retry = notifier.useAppFolderStorage('/output/retry');
       await preferences.whenStarted(1);
       expect(preferences.writes.last['downloadDirectory'], '/output/retry');
-      expect(preferences.writes.last['networkDownloadFolder'], 'remote:queued');
       preferences.release(1).complete(true);
       await retry;
     },

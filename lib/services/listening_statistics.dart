@@ -39,7 +39,7 @@ class ListeningTrack {
     album: row['album'] as String,
     artwork:
         durableCoverReference(
-          normalizeStoredCoverReference(row['artwork'] as String?),
+          normalizeCoverReference(row['artwork'] as String?),
         ) ??
         fallbackArtwork,
   );

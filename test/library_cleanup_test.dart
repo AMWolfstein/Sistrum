@@ -160,7 +160,6 @@ void main() {
       final covers = await Directory('${alias.path}/library_covers').create();
       final stored = '${canonical.path}/library_covers';
       await File('${covers.path}/cover_a.jpg').writeAsBytes([1]);
-      await File('${covers.path}/network_cover_b.image').writeAsBytes([2]);
       final database = await SqliteProcessDatabase.open(
         path: '${root.path}/local_library.db',
       );
@@ -174,7 +173,6 @@ void main() {
         ('local', '/music/a.flac', '$stored/cover_a.jpg', 4),
         ('saf', 'content://tree/b.flac', '${covers.path}/cover_b.png', 4),
         ('posix', '/music/f.flac', '$stored/cover_f.jpg', 4),
-        ('network', 'network://nas/b.flac', '$stored/x.image', 4),
         ('download', '/music/c.flac', '${root.path}/downloads/c.jpg', 4),
         ('named', '/music/d.flac', null, 0),
         ('sibling', '/music/e.flac', '${stored}_old/e.jpg', 4),
@@ -203,7 +201,6 @@ void main() {
           'local': -1,
           'saf': -1,
           'posix': -1,
-          'network': 1000,
           'download': 1000,
           'named': -1,
           'sibling': 1000,

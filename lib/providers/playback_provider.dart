@@ -31,11 +31,8 @@ class PlaybackController extends Notifier<PlaybackState> {
   @override
   PlaybackState build() => const PlaybackState();
 
-  Future<bool> _useInternalPlayer({String? source}) async {
-    final mode = ref.read(settingsProvider).playerMode;
-    if (mode != 'internal' && source?.startsWith('network://') != true) {
-      return false;
-    }
+  Future<bool> _useInternalPlayer() async {
+    if (ref.read(settingsProvider).playerMode != 'internal') return false;
     return await ref.read(musicPlayerControllerProvider).ensureInitialized() !=
         null;
   }
@@ -57,7 +54,7 @@ class PlaybackController extends Notifier<PlaybackState> {
       throw Exception(cueVirtualTrackRequiresSplitMessage);
     }
 
-    if (await _useInternalPlayer(source: path)) {
+    if (await _useInternalPlayer()) {
       _log.d('Playing "$title" in the internal player: $path');
       await ref
           .read(musicPlayerControllerProvider)
@@ -152,7 +149,7 @@ class PlaybackController extends Notifier<PlaybackState> {
     required int startIndex,
     required String externalPath,
   }) async {
-    if (await _useInternalPlayer(source: externalPath)) {
+    if (await _useInternalPlayer()) {
       final items = queue.toList(growable: false);
       if (items.isEmpty) return;
       final i = startIndex.clamp(0, items.length - 1);
@@ -174,8 +171,6 @@ class PlaybackController extends Notifier<PlaybackState> {
     if (tracks.isEmpty) return;
 
     final safeStart = startIndex.clamp(0, tracks.length - 1);
-    List<String?>? resolvedPaths;
-    String? networkSource;
     if (ref.read(settingsProvider).playerMode != 'internal') {
       var skippedCueVirtualTrack = false;
       // External playback opens one file. Resolve only candidates actually
@@ -188,28 +183,18 @@ class PlaybackController extends Notifier<PlaybackState> {
           skippedCueVirtualTrack = true;
           continue;
         }
-        if (path.startsWith('network://')) {
-          // Network identities require the internal proxy-aware player.
-          networkSource = path;
-          resolvedPaths = await resolveTrackFilePaths(tracks);
-          break;
-        }
         await openFile(path);
         return;
       }
-      if (resolvedPaths == null) {
-        throw Exception(
-          skippedCueVirtualTrack
-              ? cueVirtualTrackRequiresSplitMessage
-              : 'No local audio file is available to open. Download the track first.',
-        );
-      }
+      throw Exception(
+        skippedCueVirtualTrack
+            ? cueVirtualTrackRequiresSplitMessage
+            : 'No local audio file is available to open. Download the track first.',
+      );
     }
-    resolvedPaths ??= await resolveTrackFilePaths(tracks);
+    final resolvedPaths = await resolveTrackFilePaths(tracks);
 
-    if (await _useInternalPlayer(
-      source: networkSource ?? resolvedPaths[safeStart],
-    )) {
+    if (await _useInternalPlayer()) {
       final queue = <PlayableMedia>[];
       int? initialIndex;
       var skippedCueVirtualTrack = false;

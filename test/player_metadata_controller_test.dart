@@ -266,29 +266,6 @@ void main() {
     expect(controller.qualityLabel, 'MP3  ·  44.1 kHz  ·  320 kbps');
   });
 
-  test(
-    'network metadata uses logical source despite playback HTTP URL',
-    () async {
-      final paths = <String>[];
-      final controller = PlayerMetadataController(
-        readMetadata: (path) async {
-          paths.add(path);
-          return {'lyrics': '[00:01.00]Network'};
-        },
-      );
-      addTearDown(controller.dispose);
-      await controller.load(
-        _item(
-          'network',
-          source: 'network://library/song.flac',
-          resolved: 'http://127.0.0.1/playback',
-        ),
-      );
-      expect(paths, ['network://library/song.flac']);
-      expect(controller.lyrics.lines.single.text, 'Network');
-    },
-  );
-
   test('failed probes retain quality metadata and may retry', () async {
     var reads = 0;
     final controller = PlayerMetadataController(

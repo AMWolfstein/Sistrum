@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:isolate';
-import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/services/app_state_database.dart';
@@ -245,14 +244,7 @@ Future<({int deleted, List<String> errors})> _pruneCoversInWorker(
 ) async {
   final directory = Directory(path);
   final cutoff = DateTime.now().subtract(minimumAge);
-  final references = {
-    ...referencedPaths,
-    for (final path in referencedPaths)
-      if (_subsonicCoverPointer(path) case final pointer?) ...[
-        pointer,
-        '$path.etag',
-      ],
-  };
+  final references = {...referencedPaths};
   // Native scans may return canonical paths while Dart lists a directory alias.
   final retainedPaths = {...references};
   for (final path in references) {
@@ -306,24 +298,11 @@ Future<int> clearLibraryCoverFiles(
     (txn) => txn.rawUpdate(
       'UPDATE library SET audio_metadata_scan_version = ? '
       'WHERE audio_metadata_scan_version > ? '
-      r"AND cover_path GLOB '*[/\]library_covers[/\]*' "
-      "AND file_path NOT LIKE 'network://%'",
+      r"AND cover_path GLOB '*[/\]library_covers[/\]*'",
       [libraryLyricsMetadataScanVersion, libraryLyricsMetadataScanVersion],
     ),
     exclusive: true,
   );
-}
-
-final _subsonicCover = RegExp(r'^subsonic_([0-9a-fA-F]{64})(?:_.*)?\.image$');
-
-/// A Subsonic cover (`subsonic_<hash>.image`, or `subsonic_<hash>_<id>.image`
-/// after a refresh) is found again through `subsonic_<hash>.image.current`.
-/// Its ETag stays beside it in `<cover>.etag`.
-String? _subsonicCoverPointer(String path) {
-  final hash = _subsonicCover.firstMatch(p.basename(path))?.group(1);
-  return hash == null
-      ? null
-      : p.join(p.dirname(path), 'subsonic_$hash.image.current');
 }
 
 /// Pages by stable ID (not OFFSET, since rows are removed during traversal).

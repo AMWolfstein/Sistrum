@@ -8,20 +8,10 @@ void main() {
     trackName: 'Song',
     artistName: 'Artist',
     albumName: 'Album',
-    filePath: 'network://source/Album/song.flac',
+    filePath: '/music/Album/song.flac',
     coverPath: cover,
     scannedAt: DateTime(2026),
   );
-
-  test('scanned network artwork remains fetchable in the player queue', () {
-    const reference = 'network://source/Album/cover.jpg';
-    final media = playableFromLocal(song(reference));
-    expect(media.coverReference, reference);
-    final item = media.toMediaItem();
-    expect(item.artUri, isNull);
-    expect(item.extras?['artworkRef'], reference);
-    expect(normalizeArtUri(reference), reference);
-  });
 
   test('scanned artwork keeps existing URIs and escapes local paths once', () {
     const path = '/music/covers/cover #1.jpg';

@@ -11,7 +11,6 @@ import 'package:sistrum/services/audio_analysis_cache.dart';
 import 'package:sistrum/services/audio_analysis_ffmpeg.dart';
 import 'package:sistrum/services/audio_analysis_models.dart';
 import 'package:sistrum/services/audio_analysis_runner.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
@@ -151,10 +150,7 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
         requestId == _spectrogramRequestId;
 
     try {
-      final cached = await AudioAnalysisDiskCache.loadFromCache(
-        expectedPath,
-        _runner.networkInput,
-      );
+      final cached = await AudioAnalysisDiskCache.loadFromCache(expectedPath);
       if (cached != null && isCurrentRequest()) {
         final unsupported = unsupportedAudioAnalysisCodecLabel(cached.codec);
         if (unsupported != null) {
@@ -175,10 +171,6 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
           expectedPath,
           channel: _spectrogramChannel,
         );
-        if (image == null &&
-            NetworkAudioAnalysisInput.isNetwork(expectedPath)) {
-          return; // Opening metadata must not fetch the complete remote audio.
-        }
         image ??= await _generateAndCacheSpectrogram(
           filePath: expectedPath,
           analysisData: cached,
@@ -257,10 +249,7 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
 
       final cached = forceRefresh
           ? null
-          : await AudioAnalysisDiskCache.loadFromCache(
-              sourcePath,
-              _runner.networkInput,
-            );
+          : await AudioAnalysisDiskCache.loadFromCache(sourcePath);
       _checkAnalysisRequest(requestId);
       AudioAnalysisData data;
       ui.Image? image;

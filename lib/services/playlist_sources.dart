@@ -49,7 +49,7 @@ String? _visiblePath(String filePath) {
 String? libraryFolderPath(String filePath) {
   final path = _visiblePath(filePath);
   if (path == null) return null;
-  if (isContentUri(filePath.trim()) || path.startsWith('network://')) {
+  if (isContentUri(filePath.trim())) {
     final folder = p.posix.dirname(path);
     return folder == '.' ? '' : folder;
   }

@@ -188,7 +188,6 @@ abstract final class LibrarySchema {
       await db.rawUpdate(
         'UPDATE library SET audio_metadata_scan_version = ? '
         'WHERE audio_metadata_scan_version >= ? '
-        "AND file_path NOT LIKE 'network://%' "
         "AND (LOWER(format) IN ('opus', 'ogg', 'vorbis') "
         "OR LOWER(file_path) LIKE '%.opus' "
         "OR LOWER(file_path) LIKE '%.ogg')",

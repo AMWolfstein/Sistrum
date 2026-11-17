@@ -84,7 +84,6 @@ Future<bool> confirmRemoveTrackFromDevice(
   WidgetRef ref, {
   required String filePath,
   required bool offlineCopy,
-  required bool networkItem,
   required bool Function() isActive,
   LocalLibraryItem? cueItem,
 }) async {
@@ -94,8 +93,6 @@ Future<bool> confirmRemoveTrackFromDevice(
     title: l10n.trackDeleteConfirmTitle,
     message: offlineCopy
         ? l10n.offlineRemoveMessage
-        : networkItem
-        ? l10n.trackDeleteNetworkConfirmMessage
         : l10n.trackDeleteConfirmMessage,
     confirmLabel: l10n.dialogDelete,
     destructive: true,

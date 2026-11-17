@@ -81,7 +81,7 @@ mixin CollectionTrackActions<T extends ConsumerStatefulWidget>
   Future<void> deleteSelectedMedia(List<PlayableMedia> media) async {
     final paths = {
       for (final item in media)
-        if (!item.isNetwork && !isCueVirtualPath(item.source)) item.source,
+        if (!isCueVirtualPath(item.source)) item.source,
     }.toList();
     if (paths.isEmpty || _trackActionInProgress) return;
     final container = ProviderScope.containerOf(context, listen: false);
@@ -142,11 +142,7 @@ class CollectionTrackSelectionActions extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final hasSelection = selectedCount > 0;
-    final localCount = media
-        .where((item) => !item.isNetwork)
-        .map((item) => item.source)
-        .toSet()
-        .length;
+    final localCount = media.map((item) => item.source).toSet().length;
     final canPlay = media.isNotEmpty && !inProgress;
 
     return Column(

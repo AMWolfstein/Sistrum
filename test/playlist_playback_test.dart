@@ -330,7 +330,7 @@ void main() {
       ..paths.addAll({
         'First': files.first.path,
         'Selected': files.last.path,
-        'Last': 'network://example/song.flac',
+        'Last': '${folder.path}/album.cue#track02',
       });
     final library = _Library();
     final history = _History();
@@ -896,24 +896,4 @@ void main() {
       containsPair('uri', 'content://library/last'),
     );
   });
-
-  test(
-    'external mode routes a network fallback to the internal queue',
-    () async {
-      container.read(settingsProvider.notifier).setPlayerMode('external');
-      playback.paths['Selected'] = 'network://storage/track.flac';
-      await container
-          .read(playbackProvider.notifier)
-          .playTrackList(_tracks, startIndex: 1);
-      expect(
-        player.queue[player.index!].source,
-        'network://storage/track.flac',
-      );
-      expect(playback.resolvedRequests.take(2), [
-        ['Unavailable'],
-        ['Selected'],
-      ]);
-      expect(playback.resolvedRequests.last, _tracks.map((track) => track.id));
-    },
-  );
 }

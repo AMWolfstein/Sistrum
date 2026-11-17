@@ -58,20 +58,12 @@ class _Player {
   _Player({
     bool gapless = false,
     bool android = false,
-    Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess = checkFileAccess,
-  }) : this._(
-         gapless,
-         android,
-         recoverMissingFile,
-         fileAccess,
-         _SessionStore(),
-       );
+  }) : this._(gapless, android, fileAccess, _SessionStore());
 
   _Player._(
     bool gapless,
     bool android,
-    Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess,
     this.session,
   ) : runtime = MusicPlayerRuntime(
@@ -85,7 +77,6 @@ class _Player {
         dependencies: PlaybackDependencies(
           isAndroid: android,
           synchronizePlaybackState: () async {},
-          recoverMissingFile: recoverMissingFile ?? (_) async => null,
           fileAccess: fileAccess,
           sessionDatabase: session,
           recoverMovedDownload: (_, _, _) async => null,
@@ -153,7 +144,6 @@ void main() {
   Future<_Player> player({
     bool gapless = false,
     bool android = false,
-    Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess = checkFileAccess,
   }) async {
     if (android) {
@@ -166,7 +156,6 @@ void main() {
     final player = _Player(
       gapless: gapless,
       android: android,
-      recoverMissingFile: recoverMissingFile,
       fileAccess: fileAccess,
     );
     addTearDown(() async {
@@ -434,29 +423,6 @@ void main() {
   }
 
   test(
-    'a runtime error on a network stream never probes or removes it',
-    () async {
-      const source = 'https://example.com/song.flac';
-      final p = await player(
-        fileAccess: (_) async => throw StateError('Must not probe a stream'),
-      );
-      await p.handler.setQueueAndPlay([
-        PlayableMedia(
-          id: 'stream',
-          source: source,
-          title: 'Song',
-          artist: 'Artist',
-        ),
-        await song('next.flac'),
-      ]);
-      await native.error('music-player');
-      await waitUntil(() => p.handler.playbackState.value.errorMessage != null);
-      expect(p.handler.mediaItem.value?.id, 'stream');
-      expect(p.handler.queue.value, hasLength(2));
-    },
-  );
-
-  test(
     'a late missing-file probe cannot remove a newer playback request',
     () async {
       final probing = Completer<void>();
@@ -482,29 +448,6 @@ void main() {
       expect(p.handler.mediaItem.value?.id, next.id);
       expect(p.handler.queue.value, hasLength(2));
       expect(native.resumedSources, [first.source, next.source]);
-    },
-  );
-
-  test(
-    'a recovered local file plays before considering a missing skip',
-    () async {
-      final gone = await song('gone.flac');
-      final recovered = await song('recovered.flac');
-      await File(gone.source).delete();
-      native.sourceFailures.add(gone.source);
-      final p = await player(
-        recoverMissingFile: (path) async =>
-            path == gone.source ? recovered.source : null,
-      );
-      await p.handler.setQueueAndPlay([gone, await song('next.flac')]);
-
-      expect(p.handler.mediaItem.value?.id, gone.id);
-      expect(native.resumedSources, [recovered.source]);
-      expect(p.handler.playbackState.value.errorMessage, isNull);
-      await native.error('music-player');
-      await waitUntil(() => p.handler.playbackState.value.errorMessage != null);
-      expect(p.handler.mediaItem.value?.id, gone.id);
-      expect(p.handler.queue.value, hasLength(2));
     },
   );
 

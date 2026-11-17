@@ -14,12 +14,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
         fileMetadata = result;
       }
     } catch (e) {
-      if (sourcePath.startsWith('network://')) {
-        if (context.mounted && sourcePath == cleanFilePath) {
-          showAppSnackBar(context, content: Text(context.friendlyError(e)));
-        }
-        return;
-      }
       debugPrint('readFileMetadata failed, using item data: $e');
     }
 
@@ -82,14 +76,11 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
             _lyricsEmbedded = false;
           }
         });
-        if (_isNetworkItem) await _syncNetworkLibraryMetadata(refreshed);
       } catch (_) {
-        // A network row that was not rewritten is reported as stale.
-        if (_isNetworkItem) indexed = false;
         if (mounted && sourcePath == cleanFilePath) _setState(() {});
       }
       if (!mounted || sourcePath != cleanFilePath) return;
-      if (!_isNetworkItem) indexed = await _reconcileLocalRow(tags);
+      indexed = await _reconcileLocalRow(tags);
       if (!mounted || sourcePath != cleanFilePath) return;
       ScaffoldMessenger.of(this.context).showSnackBar(
         SnackBar(
@@ -100,13 +91,12 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
           ),
         ),
       );
-      if (!_isNetworkItem) await _refreshEmbeddedCoverPreview(force: true);
+      await _refreshEmbeddedCoverPreview(force: true);
       if (!mounted || sourcePath != cleanFilePath) return;
       _markMetadataChanged();
-      // A local (non-network) row is rewritten by the reconcile, so the
-      // explicit/hasLyrics write below is skipped for every local row, including
-      // on the stale path. A network row still syncs explicit and lyrics here.
-      if (!_isLocalItem || _isNetworkItem) await _syncDownloadHistoryMetadata();
+      // A local row is rewritten by the reconcile, so the explicit/hasLyrics
+      // write below only runs for rows that are not in the library.
+      if (!_isLocalItem) await _syncDownloadHistoryMetadata();
     }
   }
 
@@ -137,39 +127,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
       'upc': val('upc', upc),
       'lyrics': val('lyrics', null),
     };
-  }
-
-  Future<void> _syncNetworkLibraryMetadata(
-    Map<String, dynamic> metadata,
-  ) async {
-    final item = _localLibraryItem;
-    if (item == null || !_isNetworkItem) return;
-    final name = Uri.parse(item.filePath).pathSegments.last;
-    var coverPath = item.coverPath;
-    final cover = metadata['cover_path'];
-    if (cover is String && cover.isNotEmpty) {
-      try {
-        coverPath = await promoteNetworkLibraryCover(
-          cover,
-          '${(await getApplicationSupportDirectory()).path}/library_covers',
-        );
-      } catch (error) {
-        _log.w('Could not retain the edited network cover: $error');
-      }
-    }
-    final row = {
-      ...item.toJson(),
-      ...networkLibraryRow(item.filePath, NetworkEntry(name, name), metadata),
-      'coverPath': coverPath,
-      // Force the next scan to verify the newly written remote file.
-      'networkFileVersion': null,
-    };
-    await LibraryDatabase.instance.upsertBatchExcludingHistory([
-      row,
-    ], sourceId: item.sourceId);
-    if (!mounted || cleanFilePath != item.filePath) return;
-    _setState(() => _currentLocalLibraryItem = LocalLibraryItem.fromJson(row));
-    await ref.read(localLibraryProvider.notifier).reloadFromStorage();
   }
 
   /// Rewrites the saved local file's library row; false when the index is stale.
@@ -204,7 +161,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
         ref,
         filePath: filePath,
         offlineCopy: _downloadItem?.originFilePath != null,
-        networkItem: _isNetworkItem,
         cueItem: _isCueVirtualTrack ? _localLibraryItem : null,
         isActive: () => mounted && filePath == cleanFilePath,
       );

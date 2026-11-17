@@ -8,7 +8,6 @@ import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/screens/settings/download_fallback_extensions_page.dart';
-import 'package:sistrum/services/local_network_access.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -229,23 +228,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                   onChanged: (value) => ref
                       .read(settingsProvider.notifier)
                       .setNetworkCompatibilityMode(value),
-                ),
-                SettingsSwitchItem(
-                  title: context.l10n.downloadAllowLocalNetwork,
-                  subtitle: settings.allowLocalNetwork
-                      ? context.l10n.downloadAllowLocalNetworkEnabled
-                      : context.l10n.downloadAllowLocalNetworkDisabled,
-                  value: settings.allowLocalNetwork,
-                  onChanged: (value) {
-                    ref
-                        .read(settingsProvider.notifier)
-                        .setAllowLocalNetwork(value);
-                    // Android 17 also gates extension sockets to LAN hosts.
-                    if (value) {
-                      LocalNetworkAccess.instance.ensureGranted().ignore();
-                    }
-                  },
-                  showDivider: false,
                 ),
               ],
             ),

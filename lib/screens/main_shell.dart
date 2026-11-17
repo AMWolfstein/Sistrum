@@ -14,7 +14,6 @@ import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/playback_notification_provider.dart';
 import 'package:sistrum/providers/repo_provider.dart';
@@ -138,9 +137,6 @@ class _MainShellState extends ConsumerState<MainShell>
       _initialSafRepairComplete = true;
       if (!mounted) return;
       unawaited(_restorePlayback());
-      // Library menus are built synchronously and offer an upload only once
-      // the writable connections are known.
-      ref.read(networkUploadConnectionsProvider);
       _setupAudioOpenListener();
       await _checkSafMigration();
       if (!mounted) return;

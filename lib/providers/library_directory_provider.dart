@@ -8,7 +8,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_directory_index.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 
 /// Libraries up to this many songs are arranged on the UI isolate, where a
 /// background isolate would cost more than the work itself.
@@ -35,23 +34,10 @@ final libraryDirectoryIndexProvider =
       final entries = rows
           .map(LibraryDirectoryEntry.fromRow)
           .toList(growable: false);
-      final networkNames = <String, String>{};
-      if (entries.any((entry) => entry.path.startsWith('network://'))) {
-        try {
-          for (final connection
-              in await NetworkStorageService.instance.connections()) {
-            networkNames[connection.id] = connection.name;
-          }
-        } catch (_) {
-          // Roots fall back to the connection id.
-        }
-      }
       if (entries.length <= _backgroundIndexThreshold) {
-        return LibraryDirectoryIndex.build(entries, networkNames: networkNames);
+        return LibraryDirectoryIndex.build(entries);
       }
-      return Isolate.run(
-        () => LibraryDirectoryIndex.build(entries, networkNames: networkNames),
-      );
+      return Isolate.run(() => LibraryDirectoryIndex.build(entries));
     });
 
 /// Reads the Library records of folder songs, in the order given.

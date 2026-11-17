@@ -25,12 +25,10 @@ internal object CoverProviderFiles {
     }
 
     /**
-     * The app's cover folders that media browser lists name: covers the
-     * cover store fetched, Library thumbnails (scanned, Subsonic and other
-     * network covers), and embedded artwork read from downloaded songs.
+     * The app's cover folders that media browser lists name: Library
+     * thumbnails and embedded artwork read from downloaded songs.
      */
     fun folders(files: File, cache: File): Map<String, Folder> = mapOf(
-        "covers" to Folder(File(files, "covers"), listOf(".image")),
         "library_covers" to Folder(File(files, "library_covers"), listOf(".jpg", ".png", ".image")),
         "embedded_cover_previews" to Folder(File(cache, "embedded_cover_previews"), listOf(".jpg")),
     )

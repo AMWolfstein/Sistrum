@@ -44,7 +44,6 @@ void main() {
                   ref,
                   filePath: file.path,
                   offlineCopy: false,
-                  networkItem: false,
                   isActive: isActive ?? () => true,
                 );
               },

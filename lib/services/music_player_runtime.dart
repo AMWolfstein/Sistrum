@@ -11,7 +11,6 @@ import 'package:sistrum/services/autoplay_personalization.dart';
 import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sistrum/services/autoplay_taste.dart';
 import 'package:sistrum/services/background_favorites.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/library_collections_database.dart';
@@ -23,9 +22,6 @@ import 'package:sistrum/services/media_session_art_cache.dart';
 import 'package:sistrum/services/media_session_filter.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
-import 'package:sistrum/services/network_playback_cache.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/playback_notification.dart';
@@ -34,7 +30,6 @@ import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/services/system_volume_service.dart';
 import 'package:sistrum/utils/logger.dart';
-import 'package:sistrum/utils/file_access.dart' show fileExists;
 
 final _log = AppLogger('MusicPlayerRuntime');
 
@@ -50,12 +45,6 @@ class PlaybackDependencies {
     this.createPreviewDeck = _createPreviewDeck,
     this.audioSession = _getAudioSession,
     this.readMetadata = PlatformBridge.readFileMetadata,
-    this.readNetworkMetadata = _readNetworkMetadata,
-    this.resolveNetworkSource = _resolveNetworkSource,
-    this.offlineCopy = _offlineCopy,
-    this.networkCache = _networkCache,
-    this.networkSourceReachable = _networkSourceReachable,
-    this.recoverMissingFile = _recoverMissingFile,
     this.fileAccess = checkFileAccess,
     this.recoverMovedDownload = _recoverMovedDownload,
     this.initializeHandler = _initializeAudioHandler,
@@ -69,7 +58,6 @@ class PlaybackDependencies {
     HistoryDatabase? historyDatabase,
     LibraryCollectionsDatabase? collectionsDatabase,
     ListeningRecorder? recorder,
-    CoverStore? coverStore,
     SourceDeletionEvents? sourceDeletionEvents,
     SourceMetadataEvents? sourceMetadataEvents,
     Stream<double>? volumeChanges,
@@ -79,7 +67,6 @@ class PlaybackDependencies {
        _historyDatabase = historyDatabase,
        _collectionsDatabase = collectionsDatabase,
        _recorder = recorder,
-       _coverStore = coverStore,
        _sourceDeletionEvents = sourceDeletionEvents,
        _sourceMetadataEvents = sourceMetadataEvents,
        _volumeChanges = volumeChanges,
@@ -92,23 +79,6 @@ class PlaybackDependencies {
   final Future<AudioSession> Function() audioSession;
   final Future<Map<String, dynamic>> Function(String, {String? displayName})
   readMetadata;
-  final Future<Map<String, dynamic>> Function(String) readNetworkMetadata;
-  final Future<String> Function(String) resolveNetworkSource;
-  final Future<String?> Function(String) offlineCopy;
-
-  /// The local copies of network songs around the one playing; null plays
-  /// every network song from its server.
-  final NetworkPlaybackCache? Function() networkCache;
-
-  /// Whether a `network://` Library song can play now, as autoplay asks
-  /// before queueing it.
-  final Future<bool> Function(String) networkSourceReachable;
-
-  /// What plays in place of a local song file that is gone but can be
-  /// fetched again, such as a song a paired phone sent that the received
-  /// folder pruned: a path, or a URL streaming it as it arrives. Null for
-  /// any other path; throws when it cannot be fetched.
-  final Future<String?> Function(String) recoverMissingFile;
   final Future<FileAccessCheck> Function(String) fileAccess;
   final Future<String?> Function(
     String source,
@@ -131,7 +101,6 @@ class PlaybackDependencies {
   final HistoryDatabase? _historyDatabase;
   final LibraryCollectionsDatabase? _collectionsDatabase;
   final ListeningRecorder? _recorder;
-  final CoverStore? _coverStore;
   final SourceDeletionEvents? _sourceDeletionEvents;
   final SourceMetadataEvents? _sourceMetadataEvents;
   final Stream<double>? _volumeChanges;
@@ -146,7 +115,6 @@ class PlaybackDependencies {
   LibraryCollectionsDatabase get collectionsDatabase =>
       _collectionsDatabase ?? LibraryCollectionsDatabase.instance;
   ListeningRecorder get recorder => _recorder ?? listeningRecorder;
-  CoverStore get coverStore => _coverStore ?? CoverStore.instance;
   SourceDeletionEvents get sourceDeletionEvents =>
       _sourceDeletionEvents ?? SourceDeletionEvents.instance;
   SourceMetadataEvents get sourceMetadataEvents =>
@@ -165,25 +133,6 @@ class PlaybackDependencies {
   static Future<AudioSession> _getAudioSession() => AudioSession.instance;
   static SongAnalysis _createSongAnalysis(LibraryDatabase library) =>
       SongAnalysis(library: library);
-  static Future<Map<String, dynamic>> _readNetworkMetadata(String source) =>
-      NetworkMetadataService.instance.read(source);
-  static Future<String> _resolveNetworkSource(String source) =>
-      NetworkStorageService.instance.resolve(source);
-  static Future<String?> _offlineCopy(String source) async {
-    final row = await HistoryDatabase.instance.findOfflineCopy(source);
-    final path = row?['filePath'] as String?;
-    return path != null && await fileExists(path) ? path : null;
-  }
-
-  static NetworkPlaybackCache? _networkCache() => NetworkPlaybackCache.instance;
-
-  static Future<bool> _networkSourceReachable(String source) =>
-      NetworkStorageService.instance.reachable(source);
-  static Future<String?> _recoverMissingFile(String path) async {
-    final sources = NetworkStorageService.instance.virtualSources;
-    return sources is NetworkLocalCopies ? sources.recover(path) : null;
-  }
-
   static Future<String?> _recoverMovedDownload(
     String source,
     String historyId,
@@ -270,9 +219,6 @@ class MusicPlayerRuntime {
   PlaybackNotification _notification = const PlaybackNotification();
   Future<bool> Function(MediaItem)? _toggleFavorite;
   StreamSubscription<MediaItem?>? _backgroundFavorites;
-  final _arriving = <String, ({String url, Future<void> done})>{};
-  bool _coversPrepared = false;
-  static const _coverTrimDelay = Duration(minutes: 2);
 
   TagCreditScope? _tagCredits;
 
@@ -291,7 +237,6 @@ class MusicPlayerRuntime {
           rules: TagCreditRules.fromSettings(_settings.tagCredits),
         ),
     strings: () => appLocalizationsFor(_settings.locale),
-    covers: dependencies.coverStore,
   );
 
   AppSettings get settings => _settings;
@@ -340,23 +285,6 @@ class MusicPlayerRuntime {
   /// soon after it starts.
   void startSongAnalysis() {
     if (!_disposed) songAnalysis.start(mediaItemEvents());
-  }
-
-  /// Reads which network covers are stored, so songs show theirs from the
-  /// start, then trims the stored covers once, a while later.
-  void prepareCovers() {
-    if (_coversPrepared || _disposed) return;
-    _coversPrepared = true;
-    final covers = dependencies.coverStore;
-    unawaited(
-      () async {
-        await covers.warmUp();
-        await Future<void>.delayed(_coverTrimDelay);
-        if (!_disposed) await covers.trim();
-      }().catchError((Object error) {
-        _log.w('Could not trim stored covers: $error');
-      }),
-    );
   }
 
   void updateStrings({
@@ -494,31 +422,6 @@ class MusicPlayerRuntime {
     await restoreSession();
     await handler?.recoverRestoredArtwork();
   }
-
-  /// Plays the local file [path], still being written (a song a paired
-  /// phone is sending), from [url] until [done] completes, so it starts
-  /// before the file is whole.
-  void streamWhileArriving(
-    String path, {
-    required String url,
-    required Future<void> done,
-  }) {
-    final entry = (url: url, done: done);
-    _arriving[path] = entry;
-    unawaited(
-      done.then<void>((_) {}, onError: (Object _) {}).whenComplete(() {
-        if (identical(_arriving[path], entry)) _arriving.remove(path);
-      }),
-    );
-  }
-
-  /// The stream and completion of [path] while it is still arriving.
-  ({String url, Future<void> done})? arrivingFile(String path) =>
-      _arriving[path];
-
-  /// Whether [url] streams a file that is still arriving.
-  bool streamsArrivingFile(String url) =>
-      _arriving.values.any((entry) => entry.url == url);
 
   /// The default runtime lives for the app lifetime. Scoped runtimes close
   /// subscriptions and reject new initialization when their owner disposes.

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 
 class HiResOriginalRestoreException implements Exception {
   const HiResOriginalRestoreException(this.backupPath, this.cause);
@@ -106,16 +105,7 @@ class HiResCheckService {
 
   /// Runs the check; throws on failure. `supported == false` for formats
   /// the Rust checker cannot decode (anything but FLAC and PCM WAV).
-  static Future<HiResCheckResult> check(
-    String filePath, {
-    NetworkAudioAnalysisInput? networkInput,
-  }) async {
-    if (NetworkAudioAnalysisInput.isNetwork(filePath)) {
-      return (networkInput ?? NetworkAudioAnalysisInput()).withFile(
-        filePath,
-        (path) => check(path),
-      );
-    }
+  static Future<HiResCheckResult> check(String filePath) async {
     final json = await PlatformBridge.checkHiResAuthenticity(filePath);
     final error = json['error'];
     if (error != null) throw StateError(error.toString());

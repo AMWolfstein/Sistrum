@@ -88,3 +88,20 @@ Deferred, with the reason:
 - `AudioRouteInfo.kt` labels the remote-submix route as "cast": a route classification, not the Cast feature; not changed.
 
 Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3612 passed, 10 skipped, 0 failed after setup_screen_recovery_test moved to 5 steps (3/5, 4/5) on Android 17.
+
+## M004-T006 Remove network storage (SMB, WebDAV, Subsonic)
+
+Removed: the network storage services and their helpers (`lib/services/network_*`, `local_network_access.dart`), the network providers, screen and action widgets, the offline and upload providers, and the player and library branches for `network://` sources (playback, prefetch, cover fetch, tag reads, metadata saves, audio analysis, ISRC duplicates, directory roots, queue filters, delete paths). `CoverStore` is now a local-only resolver (`file()`, `localCoverPath`, `durableCoverReference`); the network fetch, index, trim and adopt machinery is gone. The track page menu lost save-offline, upload and delete-server-copies. Setup and settings lost the NAS folder entries and the network storage page. The Android `LocalNetworkPlugin.kt`, its registration, `ACCESS_LOCAL_NETWORK`, and the `libsmb2` license entry and asset are removed. Packages `dart_smb2`, `synchronized` and `html` are removed from `pubspec.yaml` (no import left). The SMB fixture scripts, `NETWORK_STORAGE.md` and the SMB rows of `test/README.md` are removed. 82 unreferenced `network*`, `subsonic*`, `offline*` and related ARB keys are removed in all ARB files. Network-only tests are removed (SMB listing, NAS scan and reconnect, cover store, network cover, subsonic and offline-copy behaviour); surviving tests are updated for the new behaviour (download failure counts, playlist deletion, directory index, ISRC duplicates, schema v19 rows).
+
+Deferred, with the reason:
+- `networkDownloadFolder`, `networkDownloadLabel` on `AppSettings` and the `DownloadItem` field, and the download queue's staging reads: download engine, T007.
+- `networkCompatibilityMode` and `allowLocalNetwork`: still synced to the backend as extension HTTP options (`setNetworkCompatibilityOptions`, `setAllowPrivateNetwork`), removed with the extension system and the Rust network crate, T009 and T010.
+- `originFilePath`, `originAvailable`, `OfflineCopy` fields in the history model and the `originSource` field of `PlayableMedia`: download history, T008.
+- `test/fixtures/network_tls` and `motion_artwork_proxy_test`: motion artwork, T007.
+- `library_schema.dart` migration columns (`network_file_version`) and `library_row_mapper` mapping: schema history, removed with the schema reset in T011.
+- Rust `network_tags.rs`, `native_listing.rs`, and the `network` crate: T010.
+- Existing user databases may still hold `network://` rows and `network_file_version` values. The guards that hid them are gone (availability probe, file existence check, queue filters), so such rows read as missing. Cleanup is left to the T011 schema reset (no existing users).
+- The retry gate in `music_player_failures.dart` no longer excludes local files with a download-history origin (`originSource`). Retrying those is harmless; the field itself goes with T008.
+- Kotlin unit test `CoverProviderFilesTest` updated for the two remaining folders. It could not run in this container (Gradle plugins not cached offline, no Android SDK), so it is unverified here and must run in CI.
+
+Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; `flutter pub get --offline` ok; full `flutter test` 3183 passed, 0 failed (JSON count excluding hidden and `loading` entries).

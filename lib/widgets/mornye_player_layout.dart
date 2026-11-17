@@ -21,7 +21,6 @@ import 'package:sistrum/widgets/player_lyric_preview.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
 import 'package:sistrum/widgets/player_lyrics_controls.dart';
 import 'package:sistrum/widgets/player_metadata_title.dart';
-import 'package:sistrum/widgets/playback_source_label.dart';
 import 'package:sistrum/widgets/player_playback_controls.dart';
 import 'package:sistrum/widgets/player_track_swipe.dart';
 
@@ -543,12 +542,6 @@ class MornyePlayerLayout extends ConsumerWidget {
                                   alpha: 0.72,
                                 ),
                               ),
-                            ),
-                          ),
-                          PlaybackSourceLabel(
-                            item: mediaItem,
-                            color: colorScheme.onSurface.withValues(
-                              alpha: 0.72,
                             ),
                           ),
                         ],

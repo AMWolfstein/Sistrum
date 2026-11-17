@@ -2,174 +2,6 @@
   "linkFileReading": "Đang đọc thẻ...",
   "trackBpm": "BPM",
   "trackMood": "Tâm trạng",
-  "subsonicAddToLibrary": "Thêm máy chủ vào Thư viện",
-  "subsonicLibraryAdded": "Máy chủ đã được thêm vào Thư viện ",
-  "subsonicLibraryDescription": "Đồng bộ danh mục và ảnh bìa máy chủ vào Thư viện. Nhạc vẫn nằm trên máy chủ của bạn. Quét lại trong cài đặt Thư viện cục bộ để cập nhật danh mục.",
-  "subsonicAuthentication": "Xác thực",
-  "subsonicToken": "Salted token",
-  "subsonicPasswordAuth": "Mật khẩu",
-  "subsonicApiKey": "Khoá API",
-  "subsonicUsername": "Tên người dùng",
-  "subsonicPassword": "Mật khẩu",
-  "subsonicSearch": "Tìm kiếm nhạc trên máy chủ...",
-  "subsonicMoreAlbums": "Thêm album",
-  "subsonicErrorApi": "Máy chủ không hỗ trợ phiên bản API hoặc phương thức xác thực này. Kiểm tra cài đặt máy chủ và phương thức đăng nhập đã chọn.",
-  "networkDownloadDestination": "Điểm đến tải xuống từ mạng",
-  "@networkDownloadDestination": {
-    "description": "Files settings item that opens network storage to choose a folder for downloaded music"
-  },
-  "networkUseForDownloads": "Tải nhạc về thư mục này",
-  "@networkUseForDownloads": {
-    "description": "Action to select the current network folder as the download destination; also the settings subtitle when no network destination is selected"
-  },
-  "networkDownloadSelected": "Đích lưu tải xuống đã chọn",
-  "@networkDownloadSelected": {
-    "description": "Status label replacing the download destination action when the current network folder is already selected"
-  },
-  "networkUseLocalDownloads": "Sử dụng thư mục tải xuống trên máy",
-  "@networkUseLocalDownloads": {
-    "description": "Files settings action that clears the network download destination and returns downloads to the local folder"
-  },
-  "networkDownloadAccessFailed": "Không thể ghi dữ liệu vào thư mục này.",
-  "@networkDownloadAccessFailed": {
-    "description": "Snackbar prefix when the write-access check fails while selecting a network download folder; followed by a specific network error message"
-  },
-  "networkUploading": "Đang tải lên ổ đĩa mạng",
-  "@networkUploading": {
-    "description": "Download queue status during upload of prepared audio to the network destination; a progress percentage may follow"
-  },
-  "networkDownloadDescription": "Chuẩn bị bài hát trên thiết bị này rồi tải lên NAS của bạn. Hãy giữ ứng dụng mở cho đến khi tải lên hoàn tất. Khi thử lại, ứng dụng sẽ dùng lại tệp âm thanh đã chuẩn bị. Tệp đã có sẽ được giữ nguyên; tệp mới trùng tên sẽ được đánh số thứ tự kèm theo.",
-  "@networkDownloadDescription": {
-    "description": "Help below the network download destination action explaining local preparation, upload, retry behavior, and preservation of existing files; NAS means network-attached storage"
-  },
-  "networkAddToLibrary": "Thêm thư mục vào Thư viện",
-  "@networkAddToLibrary": {
-    "description": "Action that adds the current network folder as a Library source and starts scanning it"
-  },
-  "networkLibraryAdded": "Đã thêm thư mục vào Thư viện",
-  "@networkLibraryAdded": {
-    "description": "Status label replacing the add-to-Library action after the network folder has been added as a source; does not mean scanning has finished"
-  },
-  "networkLibraryDescription": "Quét thư mục này cùng các thư mục con. Tệp nhạc vẫn nằm trên máy chủ của bạn; chỉ Metadata và ảnh bìa được lưu trên thiết bị này. Bạn có thể quản lý hoặc quét lại trong cài đặt Thư viện trên máy.",
-  "@networkLibraryDescription": {
-    "description": "Help below the add-to-Library action explaining recursive scanning, local metadata and artwork storage, and management in Local Library settings"
-  },
-  "networkStorage": "Ổ đĩa mạng",
-  "@networkStorage": {
-    "description": "Title and navigation label for the screen used to manage network connections and browse remote music folders"
-  },
-  "networkErrorUnreachable": "Không thể kết nối tới máy chủ. Hãy kiểm tra xem điện thoại đã vào đúng mạng và  dịch vụ chia sẻ tệp đã bật chưa. Với giao thức SMB, cổng 445 phải mở.",
-  "@networkErrorUnreachable": {
-    "description": "Network access error for an unreachable server, with connection troubleshooting and the SMB port requirement"
-  },
-  "networkErrorTimeout": "Máy chủ không phản hồi. Hãy kiểm tra lại kết nối mạng và thử lại.",
-  "@networkErrorTimeout": {
-    "description": "Network access error when a server operation exceeds its time limit"
-  },
-  "networkErrorAuthentication": "Máy chủ từ chối đăng nhập. Hãy kiểm tra lại tên đăng nhập, mật khẩu và tên miền. Để trống ô Domain trừ khi máy chủ của bạn bắt buộc.",
-  "@networkErrorAuthentication": {
-    "description": "Network access error when the server rejects credentials; domain refers to the optional SMB authentication domain"
-  },
-  "networkErrorPermission": "Tài khoản này không có quyền mở thư mục chia sẻ này. Hãy kiểm tra quyền đọc của tài khoản trên máy chủ.",
-  "@networkErrorPermission": {
-    "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
-  },
-  "networkErrorLocalPermission": "Không cho phép truy cập mạng cục bộ. Hãy bật thiết bị lân cận cho Sistrum trong phần cài đặt ứng dụng Android, sau đó thử lại.",
-  "@networkErrorLocalPermission": {
-    "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
-  },
-  "networkErrorShare": "Không tìm thấy thư mục chia sẻ. Với SMB, hãy nhập tên thư mục chia sẻ ngay sau địa chỉ máy chủ, ví dụ: smb://server/Music/.",
-  "@networkErrorShare": {
-    "description": "Network access error for a missing share or folder; share means an SMB shared folder and the example illustrates its URL path"
-  },
-  "networkErrorProtocol": "Máy chủ và trình kết nối SMB không thống nhất được giao thức hỗ trợ. Vui lòng bật SMB2 hoặc SMB3 trên máy chủ. SMB1 không được hỗ trợ.",
-  "@networkErrorProtocol": {
-    "description": "Network access error for incompatible SMB protocol versions; preserve the version names SMB1, SMB2, and SMB3"
-  },
-  "networkErrorAddress": "Hãy kiểm tra lại địa chỉ máy chủ. Dùng định dạng smb://server/share/ cho SMB, hoặc địa chỉ http:// hay https:// cho WebDAV và HTTP.",
-  "@networkErrorAddress": {
-    "description": "Network access error for an invalid address, with URL scheme examples for SMB, WebDAV, and HTTP connections"
-  },
-  "networkConnections": "Kết nối đã lưu",
-  "@networkConnections": {
-    "description": "Section heading above the list of saved network storage connections"
-  },
-  "networkServer": "Máy chủ",
-  "@networkServer": {
-    "description": "Connection form section heading above the display name and server or audio URL fields"
-  },
-  "networkCredentials": "Đăng nhập (không bắt buộc)",
-  "@networkCredentials": {
-    "description": "Connection form section heading for optional server credentials"
-  },
-  "networkRefresh": "Tải lại",
-  "@networkRefresh": {
-    "description": "Toolbar tooltip for reloading saved connections or the current network folder listing"
-  },
-  "networkStorageDescription": "Kết nối với NAS hoặc máy chủ nhạc của bạn để duyệt thư mục. Thông tin đăng nhập được lưu bảo mật trên thiết bị này.",
-  "@networkStorageDescription": {
-    "description": "Introduction shown in the empty connections screen and connection form, explaining remote folder browsing and secure local credential storage; NAS means network-attached storage"
-  },
-  "networkAddConnection": "Thêm kết nối",
-  "@networkAddConnection": {
-    "description": "Action label, toolbar tooltip, and form title for adding a network storage connection"
-  },
-  "networkEditConnection": "Sửa kết nối",
-  "@networkEditConnection": {
-    "description": "Edit button tooltip and form title for changing an existing network storage connection"
-  },
-  "networkConnectionName": "Tên",
-  "@networkConnectionName": {
-    "description": "Required connection form field for a user-chosen display name identifying the saved connection"
-  },
-  "networkAddress": "Địa chỉ máy chủ hoặc URL âm thanh",
-  "@networkAddress": {
-    "description": "Required connection form field for the server or direct audio URL, using the scheme appropriate to the selected protocol"
-  },
-  "networkProtocol": "Giao thức",
-  "@networkProtocol": {
-    "description": "Connection form section heading for choosing SMB, WebDAV, or HTTP / HTTPS"
-  },
-  "networkUsername": "Tên đăng nhập (không bắt buộc)",
-  "@networkUsername": {
-    "description": "Optional connection form field for the server account username"
-  },
-  "networkPassword": "Mật khẩu (không bắt buộc)",
-  "@networkPassword": {
-    "description": "Optional connection form field for the server account password, with input characters hidden"
-  },
-  "networkDomain": "Tên miền/Domain (không bắt buộc)",
-  "@networkDomain": {
-    "description": "Optional connection form field shown only for SMB; refers to the authentication domain, not the server's internet domain name"
-  },
-  "networkConnectSave": "Kết nối & lưu",
-  "@networkConnectSave": {
-    "description": "Connection form action that checks access to the network source before saving the connection"
-  },
-  "networkErrorCertificate": "Không thể xác minh chứng chỉ HTTPS của máy chủ. Hãy sửa kết nối này để kiểm tra và tin cậy chứng chỉ, hoặc kiểm tra lại cấu hình HTTPS trên máy chủ.",
-  "@networkErrorCertificate": {
-    "description": "Network access error for HTTPS certificate verification failure, directing the user to review the certificate in the connection form; unrelated to SMB authentication"
-  },
-  "networkCertificatePrompt": "Máy chủ này sử dụng chứng chỉ HTTPS chưa được xác thực. Các thiết bị định tuyến (Router) và ổ mạng NAS thường dùng chứng chỉ tự ký (self-signed). Hãy kiểm tra kỹ địa chỉ máy chủ và mã vân tay SHA-256 trước khi chọn tin cậy. Việc tin cậy chỉ áp dụng riêng cho chứng chỉ này trên máy chủ đó; nếu chứng chỉ thay đổi sẽ cần xác nhận lại.",
-  "@networkCertificatePrompt": {
-    "description": "Connection form warning shown above the HTTPS origin and certificate SHA-256 fingerprint; approval trusts only that fingerprint for this connection's HTTPS origin, not a global certificate authority or an SMB server"
-  },
-  "networkTrustCertificate": "Tin cậy chứng chỉ này và thử lại",
-  "@networkTrustCertificate": {
-    "description": "Action approving the displayed certificate SHA-256 fingerprint for this connection's HTTPS origin and retrying connect-and-save; does not grant global certificate trust"
-  },
-  "networkRemoveConnection": "Xóa kết nối",
-  "@networkRemoveConnection": {
-    "description": "Connection form action that removes the saved connection and its credentials, without deleting files on the server"
-  },
-  "networkNoFiles": "Không tìm thấy tệp nhạc hoặc thư mục được hỗ trợ nào.",
-  "@networkNoFiles": {
-    "description": "Empty folder message when the network listing contains no directories or supported audio files"
-  },
-  "networkConnectionError": "Không thể truy cập nguồn mạng. Hãy kiểm tra lại địa chỉ máy chủ, thông tin đăng nhập và kết nối mạng rồi thử lại.",
-  "@networkConnectionError": {
-    "description": "Fallback network access error when the failure has no more specific classification"
-  },
   "extensionAccountTitle": "Tài khoản tiện ích mở rộng",
   "extensionAccountInvalidForm": "Tiện ích mở rộng trả về biểu mẫu tài khoản không hợp lệ.",
   "extensionAccountRestartLogin": "Hãy khởi động lại bước đăng nhập tài khoản để tiếp tục.",
@@ -1767,7 +1599,6 @@
   "@trackDeleteConfirmTitle": {
     "description": "Delete confirmation title"
   },
-  "trackDeleteNetworkConfirmMessage": "Thao tác này sẽ xóa vĩnh viễn tệp nhạc khỏi ổ đĩa mạng (NAS) của bạn, đồng thời gỡ khỏi thư viện và lịch sử.",
   "snackbarDeleteTracksFailed": "Không thể xóa {count} {count, plural, =1{track} other{tracks}}. Check storage access and try again.",
   "@snackbarDeleteTracksFailed": {
     "placeholders": {
@@ -3800,14 +3631,6 @@
   "downloadAllowLocalNetwork": "Cho phép truy cập mạng nội bộ",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadAllowLocalNetworkEnabled": "Cho phép kết nối tới địa chỉ mạng nội bộ/riêng tư (dành cho proxy nội bộ hoặc DNS tùy chỉnh)",
-  "@downloadAllowLocalNetworkEnabled": {
-    "description": "Subtitle when allow local network access is on"
-  },
-  "downloadAllowLocalNetworkDisabled": "Đã chặn truy cập địa chỉ mạng nội bộ/riêng tư để đảm bảo an toàn bảo mật",
-  "@downloadAllowLocalNetworkDisabled": {
-    "description": "Subtitle when allow local network access is off"
   },
   "downloadSelectServiceToEnable": "Hãy chọn một nguồn có hỗ trợ tùy chọn chất lượng để bật tính năng này",
   "@downloadSelectServiceToEnable": {
@@ -6546,7 +6369,6 @@
   "audioInfoLocation": "Vị trí",
   "audioInfoLocationLocal": "Bộ nhớ thiết bị",
   "audioInfoLocationShared": "Thư mục chia sẻ",
-  "audioInfoLocationNetwork": "Ổ đĩa mạng (NAS)",
   "audioInfoPcmRate": "Tốc độ dữ liệu không nén",
   "audioInfoFrequencyRange": "Dải tần số",
   "audioInfoFrequencyRangeValue": "Tối đa {frequency} (Nyquist)",

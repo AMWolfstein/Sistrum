@@ -375,14 +375,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.5"
-  dart_smb2:
-    dependency: "direct main"
-    description:
-      name: dart_smb2
-      sha256: da6393b629259625041cac96941b6929e6e5e36d82f7944a0bb10c4e9f79663e
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.3"
   dart_style:
     dependency: transitive
     description:
@@ -701,7 +693,7 @@ packages:
     source: hosted
     version: "2.2.0"
   html:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: html
       sha256: "43b67b8f43321ab066817dfac5619596c98bb1b61624e77203bb4351785f9699"
@@ -1391,7 +1383,7 @@ packages:
     source: hosted
     version: "0.3.1"
   synchronized:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: synchronized
       sha256: b3d516dbd3757ff2a458735e4f6cbac9ff261f576f6e87bcb17feabb39e657c5

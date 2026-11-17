@@ -77,30 +77,6 @@ Future<void> _pump(WidgetTester tester, List<UnifiedLibraryItem> items) async {
 }
 
 void main() {
-  test('album delete leaves server copies to the server options', () {
-    final local = _items().first;
-    final server = UnifiedLibraryItem.fromDownloadHistory(
-      DownloadHistoryItem(
-        id: 'server',
-        trackName: 'Server',
-        artistName: 'Artist',
-        albumName: 'Album',
-        filePath: 'network://server/server.flac',
-        service: 'example-provider',
-        downloadedAt: DateTime(2026),
-        duration: 180,
-      ),
-    );
-
-    final picked = deletableLibraryItems(
-      [local, server],
-      {local.id, server.id},
-    );
-
-    expect(picked.map((item) => item.id), [local.id]);
-    expect(deletableLibraryItems([server], {server.id}), isEmpty);
-  });
-
   testWidgets(
     'library album header offers compact Play and Shuffle beside Love and Add to playlist, no Download',
     (tester) async {

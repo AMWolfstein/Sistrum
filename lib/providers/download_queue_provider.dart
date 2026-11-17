@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
-import 'package:sistrum/services/network_download_staging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/download_item.dart';
@@ -674,7 +673,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     final id = _newQueueItemId(track, takenIds: takenIds);
     final item = DownloadItem(
       id: id,
-      track: queuedDownloadTrack(track),
+      track: track,
       service: _normalizeQueuedService(service),
       createdAt: DateTime.now(),
       qualityOverride: qualityOverride,
@@ -708,7 +707,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       newItems.add(
         DownloadItem(
           id: id,
-          track: queuedDownloadTrack(track),
+          track: track,
           service: normalizedService,
           createdAt: DateTime.now(),
           preserveQualityVariant: settings.allowQualityVariants,
@@ -778,7 +777,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         newItems.add(
           DownloadItem(
             id: id,
-            track: queuedDownloadTrack(track),
+            track: track,
             service: normalizedService ??= _normalizeQueuedService(service),
             createdAt: DateTime.now(),
             qualityOverride: qualityOverride,
@@ -1026,31 +1025,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     if (wasFailed) {
       _retriggerAlbumRgChecks();
     }
-    if (item.status != DownloadStatus.downloading &&
-        item.status != DownloadStatus.finalizing &&
-        item.networkDownloadFolder.isNotEmpty) {
-      unawaited(
-        NetworkDownloadStaging.instance.discard(id).catchError((Object e) {
-          _log.w('Could not remove network staging: $e');
-        }),
-      );
-    }
   }
 
   void clearAll() {
-    for (final item in state.items) {
-      if (item.networkDownloadFolder.isNotEmpty &&
-          item.status != DownloadStatus.downloading &&
-          item.status != DownloadStatus.finalizing) {
-        unawaited(
-          NetworkDownloadStaging.instance.discard(item.id).catchError((
-            Object e,
-          ) {
-            _log.w('Could not clear network staging: $e');
-          }),
-        );
-      }
-    }
     final wasProcessing = state.isProcessing;
     final activeIds = state.items
         .where(
@@ -1563,10 +1540,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     var settings = ref.read(settingsProvider);
     updateSettings(settings);
     var isSafMode = _isSafMode(settings);
-    final networkOnlyQueue = state.items
-        .where((item) => item.status == DownloadStatus.queued)
-        .every((item) => item.networkDownloadFolder.isNotEmpty);
-    if (!networkOnlyQueue && settings.useExtensionProviders) {
+    if (settings.useExtensionProviders) {
       // Cold browser callbacks and restored downloads share initialization.
       // An empty list while loading must not be treated as removed providers.
       await ref.read(extensionProvider.notifier).ensureInitialized();
@@ -1579,9 +1553,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     // Validate SAF before handing the batch to either queue implementation.
     // Never silently redirect a user-selected SAF destination into private app
     // storage: keep the selection intact so the UI can request access again.
-    if (!networkOnlyQueue &&
-        Platform.isAndroid &&
-        settings.storageMode == 'saf') {
+    if (Platform.isAndroid && settings.storageMode == 'saf') {
       var safAccessible = settings.downloadTreeUri.isNotEmpty;
       if (safAccessible) {
         try {
@@ -1605,7 +1577,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       }
     }
     if (Platform.isAndroid &&
-        !networkOnlyQueue &&
         !isSafMode &&
         state.outputDir.isNotEmpty &&
         !await _isDirectoryWritable(Directory(state.outputDir))) {

@@ -829,7 +829,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       ref,
       filePath: filePath,
       offlineCopy: history?.originFilePath != null,
-      networkItem: false,
       isActive: () => mounted,
     );
     if (!removed || !mounted) return;

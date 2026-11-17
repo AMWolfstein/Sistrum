@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/services/audio_analysis_models.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 
 /// On-disk analysis bundles: `{key}.json`, `{key}.png` and `{key}_ch{n}.png`
@@ -63,10 +62,7 @@ abstract final class AudioAnalysisDiskCache {
     }
   }
 
-  static Future<AudioAnalysisData?> loadFromCache(
-    String filePath,
-    NetworkAudioAnalysisInput networkInput,
-  ) async {
+  static Future<AudioAnalysisData?> loadFromCache(String filePath) async {
     try {
       final dir = await cacheDir();
       final key = cacheKey(filePath);
@@ -81,10 +77,7 @@ abstract final class AudioAnalysisDiskCache {
       }
       final cachedSize = json['fileSize'] as int;
 
-      if (NetworkAudioAnalysisInput.isNetwork(filePath)) {
-        final currentSize = await networkInput.length(filePath);
-        if (currentSize <= 0 || currentSize != cachedSize) return null;
-      } else if (!filePath.startsWith('content://')) {
+      if (!filePath.startsWith('content://')) {
         final currentSize = await File(filePath).length();
         if (currentSize != cachedSize) return null;
       } else {

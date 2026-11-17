@@ -375,11 +375,6 @@ class HistoryDatabase {
   Future<List<String>> getPhysicalFileIds(Iterable<String> filePaths) async =>
       sqlite.findPhysicalFileRowIds(await database, 'history', filePaths);
 
-  /// Origin aliases are deliberately separate from physical path keys:
-  /// deleting a server file must never delete its independent offline copy.
-  Future<Map<String, dynamic>?> findOfflineCopy(String origin) async =>
-      _firstRow(await database, 'origin_file_path = ?', [origin]);
-
   Future<Map<String, dynamic>?> getBySpotifyId(String spotifyId) async =>
       _firstRow(await database, 'spotify_id = ?', [spotifyId]);
 
