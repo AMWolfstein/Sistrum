@@ -1,9 +1,86 @@
 {
-  "missions": {},
+  "missions": {
+    "M001": {
+      "next_task": 8,
+      "nonce": "e1b93e35a1084e14acfee4be40eb7a92",
+      "path": "specs/001-sistrum-android-offline",
+      "title": "Rebrand to Sistrum and ship Android ARM64 offline"
+    }
+  },
   "next_completion": 3,
-  "next_mission": 1,
+  "next_mission": 2,
   "next_tor": 3,
   "tasks": {
+    "M001-T001": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "835926371e5b4095839973b19ecaf997",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Apply Sistrum identity across app and native contracts"
+    },
+    "M001-T002": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "79575d229d3145a8a6bb3ed037fca586",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Match Sistrum artwork to original asset layouts"
+    },
+    "M001-T003": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "0dc572c32cf04b91b449608d0d8d74e6",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Verify complete rebrand before removing features"
+    },
+    "M001-T004": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "1afd259c0376430d8aea70057dabe8fc",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Make local library and phone playback self-contained"
+    },
+    "M001-T005": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "3243313bdc6040dd9688c54ffde42c1b",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Remove online product features and dependencies"
+    },
+    "M001-T006": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "89f14c22cda042018c4cbb8399cb42c9",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Remove other platforms and enforce ARM64 packaging"
+    },
+    "M001-T007": {
+      "completion": null,
+      "final": true,
+      "kind": "T",
+      "mission": "M001",
+      "nonce": "f6c63ec7dcfa4a4f86fed98c145bbcbc",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Verify Sistrum Android offline release"
+    },
     "TOR001": {
       "completion": 1,
       "evidence": {
