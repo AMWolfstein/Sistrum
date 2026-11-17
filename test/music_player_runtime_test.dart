@@ -2788,7 +2788,7 @@ void main() {
     },
   );
 
-  test('the star loves songs until the app shell takes it over', () async {
+  test('the heart loves songs until the app shell takes it over', () async {
     final loved = _Loved();
     final runtime = _runtime(
       libraryDatabase: _BrowsedLibrary(),
@@ -2822,7 +2822,7 @@ void main() {
     expect(runtime.notification.mediaId, 'a');
     expect(runtime.notification.loved, isTrue);
 
-    // A song loved earlier shows a filled star when it starts.
+    // A song loved earlier shows a filled heart when it starts.
     loved.keys.add(keyFor('b'));
     await handler.skipToNext();
     await pumpEventQueue();

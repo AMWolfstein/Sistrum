@@ -19,7 +19,7 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 46,
+  "next_completion": 47,
   "next_mission": 4,
   "next_tor": 17,
   "tasks": {
@@ -520,13 +520,19 @@
       "title": "Port the Now Playing lyric preview (Mornye #847)"
     },
     "M003-T011": {
-      "completion": null,
+      "completion": 46,
+      "evidence": {
+        "checks": "Cumulative review of b397464..HEAD: 4 group reviews, fixes reviewed round 1 NEEDS_FIXES then round 2 PASS; analyze clean; full suite exit 0, 3897 passed 10 skipped 0 failed (scratchpad t011/full_counts.txt); owner-decision items listed in task-log",
+        "result": "PASS",
+        "reviewer": "four independent read-only reviewers plus a fix reviewer",
+        "round": 2
+      },
       "final": true,
       "kind": "T",
       "mission": "M003",
       "nonce": "45f10ab75f424eeeb70a429eb71efeef",
       "record": "specs/003-offline-library-screens/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Cumulative review"
     },
     "M003-T012": {

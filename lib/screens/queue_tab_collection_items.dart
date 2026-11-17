@@ -481,13 +481,10 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     ),
   };
 
-  /// A playlist entry that accepts dragged tracks and outlines itself while
-  /// one hovers. [builder] gets the entry's tap and long-press actions.
-  Widget _playlistDropTarget(
+  /// A playlist entry: a tap opens it, a long press starts selecting it.
+  Widget _playlistEntry(
     BuildContext context,
-    ColorScheme colorScheme,
     UserPlaylistCollection playlist,
-    List<UnifiedLibraryItem> filteredUnifiedItems,
     Widget Function(
       BuildContext context,
       VoidCallback onTap,
@@ -495,39 +492,14 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     )
     builder,
   ) {
-    return DragTarget<UnifiedLibraryItem>(
-      onWillAcceptWithDetails: (_) => !_isPlaylistSelectionMode,
-      onAcceptWithDetails: (details) {
-        _onTrackDroppedOnPlaylist(
-          context,
-          details.data,
-          playlist.id,
-          playlist.name,
-          allItems: filteredUnifiedItems,
-        );
-      },
-      builder: (context, candidateData, rejectedData) {
-        final isHovering = candidateData.isNotEmpty;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: isHovering
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.primary, width: 2),
-                  color: colorScheme.primary.withValues(alpha: 0.1),
-                )
-              : null,
-          child: builder(
-            context,
-            _isPlaylistSelectionMode
-                ? () => _togglePlaylistSelection(playlist.id)
-                : () => _openPlaylistById(playlist.id),
-            _isPlaylistSelectionMode
-                ? () => _togglePlaylistSelection(playlist.id)
-                : () => _enterPlaylistSelectionMode(playlist.id),
-          ),
-        );
-      },
+    return builder(
+      context,
+      _isPlaylistSelectionMode
+          ? () => _togglePlaylistSelection(playlist.id)
+          : () => _openPlaylistById(playlist.id),
+      _isPlaylistSelectionMode
+          ? () => _togglePlaylistSelection(playlist.id)
+          : () => _enterPlaylistSelectionMode(playlist.id),
     );
   }
 
@@ -536,7 +508,6 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     required ColorScheme colorScheme,
     required _CollectionEntry entry,
     required LibraryCollectionsState collectionState,
-    List<UnifiedLibraryItem> filteredUnifiedItems = const [],
   }) {
     if (entry.type != _CollectionEntryType.playlist) {
       final (icon, color, title, count, onTap) = _specialCollection(
@@ -556,11 +527,9 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     }
     final playlist = collectionState.playlists[entry.playlistIndex];
     final isSelected = _selectedPlaylistIds.contains(playlist.id);
-    return _playlistDropTarget(
+    return _playlistEntry(
       context,
-      colorScheme,
       playlist,
-      filteredUnifiedItems,
       (context, onTap, onLongPress) => Stack(
         children: [
           _buildCollectionGridItem(
@@ -616,7 +585,6 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     required ColorScheme colorScheme,
     required _CollectionEntry entry,
     required LibraryCollectionsState collectionState,
-    List<UnifiedLibraryItem> filteredUnifiedItems = const [],
   }) {
     if (entry.type != _CollectionEntryType.playlist) {
       final (icon, color, title, count, onTap) = _specialCollection(
@@ -639,11 +607,9 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     }
     final playlist = collectionState.playlists[entry.playlistIndex];
     final isSelected = _selectedPlaylistIds.contains(playlist.id);
-    return _playlistDropTarget(
+    return _playlistEntry(
       context,
-      colorScheme,
       playlist,
-      filteredUnifiedItems,
       (context, onTap, onLongPress) => Row(
         children: [
           if (_isPlaylistSelectionMode)

@@ -302,4 +302,24 @@ void main() {
     expect(restored.downloadFallbackExtensionIds, ['ext.a']);
     expect(restored.useExtensionProviders, isTrue);
   });
+
+  test('a restored backup keeps the player lyric preview choice', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [
+        settingsProvider.overrideWith(
+          () => _Settings.withLoader(() async => preferences),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(settingsProvider.notifier).restoreFromBackup({
+      'playerShowLyricSnippet': false,
+    });
+
+    expect(container.read(settingsProvider).playerShowLyricSnippet, isFalse);
+    final stored = jsonDecode(preferences.getString('app_settings')!) as Map;
+    expect(stored['playerShowLyricSnippet'], isFalse);
+  });
 }

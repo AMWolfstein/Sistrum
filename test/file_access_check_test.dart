@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/file_access_check.dart';
@@ -34,4 +36,15 @@ void main() {
       expect(result.stack.toString(), isNotEmpty);
     });
   }
+
+  test('uniqueFilePath skips names that are already taken', () async {
+    final directory = await Directory.systemTemp.createTemp('unique_path_');
+    addTearDown(() => directory.delete(recursive: true));
+    File('${directory.path}/Album_cover.jpg').writeAsStringSync('one');
+    File('${directory.path}/Album_cover (2).jpg').writeAsStringSync('two');
+
+    final result = await uniqueFilePath(directory.path, 'Album_cover.jpg');
+
+    expect(result, endsWith('Album_cover (3).jpg'));
+  });
 }

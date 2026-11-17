@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
@@ -106,9 +107,23 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
+/// No downloads on this device: the lookups never reach the history database.
 class _History extends DownloadHistoryNotifier {
   @override
   DownloadHistoryState build() => DownloadHistoryState();
+
+  @override
+  Future<DownloadHistoryItem?> getBySpotifyIdAsync(String spotifyId) async =>
+      null;
+
+  @override
+  Future<DownloadHistoryItem?> getByIsrcAsync(String isrc) async => null;
+
+  @override
+  Future<DownloadHistoryItem?> findByTrackAndArtistAsync(
+    String trackName,
+    String artistName,
+  ) async => null;
 }
 
 UserPlaylistCollection _playlist({
@@ -267,6 +282,25 @@ void main() {
     expect(find.byTooltip(l10n.collectionPlaylistChangeCover), findsNothing);
     expect(find.byTooltip(l10n.collectionExportM3u), findsOneWidget);
     expect(find.byTooltip(l10n.actionShuffle), findsOneWidget);
+  });
+
+  testWidgets('a Loved song whose file is gone says so and does not download', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      LibraryCollectionsState(isLoaded: true, loved: _entries),
+      const PlaylistScreen.libraryLoved(),
+    );
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(Scaffold).first),
+    );
+
+    await tester.tap(find.widgetWithText(AlbumTrackTile, 'Alpha'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.trackFileUnavailable), findsOneWidget);
+    expect(find.text(l10n.snackbarAddedToQueue('Alpha')), findsNothing);
   });
 
   testWidgets('an empty playlist shows its empty state', (tester) async {

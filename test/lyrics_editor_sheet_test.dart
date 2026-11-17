@@ -194,4 +194,21 @@ void main() {
     expect(saved, ['[00:02.00]Two']);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('a line takes the direction of the text typed into it', (
+    tester,
+  ) async {
+    await open(tester, 'Hello there');
+    final field = find.byType(TextField).first;
+    expect(tester.widget<TextField>(field).textDirection, TextDirection.ltr);
+
+    await tester.enterText(field, 'مرحبا بالعالم');
+    await tester.pump();
+    expect(tester.widget<TextField>(field).textDirection, TextDirection.rtl);
+
+    await tester.enterText(field, 'Hello again');
+    await tester.pump();
+    expect(tester.widget<TextField>(field).textDirection, TextDirection.ltr);
+    expect(tester.takeException(), isNull);
+  });
 }

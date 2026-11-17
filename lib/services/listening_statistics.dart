@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -65,6 +66,7 @@ class ListeningSummary {
     this.tracks = const [],
     this.artists = const {},
     this.days = const {},
+    this.rules = const TagCreditRules(),
   });
 
   final int milliseconds;
@@ -73,13 +75,19 @@ class ListeningSummary {
   final Map<String, int> artists;
   final Map<String, int> days;
 
+  /// The credit rules the artist names were split with.
+  final TagCreditRules rules;
+
   Map<String, String> get artistArtwork {
     final artwork = <String, String>{};
     final listeningTime = <String, int>{};
     for (final total in tracks) {
       final cover = total.track.artwork;
       if (cover == null) continue;
-      for (final artist in splitArtistTagValues(total.track.artist)) {
+      for (final artist in splitArtistTagValues(
+        total.track.artist,
+        rules: rules,
+      )) {
         if (listeningTime.containsKey(artist) &&
             total.milliseconds <= listeningTime[artist]!) {
           continue;
@@ -94,7 +102,10 @@ class ListeningSummary {
   /// A summary of daily [rows]; each song keeps its last row's details.
   /// [readListeningSummary] is the reader the app uses.
   @visibleForTesting
-  factory ListeningSummary.fromRows(List<Map<String, Object?>> rows) {
+  factory ListeningSummary.fromRows(
+    List<Map<String, Object?>> rows, {
+    TagCreditRules rules = const TagCreditRules(),
+  }) {
     final tracks = <String, ListeningTotal>{};
     final artists = <String, int>{};
     final days = <String, int>{};
@@ -113,7 +124,7 @@ class ListeningSummary {
         (tracks[key]?.milliseconds ?? 0) + time,
         (tracks[key]?.plays ?? 0) + count,
       );
-      for (final name in splitArtistTagValues(artist)) {
+      for (final name in splitArtistTagValues(artist, rules: rules)) {
         artists[name] = (artists[name] ?? 0) + time;
       }
       days[day] = (days[day] ?? 0) + time;
@@ -126,6 +137,7 @@ class ListeningSummary {
       tracks: ranked,
       artists: artists,
       days: days,
+      rules: rules,
     );
   }
 }
@@ -337,9 +349,13 @@ class ListeningStatisticsStore {
   Future<void> add(List<ListeningDelta> deltas) async =>
       writeListeningDeltas(await _open(), deltas);
 
-  Future<ListeningSummary> load(DateTime start, DateTime end) async {
+  Future<ListeningSummary> load(
+    DateTime start,
+    DateTime end, {
+    TagCreditRules rules = const TagCreditRules(),
+  }) async {
     final db = await _open();
-    return readListeningSummary(db, start, end);
+    return readListeningSummary(db, start, end, rules: rules);
   }
 
   Future<List<ListeningTotal>> loadReplayableTracks(
@@ -446,8 +462,9 @@ String _listeningTracksSql({
 Future<ListeningSummary> readListeningSummary(
   DatabaseExecutor db,
   DateTime start,
-  DateTime end,
-) async {
+  DateTime end, {
+  TagCreditRules rules = const TagCreditRules(),
+}) async {
   final arguments = [listeningDay(start), listeningDay(end)];
   final rows = await db.rawQuery(_listeningTracksSql(), arguments);
   final artistRows = await db.rawQuery('''
@@ -470,7 +487,10 @@ Future<ListeningSummary> readListeningSummary(
   // Each collaborator gets the track's time; overall totals still count once.
   final artists = <String, int>{};
   for (final row in artistRows) {
-    for (final artist in splitArtistTagValues(row['artist'] as String)) {
+    for (final artist in splitArtistTagValues(
+      row['artist'] as String,
+      rules: rules,
+    )) {
       artists[artist] = (artists[artist] ?? 0) + (row['milliseconds'] as int);
     }
   }
@@ -483,6 +503,7 @@ Future<ListeningSummary> readListeningSummary(
       for (final row in dayRows)
         row['day'] as String: row['milliseconds'] as int,
     },
+    rules: rules,
   );
 }
 

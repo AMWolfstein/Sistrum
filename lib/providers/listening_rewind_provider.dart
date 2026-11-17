@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/services/listening_rewind.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 
@@ -8,11 +9,13 @@ final listeningRewindProvider = FutureProvider.autoDispose
     .family<ListeningRewind, ListeningRewindPeriod>((ref, period) async {
       await listeningRecorder.flush();
       final range = ListeningRewindRange.of(period, DateTime.now());
+      final rules = ref.watch(tagCreditRulesProvider);
       return ListeningStatisticsStore.instance.read(
         (db) => readListeningRewind(
           db,
           range,
           yearly: period == ListeningRewindPeriod.year,
+          rules: rules,
         ),
       );
     });

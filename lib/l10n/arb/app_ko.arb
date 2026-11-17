@@ -896,18 +896,6 @@
   "@dialogDownload": {
     "description": "Confirm button in Download All dialog"
   },
-  "previewPlay": "미리듣기 재생",
-  "@previewPlay": {
-    "description": "Tooltip for the button that plays a short track preview snippet"
-  },
-  "previewStop": "미리듣기 중지",
-  "@previewStop": {
-    "description": "Tooltip for the button that stops the playing track preview snippet"
-  },
-  "previewUnavailable": "미리듣기를 사용할 수 없음",
-  "@previewUnavailable": {
-    "description": "Snackbar shown when a track preview snippet cannot be played"
-  },
   "dialogDiscard": "폐기",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -3631,15 +3619,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "이미 '{playlistName}'에 있음",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "재생목록 이름",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -3699,24 +3678,6 @@
   "collectionRemoveFromFolder": "폴더에서 제거",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "'{trackName}'이 '좋아요 표시한 음악'에 추가됨",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "'{trackName}'이 '좋아요 표시한 음악'에서 제거됨",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "collectionAddedToFavoriteArtists": "'{artistName}'가 좋아하는 아티스트에 추가됨",
   "@collectionAddedToFavoriteArtists": {
@@ -5666,33 +5627,6 @@
       }
     }
   },
-  "collectionAddedTracksToPlaylist": "''{playlistName}''에 {count} 개의 {count, plural, =1{트랙} other{트랙}}이 추가됨",
-  "@collectionAddedTracksToPlaylist": {
-    "description": "Snackbar after adding multiple tracks to a playlist",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedTracksToPlaylistWithExisting": "''{playlistName}''에 {count} 개의 {count, plural, =1{트랙} other{트랙}}이 추가됨 ({alreadyCount} 개의 트랙은 이미 재생목록에 있음)",
-  "@collectionAddedTracksToPlaylistWithExisting": {
-    "description": "Snackbar after adding multiple tracks to a playlist when some were already present",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      },
-      "alreadyCount": {
-        "type": "int"
-      }
-    }
-  },
   "itemCount": "{count} 개의 {count, plural, =1{항목} other{항목}}",
   "@itemCount": {
     "description": "Generic item count label",
@@ -6806,18 +6740,6 @@
         "type": "int"
       }
     }
-  },
-  "trackOptionCopyTrackName": "트랙 제목 복사",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "아티스트 복사",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "트랙 및 아티스트 복사",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
   },
   "metadataCopyValue": "값 복사",
   "@metadataCopyValue": {

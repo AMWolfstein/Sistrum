@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as p;
 import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
@@ -216,4 +217,19 @@ Future<void> openFile(String path) async {
   if (result.type != ResultType.done) {
     throw Exception(result.message);
   }
+}
+
+/// [fileName] in [directory], with a " (n)" suffix when it already exists.
+Future<String> uniqueFilePath(String directory, String fileName) async {
+  var candidate = p.join(directory, fileName);
+  if (!await File(candidate).exists()) return candidate;
+
+  final extension = p.extension(fileName);
+  final stem = p.basenameWithoutExtension(fileName);
+  var counter = 2;
+  while (await File(candidate).exists()) {
+    candidate = p.join(directory, '$stem ($counter)$extension');
+    counter++;
+  }
+  return candidate;
 }

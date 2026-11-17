@@ -203,17 +203,25 @@ class PlayerLyricsSection extends ConsumerWidget {
                     onShareLyrics!(null);
                   },
             child: LyricsTextScale(
-              child: Text(
-                metadata.lyrics.plainText,
-                textDirection: lyricTextDirection(
-                  metadata.lyrics.plainText,
-                  Directionality.of(context),
-                ),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  height: 1.6,
-                  color: colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.center,
+              // Each line takes its own direction, so a bilingual song's
+              // Arabic lines are not laid out like its Latin ones.
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final line in metadata.lyrics.plainText.split('\n'))
+                    Text(
+                      line.isEmpty ? ' ' : line,
+                      textDirection: lyricTextDirection(
+                        line,
+                        Directionality.of(context),
+                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        height: 1.6,
+                        color: colorScheme.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                ],
               ),
             ),
           ),

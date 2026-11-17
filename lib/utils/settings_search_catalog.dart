@@ -430,6 +430,12 @@ class SettingsSearchCatalog {
           keywords: const ['screen timeout', 'awake', 'sleep', 'layar'],
         ),
         SettingsSearchEntry(
+          icon: Icons.short_text_outlined,
+          title: l10n.lyricsSnippetPreview,
+          subtitle: l10n.lyricsSnippetPreviewEnabled,
+          keywords: const ['lyric preview', 'snippet', 'now playing'],
+        ),
+        SettingsSearchEntry(
           icon: Icons.auto_awesome_outlined,
           title: l10n.lyricsAiTranslation,
           keywords: const [

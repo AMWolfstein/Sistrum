@@ -339,7 +339,6 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         subtitle: subtitle,
         isSelectionMode: isSelectionMode,
         isSelected: selectedIds.contains(item.id),
-        isCurrent: playback.isCurrent,
         isPlaying: playback.isPlaying,
         onToggleSelection: () => toggleSelection(item.id),
         onOpen: () => _openLibraryMetadata(item, items),
@@ -505,10 +504,12 @@ extension _AlbumLibrarySections on _AlbumScreenState {
     final container = ProviderScope.containerOf(context, listen: false);
     final libraryNotifier = ref.read(localLibraryProvider.notifier);
     final itemsById = {for (final item in items) item.id: item};
+    final deletable = deletableLibraryItems(items, selectedIds);
+    if (deletable.isEmpty) return;
 
     final deletedCount = await confirmAndDeleteTracks(
       context: context,
-      ids: selectedIds.toList(),
+      ids: [for (final item in deletable) item.id],
       deleteItem: (id) async {
         final item = itemsById[id];
         if (item == null) return false;
@@ -533,11 +534,23 @@ extension _AlbumLibrarySections on _AlbumScreenState {
       onExitSelectionMode: exitSelectionMode,
     );
 
-    if (deletedCount == items.length && mounted) {
+    if (deletedCount == deletable.length && mounted) {
       Navigator.pop(context);
     }
   }
 }
+
+/// The selected items that delete a file on this device. A server copy is
+/// deleted only by the server's own options, never from the album page.
+List<UnifiedLibraryItem> deletableLibraryItems(
+  List<UnifiedLibraryItem> items,
+  Set<String> selectedIds,
+) => [
+  for (final item in items)
+    if (selectedIds.contains(item.id) &&
+        !item.filePath.startsWith('network://'))
+      item,
+];
 
 /// Builds one track's row from its playback state, so a track change
 /// rebuilds only the rows involved. [builder] gets a callback that pauses or

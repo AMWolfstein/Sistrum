@@ -233,9 +233,6 @@ class Extension {
   bool get hasPostProcessing => postProcessing?.enabled ?? false;
   bool get hasServiceHealth => serviceHealth.isNotEmpty;
 
-  /// Suggests songs like given ones (`getRelatedTracks`).
-  bool get hasRelatedTracks => capabilities['relatedTracks'] == true;
-
   ExtensionDownloadTransferPolicy get downloadTransferPolicy =>
       ExtensionDownloadTransferPolicy.fromCapabilities(capabilities);
   bool get requiresNativeContainerConversion =>
@@ -324,24 +321,6 @@ String _resolveEffectiveProvider(
   }
 
   return enabled.firstOrNull?.id ?? '';
-}
-
-bool isDeezerCompatibleDownloadService(
-  String service,
-  ExtensionState extensionState,
-) {
-  final normalizedService = service.trim().toLowerCase();
-  if (normalizedService.isEmpty) {
-    return false;
-  }
-
-  return extensionState.extensions.any(
-    (ext) =>
-        ext.enabled &&
-        ext.hasDownloadProvider &&
-        ext.id.trim().toLowerCase() == normalizedService &&
-        ext.replacesBuiltInProviders.contains('deezer'),
-  );
 }
 
 class SearchFilter {

@@ -395,9 +395,8 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     );
   }
 
-  /// Switches wide results between rows and covers, as the extension
-  /// search's view button does; both searches share the choice. [cover] is
-  /// the layout on screen.
+  /// Switches wide results between rows and covers; the choice is shared by
+  /// every search. [cover] is the layout on screen.
   Widget _viewToggle({required bool cover}) {
     return IconButton(
       tooltip: cover
@@ -608,8 +607,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     );
   }
 
-  /// One kind, filtered, as covers in as many columns as the pane fits, as
-  /// the extension search's grid does.
+  /// One kind, filtered, as covers in as many columns as the pane fits.
   Widget _grid(LibrarySearchKind kind, List<LibrarySearchHit> hits) {
     final artist = kind == LibrarySearchKind.artists;
     return SliverPadding(
@@ -636,7 +634,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
 
   @override
   Widget build(BuildContext context) {
-    // Phones keep their rows in landscape too, as the extension search does.
+    // Phones keep their rows in landscape too.
     final coverAllowed = MediaQuery.sizeOf(context).shortestSide >= 600;
     final inset = wideListInset(context);
     return PopScope(
@@ -660,8 +658,8 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
   }
 
   /// The results. [wide] panes offer the cover layout, which the user's
-  /// search view (shared with the extension search) picks: shelves for the
-  /// overview and a grid for one kind, songs included.
+  /// search view picks: shelves for the overview and a grid for one kind,
+  /// songs included.
   List<Widget> _buildSlivers(WidgetRef ref, {required bool wide}) {
     final cover =
         wide &&

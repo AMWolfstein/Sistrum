@@ -1,3 +1,4 @@
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sqflite/sqflite.dart';
@@ -316,6 +317,7 @@ Future<ListeningYearDetails> readListeningYearDetails(
   DatabaseExecutor db,
   ListeningRewindRange range, {
   Map<String, String?> covers = const {},
+  TagCreditRules rules = const TagCreditRules(),
 }) async {
   final window = [listeningDay(range.start), listeningDay(range.end)];
   final artistDays = await db.rawQuery('''
@@ -331,7 +333,10 @@ Future<ListeningYearDetails> readListeningYearDetails(
     final month = int.parse(day.substring(5, 7));
     final time = row['milliseconds'] as int;
     final totals = monthly.putIfAbsent(month, () => <String, int>{});
-    for (final artist in splitArtistTagValues(row['artist'] as String)) {
+    for (final artist in splitArtistTagValues(
+      row['artist'] as String,
+      rules: rules,
+    )) {
       totals[artist] = (totals[artist] ?? 0) + time;
       days.putIfAbsent(artist, () => <String>{}).add(day);
       listeningTime[artist] = (listeningTime[artist] ?? 0) + time;
@@ -390,8 +395,14 @@ Future<ListeningRewind> readListeningRewind(
   DatabaseExecutor db,
   ListeningRewindRange range, {
   bool yearly = false,
+  TagCreditRules rules = const TagCreditRules(),
 }) async {
-  final summary = await readListeningSummary(db, range.start, range.end);
+  final summary = await readListeningSummary(
+    db,
+    range.start,
+    range.end,
+    rules: rules,
+  );
   // The first song and the replay read one day's row, which an older build
   // may have recorded without a usable cover; the window's cover is shown.
   final covers = {
@@ -423,7 +434,10 @@ Future<ListeningRewind> readListeningRewind(
     final firstDays = <String, String>{};
     for (final row in firstHeard) {
       final day = row['first_day'] as String;
-      for (final artist in splitArtistTagValues(row['artist'] as String)) {
+      for (final artist in splitArtistTagValues(
+        row['artist'] as String,
+        rules: rules,
+      )) {
         final previous = firstDays[artist];
         if (previous == null || day.compareTo(previous) < 0) {
           firstDays[artist] = day;
@@ -445,7 +459,7 @@ Future<ListeningRewind> readListeningRewind(
   );
   final replay = replays.isEmpty ? null : replays.first;
   final year = yearly
-      ? await readListeningYearDetails(db, range, covers: covers)
+      ? await readListeningYearDetails(db, range, covers: covers, rules: rules)
       : null;
   return ListeningRewind.compute(
     year: year,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,12 +7,15 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/settings_search_catalog.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/player_lyric_preview.dart';
@@ -41,6 +45,7 @@ Future<StreamController<PlaybackState>> _pumpPreview(
   bool disableAnimations = false,
   VoidCallback? onTap,
   ValueListenable<Duration?>? seekPreview,
+  Locale? locale,
 }) async {
   final lyrics = parsed ?? LyricsParser.parse(lrc);
   final metadata = PlayerMetadataController(
@@ -64,6 +69,7 @@ Future<StreamController<PlaybackState>> _pumpPreview(
         settingsProvider.overrideWith(() => FixedSettingsNotifier(settings)),
       ],
       child: MaterialApp(
+        locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: MornyeTheme.build(Brightness.dark),
@@ -373,5 +379,239 @@ void main() {
       );
       expect(find.text('Next line of rap'), findsOneWidget);
     });
+    testWidgets('an Arabic locale mirrors the chevron and the line order', (
+      tester,
+    ) async {
+      final playback = await _pumpPreview(
+        tester,
+        lrc: _arabicLrc,
+        locale: const Locale('ar'),
+      );
+      await _emit(tester, playback, const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+
+      // The row runs right to left, so the line sits left of the chevron's
+      // forward edge and the chevron is drawn pointing left.
+      final line = tester.getRect(find.text('كان عندك كام سنة'));
+      final chevron = tester.getRect(find.byIcon(CupertinoIcons.chevron_left));
+      expect(chevron.center.dx, lessThan(line.center.dx));
+      expect(find.byIcon(CupertinoIcons.chevron_left), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.chevron_right), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a left-to-right line under an Arabic locale follows the UI', (
+      tester,
+    ) async {
+      final playback = await _pumpPreview(tester, locale: const Locale('ar'));
+      await _emit(tester, playback, const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+
+      // Text without right-to-left script takes the layout direction.
+      final text = tester.widget<Text>(find.text('paisa mera dialect par -'));
+      expect(text.textDirection, TextDirection.rtl);
+      final line = tester.getRect(find.text('paisa mera dialect par -'));
+      final chevron = tester.getRect(find.byIcon(CupertinoIcons.chevron_left));
+      expect(line.center.dx, greaterThan(chevron.center.dx));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('shows the translation when translations are on', (
+      tester,
+    ) async {
+      const translation = 'translated line';
+      final playback = await _pumpPreview(
+        tester,
+        settings: const AppSettings(
+          playerShowLyricSnippet: true,
+          playerShowTranslation: true,
+        ),
+        parsed: const ParsedLyrics(
+          synced: true,
+          wordSynced: false,
+          lines: [
+            LyricLine(
+              time: Duration.zero,
+              end: Duration(seconds: 20),
+              text: 'original line',
+              translation: translation,
+            ),
+          ],
+          plainText: 'original line',
+        ),
+      );
+      await _emit(tester, playback, const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+      expect(find.text(translation), findsOneWidget);
+      expect(find.text('original line'), findsNothing);
+    });
+
+    testWidgets('a word-timed translation keeps its word timing', (
+      tester,
+    ) async {
+      const translation = 'translated line';
+      final playback = await _pumpPreview(
+        tester,
+        settings: const AppSettings(
+          playerShowLyricSnippet: true,
+          playerShowTranslation: true,
+        ),
+        parsed: ParsedLyrics(
+          synced: true,
+          wordSynced: true,
+          plainText: 'original line',
+          lines: [
+            LyricLine(
+              time: Duration.zero,
+              end: const Duration(seconds: 20),
+              text: 'original line',
+              words: [
+                LyricWord(
+                  time: Duration.zero,
+                  end: const Duration(seconds: 10),
+                  text: 'original ',
+                ),
+                LyricWord(
+                  time: const Duration(seconds: 10),
+                  end: const Duration(seconds: 20),
+                  text: 'line',
+                ),
+              ],
+              translation: translation,
+              translationWords: const [
+                LyricWord(
+                  time: Duration.zero,
+                  end: Duration(seconds: 10),
+                  text: 'translated ',
+                ),
+                LyricWord(
+                  time: Duration(seconds: 10),
+                  end: Duration(seconds: 20),
+                  text: 'line',
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+      await _emit(tester, playback, const Duration(seconds: 6));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // The sweep draws the translation, never the original words.
+      final sweep = tester.widget<WordTimedLyricLine>(
+        find.byType(WordTimedLyricLine),
+      );
+      expect(sweep.line.text, translation);
+      expect(sweep.line.words.map((word) => word.text), [
+        'translated ',
+        'line',
+      ]);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the original line returns when translations are off', (
+      tester,
+    ) async {
+      final playback = await _pumpPreview(
+        tester,
+        settings: const AppSettings(
+          playerShowLyricSnippet: true,
+          playerShowTranslation: false,
+        ),
+        parsed: const ParsedLyrics(
+          synced: true,
+          wordSynced: false,
+          lines: [
+            LyricLine(
+              time: Duration.zero,
+              end: Duration(seconds: 20),
+              text: 'original line',
+              translation: 'translated line',
+            ),
+          ],
+          plainText: 'original line',
+        ),
+      );
+      await _emit(tester, playback, const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+      expect(find.text('original line'), findsOneWidget);
+      expect(find.text('translated line'), findsNothing);
+    });
+
+    testWidgets('a seek preview moves the shown line while paused', (
+      tester,
+    ) async {
+      final seek = PlaybackSeekPreview();
+      addTearDown(seek.dispose);
+      await _pumpPreview(tester, seekPreview: seek);
+
+      seek.begin(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+      expect(find.text('paisa mera dialect par -'), findsOneWidget);
+
+      seek.begin(const Duration(seconds: 11));
+      await tester.pumpAndSettle();
+      expect(find.text('Next line of rap'), findsOneWidget);
+      expect(find.text('paisa mera dialect par -'), findsNothing);
+
+      seek.reset();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
   });
+
+  testWidgets(
+    'the Lyrics settings switch turns the player preview off and on',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final container = ProviderContainer(
+        overrides: [
+          initialSettingsProvider.overrideWithValue(const AppSettings()),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const LyricsSettingsPage(),
+          ),
+        ),
+      );
+      final option = find.byKey(const ValueKey('lyric-snippet-preview'));
+      await tester.scrollUntilVisible(
+        option,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      expect(container.read(settingsProvider).playerShowLyricSnippet, isTrue);
+
+      await tester.tap(option);
+      await tester.pumpAndSettle();
+      expect(container.read(settingsProvider).playerShowLyricSnippet, isFalse);
+      final prefs = await SharedPreferences.getInstance();
+      final restored = AppSettings.fromJson(
+        jsonDecode(prefs.getString('app_settings')!) as Map<String, dynamic>,
+      );
+      expect(restored.playerShowLyricSnippet, isFalse);
+
+      final l10n = AppLocalizations.of(tester.element(option));
+      expect(
+        SettingsSearchCatalog(l10n).lyrics.where(
+          (entry) =>
+              entry.title == l10n.lyricsSnippetPreview &&
+              entry.matches(SettingsSearchQuery('lyric preview')),
+        ),
+        hasLength(1),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

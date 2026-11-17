@@ -156,8 +156,8 @@ class _MornyeArtistSurfaceState extends State<MornyeArtistSurface> {
   }
 }
 
-/// Portrait and centered identity from Mornye's MobileArtistView. Actions stay
-/// supplied by the screen so remote artists retain download/favorite behavior.
+/// Portrait and centered identity from Mornye's MobileArtistView. The screen
+/// supplies the actions, so each kind of artist brings its own.
 class MornyeArtistHeader extends StatelessWidget {
   const MornyeArtistHeader({
     super.key,

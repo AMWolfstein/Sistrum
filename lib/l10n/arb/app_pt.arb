@@ -2679,15 +2679,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "Already in \"{playlistName}\"",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "Playlist name",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -2739,24 +2730,6 @@
   "collectionRemoveFromFolder": "Remove from folder",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" added to Loved",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" removed from Loved",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "trackOptionAddToLoved": "Add to Loved",
   "@trackOptionAddToLoved": {

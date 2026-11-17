@@ -80,4 +80,39 @@ void main() {
     expect(find.text('You can share up to 5 lines'), findsOneWidget);
     expect(find.text('Line 6'), findsOneWidget);
   });
+
+  testWidgets('an Arabic share card lays out right to left', (tester) async {
+    const arabic = 'كان عندك كام سنة';
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(
+          body: LyricsShareCard(
+            title: 'Track',
+            artist: 'Artist',
+            artUri: null,
+            lines: [(text: arabic, background: false)],
+            background: LyricsCardBackground.light,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.text(arabic)).textDirection,
+      TextDirection.rtl,
+    );
+    final fitted = tester.widget<FittedBox>(
+      find
+          .ancestor(of: find.text(arabic), matching: find.byType(FittedBox))
+          .first,
+    );
+    expect(fitted.alignment, Alignment.topRight);
+    expect(tester.takeException(), isNull);
+  });
 }

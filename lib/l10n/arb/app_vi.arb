@@ -896,18 +896,6 @@
   "@dialogDownload": {
     "description": "Confirm button in Download All dialog"
   },
-  "previewPlay": "Nghe thử",
-  "@previewPlay": {
-    "description": "Tooltip for the button that plays a short track preview snippet"
-  },
-  "previewStop": "Dừng nghe thử",
-  "@previewStop": {
-    "description": "Tooltip for the button that stops the playing track preview snippet"
-  },
-  "previewUnavailable": "Không có bản nghe thử",
-  "@previewUnavailable": {
-    "description": "Snackbar shown when a track preview snippet cannot be played"
-  },
   "dialogDiscard": "Hủy bỏ",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -3631,15 +3619,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "Đã có sẵn trong \"{playlistName}“",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "Tên danh sách phát",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -3699,24 +3678,6 @@
   "collectionRemoveFromFolder": "Xóa khỏi thư mục",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "“{trackName}\" đã được thêm vào Yêu thích",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "“{trackName}\" đã được xóa khỏi Yêu thích",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "collectionAddedToFavoriteArtists": "“{artistName}\" đã được thêm vào Nghệ sĩ yêu thích",
   "@collectionAddedToFavoriteArtists": {
@@ -5666,33 +5627,6 @@
       }
     }
   },
-  "collectionAddedTracksToPlaylist": "Đã thêm {count} {count, plural, =1{track} other{tracks}} to {playlistName}",
-  "@collectionAddedTracksToPlaylist": {
-    "description": "Snackbar after adding multiple tracks to a playlist",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedTracksToPlaylistWithExisting": "Đã thêm {count} {count, plural, =1{track} other{tracks}} to {playlistName} ({alreadyCount} đã có sẵn trong playlist)",
-  "@collectionAddedTracksToPlaylistWithExisting": {
-    "description": "Snackbar after adding multiple tracks to a playlist when some were already present",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      },
-      "alreadyCount": {
-        "type": "int"
-      }
-    }
-  },
   "itemCount": "{count} {count, plural, =1{mục} other{mục}}",
   "@itemCount": {
     "description": "Generic item count label",
@@ -6806,18 +6740,6 @@
         "type": "int"
       }
     }
-  },
-  "trackOptionCopyTrackName": "Sao chép tên bài hát",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Sao chép tên nghệ sĩ",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Sao chép tên bài và nghệ sĩ",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
   },
   "metadataCopyValue": "Sao chép giá trị",
   "@metadataCopyValue": {

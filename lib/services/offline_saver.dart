@@ -8,11 +8,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/services/cover_download_service.dart';
 import 'package:sistrum/services/folder_path_template.dart';
 import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/utils/file_access.dart' show deleteFile;
+import 'package:sistrum/utils/file_access.dart' show deleteFile, uniqueFilePath;
 
 /// A Library original from network storage, which this device can save.
 class OfflineSong {
@@ -429,11 +428,7 @@ class DownloadFolderDestination implements OfflineRollbackDestination {
 
   @override
   Future<void> discard(OfflineStored stored) async {
-    try {
-      await deleteFile(stored.filePath);
-    } finally {
-      
-    }
+    await deleteFile(stored.filePath);
   }
 
   @override
@@ -468,24 +463,14 @@ class DownloadFolderDestination implements OfflineRollbackDestination {
         fileName: name,
       );
     }
-    try {
-      var root = settings.downloadDirectory.trim();
-      if (root.isEmpty) {
-        root = p.join(
-          (await getApplicationDocumentsDirectory()).path,
-          'Sistrum',
-        );
-      }
-      final directory = Directory(p.joinAll([root, ...relativeDir.split('/')]));
-      await directory.create(recursive: true);
-      final target = await CoverDownloadService.uniqueFilePath(
-        directory.path,
-        fileName,
-      );
-      await file.copy(target);
-      return OfflineStored(filePath: target, storageMode: 'app');
-    } finally {
-      
+    var root = settings.downloadDirectory.trim();
+    if (root.isEmpty) {
+      root = p.join((await getApplicationDocumentsDirectory()).path, 'Sistrum');
     }
+    final directory = Directory(p.joinAll([root, ...relativeDir.split('/')]));
+    await directory.create(recursive: true);
+    final target = await uniqueFilePath(directory.path, fileName);
+    await file.copy(target);
+    return OfflineStored(filePath: target, storageMode: 'app');
   }
 }

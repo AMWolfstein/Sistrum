@@ -105,7 +105,7 @@ double homeContentInset(BuildContext context) => wideListInset(context);
 /// navigation rail, since the inset is measured on the window width.
 const double largeContentMaxWidth = 1280;
 
-/// Discography cover geometry shared by loaded cards and loading placeholders.
+/// Album tile size on the artist page, shared by loaded cards and placeholders.
 double artistAlbumTileSize(BuildContext context) {
   final scale = responsiveScale(context: context, min: 0.82, max: 1.05);
   final textScale = effectiveTextScale(context);

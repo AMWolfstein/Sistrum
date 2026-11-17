@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/services/listening_rewind.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
@@ -297,6 +298,22 @@ void main() {
       ListeningRewindSpotlight.monthly.period,
       ListeningRewindPeriod.weeks,
     );
+  });
+
+  test('keep-together names stay one artist in the statistics summary', () {
+    final rows = [
+      _row('2026-10-01', 'a', artist: 'Tyler, The Creator', minutes: 30),
+    ];
+
+    final split = ListeningSummary.fromRows(rows);
+    expect(split.artists.keys, containsAll(['Tyler', 'The Creator']));
+
+    final kept = ListeningSummary.fromRows(
+      rows,
+      rules: const TagCreditRules(keepTogether: ['Tyler, The Creator']),
+    );
+    expect(kept.artists.keys, ['Tyler, The Creator']);
+    expect(kept.artists['Tyler, The Creator'], 30 * 60000);
   });
 
   test('a year groups listening by month and counts days with music', () {

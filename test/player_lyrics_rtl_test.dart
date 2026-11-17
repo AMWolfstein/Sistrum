@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:audio_service/audio_service.dart';
@@ -7,11 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
+import 'package:sistrum/widgets/player_lyrics_section.dart';
 
 const _arabic = 'كان عندك كام سنة لما عرفت';
 const _english = 'hello there general kenobi this line wraps across rows';
@@ -254,6 +258,226 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('a wrapped right-to-left word sweeps row by row from the right', (
+    tester,
+  ) async {
+    final theme = MornyeTheme.build(Brightness.dark);
+    final scheme = theme.colorScheme.copyWith(
+      onSurface: const Color(0xFFFF0000),
+    );
+    Future<void> pumpAt(Duration position) => _pump(
+      tester,
+      ParsedLyrics(
+        synced: true,
+        wordSynced: true,
+        plainText: _arabic,
+        lines: [
+          LyricLine(
+            time: Duration.zero,
+            end: const Duration(seconds: 20),
+            text: _arabic,
+            words: [_word(_arabic, 0, 20)],
+          ),
+        ],
+      ),
+      position: position,
+      width: 140,
+      colorScheme: scheme,
+    );
+
+    await pumpAt(const Duration(seconds: 5));
+    final boxes = _firstSegmentBoxes(tester, _arabic);
+    expect(boxes.length, greaterThanOrEqualTo(2));
+    final painter = tester.widget<CustomPaint>(_paintFinder(_arabic)).painter!;
+    // ignore: avoid_dynamic_calls
+    final directions =
+        (painter as dynamic).segmentDirections as List<List<TextDirection>>;
+    // Glow and lift are on for this sweep, so the glow and feather paths run.
+    // ignore: avoid_dynamic_calls
+    expect((painter as dynamic).glowSigma as double, greaterThan(0));
+    // ignore: avoid_dynamic_calls
+    expect((painter as dynamic).highlightLift as double, greaterThan(0));
+    expect(directions.first, everyElement(TextDirection.rtl));
+    // Boxes run row by row, and right to left within each row.
+    for (var i = 1; i < boxes.length; i++) {
+      final previous = boxes[i - 1];
+      final current = boxes[i];
+      if ((current.top - previous.top).abs() < 1) {
+        expect(current.left, lessThan(previous.left));
+      } else {
+        expect(current.top, greaterThan(previous.top));
+      }
+    }
+
+    // Ink extents depend on glyph placement, so compare which rows hold any
+    // sung pixels: the sweep fills rows from the top, so the sung rows grow
+    // as a prefix that starts at the first row.
+    Set<int> sungRows(Uint8List pixels, int width) => {
+      for (var row = 0; row < boxes.length; row++)
+        if (_redExtent(pixels, width, boxes[row]) != null) row,
+    };
+    final (quarterPixels, quarterWidth) = await _paintedPixels(tester, _arabic);
+    final quarterRows = sungRows(quarterPixels, quarterWidth);
+    expect(quarterRows, contains(0));
+    expect(quarterRows, isNot(contains(boxes.length - 1)));
+
+    // Three quarters: more rows are sung, still from the top down.
+    await pumpAt(const Duration(seconds: 15));
+    final (pixels, width) = await _paintedPixels(tester, _arabic);
+    final threeQuarterRows = sungRows(pixels, width);
+    expect(threeQuarterRows, containsAll(quarterRows));
+    expect(threeQuarterRows.length, greaterThan(quarterRows.length));
+    expect(
+      threeQuarterRows,
+      equals({for (var row = 0; row < threeQuarterRows.length; row++) row}),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'a mixed Latin and Arabic word sweeps its Latin part left to right',
+    (tester) async {
+      const text = 'Hello مرحبا';
+      final theme = MornyeTheme.build(Brightness.dark);
+      final scheme = theme.colorScheme.copyWith(
+        onSurface: const Color(0xFFFF0000),
+      );
+      await _pump(
+        tester,
+        ParsedLyrics(
+          synced: true,
+          wordSynced: true,
+          plainText: text,
+          lines: [
+            LyricLine(
+              time: Duration.zero,
+              end: const Duration(seconds: 20),
+              text: text,
+              words: [_word(text, 0, 20)],
+            ),
+          ],
+        ),
+        position: const Duration(seconds: 5),
+        width: 600,
+        colorScheme: scheme,
+      );
+      final boxes = _firstSegmentBoxes(tester, text);
+      final painter = tester.widget<CustomPaint>(_paintFinder(text)).painter!;
+      // ignore: avoid_dynamic_calls
+      final directions =
+          (painter as dynamic).segmentDirections as List<List<TextDirection>>;
+      // The Latin run is first in the paragraph; the Arabic run follows it.
+      expect(boxes.length, greaterThanOrEqualTo(2));
+      expect(directions.first.first, TextDirection.ltr);
+      expect(directions.first.last, TextDirection.rtl);
+      expect(boxes.first.left, lessThan(boxes.last.left));
+
+      // A quarter of the word is sung: the red starts at the Latin run's left
+      // edge, not at the Arabic run on the right.
+      final (pixels, width) = await _paintedPixels(tester, text);
+      final latin = _redExtent(pixels, width, boxes.first);
+      expect(latin, isNotNull);
+      expect(latin!.$1, closeTo(boxes.first.left, 2));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'a mixed word in an Arabic line reveals in the order it is shown',
+    (tester) async {
+      const text = 'مرحبا Hello';
+      final theme = MornyeTheme.build(Brightness.dark);
+      final scheme = theme.colorScheme.copyWith(
+        onSurface: const Color(0xFFFF0000),
+      );
+      await _pump(
+        tester,
+        ParsedLyrics(
+          synced: true,
+          wordSynced: true,
+          plainText: text,
+          lines: [
+            LyricLine(
+              time: Duration.zero,
+              end: const Duration(seconds: 20),
+              text: text,
+              words: [_word(text, 0, 20)],
+            ),
+          ],
+        ),
+        position: const Duration(seconds: 5),
+        width: 600,
+        colorScheme: scheme,
+      );
+      final boxes = _firstSegmentBoxes(tester, text);
+      expect(boxes.length, greaterThanOrEqualTo(2));
+      // In an Arabic line the Arabic run is shown rightmost and read first.
+      expect(boxes.first.left, greaterThan(boxes.last.left));
+
+      final (pixels, width) = await _paintedPixels(tester, text);
+      final first = _redExtent(pixels, width, boxes.first);
+      expect(first, isNotNull);
+      expect(first!.$2, closeTo(boxes.first.right, 6));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('plain lyrics give each line its own direction', (tester) async {
+    const latin = 'Hello there';
+    const arabic = 'مرحبا بالعالم';
+    final metadata = PlayerMetadataController(
+      parseLyrics: (raw) async => LyricsParser.parse(raw),
+      readMetadata: (_) async => {
+        'title': 'Track',
+        'lyrics': '$latin\n$arabic',
+      },
+    );
+    addTearDown(metadata.dispose);
+    await metadata.load(
+      const MediaItem(
+        id: 'track',
+        title: 'Track',
+        extras: {'source': '/music/track.flac'},
+      ),
+    );
+    final preview = PlaybackSeekPreview();
+    addTearDown(preview.dispose);
+    tester.view.physicalSize = const Size(900, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              height: 800,
+              child: PlayerLyricsSection(
+                metadata: metadata,
+                seekPreview: preview,
+                colorScheme: const ColorScheme.dark(),
+                isActive: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.text(latin)).textDirection,
+      TextDirection.ltr,
+    );
+    expect(
+      tester.widget<Text>(find.text(arabic)).textDirection,
+      TextDirection.rtl,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Finder _paintFinder(String text) => find.descendant(
@@ -276,16 +500,14 @@ double _secondWordMid(WidgetTester tester, String text) {
   return (box.left + box.right) / 2;
 }
 
-/// Leftmost and rightmost x of the fully highlighted (red) pixels inside the
-/// second word.
-Future<(double, double)> _highlightEdges(
+/// Painted RGBA pixels of the lyric's sweep, with the painter's width.
+Future<(Uint8List, int)> _paintedPixels(
   WidgetTester tester,
   String text,
 ) async {
   final finder = _paintFinder(text);
   final size = tester.getSize(finder);
   final painter = tester.widget<CustomPaint>(finder).painter!;
-  final box = _secondWordBox(tester, text);
   final pixels = (await tester.runAsync(() async {
     final recorder = ui.PictureRecorder();
     painter.paint(Canvas(recorder), size);
@@ -297,7 +519,11 @@ Future<(double, double)> _highlightEdges(
     picture.dispose();
     return result;
   }))!;
-  final width = size.width.ceil();
+  return (pixels, size.width.ceil());
+}
+
+/// Leftmost and rightmost x of the fully red pixels inside [box], or null.
+(double, double)? _redExtent(Uint8List pixels, int width, Rect box) {
   var left = double.infinity;
   var right = double.negativeInfinity;
   for (var y = math.max(0, box.top.floor()); y < box.bottom.ceil(); y++) {
@@ -313,6 +539,26 @@ Future<(double, double)> _highlightEdges(
       }
     }
   }
-  expect(left, lessThan(right), reason: 'no highlight drawn for "$text"');
-  return (left, right);
+  return left < right ? (left, right) : null;
+}
+
+/// Leftmost and rightmost x of the fully highlighted (red) pixels inside the
+/// second word.
+Future<(double, double)> _highlightEdges(
+  WidgetTester tester,
+  String text,
+) async {
+  final box = _secondWordBox(tester, text);
+  final (pixels, width) = await _paintedPixels(tester, text);
+  final edges = _redExtent(pixels, width, box);
+  expect(edges, isNotNull, reason: 'no highlight drawn for "$text"');
+  return edges!;
+}
+
+/// The painter's boxes of the first segment, in painter order.
+List<Rect> _firstSegmentBoxes(WidgetTester tester, String text) {
+  final painter = tester.widget<CustomPaint>(_paintFinder(text)).painter!;
+  // ignore: avoid_dynamic_calls
+  final boxes = (painter as dynamic).segmentBoxes as List<List<Rect>>;
+  return boxes.first;
 }

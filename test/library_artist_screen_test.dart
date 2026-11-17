@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -246,6 +247,76 @@ void main() {
     expect(find.textContaining('Singles & EPs'), findsNothing);
     expect(find.textContaining('Compilations'), findsNothing);
     expect(find.text('Popular'), findsNothing);
+  });
+
+  testWidgets('file-path covers of a scanned album load from disk', (
+    tester,
+  ) async {
+    await _pumpLibraryArtist(
+      tester,
+      overview: LibraryArtistOverview([
+        const ArtistAlbum(
+          id: 'mix',
+          name: 'Mixtape',
+          releaseDate: '2022-03-03',
+          totalTracks: 9,
+          coverUrl: '/covers/mixtape.jpg',
+          albumType: 'album',
+          artists: _dana,
+        ),
+        const ArtistAlbum(
+          id: 'long',
+          name: 'Long Play',
+          releaseDate: '2020-05-01',
+          totalTracks: 12,
+          coverUrl: '/covers/long.jpg',
+          albumType: 'album',
+          artists: _dana,
+        ),
+      ]),
+    );
+
+    // Header and Latest Release use the newest album's file; the album tiles
+    // resize the same file.
+    bool loadsFile(Widget widget, String path) {
+      if (widget is! Image) return false;
+      final provider = widget.image;
+      final file = provider is ResizeImage ? provider.imageProvider : provider;
+      return file is FileImage && file.file.path == path;
+    }
+
+    expect(
+      find.byWidgetPredicate((w) => loadsFile(w, '/covers/mixtape.jpg')),
+      findsWidgets,
+    );
+    expect(
+      find.byWidgetPredicate((w) => loadsFile(w, '/covers/long.jpg')),
+      findsWidgets,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is CachedNetworkImage && w.imageUrl.startsWith('/covers/'),
+      ),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('an artist with only featured tracks shows Popular and '
+      'Compilations and no album sections', (tester) async {
+    await _pumpLibraryArtist(
+      tester,
+      overview: const LibraryArtistOverview([]),
+      popular: _songs,
+      featured: _guests,
+    );
+
+    expect(find.text('Popular'), findsOneWidget);
+    expect(find.text('Compilations (2)'), findsOneWidget);
+    expect(find.textContaining('Albums'), findsNothing);
+    expect(find.textContaining('Singles & EPs'), findsNothing);
+    expect(find.text('Latest Release'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('an artist without a dated album has no Latest Release', (

@@ -896,18 +896,6 @@
   "@dialogDownload": {
     "description": "Confirm button in Download All dialog"
   },
-  "previewPlay": "Reproduzir prévia",
-  "@previewPlay": {
-    "description": "Tooltip for the button that plays a short track preview snippet"
-  },
-  "previewStop": "Parar prévia",
-  "@previewStop": {
-    "description": "Tooltip for the button that stops the playing track preview snippet"
-  },
-  "previewUnavailable": "Prévia indisponível",
-  "@previewUnavailable": {
-    "description": "Snackbar shown when a track preview snippet cannot be played"
-  },
   "dialogDiscard": "Descartar",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -3631,15 +3619,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "Already in \"{playlistName}\"",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "Playlist name",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -3699,24 +3678,6 @@
   "collectionRemoveFromFolder": "Remove from folder",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" added to Loved",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" removed from Loved",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" added to Favorite Artists",
   "@collectionAddedToFavoriteArtists": {
@@ -5666,33 +5627,6 @@
       }
     }
   },
-  "collectionAddedTracksToPlaylist": "Added {count} {count, plural, =1{track} other{tracks}} to {playlistName}",
-  "@collectionAddedTracksToPlaylist": {
-    "description": "Snackbar after adding multiple tracks to a playlist",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedTracksToPlaylistWithExisting": "Added {count} {count, plural, =1{track} other{tracks}} to {playlistName} ({alreadyCount} already in playlist)",
-  "@collectionAddedTracksToPlaylistWithExisting": {
-    "description": "Snackbar after adding multiple tracks to a playlist when some were already present",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      },
-      "alreadyCount": {
-        "type": "int"
-      }
-    }
-  },
   "itemCount": "{count} {count, plural, =1{item} other{items}}",
   "@itemCount": {
     "description": "Generic item count label",
@@ -6806,18 +6740,6 @@
         "type": "int"
       }
     }
-  },
-  "trackOptionCopyTrackName": "Copy track name",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Copy artist",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Copy track and artist",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
   },
   "metadataCopyValue": "Copy value",
   "@metadataCopyValue": {

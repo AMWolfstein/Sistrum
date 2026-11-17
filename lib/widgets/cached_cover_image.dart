@@ -129,6 +129,7 @@ class LocalOrNetworkCoverImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final Alignment alignment;
   final BorderRadius? borderRadius;
   final int? localCacheWidth;
   final int? networkCacheWidth;
@@ -143,6 +144,7 @@ class LocalOrNetworkCoverImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.borderRadius,
     this.localCacheWidth,
     this.networkCacheWidth,
@@ -160,6 +162,7 @@ class LocalOrNetworkCoverImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        alignment: alignment,
         memCacheWidth: networkCacheWidth,
         borderRadius: borderRadius,
         fadeInDuration: fadeInDuration ?? Duration.zero,
@@ -222,6 +225,7 @@ class LocalOrNetworkCoverImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      alignment: alignment,
       gaplessPlayback: true,
       filterQuality: FilterQuality.low,
       frameBuilder: fadeInDuration == null

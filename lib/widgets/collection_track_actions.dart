@@ -25,7 +25,6 @@ import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:sistrum/widgets/track_detail_actions.dart';
 
 /// Play and delete for the selected songs of a saved list. The screen mixes
 /// this in so the flow keeps the screen's context: the selection bar leaves
@@ -281,8 +280,9 @@ Future<void> playCollectionTracks(
   }
 }
 
-/// Opens a saved track's metadata: the downloaded or scanned copy when there
-/// is one, otherwise a download of it.
+/// Opens a saved track's metadata from its downloaded or scanned copy. A saved
+/// track with neither has lost its file, so it says so; the Wishlist, the only
+/// place a track is downloaded, does not come here.
 Future<void> openCollectionTrackMetadata(
   BuildContext context,
   WidgetRef ref,
@@ -341,7 +341,7 @@ Future<void> openCollectionTrackMetadata(
     return;
   }
 
-  downloadSingleTrack(context, ref, track);
+  showAppSnackBar(context, content: Text(context.l10n.trackFileUnavailable));
 }
 
 /// The empty state of a saved-track list.

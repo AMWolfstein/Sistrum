@@ -871,18 +871,6 @@
   "@dialogDownload": {
     "description": "Confirm button in Download All dialog"
   },
-  "previewPlay": "Putar preview",
-  "@previewPlay": {
-    "description": "Tooltip for the button that plays a short track preview snippet"
-  },
-  "previewStop": "Hentikan preview",
-  "@previewStop": {
-    "description": "Tooltip for the button that stops the playing track preview snippet"
-  },
-  "previewUnavailable": "Preview tidak tersedia",
-  "@previewUnavailable": {
-    "description": "Snackbar shown when a track preview snippet cannot be played"
-  },
   "dialogDiscard": "Buang",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -3590,15 +3578,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "Sudah ada di \"{playlistName}\"",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "Nama playlist",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -3667,24 +3646,6 @@
   "collectionRemoveFromFolder": "Hapus dari folder",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" ditambahkan ke Disukai",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" dihapus dari Disukai",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" ditambahkan ke Artis Favorit",
   "@collectionAddedToFavoriteArtists": {
@@ -5634,33 +5595,6 @@
       }
     }
   },
-  "collectionAddedTracksToPlaylist": "Menambahkan {count} {count, plural, =1{lagu} other{lagu}} ke {playlistName}",
-  "@collectionAddedTracksToPlaylist": {
-    "description": "Snackbar after adding multiple tracks to a playlist",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedTracksToPlaylistWithExisting": "Menambahkan {count} {count, plural, =1{lagu} other{lagu}} ke {playlistName} ({alreadyCount} sudah ada di playlist)",
-  "@collectionAddedTracksToPlaylistWithExisting": {
-    "description": "Snackbar after adding multiple tracks to a playlist when some were already present",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      },
-      "alreadyCount": {
-        "type": "int"
-      }
-    }
-  },
   "itemCount": "{count} {count, plural, =1{item} other{item}}",
   "@itemCount": {
     "description": "Generic item count label",
@@ -6499,18 +6433,6 @@
         "type": "int"
       }
     }
-  },
-  "trackOptionCopyTrackName": "Salin nama lagu",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Salin artis",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Salin lagu dan artis",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
   },
   "metadataCopyValue": "Salin isi",
   "@metadataCopyValue": {

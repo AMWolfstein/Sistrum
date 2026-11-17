@@ -50,6 +50,7 @@ import 'package:sistrum/widgets/mornye_player_artwork.dart';
 import 'package:sistrum/widgets/mornye_artwork_contrast.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/mornye_player_layout.dart';
+import 'package:sistrum/widgets/player_lyric_preview.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
 import 'package:sistrum/widgets/player_lyrics_controls.dart';
 import 'package:sistrum/widgets/player_playback_controls.dart';
@@ -1383,6 +1384,66 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('the lyric preview opens the lyrics page and hides there', (
+    tester,
+  ) async {
+    metadataOverrides['lyrics'] = List.generate(
+      20,
+      (index) => '[00:${index.toString().padLeft(2, '0')}.00]Line $index',
+    ).join('\n');
+    await pumpNowPlaying(
+      tester,
+      theme: MornyeTheme.build(Brightness.dark),
+      size: const Size(393, 852),
+      playback: PlaybackState(playing: true),
+      settings: const AppSettings(playerShowLyricSnippet: true),
+    );
+    mediaItems.add(item('many'));
+    await settlePlayer(tester);
+
+    final preview = find.byType(PlayerLyricPreview);
+    expect(preview, findsOneWidget);
+    expect(
+      tester.widget<MornyePlayerLayout>(find.byType(MornyePlayerLayout)).page,
+      0,
+    );
+
+    await tester.tap(preview);
+    await settlePlayer(tester);
+    expect(
+      tester.widget<MornyePlayerLayout>(find.byType(MornyePlayerLayout)).page,
+      1,
+    );
+    // The lyrics page is open, so the preview is no longer built.
+    expect(preview, findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the lyric preview stays hidden when the setting is off', (
+    tester,
+  ) async {
+    metadataOverrides['lyrics'] = '[00:00.00]Line 0\n[00:02.00]Line 1';
+    await pumpNowPlaying(
+      tester,
+      theme: MornyeTheme.build(Brightness.dark),
+      size: const Size(393, 852),
+      playback: PlaybackState(playing: true),
+      settings: const AppSettings(playerShowLyricSnippet: false),
+    );
+    mediaItems.add(item('many'));
+    await settlePlayer(tester);
+
+    // The widget stays in the layout but draws nothing: no tappable row.
+    expect(
+      find.descendant(
+        of: find.byType(PlayerLyricPreview),
+        matching: find.byType(InkWell),
+      ),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'accessible navigation keeps lyric controls available while idle',

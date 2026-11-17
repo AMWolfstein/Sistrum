@@ -13,9 +13,9 @@ import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/utils/artist_utils.dart' show splitArtistTagValues;
 import 'package:sistrum/utils/release_type_utils.dart';
 
-/// Songs the library artist page lists under Popular, as the online page
-/// shows them in one page. shortcut: the extension's full top list is not
-/// read here, upgrade if the library page should list more.
+/// Songs the library artist page lists under Popular, in one page.
+/// shortcut: only this many library songs are listed, upgrade if the library
+/// page should list more.
 const libraryPopularTrackCount = 5;
 
 const _pageSize = 500;
@@ -94,7 +94,7 @@ Future<List<ArtistAlbum>> loadLibraryNewReleases({
     byKey.putIfAbsent(row['album_key'] as String? ?? '', () => []).add(row);
   }
   int rankOf(ArtistAlbum album) {
-    final artists = splitArtistTagValues(album.artists);
+    final artists = splitArtistTagValues(album.artists, rules: credits.rules);
     for (var index = 0; index < favored.length; index++) {
       if (artists.contains(favored[index])) return index;
     }

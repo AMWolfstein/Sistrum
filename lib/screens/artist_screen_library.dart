@@ -1,7 +1,6 @@
 part of 'artist_screen.dart';
 
-/// The library artist page: the same design as an online artist page, filled
-/// from the library's own files.
+/// The library artist page, filled from the library's own files.
 extension _ArtistLibrarySections on _ArtistScreenState {
   Widget _buildLibraryArtist(BuildContext context) {
     final overview = ref.watch(
@@ -210,10 +209,9 @@ extension _ArtistLibrarySections on _ArtistScreenState {
       ),
     );
     if (coverUrl == null || coverUrl.isEmpty) return fallback();
-    return CachedCoverImage(
-      imageUrl: coverUrl,
-      fit: BoxFit.cover,
-      errorWidget: (context, url, error) => fallback(),
+    return LocalOrNetworkCoverImage(
+      url: coverUrl,
+      placeholder: (_) => fallback(),
     );
   }
 

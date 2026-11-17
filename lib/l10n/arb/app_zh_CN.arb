@@ -896,18 +896,6 @@
   "@dialogDownload": {
     "description": "Confirm button in Download All dialog"
   },
-  "previewPlay": "播放预览",
-  "@previewPlay": {
-    "description": "Tooltip for the button that plays a short track preview snippet"
-  },
-  "previewStop": "停止预览",
-  "@previewStop": {
-    "description": "Tooltip for the button that stops the playing track preview snippet"
-  },
-  "previewUnavailable": "预览不可用",
-  "@previewUnavailable": {
-    "description": "Snackbar shown when a track preview snippet cannot be played"
-  },
   "dialogDiscard": "放弃",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -3631,15 +3619,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "已在「{playlistName}」中",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "播放列表名称",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -3699,24 +3678,6 @@
   "collectionRemoveFromFolder": "从文件夹移除",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "「{trackName}」已添加到收藏",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "「{trackName}」已从收藏中移除",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "collectionAddedToFavoriteArtists": "「{artistName}」已添加到收藏艺术家",
   "@collectionAddedToFavoriteArtists": {
@@ -5666,33 +5627,6 @@
       }
     }
   },
-  "collectionAddedTracksToPlaylist": "已添加 {count} {count, plural, =1{首曲目} other{首曲目}} 到 {playlistName}",
-  "@collectionAddedTracksToPlaylist": {
-    "description": "Snackbar after adding multiple tracks to a playlist",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedTracksToPlaylistWithExisting": "已添加 {count} {count, plural, =1{首曲目} other{首曲目}} 到 {playlistName}（{alreadyCount} 首已在播放列表中）",
-  "@collectionAddedTracksToPlaylistWithExisting": {
-    "description": "Snackbar after adding multiple tracks to a playlist when some were already present",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      },
-      "alreadyCount": {
-        "type": "int"
-      }
-    }
-  },
   "itemCount": "{count} {count, plural, =1{项} other{项}}",
   "@itemCount": {
     "description": "Generic item count label",
@@ -6806,18 +6740,6 @@
         "type": "int"
       }
     }
-  },
-  "trackOptionCopyTrackName": "复制曲目标题",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "复制艺术家",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "复制曲目和艺术家",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
   },
   "metadataCopyValue": "复制值",
   "@metadataCopyValue": {

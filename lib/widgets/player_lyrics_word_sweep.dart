@@ -531,21 +531,17 @@ class _SweepingTimedLyricTextState extends State<_SweepingTimedLyricText> {
             boxHeightStyle: BoxHeightStyle.max,
           )
           .toList();
-      final segmentRtl = isRtlLyricText(segment);
+      // The boxes of a row sit in bidi order, which follows the paragraph
+      // direction; sorting by it keeps one total order and reads a mixed word
+      // like "Hello مرحبا" in the order it is shown.
+      final sweepRtl = _cachedDirection == TextDirection.rtl;
       textBoxes.sort((a, b) {
         final row = a.top.compareTo(b.top);
         if (row != 0) return row;
-        final rtl =
-            segmentRtl ||
-            a.direction == TextDirection.rtl ||
-            b.direction == TextDirection.rtl;
-        return rtl ? b.left.compareTo(a.left) : a.left.compareTo(b.left);
+        return sweepRtl ? b.left.compareTo(a.left) : a.left.compareTo(b.left);
       });
       segmentBoxes.add([for (final box in textBoxes) box.toRect()]);
-      segmentDirections.add([
-        for (final box in textBoxes)
-          segmentRtl ? TextDirection.rtl : box.direction,
-      ]);
+      segmentDirections.add([for (final box in textBoxes) box.direction]);
       segmentOffset = segmentEnd;
     }
     // Snapshot contents: callers can rebuild equal lists or mutate boundaries

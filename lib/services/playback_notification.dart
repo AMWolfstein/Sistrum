@@ -23,7 +23,6 @@ class PlaybackNotification {
     this.shuffleOffLabel = 'Shuffle off',
   });
 
-
   PlaybackNotification withFavorite(MediaItem item, bool loved) =>
       PlaybackNotification(
         mediaId: item.id,
@@ -46,8 +45,8 @@ class PlaybackNotification {
       MediaControl.custom(
         name: favoriteAction,
         androidIcon: current && loved
-            ? 'drawable/ic_notification_star_filled'
-            : 'drawable/ic_notification_star',
+            ? 'drawable/ic_notification_heart_filled'
+            : 'drawable/ic_notification_heart',
         label: current && loved ? unfavoriteLabel : favoriteLabel,
       ),
       MediaControl.skipToPrevious.copyWith(

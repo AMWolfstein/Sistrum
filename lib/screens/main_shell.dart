@@ -19,7 +19,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/playback_notification_provider.dart';
 import 'package:sistrum/providers/repo_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/providers/preview_player_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/repo_tab.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
@@ -91,11 +90,6 @@ class _MainShellState extends ConsumerState<MainShell>
   final GlobalKey<NavigatorState> _searchTabNavigatorKey =
       ShellNavigationService.searchTabNavigatorKey;
 
-  late final _PreviewStopNavigatorObserver _homePreviewStopObserver;
-  late final _PreviewStopNavigatorObserver _libraryPreviewStopObserver;
-  late final _PreviewStopNavigatorObserver _repoPreviewStopObserver;
-  late final _PreviewStopNavigatorObserver _searchPreviewStopObserver;
-
   /// What the services below were last configured with. Theme and media
   /// query changes also reach [didChangeDependencies]; the services only
   /// need a new language.
@@ -132,18 +126,6 @@ class _MainShellState extends ConsumerState<MainShell>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     usbAudioStatus.addListener(_onUsbAudioStatusChanged);
-    _homePreviewStopObserver = _PreviewStopNavigatorObserver(
-      () => ref.read(previewPlayerProvider.notifier).stop(),
-    );
-    _libraryPreviewStopObserver = _PreviewStopNavigatorObserver(
-      () => ref.read(previewPlayerProvider.notifier).stop(),
-    );
-    _repoPreviewStopObserver = _PreviewStopNavigatorObserver(
-      () => ref.read(previewPlayerProvider.notifier).stop(),
-    );
-    _searchPreviewStopObserver = _PreviewStopNavigatorObserver(
-      () => ref.read(previewPlayerProvider.notifier).stop(),
-    );
     ShellNavigationService.registerTabSelectionHandler(
       owner: this,
       handler: _onShellTabRequested,
@@ -243,7 +225,6 @@ class _MainShellState extends ConsumerState<MainShell>
   }
 
   void _resetHomeToMain() {
-    ref.read(previewPlayerProvider.notifier).stop();
     final showStore = ref.read(
       settingsProvider.select((s) => s.showExtensionStore),
     );
@@ -277,7 +258,6 @@ class _MainShellState extends ConsumerState<MainShell>
     if (_settingsPageOpen) return;
     _settingsPageOpen = true;
     FocusManager.instance.primaryFocus?.unfocus();
-    ref.read(previewPlayerProvider.notifier).stop();
     try {
       await Navigator.of(context).push(
         slidePageRoute<void>(
@@ -303,8 +283,6 @@ class _MainShellState extends ConsumerState<MainShell>
 
     if (_currentIndex != index) {
       HapticFeedback.selectionClick();
-      // Stop any preview snippet when leaving the current tab.
-      ref.read(previewPlayerProvider.notifier).stop();
       setState(() => _currentIndex = index);
       ShellNavigationService.syncState(
         currentTabIndex: _currentIndex,
@@ -357,7 +335,6 @@ class _MainShellState extends ConsumerState<MainShell>
 
     if (isSearchTab && ref.read(homeSearchTextProvider).isNotEmpty) {
       FocusManager.instance.primaryFocus?.unfocus();
-      ref.read(previewPlayerProvider.notifier).stop();
       ref.read(homeSearchTextProvider.notifier).set('');
       _lastBackPress = null;
       return;
@@ -438,14 +415,12 @@ class _MainShellState extends ConsumerState<MainShell>
       _TabNavigator(
         key: const ValueKey('tab-home'),
         navigatorKey: _homeTabNavigatorKey,
-        observers: [_homePreviewStopObserver],
         heroAnimationsEnabled: heroAnimationsEnabled,
         child: Builder(builder: (context) => HomeTab(mode: HomeTabMode.browse)),
       ),
       _TabNavigator(
         key: const ValueKey('tab-library'),
         navigatorKey: _libraryTabNavigatorKey,
-        observers: [_libraryPreviewStopObserver],
         heroAnimationsEnabled: heroAnimationsEnabled,
         child: const _LibraryTabRoot(),
       ),
@@ -453,14 +428,12 @@ class _MainShellState extends ConsumerState<MainShell>
         _TabNavigator(
           key: const ValueKey('tab-repo'),
           navigatorKey: _repoTabNavigatorKey,
-          observers: [_repoPreviewStopObserver],
           heroAnimationsEnabled: heroAnimationsEnabled,
           child: const RepoTab(),
         ),
       _TabNavigator(
         key: const ValueKey('tab-search'),
         navigatorKey: _searchTabNavigatorKey,
-        observers: [_searchPreviewStopObserver],
         heroAnimationsEnabled: heroAnimationsEnabled,
         child: const HomeTab(mode: HomeTabMode.search),
       ),
@@ -732,14 +705,12 @@ class _MainShellState extends ConsumerState<MainShell>
 class _TabNavigator extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final Widget child;
-  final List<NavigatorObserver> observers;
   final bool heroAnimationsEnabled;
 
   const _TabNavigator({
     super.key,
     required this.navigatorKey,
     required this.child,
-    this.observers = const [],
     required this.heroAnimationsEnabled,
   });
 
@@ -771,32 +742,11 @@ class _TabNavigatorState extends State<_TabNavigator> {
       observers: [
         _chromeObserver,
         if (widget.heroAnimationsEnabled) _heroController,
-        ...widget.observers,
       ],
       onGenerateInitialRoutes: (_, _) => [
         MaterialPageRoute<void>(builder: (_) => widget.child),
       ],
     );
-  }
-}
-
-class _PreviewStopNavigatorObserver extends NavigatorObserver {
-  _PreviewStopNavigatorObserver(this._onNavigate);
-
-  final VoidCallback _onNavigate;
-
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPush(route, previousRoute);
-    if (previousRoute != null) {
-      _onNavigate();
-    }
-  }
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPop(route, previousRoute);
-    _onNavigate();
   }
 }
 

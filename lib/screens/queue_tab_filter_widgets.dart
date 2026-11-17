@@ -491,7 +491,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
                       colorScheme: colorScheme,
                       entry: collectionEntries[index],
                       collectionState: collectionState,
-                      filteredUnifiedItems: filteredUnifiedItems,
                     );
                   }
                   final afterCollections = index - collectionCount;

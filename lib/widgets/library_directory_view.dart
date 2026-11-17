@@ -478,7 +478,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           ),
           isSelectionMode: isSelectionMode,
           isSelected: selectedIds.contains(item.id),
-          isCurrent: playback.isCurrent,
           isPlaying: playback.isPlaying,
           onToggleSelection: () => toggleSelection(item.id),
           onOpen: () => _openDetails(item),

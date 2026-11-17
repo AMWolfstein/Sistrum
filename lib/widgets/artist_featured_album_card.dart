@@ -53,9 +53,12 @@ class ArtistFeaturedAlbumCard extends StatelessWidget {
                   child: SizedBox.square(
                     dimension: 96,
                     child: album.coverUrl != null
-                        ? CachedCoverImage(
-                            imageUrl: album.coverUrl!,
-                            fit: BoxFit.cover,
+                        ? LocalOrNetworkCoverImage(
+                            url: album.coverUrl!,
+                            placeholder: (_) => const Icon(
+                              CupertinoIcons.square_stack,
+                              size: 36,
+                            ),
                           )
                         : const Icon(CupertinoIcons.square_stack, size: 36),
                   ),

@@ -113,10 +113,9 @@ only for that:
     sheet shape (the theme owns it, so that scan has no allowlist);
   - only `selection_bottom_bar.dart` and `app_menu_button.dart` create an
     `OverlayEntry`;
-  - `album_screen.dart`, `playlist_screen.dart`, `local_album_screen.dart`,
-    `downloaded_album_screen.dart` and `library_tracks_folder_screen.dart`
-    use `CollectionScaffold(`, and `playlist_screen.dart` uses
-    `SelectionModeMixin<PlaylistScreen>`;
+  - `album_screen_library.dart`, `playlist_screen_library.dart` and
+    `library_tracks_folder_screen.dart` use `CollectionScaffold(`, and
+    `playlist_screen.dart` uses `SelectionModeMixin<PlaylistScreen>`;
   - `lib/screens/now_playing_screen.dart` uses `showAppBottomSheet` and no
     `PopupMenuButton`.
 

@@ -1311,6 +1311,7 @@ final homeTopPlayedArtistsProvider = FutureProvider.autoDispose<List<String>>((
   final summary = await ListeningStatisticsStore.instance.load(
     DateTime(2000),
     DateTime(now.year, now.month, now.day + 1),
+    rules: ref.watch(tagCreditRulesProvider),
   );
   final artists = summary.artists.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));

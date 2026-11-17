@@ -200,6 +200,6 @@ T003, T004, TOR014, T005, T013, TOR015, T006, T007, T008, T009, T010, TOR016, T0
 
 ## Final cumulative review
 
-- [ ] M003-T011 [FINAL] Cumulative review
+- [x] M003-T011 [FINAL] Cumulative review
   - Acceptance: every FR and SC holds on the cumulative diff from `b397464`; all
     actionable findings fixed; full checks.

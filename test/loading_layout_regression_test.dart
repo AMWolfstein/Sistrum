@@ -28,19 +28,14 @@ void main() {
         tester.view.physicalSize = Size(width, 1200);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        for (final skeleton in const [
-          TrackListSkeleton(itemCount: 3),
-          HomeSearchSkeleton(),
-        ]) {
-          await tester.pumpWidget(
-            MaterialApp(
-              theme: MornyeTheme.build(brightness),
-              home: Scaffold(body: skeleton),
-            ),
-          );
-          await tester.pump(const Duration(milliseconds: 100));
-          expect(tester.takeException(), isNull);
-        }
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: MornyeTheme.build(brightness),
+            home: const Scaffold(body: TrackListSkeleton(itemCount: 3)),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       });
     }

@@ -896,18 +896,6 @@
   "@dialogDownload": {
     "description": "Confirm button in Download All dialog"
   },
-  "previewPlay": "Відтворити попередній",
-  "@previewPlay": {
-    "description": "Tooltip for the button that plays a short track preview snippet"
-  },
-  "previewStop": "Зупинити попередній",
-  "@previewStop": {
-    "description": "Tooltip for the button that stops the playing track preview snippet"
-  },
-  "previewUnavailable": "Попередній перегляд недоступний",
-  "@previewUnavailable": {
-    "description": "Snackbar shown when a track preview snippet cannot be played"
-  },
   "dialogDiscard": "Відхилити",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -3631,15 +3619,6 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "Вже у списку відтворення \"{playlistName}\"",
-  "@collectionAlreadyInPlaylist": {
-    "description": "Snackbar when track already exists in playlist",
-    "placeholders": {
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
   "collectionPlaylistNameHint": "Назва списку відтворення",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
@@ -3699,24 +3678,6 @@
   "collectionRemoveFromFolder": "Видалити з теки",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" додано до списку улюблених",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" видалено з уподобань",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
   },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" видалено з улюблених Виконавців",
   "@collectionAddedToFavoriteArtists": {
@@ -5666,33 +5627,6 @@
       }
     }
   },
-  "collectionAddedTracksToPlaylist": "Додано {count} {count, plural, =1{трек} other{треків}} до {playlistName}",
-  "@collectionAddedTracksToPlaylist": {
-    "description": "Snackbar after adding multiple tracks to a playlist",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedTracksToPlaylistWithExisting": "Додано {count} {count, plural, =1{трек} other{треків}} до {playlistName} ({alreadyCount} вже є у списку відтворення)",
-  "@collectionAddedTracksToPlaylistWithExisting": {
-    "description": "Snackbar after adding multiple tracks to a playlist when some were already present",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "playlistName": {
-        "type": "String"
-      },
-      "alreadyCount": {
-        "type": "int"
-      }
-    }
-  },
   "itemCount": "{count} {count, plural, =1{елемент} other{елементи}}",
   "@itemCount": {
     "description": "Generic item count label",
@@ -6806,18 +6740,6 @@
         "type": "int"
       }
     }
-  },
-  "trackOptionCopyTrackName": "Копіювати назву треку",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Копіювати виконавця",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Копіювання пісні та виконавця",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
   },
   "metadataCopyValue": "Копіювати значення",
   "@metadataCopyValue": {

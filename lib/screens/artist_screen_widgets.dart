@@ -26,12 +26,12 @@ extension _ArtistScreenSections on _ArtistScreenState {
     );
     final hasValidImage = libraryImageUrl != null && libraryImageUrl.isNotEmpty;
     final artwork = hasValidImage
-        ? CachedCoverImage(
-            imageUrl: libraryImageUrl,
+        ? LocalOrNetworkCoverImage(
+            url: libraryImageUrl,
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
-            memCacheWidth: 800,
-            errorWidget: (_, _, _) =>
+            networkCacheWidth: 800,
+            placeholder: (_) =>
                 const Center(child: Icon(CupertinoIcons.person, size: 80)),
           )
         : const Center(child: Icon(CupertinoIcons.person, size: 80));
@@ -222,19 +222,14 @@ extension _ArtistScreenSections on _ArtistScreenState {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: album.coverUrl != null
-                          ? CachedCoverImage(
-                              imageUrl: album.coverUrl!,
+                          ? LocalOrNetworkCoverImage(
+                              url: album.coverUrl!,
                               width: tileSize,
                               height: tileSize,
                               fit: BoxFit.cover,
-                              memCacheWidth: (tileSize * 2).round(),
-                              memCacheHeight: (tileSize * 2).round(),
-                              placeholder: (context, url) => ShimmerLoading(
-                                child: Container(
-                                  color: colorScheme.surfaceContainerHighest,
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
+                              localCacheWidth: (tileSize * 2).round(),
+                              networkCacheWidth: (tileSize * 2).round(),
+                              placeholder: (_) => Container(
                                 color: colorScheme.surfaceContainerHighest,
                                 child: Icon(
                                   Icons.album,

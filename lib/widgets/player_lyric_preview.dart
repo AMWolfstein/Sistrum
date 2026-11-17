@@ -203,17 +203,27 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
         String currentText = '•••';
         if (index >= 0 && index < _lines.length) {
           final line = _lines[index];
-          final candidate =
-              (showTranslation &&
-                  line.translation != null &&
-                  line.translation!.trim().isNotEmpty)
+          final translated =
+              showTranslation &&
+              line.translation != null &&
+              line.translation!.trim().isNotEmpty;
+          final candidate = translated
               ? line.translation!.trim()
               : line.text.trim();
           if (candidate.isNotEmpty) {
             final end = line.end;
             if (end == null || position <= end + const Duration(seconds: 2)) {
               currentText = candidate;
-              activeLine = line;
+              // The displayed text and its word timing must come from the same
+              // line, or a word-timed translation would show the original text.
+              activeLine = translated
+                  ? LyricLine(
+                      time: line.time,
+                      end: line.end,
+                      text: candidate,
+                      words: line.translationWords,
+                    )
+                  : line;
             }
           }
         }
@@ -233,12 +243,7 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
         );
 
         Widget lyricWidget;
-        final isWordTimed =
-            activeLine != null &&
-            activeLine.hasWordTiming &&
-            (!showTranslation ||
-                activeLine.translationWords.isNotEmpty ||
-                activeLine.translation == null);
+        final isWordTimed = activeLine != null && activeLine.hasWordTiming;
 
         if (currentText == '•••' || activeLine == null) {
           lyricWidget = Text(
@@ -305,8 +310,11 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
                             child: _switcher(lyricWidget, rtl, reduceMotion),
                           ),
                     const SizedBox(width: 4),
+                    // Points forward: left under a right-to-left layout.
                     Icon(
-                      CupertinoIcons.chevron_right,
+                      ambient == TextDirection.rtl
+                          ? CupertinoIcons.chevron_left
+                          : CupertinoIcons.chevron_right,
                       size: 14,
                       color: iconColor,
                     ),

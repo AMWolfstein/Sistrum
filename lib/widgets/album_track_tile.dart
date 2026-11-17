@@ -23,7 +23,6 @@ class AlbumTrackTile extends StatelessWidget {
     required this.onOpen,
     this.onEnterSelectionMode,
     this.onPlay,
-    this.isCurrent = false,
     this.isPlaying = false,
     this.toggleOnLongPress = false,
   });
@@ -40,9 +39,6 @@ class AlbumTrackTile extends StatelessWidget {
   final VoidCallback onOpen;
   final VoidCallback? onEnterSelectionMode;
   final VoidCallback? onPlay;
-
-  /// The row is the player's current track. See [TrackCard.isCurrent].
-  final bool isCurrent;
 
   /// The current track is playing: the button offers pause.
   final bool isPlaying;

@@ -18,6 +18,7 @@ import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_mixes.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/music_player_runtime.dart';
 import 'package:sistrum/services/playable_media.dart';
@@ -326,7 +327,8 @@ class _LibraryMixes {
     MusicPlayerRuntime runtime,
   ) async {
     final (:songs, :years, :added) = await _songs(includeLocal);
-    final (plays, pastPlays) = await _plays(songs, now);
+    final rules = TagCreditRules.fromSettings(runtime.settings.tagCredits);
+    final (plays, pastPlays) = await _plays(songs, now, rules);
     if (plays.length < libraryMixFavoritesMinPlayed) {
       // Statistics are off or new: what else the app keeps of the
       // listener's taste stands in, so favorites still have a mix.
@@ -359,6 +361,7 @@ class _LibraryMixes {
         signals: [?sound, ?taste],
         preference: runtime.personalization.rankingSnapshot,
         weights: learning ? runtime.ranker.weights : const {},
+        tagRules: rules,
       ),
       debugLabel: 'library-mixes',
     );
@@ -462,15 +465,24 @@ class _LibraryMixes {
   static Future<(Map<String, double>, Map<String, double>)> _plays(
     List<PlayableMedia> songs,
     DateTime now,
+    TagCreditRules rules,
   ) async {
     await listeningRecorder.flush();
     final store = ListeningStatisticsStore.instance;
     final end = DateTime(now.year, now.month, now.day + 1);
     final seasonStart = DateTime(now.year, now.month, now.day - 89);
     final (season, recent, past) = await (
-      store.load(seasonStart, end),
-      store.load(DateTime(now.year, now.month, now.day - 13), end),
-      store.load(DateTime(now.year, now.month, now.day - 364), seasonStart),
+      store.load(seasonStart, end, rules: rules),
+      store.load(
+        DateTime(now.year, now.month, now.day - 13),
+        end,
+        rules: rules,
+      ),
+      store.load(
+        DateTime(now.year, now.month, now.day - 364),
+        seasonStart,
+        rules: rules,
+      ),
     ).wait;
     String songKey(String artist, String title) =>
         '${normalizeLookupText(artist)}|${normalizeLookupText(title)}';

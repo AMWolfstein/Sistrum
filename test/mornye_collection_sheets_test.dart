@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +12,7 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
-import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
-import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 
 const _track = Track(
   id: 'example-track',
@@ -126,97 +122,47 @@ void main() {
         .load();
   });
 
-  testWidgets('track menu offers only offline actions', (tester) async {
-    const linked = Track(
-      id: 'example-track',
-      name: 'Example track',
-      artistName: 'Example artist',
-      albumName: 'Example album',
-      duration: 180,
-      deezerId: '42',
-    );
-    await tester.pumpWidget(
-      _app(
-        const TrackCollectionQuickActions(track: linked),
-        _Collections(),
-        brightness: Brightness.light,
-      ),
-    );
-    await tester.tap(find.byType(TrackCollectionQuickActions));
-    await tester.pumpAndSettle();
-    for (final offline in [
-      'Favorite',
-      'Go to Album',
-      'Go to Artist',
-      'Add to playlist',
-      'Copy track name',
-    ]) {
-      expect(find.text(offline), findsOneWidget, reason: offline);
-    }
-    for (final online in [
-      'Download',
-      'Download another quality',
-      'Copy Deezer link',
-      'Share',
-      'Add to Wishlist',
-    ]) {
-      expect(find.text(online), findsNothing, reason: online);
-    }
-    expect(find.textContaining('link'), findsNothing);
-    // Loving a song is a heart; the star is for favourite artists.
-    expect(find.byIcon(CupertinoIcons.heart), findsOneWidget);
-    expect(find.byIcon(CupertinoIcons.star), findsNothing);
-    expect(find.byIcon(CupertinoIcons.star_fill), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
-
   for (final brightness in Brightness.values) {
-    testWidgets('track menu reaches playlist creation in $brightness', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(320, 680);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final collections = _Collections();
-      await tester.pumpWidget(
-        _app(
-          const TrackCollectionQuickActions(track: _track),
-          collections,
-          brightness: brightness,
-          textScale: 1.5,
-        ),
-      );
-      await tester.tap(find.byIcon(CupertinoIcons.ellipsis));
-      await tester.pumpAndSettle();
-      expect(find.byType(MornyeGlassPanel), findsOneWidget);
-      expect(find.byType(ListTile), findsNothing);
-      expect(find.byIcon(CupertinoIcons.doc_on_doc), findsNWidgets(2));
-
-      await tester.ensureVisible(find.text('Add to playlist'));
-      await tester.tap(find.text('Add to playlist'));
-      await tester.pumpAndSettle();
-      expect(find.text('No playlists yet'), findsOneWidget);
-      expect(find.byType(MornyeGlassPanel), findsOneWidget);
-      expect(find.text('Done').hitTestable(), findsOneWidget);
-
-      await tester.tap(find.text('Create playlist'));
-      await tester.pumpAndSettle();
-      expect(find.byType(AppAlertDialog), findsOneWidget);
-      await tester.tap(find.text('Create'));
-      await tester.pumpAndSettle();
-      expect(collections.createdNames, isEmpty);
-      await tester.enterText(find.byType(TextFormField), 'Evening music');
-      await tester.tap(find.text('Create'));
-      await tester.pumpAndSettle();
-      expect(collections.createdNames, ['Evening music']);
-      expect(collections.additions, ['Evening music']);
-      expect(find.byIcon(CupertinoIcons.checkmark_circle_fill), findsOneWidget);
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
-      expect(collections.additions, ['Evening music']);
-      expect(find.byType(MornyeGlassPanel), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'single-track picker reaches playlist creation in $brightness',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 680);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final collections = _Collections();
+        await tester.pumpWidget(
+          _app(
+            Consumer(
+              builder: (context, ref, _) => TextButton(
+                onPressed: () =>
+                    showAddTrackToPlaylistSheet(context, ref, _track),
+                child: const Text('Open'),
+              ),
+            ),
+            collections,
+            brightness: brightness,
+            textScale: 1.5,
+          ),
+        );
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        expect(find.text('No playlists yet'), findsOneWidget);
+        await tester.tap(find.text('Create playlist'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        expect(collections.createdNames, isEmpty);
+        await tester.enterText(find.byType(TextFormField), 'Evening music');
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        expect(collections.createdNames, ['Evening music']);
+        expect(collections.additions, ['Evening music']);
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
+        expect(collections.additions, ['Evening music']);
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 
   testWidgets('picker submits and closes once', (tester) async {

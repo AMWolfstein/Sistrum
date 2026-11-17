@@ -102,8 +102,6 @@ void main() {
       (widget) => widget is AlbumTrackTile && widget.trackName == title,
     );
     expect(row('Second'), findsOneWidget);
-    expect(tester.widget<AlbumTrackTile>(row('Second')).isCurrent, isTrue);
-    expect(tester.widget<AlbumTrackTile>(row('First')).isCurrent, isFalse);
     expect(
       find.descendant(of: row('Second'), matching: find.byTooltip('Pause')),
       findsOneWidget,

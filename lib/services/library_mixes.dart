@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:sistrum/services/autoplay_personalization.dart';
 import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/listening_statistics.dart' show listeningDay;
 import 'package:sistrum/services/music_player_service.dart'
     show rankAutoplayTracks;
@@ -153,6 +154,7 @@ class LibraryMixRequest {
     this.preference,
     this.weights = const {},
     this.exists,
+    this.tagRules = const TagCreditRules(),
   });
 
   /// Every Library song, its id spelled as [LibraryMix.songIds] spells it.
@@ -186,6 +188,9 @@ class LibraryMixRequest {
   /// Whether a song's file can still play; [libraryMixFileExists] when
   /// null.
   final bool Function(String source)? exists;
+
+  /// The credit rules that split artist tags, as the Library configures them.
+  final TagCreditRules tagRules;
 }
 
 /// Whether a mix may hold [source]: a file that still exists, or a content
@@ -573,6 +578,7 @@ class _MixSignal extends AutoplaySignal {
     required this.used,
     this.anchor = '',
     this.credits = const {},
+    this.rules = const TagCreditRules(),
   });
 
   final Map<String, double> plays;
@@ -580,6 +586,7 @@ class _MixSignal extends AutoplaySignal {
   final Set<String> used;
   final String anchor;
   final Set<String> credits;
+  final TagCreditRules rules;
 
   @override
   String get name => 'mix';
@@ -597,6 +604,7 @@ class _MixSignal extends AutoplaySignal {
         score += 2;
       } else if (splitArtistTagValues(
         candidate.artist,
+        rules: rules,
       ).any((name) => credits.contains(_artistKey(name)))) {
         score += 1;
       }
@@ -911,7 +919,11 @@ class _MixBuilder {
       seeds: _byPlays(own, _random(LibraryMixKind.artist, artist)),
       anchor: artist,
       credits: {
-        for (final credit in splitArtistTagValues(name)) _artistKey(credit),
+        for (final credit in splitArtistTagValues(
+          name,
+          rules: request.tagRules,
+        ))
+          _artistKey(credit),
       },
     );
   }
@@ -1082,6 +1094,7 @@ class _MixBuilder {
         used: used,
         anchor: anchor,
         credits: credits,
+        rules: request.tagRules,
       ),
     );
     if (songs.length < libraryMixMinSongs) return null;
