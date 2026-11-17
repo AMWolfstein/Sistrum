@@ -2,9 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:sistrum/constants/app_info.dart';
-
-const sistrumLogoAsset = 'assets/images/logo-transparent.png';
+const sistrumLogoAsset = 'assets/images/sistrum-horizontal-white.png';
 
 /// The colors of one banner: the wash, and the two blooms that move across it.
 class _BannerPalette {
@@ -141,23 +139,11 @@ class MornyeMixBanner extends StatelessWidget {
                 top: 16,
                 end: 16,
                 child: ExcludeSemantics(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        sistrumLogoAsset,
-                        width: logoWidth,
-                        cacheWidth: (logoWidth * pixelRatio).round(),
-                        filterQuality: FilterQuality.medium,
-                      ),
-                      Text(
-                        AppInfo.appName,
-                        style: textTheme.labelLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                  child: Image.asset(
+                    sistrumLogoAsset,
+                    width: logoWidth,
+                    cacheWidth: (logoWidth * pixelRatio).round(),
+                    filterQuality: FilterQuality.medium,
                   ),
                 ),
               ),
