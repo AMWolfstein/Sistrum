@@ -673,10 +673,6 @@
   "@aboutUnituneDesc": {
     "description": "Credit for the UniTune resolver"
   },
-  "aboutMusicBrainzDesc": "Cơ sở dữ liệu âm nhạc mở do MetaBrainz và cộng đồng duy trì, dùng để đối chiếu chéo thông tin bản thu.",
-  "@aboutMusicBrainzDesc": {
-    "description": "Credit for the MusicBrainz database"
-  },
   "aboutSquiglyDesc": "Dịch vụ chuyển đổi liên kết nhạc đa nền tảng của Liam Macmillan, được dùng làm phương án dự phòng cuối cùng.",
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
@@ -996,11 +992,6 @@
   "@collectionExportM3uFailed": {
     "description": "Snackbar when writing or sharing the M3U8 export fails"
   },
-  "trackOpenOn": "Mở trên...",
-  "@trackOpenOn": {
-    "description": "Track option and sheet title listing streaming platforms where the track can be opened"
-  },
-  "trackOpenOnNoLinks": "Không tìm thấy liên kết nền tảng nào cho bài hát này.",
   "libraryReviewDuplicates": "Xem lại các bài trùng lặp",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1670,14 +1661,6 @@
   "trackFileUnavailable": "Tệp hiện không khả dụng. Hãy kiểm tra lại quyền truy cập bộ nhớ rồi thử lại.",
   "@trackFileUnavailable": {
     "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackOpenInDeezer": "Mở trong Deezer",
-  "@trackOpenInDeezer": {
-    "description": "Action - open track in Deezer app"
-  },
-  "trackOpenInSpotify": "Mở trong Spotify",
-  "@trackOpenInSpotify": {
-    "description": "Action - open track in Spotify app"
   },
   "trackTrackName": "Tên bài hát",
   "@trackTrackName": {
@@ -2724,22 +2707,6 @@
   "@libraryFilterAll": {
     "description": "Filter chip - show all library items"
   },
-  "libraryReEnrichAll": "Cập nhật lại toàn bộ thông tin bài hát",
-  "@libraryReEnrichAll": {
-    "description": "Library settings action - re-enrich the metadata of every track in the Library"
-  },
-  "libraryReEnrichAllSubtitle": "Tìm kiếm và điền thông tin chi tiết (metadata) cho mọi bài hát trong Thư viện của bạn, sau đó xem lại các thay đổi",
-  "@libraryReEnrichAllSubtitle": {
-    "description": "Subtitle for the Re-enrich All Tracks action"
-  },
-  "libraryReEnrichAllEmpty": "Không có bài hát nào để cập nhật lại. Các bài hát từ kết nối mạng không được bao gồm.",
-  "@libraryReEnrichAllEmpty": {
-    "description": "Snackbar when the Library has no tracks Re-enrich can write to"
-  },
-  "libraryReEnrichAllBusy": "Vui lòng chờ quá trình quét Thư viện hoàn tất, sau đó thử lại.",
-  "@libraryReEnrichAllBusy": {
-    "description": "Snackbar when Re-enrich All is started during a Library scan"
-  },
   "libraryFilterDownloaded": "Đã tải xuống",
   "@libraryFilterDownloaded": {
     "description": "Filter chip - show only downloaded items"
@@ -3213,118 +3180,6 @@
   "@trackSaveLyricsProgress": {
     "description": "Snackbar while saving lyrics to file"
   },
-  "trackReEnrich": "Tái làm giàu dữ liệu",
-  "@trackReEnrich": {
-    "description": "Menu action - re-embed metadata into audio file"
-  },
-  "trackReEnrichBatchSubtitle": "Chọn cập nhật trực tuyến hoặc chỉnh sửa thủ công, sau đó kiểm tra lại từng thay đổi trước khi ghi vào tệp",
-  "@trackReEnrichBatchSubtitle": {
-    "description": "Subtitle for batch metadata update choices"
-  },
-  "trackReEnrichFieldCover": "Ảnh bìa",
-  "@trackReEnrichFieldCover": {
-    "description": "Checkbox label for cover art field in re-enrich"
-  },
-  "trackReEnrichFieldLyrics": "Lời bài hát",
-  "@trackReEnrichFieldLyrics": {
-    "description": "Checkbox label for lyrics field in re-enrich"
-  },
-  "trackReEnrichFieldBasicTags": "Album, Nghệ sĩ album",
-  "@trackReEnrichFieldBasicTags": {
-    "description": "Checkbox label for basic tags in re-enrich (title/artist are never overwritten)"
-  },
-  "trackReEnrichFieldTrackInfo": "Số thứ tự Bài & Đĩa",
-  "@trackReEnrichFieldTrackInfo": {
-    "description": "Checkbox label for track info in re-enrich"
-  },
-  "trackReEnrichFieldReleaseInfo": "Ngày phát hành & ISRC",
-  "@trackReEnrichFieldReleaseInfo": {
-    "description": "Checkbox label for release info in re-enrich"
-  },
-  "trackReEnrichFieldExtra": "Thể loại, Hãng đĩa, Bản quyền",
-  "@trackReEnrichFieldExtra": {
-    "description": "Checkbox label for extra metadata in re-enrich"
-  },
-  "trackReEnrichSelectAll": "Chọn tất cả",
-  "@trackReEnrichSelectAll": {
-    "description": "Select all fields checkbox in re-enrich"
-  },
-  "trackReEnrichModeIsrc": "Chỉ mã ISRC",
-  "@trackReEnrichModeIsrc": {
-    "description": "Batch metadata mode that only writes ISRC"
-  },
-  "trackReEnrichModeIsrcSubtitle": "Tìm và bổ sung mã định danh bản thu mà không làm thay đổi các tag khác",
-  "@trackReEnrichModeIsrcSubtitle": {
-    "description": "Explanation for the ISRC-only batch metadata mode"
-  },
-  "trackReEnrichModeMissing": "Điền các tag còn thiếu",
-  "@trackReEnrichModeMissing": {
-    "description": "Batch metadata mode that fills only empty tags"
-  },
-  "trackReEnrichModeMissingSubtitle": "Giữ nguyên các giá trị sẵn có và chỉ điền vào những trường đang trống",
-  "@trackReEnrichModeMissingSubtitle": {
-    "description": "Explanation for the fill-missing batch metadata mode"
-  },
-  "trackReEnrichModeReplace": "Giữ nguyên các giá trị sẵn có và chỉ điền vào những trường đang trống",
-  "@trackReEnrichModeReplace": {
-    "description": "Batch metadata mode that replaces selected tag groups"
-  },
-  "trackReEnrichModeReplaceSubtitle": "Chọn những trường dữ liệu nào được phép ghi đè bởi metadata trực tuyến",
-  "@trackReEnrichModeReplaceSubtitle": {
-    "description": "Explanation for the selected-tag batch metadata mode"
-  },
-  "trackReEnrichModeManual": "Thiết lập giá trị chung",
-  "@trackReEnrichModeManual": {
-    "description": "Batch metadata mode that applies shared values to every selected track"
-  },
-  "trackReEnrichModeManualSubtitle": "Áp dụng cùng một giá trị chung cho tất cả bài hát đã chọn",
-  "@trackReEnrichModeManualSubtitle": {
-    "description": "Explanation for the manual shared-value batch metadata mode"
-  },
-  "trackReEnrichManualFieldsTitle": "Giá trị sẽ áp dụng",
-  "@trackReEnrichManualFieldsTitle": {
-    "description": "Heading above manual batch metadata inputs"
-  },
-  "trackReEnrichManualHint": "Để trống trường nếu muốn giữ nguyên giá trị hiện tại. Tên bài hát, số thứ tự bài và mã ISRC sẽ không thay đổi.",
-  "@trackReEnrichManualHint": {
-    "description": "Safety explanation for manual batch metadata inputs"
-  },
-  "trackReEnrichFieldsTitle": "Các tag cần cập nhật",
-  "@trackReEnrichFieldsTitle": {
-    "description": "Heading above batch re-enrich field checkboxes"
-  },
-  "trackReEnrichReview": "Xem lại thay đổi",
-  "@trackReEnrichReview": {
-    "description": "Button that searches metadata and opens the batch change review"
-  },
-  "trackReEnrichReviewTitle": "Xem lại các thay đổi metadata",
-  "@trackReEnrichReviewTitle": {
-    "description": "Title of the batch metadata review sheet"
-  },
-  "trackReEnrichReviewSubtitle": "{changeCount} thay đổi đề xuất trên {trackCount} tracks",
-  "@trackReEnrichReviewSubtitle": {
-    "description": "Summary shown above proposed batch metadata changes",
-    "placeholders": {
-      "changeCount": {
-        "type": "int"
-      },
-      "trackCount": {
-        "type": "int"
-      }
-    }
-  },
-  "trackReEnrichNoChanges": "Không có thay đổi metadata nào cho các bài hát đã chọn.",
-  "@trackReEnrichNoChanges": {
-    "description": "Message when batch metadata preview has no proposed changes"
-  },
-  "trackReEnrichApplyChanges": "Áp dụng thay đổi",
-  "@trackReEnrichApplyChanges": {
-    "description": "Confirmation button in the batch metadata review sheet"
-  },
-  "trackReEnrichRefreshOnline": "Làm mới từ trực tuyến",
-  "@trackReEnrichRefreshOnline": {
-    "description": "Proposed value when lyrics will be refreshed during re-enrich"
-  },
   "trackEditMetadata": "Chỉnh sửa Metadata",
   "@trackEditMetadata": {
     "description": "Menu action - edit embedded metadata"
@@ -3350,30 +3205,6 @@
         "type": "String"
       }
     }
-  },
-  "trackReEnrichProgress": "Đang làm giàu lại metadata...",
-  "@trackReEnrichProgress": {
-    "description": "Snackbar while re-enriching metadata"
-  },
-  "trackReEnrichSearching": "Đang tìm kiếm metadata trực tuyến...",
-  "@trackReEnrichSearching": {
-    "description": "Snackbar while searching metadata from internet for local items"
-  },
-  "trackReEnrichPreparing": "Đang chuẩn bị thay đổi metadata...",
-  "@trackReEnrichPreparing": {
-    "description": "Progress message while preparing manual batch metadata changes"
-  },
-  "trackReEnrichSuccess": "Đã làm giàu lại metadata thành công",
-  "trackReEnrichMetadataSaved": "Lược bỏ tên nghệ sĩ góp giọng khỏi tên thư mục (ví dụ: Justin Bieber, Quavo → Justin Bieber)",
-  "trackReEnrichLyricsUpdated": "Đã cập nhật lời bài hát",
-  "trackReEnrichLyricsPreserved": "Không tìm thấy lời bài hát mới; giữ nguyên lời hiện tại",
-  "trackReEnrichLyricsDisabled": "Chưa cập nhật lời bài hát: tính năng tải lời bài hát đang tắt trong Cài đặt",
-  "@trackReEnrichSuccess": {
-    "description": "Snackbar after successful re-enrichment"
-  },
-  "trackReEnrichFfmpegFailed": "Nhúng metadata bằng FFmpeg thất bại",
-  "@trackReEnrichFfmpegFailed": {
-    "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
   "trackSaveFailed": "Thất bại: {error}",
   "@trackSaveFailed": {
@@ -4231,67 +4062,6 @@
       }
     }
   },
-  "editMetadataAutoFill": "Tự động điền từ trực tuyến",
-  "@editMetadataAutoFill": {
-    "description": "Section title for selective online metadata auto-fill in the edit metadata sheet"
-  },
-  "editMetadataAutoFillDesc": "Chọn một tiện ích metadata, đánh dấu các trường cần lấy, sau đó kiểm tra lại dữ liệu trước khi áp dụng",
-  "@editMetadataAutoFillDesc": {
-    "description": "Description for the auto-fill section"
-  },
-  "editMetadataAutoFillSource": "Nguồn metadata",
-  "@editMetadataAutoFillSource": {
-    "description": "Label for the metadata extension selector in online auto-fill"
-  },
-  "editMetadataAutoFillSourceAutomatic": "Tự động (theo thứ tự ưu tiên nguồn)",
-  "@editMetadataAutoFillSourceAutomatic": {
-    "description": "Automatic source option that follows configured metadata provider priority"
-  },
-  "editMetadataAutoFillFind": "Tìm metadata",
-  "@editMetadataAutoFillFind": {
-    "description": "Button label for finding an online metadata candidate"
-  },
-  "editMetadataAutoFillPreview": "Dữ liệu từ {source}",
-  "@editMetadataAutoFillPreview": {
-    "description": "Title for the online metadata preview",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillCoverAvailable": "Có sẵn ảnh bìa",
-  "@editMetadataAutoFillCoverAvailable": {
-    "description": "Preview value when the selected metadata source provides cover artwork"
-  },
-  "editMetadataAutoFillApply": "Áp dụng dữ liệu đã chọn",
-  "@editMetadataAutoFillApply": {
-    "description": "Button label for applying the previewed metadata"
-  },
-  "editMetadataAutoFillDoneFromSource": "Filled {count} {count, plural, =1{field} other{trường}} from {source}",
-  "@editMetadataAutoFillDoneFromSource": {
-    "description": "Snackbar confirming fields applied from a selected metadata source",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillSearching": "Đang tìm kiếm trực tuyến...",
-  "@editMetadataAutoFillSearching": {
-    "description": "Snackbar shown while searching for online metadata"
-  },
-  "editMetadataAutoFillNoResults": "Không tìm thấy metadata khớp trên mạng",
-  "@editMetadataAutoFillNoResults": {
-    "description": "Snackbar when online metadata search returns no results"
-  },
-  "editMetadataAutoFillNoneSelected": "Chọn ít nhất một trường để tự động điền",
-  "@editMetadataAutoFillNoneSelected": {
-    "description": "Snackbar when user taps Fetch without selecting any fields"
-  },
   "lyricsPickerTitle": "Chọn lời bài hát",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
@@ -5081,22 +4851,6 @@
   "@queueMoveDown": {
     "description": "Queue item menu action - move the queued item one position later"
   },
-  "editMetadataMusicBrainzButton": "Lấy dữ liệu từ MusicBrainz",
-  "@editMetadataMusicBrainzButton": {
-    "description": "Tag editor button that fills genre and album artist from MusicBrainz by ISRC"
-  },
-  "editMetadataMusicBrainzFilled": "Đã cập nhật từ MusicBrainz",
-  "@editMetadataMusicBrainzFilled": {
-    "description": "Snackbar after MusicBrainz suggestions were applied to the tag editor fields"
-  },
-  "editMetadataMusicBrainzNothing": "Không tìm thấy kết quả nào trên MusicBrainz",
-  "@editMetadataMusicBrainzNothing": {
-    "description": "Snackbar when the MusicBrainz lookup returns no data"
-  },
-  "editMetadataMusicBrainzNeedsIsrc": "Yêu cầu phải có mã ISRC",
-  "@editMetadataMusicBrainzNeedsIsrc": {
-    "description": "Snackbar when the MusicBrainz lookup is tapped without an ISRC"
-  },
   "nowPlayingRepeatOff": "Tắt lặp lại",
   "@nowPlayingRepeatOff": {
     "description": "Repeat toggle tooltip when repeat is disabled"
@@ -5470,21 +5224,6 @@
       }
     }
   },
-  "trackReEnrichSuccessWithFailures": "Đã làm giàu lại metadata thành công ({successCount}/{total}) - Lỗi: {failedCount}",
-  "@trackReEnrichSuccessWithFailures": {
-    "description": "Snackbar summary after batch metadata re-enrichment finishes with failures",
-    "placeholders": {
-      "successCount": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failedCount": {
-        "type": "int"
-      }
-    }
-  },
   "selectionDeleteTracksCount": "Xóa {count} {count, plural, =1{track} other{tracks}}",
   "@selectionDeleteTracksCount": {
     "description": "Button label for deleting selected tracks",
@@ -5711,15 +5450,6 @@
   "audioAnalysisMono": "Mono",
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
-  },
-  "trackOpenInService": "Mở bằng {serviceName}",
-  "@trackOpenInService": {
-    "description": "Button label to open a track in a named music service",
-    "placeholders": {
-      "serviceName": {
-        "type": "String"
-      }
-    }
   },
   "trackLyricsEmbeddedSource": "Đã nhúng trong tệp",
   "@trackLyricsEmbeddedSource": {

@@ -673,10 +673,6 @@
   "@aboutUnituneDesc": {
     "description": "Credit for the UniTune resolver"
   },
-  "aboutMusicBrainzDesc": "MetaBrainz ve topluluğu tarafından sürdürülen, kayıt çapraz referansları için kullanılan açık müzik veritabanı.",
-  "@aboutMusicBrainzDesc": {
-    "description": "Credit for the MusicBrainz database"
-  },
   "aboutSquiglyDesc": "Liam Macmillan tarafından geliştirilen, son platformlar arası çözümleyici yedeği olarak kullanılan evrensel müzik bağlantısı hizmeti.",
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
@@ -996,11 +992,6 @@
   "@collectionExportM3uFailed": {
     "description": "Snackbar when writing or sharing the M3U8 export fails"
   },
-  "trackOpenOn": "Şurada aç...",
-  "@trackOpenOn": {
-    "description": "Track option and sheet title listing streaming platforms where the track can be opened"
-  },
-  "trackOpenOnNoLinks": "Bu parça için platform bağlantısı bulunamadı.",
   "libraryReviewDuplicates": "Yinelenenleri incele",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1670,14 +1661,6 @@
   "trackFileUnavailable": "Dosya şu anda kullanılamıyor. Depolama erişimini kontrol edip tekrar deneyin.",
   "@trackFileUnavailable": {
     "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackOpenInDeezer": "Deezer'da aç",
-  "@trackOpenInDeezer": {
-    "description": "Action - open track in Deezer app"
-  },
-  "trackOpenInSpotify": "Spotify'da aç",
-  "@trackOpenInSpotify": {
-    "description": "Action - open track in Spotify app"
   },
   "trackTrackName": "Parça adı",
   "@trackTrackName": {
@@ -2724,22 +2707,6 @@
   "@libraryFilterAll": {
     "description": "Filter chip - show all library items"
   },
-  "libraryReEnrichAll": "Re-enrich All Tracks",
-  "@libraryReEnrichAll": {
-    "description": "Library settings action - re-enrich the metadata of every track in the Library"
-  },
-  "libraryReEnrichAllSubtitle": "Look up and fill in metadata for every track in your Library, then review the changes",
-  "@libraryReEnrichAllSubtitle": {
-    "description": "Subtitle for the Re-enrich All Tracks action"
-  },
-  "libraryReEnrichAllEmpty": "No tracks to re-enrich. Tracks from network connections are not included.",
-  "@libraryReEnrichAllEmpty": {
-    "description": "Snackbar when the Library has no tracks Re-enrich can write to"
-  },
-  "libraryReEnrichAllBusy": "Wait for the Library scan to finish, then try again.",
-  "@libraryReEnrichAllBusy": {
-    "description": "Snackbar when Re-enrich All is started during a Library scan"
-  },
   "libraryFilterDownloaded": "İndirildi",
   "@libraryFilterDownloaded": {
     "description": "Filter chip - show only downloaded items"
@@ -3213,118 +3180,6 @@
   "@trackSaveLyricsProgress": {
     "description": "Snackbar while saving lyrics to file"
   },
-  "trackReEnrich": "Yeniden zenginleştir",
-  "@trackReEnrich": {
-    "description": "Menu action - re-embed metadata into audio file"
-  },
-  "trackReEnrichBatchSubtitle": "Çevrimiçi veya elle güncelleme seçin, ardından yazmadan önce her değişikliği gözden geçirin",
-  "@trackReEnrichBatchSubtitle": {
-    "description": "Subtitle for batch metadata update choices"
-  },
-  "trackReEnrichFieldCover": "Kapak resmi",
-  "@trackReEnrichFieldCover": {
-    "description": "Checkbox label for cover art field in re-enrich"
-  },
-  "trackReEnrichFieldLyrics": "Şarkı Sözleri",
-  "@trackReEnrichFieldLyrics": {
-    "description": "Checkbox label for lyrics field in re-enrich"
-  },
-  "trackReEnrichFieldBasicTags": "Albüm, Albüm Sanatçısı",
-  "@trackReEnrichFieldBasicTags": {
-    "description": "Checkbox label for basic tags in re-enrich (title/artist are never overwritten)"
-  },
-  "trackReEnrichFieldTrackInfo": "Parça ve Disk Numarası",
-  "@trackReEnrichFieldTrackInfo": {
-    "description": "Checkbox label for track info in re-enrich"
-  },
-  "trackReEnrichFieldReleaseInfo": "Tarih ve ISRC",
-  "@trackReEnrichFieldReleaseInfo": {
-    "description": "Checkbox label for release info in re-enrich"
-  },
-  "trackReEnrichFieldExtra": "Tür, Etiket, Telif hakkı",
-  "@trackReEnrichFieldExtra": {
-    "description": "Checkbox label for extra metadata in re-enrich"
-  },
-  "trackReEnrichSelectAll": "Tümünü Seç",
-  "@trackReEnrichSelectAll": {
-    "description": "Select all fields checkbox in re-enrich"
-  },
-  "trackReEnrichModeIsrc": "Sadece ISRC",
-  "@trackReEnrichModeIsrc": {
-    "description": "Batch metadata mode that only writes ISRC"
-  },
-  "trackReEnrichModeIsrcSubtitle": "Diğer etiketleri değiştirmeden kayıt tanımlayıcısını bulun ve ekleyin",
-  "@trackReEnrichModeIsrcSubtitle": {
-    "description": "Explanation for the ISRC-only batch metadata mode"
-  },
-  "trackReEnrichModeMissing": "Eksik etiketleri doldur",
-  "@trackReEnrichModeMissing": {
-    "description": "Batch metadata mode that fills only empty tags"
-  },
-  "trackReEnrichModeMissingSubtitle": "Mevcut değerleri koru ve yalnızca boş alanları doldur",
-  "@trackReEnrichModeMissingSubtitle": {
-    "description": "Explanation for the fill-missing batch metadata mode"
-  },
-  "trackReEnrichModeReplace": "Seçili etiketleri güncelle",
-  "@trackReEnrichModeReplace": {
-    "description": "Batch metadata mode that replaces selected tag groups"
-  },
-  "trackReEnrichModeReplaceSubtitle": "Hangi mevcut değerlerin çevrimiçi meta verilerle değiştirilebileceğini seçin",
-  "@trackReEnrichModeReplaceSubtitle": {
-    "description": "Explanation for the selected-tag batch metadata mode"
-  },
-  "trackReEnrichModeManual": "Ortak değerleri ayarla",
-  "@trackReEnrichModeManual": {
-    "description": "Batch metadata mode that applies shared values to every selected track"
-  },
-  "trackReEnrichModeManualSubtitle": "Aynı değerleri seçili her parçaya uygula",
-  "@trackReEnrichModeManualSubtitle": {
-    "description": "Explanation for the manual shared-value batch metadata mode"
-  },
-  "trackReEnrichManualFieldsTitle": "Uygulanacak değerler",
-  "@trackReEnrichManualFieldsTitle": {
-    "description": "Heading above manual batch metadata inputs"
-  },
-  "trackReEnrichManualHint": "Geçerli değeri korumak için alanı boş bırakın. Parça başlıkları, numaraları ve ISRC'ler değişmez.",
-  "@trackReEnrichManualHint": {
-    "description": "Safety explanation for manual batch metadata inputs"
-  },
-  "trackReEnrichFieldsTitle": "Güncellenecek etiketler",
-  "@trackReEnrichFieldsTitle": {
-    "description": "Heading above batch re-enrich field checkboxes"
-  },
-  "trackReEnrichReview": "Değişiklikleri incele",
-  "@trackReEnrichReview": {
-    "description": "Button that searches metadata and opens the batch change review"
-  },
-  "trackReEnrichReviewTitle": "Meta veri değişikliklerini incele",
-  "@trackReEnrichReviewTitle": {
-    "description": "Title of the batch metadata review sheet"
-  },
-  "trackReEnrichReviewSubtitle": "{trackCount} parça genelinde {changeCount} önerilen değişiklik",
-  "@trackReEnrichReviewSubtitle": {
-    "description": "Summary shown above proposed batch metadata changes",
-    "placeholders": {
-      "changeCount": {
-        "type": "int"
-      },
-      "trackCount": {
-        "type": "int"
-      }
-    }
-  },
-  "trackReEnrichNoChanges": "Seçilen parçalar için meta veri değişikliği bulunamadı.",
-  "@trackReEnrichNoChanges": {
-    "description": "Message when batch metadata preview has no proposed changes"
-  },
-  "trackReEnrichApplyChanges": "Değişiklikleri uygula",
-  "@trackReEnrichApplyChanges": {
-    "description": "Confirmation button in the batch metadata review sheet"
-  },
-  "trackReEnrichRefreshOnline": "Çevrimiçinden yenile",
-  "@trackReEnrichRefreshOnline": {
-    "description": "Proposed value when lyrics will be refreshed during re-enrich"
-  },
   "trackEditMetadata": "Meta verileri düzenle",
   "@trackEditMetadata": {
     "description": "Menu action - edit embedded metadata"
@@ -3350,30 +3205,6 @@
         "type": "String"
       }
     }
-  },
-  "trackReEnrichProgress": "Meta veriler yeniden zenginleştiriliyor...",
-  "@trackReEnrichProgress": {
-    "description": "Snackbar while re-enriching metadata"
-  },
-  "trackReEnrichSearching": "Meta veriler çevrimiçi aranıyor...",
-  "@trackReEnrichSearching": {
-    "description": "Snackbar while searching metadata from internet for local items"
-  },
-  "trackReEnrichPreparing": "Meta veri değişiklikleri hazırlanıyor...",
-  "@trackReEnrichPreparing": {
-    "description": "Progress message while preparing manual batch metadata changes"
-  },
-  "trackReEnrichSuccess": "Meta veriler başarıyla yeniden zenginleştirildi",
-  "trackReEnrichMetadataSaved": "Meta veriler kaydedildi",
-  "trackReEnrichLyricsUpdated": "Şarkı sözleri güncellendi",
-  "trackReEnrichLyricsPreserved": "Yeni şarkı sözü bulunamadı; mevcut şarkı sözleri korundu",
-  "trackReEnrichLyricsDisabled": "Şarkı sözleri güncellenmedi: şarkı sözü indirme Ayarlar'da devre dışı",
-  "@trackReEnrichSuccess": {
-    "description": "Snackbar after successful re-enrichment"
-  },
-  "trackReEnrichFfmpegFailed": "FFmpeg meta veri gömme işlemi başarısız oldu",
-  "@trackReEnrichFfmpegFailed": {
-    "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
   "trackSaveFailed": "Başarısız: {error}",
   "@trackSaveFailed": {
@@ -4231,67 +4062,6 @@
       }
     }
   },
-  "editMetadataAutoFill": "Çevrimiçinden otomatik doldur",
-  "@editMetadataAutoFill": {
-    "description": "Section title for selective online metadata auto-fill in the edit metadata sheet"
-  },
-  "editMetadataAutoFillDesc": "Bir meta veri eklentisi seçin, alanları işaretleyin ve uygulamadan önce verilerini gözden geçirin",
-  "@editMetadataAutoFillDesc": {
-    "description": "Description for the auto-fill section"
-  },
-  "editMetadataAutoFillSource": "Meta veri kaynağı",
-  "@editMetadataAutoFillSource": {
-    "description": "Label for the metadata extension selector in online auto-fill"
-  },
-  "editMetadataAutoFillSourceAutomatic": "Otomatik (sağlayıcı önceliği)",
-  "@editMetadataAutoFillSourceAutomatic": {
-    "description": "Automatic source option that follows configured metadata provider priority"
-  },
-  "editMetadataAutoFillFind": "Meta veri bul",
-  "@editMetadataAutoFillFind": {
-    "description": "Button label for finding an online metadata candidate"
-  },
-  "editMetadataAutoFillPreview": "{source} kaynağından veriler",
-  "@editMetadataAutoFillPreview": {
-    "description": "Title for the online metadata preview",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillCoverAvailable": "Kapak resmi mevcut",
-  "@editMetadataAutoFillCoverAvailable": {
-    "description": "Preview value when the selected metadata source provides cover artwork"
-  },
-  "editMetadataAutoFillApply": "Seçilen verileri uygula",
-  "@editMetadataAutoFillApply": {
-    "description": "Button label for applying the previewed metadata"
-  },
-  "editMetadataAutoFillDoneFromSource": "{source} kaynağından {count} {count, plural, =1{alan} other{alan}} dolduruldu",
-  "@editMetadataAutoFillDoneFromSource": {
-    "description": "Snackbar confirming fields applied from a selected metadata source",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillSearching": "Çevrimiçi aranıyor...",
-  "@editMetadataAutoFillSearching": {
-    "description": "Snackbar shown while searching for online metadata"
-  },
-  "editMetadataAutoFillNoResults": "Çevrimiçinde eşleşen meta veri bulunamadı",
-  "@editMetadataAutoFillNoResults": {
-    "description": "Snackbar when online metadata search returns no results"
-  },
-  "editMetadataAutoFillNoneSelected": "Otomatik doldurmak için en az bir alan seçin",
-  "@editMetadataAutoFillNoneSelected": {
-    "description": "Snackbar when user taps Fetch without selecting any fields"
-  },
   "lyricsPickerTitle": "Şarkı sözlerini seç",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
@@ -5081,22 +4851,6 @@
   "@queueMoveDown": {
     "description": "Queue item menu action - move the queued item one position later"
   },
-  "editMetadataMusicBrainzButton": "MusicBrainz'den getir",
-  "@editMetadataMusicBrainzButton": {
-    "description": "Tag editor button that fills genre and album artist from MusicBrainz by ISRC"
-  },
-  "editMetadataMusicBrainzFilled": "MusicBrainz'den güncellendi",
-  "@editMetadataMusicBrainzFilled": {
-    "description": "Snackbar after MusicBrainz suggestions were applied to the tag editor fields"
-  },
-  "editMetadataMusicBrainzNothing": "MusicBrainz'de hiçbir şey bulunamadı",
-  "@editMetadataMusicBrainzNothing": {
-    "description": "Snackbar when the MusicBrainz lookup returns no data"
-  },
-  "editMetadataMusicBrainzNeedsIsrc": "ISRC etiketi gerekir",
-  "@editMetadataMusicBrainzNeedsIsrc": {
-    "description": "Snackbar when the MusicBrainz lookup is tapped without an ISRC"
-  },
   "nowPlayingRepeatOff": "Tekrar kapalı",
   "@nowPlayingRepeatOff": {
     "description": "Repeat toggle tooltip when repeat is disabled"
@@ -5470,21 +5224,6 @@
       }
     }
   },
-  "trackReEnrichSuccessWithFailures": "Meta veriler başarıyla yeniden zenginleştirildi ({successCount}/{total}) - Başarısız: {failedCount}",
-  "@trackReEnrichSuccessWithFailures": {
-    "description": "Snackbar summary after batch metadata re-enrichment finishes with failures",
-    "placeholders": {
-      "successCount": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failedCount": {
-        "type": "int"
-      }
-    }
-  },
   "selectionDeleteTracksCount": "{count} {count, plural, =1{parçayı} other{parçayı}} sil",
   "@selectionDeleteTracksCount": {
     "description": "Button label for deleting selected tracks",
@@ -5711,15 +5450,6 @@
   "audioAnalysisMono": "Mono",
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
-  },
-  "trackOpenInService": "{serviceName} uygulamasında aç",
-  "@trackOpenInService": {
-    "description": "Button label to open a track in a named music service",
-    "placeholders": {
-      "serviceName": {
-        "type": "String"
-      }
-    }
   },
   "trackLyricsEmbeddedSource": "Gömülü",
   "@trackLyricsEmbeddedSource": {

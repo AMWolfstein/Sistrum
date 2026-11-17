@@ -25,7 +25,7 @@
       "title": "Offline-only app: remove online features, network storage and conversion"
     }
   },
-  "next_completion": 50,
+  "next_completion": 51,
   "next_mission": 5,
   "next_tor": 18,
   "tasks": {
@@ -670,13 +670,19 @@
       "title": "Remove online lyrics providers and AI lyrics translation"
     },
     "M004-T003": {
-      "completion": null,
+      "completion": 50,
+      "evidence": {
+        "checks": "analyze clean; gen-l10n ok; full flutter test 3630 passed, 10 skipped, 0 failed (round 1 run); round 1 FAIL formatting fixed in track_metadata_cards.dart and lyrics_options_button.dart; round 2 PASS",
+        "result": "PASS",
+        "reviewer": "independent-sonnet-reviewer",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M004",
       "nonce": "0549cb53d1784164bb09acd17aeceafa",
       "record": "specs/004-offline-only-app/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove online metadata: autofill, re-enrich, provider lookups and open-on-platform"
     },
     "M004-T004": {

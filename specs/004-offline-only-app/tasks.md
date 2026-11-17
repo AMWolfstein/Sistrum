@@ -67,7 +67,7 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
     `lyrics_translation_*`, `lyrics_language_guess_test`,
     `native_lyrics_translation_reply_test` (+ fixture); edit tests that fake translation.
 
-- [ ] M004-T003 Remove online metadata: autofill, re-enrich, provider lookups and open-on-platform
+- [x] M004-T003 Remove online metadata: autofill, re-enrich, provider lookups and open-on-platform
   - Acceptance: FR-003, FR-012. Manual tag editing, cover from file, local cover pick
     and the FFmpeg tag writes stay.
   - Remove: `metadata_autofill_service.dart`, `batch_metadata_re_enrich.dart`,

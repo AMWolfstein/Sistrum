@@ -47,13 +47,6 @@ class AboutPage extends StatelessWidget {
                   showDivider: true,
                 ),
                 _AboutSettingsItem(
-                  icon: Icons.library_music_outlined,
-                  title: 'MusicBrainz',
-                  subtitle: context.l10n.aboutMusicBrainzDesc,
-                  onTap: () => _launchUrl('https://musicbrainz.org'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
                   icon: Icons.hub_outlined,
                   title: 'Squigly',
                   subtitle: context.l10n.aboutSquiglyDesc,

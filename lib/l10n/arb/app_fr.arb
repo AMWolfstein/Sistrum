@@ -673,10 +673,6 @@
   "@aboutUnituneDesc": {
     "description": "Credit for the UniTune resolver"
   },
-  "aboutMusicBrainzDesc": "Base de données musicale ouverte gérée par MetaBrainz et sa communauté, utilisée pour enregistrer des références croisées.",
-  "@aboutMusicBrainzDesc": {
-    "description": "Credit for the MusicBrainz database"
-  },
   "aboutSquiglyDesc": "Service de liens musicaux universel développé par Liam Macmillan, utilisé comme solution de secours finale pour la résolution multiplateforme.",
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
@@ -996,11 +992,6 @@
   "@collectionExportM3uFailed": {
     "description": "Snackbar when writing or sharing the M3U8 export fails"
   },
-  "trackOpenOn": "Ouvrir sur...",
-  "@trackOpenOn": {
-    "description": "Track option and sheet title listing streaming platforms where the track can be opened"
-  },
-  "trackOpenOnNoLinks": "Aucun lien vers une plateforme n'a été trouvé pour ce titre.",
   "libraryReviewDuplicates": "Vérifier les doublons",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1670,14 +1661,6 @@
   "trackFileUnavailable": "File is currently unavailable. Check storage access and try again.",
   "@trackFileUnavailable": {
     "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackOpenInDeezer": "Ouvrir dans Deezer",
-  "@trackOpenInDeezer": {
-    "description": "Action - open track in Deezer app"
-  },
-  "trackOpenInSpotify": "Ouvrir dans Spotify",
-  "@trackOpenInSpotify": {
-    "description": "Action - open track in Spotify app"
   },
   "trackTrackName": "Nom de la piste",
   "@trackTrackName": {
@@ -2724,22 +2707,6 @@
   "@libraryFilterAll": {
     "description": "Filter chip - show all library items"
   },
-  "libraryReEnrichAll": "Re-enrich All Tracks",
-  "@libraryReEnrichAll": {
-    "description": "Library settings action - re-enrich the metadata of every track in the Library"
-  },
-  "libraryReEnrichAllSubtitle": "Look up and fill in metadata for every track in your Library, then review the changes",
-  "@libraryReEnrichAllSubtitle": {
-    "description": "Subtitle for the Re-enrich All Tracks action"
-  },
-  "libraryReEnrichAllEmpty": "No tracks to re-enrich. Tracks from network connections are not included.",
-  "@libraryReEnrichAllEmpty": {
-    "description": "Snackbar when the Library has no tracks Re-enrich can write to"
-  },
-  "libraryReEnrichAllBusy": "Wait for the Library scan to finish, then try again.",
-  "@libraryReEnrichAllBusy": {
-    "description": "Snackbar when Re-enrich All is started during a Library scan"
-  },
   "libraryFilterDownloaded": "Téléchargé",
   "@libraryFilterDownloaded": {
     "description": "Filter chip - show only downloaded items"
@@ -3213,118 +3180,6 @@
   "@trackSaveLyricsProgress": {
     "description": "Snackbar while saving lyrics to file"
   },
-  "trackReEnrich": "Réenrichir",
-  "@trackReEnrich": {
-    "description": "Menu action - re-embed metadata into audio file"
-  },
-  "trackReEnrichBatchSubtitle": "Choisissez une mise à jour en ligne ou manuelle, puis vérifiez chaque modification avant de valider",
-  "@trackReEnrichBatchSubtitle": {
-    "description": "Subtitle for batch metadata update choices"
-  },
-  "trackReEnrichFieldCover": "Illustration de couverture",
-  "@trackReEnrichFieldCover": {
-    "description": "Checkbox label for cover art field in re-enrich"
-  },
-  "trackReEnrichFieldLyrics": "Paroles",
-  "@trackReEnrichFieldLyrics": {
-    "description": "Checkbox label for lyrics field in re-enrich"
-  },
-  "trackReEnrichFieldBasicTags": "Album, Album Artiste",
-  "@trackReEnrichFieldBasicTags": {
-    "description": "Checkbox label for basic tags in re-enrich (title/artist are never overwritten)"
-  },
-  "trackReEnrichFieldTrackInfo": "Numéro de piste & de disque",
-  "@trackReEnrichFieldTrackInfo": {
-    "description": "Checkbox label for track info in re-enrich"
-  },
-  "trackReEnrichFieldReleaseInfo": "Date & ISRC",
-  "@trackReEnrichFieldReleaseInfo": {
-    "description": "Checkbox label for release info in re-enrich"
-  },
-  "trackReEnrichFieldExtra": "Genre, Label, Droits d'auteur",
-  "@trackReEnrichFieldExtra": {
-    "description": "Checkbox label for extra metadata in re-enrich"
-  },
-  "trackReEnrichSelectAll": "Tout sélectionner",
-  "@trackReEnrichSelectAll": {
-    "description": "Select all fields checkbox in re-enrich"
-  },
-  "trackReEnrichModeIsrc": "ISRC uniquement",
-  "@trackReEnrichModeIsrc": {
-    "description": "Batch metadata mode that only writes ISRC"
-  },
-  "trackReEnrichModeIsrcSubtitle": "Rechercher et ajouter l'identifiant de l'enregistrement sans modifier les autres balises",
-  "@trackReEnrichModeIsrcSubtitle": {
-    "description": "Explanation for the ISRC-only batch metadata mode"
-  },
-  "trackReEnrichModeMissing": "Compléter les balises manquantes",
-  "@trackReEnrichModeMissing": {
-    "description": "Batch metadata mode that fills only empty tags"
-  },
-  "trackReEnrichModeMissingSubtitle": "Conserver les valeurs existantes et ne remplir que les champs vides",
-  "@trackReEnrichModeMissingSubtitle": {
-    "description": "Explanation for the fill-missing batch metadata mode"
-  },
-  "trackReEnrichModeReplace": "Mettre à jour les balises sélectionnées",
-  "@trackReEnrichModeReplace": {
-    "description": "Batch metadata mode that replaces selected tag groups"
-  },
-  "trackReEnrichModeReplaceSubtitle": "Sélectionnez les valeurs existantes pouvant être remplacées par des métadonnées en ligne",
-  "@trackReEnrichModeReplaceSubtitle": {
-    "description": "Explanation for the selected-tag batch metadata mode"
-  },
-  "trackReEnrichModeManual": "Définir des valeurs communes",
-  "@trackReEnrichModeManual": {
-    "description": "Batch metadata mode that applies shared values to every selected track"
-  },
-  "trackReEnrichModeManualSubtitle": "Appliquer les mêmes valeurs à toutes les pistes sélectionnées",
-  "@trackReEnrichModeManualSubtitle": {
-    "description": "Explanation for the manual shared-value batch metadata mode"
-  },
-  "trackReEnrichManualFieldsTitle": "Valeurs à appliquer",
-  "@trackReEnrichManualFieldsTitle": {
-    "description": "Heading above manual batch metadata inputs"
-  },
-  "trackReEnrichManualHint": "Laissez un champ vide pour conserver sa valeur actuelle. Les titres, numéros et codes ISRC des morceaux restent inchangés.",
-  "@trackReEnrichManualHint": {
-    "description": "Safety explanation for manual batch metadata inputs"
-  },
-  "trackReEnrichFieldsTitle": "Balises à mettre à jour",
-  "@trackReEnrichFieldsTitle": {
-    "description": "Heading above batch re-enrich field checkboxes"
-  },
-  "trackReEnrichReview": "Vérifier les modifications",
-  "@trackReEnrichReview": {
-    "description": "Button that searches metadata and opens the batch change review"
-  },
-  "trackReEnrichReviewTitle": "Vérifier les modifications apportées aux métadonnées",
-  "@trackReEnrichReviewTitle": {
-    "description": "Title of the batch metadata review sheet"
-  },
-  "trackReEnrichReviewSubtitle": "{changeCount} modifications proposées sur {trackCount} titres",
-  "@trackReEnrichReviewSubtitle": {
-    "description": "Summary shown above proposed batch metadata changes",
-    "placeholders": {
-      "changeCount": {
-        "type": "int"
-      },
-      "trackCount": {
-        "type": "int"
-      }
-    }
-  },
-  "trackReEnrichNoChanges": "Aucune modification des métadonnées n'a été détectée pour les morceaux sélectionnés.",
-  "@trackReEnrichNoChanges": {
-    "description": "Message when batch metadata preview has no proposed changes"
-  },
-  "trackReEnrichApplyChanges": "Appliquer les modifications",
-  "@trackReEnrichApplyChanges": {
-    "description": "Confirmation button in the batch metadata review sheet"
-  },
-  "trackReEnrichRefreshOnline": "Actualiser depuis Internet",
-  "@trackReEnrichRefreshOnline": {
-    "description": "Proposed value when lyrics will be refreshed during re-enrich"
-  },
   "trackEditMetadata": "Modifier les métadonnées",
   "@trackEditMetadata": {
     "description": "Menu action - edit embedded metadata"
@@ -3350,30 +3205,6 @@
         "type": "String"
       }
     }
-  },
-  "trackReEnrichProgress": "Réenrichissement des métadonnées...",
-  "@trackReEnrichProgress": {
-    "description": "Snackbar while re-enriching metadata"
-  },
-  "trackReEnrichSearching": "Recherche de métadonnées en ligne...",
-  "@trackReEnrichSearching": {
-    "description": "Snackbar while searching metadata from internet for local items"
-  },
-  "trackReEnrichPreparing": "Préparation des modifications des métadonnées...",
-  "@trackReEnrichPreparing": {
-    "description": "Progress message while preparing manual batch metadata changes"
-  },
-  "trackReEnrichSuccess": "Métadonnées réenrichies avec succès",
-  "trackReEnrichMetadataSaved": "Métadonnées enregistrées",
-  "trackReEnrichLyricsUpdated": "Paroles mises à jour",
-  "trackReEnrichLyricsPreserved": "Aucune nouvelle parole n'a été trouvée ; les paroles existantes ont été conservées",
-  "trackReEnrichLyricsDisabled": "Paroles non mises à jour : le téléchargement des paroles est désactivé dans les paramètres",
-  "@trackReEnrichSuccess": {
-    "description": "Snackbar after successful re-enrichment"
-  },
-  "trackReEnrichFfmpegFailed": "Échec de l'intégration des métadonnées FFmpeg",
-  "@trackReEnrichFfmpegFailed": {
-    "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
   "trackSaveFailed": "Échec : {error}",
   "@trackSaveFailed": {
@@ -4231,67 +4062,6 @@
       }
     }
   },
-  "editMetadataAutoFill": "Remplissage automatique en ligne",
-  "@editMetadataAutoFill": {
-    "description": "Section title for selective online metadata auto-fill in the edit metadata sheet"
-  },
-  "editMetadataAutoFillDesc": "Choisissez une extension de métadonnées, sélectionnez les champs, puis vérifiez les données avant de l'appliquer",
-  "@editMetadataAutoFillDesc": {
-    "description": "Description for the auto-fill section"
-  },
-  "editMetadataAutoFillSource": "Source des métadonnées",
-  "@editMetadataAutoFillSource": {
-    "description": "Label for the metadata extension selector in online auto-fill"
-  },
-  "editMetadataAutoFillSourceAutomatic": "Automatique (priorité au fournisseur)",
-  "@editMetadataAutoFillSourceAutomatic": {
-    "description": "Automatic source option that follows configured metadata provider priority"
-  },
-  "editMetadataAutoFillFind": "Rechercher des métadonnées",
-  "@editMetadataAutoFillFind": {
-    "description": "Button label for finding an online metadata candidate"
-  },
-  "editMetadataAutoFillPreview": "Données provenant de {source}",
-  "@editMetadataAutoFillPreview": {
-    "description": "Title for the online metadata preview",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillCoverAvailable": "Illustration de couverture disponible",
-  "@editMetadataAutoFillCoverAvailable": {
-    "description": "Preview value when the selected metadata source provides cover artwork"
-  },
-  "editMetadataAutoFillApply": "Appliquer les données sélectionnées",
-  "@editMetadataAutoFillApply": {
-    "description": "Button label for applying the previewed metadata"
-  },
-  "editMetadataAutoFillDoneFromSource": "Rempli {count} {count, plural, one {}=1{champ} other{champs}} ont été renseignés à partir de {source}",
-  "@editMetadataAutoFillDoneFromSource": {
-    "description": "Snackbar confirming fields applied from a selected metadata source",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillSearching": "Recherche en ligne...",
-  "@editMetadataAutoFillSearching": {
-    "description": "Snackbar shown while searching for online metadata"
-  },
-  "editMetadataAutoFillNoResults": "Aucune métadonnée correspondante n'a été trouvée en ligne",
-  "@editMetadataAutoFillNoResults": {
-    "description": "Snackbar when online metadata search returns no results"
-  },
-  "editMetadataAutoFillNoneSelected": "Sélectionnez au moins un champ pour le remplir automatiquement",
-  "@editMetadataAutoFillNoneSelected": {
-    "description": "Snackbar when user taps Fetch without selecting any fields"
-  },
   "lyricsPickerTitle": "Choose lyrics",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
@@ -5081,22 +4851,6 @@
   "@queueMoveDown": {
     "description": "Queue item menu action - move the queued item one position later"
   },
-  "editMetadataMusicBrainzButton": "Récupérer depuis MusicBrainz",
-  "@editMetadataMusicBrainzButton": {
-    "description": "Tag editor button that fills genre and album artist from MusicBrainz by ISRC"
-  },
-  "editMetadataMusicBrainzFilled": "Mise à jour à partir de MusicBrainz",
-  "@editMetadataMusicBrainzFilled": {
-    "description": "Snackbar after MusicBrainz suggestions were applied to the tag editor fields"
-  },
-  "editMetadataMusicBrainzNothing": "Aucun résultat trouvé sur MusicBrainz",
-  "@editMetadataMusicBrainzNothing": {
-    "description": "Snackbar when the MusicBrainz lookup returns no data"
-  },
-  "editMetadataMusicBrainzNeedsIsrc": "Nécessite une balise ISRC",
-  "@editMetadataMusicBrainzNeedsIsrc": {
-    "description": "Snackbar when the MusicBrainz lookup is tapped without an ISRC"
-  },
   "nowPlayingRepeatOff": "Répétition désactivée",
   "@nowPlayingRepeatOff": {
     "description": "Repeat toggle tooltip when repeat is disabled"
@@ -5470,21 +5224,6 @@
       }
     }
   },
-  "trackReEnrichSuccessWithFailures": "Les métadonnées ont été réenrichies avec succès ({successCount}/{total}) - Échec : {failedCount}",
-  "@trackReEnrichSuccessWithFailures": {
-    "description": "Snackbar summary after batch metadata re-enrichment finishes with failures",
-    "placeholders": {
-      "successCount": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failedCount": {
-        "type": "int"
-      }
-    }
-  },
   "selectionDeleteTracksCount": "Supprimer {count} {count, plural, =1{titre} other{titres}}",
   "@selectionDeleteTracksCount": {
     "description": "Button label for deleting selected tracks",
@@ -5711,15 +5450,6 @@
   "audioAnalysisMono": "Mono",
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
-  },
-  "trackOpenInService": "Ouvrir dans {serviceName}",
-  "@trackOpenInService": {
-    "description": "Button label to open a track in a named music service",
-    "placeholders": {
-      "serviceName": {
-        "type": "String"
-      }
-    }
   },
   "trackLyricsEmbeddedSource": "Intégré",
   "@trackLyricsEmbeddedSource": {

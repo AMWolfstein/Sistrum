@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:sistrum/controllers/library_re_enrich_all.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_scan_failure.dart';
 import 'package:sistrum/models/settings.dart';
@@ -40,7 +39,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
   bool _hasStoragePermission = false;
   bool _isCleaningMissingFiles = false;
   bool _isFindingMovedDownloads = false;
-  bool _isLoadingReEnrich = false;
 
   String _getDisplayPath(String path) {
     if (!path.startsWith('content://')) return path;
@@ -243,16 +241,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
       );
     } finally {
       if (mounted) setState(() => _isCleaningMissingFiles = false);
-    }
-  }
-
-  Future<void> _reEnrichAll() async {
-    if (_isLoadingReEnrich) return;
-    setState(() => _isLoadingReEnrich = true);
-    try {
-      await reEnrichWholeLibrary(context, ref, isActive: () => mounted);
-    } finally {
-      if (mounted) setState(() => _isLoadingReEnrich = false);
     }
   }
 
@@ -663,9 +651,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                       (libraryState.totalCount > 0 ||
                           hasDownloads ||
                           librarySources.isNotEmpty);
-                  final canReEnrich =
-                      !_isLoadingReEnrich &&
-                      (libraryState.totalCount > 0 || hasDownloads);
                   return SettingsGroup(
                     children: [
                       if (libraryState.isScanning)
@@ -701,22 +686,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                             onTap: librarySources.isNotEmpty
                                 ? () => _startScan(forceFullScan: true)
                                 : null,
-                          ),
-                        ),
-                        Opacity(
-                          opacity: canReEnrich || _isLoadingReEnrich
-                              ? 1.0
-                              : 0.5,
-                          child: SettingsItem(
-                            title: context.l10n.libraryReEnrichAll,
-                            subtitle: context.l10n.libraryReEnrichAllSubtitle,
-                            trailing: _isLoadingReEnrich
-                                ? const AppLoadingIndicator(
-                                    size: 20,
-                                    strokeWidth: 2,
-                                  )
-                                : null,
-                            onTap: canReEnrich ? _reEnrichAll : null,
                           ),
                         ),
                       ],

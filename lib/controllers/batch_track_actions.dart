@@ -417,10 +417,6 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
       metadata: metadata,
       sourcePath: filePath,
       shouldEmbedLyrics: shouldEmbedLyrics,
-      trackName: trackName,
-      artistName: artistName,
-      spotifyId: spotifyId,
-      durationMs: durationMs,
     );
 
     try {

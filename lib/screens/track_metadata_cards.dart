@@ -161,88 +161,10 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                 onCopy: () => _copyToClipboard(context, barcodeValue),
               ),
             ],
-
-            if (_spotifyId != null && _spotifyId!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Builder(
-                builder: (context) {
-                  final openService = _serviceForTrackId(
-                    _spotifyId!,
-                    fallbackService: _service.toLowerCase(),
-                  );
-                  String buttonLabel;
-                  if (openService == MusicServices.deezer) {
-                    buttonLabel = context.l10n.trackOpenInDeezer;
-                  } else if (openService == MusicServices.amazon) {
-                    buttonLabel = context.l10n.trackOpenInService(
-                      'Amazon Music',
-                    );
-                  } else if (openService == MusicServices.tidal) {
-                    buttonLabel = context.l10n.trackOpenInService('Tidal');
-                  } else if (openService == MusicServices.qobuz) {
-                    buttonLabel = context.l10n.trackOpenInService('Qobuz');
-                  } else {
-                    buttonLabel = context.l10n.trackOpenInSpotify;
-                  }
-                  return HeaderFilledButton(
-                    icon: CupertinoIcons.arrow_up_right_square,
-                    label: buttonLabel,
-                    onPressed: () => _openServiceUrl(context),
-                  );
-                },
-              ),
-            ],
           ],
         ),
       ),
     );
-  }
-
-  Future<void> _openServiceUrl(BuildContext context) async {
-    if (_spotifyId == null) return;
-
-    final openService = _serviceForTrackId(
-      _spotifyId!,
-      fallbackService: _service.toLowerCase(),
-    );
-    // Unknown services open as Spotify, as this button always has.
-    final link = ServiceTrackLink(
-      openService,
-      _displayServiceTrackId(_spotifyId!),
-    );
-    final webUrl = link.webUrl;
-    final appUri = link.appUri;
-    final serviceName = link.serviceName;
-
-    try {
-      final launched = await launchUrl(
-        appUri,
-        mode: LaunchMode.externalApplication,
-      );
-
-      if (!launched) {
-        await launchUrl(
-          Uri.parse(webUrl),
-          mode: LaunchMode.externalApplication,
-        );
-      }
-    } catch (e) {
-      try {
-        await launchUrl(
-          Uri.parse(webUrl),
-          mode: LaunchMode.externalApplication,
-        );
-      } catch (_) {
-        if (context.mounted) {
-          _copyToClipboard(context, webUrl);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.snackbarUrlCopied(serviceName)),
-            ),
-          );
-        }
-      }
-    }
   }
 
   Widget _buildMetadataGrid(BuildContext context, ColorScheme colorScheme) {
@@ -335,28 +257,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
           rawValue: canonicalIsrcForCopy(isrc),
         ),
     ];
-
-    if (!_isLocalItem && _spotifyId != null && _spotifyId!.isNotEmpty) {
-      final idService = _serviceForTrackId(
-        _spotifyId!,
-        fallbackService: _service.toLowerCase(),
-      );
-      final cleanId = _displayServiceTrackId(_spotifyId!);
-      String idLabel;
-      switch (idService) {
-        case MusicServices.deezer:
-          idLabel = 'Deezer ID';
-        case MusicServices.amazon:
-          idLabel = 'Amazon ASIN';
-        case MusicServices.tidal:
-          idLabel = 'Tidal ID';
-        case MusicServices.qobuz:
-          idLabel = 'Qobuz ID';
-        default:
-          idLabel = 'Spotify ID';
-      }
-      items.add(_MetadataItem(idLabel, cleanId));
-    }
 
     items.add(
       _MetadataItem(context.l10n.trackMetadataService, _service.toUpperCase()),

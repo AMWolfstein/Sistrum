@@ -56,11 +56,6 @@ extension _TrackMetadataDisplay on _TrackMetadataScreenState {
     );
   }
 
-  String _displayServiceTrackId(String value) => displayServiceTrackId(value);
-
-  String _serviceForTrackId(String value, {required String fallbackService}) =>
-      serviceForTrackId(value, fallbackService: fallbackService);
-
   String? get _displayAudioQuality {
     final fileName = _extractFileNameFromPathOrUri(cleanFilePath);
     final fileExt = fileName.contains('.')

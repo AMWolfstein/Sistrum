@@ -673,10 +673,6 @@
   "@aboutUnituneDesc": {
     "description": "Credit for the UniTune resolver"
   },
-  "aboutMusicBrainzDesc": "Відкрита музична база даних, яку підтримують MetaBrainz та її спільнота; використовується для фіксації перехресних посилань.",
-  "@aboutMusicBrainzDesc": {
-    "description": "Credit for the MusicBrainz database"
-  },
   "aboutSquiglyDesc": "Універсальний сервіс посилань на музику від Liam Macmillan, що використовується як кінцевий резервний варіант для кросплатформного визначення цільової сторінки.",
   "@aboutSquiglyDesc": {
     "description": "Credit for the Squigly resolver"
@@ -996,11 +992,6 @@
   "@collectionExportM3uFailed": {
     "description": "Snackbar when writing or sharing the M3U8 export fails"
   },
-  "trackOpenOn": "Відкрити на...",
-  "@trackOpenOn": {
-    "description": "Track option and sheet title listing streaming platforms where the track can be opened"
-  },
-  "trackOpenOnNoLinks": "Для цього треку не знайдено посилань на платформи.",
   "libraryReviewDuplicates": "Переглянути дублікати",
   "@libraryReviewDuplicates": {
     "description": "Library settings row opening the duplicate review sheet"
@@ -1670,14 +1661,6 @@
   "trackFileUnavailable": "Файл наразі недоступний. Перевірте доступ до сховища та спробуйте ще раз.",
   "@trackFileUnavailable": {
     "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackOpenInDeezer": "Відкрити в Deezer",
-  "@trackOpenInDeezer": {
-    "description": "Action - open track in Deezer app"
-  },
-  "trackOpenInSpotify": "Відкрити в Spotify",
-  "@trackOpenInSpotify": {
-    "description": "Action - open track in Spotify app"
   },
   "trackTrackName": "Назва треку",
   "@trackTrackName": {
@@ -2724,22 +2707,6 @@
   "@libraryFilterAll": {
     "description": "Filter chip - show all library items"
   },
-  "libraryReEnrichAll": "Оновити метадані всіх треків",
-  "@libraryReEnrichAll": {
-    "description": "Library settings action - re-enrich the metadata of every track in the Library"
-  },
-  "libraryReEnrichAllSubtitle": "Знайти й заповнити метадані для кожного треку в Бібліотеці, а потім переглянути зміни",
-  "@libraryReEnrichAllSubtitle": {
-    "description": "Subtitle for the Re-enrich All Tracks action"
-  },
-  "libraryReEnrichAllEmpty": "Немає треків для оновлення. Треки з мережевих джерел не враховуються.",
-  "@libraryReEnrichAllEmpty": {
-    "description": "Snackbar when the Library has no tracks Re-enrich can write to"
-  },
-  "libraryReEnrichAllBusy": "Зачекайте, поки завершиться сканування Бібліотеки, а потім спробуйте знову.",
-  "@libraryReEnrichAllBusy": {
-    "description": "Snackbar when Re-enrich All is started during a Library scan"
-  },
   "libraryFilterDownloaded": "Завантажені",
   "@libraryFilterDownloaded": {
     "description": "Filter chip - show only downloaded items"
@@ -3213,118 +3180,6 @@
   "@trackSaveLyricsProgress": {
     "description": "Snackbar while saving lyrics to file"
   },
-  "trackReEnrich": "Оновити інформацію",
-  "@trackReEnrich": {
-    "description": "Menu action - re-embed metadata into audio file"
-  },
-  "trackReEnrichBatchSubtitle": "Виберіть онлайн оновлення або оновлення вручну, а потім перегляньте всі зміни перед записом",
-  "@trackReEnrichBatchSubtitle": {
-    "description": "Subtitle for batch metadata update choices"
-  },
-  "trackReEnrichFieldCover": "Обкладинка",
-  "@trackReEnrichFieldCover": {
-    "description": "Checkbox label for cover art field in re-enrich"
-  },
-  "trackReEnrichFieldLyrics": "Тексти пісень",
-  "@trackReEnrichFieldLyrics": {
-    "description": "Checkbox label for lyrics field in re-enrich"
-  },
-  "trackReEnrichFieldBasicTags": "Альбом, Виконавець альбому",
-  "@trackReEnrichFieldBasicTags": {
-    "description": "Checkbox label for basic tags in re-enrich (title/artist are never overwritten)"
-  },
-  "trackReEnrichFieldTrackInfo": "Номер треку та диска",
-  "@trackReEnrichFieldTrackInfo": {
-    "description": "Checkbox label for track info in re-enrich"
-  },
-  "trackReEnrichFieldReleaseInfo": "Дата та ISRC",
-  "@trackReEnrichFieldReleaseInfo": {
-    "description": "Checkbox label for release info in re-enrich"
-  },
-  "trackReEnrichFieldExtra": "Жанр, Обкладинка, Авторське право",
-  "@trackReEnrichFieldExtra": {
-    "description": "Checkbox label for extra metadata in re-enrich"
-  },
-  "trackReEnrichSelectAll": "Вибрати все",
-  "@trackReEnrichSelectAll": {
-    "description": "Select all fields checkbox in re-enrich"
-  },
-  "trackReEnrichModeIsrc": "Тільки ISRC",
-  "@trackReEnrichModeIsrc": {
-    "description": "Batch metadata mode that only writes ISRC"
-  },
-  "trackReEnrichModeIsrcSubtitle": "Знайдіть і додайте ідентифікатор запису, не змінюючи інших міток",
-  "@trackReEnrichModeIsrcSubtitle": {
-    "description": "Explanation for the ISRC-only batch metadata mode"
-  },
-  "trackReEnrichModeMissing": "Заповнити відсутні теги",
-  "@trackReEnrichModeMissing": {
-    "description": "Batch metadata mode that fills only empty tags"
-  },
-  "trackReEnrichModeMissingSubtitle": "Зберігати наявні значення та заповнювати тільки поля, які є порожніми",
-  "@trackReEnrichModeMissingSubtitle": {
-    "description": "Explanation for the fill-missing batch metadata mode"
-  },
-  "trackReEnrichModeReplace": "Оновити вибрані теги",
-  "@trackReEnrichModeReplace": {
-    "description": "Batch metadata mode that replaces selected tag groups"
-  },
-  "trackReEnrichModeReplaceSubtitle": "Виберіть онлайн-оновлення або оновлення вручну, а потім перегляньте всі зміни перед записом",
-  "@trackReEnrichModeReplaceSubtitle": {
-    "description": "Explanation for the selected-tag batch metadata mode"
-  },
-  "trackReEnrichModeManual": "Установити загальні значення",
-  "@trackReEnrichModeManual": {
-    "description": "Batch metadata mode that applies shared values to every selected track"
-  },
-  "trackReEnrichModeManualSubtitle": "Застосувати одне й те ж значення до кожного обраного маршруту",
-  "@trackReEnrichModeManualSubtitle": {
-    "description": "Explanation for the manual shared-value batch metadata mode"
-  },
-  "trackReEnrichManualFieldsTitle": "Значення для застосування",
-  "@trackReEnrichManualFieldsTitle": {
-    "description": "Heading above manual batch metadata inputs"
-  },
-  "trackReEnrichManualHint": "Залиште поле порожнім, щоб зберегти своє поточне значення. Назва маршруту, цифри та ISRC не змінюються.",
-  "@trackReEnrichManualHint": {
-    "description": "Safety explanation for manual batch metadata inputs"
-  },
-  "trackReEnrichFieldsTitle": "Теги для оновлення",
-  "@trackReEnrichFieldsTitle": {
-    "description": "Heading above batch re-enrich field checkboxes"
-  },
-  "trackReEnrichReview": "Переглянути зміни",
-  "@trackReEnrichReview": {
-    "description": "Button that searches metadata and opens the batch change review"
-  },
-  "trackReEnrichReviewTitle": "Переглянути зміни метаданих",
-  "@trackReEnrichReviewTitle": {
-    "description": "Title of the batch metadata review sheet"
-  },
-  "trackReEnrichReviewSubtitle": "{changeCount} Запропоновані зміни в межах {trackCount} треків",
-  "@trackReEnrichReviewSubtitle": {
-    "description": "Summary shown above proposed batch metadata changes",
-    "placeholders": {
-      "changeCount": {
-        "type": "int"
-      },
-      "trackCount": {
-        "type": "int"
-      }
-    }
-  },
-  "trackReEnrichNoChanges": "Для вибраних треків не виявлено змін у метаданих.",
-  "@trackReEnrichNoChanges": {
-    "description": "Message when batch metadata preview has no proposed changes"
-  },
-  "trackReEnrichApplyChanges": "Застосувати зміни",
-  "@trackReEnrichApplyChanges": {
-    "description": "Confirmation button in the batch metadata review sheet"
-  },
-  "trackReEnrichRefreshOnline": "Оновити з мережі",
-  "@trackReEnrichRefreshOnline": {
-    "description": "Proposed value when lyrics will be refreshed during re-enrich"
-  },
   "trackEditMetadata": "Редагувати метадані",
   "@trackEditMetadata": {
     "description": "Menu action - edit embedded metadata"
@@ -3350,30 +3205,6 @@
         "type": "String"
       }
     }
-  },
-  "trackReEnrichProgress": "Повторне оновлення метаданих...",
-  "@trackReEnrichProgress": {
-    "description": "Snackbar while re-enriching metadata"
-  },
-  "trackReEnrichSearching": "Пошук метаданих в Інтернеті...",
-  "@trackReEnrichSearching": {
-    "description": "Snackbar while searching metadata from internet for local items"
-  },
-  "trackReEnrichPreparing": "Переглянути зміни метаданих...",
-  "@trackReEnrichPreparing": {
-    "description": "Progress message while preparing manual batch metadata changes"
-  },
-  "trackReEnrichSuccess": "Метадані успішно оновлено",
-  "trackReEnrichMetadataSaved": "Метадані збережені",
-  "trackReEnrichLyricsUpdated": "Текст оновлено",
-  "trackReEnrichLyricsPreserved": "Нові тексти пісень не знайдено; наявні тексти пісень зберігаються",
-  "trackReEnrichLyricsDisabled": "Не оновлені тексти: завантаження текстів у налаштуваннях вимкнено",
-  "@trackReEnrichSuccess": {
-    "description": "Snackbar after successful re-enrichment"
-  },
-  "trackReEnrichFfmpegFailed": "Не вдалося вбудувати метадані FFmpeg",
-  "@trackReEnrichFfmpegFailed": {
-    "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
   },
   "trackSaveFailed": "Не вдалося: {error}",
   "@trackSaveFailed": {
@@ -4231,67 +4062,6 @@
       }
     }
   },
-  "editMetadataAutoFill": "Автоматичне заповнення з онлайн-ресурсів",
-  "@editMetadataAutoFill": {
-    "description": "Section title for selective online metadata auto-fill in the edit metadata sheet"
-  },
-  "editMetadataAutoFillDesc": "Виберіть розширення метаданих, оберіть поля, а потім перегляньте дані перед застосуванням",
-  "@editMetadataAutoFillDesc": {
-    "description": "Description for the auto-fill section"
-  },
-  "editMetadataAutoFillSource": "Джерело метаданих",
-  "@editMetadataAutoFillSource": {
-    "description": "Label for the metadata extension selector in online auto-fill"
-  },
-  "editMetadataAutoFillSourceAutomatic": "Автоматично (пріоритет провайдера)",
-  "@editMetadataAutoFillSourceAutomatic": {
-    "description": "Automatic source option that follows configured metadata provider priority"
-  },
-  "editMetadataAutoFillFind": "Знайти метадані",
-  "@editMetadataAutoFillFind": {
-    "description": "Button label for finding an online metadata candidate"
-  },
-  "editMetadataAutoFillPreview": "Дані з {source}",
-  "@editMetadataAutoFillPreview": {
-    "description": "Title for the online metadata preview",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillCoverAvailable": "Доступне оформлення обкладинки",
-  "@editMetadataAutoFillCoverAvailable": {
-    "description": "Preview value when the selected metadata source provides cover artwork"
-  },
-  "editMetadataAutoFillApply": "Застосувати вибрані дані",
-  "@editMetadataAutoFillApply": {
-    "description": "Button label for applying the previewed metadata"
-  },
-  "editMetadataAutoFillDoneFromSource": "Заповнено {count} {count, plural, =1{поле} other{поля}} з {source}",
-  "@editMetadataAutoFillDoneFromSource": {
-    "description": "Snackbar confirming fields applied from a selected metadata source",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "editMetadataAutoFillSearching": "Пошук в Інтернеті...",
-  "@editMetadataAutoFillSearching": {
-    "description": "Snackbar shown while searching for online metadata"
-  },
-  "editMetadataAutoFillNoResults": "Відповідних метаданих в Інтернеті не знайдено",
-  "@editMetadataAutoFillNoResults": {
-    "description": "Snackbar when online metadata search returns no results"
-  },
-  "editMetadataAutoFillNoneSelected": "Виберіть принаймні одне поле для автоматичного заповнення",
-  "@editMetadataAutoFillNoneSelected": {
-    "description": "Snackbar when user taps Fetch without selecting any fields"
-  },
   "lyricsPickerTitle": "Виберіть текст пісні",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
@@ -5081,22 +4851,6 @@
   "@queueMoveDown": {
     "description": "Queue item menu action - move the queued item one position later"
   },
-  "editMetadataMusicBrainzButton": "Отримати з MusicBrainz",
-  "@editMetadataMusicBrainzButton": {
-    "description": "Tag editor button that fills genre and album artist from MusicBrainz by ISRC"
-  },
-  "editMetadataMusicBrainzFilled": "Оновлено з MusicBrainz",
-  "@editMetadataMusicBrainzFilled": {
-    "description": "Snackbar after MusicBrainz suggestions were applied to the tag editor fields"
-  },
-  "editMetadataMusicBrainzNothing": "На MusicBrainz нічого не знайдено",
-  "@editMetadataMusicBrainzNothing": {
-    "description": "Snackbar when the MusicBrainz lookup returns no data"
-  },
-  "editMetadataMusicBrainzNeedsIsrc": "Потребує коду ISRC",
-  "@editMetadataMusicBrainzNeedsIsrc": {
-    "description": "Snackbar when the MusicBrainz lookup is tapped without an ISRC"
-  },
   "nowPlayingRepeatOff": "Повторення вимкнено",
   "@nowPlayingRepeatOff": {
     "description": "Repeat toggle tooltip when repeat is disabled"
@@ -5470,21 +5224,6 @@
       }
     }
   },
-  "trackReEnrichSuccessWithFailures": "Метадані успішно оновлено ({successCount}/{total}) - Помилок: {failedCount}",
-  "@trackReEnrichSuccessWithFailures": {
-    "description": "Snackbar summary after batch metadata re-enrichment finishes with failures",
-    "placeholders": {
-      "successCount": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failedCount": {
-        "type": "int"
-      }
-    }
-  },
   "selectionDeleteTracksCount": "Видалити {count} {count, plural, =1{трек} other{треків}}",
   "@selectionDeleteTracksCount": {
     "description": "Button label for deleting selected tracks",
@@ -5711,15 +5450,6 @@
   "audioAnalysisMono": "Моно",
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
-  },
-  "trackOpenInService": "Відкрити в {serviceName}",
-  "@trackOpenInService": {
-    "description": "Button label to open a track in a named music service",
-    "placeholders": {
-      "serviceName": {
-        "type": "String"
-      }
-    }
   },
   "trackLyricsEmbeddedSource": "Вбудовано",
   "@trackLyricsEmbeddedSource": {

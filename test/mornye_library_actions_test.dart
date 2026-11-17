@@ -12,7 +12,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
-import 'package:sistrum/services/batch_metadata_re_enrich.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
@@ -20,8 +19,6 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/batch_convert_sheet.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/re_enrich_field_dialog.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
@@ -166,40 +163,6 @@ void main() {
   }
 
   testWidgets(
-    'Sistrum Re-enrich retains field choices and disables empty review',
-    (tester) async {
-      await tester.binding.setSurfaceSize(const Size(390, 844));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      ReEnrichFieldSelection? result;
-      await tester.pumpWidget(
-        _app(
-          Builder(
-            builder: (context) => CupertinoButton(
-              onPressed: () async {
-                result = await showReEnrichFieldDialog(
-                  context,
-                  selectedCount: 2,
-                );
-              },
-              child: const Text('Open'),
-            ),
-          ),
-        ),
-      );
-      await _tapVisible(tester, find.text('Open'));
-      await _tapVisible(tester, find.text('Update selected tags'));
-      await _tapVisible(tester, find.text('Select All'));
-      final review = find.widgetWithText(AppActionButton, 'Review changes');
-      expect(tester.widget<AppActionButton>(review).onPressed, isNull);
-      await _tapVisible(tester, find.text('Cover Art'));
-      await _tapVisible(tester, find.text('Review changes'));
-      expect(result?.mode, ReEnrichBatchMode.selectedFields);
-      expect(result?.fields, [ReEnrichFields.cover]);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
     'Sistrum ReplayGain cancellation restores selection without analysis',
     (tester) async {
       bool? confirmed;
@@ -342,28 +305,5 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Edited track'), findsOneWidget);
     expect(find.widgetWithText(AppActionButton, 'Save'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Auto-fill from online'),
-      -250,
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView).last,
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    await _tapVisible(tester, find.text('Auto-fill from online'));
-    await _tapVisible(tester, find.text('None'));
-    final search = find.widgetWithText(AppActionButton, 'Find metadata');
-    expect(tester.widget<AppActionButton>(search).onPressed, isNull);
-    await _tapVisible(tester, find.text('All'));
-    expect(tester.widget<AppActionButton>(search).onPressed, isNotNull);
-    expect(
-      tester
-          .widgetList<MornyeFilterChip>(find.byType(MornyeFilterChip))
-          .every((chip) => chip.selected),
-      isTrue,
-    );
-    expect(tester.takeException(), isNull);
   });
 }

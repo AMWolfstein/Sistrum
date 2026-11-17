@@ -42,3 +42,20 @@ Changed tests: `track_metadata_lyrics_test` lost its embed-of-fetched-lyrics gro
 Generated: `settings.g.dart` regenerated with build_runner (only the removed fields changed).
 
 Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3707 passed, 10 skipped, 0 failed.
+
+## M004-T003 Remove online metadata: autofill, re-enrich, provider lookups and open-on-platform
+
+Map refresh first: 32369 symbols, 1633 sources, 0 partial, 0 unindexed.
+
+Removed: the metadata autofill service, its part file and candidate tile in the editor (with the MusicBrainz button and the autofill section); the single-track and whole-library re-enrich (`batch_metadata_re_enrich`, `ffmpeg_reenrich`, `re_enrich_*` policy, result, field dialog and review sheet, `library_re_enrich_all`, the re-enrich-all setting row, and the Re-enrich menu entry); the "Open on" platform sheet, `service_track_link` and their menu entry and header button; the provider-ID rows in the metadata cards; the song-link and language-sync calls (`PlatformBridge` `fetchMusicBrainzTags`, `getTrackPlatformLinks`, `setMetadataLanguage`, `reEnrichFile`); the About page's MusicBrainz credit; the online lookup fallback in `ensureLyricsMetadataForConversion` (a sidecar .lrc is still read); the editor's lookup-generation and autofill-field state in `MetadataEditorController`; 62 ARB keys no Dart code uses any more; tests for those features (`batch_metadata_re_enrich`, `re_enrich_release_policy`, `re_enrich_result`, `re_enrich_feedback`, `library_re_enrich_all`, `metadata_autofill_service`, `open_on_platform_sheet`, `service_track_link`, `track_metadata_cover_search`, `local_track_batch_actions`, `downloaded_album_reenrich`, `network_batch_re_enrich`, and the re-enrich case in `mornye_library_actions`). The test for the main shell no longer asserts the language call.
+
+Deferred, with the reason:
+- `getProviderMetadata`, `searchDeezerByISRC`, `getDeezerExtendedMetadata`, `convertSpotifyToDeezer`, `searchTracksWithMetadataProvider`: still called by the download pipeline and CSV import (T007).
+- `provider_resource_ids.dart`, `MusicServices`, the artist page import: used by motion artwork and the download source (T007).
+- `songLinkRegion` setting and its download settings row: T007.
+- Metadata provider priority settings and their strings (`metadataProvider*`, `sectionMetadataProviders`, `snackbarMetadataProviderSaved`, `extensionMetadataProvider`): T009.
+- Kotlin `reEnrichFile`, `fetchMusicBrainzTags`, `getTrackPlatformLinks`, `setMetadataLanguage` handlers and the Rust providers: T009 and T010.
+- `test/support/re_enrich_settings.dart` keeps its name (it is a generic settings fake used by other tests); renamed in T011.
+- `re_enrich_motion_artwork_test` and the motion-artwork save helper: T007 (motion artwork).
+
+Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3630 passed, 10 skipped, 0 failed.

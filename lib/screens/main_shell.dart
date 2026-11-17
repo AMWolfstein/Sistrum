@@ -116,9 +116,6 @@ class _MainShellState extends ConsumerState<MainShell>
     playback.configure(settings);
     playback.configureTagCredits(ref.read(tagCreditScopeProvider));
     listeningRecorder.setEnabled(settings.listeningStatisticsEnabled);
-    // Deezer & co. localize artist/genre names by IP unless told the app's
-    // language (issue #480).
-    unawaited(PlatformBridge.setMetadataLanguage(languageTag));
   }
 
   @override

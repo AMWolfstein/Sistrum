@@ -42,8 +42,7 @@ class _LyricsOptionsButtonState extends ConsumerState<LyricsOptionsButton> {
     ref.watch(settingsProvider.select((s) => s.playerShowPronunciation));
     return ListenableBuilder(
       listenable: widget.metadata,
-      builder: (context, _) =>
-          _buildButton(context) ?? const SizedBox.shrink(),
+      builder: (context, _) => _buildButton(context) ?? const SizedBox.shrink(),
     );
   }
 

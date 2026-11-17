@@ -27,10 +27,7 @@ class MetadataEditorController {
   ];
 
   final Map<String, TextEditingController> _fields;
-  final Set<String> autoFillFields = {};
   bool explicit;
-  int _generation = 0;
-  bool _disposed = false;
 
   MetadataEditorController(Map<String, String> initialValues)
     : _fields = {
@@ -38,16 +35,7 @@ class MetadataEditorController {
           if (key != 'explicit' && key != 'cover')
             key: TextEditingController(text: initialValues[key] ?? ''),
       },
-      explicit = parseExplicitFlag(initialValues['explicit']) == true {
-    for (final field in _fields.values) {
-      var previousText = field.text;
-      field.addListener(() {
-        if (field.text == previousText) return;
-        previousText = field.text;
-        invalidateLookup();
-      });
-    }
-  }
+      explicit = parseExplicitFlag(initialValues['explicit']) == true;
 
   TextEditingController? operator [](String key) => _fields[key];
 
@@ -55,36 +43,6 @@ class MetadataEditorController {
     for (final entry in _fields.entries) entry.key: entry.value.text,
     'explicit': explicit ? '1' : '0',
   };
-
-  int beginLookup() => ++_generation;
-  void invalidateLookup() => _generation++;
-  bool isCurrent(int generation) => !_disposed && generation == _generation;
-
-  int apply(Map<String, String> values) {
-    var filled = 0;
-    for (final key in autoFillFields) {
-      final value = values[key];
-      if (value == null) continue;
-      if (key == 'explicit') {
-        final parsed = parseExplicitFlag(value);
-        if (parsed == null) continue;
-        explicit = parsed;
-      } else {
-        final field = _fields[key];
-        if (field == null) continue;
-        field.text = value;
-      }
-      filled++;
-    }
-    return filled;
-  }
-
-  void selectEmptyFields({required bool hasCover}) {
-    autoFillFields
-      ..clear()
-      ..addAll(_fields.keys.where((key) => _fields[key]!.text.trim().isEmpty));
-    if (!hasCover) autoFillFields.add('cover');
-  }
 
   Map<String, String> saveMetadata({required String artistTagMode}) {
     final tags = values;
@@ -97,7 +55,6 @@ class MetadataEditorController {
   }
 
   void dispose() {
-    _disposed = true;
     for (final field in _fields.values) {
       field.dispose();
     }

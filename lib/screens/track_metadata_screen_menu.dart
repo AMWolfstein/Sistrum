@@ -94,12 +94,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           label: l10n.trackSaveLyrics,
           onTap: _saveLyrics,
         ),
-      if (canEditFile)
-        _MetadataOption(
-          icon: Icons.travel_explore,
-          label: l10n.trackReEnrich,
-          onTap: _reEnrichMetadata,
-        ),
       if (canEditFile && _isConvertibleFormat)
         _MetadataOption(
           icon: Icons.swap_horiz,
@@ -123,17 +117,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           icon: Icons.call_split,
           label: l10n.cueSplitTitle,
           onTap: () => _showCueSplitSheet(screenContext),
-        ),
-      if (_spotifyId != null || (isrc?.isNotEmpty ?? false))
-        _MetadataOption(
-          icon: Icons.open_in_new,
-          label: l10n.trackOpenOn,
-          dividerAbove: true,
-          onTap: () => OpenOnPlatformSheet.show(
-            screenContext,
-            spotifyId: _spotifyId ?? '',
-            isrc: isrc ?? '',
-          ),
         ),
       if (!_isNetworkItem)
         _MetadataOption(

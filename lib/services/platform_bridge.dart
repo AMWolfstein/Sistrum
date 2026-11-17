@@ -1139,17 +1139,6 @@ class PlatformBridge {
         'providers_json': jsonEncode(providers),
       });
 
-  static Future<Map<String, dynamic>> reEnrichFile(
-    Map<String, dynamic> request,
-  ) {
-    Future<Map<String, dynamic>> invoke() =>
-        _invokeMap('reEnrichFile', {'request_json': jsonEncode(request)});
-    if (request['preview_only'] == true) return invoke();
-    return _withMediaFileAccess([
-      request['file_path'] as String? ?? '',
-    ], invoke);
-  }
-
   static Future<Map<String, dynamic>> readFileMetadata(
     String filePath, {
     String? displayName,
@@ -1582,14 +1571,6 @@ class PlatformBridge {
     } catch (_) {}
   }
 
-  /// Tells the backend the app's display language so metadata providers
-  /// localize by it instead of IP geolocation. Best-effort.
-  static Future<void> setMetadataLanguage(String tag) async {
-    try {
-      await _channel.invokeMethod('setMetadataLanguage', {'tag': tag});
-    } catch (_) {}
-  }
-
   static Future<void> initExtensionSystem(
     String extensionsDir,
     String dataDir, {
@@ -1900,42 +1881,6 @@ class PlatformBridge {
       return null;
     }
     return _copyMapList(entry.value);
-  }
-
-  /// MusicBrainz genre and album artist for an ISRC; empty strings when a
-  /// lookup finds nothing. One channel call covers both fields to spare
-  /// MusicBrainz's 1 req/s budget.
-  static Future<({String genre, String albumArtist})> fetchMusicBrainzTags({
-    required String isrc,
-    String albumName = '',
-  }) async {
-    final result = await _channel.invokeMethod('fetchMusicBrainzTags', {
-      'isrc': isrc,
-      'album_name': albumName,
-    });
-    final decoded = _decodeMapResult(result);
-    return (
-      genre: decoded['genre']?.toString() ?? '',
-      albumArtist: decoded['album_artist']?.toString() ?? '',
-    );
-  }
-
-  /// Streaming-platform links for a track, keyed by song.link platform ID.
-  /// Served from the native backend's memory cache; throws when the lookup fails.
-  static Future<Map<String, String>> getTrackPlatformLinks({
-    String spotifyId = '',
-    String isrc = '',
-  }) async {
-    final result = await _channel.invokeMethod('getTrackPlatformLinks', {
-      'spotify_id': spotifyId,
-      'isrc': isrc,
-    });
-    final decoded = _decodeMapResult(result);
-    final platforms = decoded['platforms'];
-    if (platforms is! Map) return const {};
-    return platforms.map(
-      (key, value) => MapEntry(key.toString(), value.toString()),
-    );
   }
 
   // in the diagnostics session marker.

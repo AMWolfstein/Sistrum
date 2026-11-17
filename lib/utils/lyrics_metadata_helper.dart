@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/string_utils.dart';
 
@@ -99,61 +98,10 @@ String _sidecarLrcPath(String path) {
   return '$path.lrc';
 }
 
-/// Writes a ".lrc" sidecar next to a re-enriched audio file when the backend
-/// result requests it (`write_external_lrc`), honoring the user's lyrics mode.
-///
-/// This handles the filesystem case only. SAF (`content://`) files are written
-/// centrally by the Kotlin `reEnrichFile` handler, which still holds the
-/// original document URI, so callers should skip those here (they are detected
-/// and ignored). A requested write must succeed before re-enrich reports
-/// completion; failures propagate to the single-track or batch result.
-Future<bool> writeReEnrichSidecarLrc({
-  required String audioFilePath,
-  required Map<String, dynamic> reEnrichResult,
-}) async {
-  if (reEnrichResult['write_external_lrc'] != true) return false;
-
-  if (isContentUri(audioFilePath)) return false;
-
-  final lrc = (reEnrichResult['lyrics'] as String?)?.trim() ?? '';
-  if (lrc.isEmpty) throw StateError('The updated LRC lyrics are empty');
-
-  final lrcPath = _sidecarLrcPath(audioFilePath);
-  await File(lrcPath).writeAsString(lrc);
-  return true;
-}
-
-/// Writes a SAF ".lrc" sidecar after a FFmpeg re-enrich write-back succeeds.
-///
-/// Native FLAC re-enrich handles SAF sidecars in Kotlin after the direct
-/// write-back. This helper is for the FFmpeg path, where Dart owns the final
-/// `writeTempToSaf` success/failure decision.
-Future<bool> writeReEnrichSafSidecarLrc({
-  required String safUri,
-  required Map<String, dynamic> reEnrichResult,
-}) async {
-  if (reEnrichResult['write_external_lrc'] != true) return false;
-  if (!isContentUri(safUri)) throw ArgumentError.value(safUri, 'safUri');
-
-  final lrc = (reEnrichResult['lyrics'] as String?)?.trim() ?? '';
-  if (lrc.isEmpty) throw StateError('The updated LRC lyrics are empty');
-
-  if (!await PlatformBridge.writeSafSidecarLrc(safUri, lrc)) {
-    throw StateError(
-      'Metadata was saved, but the LRC lyrics file could not be updated',
-    );
-  }
-  return true;
-}
-
 Future<void> ensureLyricsMetadataForConversion({
   required Map<String, String> metadata,
   required String sourcePath,
   required bool shouldEmbedLyrics,
-  required String trackName,
-  required String artistName,
-  String spotifyId = '',
-  int durationMs = 0,
 }) async {
   if (!shouldEmbedLyrics || hasEmbeddedLyricsMetadata(metadata)) {
     return;
@@ -171,22 +119,6 @@ Future<void> ensureLyricsMetadataForConversion({
         if (content.isNotEmpty) {
           lyrics = content;
         }
-      }
-    } catch (_) {}
-  }
-
-  if (lyrics == null || lyrics.isEmpty) {
-    try {
-      final fetched = await PlatformBridge.getLyricsLRC(
-        spotifyId,
-        trackName,
-        artistName,
-        durationMs: durationMs,
-      );
-      final normalized = fetched.trim();
-      if (normalized.isNotEmpty &&
-          normalized.toLowerCase() != '[instrumental:true]') {
-        lyrics = normalized;
       }
     } catch (_) {}
   }

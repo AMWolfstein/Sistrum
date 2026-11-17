@@ -25,17 +25,9 @@ void main() {
   const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-  final languageTags = <Object?>[];
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    languageTags.clear();
-    messenger.setMockMethodCallHandler(backend, (call) async {
-      if (call.method == 'setMetadataLanguage') {
-        languageTags.add((call.arguments as Map)['tag']);
-      }
-      return null;
-    });
   });
   tearDown(() => messenger.setMockMethodCallHandler(backend, null));
 
@@ -139,7 +131,6 @@ void main() {
     tester,
   ) async {
     await pumpShell(tester);
-    expect(languageTags, ['en']);
     // A back press at a tab root checks the keyboard too.
     await tester.binding.handlePopRoute();
     await tester.pump();
@@ -152,7 +143,6 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
     }
 
-    expect(languageTags, ['en']);
     // The shell did not rebuild its tab navigators.
     expect(tester.widget(homeTab), same(tabs));
     // Lets the back press snack bar time out.
@@ -169,7 +159,6 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(languageTags, ['en', 'id']);
     expect(tester.takeException(), isNull);
   });
 
