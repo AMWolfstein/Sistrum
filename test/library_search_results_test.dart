@@ -22,6 +22,7 @@ import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/app_icon_finder.dart';
+import 'package:sistrum/models/download_history.dart';
 
 class _PlaybackRecorder extends PlaybackController {
   final paths = <String>[];

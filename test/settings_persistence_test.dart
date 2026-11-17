@@ -56,32 +56,26 @@ class _Settings extends SettingsNotifier {
 }
 
 void main() {
-  test(
-    'changing the app folder durably remembers the old root for moved files',
-    () async {
-      SharedPreferences.setMockInitialValues({});
-      final preferences = await SharedPreferences.getInstance();
-      final container = ProviderContainer(
-        overrides: [
-          settingsProvider.overrideWith(
-            () => _Settings.withLoader(() async => preferences),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      final notifier = container.read(settingsProvider.notifier);
-      await notifier.useAppFolderStorage('/storage/emulated/0/xxx');
-      await notifier.useAppFolderStorage('/storage/emulated/0/yyy');
-      expect(preferences.getStringList('download_previous_directories_v1'), [
-        '/storage/emulated/0/xxx',
-      ]);
-      expect(
-        (jsonDecode(preferences.getString('app_settings')!)
-            as Map)['downloadDirectory'],
-        '/storage/emulated/0/yyy',
-      );
-    },
-  );
+  test('changing the app folder durably stores the new root', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [
+        settingsProvider.overrideWith(
+          () => _Settings.withLoader(() async => preferences),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    final notifier = container.read(settingsProvider.notifier);
+    await notifier.useAppFolderStorage('/storage/emulated/0/xxx');
+    await notifier.useAppFolderStorage('/storage/emulated/0/yyy');
+    expect(
+      (jsonDecode(preferences.getString('app_settings')!)
+          as Map)['downloadDirectory'],
+      '/storage/emulated/0/yyy',
+    );
+  });
 
   test(
     'setup completes only after folder and completion flag are durable',
@@ -283,7 +277,6 @@ void main() {
     addTearDown(container.dispose);
     await container.read(settingsProvider.notifier).restoreFromBackup({
       'songLinkRegion': 'not a region',
-      'embeddedCoverMaxDimension': 777,
       'extensionVerificationBrowserMode': 'sideways',
       'downloadFallbackExtensionIds': ['ext.a', ' ext.a ', ''],
       'useExtensionProviders': false,
@@ -291,7 +284,6 @@ void main() {
 
     final restored = container.read(settingsProvider);
     expect(restored.songLinkRegion, 'US');
-    expect(restored.embeddedCoverMaxDimension, 0);
     expect(restored.extensionVerificationBrowserMode, 'in_app_first');
     expect(restored.downloadFallbackExtensionIds, ['ext.a']);
     expect(restored.useExtensionProviders, isTrue);

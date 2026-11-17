@@ -79,8 +79,6 @@ class MainActivity: FlutterFragmentActivity() {
         "isCharging",
         "getBackendImplementations",
         "ensureInstallMarker",
-        "downloadByStrategy",
-        "runPostProcessingV2",
         "readAudioMetadata",
         "readFileMetadata",
         "checkHiResAuthenticity",
@@ -128,7 +126,6 @@ class MainActivity: FlutterFragmentActivity() {
         "safCreateCollisionAwareFromPath",
         "writeTempToSaf",
         "writeSafSidecarLrc",
-        "downloadCoverToFile",
         "extractCoverToFile",
         "rewriteSplitArtistTags",
         "writeM4AFreeformTags",
@@ -136,21 +133,9 @@ class MainActivity: FlutterFragmentActivity() {
         "writeAC4Metadata",
         "releaseMemory",
         "releaseMemoryUnderPressure",
-        "startDownloadService",
-        "stopDownloadService",
-        "updateDownloadServiceProgress",
-        "isDownloadServiceRunning",
         "startBackgroundWork",
         "updateBackgroundWork",
         "stopBackgroundWork",
-        "startNativeDownloadWorker",
-        "appendNativeDownloadWorkerRequests",
-        "finishNativeDownloadWorkerPreparation",
-        "acknowledgeNativeDownloadWorkerItems",
-        "pauseNativeDownloadWorker",
-        "resumeNativeDownloadWorker",
-        "cancelNativeDownloadWorker",
-        "getNativeDownloadWorkerSnapshot",
         "exitApp",
     )
     private var libraryStorageReceiver: BroadcastReceiver? = null
@@ -159,11 +144,6 @@ class MainActivity: FlutterFragmentActivity() {
     }
     internal val safScanLock = Any()
     internal var safScanProgress = SafScanProgress()
-    internal var downloadProgressStreamJob: Job? = null
-    internal var downloadProgressConnection: AtomicReference<CoreDownloadProgress?>? = null
-    internal var downloadProgressEventSink: EventChannel.EventSink? = null
-    internal var lastDownloadProgressPayload: String? = null
-    internal var lastDownloadProgressSeq = 0L
     internal var libraryScanProgressStreamJob: Job? = null
     internal var libraryScanProgressEventSink: EventChannel.EventSink? = null
     internal var lastLibraryScanProgressPayload: String? = null
@@ -453,10 +433,8 @@ class MainActivity: FlutterFragmentActivity() {
             } catch (_: Exception) {}
         }
         libraryStorageReceiver = null
-        // The backend belongs to the process/shared Flutter engine and download
-        // service. Activity recreation must not shut it down (or wait for its
-        // active scans/downloads on the UI thread).
-        stopDownloadProgressStream()
+        // The backend belongs to the process/shared Flutter engine. Activity
+        // recreation must not shut it down (or wait for its active scans on the UI thread).
         stopLibraryScanProgressStream()
         super.onDestroy()
     }
@@ -509,7 +487,6 @@ class MainActivity: FlutterFragmentActivity() {
                         "isCharging" -> handleIsCharging(call, result)
                         "ensureInstallMarker" -> handleEnsureInstallMarker(call, result)
                         "exitApp" -> handleExitApp(call, result)
-                        "downloadByStrategy" -> handleDownloadByStrategy(call, result)
                         "getBackendImplementations" -> handleGetBackendImplementations(call, result)
                         "pickSafTree" -> {
                             launchSafTreePicker(call, result)
@@ -549,44 +526,16 @@ class MainActivity: FlutterFragmentActivity() {
                         "writeAC4Metadata" -> handleWriteAC4Metadata(call, result)
                         "writeTempToSaf" -> handleWriteTempToSaf(call, result)
                         "writeSafSidecarLrc" -> handleWriteSafSidecarLrc(call, result)
-                        "downloadCoverToFile" -> handleDownloadCoverToFile(call, result)
                         "extractCoverToFile" -> handleExtractCoverToFile(call, result)
                         "reEnrichFile" -> handleReEnrichFile(call, result)
-                        "startDownloadService" -> handleStartDownloadService(call, result)
-                        "stopDownloadService" -> {
-                            DownloadService.stop(this@MainActivity)
-                            result.success(null)
-                        }
-                        "updateDownloadServiceProgress" -> handleUpdateDownloadServiceProgress(call, result)
-                        "isDownloadServiceRunning" -> {
-                            result.success(DownloadService.isServiceRunning())
-                        }
                         "startBackgroundWork" -> handleStartBackgroundWork(call, result)
                         "updateBackgroundWork" -> handleUpdateBackgroundWork(call, result)
                         "stopBackgroundWork" -> {
                             BackgroundWorkService.stop(call.argument<String>("kind") ?: "")
                             result.success(null)
                         }
-                        "startNativeDownloadWorker" -> handleStartNativeDownloadWorker(call, result)
-                        "appendNativeDownloadWorkerRequests" -> handleAppendNativeDownloadWorkerRequests(call, result)
-                        "finishNativeDownloadWorkerPreparation" -> handleFinishNativeDownloadWorkerPreparation(call, result)
-                        "acknowledgeNativeDownloadWorkerItems" -> handleAcknowledgeNativeDownloadWorkerItems(call, result)
-                        "pauseNativeDownloadWorker" -> {
-                            DownloadService.pauseNativeQueue(this@MainActivity)
-                            result.success(null)
-                        }
-                        "resumeNativeDownloadWorker" -> {
-                            DownloadService.resumeNativeQueue(this@MainActivity)
-                            result.success(null)
-                        }
-                        "cancelNativeDownloadWorker" -> {
-                            DownloadService.cancelNativeQueue(this@MainActivity)
-                            result.success(null)
-                        }
-                        "getNativeDownloadWorkerSnapshot" -> handleGetNativeDownloadWorkerSnapshot(call, result)
                         "releaseMemory" -> handleReleaseMemory(call, result)
                         "releaseMemoryUnderPressure" -> handleReleaseMemoryUnderPressure(call, result)
-                        "runPostProcessingV2" -> handleRunPostProcessingV2(call, result)
                         "setLibraryCoverCacheDir" -> handleSetLibraryCoverCacheDir(call, result)
                         "scanLibraryFolderToNDJSONFile" -> handleScanLibraryFolderToNDJSONFile(call, result)
                         "scanLibraryFolderIncremental" -> handleScanLibraryFolderIncremental(call, result)

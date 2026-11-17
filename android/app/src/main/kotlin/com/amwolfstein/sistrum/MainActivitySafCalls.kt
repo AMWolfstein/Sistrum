@@ -207,16 +207,16 @@ internal suspend fun Context.handleSafWriteSidecarFromPath(call: MethodCall, res
 internal suspend fun MainActivity.handleSafCreateFromPath(call: MethodCall, result: MethodChannel.Result) {
     val treeUriStr = call.argument<String>("tree_uri") ?: ""
     val relativeDir = call.argument<String>("relative_dir") ?: ""
-    val fileName = SafDownloadHandler.sanitizeFilename(call.argument<String>("file_name") ?: "")
+    val fileName = SafDocumentWriter.sanitizeFilename(call.argument<String>("file_name") ?: "")
     val mimeType = call.argument<String>("mime_type") ?: "application/octet-stream"
     val srcPath = call.argument<String>("src_path") ?: ""
     val createdUri = withContext(Dispatchers.IO) {
         if (treeUriStr.isBlank()) return@withContext null
         if (fileName.isBlank()) return@withContext null
-        val dir = SafDownloadHandler.ensureDocumentDir(this@handleSafCreateFromPath, Uri.parse(treeUriStr), relativeDir) ?: return@withContext null
+        val dir = SafDocumentWriter.ensureDocumentDir(this@handleSafCreateFromPath, Uri.parse(treeUriStr), relativeDir) ?: return@withContext null
         val existing = findSafChild(this@handleSafCreateFromPath, dir, fileName)
         val createdNew = existing == null
-        val doc = SafDownloadHandler.createOrReuseDocumentFile(this@handleSafCreateFromPath, dir, mimeType, fileName)
+        val doc = SafDocumentWriter.createOrReuseDocumentFile(this@handleSafCreateFromPath, dir, mimeType, fileName)
             ?: return@withContext null
         if (!writeUriFromPath(doc.uri, srcPath)) {
             if (createdNew) {
@@ -237,7 +237,7 @@ internal suspend fun MainActivity.handleSafCreateIfAbsentFromPath(call: MethodCa
     val srcPath = call.argument<String>("src_path") ?: ""
     val response = withContext(Dispatchers.IO) {
         if (treeUriStr.isBlank() || fileName.isBlank()) return@withContext null
-        SafDownloadHandler.writeFileToSafIfAbsent(
+        SafDocumentWriter.writeFileToSafIfAbsent(
             context = this@handleSafCreateIfAbsentFromPath,
             treeUriStr = treeUriStr,
             relativeDir = relativeDir,
@@ -265,7 +265,7 @@ internal suspend fun MainActivity.handleSafCreateUniqueFromPath(call: MethodCall
     val preservedSuffix = call.argument<String>("preserved_suffix") ?: ""
     val response = withContext(Dispatchers.IO) {
         if (treeUriStr.isBlank() || fileName.isBlank()) return@withContext null
-        SafDownloadHandler.writeFileToSafUnique(
+        SafDocumentWriter.writeFileToSafUnique(
             context = this@handleSafCreateUniqueFromPath,
             treeUriStr = treeUriStr,
             relativeDir = relativeDir,
@@ -298,7 +298,7 @@ internal suspend fun MainActivity.handleSafCreateCollisionAwareFromPath(call: Me
             cleanFileName.isBlank() ||
             variantFileName.isBlank()
         ) return@withContext null
-        SafDownloadHandler.writeFileToSafCollisionAware(
+        SafDocumentWriter.writeFileToSafCollisionAware(
             context = this@handleSafCreateCollisionAwareFromPath,
             treeUriStr = treeUriStr,
             relativeDir = relativeDir,

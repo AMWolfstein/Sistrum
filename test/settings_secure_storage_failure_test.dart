@@ -26,7 +26,6 @@ void main() {
   const savedSettings = AppSettings(
     isFirstLaunch: false,
     downloadDirectory: '/music/kept',
-    audioQuality: 'LOSSLESS',
     lyricsProviders: ['extension:example.provider'],
     downloadFallbackExtensionIds: ['example.provider'],
     allowLocalNetwork: true,
@@ -90,7 +89,6 @@ void main() {
     final loaded = container.read(settingsProvider);
     expect(loaded.isFirstLaunch, isFalse);
     expect(loaded.downloadDirectory, savedSettings.downloadDirectory);
-    expect(loaded.audioQuality, savedSettings.audioQuality);
     expect(loaded.lyricsProviders, savedSettings.lyricsProviders);
     expect(loaded.allowLocalNetwork, isTrue);
     expect(notifier.syncedSettings, [loaded]);

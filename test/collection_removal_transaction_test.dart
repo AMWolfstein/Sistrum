@@ -6,7 +6,7 @@ import 'package:sistrum/services/library_collections_database.dart';
 import 'support/sqlite_process_database.dart';
 
 void main() {
-  for (final kind in ['wishlist', 'loved', 'playlist']) {
+  for (final kind in ['loved', 'playlist']) {
     for (final failure in [
       'none',
       'row',
@@ -62,8 +62,6 @@ void main() {
             );
           }
           Future<void> remove(List<String> keys) => switch (kind) {
-            'wishlist' =>
-              LibraryCollectionsDatabase.deleteDatabaseWishlistTracks(db, keys),
             'loved' => LibraryCollectionsDatabase.deleteDatabaseLovedTracks(
               db,
               keys,

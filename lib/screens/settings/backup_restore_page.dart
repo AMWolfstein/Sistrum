@@ -6,7 +6,6 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -18,6 +17,7 @@ import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class BackupRestorePage extends ConsumerStatefulWidget {
   const BackupRestorePage({super.key});
@@ -228,11 +228,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
             _ContentRow(
               icon: Icons.favorite_outline,
               label: l10n.backupContentsLiked(bundle.likedCount),
-            ),
-          if (bundle.hasCollections)
-            _ContentRow(
-              icon: Icons.bookmark_outline,
-              label: l10n.backupContentsWishlist(bundle.wishlistCount),
             ),
           if (bundle.hasCollections)
             _ContentRow(

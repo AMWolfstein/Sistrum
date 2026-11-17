@@ -5,7 +5,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_media_identity.dart';
@@ -13,6 +12,7 @@ import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/services/music_player_service.dart';
 
+import 'package:sistrum/providers/download_history_provider.dart';
 export 'package:sistrum/services/playable_media.dart'
     show playableFromHistory, playableFromLocal;
 

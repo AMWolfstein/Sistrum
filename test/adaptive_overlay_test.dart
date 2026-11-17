@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/settings/download_settings_page.dart';
 import 'package:sistrum/services/update_checker.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
@@ -24,11 +19,6 @@ Widget _app(ThemeData theme, Widget home) => ProviderScope(
     home: home,
   ),
 );
-
-class _ChoiceSettings extends SettingsNotifier {
-  @override
-  AppSettings build() => const AppSettings(autoConvertDownloads: true);
-}
 
 void main() {
   for (final brightness in Brightness.values) {
@@ -100,107 +90,6 @@ void main() {
             tester.getSemantics(find.text('Choice $selected')),
             isSemantics(isInMutuallyExclusiveGroup: true),
           );
-        }
-        expect(tester.takeException(), isNull);
-      } finally {
-        semantics.dispose();
-      }
-    });
-
-    testWidgets('download choices update and dismiss ($variant)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      tester.view.physicalSize = const Size(412, 1800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final semantics = tester.ensureSemantics();
-      try {
-        // A page-local accent must survive capture by the root modal route.
-        final pageTheme = theme.copyWith(
-          colorScheme: theme.colorScheme.copyWith(primary: Colors.green),
-        );
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [settingsProvider.overrideWith(_ChoiceSettings.new)],
-            child: _app(
-              theme,
-              Theme(
-                data: pageTheme,
-                child: const MornyeSettingsTheme(child: DownloadSettingsPage()),
-              ),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        final container = ProviderScope.containerOf(
-          tester.element(find.byType(DownloadSettingsPage)),
-        );
-        final check = mornyeIconFor(Icons.check);
-        for (final (picker, initial, next) in [
-          ('Output format', 'MP3', 'Opus'),
-          ('Output quality', '320 kbps', '160 kbps'),
-          ('Output format', 'Opus', 'FLAC'),
-          ('Maximum bit depth', '16-bit', '24-bit'),
-          ('Maximum sample rate', '48 kHz', '96 kHz'),
-          (
-            'Concurrent downloads',
-            '1 track at a time',
-            'Up to 3 tracks at once',
-          ),
-        ]) {
-          Future<void> open() async {
-            await tester.ensureVisible(find.text(picker));
-            await tester.pumpAndSettle();
-            await tester.tap(find.text(picker));
-            await tester.pumpAndSettle();
-          }
-
-          Finder option(String label) => find.descendant(
-            of: find.byType(AppBottomSheet),
-            matching: find.text(label),
-          );
-          await open();
-          expect(
-            tester.getSemantics(option(initial)),
-            isSemantics(isSelected: true, hasTapAction: true),
-          );
-          expect(
-            tester.getSemantics(option(next)),
-            isSemantics(isSelected: false, hasTapAction: true),
-          );
-          final checkmark = find.descendant(
-            of: find.byType(AppBottomSheet),
-            matching: find.byIcon(check),
-          );
-          expect(checkmark, findsOneWidget);
-          expect(tester.widget<Icon>(checkmark).color, Colors.green);
-          expect(tester.getSize(checkmark), Size.square(20));
-          await tester.tap(option(next));
-          await tester.pumpAndSettle();
-          expect(find.byType(AppBottomSheet), findsNothing);
-          final settings = container.read(settingsProvider);
-          switch (picker) {
-            case 'Output format':
-              expect(settings.autoConvertFormat, next.toLowerCase());
-            case 'Output quality':
-              expect(settings.autoConvertBitrate, '160k');
-            case 'Maximum bit depth':
-              expect(settings.autoConvertMaxBitDepth, 24);
-            case 'Maximum sample rate':
-              expect(settings.autoConvertMaxSampleRate, 96000);
-            case 'Concurrent downloads':
-              expect(settings.concurrentDownloads, 3);
-          }
-          await open();
-          expect(
-            tester.getSemantics(option(next)),
-            isSemantics(isSelected: true),
-          );
-          // Selecting the current option must still invoke its dismissal.
-          await tester.tap(option(next));
-          await tester.pumpAndSettle();
-          expect(find.byType(AppBottomSheet), findsNothing);
         }
         expect(tester.takeException(), isNull);
       } finally {

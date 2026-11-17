@@ -76,13 +76,6 @@ extension ExtensionNotifierProviderPriority on ExtensionNotifier {
     );
   }
 
-  String? _firstEnabledExtensionDownloadProviderId() {
-    return state.extensions
-        .where((ext) => ext.enabled && ext.hasDownloadProvider)
-        .map((ext) => ext.id)
-        .firstOrNull;
-  }
-
   String? _firstEnabledSearchProviderId() {
     return defaultSearchExtension(state.extensions)?.id;
   }
@@ -129,54 +122,6 @@ extension ExtensionNotifierProviderPriority on ExtensionNotifier {
         .firstOrNull;
     return extension?.replacesBuiltInProviders.contains(normalizedLegacy) ??
         false;
-  }
-
-  Future<void> _reconcileDefaultDownloadService() async {
-    final settings = ref.read(settingsProvider);
-    final preferredExtensionId = _firstEnabledExtensionDownloadProviderId();
-    final currentService = settings.defaultService.trim();
-
-    if (currentService.isEmpty) {
-      if (preferredExtensionId != null) {
-        ref
-            .read(settingsProvider.notifier)
-            .setDefaultService(preferredExtensionId);
-        _log.d(
-          'Adopted first enabled download extension as default service: $preferredExtensionId',
-        );
-      }
-      return;
-    }
-
-    final replacementExtensionId = replacedBuiltInDownloadProviderFor(
-      currentService,
-    );
-    if (replacementExtensionId != null) {
-      ref
-          .read(settingsProvider.notifier)
-          .setDefaultService(replacementExtensionId);
-      _log.d(
-        'Migrated retired built-in service $currentService to $replacementExtensionId',
-      );
-      return;
-    }
-
-    final currentExtension = state.extensions
-        .where((ext) => ext.id == currentService)
-        .firstOrNull;
-    final isMissingOrInvalidExtension =
-        currentExtension == null ||
-        !currentExtension.enabled ||
-        !currentExtension.hasDownloadProvider;
-    if (isMissingOrInvalidExtension) {
-      final fallbackService = preferredExtensionId ?? '';
-      ref.read(settingsProvider.notifier).setDefaultService(fallbackService);
-      _log.d(
-        fallbackService.isEmpty
-            ? 'Cleared default service because $currentService is no longer available'
-            : 'Reset default service to $fallbackService because $currentService is no longer available',
-      );
-    }
   }
 
   void _reconcileSearchProvider() {

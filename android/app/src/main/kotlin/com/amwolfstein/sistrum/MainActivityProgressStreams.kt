@@ -12,8 +12,6 @@ import java.util.concurrent.atomic.AtomicReference
 import org.json.JSONObject
 import org.json.JSONTokener
 
-private val DOWNLOAD_PROGRESS_STREAM_CHANNEL =
-    "com.amwolfstein.sistrum/download_progress_stream"
 private val LIBRARY_SCAN_PROGRESS_STREAM_CHANNEL =
     "com.amwolfstein.sistrum/library_scan_progress_stream"
 // A progress bar can't show sub-second granularity; 400ms halves the
@@ -21,23 +19,6 @@ private val LIBRARY_SCAN_PROGRESS_STREAM_CHANNEL =
 private val LIBRARY_SCAN_PROGRESS_STREAM_POLLING_INTERVAL_MS = 400L
 
 internal fun MainActivity.registerProgressStreams(messenger: BinaryMessenger) {
-    EventChannel(
-        messenger,
-        DOWNLOAD_PROGRESS_STREAM_CHANNEL,
-    ).setStreamHandler(
-        object : EventChannel.StreamHandler {
-            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                if (events != null) {
-                    startDownloadProgressStream(events)
-                }
-            }
-
-            override fun onCancel(arguments: Any?) {
-                stopDownloadProgressStream()
-            }
-        },
-    )
-
     EventChannel(
         messenger,
         LIBRARY_SCAN_PROGRESS_STREAM_CHANNEL,
@@ -54,69 +35,6 @@ internal fun MainActivity.registerProgressStreams(messenger: BinaryMessenger) {
             }
         },
     )
-}
-
-internal fun downloadProgressSequence(payload: String, previous: Long): Long {
-    if (payload.isEmpty()) return previous
-    val progress = try {
-        JSONTokener(payload).nextValue() as? JSONObject ?: return previous
-    } catch (_: Exception) {
-        return previous
-    }
-    val seq = (progress.opt("seq") as? Number)?.toLong() ?: previous
-    return if (progress.opt("reset") == true || seq > previous) seq else previous
-}
-
-private fun MainActivity.startDownloadProgressStream(sink: EventChannel.EventSink) {
-    stopDownloadProgressStream()
-    downloadProgressEventSink = sink
-    lastDownloadProgressPayload = null
-    lastDownloadProgressSeq = 0L
-    val connection = AtomicReference<CoreDownloadProgress?>(null)
-    downloadProgressConnection = connection
-    downloadProgressStreamJob = scope.launch {
-        try {
-            while (isActive && downloadProgressConnection === connection) {
-                try {
-                    val (payload, sequence) = withContext(Dispatchers.IO) {
-                        val reader = connection.get() ?: coreBackend.openDownloadProgress().also { connection.set(it) }
-                        ensureActive()
-                        val payload = reader.waitDelta(lastDownloadProgressSeq, 15_000L)
-                        payload to downloadProgressSequence(payload, lastDownloadProgressSeq)
-                    }
-                    if (!isActive || downloadProgressConnection !== connection) break
-                    if (payload.isNotEmpty() && payload != lastDownloadProgressPayload) {
-                        lastDownloadProgressSeq = sequence
-                        lastDownloadProgressPayload = payload
-                        sink.success(payload)
-                        delay(250L)
-                    }
-                } catch (e: Exception) {
-                    connection.getAndSet(null)?.close()
-                    if (!isActive || downloadProgressConnection !== connection) break
-                    lastDownloadProgressSeq = 0L
-                    lastDownloadProgressPayload = null
-                    android.util.Log.w(
-                        "Sistrum",
-                        "Download progress stream poll failed: ${e.message}",
-                    )
-                    delay(250L)
-                }
-            }
-        } finally {
-            connection.getAndSet(null)?.close()
-        }
-    }
-}
-
-internal fun MainActivity.stopDownloadProgressStream() {
-    downloadProgressStreamJob?.cancel()
-    downloadProgressStreamJob = null
-    downloadProgressConnection?.getAndSet(null)?.close()
-    downloadProgressConnection = null
-    downloadProgressEventSink = null
-    lastDownloadProgressPayload = null
-    lastDownloadProgressSeq = 0L
 }
 
 private fun MainActivity.startLibraryScanProgressStream(sink: EventChannel.EventSink) {

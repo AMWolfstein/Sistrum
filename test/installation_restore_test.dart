@@ -93,8 +93,6 @@ void main() {
 
   group('restored settings sanitization', () {
     const restored = AppSettings(
-      defaultService: 'extension.lossless',
-      audioQuality: 'HI_RES_LOSSLESS',
       locale: 'id',
       downloadDirectory: '/storage/emulated/0/Music/Old',
       storageMode: 'saf',
@@ -119,8 +117,6 @@ void main() {
       expect(sanitized.localLibraryEnabled, isFalse);
       expect(sanitized.localLibraryPath, isEmpty);
       expect(sanitized.localLibraryAutoScan, 'off');
-      expect(sanitized.defaultService, restored.defaultService);
-      expect(sanitized.audioQuality, restored.audioQuality);
       expect(sanitized.locale, restored.locale);
     });
 
@@ -137,7 +133,6 @@ void main() {
       expect(bootstrap.isFirstLaunch, isTrue);
       expect(bootstrap.storageMode, 'app');
       expect(bootstrap.downloadTreeUri, isEmpty);
-      expect(bootstrap.defaultService, restored.defaultService);
     });
   });
 

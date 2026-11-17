@@ -23,7 +23,7 @@ import 'performance_probe.dart';
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(motionArtworkEnabled: false);
+  AppSettings build() => const AppSettings();
 }
 
 class _Collections extends LibraryCollectionsNotifier {
@@ -137,7 +137,7 @@ void runArtworkPerformanceTests() {
                   seekPreview: seek,
                   colorScheme: theme.colorScheme,
                   page: value,
-                  motionArtwork: MornyePlayerArtwork(mediaItem: item),
+                  artwork: MornyePlayerArtwork(mediaItem: item),
                   insetArtwork: true,
                   artworkTopInset: 0,
                   artworkKeys: keys,

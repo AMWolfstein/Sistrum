@@ -4,6 +4,7 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/models/download_history.dart';
 
 Track _track(String id, {String? source, String? isrc}) => Track(
   id: id,

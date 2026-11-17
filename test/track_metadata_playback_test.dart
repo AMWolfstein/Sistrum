@@ -16,6 +16,7 @@ import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sistrum/models/download_history.dart';
 
 class _Settings extends SettingsNotifier {
   @override

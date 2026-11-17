@@ -30,15 +30,11 @@ void main() {
   testWidgets('finds controls nested inside a settings page', (tester) async {
     await pumpSettings(tester);
 
-    await tester.enterText(find.byType(TextField), 'parallel downloads');
+    await tester.enterText(find.byType(TextField), 'system font');
     await tester.pump();
 
-    expect(find.text('Concurrent downloads'), findsOneWidget);
-    expect(find.text('Download'), findsOneWidget);
-    expect(
-      find.text('No settings found for "parallel downloads"'),
-      findsNothing,
-    );
+    expect(find.text('Use system font'), findsOneWidget);
+    expect(find.text('No settings found for "system font"'), findsNothing);
   });
 
   testWidgets('broad search builds only visible grouped results', (

@@ -152,7 +152,7 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
   - Native: Kotlin `RemoteSafPlaybackTest` only if it tests network providers; Rust
     exports `network_tags.rs`, `native_listing.rs` stay until T010.
 
-- [ ] M004-T007 Remove the download engine, Wishlist, CSV import and reorganize
+- [x] M004-T007 Remove the download engine, Wishlist, CSV import and reorganize
   - Acceptance: FR-007, FR-012. Download history reading stays until T008.
   - Motion artwork (moved from T001): `motion_artwork_{store,proxy,download}.dart`,
     `download_motion_artwork_source.dart`, `player_motion_artwork_provider.dart`,

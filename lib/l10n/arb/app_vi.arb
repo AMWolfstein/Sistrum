@@ -35,8 +35,6 @@
   "usbBitPerfectFallback": "Thiết bị hoặc định dạng âm thanh này không hỗ trợ đầu ra Bit-perfect. Đang dùng chế độ phát thông thường.",
   "usbBitPerfectRouteChanged": "Đường truyền âm thanh USB đã thay đổi nên nhạc tạm dừng; hãy chọn lại bài hát để kết nối lại.",
   "upgradeIntroContinue": "Tiếp tục",
-  "cacheMotionArtwork": "Ảnh bìa động ngoại tuyến",
-  "cacheMotionArtworkDesc": "Video ảnh bìa động của album được lưu kèm khi tải nhạc. Nếu xóa chúng, các tệp nhạc và ảnh bìa tĩnh của bạn vẫn được giữ nguyên.",
   "nowPlayingVolume": "Âm lượng",
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
@@ -86,8 +84,6 @@
     "description": "Filter chip - show all items"
   },
   "libraryRecentlyAdded": "Mới thêm gần đây",
-  "libraryDownloads": "Tải xuống",
-  "libraryNoActiveDownloads": "Không có lượt tải nào đang chạy",
   "librarySearchHint": "Tìm trong thư viện của bạn",
   "libraryEmptyCollection": "Nhạc của bạn sẽ xuất hiện tại đây",
   "libraryFolders": "Thư mục",
@@ -123,10 +119,6 @@
   "@settingsTitle": {
     "description": "Settings screen title"
   },
-  "settingsDownload": "Tải xuống",
-  "@settingsDownload": {
-    "description": "Settings section - download options"
-  },
   "settingsAppearance": "Giao diện & Hiển thị",
   "@settingsAppearance": {
     "description": "Settings section - visual customization"
@@ -138,50 +130,6 @@
   "settingsAbout": "Giới thiệu",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadAskQualitySubtitle": "Hiện bảng chọn chất lượng trước mỗi lần tải",
-  "@downloadAskQualitySubtitle": {
-    "description": "Subtitle for ask quality toggle"
-  },
-  "downloadFilenameFormat": "Định dạng tên tệp",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "Định dạng tên tệp Đĩa đơn",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadSingleFilenameFormatDescription": "Mẫu đặt tên tệp cho đĩa đơn và EP. Sử dụng cùng hệ thống tag với định dạng album.",
-  "@downloadSingleFilenameFormatDescription": {
-    "description": "Subtitle description for single filename format setting"
-  },
-  "downloadFolderOrganization": "Sắp xếp thư mục",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Cấu trúc thư mục tải về tùy chỉnh",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
-  "downloadFolderTemplateDescription": "Người dùng tự đặt các thẻ và/hoặc các thư mục con. Lưu sẽ ghi đè tùy chỉnh gốc của các album và nghệ sĩ. Thư mục trống sẽ được đặt là \"Unknown\".",
-  "@downloadFolderTemplateDescription": {
-    "description": "Help for custom download folder templates"
-  },
-  "folderOrganizationCustom": "Mẫu tùy chỉnh",
-  "@folderOrganizationCustom": {
-    "description": "Folder organization mode using a user-defined template"
-  },
-  "folderTemplateInvalid": "Nhập đường dẫn thư mục tương đối cùng với các thẻ được hỗ trợ. Thư mục trống, . và .. không được phép.",
-  "@folderTemplateInvalid": {
-    "description": "Validation error for an invalid folder template"
-  },
-  "folderTemplatePreview": "Đường dẫn thư mục ví dụ",
-  "@folderTemplatePreview": {
-    "description": "Label for a sample expanded folder template"
-  },
-  "folderTemplatePreviewFailed": "Không có bản nghe thử",
-  "@folderTemplatePreviewFailed": {
-    "description": "Shown when the native folder preview could not be generated"
   },
   "appearanceTitle": "Giao diện & Hiển thị",
   "@appearanceTitle": {
@@ -207,50 +155,17 @@
   "@appearanceHistoryViewGrid": {
     "description": "Grid layout option"
   },
-  "optionsPrimaryProvider": "Nguồn chính",
-  "@optionsPrimaryProvider": {
-    "description": "Main search provider setting"
-  },
   "optionsPrimaryProviderSubtitle": "Dịch vụ dùng khi tìm kiếm theo tên bài hát hoặc album",
   "@optionsPrimaryProviderSubtitle": {
     "description": "Subtitle for primary provider"
-  },
-  "optionsUsingExtension": "Đang dùng tiện ích: {extensionName}",
-  "@optionsUsingExtension": {
-    "description": "Shows active extension name",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "optionsAutoFallback": "Tự động chuyển nguồn dự phòng",
-  "@optionsAutoFallback": {
-    "description": "Auto-retry with other services"
-  },
-  "optionsAutoFallbackSubtitle": "Tự động thử nguồn khác nếu tải xuống thất bại",
-  "@optionsAutoFallbackSubtitle": {
-    "description": "Subtitle for auto fallback"
   },
   "optionsEmbedLyrics": "Nhúng lời bài hát",
   "@optionsEmbedLyrics": {
     "description": "Embed lyrics in audio files"
   },
-  "optionsEmbedLyricsSubtitle": "Lưu lời bài hát đồng bộ kèm theo các bản nhạc tải về",
-  "@optionsEmbedLyricsSubtitle": {
-    "description": "Subtitle for embed lyrics"
-  },
   "optionsReplayGain": "ReplayGain",
   "@optionsReplayGain": {
     "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "Quét độ lớn âm lượng và nhúng tag ReplayGain (chuẩn EBU R128)",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "Tắt: không nhúng tag cân bằng âm lượng",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "Quét lại ReplayGain",
   "@trackReplayGain": {
@@ -360,34 +275,6 @@
   "metadataSeparatorInvalid": "Sử dụng từ 1–16 ký tự, không chứa dấu xuống dòng hoặc ký tự điều khiển.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "Chọn cách ghi tên nhiều nghệ sĩ vào tag nhúng trong tệp nhạc.",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "Gộp chung thành một giá trị",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "Gộp chung thành một thẻ ARTIST duy nhất dạng \"Nghệ sĩ A, Nghệ sĩ B\" để tương thích tốt nhất với mọi trình phát nhạc.",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "Tách riêng từng tag cho FLAC/Opus",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "Ghi tách riêng từng tag nghệ sĩ cho định dạng FLAC và Opus; riêng MP3 và M4A vẫn gộp chung.",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "Chỉ ghi nghệ sĩ chính",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "Chỉ ghi tên nghệ sĩ đầu tiên (ví dụ \"Nghệ sĩ A\") vào cả trường Artist và Album Artist trên mọi định dạng, giúp các trình phát chỉ hiển thị một nghệ sĩ duy nhất.",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
   },
   "optionsExtensionStore": "Kho tiện ích (Repo)",
   "@optionsExtensionStore": {
@@ -700,14 +587,6 @@
   "@dialogDone": {
     "description": "Dialog button - action completed"
   },
-  "dialogImport": "Nhập",
-  "@dialogImport": {
-    "description": "Dialog button - import data"
-  },
-  "dialogDownload": "Tải xuống",
-  "@dialogDownload": {
-    "description": "Confirm button in Download All dialog"
-  },
   "dialogDiscard": "Hủy bỏ",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -764,20 +643,6 @@
   "dialogDeleteSelectedMessage": "Xóa {count} {count, plural, =1{track} other{tracks}} from history?\n\nThis will also delete the files from storage.",
   "@dialogDeleteSelectedMessage": {
     "description": "Dialog message - delete selected tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dialogImportPlaylistTitle": "Nhập danh sách phát",
-  "@dialogImportPlaylistTitle": {
-    "description": "Dialog title - import CSV playlist"
-  },
-  "dialogImportPlaylistMessage": "Tìm thấy {count} bài hát trong tệp danh sách phát. Bạn có muốn thêm vào hàng chờ tải xuống không?",
-  "csvImportTracks": "{count} bản nhạc từ CSV",
-  "@csvImportTracks": {
-    "description": "Label shown in quality picker for CSV import",
     "placeholders": {
       "count": {
         "type": "int"
@@ -865,29 +730,12 @@
       }
     }
   },
-  "@dialogImportPlaylistMessage": {
-    "description": "Dialog message - import playlist confirmation",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "snackbarAddedToQueue": "Đã thêm \"{trackName}\" vào hàng chờ",
   "@snackbarAddedToQueue": {
     "description": "Snackbar - track added to download queue",
     "placeholders": {
       "trackName": {
         "type": "String"
-      }
-    }
-  },
-  "snackbarAddedTracksToQueue": "Đã thêm {count} bài hát vào hàng chờ",
-  "@snackbarAddedTracksToQueue": {
-    "description": "Snackbar - multiple tracks added to queue",
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -1018,22 +866,6 @@
   "@selectionSelectToDelete": {
     "description": "Placeholder when nothing selected"
   },
-  "progressFetchingMetadata": "Đang lấy metadata... {current}/{total}",
-  "@progressFetchingMetadata": {
-    "description": "Progress indicator - loading track info",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "progressReadingCsv": "Đang đọc tệp CSV...",
-  "@progressReadingCsv": {
-    "description": "Progress indicator - parsing CSV file"
-  },
   "searchSongs": "Bài hát",
   "libraryGenres": "Thể loại",
   "@searchSongs": {
@@ -1082,62 +914,6 @@
   "tooltipPlay": "Phát",
   "@tooltipPlay": {
     "description": "Tooltip - play button"
-  },
-  "filenameFormat": "Định dạng tên tệp",
-  "@filenameFormat": {
-    "description": "Setting title - filename pattern"
-  },
-  "filenameShowAdvancedTags": "Hiện các tag nâng cao",
-  "@filenameShowAdvancedTags": {
-    "description": "Toggle label for showing advanced filename tags"
-  },
-  "filenameShowAdvancedTagsDescription": "Bật định dạng tag nâng cao để đánh số thứ tự bài (01, 02...) và mẫu ngày tháng",
-  "@filenameShowAdvancedTagsDescription": {
-    "description": "Description for advanced filename tag toggle"
-  },
-  "folderOrganizationNone": "Không chia thư mục",
-  "@folderOrganizationNone": {
-    "description": "Folder option - flat structure"
-  },
-  "folderOrganizationByPlaylist": "Theo danh sách phát",
-  "@folderOrganizationByPlaylist": {
-    "description": "Folder option - playlist folders"
-  },
-  "folderOrganizationByPlaylistSubtitle": "Tạo thư mục riêng cho từng danh sách phát",
-  "@folderOrganizationByPlaylistSubtitle": {
-    "description": "Subtitle for playlist folder option"
-  },
-  "folderOrganizationByArtist": "Theo Nghệ sĩ",
-  "@folderOrganizationByArtist": {
-    "description": "Folder option - artist folders"
-  },
-  "folderOrganizationByAlbum": "Theo Album",
-  "@folderOrganizationByAlbum": {
-    "description": "Folder option - album folders"
-  },
-  "folderOrganizationByArtistAlbum": "Nghệ sĩ/Album",
-  "@folderOrganizationByArtistAlbum": {
-    "description": "Folder option - nested folders"
-  },
-  "folderOrganizationDescription": "Tự động sắp xếp tệp tải về vào các thư mục",
-  "@folderOrganizationDescription": {
-    "description": "Folder organization sheet description"
-  },
-  "folderOrganizationNoneSubtitle": "Lưu chung tất cả tệp trong thư mục tải xuống",
-  "@folderOrganizationNoneSubtitle": {
-    "description": "Subtitle for no organization option"
-  },
-  "folderOrganizationByArtistSubtitle": "Tạo thư mục riêng cho từng nghệ sĩ",
-  "@folderOrganizationByArtistSubtitle": {
-    "description": "Subtitle for artist folder option"
-  },
-  "folderOrganizationByAlbumSubtitle": "Tạo thư mục riêng cho từng album",
-  "@folderOrganizationByAlbumSubtitle": {
-    "description": "Subtitle for album folder option"
-  },
-  "folderOrganizationByArtistAlbumSubtitle": "Thư mục lồng nhau theo Nghệ sĩ rồi đến Album",
-  "@folderOrganizationByArtistAlbumSubtitle": {
-    "description": "Subtitle for nested folder option"
   },
   "updateAvailable": "Có bản cập nhật mới",
   "@updateAvailable": {
@@ -1314,18 +1090,6 @@
   "@channelPreview": {
     "description": "Update channel - beta/preview releases"
   },
-  "sectionSearchSource": "Nguồn tìm kiếm",
-  "@sectionSearchSource": {
-    "description": "Settings section header"
-  },
-  "sectionDownload": "Tải xuống",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionPerformance": "Hiệu năng",
-  "@sectionPerformance": {
-    "description": "Settings section header"
-  },
   "sectionApp": "Ứng dụng",
   "@sectionApp": {
     "description": "Settings section header"
@@ -1336,18 +1100,6 @@
   },
   "sectionDebug": "Gỡ lỗi",
   "@sectionDebug": {
-    "description": "Settings section header"
-  },
-  "sectionService": "Dịch vụ",
-  "@sectionService": {
-    "description": "Settings section header"
-  },
-  "sectionAudioQuality": "Chất lượng âm thanh",
-  "@sectionAudioQuality": {
-    "description": "Settings section header"
-  },
-  "sectionFileSettings": "Cài đặt tệp",
-  "@sectionFileSettings": {
     "description": "Settings section header"
   },
   "sectionLyrics": "Lời bài hát",
@@ -1412,10 +1164,6 @@
   "@settingsAppearanceSubtitle": {
     "description": "Appearance settings description"
   },
-  "settingsDownloadSubtitle": "Dịch vụ, chất lượng, nguồn dự phòng",
-  "@settingsDownloadSubtitle": {
-    "description": "Download settings description"
-  },
   "settingsExtensionsSubtitle": "Quản lý nguồn tải nhạc",
   "@settingsExtensionsSubtitle": {
     "description": "Extensions settings description"
@@ -1427,15 +1175,6 @@
   "pressBackAgainToExit": "Nhấn Quay lại lần nữa để thoát",
   "@pressBackAgainToExit": {
     "description": "Exit confirmation message"
-  },
-  "downloadAllCount": "Tải tất cả ({count})",
-  "@downloadAllCount": {
-    "description": "Download all button with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "tracksCount": "{count, plural, =1{1 bài hát} other{{count} tracks}}",
   "@tracksCount": {
@@ -1678,10 +1417,6 @@
   "@storeAddRepoTitle": {
     "description": "Store setup screen - heading when no repo is configured"
   },
-  "storeAddRepoDescription": "Nhập URL kho lưu trữ GitHub có chứa tệp registry.json để duyệt và cài đặt tiện ích mở rộng.",
-  "@storeAddRepoDescription": {
-    "description": "Store setup screen - explanatory text"
-  },
   "storeRepoUrlLabel": "URL kho tiện ích",
   "@storeRepoUrlLabel": {
     "description": "Label for the repository URL input field"
@@ -1917,115 +1652,9 @@
   "@extensionsErrorLoading": {
     "description": "Error message when extension fails to load"
   },
-  "qualityFlacLossless": "FLAC Lossless",
-  "@qualityFlacLossless": {
-    "description": "Quality option - CD quality FLAC"
-  },
-  "qualityFlacLosslessSubtitle": "16-bit / 44.1kHz",
-  "@qualityFlacLosslessSubtitle": {
-    "description": "Technical spec for lossless"
-  },
-  "qualityHiResFlac": "Hi-Res FLAC",
-  "@qualityHiResFlac": {
-    "description": "Quality option - high resolution FLAC"
-  },
-  "qualityHiResFlacSubtitle": "24-bit / tối đa 96kHz",
-  "@qualityHiResFlacSubtitle": {
-    "description": "Technical spec for hi-res"
-  },
-  "qualityHiResFlacMax": "Hi-Res FLAC Tối đa",
-  "@qualityHiResFlacMax": {
-    "description": "Quality option - maximum resolution FLAC"
-  },
-  "qualityHiResFlacMaxSubtitle": "24-bit / tối đa 192kHz",
-  "@qualityHiResFlacMaxSubtitle": {
-    "description": "Technical spec for hi-res max"
-  },
-  "downloadLossyFormat": "Định dạng nén mất dữ liệu",
-  "@downloadLossyFormat": {
-    "description": "Setting title to pick output format for lossy downloads"
-  },
-  "downloadAutoConvert": "Tự động chuyển đổi định dạng sau khi tải xong",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertAllFormatsSubtitle": "Chuyển đổi các tệp tải xuống hoàn tất hoặc giới hạn độ sâu bit và tần số mẫu FLAC. Bản gốc chỉ được thay thế sau khi chuyển đổi thành công.",
-  "downloadAutoConvertOutputSubtitle": "Chọn định dạng đầu ra cho các tệp tải xuống mới hoàn tất.",
-  "downloadAutoConvertFlacSubtitle": "FLAC không mất dữ liệu với giới hạn chất lượng. Độ sâu bit và tần số mẫu thấp hơn được giữ nguyên.",
-  "downloadAutoConvertMaxBitDepth": "Độ sâu bit tối đa",
-  "downloadAutoConvertMaxSampleRate": "Tần số mẫu tối đa",
-  "downloadAutoConvertFlacLimitsSubtitle": "Đây là các giới hạn trên. Ví dụ, một nguồn 44,1 kHz vẫn giữ nguyên ở 44,1 kHz khi chọn 48 kHz. Các nguồn có tổn hao (lossy) được giữ nguyên định dạng ban đầu.",
-  "downloadAutoConvertSubtitle": "Tự động chuyển các bài vừa tải xong sang định dạng nén gọn nhẹ hơn. Tệp gốc chỉ bị thay thế sau khi chuyển đổi thành công.",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
-  "downloadAutoConvertFormat": "Định dạng đầu ra",
-  "@downloadAutoConvertFormat": {
-    "description": "Automatic conversion output format setting"
-  },
-  "downloadAutoConvertBitrate": "Chất lượng đầu ra",
-  "@downloadAutoConvertBitrate": {
-    "description": "Automatic conversion bitrate setting"
-  },
-  "downloadAutoConvertBitrateSubtitle": "Bitrate càng cao càng giữ được nhiều chi tiết âm thanh nhưng dung lượng tệp sẽ lớn hơn.",
-  "@downloadAutoConvertBitrateSubtitle": {
-    "description": "Automatic conversion bitrate picker explanation"
-  },
-  "downloadAutoConvertMp3Subtitle": "Độ tương thích tốt nhất trên mọi trình phát và thiết bị",
-  "@downloadAutoConvertMp3Subtitle": {
-    "description": "MP3 automatic conversion option description"
-  },
-  "downloadAutoConvertM4aSubtitle": "Âm thanh AAC hiệu suất cao đóng gói trong định dạng M4A",
-  "@downloadAutoConvertM4aSubtitle": {
-    "description": "M4A AAC automatic conversion option description"
-  },
-  "downloadAutoConvertOpusSubtitle": "Hiệu suất tối ưu nhất cho các trình phát hiện đại",
-  "@downloadAutoConvertOpusSubtitle": {
-    "description": "Opus automatic conversion option description"
-  },
-  "downloadAskBeforeDownload": "Hỏi chất lượng trước mỗi lần tải",
-  "@downloadAskBeforeDownload": {
-    "description": "Setting - show quality picker"
-  },
   "downloadDirectory": "Thư mục tải xuống",
   "@downloadDirectory": {
     "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "Tách riêng thư mục Đĩa đơn",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "Cấu trúc thư mục Album",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "albumFolderStructureDescription": "Chọn cách sắp xếp cấu trúc thư mục album",
-  "@albumFolderStructureDescription": {
-    "description": "Album folder structure picker description"
-  },
-  "downloadUseAlbumArtistForFolders": "Dùng Nghệ sĩ album để đặt tên thư mục",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "Chỉ lấy tên nghệ sĩ chính để đặt tên thư mục",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "downloadUsePrimaryArtistOnlyEnabled": "Lược bỏ tên nghệ sĩ góp giọng khỏi tên thư mục (ví dụ: Justin Bieber, Quavo → Justin Bieber)",
-  "@downloadUsePrimaryArtistOnlyEnabled": {
-    "description": "Subtitle when primary artist only is enabled"
-  },
-  "downloadUsePrimaryArtistOnlyDisabled": "Dùng toàn bộ chuỗi tên nghệ sĩ để đặt tên thư mục",
-  "@downloadUsePrimaryArtistOnlyDisabled": {
-    "description": "Subtitle when primary artist only is disabled"
-  },
-  "downloadSelectQuality": "Chọn chất lượng",
-  "@downloadSelectQuality": {
-    "description": "Dialog title - choose audio quality"
-  },
-  "downloadFrom": "Nguồn tải xuống",
-  "@downloadFrom": {
-    "description": "Label - download source"
   },
   "appearanceHeroAnimations": "Hiệu ứng chuyển cảnh Hero",
   "@appearanceHeroAnimations": {
@@ -2042,107 +1671,6 @@
   "appearanceForceBlurSubtitle": "Bật hiệu ứng làm mờ thanh điều hướng ngay cả trên các thiết bị mặc định tắt. Có thể ảnh hưởng nhẹ tới hiệu năng.",
   "@appearanceForceBlurSubtitle": {
     "description": "Subtitle for the force-blur toggle"
-  },
-  "queueClearAll": "Xóa tất cả",
-  "@queueClearAll": {
-    "description": "Button - clear all queue items"
-  },
-  "queueClearAllMessage": "Bạn có chắc muốn xóa toàn bộ danh sách tải xuống?",
-  "@queueClearAllMessage": {
-    "description": "Clear queue confirmation"
-  },
-  "settingsAutoExportFailed": "Tự động xuất danh sách tải lỗi",
-  "@settingsAutoExportFailed": {
-    "description": "Setting toggle for auto-export"
-  },
-  "settingsAutoExportFailedSubtitle": "Tự động lưu danh sách tải lỗi ra tệp TXT",
-  "@settingsAutoExportFailedSubtitle": {
-    "description": "Subtitle for auto-export setting"
-  },
-  "settingsDownloadNetwork": "Mạng tải xuống",
-  "@settingsDownloadNetwork": {
-    "description": "Setting for network type preference"
-  },
-  "settingsDownloadNetworkAny": "Wi-Fi + Dữ liệu di động",
-  "@settingsDownloadNetworkAny": {
-    "description": "Network option - use any connection"
-  },
-  "settingsDownloadNetworkWifiOnly": "Chỉ Wi-Fi",
-  "@settingsDownloadNetworkWifiOnly": {
-    "description": "Network option - only use WiFi"
-  },
-  "settingsDownloadNetworkSubtitle": "Chọn kết nối mạng được phép tải nhạc. Nếu chọn Chỉ Wi-Fi, quá trình tải sẽ tự tạm dừng khi chuyển sang dữ liệu di động.",
-  "@settingsDownloadNetworkSubtitle": {
-    "description": "Subtitle explaining network preference"
-  },
-  "settingsConcurrentDownloads": "Số luồng tải đồng thời",
-  "@settingsConcurrentDownloads": {
-    "description": "Setting title - how many tracks download at the same time"
-  },
-  "settingsConcurrentDownloadsSubtitle": "Tải nhiều bài cùng lúc giúp tiết kiệm thời gian hơn, nhưng một số nguồn nhạc có thể tạm giới hạn nếu gửi quá nhiều yêu cầu song song.",
-  "@settingsConcurrentDownloadsSubtitle": {
-    "description": "Subtitle explaining the concurrent downloads picker"
-  },
-  "concurrentDownloadsOne": "Xử lý tuần tự từng bài",
-  "@concurrentDownloadsOne": {
-    "description": "Concurrent downloads option - sequential"
-  },
-  "concurrentDownloadsCount": "Tối đa {count} bài cùng lúc",
-  "@concurrentDownloadsCount": {
-    "description": "Concurrent downloads option - parallel",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "albumFolderArtistAlbum": "Nghệ sĩ / Album",
-  "@albumFolderArtistAlbum": {
-    "description": "Album folder option"
-  },
-  "albumFolderArtistAlbumSubtitle": "Albums/Tên Nghệ Sĩ/Tên Album/",
-  "@albumFolderArtistAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistYearAlbum": "Nghệ sĩ / [Năm] Album",
-  "@albumFolderArtistYearAlbum": {
-    "description": "Album folder option with year"
-  },
-  "albumFolderArtistYearAlbumSubtitle": "Albums/Tên Nghệ Sĩ/[2005] Tên Album/",
-  "@albumFolderArtistYearAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderAlbumOnly": "Chỉ tên Album",
-  "@albumFolderAlbumOnly": {
-    "description": "Album folder option"
-  },
-  "albumFolderAlbumOnlySubtitle": "Albums/Tên Album/",
-  "@albumFolderAlbumOnlySubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderYearAlbum": "[Năm] Album",
-  "@albumFolderYearAlbum": {
-    "description": "Album folder option with year"
-  },
-  "albumFolderYearAlbumSubtitle": "Albums/[2005] Tên Album/",
-  "@albumFolderYearAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistAlbumSingles": "Nghệ sĩ / Album + Singles",
-  "@albumFolderArtistAlbumSingles": {
-    "description": "Album folder option with singles inside artist"
-  },
-  "albumFolderArtistAlbumSinglesSubtitle": "Nghệ sĩ/Album/ và Nghệ sĩ/Singles/",
-  "@albumFolderArtistAlbumSinglesSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistAlbumFlat": "Nghệ sĩ / Album (Lưu phẳng các bài Single)",
-  "@albumFolderArtistAlbumFlat": {
-    "description": "Album folder option with singles directly in artist folder"
-  },
-  "albumFolderArtistAlbumFlatSubtitle": "Nghệ sĩ/Album/ và Nghệ sĩ/bài_hát.flac",
-  "@albumFolderArtistAlbumFlatSubtitle": {
-    "description": "Folder structure example for flat singles"
   },
   "downloadedAlbumDeleteSelected": "Xóa mục đã chọn",
   "@downloadedAlbumDeleteSelected": {
@@ -2196,18 +1724,6 @@
   "recentTypeAlbum": "Album",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "discographySkippedDownloaded": "{added} đã thêm, {skipped} đã được tải trước đó",
-  "@discographySkippedDownloaded": {
-    "description": "Snackbar - with skipped tracks count",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
   },
   "sectionStorageAccess": "Quyền truy cập bộ nhớ",
   "@sectionStorageAccess": {
@@ -3122,10 +2638,6 @@
   "@collectionFoldersTitle": {
     "description": "Library section title for custom folders"
   },
-  "collectionWishlist": "Danh sách chờ",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "Yêu thích",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -3197,14 +2709,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "Danh sách chờ đang trống",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "Chạm nút + trên bài hát để lưu vào danh sách chờ tải sau",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "Mục Yêu thích đang trống",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -3232,10 +2736,6 @@
   "collectionRemoveFromPlaylist": "Xóa khỏi danh sách phát",
   "@collectionRemoveFromPlaylist": {
     "description": "Tooltip for removing track from playlist"
-  },
-  "collectionRemoveFromFolder": "Xóa khỏi thư mục",
-  "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
   },
   "collectionAddedToFavoriteArtists": "“{artistName}\" đã được thêm vào Nghệ sĩ yêu thích",
   "@collectionAddedToFavoriteArtists": {
@@ -3278,14 +2778,6 @@
   "collectionPlaylistRemoveCover": "Xóa ảnh bìa",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Đặt tên thư mục theo tag Nghệ sĩ album",
-  "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
-    "description": "Subtitle when album artist is used for folder names"
-  },
-  "downloadUseAlbumArtistForFoldersTrackSubtitle": "Đặt tên thư mục theo tag Nghệ sĩ bài hát",
-  "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
-    "description": "Subtitle when track artist is used for folder names"
   },
   "safMigrationTitle": "Cần cập nhật quyền truy cập bộ nhớ",
   "@safMigrationTitle": {
@@ -3405,15 +2897,6 @@
       }
     }
   },
-  "backupContentsWishlist": "{count} {count, plural, =1{bài hát} other{bài hát}} trong danh sách mong muốn",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "backupContentsPlaylists": "{count, plural, =1{1 danh sách phát} other{{count} danh sách phát}}",
   "@backupContentsPlaylists": {
     "description": "Backup contents row for playlist count",
@@ -3493,23 +2976,6 @@
       }
     }
   },
-  "dialogDownloadAllTitle": "Tải xuống tất cả",
-  "@dialogDownloadAllTitle": {
-    "description": "Dialog title for bulk download confirmation"
-  },
-  "dialogDownloadAllMessage": "Tải xuống {count} bài hát?",
-  "@dialogDownloadAllMessage": {
-    "description": "Body of the Download All confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeSkipAlreadyDownloaded": "Bỏ qua những bài hát đã tải",
-  "@homeSkipAlreadyDownloaded": {
-    "description": "Checkbox label in import dialog to skip already-downloaded songs"
-  },
   "homeGoToAlbum": "Đi tới Album",
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
@@ -3571,102 +3037,9 @@
   "@downloadFolderReselect": {
     "description": "Button that reopens the folder picker to restore download folder access"
   },
-  "downloadErrorSafPermissionLost": "Quyền truy cập SAF không hợp lệ hoặc đã bị thu hồi. Vui lòng cấu hình lại thư mục tải về trong Cài đặt.",
-  "@downloadErrorSafPermissionLost": {
-    "description": "Error shown on downloads that failed because the persisted Android SAF folder grant is no longer valid"
-  },
-  "downloadErrorFolderAccessLost": "Đã mất quyền truy cập thư mục tải xuống. Vui lòng chọn lại thư mục tải xuống trong Cài đặt.",
-  "downloadFilenameDescription": "Sử dụng các biến {artist}, {title}, {album}, {track}, {year}, {date}, {disc} để đặt mẫu tên.",
-  "@downloadFilenameDescription": {
-    "description": "Description shown in filename format editor"
-  },
-  "downloadFilenameInsertTag": "Chạm để chèn tag:",
-  "@downloadFilenameInsertTag": {
-    "description": "Label above filename tag chips"
-  },
-  "downloadSeparateSinglesEnabled": "Lưu đĩa đơn và EP vào thư mục riêng",
-  "@downloadSeparateSinglesEnabled": {
-    "description": "Subtitle when separate singles folder is on"
-  },
-  "downloadSeparateSinglesDisabled": "Lưu chung đĩa đơn và album trong cùng một thư mục",
-  "@downloadSeparateSinglesDisabled": {
-    "description": "Subtitle when separate singles folder is off"
-  },
-  "downloadArtistNameFilters": "Bộ lọc tên nghệ sĩ",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "Thư mục nguồn tạo danh sách phát",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
-  "downloadCreatePlaylistSourceFolderEnabled": "Tạo một thư mục con riêng cho mỗi danh sách phát",
-  "@downloadCreatePlaylistSourceFolderEnabled": {
-    "description": "Subtitle when playlist folder is enabled"
-  },
-  "downloadCreatePlaylistSourceFolderDisabled": "Lưu trực tiếp tất cả bài hát vào chung thư mục tải xuống",
-  "@downloadCreatePlaylistSourceFolderDisabled": {
-    "description": "Subtitle when playlist folder is disabled"
-  },
-  "downloadCreatePlaylistSourceFolderRedundant": "Được quản lý theo cài đặt Sắp xếp thư mục",
-  "@downloadCreatePlaylistSourceFolderRedundant": {
-    "description": "Subtitle when folder organization is already set to playlist"
-  },
-  "downloadSongLinkRegion": "Phân vùng quốc gia SongLink",
-  "@downloadSongLinkRegion": {
-    "description": "Setting for SongLink region used during fallback resolution"
-  },
-  "downloadNetworkCompatibilityMode": "Chế độ tương thích mạng",
-  "@downloadNetworkCompatibilityMode": {
-    "description": "Setting for legacy TLS/network handling"
-  },
-  "downloadNetworkCompatibilityModeEnabled": "Cho phép kết nối HTTP cũ; xác thực bảo mật TLS vẫn được giữ bật",
-  "@downloadNetworkCompatibilityModeEnabled": {
-    "description": "Subtitle when network compatibility mode is on"
-  },
-  "downloadNetworkCompatibilityModeDisabled": "Đang dùng cài đặt mạng tiêu chuẩn",
-  "@downloadNetworkCompatibilityModeDisabled": {
-    "description": "Subtitle when network compatibility mode is off"
-  },
-  "downloadAllowLocalNetwork": "Cho phép truy cập mạng nội bộ",
-  "@downloadAllowLocalNetwork": {
-    "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadSelectServiceToEnable": "Hãy chọn một nguồn có hỗ trợ tùy chọn chất lượng để bật tính năng này",
-  "@downloadSelectServiceToEnable": {
-    "description": "Subtitle when quality picker is disabled due to extension service"
-  },
-  "downloadEmbedLyricsDisabled": "Vui lòng bật tính năng Nhúng metadata trước",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
-  },
-  "downloadFilterContributing": "Lọc nghệ sĩ góp giọng",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
-  },
-  "downloadFilterContributingEnabled": "Đã lược bỏ nghệ sĩ góp giọng khỏi tên thư mục Nghệ sĩ album",
-  "@downloadFilterContributingEnabled": {
-    "description": "Subtitle when contributing artist filter is on"
-  },
-  "downloadFilterContributingDisabled": "Sử dụng nguyên chuỗi Nghệ sĩ album đầy đủ",
-  "@downloadFilterContributingDisabled": {
-    "description": "Subtitle when contributing artist filter is off"
-  },
   "downloadProvidersNoneEnabled": "Chưa bật nguồn cung cấp nào",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadNetworkAnySubtitle": "Sử dụng Wi-Fi hoặc dữ liệu di động",
-  "@downloadNetworkAnySubtitle": {
-    "description": "Subtitle for any-network option in picker"
-  },
-  "downloadNetworkWifiOnlySubtitle": "Tự động tạm dừng tải khi dùng dữ liệu di động",
-  "@downloadNetworkWifiOnlySubtitle": {
-    "description": "Subtitle for WiFi-only option in picker"
-  },
-  "downloadSongLinkRegionDesc": "Quốc gia dùng để phân giải liên kết nhạc qua SongLink. Hãy chọn quốc gia nơi các dịch vụ nhạc trực tuyến của bạn hoạt động.",
-  "@downloadSongLinkRegionDesc": {
-    "description": "Description in SongLink region picker"
   },
   "snackbarUnsupportedAudioFormat": "Định dạng âm thanh không được hỗ trợ",
   "@snackbarUnsupportedAudioFormat": {
@@ -3675,44 +3048,6 @@
   "cacheRefresh": "Làm mới",
   "@cacheRefresh": {
     "description": "Tooltip for refresh button on cache management page"
-  },
-  "dialogDownloadPlaylistsMessage": "Tải xuống {trackCount} {trackCount, plural, =1{track} other{tracks}} from {playlistCount} {playlistCount, plural, =1{playlist} other{playlists}}?",
-  "@dialogDownloadPlaylistsMessage": {
-    "description": "Dialog message for bulk playlist download confirmation",
-    "placeholders": {
-      "trackCount": {
-        "type": "int"
-      },
-      "playlistCount": {
-        "type": "int"
-      }
-    }
-  },
-  "bulkDownloadPlaylistsButton": "Tải xuống {count} {count, plural, =1{playlist} other{playlists}}",
-  "@bulkDownloadPlaylistsButton": {
-    "description": "Button label for bulk downloading selected playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bulkDownloadSelectPlaylists": "Chọn danh sách phát muốn tải xuống",
-  "@bulkDownloadSelectPlaylists": {
-    "description": "Button label when no playlists are selected for download"
-  },
-  "snackbarSelectedPlaylistsEmpty": "Danh sách phát đã chọn không có bài hát nào",
-  "@snackbarSelectedPlaylistsEmpty": {
-    "description": "Snackbar when selected playlists contain no tracks"
-  },
-  "playlistsCount": "{count, plural, =1{1 danh sách phát} other{{count} danh sách phát}}",
-  "@playlistsCount": {
-    "description": "Playlist count display",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "lyricsPickerTitle": "Chọn lời bài hát",
   "@lyricsPickerTitle": {
@@ -3806,15 +3141,6 @@
   "editMetadataSelectEmpty": "Chỉ các trường đang trống",
   "@editMetadataSelectEmpty": {
     "description": "Button to select only fields that are currently empty"
-  },
-  "queueDownloadingCount": "Đang tải xuống ({count})",
-  "@queueDownloadingCount": {
-    "description": "Header for active downloads section with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "queueFilteringIndicator": "Đang lọc...",
   "@queueFilteringIndicator": {
@@ -3996,14 +3322,6 @@
       }
     }
   },
-  "downloadRedownloadFakeHiRes": "Tải lại nếu phát hiện Hi-Res giả",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "Mặc định tắt. Tự động kiểm tra các bản nhạc Hi-Res tải về và chỉ thay thế khi toàn bộ mẫu âm thanh được bảo toàn nguyên vẹn. Giữ nguyên tệp gốc nếu việc kiểm tra hoặc xử lý gặp lỗi",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
   "hiResCheckVerdictFakeCertain": "Hi-Res giả",
   "@hiResCheckVerdictFakeCertain": {
     "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
@@ -4128,31 +3446,6 @@
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
   },
-  "cancelDownloadTitle": "Hủy tải xuống?",
-  "@cancelDownloadTitle": {
-    "description": "Dialog title when confirming cancellation of an active download"
-  },
-  "cancelDownloadContent": "Thao tác này sẽ hủy quá trình tải xuống đang diễn ra của \"{trackName}\".",
-  "@cancelDownloadContent": {
-    "description": "Dialog body when confirming cancellation of an active download",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "cancelDownloadKeep": "Giữ lại",
-  "@cancelDownloadKeep": {
-    "description": "Dialog button - keep the active download (do not cancel)"
-  },
-  "queueCancelledTitle": "Đã hủy tải xuống",
-  "@queueCancelledTitle": {
-    "description": "Dialog title when opening a cancelled queue item"
-  },
-  "queueCancelledMessage": "Lượt tải này đã bị hủy. Bạn có thể thử tải lại hoặc xóa khỏi hàng chờ.",
-  "@queueCancelledMessage": {
-    "description": "Dialog body when opening a cancelled queue item"
-  },
   "metadataSaveFailedFfmpeg": "Không thể lưu metadata qua FFmpeg",
   "@metadataSaveFailedFfmpeg": {
     "description": "Snackbar error when FFmpeg fails to write metadata"
@@ -4170,109 +3463,9 @@
       }
     }
   },
-  "notifDownloadingTrack": "Đang tải xuống {trackName}",
-  "@notifDownloadingTrack": {
-    "description": "Notification title while downloading a track",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "notifFinalizingTrack": "Đã hoàn tất {trackName}",
-  "@notifFinalizingTrack": {
-    "description": "Notification title while finalizing (embedding metadata) a track",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "notifEmbeddingMetadata": "Đang nhúng metadata...",
   "@notifEmbeddingMetadata": {
     "description": "Notification body while embedding metadata into a downloaded track"
-  },
-  "notifAlreadyInLibraryCount": "Đã có trong thư viện ({completed}/{total})",
-  "@notifAlreadyInLibraryCount": {
-    "description": "Notification title when track is already in library, with count",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "notifAlreadyInLibrary": "Đã có trong thư viện",
-  "@notifAlreadyInLibrary": {
-    "description": "Notification title when track is already in library"
-  },
-  "notifDownloadCompleteCount": "Tải xuống hoàn tất ({completed}/{total})",
-  "@notifDownloadCompleteCount": {
-    "description": "Notification title when download is complete, with count",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadComplete": "Tải xuống hoàn tất",
-  "@notifDownloadComplete": {
-    "description": "Notification title when a single download is complete"
-  },
-  "notifDownloadsFinished": "Đã hoàn tất tải xuống ({completed} thành công, {failed} thất bại)",
-  "@notifDownloadsFinished": {
-    "description": "Notification title when queue finishes with some failures",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "notifAllDownloadsComplete": "Đã tải xong tất cả",
-  "@notifAllDownloadsComplete": {
-    "description": "Notification title when all downloads finish successfully"
-  },
-  "notifTracksDownloadedSuccess": "{count, plural, =1{Đã tải thành công 1 bài hát} other{{count} tracks downloaded successfully}}",
-  "@notifTracksDownloadedSuccess": {
-    "description": "Notification body for queue complete - how many tracks were downloaded",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadsFinishedBody": "{completed, plural, =1{Đã tải xuống 1 bài hát} other{{completed} tracks downloaded}}, {failed, plural, =1{1 bài lỗi} other{{failed} failed}}",
-  "@notifDownloadsFinishedBody": {
-    "description": "Notification body when queue finishes with failures",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadsCanceledTitle": "Đã hủy tải xuống",
-  "@notifDownloadsCanceledTitle": {
-    "description": "Notification title when downloads are canceled by the user"
-  },
-  "notifDownloadsCanceledBody": "{count, plural, =1{Người dùng đã hủy 1 lượt tải} other{{count} downloads canceled by user}}",
-  "@notifDownloadsCanceledBody": {
-    "description": "Notification body when downloads are canceled by the user",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "notifScanningLibrary": "Đang quét thư viện trên máy",
   "@notifScanningLibrary": {
@@ -4407,10 +3600,6 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "homeImportCsvTooltip": "Nhập danh sách phát (CSV, M3U)",
-  "@homeImportCsvTooltip": {
-    "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
   "actionPaste": "Không hiển thị bảng tin khám phá trên màn hình chính",
   "@actionPaste": {
     "description": "Generic action - paste from clipboard"
@@ -4434,14 +3623,6 @@
   "optionsEmbedMetadata": "Nhúng Metadata",
   "@optionsEmbedMetadata": {
     "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "Ghi metadata, ảnh bìa và lời bài hát nhúng trực tiếp vào tệp nhạc",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "Tắt (nâng cao): bỏ qua toàn bộ việc nhúng metadata",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
   },
   "trackCoverNoEmbeddedArt": "Không tìm thấy ảnh bìa nhúng trong tệp",
   "@trackCoverNoEmbeddedArt": {
@@ -4483,18 +3664,6 @@
   "@trackCoverResizeFailed": {
     "description": "Error shown when resizing cover art before saving metadata fails"
   },
-  "actionStop": "Dừng",
-  "@actionStop": {
-    "description": "Generic action - stop"
-  },
-  "queueFinalizingDownload": "Đang hoàn tất tải xuống",
-  "@queueFinalizingDownload": {
-    "description": "Accessibility label for a queue item that is finalizing"
-  },
-  "queueDownloadNext": "Tải tiếp theo",
-  "@queueDownloadNext": {
-    "description": "Tooltip on a queued download row; moves the item to the front of the queue so the next free slot downloads it"
-  },
   "queueMoveUp": "Di chuyển lên trên",
   "@queueMoveUp": {
     "description": "Queue item menu action - move the queued item one position earlier"
@@ -4515,34 +3684,9 @@
   "@nowPlayingRepeatOne": {
     "description": "Repeat toggle tooltip when the current track repeats"
   },
-  "queueNetworkFailedOffline": "{count} lượt tải bị lỗi khi mất kết nối mạng",
-  "@queueNetworkFailedOffline": {
-    "description": "Snackbar shown when connectivity returns and network-failed downloads can be retried",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "queueDownloadedFileMissing": "Không tìm thấy tệp đã tải về",
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
-  },
-  "queueCheckingDownloadedFile": "Đang kiểm tra tệp đã tải về...",
-  "@queueCheckingDownloadedFile": {
-    "description": "Accessibility label while the app checks whether a just-completed download has appeared at its final path yet. Not about authentication or a download session."
-  },
-  "queueDownloadCompleted": "Tải xuống hoàn tất",
-  "@queueDownloadCompleted": {
-    "description": "Accessibility label for completed download state in queue"
-  },
-  "queueRateLimitTitle": "Dịch vụ đang tạm giới hạn truy vấn",
-  "@queueRateLimitTitle": {
-    "description": "Title shown on a failed queue item when the download service rate limits requests"
-  },
-  "queueRateLimitMessage": "Bài hát này có thể vẫn tải được. Hãy đợi vài phút, giảm số luồng tải đồng thời rồi thử lại.",
-  "@queueRateLimitMessage": {
-    "description": "Explanation shown on a failed queue item when the download service rate limits requests"
   },
   "logAutoScrollOn": "Tự cuộn lời: BẬT",
   "@logAutoScrollOn": {
@@ -4729,10 +3873,6 @@
   "@sectionMetadataProviders": {
     "description": "Settings section header for metadata providers"
   },
-  "sectionDuplicates": "Bài trùng lặp",
-  "@sectionDuplicates": {
-    "description": "Settings section header for deduplication"
-  },
   "metadataProvidersTitle": "Thứ tự ưu tiên nguồn Metadata",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -4740,38 +3880,6 @@
   "metadataProvidersSubtitle": "Kéo để sắp xếp thứ tự nguồn tìm kiếm và metadata",
   "@metadataProvidersSubtitle": {
     "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "Bỏ qua bài tải trùng lặp",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadDeduplicationEnabled": "Những bài hát đã tải trước đó sẽ được bỏ qua",
-  "@downloadDeduplicationEnabled": {
-    "description": "Subtitle when deduplication is on"
-  },
-  "downloadDeduplicationWithQualityVariants": "Các tệp đã có sẵn ở cùng mức chất lượng đã chọn sẽ được bỏ qua",
-  "@downloadDeduplicationWithQualityVariants": {
-    "description": "Deduplication subtitle when separate quality versions are allowed"
-  },
-  "downloadDeduplicationDisabled": "Tải xuống tất cả bài hát bất kể lịch sử đã tải trước đó",
-  "@downloadDeduplicationDisabled": {
-    "description": "Subtitle when deduplication is off"
-  },
-  "downloadQualityVariants": "Cho phép lưu nhiều phiên bản chất lượng khác nhau",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "Giữ lại mọi phiên bản chất lượng; chỉ gắn thêm thông số chất lượng vào tên tệp khi bị trùng tên",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
-  },
-  "downloadFallbackExtensions": "Tiện ích dự phòng",
-  "@downloadFallbackExtensions": {
-    "description": "Settings item for configuring fallback extension providers"
-  },
-  "downloadFallbackExtensionsSubtitle": "Chọn những tiện ích mở rộng nào được phép dùng làm nguồn dự phòng",
-  "@downloadFallbackExtensionsSubtitle": {
-    "description": "Subtitle for fallback extensions item"
   },
   "editMetadataFieldDateHint": "YYYY-MM-DD hoặc YYYY",
   "@editMetadataFieldDateHint": {
@@ -4885,27 +3993,6 @@
       }
     }
   },
-  "queueDownloadSpeedStatus": "Đang tải - {speed} MB/s",
-  "@queueDownloadSpeedStatus": {
-    "description": "Queue status while downloading with speed",
-    "placeholders": {
-      "speed": {
-        "type": "String"
-      }
-    }
-  },
-  "queueDownloadStarting": "Đang khởi tạo...",
-  "queueCheckingDownloadSession": "Đang kiểm tra phiên tải xuống...",
-  "queueResolvingDownloadMetadata": "Đang phân giải metadata bài hát...",
-  "queueResolvingDownloadStream": "Đang chuẩn bị luồng âm thanh...",
-  "queueWaitingForVerification": "Đang chờ xác minh...",
-  "queueResumingAfterVerification": "Đang tiếp tục tải sau khi xác minh...",
-  "@queueDownloadStarting": {
-    "description": "Queue status before download progress is available"
-  },
-  "@queueCheckingDownloadSession": {
-    "description": "Queue status while the download provider's session is being checked during preparation (preparationStage 'checking_session'). This is about the provider session, not about locating a finished file."
-  },
   "a11ySelectTrack": "Chọn bài hát",
   "@a11ySelectTrack": {
     "description": "Accessibility label for selecting a track"
@@ -4982,14 +4069,6 @@
         "type": "int"
       }
     }
-  },
-  "downloadNativeWorker": "Tiến trình tải xuống gốc",
-  "@downloadNativeWorker": {
-    "description": "Setting title for Android native download worker"
-  },
-  "downloadNativeWorkerSubtitle": "Dịch vụ chạy nền Android cho việc tải nhạc qua tiện ích",
-  "@downloadNativeWorkerSubtitle": {
-    "description": "Setting subtitle for Android native download worker"
   },
   "extensionServiceStatus": "Trạng thái dịch vụ",
   "@extensionServiceStatus": {
@@ -5079,18 +4158,6 @@
   "@extensionEnterValue": {
     "description": "Hint for editing an extension setting value"
   },
-  "extensionHealthServiceOnline": "Dịch vụ đang trực tuyến",
-  "@extensionHealthServiceOnline": {
-    "description": "Tooltip for online extension service"
-  },
-  "extensionHealthServiceDegraded": "Dịch vụ bị suy giảm",
-  "@extensionHealthServiceDegraded": {
-    "description": "Tooltip for degraded extension service"
-  },
-  "extensionHealthServiceOffline": "Dịch vụ đang ngoại tuyến",
-  "@extensionHealthServiceOffline": {
-    "description": "Tooltip for offline extension service"
-  },
   "extensionHealthServiceUnknown": "Chưa rõ trạng thái dịch vụ",
   "@extensionHealthServiceUnknown": {
     "description": "Tooltip for unknown extension service health"
@@ -5154,35 +4221,6 @@
   "editMetadataSelectNone": "Không có",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
-  },
-  "queueRetryAllFailed": "Thử lại lần {count} failed",
-  "@queueRetryAllFailed": {
-    "description": "Button to retry every failed download in the queue",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsSaveDownloadHistory": "Lưu lịch sử tải xuống",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "Giữ lại các bài đã tải xong trong phần lịch sử và thư viện",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
-  "dialogDisableHistoryTitle": "Tắt lịch sử tải xuống?",
-  "@dialogDisableHistoryTitle": {
-    "description": "Confirmation dialog title shown before disabling download history"
-  },
-  "dialogDisableHistoryMessage": "Lịch sử hiện tại sẽ được xóa. Các tệp nhạc đã tải về sẽ không bị xóa.",
-  "@dialogDisableHistoryMessage": {
-    "description": "Confirmation dialog message shown before disabling download history"
-  },
-  "dialogDisableAndClear": "Tắt và xóa dữ liệu",
-  "@dialogDisableAndClear": {
-    "description": "Confirmation action to disable download history and clear existing entries"
   },
   "libraryPlayback": "Phát nhạc",
   "@libraryPlayback": {
@@ -5398,22 +4436,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "downloadPrimaryArtistOnlyOn": "Chỉ nghệ sĩ chính: Bật",
-  "@downloadPrimaryArtistOnlyOn": {
-    "description": "Status label when primary-artist-only folder naming is enabled"
-  },
-  "downloadPrimaryArtistOnlyOff": "Chỉ nghệ sĩ chính: Tắt",
-  "@downloadPrimaryArtistOnlyOff": {
-    "description": "Status label when primary-artist-only folder naming is disabled"
-  },
-  "downloadAlbumArtistMetadataPrimaryOnly": "Metadata Nghệ sĩ album: Chỉ giữ nghệ sĩ chính",
-  "@downloadAlbumArtistMetadataPrimaryOnly": {
-    "description": "Status label when album-artist folder filtering uses primary artist only"
-  },
-  "downloadAlbumArtistMetadataFull": "Metadata Nghệ sĩ album: Đầy đủ tất cả nghệ sĩ",
-  "@downloadAlbumArtistMetadataFull": {
-    "description": "Status label when album-artist folder filtering uses full metadata"
-  },
   "trackConvertOriginal": "Nguyên bản",
   "@trackConvertOriginal": {
     "description": "Label for keeping original bit depth or sample rate during conversion"
@@ -5512,58 +4534,6 @@
   "trackCoverOnline": "Ảnh bìa trực tuyến",
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
-  },
-  "regionCountryUS": "Hoa Kỳ",
-  "@regionCountryUS": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryGB": "Vương quốc Anh",
-  "@regionCountryGB": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryFR": "Pháp",
-  "@regionCountryFR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryDE": "Đức",
-  "@regionCountryDE": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryJP": "Nhật Bản",
-  "@regionCountryJP": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryKR": "Hàn Quốc",
-  "@regionCountryKR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIN": "Ấn Độ",
-  "@regionCountryIN": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryID": "Indonesia",
-  "@regionCountryID": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryBR": "Brazil",
-  "@regionCountryBR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryMX": "Mexico",
-  "@regionCountryMX": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryAU": "Úc",
-  "@regionCountryAU": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryCA": "Canada",
-  "@regionCountryCA": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryXK": "Kosovo",
-  "@regionCountryXK": {
-    "description": "Country name for SongLink region picker"
   },
   "extensionVerificationBrowserTitle": "Trình duyệt xác minh",
   "@extensionVerificationBrowserTitle": {
@@ -5980,7 +4950,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "motionArtwork": "Ảnh bìa động",
   "listeningStats": "Thống kê nghe nhạc",
   "listeningStatsRecord": "Ghi nhận lịch sử nghe nhạc",
   "listeningStatsDescription": "Chỉ lưu cục bộ trên thiết bị này kể từ bây giờ. Chỉ ghi nhận khi nghe bằng trình phát tích hợp; thời gian tạm dừng, đang tải đệm hoặc tua nhạc sẽ không bị tính. Mỗi lượt nghe được tính sau 30 giây.",
@@ -6233,7 +5202,6 @@
     }
   },
   "listeningRewindYearOutroBody": "Chúc bạn thêm một năm mới tràn ngập những giai điệu tuyệt vời.",
-  "motionArtworkDescription": "Phát lặp lại video ảnh bìa động do nguồn metadata cung cấp. Hãy tắt nếu muốn dùng ảnh bìa tĩnh và tiết kiệm pin hơn.",
   "libraryLoading": "Đang tải Thư viện…",
   "libraryLoadFailed": "Không thể tải Thư viện. Hãy thử lại để nạp danh sách thư mục đã lưu và chỉ mục bài hát.",
   "autoMixSettingsTitle": "Hiệu ứng chuyển bài",
@@ -6509,10 +5477,6 @@
   "appCrashDismiss": "Bỏ qua",
   "appCrashCopyFailed": "Không thể sao chép báo cáo sự cố. Vui lòng thử lại.",
   "appCrashDismissFailed": "Không thể đóng báo cáo sự cố. Vui lòng thử lại.",
-  "optionsEmbeddedCoverSizeOriginal": "Độ phân giải gốc",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "menuOpen": "Mở",
   "@menuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
@@ -6601,161 +5565,6 @@
   "playlistImportFailed": "Could not read this playlist file",
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
-  },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
-  },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
-  },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
-  },
-  "reorganizeLibraryScanning": "Checking your files…",
-  "@reorganizeLibraryScanning": {
-    "description": "Shown while Sistrum works out which downloaded files need to move"
-  },
-  "reorganizeLibraryBusy": "Wait for active downloads to finish before reorganizing files",
-  "@reorganizeLibraryBusy": {
-    "description": "Snackbar when the user tries to reorganize files while downloads are running"
-  },
-  "reorganizeLibraryNothingTitle": "Already Organized",
-  "@reorganizeLibraryNothingTitle": {
-    "description": "Dialog title when every downloaded file already follows the rules"
-  },
-  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Sistrum did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
-  "@reorganizeLibraryNothingMessage": {
-    "description": "Dialog message when there is nothing to move",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryConfirmTitle": "Reorganize {count} {count, plural, =1{file} other{files}}?",
-  "@reorganizeLibraryConfirmTitle": {
-    "description": "Confirmation dialog title before moving files",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryConfirmMessage": "These tracks will be moved or renamed to match your current Files settings, using their tags. Lyrics (.lrc) files next to them move too, and folders left empty are removed.",
-  "@reorganizeLibraryConfirmMessage": {
-    "description": "Confirmation dialog body before moving files"
-  },
-  "reorganizeLibraryExamples": "For example:",
-  "@reorganizeLibraryExamples": {
-    "description": "Label above a few sample moves in the reorganize confirmation dialog"
-  },
-  "reorganizeLibraryMoreChanges": "…and {count} more",
-  "@reorganizeLibraryMoreChanges": {
-    "description": "Shown under the sample moves when more files will be moved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryAlreadyOrganized": "{count} {count, plural, =1{track already matches} other{tracks already match}} and will stay where {count, plural, =1{it is} other{they are}}.",
-  "@reorganizeLibraryAlreadyOrganized": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryOutsideFolder": "{count} {count, plural, =1{track is} other{tracks are}} stored outside the current download folder and will be left alone.",
-  "@reorganizeLibraryOutsideFolder": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryMissing": "{count} {count, plural, =1{file} other{files}} could not be found and will be skipped.",
-  "@reorganizeLibraryMissing": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryUntagged": "{count} {count, plural, =1{file has} other{files have}} no artist tag and will be left alone.",
-  "@reorganizeLibraryUntagged": {
-    "description": "Note in the reorganize confirmation dialog about scanned files without tags",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryScanHint": "Files Sistrum did not download are only included after their folder is added and scanned in Local Library.",
-  "@reorganizeLibraryScanHint": {
-    "description": "Hint in the reorganize confirmation dialog about which files are covered"
-  },
-  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Sistrum doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
-  "@reorganizeLibraryKeepsPlaylistFolders": {
-    "description": "Warning in the reorganize confirmation dialog when the folder rule depends on the playlist"
-  },
-  "reorganizeLibraryDropsPlaylistFolders": "Sistrum doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
-  "@reorganizeLibraryDropsPlaylistFolders": {
-    "description": "Warning in the reorganize confirmation dialog when playlist folders are enabled"
-  },
-  "reorganizeLibrarySafNote": "Your download folder was picked through Android's folder picker, so each file is copied to its new place and then removed. This can take a while for a large library.",
-  "@reorganizeLibrarySafNote": {
-    "description": "Note in the reorganize confirmation dialog in Android SAF storage mode"
-  },
-  "reorganizeLibraryConfirmAction": "Move Files",
-  "@reorganizeLibraryConfirmAction": {
-    "description": "Confirm button of the reorganize dialog"
-  },
-  "reorganizeLibraryMoving": "Moving files",
-  "@reorganizeLibraryMoving": {
-    "description": "Title of the progress dialog while files are moved"
-  },
-  "reorganizeLibraryDone": "Moved {moved} of {total} {total, plural, =1{file} other{files}}",
-  "@reorganizeLibraryDone": {
-    "description": "Snackbar after reorganizing files",
-    "placeholders": {
-      "moved": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryDoneWithFailures": "Moved {moved} of {total} {total, plural, =1{file} other{files}} · {failed} failed",
-  "@reorganizeLibraryDoneWithFailures": {
-    "description": "Snackbar after reorganizing files when some moves failed",
-    "placeholders": {
-      "moved": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryFailed": "Couldn't reorganize your files: {error}",
-  "@reorganizeLibraryFailed": {
-    "description": "Snackbar when planning or applying the reorganization fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "autoMixOn": "Đã bật AutoMix",
   "autoMixOff": "Đã tắt AutoMix"

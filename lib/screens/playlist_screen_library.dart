@@ -99,7 +99,7 @@ extension _PlaylistLibrarySections on _PlaylistScreenState {
     final bottomPadding = isSelectionMode
         ? MediaQuery.paddingOf(context).bottom
         : 0.0;
-    // Back during Edit order asks to discard the order, as the Wishlist does.
+    // Back during Edit order asks to discard the order.
     return PopScope(
       canPop: !editingOrder,
       onPopInvokedWithResult: (didPop, _) {

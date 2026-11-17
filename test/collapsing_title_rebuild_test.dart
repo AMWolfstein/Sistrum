@@ -4,11 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/screens/album_screen.dart';
@@ -22,6 +20,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _tracks = [
   for (var i = 0; i < 30; i++)
@@ -146,12 +145,6 @@ void main() {
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(null),
           ),
-          downloadQueueLookupProvider.overrideWithValue(
-            const DownloadQueueLookup.empty(),
-          ),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => const <String>{},
-          ),
           libraryAlbumItemsProvider(
             LibraryDatabase.albumKeyFor(
               'Example album',
@@ -185,7 +178,6 @@ void main() {
           localLibraryFirstCoverProvider.overrideWith(
             (ref, request) async => null,
           ),
-          playerMotionArtworkProvider.overrideWith((ref, album) async => null),
           libraryArtistOverviewProvider(
             'Example artist',
           ).overrideWith((ref) async => LibraryArtistOverview(_albums)),

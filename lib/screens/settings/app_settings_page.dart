@@ -4,12 +4,12 @@ import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class AppSettingsPage extends ConsumerWidget {
   const AppSettingsPage({super.key});
@@ -74,33 +74,6 @@ class AppSettingsPage extends ConsumerWidget {
                   onTap: () =>
                       _showClearHistoryDialog(context, ref, colorScheme),
                 ),
-                SettingsSwitchItem(
-                  title: context.l10n.settingsSaveDownloadHistory,
-                  subtitle: context.l10n.settingsSaveDownloadHistorySubtitle,
-                  value: settings.saveDownloadHistory,
-                  onChanged: (enabled) {
-                    if (enabled) {
-                      ref
-                          .read(settingsProvider.notifier)
-                          .setSaveDownloadHistory(true);
-                      return;
-                    }
-
-                    final hasHistory = ref
-                        .read(downloadHistoryProvider)
-                        .items
-                        .isNotEmpty;
-                    if (hasHistory) {
-                      _showDisableHistoryDialog(context, ref, colorScheme);
-                      return;
-                    }
-
-                    ref
-                        .read(settingsProvider.notifier)
-                        .setSaveDownloadHistory(false);
-                  },
-                  showDivider: false,
-                ),
               ],
             ),
 
@@ -124,40 +97,6 @@ class AppSettingsPage extends ConsumerWidget {
             const NavBarSliverSpacer(),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showDisableHistoryDialog(
-    BuildContext context,
-    WidgetRef ref,
-    ColorScheme colorScheme,
-  ) {
-    showAppDialog<void>(
-      context: context,
-      builder: (context) => AppAlertDialog(
-        title: Text(context.l10n.dialogDisableHistoryTitle),
-        content: Text(context.l10n.dialogDisableHistoryMessage),
-        actions: [
-          AppDialogAction(
-            isDefault: true,
-            onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.dialogCancel),
-          ),
-          AppDialogAction(
-            isDestructive: true,
-            onPressed: () {
-              ref.read(downloadHistoryProvider.notifier).clearHistory();
-              ref.read(settingsProvider.notifier).setSaveDownloadHistory(false);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(context.l10n.snackbarHistoryCleared)),
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: colorScheme.error),
-            child: Text(context.l10n.dialogDisableAndClear),
-          ),
-        ],
       ),
     );
   }

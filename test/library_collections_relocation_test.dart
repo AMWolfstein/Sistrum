@@ -48,26 +48,11 @@ void main() {
           'added_at': '2026-01-01',
         });
       }
-      for (final other in [
-        track.copyWith(id: 'other', name: 'old'),
-        track.copyWith(source: 'example'),
-      ]) {
-        batch.insert('wishlist_tracks', {
-          'track_key': '${other.source}:${other.id}',
-          'track_json': jsonEncode(other.toJson()),
-          'added_at': '2026-01-01',
-        });
-      }
       await batch.commit(noResult: true);
       await collections.relinkLocalTrack('old', 'new');
       final rows = await db.query('playlist_tracks', orderBy: 'rowid');
       expect(rows, hasLength(205));
       expect(rows.last['track_key'], 'occurrence:205:local:new');
-      final unrelated = await db.query('wishlist_tracks');
-      expect(unrelated.map((row) => row['track_key']), [
-        'local:other',
-        'example:old',
-      ]);
     },
   );
 
@@ -91,11 +76,6 @@ void main() {
       await db.insert('loved_tracks', {
         'track_key': 'isrc:TEST123',
         'track_json': jsonEncode(track.copyWith(isrc: 'TEST123').toJson()),
-        'added_at': '2026-01-01',
-      });
-      await db.insert('wishlist_tracks', {
-        'track_key': 'broken',
-        'track_json': '{',
         'added_at': '2026-01-01',
       });
       await collections.relinkLocalTrack('old', 'new');

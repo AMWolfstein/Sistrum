@@ -158,7 +158,7 @@ void main() {
 
 class _BenchmarkSettings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(motionArtworkEnabled: false);
+  AppSettings build() => const AppSettings();
 }
 
 class _Fixture {

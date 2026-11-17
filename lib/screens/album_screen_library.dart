@@ -144,16 +144,6 @@ extension _AlbumLibrarySections on _AlbumScreenState {
     final qualityLabelMode = ref.watch(
       settingsProvider.select((s) => s.libraryQualityLabelMode),
     );
-    final motion = !MediaQuery.disableAnimationsOf(context)
-        ? ref
-              .watch(
-                playerMotionArtworkProvider((
-                  album: title,
-                  artist: first.artistName,
-                )),
-              )
-              .value
-        : null;
     final cacheWidth = coverCacheWidthForViewport(context);
     Widget placeholder(double size) => Container(
       color: colorScheme.surfaceContainerHighest,
@@ -177,12 +167,10 @@ extension _AlbumLibrarySections on _AlbumScreenState {
     return AlbumDetailHeader(
       title: title,
       immersive: true,
-      squareArtwork: motion == null,
+      squareArtwork: true,
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
-      background: motion == null
-          ? background
-          : MotionHeaderBanner(videoUrl: motion.source, fallback: background),
+      background: background,
       coverBuilder: (context, coverSize) => cover != null
           ? LocalOrNetworkCoverImage(
               url: cover,

@@ -15,6 +15,7 @@ import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/models/download_history.dart';
 
 class _Playback extends PlaybackController {
   final played = <String>[];

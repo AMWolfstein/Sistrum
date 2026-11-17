@@ -12,7 +12,6 @@ import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sistrum/services/autoplay_taste.dart';
 import 'package:sistrum/services/background_favorites.dart';
 import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
@@ -46,7 +45,6 @@ class PlaybackDependencies {
     this.audioSession = _getAudioSession,
     this.readMetadata = PlatformBridge.readFileMetadata,
     this.fileAccess = checkFileAccess,
-    this.recoverMovedDownload = _recoverMovedDownload,
     this.initializeHandler = _initializeAudioHandler,
     this.synchronizePlaybackState = _synchronizePlaybackState,
     this.createPersonalization = AutoplayPersonalization.new,
@@ -80,12 +78,6 @@ class PlaybackDependencies {
   final Future<Map<String, dynamic>> Function(String, {String? displayName})
   readMetadata;
   final Future<FileAccessCheck> Function(String) fileAccess;
-  final Future<String?> Function(
-    String source,
-    String historyId,
-    AppSettings settings,
-  )
-  recoverMovedDownload;
   final Future<MusicPlayerHandler> Function(MusicPlayerHandler Function())
   initializeHandler;
   final Future<void> Function() synchronizePlaybackState;
@@ -133,16 +125,6 @@ class PlaybackDependencies {
   static Future<AudioSession> _getAudioSession() => AudioSession.instance;
   static SongAnalysis _createSongAnalysis(LibraryDatabase library) =>
       SongAnalysis(library: library);
-  static Future<String?> _recoverMovedDownload(
-    String source,
-    String historyId,
-    AppSettings settings,
-  ) => DownloadFileRecovery.instance.recover(
-    source,
-    historyId: historyId,
-    settings: settings,
-  );
-
   static Future<void> _synchronizePlaybackState() async {
     // The session's switch takes each state from the player a microtask
     // later; let the one just published reach it first.

@@ -10,14 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
@@ -29,6 +26,7 @@ import 'package:sistrum/widgets/destructive_selection_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 import 'support/app_icon_finder.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _tracks = [
   for (final name in ['First', 'Unavailable', 'Selected', 'Last'])
@@ -161,7 +159,7 @@ class _RemovalCollections extends _Collections {
   LibraryCollectionsState build() {
     final initial = super.build();
     final tracks = initial.playlists.single.tracks;
-    return initial.copyWith(wishlist: tracks, loved: tracks);
+    return initial.copyWith(loved: tracks);
   }
 
   Future<int> _remove(String kind, Iterable<String> keys) async {
@@ -170,7 +168,6 @@ class _RemovalCollections extends _Collections {
     List<CollectionTrackEntry> keep(List<CollectionTrackEntry> entries) =>
         entries.where((entry) => !selected.contains(entry.key)).toList();
     state = switch (kind) {
-      'wishlist' => state.copyWith(wishlist: keep(state.wishlist)),
       'loved' => state.copyWith(loved: keep(state.loved)),
       _ => state.copyWith(
         playlists: [
@@ -182,10 +179,6 @@ class _RemovalCollections extends _Collections {
     };
     return selected.length;
   }
-
-  @override
-  Future<int> removeWishlistTracks(Iterable<String> keys) =>
-      _remove('wishlist', keys);
 
   @override
   Future<int> removeLovedTracks(Iterable<String> keys) =>
@@ -238,9 +231,6 @@ Widget _selectionApp({
     libraryCollectionsProvider.overrideWith(_Collections.new),
     localLibraryProvider.overrideWith(() => library ?? _Library()),
     downloadHistoryProvider.overrideWith(() => history ?? _History()),
-    downloadHistoryVisibleBatchExistsProvider.overrideWith(
-      (ref, request) => const {},
-    ),
     localLibraryCoverProvider.overrideWith((ref, request) async => null),
     localLibraryFirstCoverProvider.overrideWith((ref, request) async => null),
   ],
@@ -263,36 +253,6 @@ Future<void> _selectAllTracks(WidgetTester tester) async {
       .widget<SelectionBottomBar>(find.byType(SelectionBottomBar))
       .onToggleSelectAll();
   await tester.pumpAndSettle();
-}
-
-class _DownloadSelection extends DownloadQueueNotifier {
-  _DownloadSelection(this._record);
-  final void Function(List<Track>, String) _record;
-
-  @override
-  DownloadQueueState build() => const DownloadQueueState();
-
-  @override
-  void addIndividualTracksToQueue(List<Track> tracks, String service) =>
-      _record(tracks, service);
-}
-
-class _DownloadExtensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState(
-    extensions: [
-      Extension(
-        id: 'example',
-        name: 'example',
-        displayName: 'Example',
-        version: '1',
-        description: '',
-        enabled: true,
-        status: 'loaded',
-        hasDownloadProvider: true,
-      ),
-    ],
-  );
 }
 
 /// The library rows of the fake collections; they follow the fake's edits.
@@ -441,9 +401,6 @@ void main() {
           libraryCollectionsProvider.overrideWith(_LocalCollections.new),
           localLibraryProvider.overrideWith(_Library.new),
           downloadHistoryProvider.overrideWith(_History.new),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => const {},
-          ),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
           localLibraryFirstCoverProvider.overrideWith(
             (ref, request) async => null,
@@ -471,69 +428,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Wishlist enqueues one selection', (tester) async {
-    tester.view.physicalSize = const Size(800, 1100);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final calls = <(List<Track>, String)>[];
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          ..._entriesOverrides(),
-          settingsProvider.overrideWith(_Settings.new),
-          musicPlayerControllerProvider.overrideWithValue(_Player()),
-          playbackProvider.overrideWith(_Playback.new),
-          libraryCollectionsProvider.overrideWith(
-            () => _RemovalCollections((_, _) {}),
-          ),
-          extensionProvider.overrideWith(_DownloadExtensions.new),
-          downloadQueueProvider.overrideWith(
-            () => _DownloadSelection(
-              (tracks, service) => calls.add((tracks, service)),
-            ),
-          ),
-          localLibraryProvider.overrideWith(_Library.new),
-          downloadHistoryProvider.overrideWith(_History.new),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => const {},
-          ),
-          localLibraryCoverProvider.overrideWith((ref, request) async => null),
-          localLibraryFirstCoverProvider.overrideWith(
-            (ref, request) async => null,
-          ),
-        ],
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const LibraryTracksFolderScreen(),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Unavailable'));
-    await tester.longPress(find.text('Unavailable'));
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('First'));
-    await tester.tap(find.text('First'));
-    await tester.pumpAndSettle();
-    final l10n = AppLocalizations.of(
-      tester.element(find.byType(LibraryTracksFolderScreen)),
-    );
-    await tester.tap(find.text('${l10n.settingsDownload} (2)'));
-    await tester.pumpAndSettle();
-    expect(calls, hasLength(1));
-    expect(calls.single.$1, [_tracks[0], _tracks[1]]);
-    expect(calls.single.$2, 'example');
-    expect(findAppIcon(Icons.remove_circle_outline), findsNothing);
-    expect(find.text(l10n.selectionSelected(2)), findsOneWidget);
-    expect(find.text('First'), findsOneWidget);
-    expect(find.text('Unavailable'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
   for (final (kind, page) in <(String, Widget)>[
-    ('wishlist', const LibraryTracksFolderScreen()),
     ('loved', const PlaylistScreen.libraryLoved()),
     (
       'playlist',
@@ -558,9 +453,6 @@ void main() {
             ),
             localLibraryProvider.overrideWith(_Library.new),
             downloadHistoryProvider.overrideWith(_History.new),
-            downloadHistoryVisibleBatchExistsProvider.overrideWith(
-              (ref, request) => const {},
-            ),
             localLibraryCoverProvider.overrideWith(
               (ref, request) async => null,
             ),
@@ -620,12 +512,6 @@ void main() {
           libraryCollectionsProvider.overrideWith(_Collections.new),
           localLibraryProvider.overrideWith(_Library.new),
           downloadHistoryProvider.overrideWith(_History.new),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => {
-              for (final track in request.tracks)
-                if (track.spotifyId != 'Unavailable') track.lookupKey,
-            },
-          ),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
           localLibraryFirstCoverProvider.overrideWith(
             (ref, request) async => null,

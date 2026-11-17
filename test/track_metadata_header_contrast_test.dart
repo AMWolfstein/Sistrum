@@ -12,6 +12,7 @@ import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_metadata_row.dart';
+import 'package:sistrum/models/download_history.dart';
 
 void main() {
   for (final useFileUri in [false, true]) {

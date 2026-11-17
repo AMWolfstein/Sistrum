@@ -7,24 +7,14 @@ part of 'settings.dart';
 // **************************************************************************
 
 AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
-  defaultService: json['defaultService'] as String? ?? '',
-  audioQuality: json['audioQuality'] as String? ?? 'LOSSLESS',
-  filenameFormat: json['filenameFormat'] as String? ?? '{title} - {artist}',
   downloadDirectory: json['downloadDirectory'] as String? ?? '',
-  networkDownloadFolder: json['networkDownloadFolder'] as String? ?? '',
-  networkDownloadLabel: json['networkDownloadLabel'] as String? ?? '',
   storageMode: json['storageMode'] as String? ?? 'app',
   downloadTreeUri: json['downloadTreeUri'] as String? ?? '',
   autoFallback: json['autoFallback'] as bool? ?? true,
-  embedMetadata: json['embedMetadata'] as bool? ?? true,
-  embeddedCoverMaxDimension:
-      (json['embeddedCoverMaxDimension'] as num?)?.toInt() ?? 0,
   artistTagMode: json['artistTagMode'] as String? ?? artistTagModeJoined,
   tagCredits: json['tagCredits'] == null
       ? const TagCreditSettings()
       : TagCreditSettings.fromJson(json['tagCredits'] as Map<String, dynamic>),
-  embedLyrics: json['embedLyrics'] as bool? ?? true,
-  embedReplayGain: json['embedReplayGain'] as bool? ?? false,
   playbackNormalization: json['playbackNormalization'] as bool? ?? false,
   playbackNormalizationPreamp: json['playbackNormalizationPreamp'] == null
       ? 0
@@ -81,9 +71,6 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   isFirstLaunch: json['isFirstLaunch'] as bool? ?? true,
   checkForUpdates: json['checkForUpdates'] as bool? ?? true,
   updateChannel: json['updateChannel'] as String? ?? 'stable',
-  folderOrganization: json['folderOrganization'] as String? ?? 'none',
-  folderPathTemplate:
-      json['folderPathTemplate'] as String? ?? '{artist}/{album}',
   createPlaylistFolder: json['createPlaylistFolder'] as bool? ?? false,
   useAlbumArtistForFolders: json['useAlbumArtistForFolders'] as bool? ?? true,
   usePrimaryArtistOnly: json['usePrimaryArtistOnly'] as bool? ?? false,
@@ -95,7 +82,6 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   libraryQualityLabelMode:
       json['libraryQualityLabelMode'] as String? ??
       AppSettings.libraryQualityLabelBitDepthOnly,
-  askQualityBeforeDownload: json['askQualityBeforeDownload'] as bool? ?? true,
   enableLogging: json['enableLogging'] as bool? ?? false,
   useExtensionProviders: json['useExtensionProviders'] as bool? ?? true,
   downloadFallbackExtensionIds:
@@ -117,27 +103,12 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   locale: json['locale'] as String? ?? 'system',
   lyricsMode: json['lyricsMode'] as String? ?? 'embed',
   keepScreenOnLyrics: json['keepScreenOnLyrics'] as bool? ?? true,
-  motionArtworkEnabled: json['motionArtworkEnabled'] as bool? ?? true,
   listeningStatisticsEnabled:
       json['listeningStatisticsEnabled'] as bool? ?? true,
-  autoConvertDownloads: json['autoConvertDownloads'] as bool? ?? false,
-  redownloadFakeHiRes: json['redownloadFakeHiRes'] as bool? ?? false,
-  autoConvertFormat: json['autoConvertFormat'] as String? ?? 'mp3',
-  autoConvertBitrate: json['autoConvertBitrate'] as String? ?? '320k',
-  autoConvertMaxBitDepth:
-      (json['autoConvertMaxBitDepth'] as num?)?.toInt() ?? 16,
-  autoConvertMaxSampleRate:
-      (json['autoConvertMaxSampleRate'] as num?)?.toInt() ?? 48000,
   useAllFilesAccess: json['useAllFilesAccess'] as bool? ?? false,
-  autoExportFailedDownloads:
-      json['autoExportFailedDownloads'] as bool? ?? false,
-  downloadNetworkMode: json['downloadNetworkMode'] as String? ?? 'any',
   networkCompatibilityMode: json['networkCompatibilityMode'] as bool? ?? false,
   allowLocalNetwork: json['allowLocalNetwork'] as bool? ?? false,
   songLinkRegion: json['songLinkRegion'] as String? ?? 'US',
-  nativeDownloadWorkerEnabled:
-      json['nativeDownloadWorkerEnabled'] as bool? ?? false,
-  concurrentDownloads: (json['concurrentDownloads'] as num?)?.toInt() ?? 1,
   localLibraryEnabled: json['localLibraryEnabled'] as bool? ?? false,
   localLibraryPath: json['localLibraryPath'] as String? ?? '',
   localLibraryShowDuplicates:
@@ -149,9 +120,6 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
           ?.map((e) => e as String)
           .toList() ??
       const ['apple_music', 'lrcred', 'lyricsplus', 'lrclib'],
-  deduplicateDownloads: json['deduplicateDownloads'] as bool? ?? true,
-  allowQualityVariants: json['allowQualityVariants'] as bool? ?? false,
-  saveDownloadHistory: json['saveDownloadHistory'] as bool? ?? true,
   playerMode: json['playerMode'] as String? ?? 'internal',
   playerShowPronunciation: json['playerShowPronunciation'] as bool? ?? true,
   playerShowTranslation: json['playerShowTranslation'] as bool? ?? true,
@@ -162,21 +130,12 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
 Map<String, dynamic> _$AppSettingsToJson(
   AppSettings instance,
 ) => <String, dynamic>{
-  'defaultService': instance.defaultService,
-  'audioQuality': instance.audioQuality,
-  'filenameFormat': instance.filenameFormat,
   'downloadDirectory': instance.downloadDirectory,
-  'networkDownloadFolder': instance.networkDownloadFolder,
-  'networkDownloadLabel': instance.networkDownloadLabel,
   'storageMode': instance.storageMode,
   'downloadTreeUri': instance.downloadTreeUri,
   'autoFallback': instance.autoFallback,
-  'embedMetadata': instance.embedMetadata,
-  'embeddedCoverMaxDimension': instance.embeddedCoverMaxDimension,
   'artistTagMode': instance.artistTagMode,
   'tagCredits': instance.tagCredits.toJson(),
-  'embedLyrics': instance.embedLyrics,
-  'embedReplayGain': instance.embedReplayGain,
   'playbackNormalization': instance.playbackNormalization,
   'playbackNormalizationPreamp': instance.playbackNormalizationPreamp,
   'playbackNormalizationMode': instance.playbackNormalizationMode,
@@ -207,8 +166,6 @@ Map<String, dynamic> _$AppSettingsToJson(
   'isFirstLaunch': instance.isFirstLaunch,
   'checkForUpdates': instance.checkForUpdates,
   'updateChannel': instance.updateChannel,
-  'folderOrganization': instance.folderOrganization,
-  'folderPathTemplate': instance.folderPathTemplate,
   'createPlaylistFolder': instance.createPlaylistFolder,
   'useAlbumArtistForFolders': instance.useAlbumArtistForFolders,
   'usePrimaryArtistOnly': instance.usePrimaryArtistOnly,
@@ -216,7 +173,6 @@ Map<String, dynamic> _$AppSettingsToJson(
       instance.filterContributingArtistsInAlbumArtist,
   'historySortMode': instance.historySortMode,
   'libraryQualityLabelMode': instance.libraryQualityLabelMode,
-  'askQualityBeforeDownload': instance.askQualityBeforeDownload,
   'enableLogging': instance.enableLogging,
   'useExtensionProviders': instance.useExtensionProviders,
   'downloadFallbackExtensionIds': instance.downloadFallbackExtensionIds,
@@ -232,31 +188,17 @@ Map<String, dynamic> _$AppSettingsToJson(
   'locale': instance.locale,
   'lyricsMode': instance.lyricsMode,
   'keepScreenOnLyrics': instance.keepScreenOnLyrics,
-  'motionArtworkEnabled': instance.motionArtworkEnabled,
   'listeningStatisticsEnabled': instance.listeningStatisticsEnabled,
-  'autoConvertDownloads': instance.autoConvertDownloads,
-  'redownloadFakeHiRes': instance.redownloadFakeHiRes,
-  'autoConvertFormat': instance.autoConvertFormat,
-  'autoConvertBitrate': instance.autoConvertBitrate,
-  'autoConvertMaxBitDepth': instance.autoConvertMaxBitDepth,
-  'autoConvertMaxSampleRate': instance.autoConvertMaxSampleRate,
   'useAllFilesAccess': instance.useAllFilesAccess,
-  'autoExportFailedDownloads': instance.autoExportFailedDownloads,
-  'downloadNetworkMode': instance.downloadNetworkMode,
   'networkCompatibilityMode': instance.networkCompatibilityMode,
   'allowLocalNetwork': instance.allowLocalNetwork,
   'songLinkRegion': instance.songLinkRegion,
-  'nativeDownloadWorkerEnabled': instance.nativeDownloadWorkerEnabled,
-  'concurrentDownloads': instance.concurrentDownloads,
   'localLibraryEnabled': instance.localLibraryEnabled,
   'localLibraryPath': instance.localLibraryPath,
   'localLibraryShowDuplicates': instance.localLibraryShowDuplicates,
   'localLibraryAutoScan': instance.localLibraryAutoScan,
   'hasCompletedTutorial': instance.hasCompletedTutorial,
   'lyricsProviders': instance.lyricsProviders,
-  'deduplicateDownloads': instance.deduplicateDownloads,
-  'allowQualityVariants': instance.allowQualityVariants,
-  'saveDownloadHistory': instance.saveDownloadHistory,
   'playerMode': instance.playerMode,
   'playerShowPronunciation': instance.playerShowPronunciation,
   'playerShowTranslation': instance.playerShowTranslation,

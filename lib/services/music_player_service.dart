@@ -1586,24 +1586,6 @@ class MusicPlayerHandler extends BaseAudioHandler
     );
     await _claimHardwareMediaButtons();
     if (!_isCurrentPlayRequest(generation, media)) return;
-    if (_dependencies.isAndroid) {
-      try {
-        final recovered = await _dependencies.recoverMovedDownload(
-          media.source,
-          media.id,
-          _settings,
-        );
-        if (!_isCurrentPlayRequest(generation, media)) return;
-        if (recovered != null && recovered != media.source) {
-          _relocateQueuedSource(media.source, recovered);
-          media = _media[_index];
-          mediaItem.add(_toMediaItem(media));
-        }
-      } catch (error) {
-        _log.w('Could not resolve a moved download: $error');
-      }
-      if (!_isCurrentPlayRequest(generation, media)) return;
-    }
     unawaited(_recoverEmbeddedArtwork(media, generation));
 
     // Android opens SAF files through a short-lived file-descriptor lease.

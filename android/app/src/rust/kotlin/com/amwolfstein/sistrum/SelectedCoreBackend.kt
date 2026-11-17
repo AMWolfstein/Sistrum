@@ -467,17 +467,6 @@ internal object RustCoreBackend : CoreBackend {
         null,
     )
 
-    override fun downloadCoverToFileSized(
-        url: String,
-        outputPath: String,
-        maxDimension: Long,
-    ) = owner().downloadCoverToFileSized(
-        url,
-        File(outputPath).canonicalPath,
-        maxDimension,
-        null,
-    )
-
     override fun releaseIdleResources() {
         owner().releaseMemory(false)
     }
@@ -493,57 +482,6 @@ internal object RustCoreBackend : CoreBackend {
     ): File {
         owner()
         return workspace.createTemporaryFile(prefix, suffix)
-    }
-
-    override fun openExtensionExecution(): CoreExtensionExecution {
-        val current = owner()
-        val commands = current.environment().use { it.ffmpegCommands() }
-        return object : CoreExtensionExecution {
-            override fun download(requestJson: String): String = current.downloadByStrategy(requestJson)
-            override fun postProcess(inputJson: String, metadataJson: String): String =
-                current.runPostProcessing(inputJson, metadataJson, 120_000uL)
-            override fun waitPending(timeoutMs: Long): List<CoreFFmpegCommand> =
-                parseCoreFFmpegCommands(commands.waitPending(timeoutMs))
-            override fun commandIsActive(commandId: String): Boolean = commands.getCommand(commandId).isNotEmpty()
-            override fun complete(commandId: String, success: Boolean, output: String, error: String) {
-                commands.complete(commandId, success, output, error)
-            }
-            override fun close() { commands.close() }
-        }
-    }
-
-    override fun openDownloadProgress(): CoreDownloadProgress {
-        val current = owner()
-        val subscription = current.environment().use { environment ->
-            environment.downloadState().use { it.subscribeProgress() }
-        }
-        return object : CoreDownloadProgress {
-            override fun waitDelta(since: Long, timeoutMs: Long): String = subscription.waitDelta(since, timeoutMs)
-            override fun close() {
-                subscription.stop()
-                subscription.close()
-            }
-        }
-    }
-
-    override fun initItemProgress(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.initItemProgress(itemId) }
-    }
-
-    override fun clearItemProgress(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.clearItemProgress(itemId) }
-    }
-
-    override fun cancelDownload(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.cancelDownload(itemId) }
-    }
-
-    override fun resetDownloadCancel(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.resetDownloadCancel(itemId) }
     }
 
     override fun completeAuthCallback(state: String, code: String, onResolved: (String) -> Unit) {

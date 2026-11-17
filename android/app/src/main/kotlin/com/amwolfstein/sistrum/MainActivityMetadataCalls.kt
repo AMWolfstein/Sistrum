@@ -171,42 +171,6 @@ internal suspend fun MainActivity.handleWriteAC4Metadata(call: MethodCall, resul
     result.success(response)
 }
 
-internal suspend fun MainActivity.handleDownloadCoverToFile(call: MethodCall, result: MethodChannel.Result) {
-    val coverUrl = call.argument<String>("cover_url") ?: ""
-    val outputPath = call.argument<String>("output_path") ?: ""
-    val maxDimension = call.argument<Number>("max_dimension")
-        ?.toLong()
-        ?.coerceAtLeast(0L)
-        ?: 0L
-    val response = withContext(Dispatchers.IO) {
-        var temporaryCover: File? = null
-        try {
-            val destination = if (outputPath.isBlank()) {
-                coreBackend.createTemporaryMediaFile(
-                    this@handleDownloadCoverToFile,
-                    "cover_",
-                    ".jpg",
-                ).also { temporaryCover = it }.absolutePath
-            } else {
-                outputPath
-            }
-            coreBackend.downloadCoverToFileSized(
-                coverUrl,
-                destination,
-                maxDimension
-            )
-            JSONObject()
-                .put("success", true)
-                .put("file_path", destination)
-                .toString()
-        } catch (e: Exception) {
-            temporaryCover?.delete()
-            """{"success":false,"error":"${e.message?.replace("\"", "'")}"}"""
-        }
-    }
-    result.success(response)
-}
-
 internal suspend fun MainActivity.handleExtractCoverToFile(call: MethodCall, result: MethodChannel.Result) {
     val audioPath = call.argument<String>("audio_path") ?: ""
     val outputPath = call.argument<String>("output_path") ?: ""
@@ -279,32 +243,6 @@ internal suspend fun MainActivity.handleReEnrichFile(call: MethodCall, result: M
             }
         } catch (e: Exception) {
             """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
-        }
-    }
-    result.success(response)
-}
-
-internal suspend fun MainActivity.handleRunPostProcessingV2(call: MethodCall, result: MethodChannel.Result) {
-    val inputJson = call.argument<String>("input") ?: ""
-    val metadataJson = call.argument<String>("metadata") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        val inputObj = if (inputJson.isNotBlank()) JSONObject(inputJson) else JSONObject()
-        val uriStr = inputObj.optString("uri", "")
-        val pathStr = inputObj.optString("path", "")
-        val effectiveUri = when {
-            uriStr.startsWith("content://") -> uriStr
-            pathStr.startsWith("content://") -> pathStr
-            else -> ""
-        }
-
-        if (effectiveUri.isNotBlank()) {
-            runPostProcessingSafV2(coreBackend, effectiveUri, metadataJson, inputObj.optString("item_id", ""))
-        } else {
-            if (pathStr.isNotBlank()) {
-                inputObj.put("name", File(pathStr).name)
-                inputObj.put("is_saf", false)
-            }
-            coreBackend.runPostProcessing(inputObj.toString(), metadataJson)
         }
     }
     result.success(response)

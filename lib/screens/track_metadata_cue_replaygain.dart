@@ -333,17 +333,6 @@ extension _TrackMetadataCueSplitAndReplayGain on _TrackMetadataScreenState {
   }
 
   Future<Directory> _resolvePersistentCueSplitOutputDir() async {
-    final settings = ref.read(settingsProvider);
-    final queueState = ref.read(downloadQueueProvider);
-    final configuredOutputDir = queueState.outputDir.trim();
-    if (settings.storageMode != 'saf' &&
-        configuredOutputDir.isNotEmpty &&
-        !isContentUri(configuredOutputDir)) {
-      final dir = Directory(configuredOutputDir);
-      await dir.create(recursive: true);
-      return dir;
-    }
-
     if (Platform.isAndroid) {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {

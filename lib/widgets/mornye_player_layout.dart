@@ -45,7 +45,7 @@ class MornyePlayerLayout extends ConsumerWidget {
     required this.seekPreview,
     required this.colorScheme,
     required this.page,
-    required this.motionArtwork,
+    required this.artwork,
     required this.insetArtwork,
     required this.artworkTopInset,
     required this.artworkKeys,
@@ -65,7 +65,7 @@ class MornyePlayerLayout extends ConsumerWidget {
   final PlaybackSeekPreview seekPreview;
   final ColorScheme colorScheme;
   final int page;
-  final Widget motionArtwork;
+  final Widget artwork;
   final double? artworkAspectRatio;
 
   final bool insetArtwork;
@@ -307,7 +307,7 @@ class MornyePlayerLayout extends ConsumerWidget {
                                                 child: ClipRRect(
                                                   borderRadius:
                                                       BorderRadius.circular(12),
-                                                  child: motionArtwork,
+                                                  child: artwork,
                                                 ),
                                               ),
                                             )

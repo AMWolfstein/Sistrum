@@ -107,8 +107,8 @@ mixin CollectionTrackActions<T extends ConsumerStatefulWidget>
 }
 
 /// The selection bar actions of a saved list: play, play next, queue, add to
-/// playlist, remove from the list and delete files. [onDownload] adds the
-/// download action of the wishlist. [media] are the selected songs' files.
+/// playlist, remove from the list and delete files. [media] are the selected
+/// songs' files.
 class CollectionTrackSelectionActions extends StatelessWidget {
   const CollectionTrackSelectionActions({
     super.key,
@@ -121,7 +121,6 @@ class CollectionTrackSelectionActions extends StatelessWidget {
     required this.removeLabel,
     required this.onRemove,
     required this.onDelete,
-    this.onDownload,
   });
 
   final List<PlayableMedia> media;
@@ -135,7 +134,6 @@ class CollectionTrackSelectionActions extends StatelessWidget {
   final String removeLabel;
   final VoidCallback onRemove;
   final void Function(List<PlayableMedia> media) onDelete;
-  final VoidCallback? onDownload;
 
   @override
   Widget build(BuildContext context) {
@@ -164,12 +162,6 @@ class CollectionTrackSelectionActions extends StatelessWidget {
                       ? () => onPlay(media, playNext: next)
                       : null,
                 ),
-            if (onDownload case final download?)
-              SelectionActionButton(
-                icon: Icons.download,
-                label: '${l10n.settingsDownload} ($selectedCount)',
-                onPressed: hasSelection ? download : null,
-              ),
             SelectionActionButton(
               icon: Icons.playlist_add,
               label: '${l10n.collectionAddToPlaylist} ($selectedCount)',
@@ -276,9 +268,8 @@ Future<void> playCollectionTracks(
   }
 }
 
-/// Opens a saved track's metadata from its downloaded or scanned copy. A saved
-/// track with neither has lost its file, so it says so; the Wishlist, the only
-/// place a track is downloaded, does not come here.
+/// Opens a saved track's metadata from its scanned copy. A saved track without
+/// one has lost its file, so it says so.
 Future<void> openCollectionTrackMetadata(
   BuildContext context,
   WidgetRef ref,

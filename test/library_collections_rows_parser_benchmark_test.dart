@@ -60,7 +60,7 @@ void main() {
         [
           for (var index = 0; index < count; index++)
             jsonEncode({
-              'kind': index.isEven ? 'wishlist' : 'loved',
+              'kind': 'loved',
               'row': {
                 'track_key': 'example:$index',
                 'added_at': '2026-10-07T00:00:00.000Z',

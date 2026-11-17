@@ -14,8 +14,8 @@ internal fun Context.resolveSafFile(treeUriStr: String, relativeDir: String, fil
             obj.put("relative_dir", "")
             return obj.toString()
         }
-        val safeRelativeDir = SafDownloadHandler.sanitizeRelativeDir(relativeDir)
-        val safeFileName = SafDownloadHandler.sanitizeFilename(fileName)
+        val safeRelativeDir = SafDocumentWriter.sanitizeRelativeDir(relativeDir)
+        val safeFileName = SafDocumentWriter.sanitizeFilename(fileName)
         if (safeFileName.isBlank()) {
             obj.put("uri", "")
             obj.put("relative_dir", "")
@@ -23,7 +23,7 @@ internal fun Context.resolveSafFile(treeUriStr: String, relativeDir: String, fil
         }
 
         val treeUri = Uri.parse(treeUriStr)
-        val targetDir = SafDownloadHandler.findDocumentDir(this, treeUri, safeRelativeDir)
+        val targetDir = SafDocumentWriter.findDocumentDir(this, treeUri, safeRelativeDir)
         if (targetDir != null) {
             val direct = findSafChild(this, targetDir, safeFileName)
             if (direct != null && direct.isFile) {
@@ -116,7 +116,7 @@ internal fun Context.inspectSafFiles(requestsJson: String): String {
             val rawNames = raw.optJSONArray("file_names")
             if (rawNames != null) {
                 for (nameIndex in 0 until rawNames.length()) {
-                    val sanitized = SafDownloadHandler.sanitizeFilename(
+                    val sanitized = SafDocumentWriter.sanitizeFilename(
                         rawNames.optString(nameIndex).trim(),
                     )
                     if (sanitized.isNotBlank() && sanitized !in names) {
@@ -128,7 +128,7 @@ internal fun Context.inspectSafFiles(requestsJson: String): String {
                 SafFileInspectionRequest(
                     key = key,
                     treeUri = raw.optString("tree_uri").trim(),
-                    relativeDir = SafDownloadHandler.sanitizeRelativeDir(
+                    relativeDir = SafDocumentWriter.sanitizeRelativeDir(
                         raw.optString("relative_dir"),
                     ),
                     currentUri = raw.optString("current_uri").trim(),
@@ -197,7 +197,7 @@ internal fun Context.inspectSafFiles(requestsJson: String): String {
                     resolvedDirectoryCache[request.relativeDir]
                 } else {
                     val resolved = try {
-                        SafDownloadHandler.findDocumentDir(this, treeUri!!, request.relativeDir)
+                        SafDocumentWriter.findDocumentDir(this, treeUri!!, request.relativeDir)
                     } catch (_: Exception) {
                         null
                     }

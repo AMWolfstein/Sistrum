@@ -16,7 +16,6 @@ import 'package:sistrum/app.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
@@ -26,7 +25,6 @@ import 'package:sistrum/services/notification_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/share_intent_service.dart';
 import 'package:sistrum/services/cover_cache_manager.dart';
-import 'package:sistrum/services/app_state_database.dart';
 import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/services/activity_attachment.dart';
 import 'package:sistrum/services/app_crash_service.dart';
@@ -35,6 +33,7 @@ import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/playback_notification.dart';
 import 'package:sistrum/utils/local_library_scan_prefs.dart';
 import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _log = AppLogger('Main');
 _StartupBenchmark? _startupBenchmark;
@@ -322,7 +321,6 @@ Future<bool> _prepareAndroidInstallationState(SharedPreferences prefs) async {
     await resetRestoredInstallationSettings(prefs);
     await prefs.remove(_runtimeProfileTierKey);
     await prefs.remove(localLibraryLastScannedAtKey);
-    await AppStateDatabase.instance.clearPendingQueueAfterInstallationRestore();
   } catch (e) {
     // Startup SAF validation remains the second line of defense if an OEM or
     // bridge implementation prevents install-marker inspection.
@@ -517,25 +515,8 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
               .refreshSourceAvailability(scanReconnected: true),
         );
       }
-      if (ref.exists(downloadQueueProvider)) {
-        ref
-            .read(downloadQueueProvider.notifier)
-            .resumePendingDownloadsOnForeground();
-      }
     } else if (state == AppLifecycleState.paused) {
       CoverCacheManager.stopMaintenance();
-      // Last reliable moment before the OS may kill the process: make sure
-      // any debounced download-queue persistence reaches disk.
-      if (ref.exists(downloadQueueProvider)) {
-        unawaited(
-          ref
-              .read(downloadQueueProvider.notifier)
-              .flushQueuePersistence()
-              .catchError((Object error) {
-                _log.e('Failed to flush background download queue: $error');
-              }),
-        );
-      }
       // Backgrounded: release idle native runtimes and connections.
       unawaited(PlatformBridge.releaseNativeMemory());
     }

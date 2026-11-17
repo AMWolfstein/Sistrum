@@ -15,7 +15,6 @@ import 'package:sistrum/services/platform_bridge.dart';
 
 const _date = '2026-10-07T05:00:00.000';
 const _tables = {
-  'wishlist': 'wishlist_tracks',
   'loved': 'loved_tracks',
   'artist': 'favorite_artists',
   'playlist': 'playlists',
@@ -34,13 +33,11 @@ Future<Database> _database(String path) => openDatabase(
   },
   onCreate: (db, _) async {
     for (final sql in [
-      'CREATE TABLE wishlist_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL)',
       'CREATE TABLE loved_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL)',
       'CREATE TABLE favorite_artists(artist_key TEXT PRIMARY KEY,artist_json TEXT NOT NULL,added_at TEXT NOT NULL)',
       'CREATE TABLE playlists(id TEXT PRIMARY KEY,name TEXT NOT NULL,cover_image_path TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL)',
       'CREATE TABLE playlist_tracks(playlist_id TEXT NOT NULL,track_key TEXT NOT NULL,track_json TEXT NOT NULL,added_at TEXT NOT NULL,PRIMARY KEY(playlist_id,track_key),FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE)',
       for (final table in [
-        'wishlist_tracks',
         'loved_tracks',
         'favorite_artists',
         'playlist_tracks',
@@ -72,7 +69,6 @@ Future<Map<String, dynamic>> _fixture(int count) => Isolate.run(() {
       },
   ];
   return {
-    'wishlist': entries.take(count ~/ 10).toList(),
     'loved': entries.take(count ~/ 10).toList(),
     'favoriteArtists': [
       {'key': 'example:artist', 'name': 'İstanbul', 'addedAt': _date},
@@ -103,7 +99,6 @@ Future<void> _legacyRestore(Database db, Map<String, dynamic> input) =>
       for (final table in [
         'playlist_tracks',
         'playlists',
-        'wishlist_tracks',
         'loved_tracks',
         'favorite_artists',
       ]) {

@@ -8,9 +8,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
-import 'package:sistrum/providers/player_artwork_video_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
@@ -153,26 +150,6 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
     final controller = ref.read(musicPlayerControllerProvider);
     final colorScheme = Theme.of(context).colorScheme;
     final compact = widget.compact;
-    // Frosted and flat glass levels run on constrained Android hardware. They
-    // skip keeping a paused video decoder for the full player's motion cover.
-    final fullEffects = ref.watch(mornyeLiquidGlassProvider);
-    // Every marquee frame re-filters the glass chrome around it, so Mornye
-    // stops the title after a few passes on every glass level.
-    if (fullEffects &&
-        ref.watch(settingsProvider.select((s) => s.motionArtworkEnabled)) &&
-        !MediaQuery.disableAnimationsOf(context)) {
-      final artwork = ref
-          .watch(
-            playerMotionArtworkProvider((
-              album: mediaItem.album ?? '',
-              artist: mediaItem.artist ?? '',
-            )),
-          )
-          .value;
-      if (artwork != null) {
-        ref.watch(playerArtworkVideoProvider(artwork.source));
-      }
-    }
     final surface = Material(
       key: _surfaceKey,
       color: Colors.transparent,

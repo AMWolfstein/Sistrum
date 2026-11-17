@@ -75,8 +75,7 @@ class ExtensionMimeTablesTest {
     @Test
     fun normalizersTrimLowercaseAndAddOneLeadingDot() {
         for ((input, expected) in normalizerCases) {
-            assertEquals(input.toString(), expected, SafDownloadHandler.normalizeExt(input))
-            assertEquals(input.toString(), expected, NativeFinalizationPolicy.normalizeExtension(input))
+            assertEquals(input.toString(), expected, SafDocumentWriter.normalizeExt(input))
         }
     }
 
@@ -109,7 +108,7 @@ class ExtensionMimeTablesTest {
             "" to octetStream,
             "  " to octetStream,
         )) {
-            assertEquals(input.toString(), expected, SafDownloadHandler.mimeTypeForExt(input))
+            assertEquals(input.toString(), expected, SafDocumentWriter.mimeTypeForExt(input))
         }
     }
 

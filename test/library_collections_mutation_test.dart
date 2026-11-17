@@ -12,7 +12,6 @@ import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 
 class _CollectionsDatabase implements LibraryCollectionsDatabase {
-  final wishlist = <String, Map<String, dynamic>>{};
   final loved = <String, Map<String, dynamic>>{};
   final artists = <String, Map<String, dynamic>>{};
   final playlists = <String, Map<String, dynamic>>{};
@@ -50,7 +49,6 @@ class _CollectionsDatabase implements LibraryCollectionsDatabase {
     return pendingSnapshot ??
         Future.value(
           LibraryCollectionsSnapshot(
-            wishlistRows: wishlist.values.toList(),
             lovedRows: loved.values.toList(),
             playlistRows: playlists.values.toList(),
             playlistTrackRows: [
@@ -104,14 +102,6 @@ class _CollectionsDatabase implements LibraryCollectionsDatabase {
   ) => _write('insert:$collection:$key', () {
     rows[key] = {'track_key': key, 'track_json': json, 'added_at': date};
   });
-
-  @override
-  Future<void> deleteWishlistTracks(List<String> keys) =>
-      _write('bulk-wishlist:remove', () {
-        for (final key in keys) {
-          wishlist.remove(key);
-        }
-      });
 
   @override
   Future<void> upsertLovedEntry({
@@ -438,7 +428,7 @@ void main() {
     expect(db.playlistReads, 1);
   });
 
-  for (final kind in ['wishlist', 'loved', 'playlist']) {
+  for (final kind in ['loved', 'playlist']) {
     for (final failFirst in [false, true]) {
       test(
         'bulk $kind removal is atomic and serializes repeated clicks (fail: $failFirst)',
@@ -456,7 +446,6 @@ void main() {
               },
           ];
           for (final row in rows) {
-            db.wishlist[row['track_key'] as String] = {...row};
             db.loved[row['track_key'] as String] = {...row};
           }
           for (final id in ['p', 'other']) {
@@ -475,7 +464,6 @@ void main() {
           final container = _container(db);
           final notifier = container.read(libraryCollectionsProvider.notifier);
           Future<int> remove(Iterable<String> keys) => switch (kind) {
-            'wishlist' => notifier.removeWishlistTracks(keys),
             'loved' => notifier.removeLovedTracks(keys),
             _ => notifier.removeTracksFromPlaylist('p', keys),
           };
@@ -507,7 +495,6 @@ void main() {
           expect(publications, 1);
           final after = container.read(libraryCollectionsProvider);
           final remaining = switch (kind) {
-            'wishlist' => after.wishlist,
             'loved' => after.loved,
             _ => after.playlistById('p')!.tracks,
           };
@@ -518,7 +505,6 @@ void main() {
             same(before.playlistById('other')),
           );
           expect(db.playlistTracks['other'], rows);
-          expect(db.wishlist.length, kind == 'wishlist' ? 1 : 3);
           expect(db.loved.length, kind == 'loved' ? 1 : 3);
           expect(db.playlistTracks['p']!.length, kind == 'playlist' ? 1 : 3);
           expect(db.events.length, failFirst ? 2 : 1);
@@ -709,7 +695,6 @@ void main() {
     container.dispose();
     reply.complete(
       LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: const [],
         playlistRows: const [],
         playlistTrackRows: const [],
@@ -837,17 +822,14 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(db.events, ['insert:$kind:$key']);
       final pending = container.read(libraryCollectionsProvider);
-      expect(pending.wishlist, isEmpty);
       expect(pending.loved, isEmpty);
       expect(pending.favoriteArtists, isEmpty);
       db.releaseWrite.complete();
       expect(await Future.wait([first, second]), [true, false]);
       expect(db.events, ['insert:$kind:$key', 'delete:$kind:$key']);
-      expect(db.wishlist, isEmpty);
       expect(db.loved, isEmpty);
       expect(db.artists, isEmpty);
       final state = container.read(libraryCollectionsProvider);
-      expect(state.wishlist, isEmpty);
       expect(state.loved, isEmpty);
       expect(state.favoriteArtists, isEmpty);
     });

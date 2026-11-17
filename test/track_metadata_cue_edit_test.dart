@@ -9,6 +9,7 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/models/download_history.dart';
 
 void main() {
   const paths = MethodChannel('plugins.flutter.io/path_provider');

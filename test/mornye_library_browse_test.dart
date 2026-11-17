@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_item.dart';
-import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/screens/artist_screen.dart';
@@ -16,6 +13,7 @@ import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -130,7 +128,7 @@ void main() {
   );
 
   for (final brightness in Brightness.values) {
-    testWidgets('Library separates browsing and downloads ($brightness)', (
+    testWidgets('Library browses categories without a downloads section ($brightness)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(390, 844);
@@ -139,26 +137,9 @@ void main() {
       final opened = <String>[];
       final requests = <LibraryBrowseRequest>[];
       final searches = <LibrarySearchRequest>[];
-      final queue = DownloadQueueLookup.fromItems([
-        for (final status in [DownloadStatus.queued, DownloadStatus.completed])
-          DownloadItem(
-            id: status.name,
-            service: 'example',
-            status: status,
-            createdAt: DateTime(2026),
-            track: Track(
-              id: status.name,
-              name: 'Track',
-              artistName: 'Artist',
-              albumName: 'Album',
-              duration: 100,
-            ),
-          ),
-      ]);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            downloadQueueLookupProvider.overrideWithValue(queue),
             settingsProvider.overrideWith(_Settings.new),
             downloadHistoryProvider.overrideWith(_History.new),
             libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
@@ -186,13 +167,12 @@ void main() {
       expect(find.text('Recently Added'), findsNothing);
       expect(find.text('Album 0'), findsNothing);
       expect(find.byType(SliverGrid), findsNothing);
-      expect(find.text('1'), findsOneWidget);
       expect(find.text('Playlists'), findsOneWidget);
       expect(find.text('Songs'), findsOneWidget);
-      await tester.tap(find.text('Downloads'));
+      expect(find.text('Downloads'), findsNothing);
       await tester.tap(find.text('Songs'));
       await tester.tap(find.text('Playlists'));
-      expect(opened, ['downloads', 'all', 'playlists']);
+      expect(opened, ['all', 'playlists']);
 
       await tester.tap(find.byTooltip('Search your library'));
       await tester.pumpAndSettle();

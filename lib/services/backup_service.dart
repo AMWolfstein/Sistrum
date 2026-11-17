@@ -142,7 +142,6 @@ class BackupBundle {
   }
 
   int get likedCount => _collectionListCount('loved');
-  int get wishlistCount => _collectionListCount('wishlist');
   int get playlistCount => _collectionListCount('playlists');
   int get favoriteArtistCount => _collectionListCount('favoriteArtists');
 

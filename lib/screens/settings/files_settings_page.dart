@@ -3,36 +3,20 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
-import 'package:sistrum/theme/mornye_icons.dart' show mornyeArrowForward;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/local_library_provider.dart';
-import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/providers/music_player_provider.dart'
-    show playbackResumeProvider;
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/services/folder_path_template.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/saf_download_tree.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/batch_progress_dialog.dart';
-
-part 'files_settings_page_widgets.dart';
-part 'files_settings_page_reorganize.dart';
 
 class FilesSettingsPage extends ConsumerStatefulWidget {
   const FilesSettingsPage({super.key});
@@ -44,7 +28,6 @@ class FilesSettingsPage extends ConsumerStatefulWidget {
 class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
   int _androidSdkVersion = 0;
   bool _hasAllFilesAccess = false;
-  bool _artistFolderFiltersExpanded = false;
   bool _safAccessLost = false;
 
   @override
@@ -158,161 +141,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 ),
               ),
 
-            ...settingsSectionSlivers(
-              title: context.l10n.sectionFileSettings,
-              children: [
-                SettingsItem(
-                  title: context.l10n.downloadFilenameFormat,
-                  subtitle: settings.filenameFormat,
-                  onTap: () =>
-                      _showFormatEditor(context, ref, settings.filenameFormat),
-                ),
-                SettingsItem(
-                  title: context.l10n.downloadSingleFilenameFormat,
-                  subtitle: settings.singleFilenameFormat,
-                  onTap: () => _showFormatEditor(
-                    context,
-                    ref,
-                    settings.singleFilenameFormat,
-                    onSave: ref
-                        .read(settingsProvider.notifier)
-                        .setSingleFilenameFormat,
-                    title: context.l10n.downloadSingleFilenameFormat,
-                    description:
-                        context.l10n.downloadSingleFilenameFormatDescription,
-                  ),
-                  showDivider: false,
-                ),
-              ],
-            ),
-
-            ...settingsSectionSlivers(
-              title: context.l10n.downloadFolderOrganization,
-              children: [
-                SettingsSwitchItem(
-                  title: context.l10n.downloadSeparateSinglesFolder,
-                  subtitle: settings.separateSingles
-                      ? context.l10n.downloadSeparateSinglesEnabled
-                      : context.l10n.downloadSeparateSinglesDisabled,
-                  value: settings.separateSingles,
-                  onChanged: (value) => ref
-                      .read(settingsProvider.notifier)
-                      .setSeparateSingles(value),
-                ),
-                SettingsItem(
-                  title: context.l10n.downloadFolderTemplate,
-                  subtitle:
-                      !settings.separateSingles &&
-                          settings.folderOrganization == 'custom'
-                      ? settings.folderPathTemplate
-                      : context.l10n.downloadFolderTemplateDescription,
-                  onTap: () => _showFolderTemplateEditor(context, ref),
-                ),
-                if (settings.separateSingles)
-                  SettingsItem(
-                    title: context.l10n.downloadAlbumFolderStructure,
-                    subtitle: _getAlbumFolderStructureLabel(
-                      context,
-                      settings.albumFolderStructure,
-                    ),
-                    onTap: () => _showAlbumFolderStructurePicker(
-                      context,
-                      ref,
-                      settings.albumFolderStructure,
-                    ),
-                  ),
-                if (!settings.separateSingles)
-                  SettingsItem(
-                    title: context.l10n.downloadFolderOrganization,
-                    subtitle: _getFolderOrganizationLabel(
-                      context,
-                      settings.folderOrganization,
-                    ),
-                    onTap: () => _showFolderOrganizationPicker(
-                      context,
-                      ref,
-                      settings.folderOrganization,
-                    ),
-                  ),
-                SettingsSwitchItem(
-                  title: context.l10n.downloadCreatePlaylistSourceFolder,
-                  subtitle: _getPlaylistFolderSubtitle(settings),
-                  value: settings.createPlaylistFolder,
-                  onChanged: (value) => ref
-                      .read(settingsProvider.notifier)
-                      .setCreatePlaylistFolder(value),
-                ),
-                SettingsSwitchItem(
-                  title: context.l10n.downloadUseAlbumArtistForFolders,
-                  subtitle: settings.useAlbumArtistForFolders
-                      ? context
-                            .l10n
-                            .downloadUseAlbumArtistForFoldersAlbumSubtitle
-                      : context
-                            .l10n
-                            .downloadUseAlbumArtistForFoldersTrackSubtitle,
-                  value: settings.useAlbumArtistForFolders,
-                  onChanged: (value) => ref
-                      .read(settingsProvider.notifier)
-                      .setUseAlbumArtistForFolders(value),
-                ),
-                SettingsItem(
-                  title: context.l10n.downloadArtistNameFilters,
-                  subtitle: _getArtistFolderFilterSubtitle(
-                    context,
-                    usePrimaryArtistOnly: settings.usePrimaryArtistOnly,
-                    filterAlbumArtistContributors:
-                        settings.filterContributingArtistsInAlbumArtist,
-                  ),
-                  trailing: AppIcon(
-                    _artistFolderFiltersExpanded
-                        ? Icons.expand_less
-                        : Icons.expand_more,
-                  ),
-                  onTap: () => setState(() {
-                    _artistFolderFiltersExpanded =
-                        !_artistFolderFiltersExpanded;
-                  }),
-                  showDivider: !_artistFolderFiltersExpanded,
-                ),
-                if (_artistFolderFiltersExpanded) ...[
-                  SettingsSwitchItem(
-                    title: context.l10n.downloadUsePrimaryArtistOnly,
-                    subtitle: settings.usePrimaryArtistOnly
-                        ? context.l10n.downloadUsePrimaryArtistOnlyEnabled
-                        : context.l10n.downloadUsePrimaryArtistOnlyDisabled,
-                    value: settings.usePrimaryArtistOnly,
-                    onChanged: (value) => ref
-                        .read(settingsProvider.notifier)
-                        .setUsePrimaryArtistOnly(value),
-                  ),
-                  SettingsSwitchItem(
-                    title: context.l10n.downloadFilterContributing,
-                    subtitle: settings.filterContributingArtistsInAlbumArtist
-                        ? context.l10n.downloadFilterContributingEnabled
-                        : context.l10n.downloadFilterContributingDisabled,
-                    value: settings.filterContributingArtistsInAlbumArtist,
-                    onChanged: (value) => ref
-                        .read(settingsProvider.notifier)
-                        .setFilterContributingArtistsInAlbumArtist(value),
-                    showDivider: false,
-                  ),
-                ],
-              ],
-            ),
-
-            ...settingsSectionSlivers(
-              title: context.l10n.sectionExistingDownloads,
-              children: [
-                SettingsItem(
-                  title: context.l10n.reorganizeLibraryTitle,
-                  subtitle: context.l10n.reorganizeLibrarySubtitle,
-                  onTap: () => _reorganizeExistingDownloads(context, ref),
-                  showDivider: false,
-                ),
-              ],
-            ),
-
             if (Platform.isAndroid && _androidSdkVersion >= 33) ...[
               ...settingsSectionSlivers(
                 title: context.l10n.sectionStorageAccess,
@@ -370,67 +198,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
         ),
       ),
     );
-  }
-
-  String _getAlbumFolderStructureLabel(BuildContext context, String structure) {
-    switch (structure) {
-      case 'album_only':
-        return context.l10n.albumFolderAlbumOnlySubtitle;
-      case 'artist_year_album':
-        return context.l10n.albumFolderArtistYearAlbumSubtitle;
-      case 'year_album':
-        return context.l10n.albumFolderYearAlbumSubtitle;
-      case 'artist_album_singles':
-        return context.l10n.albumFolderArtistAlbumSinglesSubtitle;
-      case 'artist_album_flat':
-        return context.l10n.albumFolderArtistAlbumFlatSubtitle;
-      default:
-        return context.l10n.albumFolderArtistAlbumSubtitle;
-    }
-  }
-
-  String _getFolderOrganizationLabel(BuildContext context, String value) {
-    switch (value) {
-      case 'custom':
-        return context.l10n.folderOrganizationCustom;
-      case 'playlist':
-        return context.l10n.folderOrganizationByPlaylist;
-      case 'artist':
-        return context.l10n.folderOrganizationByArtist;
-      case 'album':
-        return context.l10n.folderOrganizationByAlbum;
-      case 'artist_album':
-        return context.l10n.folderOrganizationByArtistAlbum;
-      default:
-        return context.l10n.folderOrganizationNone;
-    }
-  }
-
-  String _getPlaylistFolderSubtitle(AppSettings settings) {
-    if (settings.folderOrganization == 'playlist') {
-      return context.l10n.downloadCreatePlaylistSourceFolderRedundant;
-    }
-    if (settings.createPlaylistFolder) {
-      return context.l10n.downloadCreatePlaylistSourceFolderEnabled;
-    }
-    return context.l10n.downloadCreatePlaylistSourceFolderDisabled;
-  }
-
-  String _getArtistFolderFilterSubtitle(
-    BuildContext context, {
-    required bool usePrimaryArtistOnly,
-    required bool filterAlbumArtistContributors,
-  }) {
-    final l10n = context.l10n;
-    final statuses = <String>[
-      usePrimaryArtistOnly
-          ? l10n.downloadPrimaryArtistOnlyOn
-          : l10n.downloadPrimaryArtistOnlyOff,
-      filterAlbumArtistContributors
-          ? l10n.downloadAlbumArtistMetadataPrimaryOnly
-          : l10n.downloadAlbumArtistMetadataFull,
-    ];
-    return statuses.join(' | ');
   }
 
   Future<void> _pickDirectory(BuildContext context, WidgetRef ref) async {
@@ -510,181 +277,6 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
               },
             ),
             const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showFormatEditor(
-    BuildContext context,
-    WidgetRef ref,
-    String current, {
-    void Function(String)? onSave,
-    String? title,
-    String? description,
-  }) {
-    final save =
-        onSave ?? ref.read(settingsProvider.notifier).setFilenameFormat;
-
-    showAppScrollableBottomSheet<void>(
-      context: context,
-      title: title ?? context.l10n.filenameFormat,
-      subtitle:
-          description ??
-          context.l10n.downloadFilenameDescription(
-            '{album}',
-            '{artist}',
-            '{date}',
-            '{disc}',
-            '{title}',
-            '{track}',
-            '{year}',
-          ),
-      builder: (context, controller) => _FilenameFormatEditorSheet(
-        initialText: current,
-        onSave: save,
-        scrollController: controller,
-      ),
-    );
-  }
-
-  void _showFolderTemplateEditor(BuildContext context, WidgetRef ref) {
-    showAppScrollableBottomSheet<void>(
-      context: context,
-      title: context.l10n.downloadFolderTemplate,
-      subtitle: context.l10n.downloadFolderTemplateDescription,
-      builder: (context, controller) => _FilenameFormatEditorSheet(
-        initialText: ref.read(settingsProvider).folderPathTemplate,
-        onSave: ref.read(settingsProvider.notifier).setFolderPathTemplate,
-        scrollController: controller,
-        folderTemplate: true,
-      ),
-    );
-  }
-
-  void _showAlbumFolderStructurePicker(
-    BuildContext context,
-    WidgetRef ref,
-    String current,
-  ) => showAppChoiceSheet(
-    context: context,
-    title: context.l10n.downloadAlbumFolderStructure,
-    subtitle: context.l10n.albumFolderStructureDescription,
-    selected: current,
-    bottomSpacing: 0,
-    choices: [
-      AppChoice(
-        'artist_album',
-        Icons.folder_outlined,
-        context.l10n.albumFolderArtistAlbum,
-        subtitle: context.l10n.albumFolderArtistAlbumSubtitle,
-      ),
-      AppChoice(
-        'artist_year_album',
-        Icons.calendar_today_outlined,
-        context.l10n.albumFolderArtistYearAlbum,
-        subtitle: context.l10n.albumFolderArtistYearAlbumSubtitle,
-      ),
-      AppChoice(
-        'album_only',
-        Icons.album_outlined,
-        context.l10n.albumFolderAlbumOnly,
-        subtitle: context.l10n.albumFolderAlbumOnlySubtitle,
-      ),
-      AppChoice(
-        'year_album',
-        Icons.event_outlined,
-        context.l10n.albumFolderYearAlbum,
-        subtitle: context.l10n.albumFolderYearAlbumSubtitle,
-      ),
-      AppChoice(
-        'artist_album_singles',
-        Icons.person_outlined,
-        context.l10n.albumFolderArtistAlbumSingles,
-        subtitle: context.l10n.albumFolderArtistAlbumSinglesSubtitle,
-      ),
-      AppChoice(
-        'artist_album_flat',
-        Icons.person_outline_outlined,
-        context.l10n.albumFolderArtistAlbumFlat,
-        subtitle: context.l10n.albumFolderArtistAlbumFlatSubtitle,
-      ),
-    ],
-    onSelected: (structure) =>
-        ref.read(settingsProvider.notifier).setAlbumFolderStructure(structure),
-  );
-
-  void _showFolderOrganizationPicker(
-    BuildContext context,
-    WidgetRef ref,
-    String current,
-  ) {
-    showAppScrollableBottomSheet<void>(
-      context: context,
-      title: context.l10n.downloadFolderOrganization,
-      subtitle: context.l10n.folderOrganizationDescription,
-      builder: (context, controller) => SingleChildScrollView(
-        controller: controller,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final option in [
-              (
-                'none',
-                context.l10n.folderOrganizationNone,
-                context.l10n.folderOrganizationNoneSubtitle,
-                'Sistrum/Track.flac',
-              ),
-              (
-                'playlist',
-                context.l10n.folderOrganizationByPlaylist,
-                context.l10n.folderOrganizationByPlaylistSubtitle,
-                'Sistrum/Playlist Name/Track.flac',
-              ),
-              (
-                'artist',
-                context.l10n.folderOrganizationByArtist,
-                context.l10n.folderOrganizationByArtistSubtitle,
-                'Sistrum/Artist Name/Track.flac',
-              ),
-              (
-                'album',
-                context.l10n.folderOrganizationByAlbum,
-                context.l10n.folderOrganizationByAlbumSubtitle,
-                'Sistrum/Album Name/Track.flac',
-              ),
-              (
-                'artist_album',
-                context.l10n.folderOrganizationByArtistAlbum,
-                context.l10n.folderOrganizationByArtistAlbumSubtitle,
-                'Sistrum/Artist/Album/Track.flac',
-              ),
-              (
-                'custom',
-                context.l10n.folderOrganizationCustom,
-                context.l10n.downloadFolderTemplateDescription,
-                ref.read(settingsProvider).folderPathTemplate,
-              ),
-            ])
-              _FolderOption(
-                title: option.$2,
-                subtitle: option.$3,
-                example: option.$4,
-                isSelected: current == option.$1,
-                onTap: () {
-                  if (option.$1 == 'custom') {
-                    Navigator.pop(context);
-                    _showFolderTemplateEditor(this.context, ref);
-                    return;
-                  }
-                  ref
-                      .read(settingsProvider.notifier)
-                      .setFolderOrganization(option.$1);
-                  Navigator.pop(context);
-                },
-              ),
           ],
         ),
       ),

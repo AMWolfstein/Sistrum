@@ -845,7 +845,6 @@ void main() {
       const screens = [
         'album_screen_library.dart',
         'playlist_screen_library.dart',
-        'library_tracks_folder_screen.dart',
       ];
       final offenders = <String>[];
       for (final name in screens) {

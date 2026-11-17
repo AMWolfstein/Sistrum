@@ -12,6 +12,7 @@ import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/models/download_history.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

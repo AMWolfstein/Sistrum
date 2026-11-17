@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
+import 'package:sistrum/models/download_history.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

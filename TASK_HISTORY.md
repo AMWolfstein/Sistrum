@@ -53,3 +53,4 @@
 - M004-T004 — Remove audio format conversion
 - M004-T005 — Remove Cast and the local-network permission
 - M004-T006 — Remove network storage (SMB, WebDAV, Subsonic)
+- M004-T007 — Remove the download engine, Wishlist, CSV import and reorganize

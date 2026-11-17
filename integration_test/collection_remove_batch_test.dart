@@ -16,8 +16,6 @@ class _Database implements LibraryCollectionsDatabase {
   final Database owner;
 
   @override
-  Future<void> deleteWishlistTracks(List<String> keys) =>
-      LibraryCollectionsDatabase.deleteDatabaseWishlistTracks(owner, keys);
 
   @override
   Future<void> deleteLovedTracks(List<String> keys) =>
@@ -71,7 +69,7 @@ void main() {
         await db.rawQuery('PRAGMA busy_timeout=5000');
       },
       onCreate: (db, _) async {
-        for (final table in ['wishlist_tracks', 'loved_tracks']) {
+        for (final table in ['loved_tracks']) {
           await db.execute(
             'CREATE TABLE $table(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL)',
           );
@@ -109,7 +107,6 @@ void main() {
       for (final table in [
         'playlist_tracks',
         'playlists',
-        'wishlist_tracks',
         'loved_tracks',
       ]) {
         batch.delete(table);
@@ -124,7 +121,6 @@ void main() {
         });
       }
       for (final row in prepared.rows) {
-        batch.insert('wishlist_tracks', row);
         batch.insert('loved_tracks', row);
         batch.insert('playlist_tracks', {'playlist_id': 'p', ...row});
       }
@@ -135,7 +131,6 @@ void main() {
     });
     return LibraryCollectionsState(
       isLoaded: true,
-      wishlist: prepared.entries.reversed.toList(),
       loved: prepared.entries.reversed.toList(),
       playlists: [
         for (final id in ['p', 'other'])
@@ -167,12 +162,11 @@ void main() {
     String kind,
     List<String> keys,
   ) => switch (kind) {
-    'wishlist' => notifier.removeWishlistTracks(keys),
     'loved' => notifier.removeLovedTracks(keys),
     _ => notifier.removeTracksFromPlaylist('p', keys),
   };
 
-  for (final kind in ['wishlist', 'loved', 'playlist']) {
+  for (final kind in ['loved', 'playlist']) {
     testWidgets('remove 2000 $kind tracks in one selection', (tester) async {
       final samples = <String, List<Map<String, int>>>{
         'per_track': [],
@@ -201,7 +195,6 @@ void main() {
             expect(publications, candidate ? 1 : 2000);
             final state = owner.read(libraryCollectionsProvider);
             final remaining = switch (kind) {
-              'wishlist' => state.wishlist,
               'loved' => state.loved,
               _ => state.playlistById('p')!.tracks,
             };
@@ -211,7 +204,7 @@ void main() {
               state.playlistById('other'),
               same(initial.playlistById('other')),
             );
-            for (final table in ['wishlist_tracks', 'loved_tracks']) {
+            for (final table in ['loved_tracks']) {
               expect(
                 Sqflite.firstIntValue(
                   await db.rawQuery('SELECT COUNT(*) FROM $table'),

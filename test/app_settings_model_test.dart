@@ -64,38 +64,18 @@ void main() {
     }
   });
 
-  test(
-    'retired quality conversion settings do not enable automatic conversion',
-    () {
-      for (final format in ['mp3_320', 'aac_320', 'opus_256', 'opus_128']) {
-        final settings = AppSettings.fromJson({
-          'audioQuality': 'HIGH',
-          'tidalHighFormat': format,
-        });
-        expect(settings.audioQuality, 'HIGH');
-        expect(settings.autoConvertDownloads, isFalse);
-        expect(settings.toJson().containsKey('tidalHighFormat'), isFalse);
-      }
-      final settings = AppSettings.fromJson({
-        'tidalHighFormat': 'mp3_320',
-        'autoConvertDownloads': true,
-        'autoConvertFormat': 'opus',
-        'autoConvertBitrate': '192k',
-      });
-      expect(settings.autoConvertDownloads, isTrue);
-      expect(settings.autoConvertFormat, 'opus');
-      expect(settings.autoConvertBitrate, '192k');
-    },
-  );
+  test('retired quality conversion settings are dropped from saved JSON', () {
+    for (final format in ['mp3_320', 'aac_320', 'opus_256', 'opus_128']) {
+      final settings = AppSettings.fromJson({'tidalHighFormat': format});
+      expect(settings.toJson().containsKey('tidalHighFormat'), isFalse);
+    }
+  });
 
   group('AppSettings', () {
     test('provides stable defaults', () {
       const settings = AppSettings();
 
-      expect(settings.audioQuality, 'LOSSLESS');
-      expect(settings.filenameFormat, '{title} - {artist}');
       expect(settings.artistTagMode, artistTagModeJoined);
-      expect(settings.embeddedCoverMaxDimension, 0);
       expect(settings.autoFallback, isTrue);
       expect(settings.lyricsProviders, [
         'apple_music',
@@ -104,14 +84,6 @@ void main() {
         'lrclib',
       ]);
       expect(settings.playerMode, 'internal');
-      expect(settings.deduplicateDownloads, isTrue);
-      expect(settings.allowQualityVariants, isFalse);
-      expect(settings.nativeDownloadWorkerEnabled, isFalse);
-      expect(settings.autoConvertDownloads, isFalse);
-      expect(settings.autoConvertFormat, 'mp3');
-      expect(settings.autoConvertBitrate, '320k');
-      expect(settings.autoConvertMaxBitDepth, 16);
-      expect(settings.autoConvertMaxSampleRate, 48000);
       expect(
         settings.libraryQualityLabelMode,
         AppSettings.libraryQualityLabelBitDepthOnly,
@@ -125,35 +97,23 @@ void main() {
       );
 
       final updated = settings.copyWith(
-        defaultService: 'provider-a',
-        embedReplayGain: true,
-        embeddedCoverMaxDimension: 1000,
         lyricsProviders: ['apple_music'],
-        deduplicateDownloads: false,
-        allowQualityVariants: true,
         libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
         clearDownloadFallbackExtensionIds: true,
         clearSearchProvider: true,
       );
 
-      expect(updated.defaultService, 'provider-a');
-      expect(updated.embedReplayGain, isTrue);
-      expect(updated.embeddedCoverMaxDimension, 1000);
       expect(updated.lyricsProviders, ['apple_music']);
-      expect(updated.deduplicateDownloads, isFalse);
-      expect(updated.allowQualityVariants, isTrue);
       expect(
         updated.libraryQualityLabelMode,
         AppSettings.libraryQualityLabelBitDepthOnly,
       );
       expect(updated.downloadFallbackExtensionIds, isNull);
       expect(updated.searchProvider, isNull);
-      expect(updated.audioQuality, settings.audioQuality);
     });
 
     test('round-trips json including recently added settings', () {
       const settings = AppSettings(
-        defaultService: 'provider-b',
         storageMode: 'saf',
         downloadTreeUri: 'content://tree/music',
         downloadFallbackExtensionIds: ['ext.a', 'ext.b'],
@@ -164,21 +124,11 @@ void main() {
         localLibraryEnabled: true,
         localLibraryPath: '/music',
         hasCompletedTutorial: true,
-        deduplicateDownloads: false,
-        allowQualityVariants: true,
-        nativeDownloadWorkerEnabled: true,
-        autoConvertDownloads: true,
-        autoConvertFormat: 'opus',
-        autoConvertBitrate: '192k',
-        autoConvertMaxBitDepth: 24,
-        autoConvertMaxSampleRate: 96000,
         libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
-        embeddedCoverMaxDimension: 1500,
       );
 
       final decoded = AppSettings.fromJson(settings.toJson());
 
-      expect(decoded.defaultService, 'provider-b');
       expect(decoded.storageMode, 'saf');
       expect(decoded.downloadTreeUri, 'content://tree/music');
       expect(decoded.downloadFallbackExtensionIds, ['ext.a', 'ext.b']);
@@ -193,15 +143,6 @@ void main() {
         decoded.libraryQualityLabelMode,
         AppSettings.libraryQualityLabelBitDepthOnly,
       );
-      expect(decoded.deduplicateDownloads, isFalse);
-      expect(decoded.allowQualityVariants, isTrue);
-      expect(decoded.nativeDownloadWorkerEnabled, isTrue);
-      expect(decoded.autoConvertDownloads, isTrue);
-      expect(decoded.autoConvertFormat, 'opus');
-      expect(decoded.autoConvertBitrate, '192k');
-      expect(decoded.autoConvertMaxBitDepth, 24);
-      expect(decoded.autoConvertMaxSampleRate, 96000);
-      expect(decoded.embeddedCoverMaxDimension, 1500);
     });
   });
 
