@@ -820,22 +820,6 @@
   "@setupSkipForNow": {
     "description": "Skip button text"
   },
-  "setupNearbyEnable": "Allow Nearby Devices",
-  "@setupNearbyEnable": {
-    "description": "Setup step title and button for the Android Nearby devices permission; Nearby devices is the Android permission name"
-  },
-  "setupNearbyDescription": "Network storage needs it to reach a server at home.",
-  "@setupNearbyDescription": {
-    "description": "Setup step explaining why Android's Nearby devices permission is needed"
-  },
-  "setupNearbyGranted": "Nearby Devices Allowed!",
-  "@setupNearbyGranted": {
-    "description": "Setup message after the Nearby devices permission is granted"
-  },
-  "permissionNearbyDevices": "Nearby devices",
-  "@permissionNearbyDevices": {
-    "description": "Nearby devices permission type label; use Android's name for this permission"
-  },
   "setupNext": "下一步",
   "@setupNext": {
     "description": "Next button text"

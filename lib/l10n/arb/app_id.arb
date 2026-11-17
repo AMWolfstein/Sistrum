@@ -807,10 +807,6 @@
   "@setupSkipForNow": {
     "description": "Skip button text"
   },
-  "setupNearbyEnable": "Izinkan Perangkat di Sekitar",
-  "setupNearbyDescription": "Penyimpanan jaringan memerlukannya untuk menjangkau server di rumah.",
-  "setupNearbyGranted": "Perangkat di Sekitar Diizinkan!",
-  "permissionNearbyDevices": "Perangkat di sekitar",
   "setupNext": "Lanjut",
   "@setupNext": {
     "description": "Next button text"
@@ -6462,11 +6458,6 @@
   "playlistImportResult": "{count, plural, =1{1 lagu} other{{count} lagu}} diimpor ke {name}, {matched} cocok dengan file di perangkat ini",
   "playlistImportNoTracks": "Tidak ada lagu di file ini",
   "playlistImportFailed": "File playlist ini tidak dapat dibaca",
-  "audioOutputSystem": "Perangkat ini dan Bluetooth",
-  "audioOutputCast": "Cast ke TV",
-  "audioOutputCastDescription": "Perangkat Google Cast di jaringan Wi-Fi yang sama",
-  "audioOutputStopCasting": "Hentikan casting",
-  "audioOutputCastUnavailable": "Google Cast tidak dapat dibuka. Periksa Google Play services dan akses jaringan lokal.",
   "offlineSave": "Simpan offline",
   "offlineOnDevice": "Di perangkat ini",
   "offlineOnPhone": "Di ponsel",

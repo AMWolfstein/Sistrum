@@ -12,8 +12,6 @@ import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sistrum/services/autoplay_taste.dart';
 import 'package:sistrum/services/background_favorites.dart';
 import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/services/cast_output.dart';
-import 'package:sistrum/services/cast_playback_deck.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/library_collections_database.dart';
@@ -49,7 +47,6 @@ typedef UnplayableSong = ({String format, bool skipped});
 class PlaybackDependencies {
   const PlaybackDependencies({
     this.createDeck = _createDeck,
-    this.createCastDeck = _createCastDeck,
     this.createPreviewDeck = _createPreviewDeck,
     this.audioSession = _getAudioSession,
     this.readMetadata = PlatformBridge.readFileMetadata,
@@ -89,8 +86,6 @@ class PlaybackDependencies {
        _isAndroid = isAndroid;
 
   final PlaybackDeck Function(String playerId) createDeck;
-  final PlaybackDeck Function(CastOutput output, MediaItem? Function() metadata)
-  createCastDeck;
 
   /// The search and catalog preview player.
   final PlaybackDeck Function(String playerId) createPreviewDeck;
@@ -163,11 +158,6 @@ class PlaybackDependencies {
   static PlaybackDeck _createDeck(String playerId) {
     return AudioplayersPlaybackDeck(playerId: playerId);
   }
-
-  static PlaybackDeck _createCastDeck(
-    CastOutput output,
-    MediaItem? Function() metadata,
-  ) => CastPlaybackDeck(output: output, metadata: metadata);
 
   // playing without the equalizer.
   static PlaybackDeck _createPreviewDeck(String playerId) =>

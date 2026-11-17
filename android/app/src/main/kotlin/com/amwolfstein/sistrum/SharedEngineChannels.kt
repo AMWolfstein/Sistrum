@@ -19,7 +19,6 @@ internal object SharedEngineChannels {
 
     fun configure(context: Context, engine: FlutterEngine) {
         engine.plugins.add(LocalNetworkPlugin())
-        engine.plugins.add(CastOutputPlugin())
         engine.plugins.add(UsbBitPerfectPlugin())
         engine.plugins.add(MusicHapticsPlugin())
         registerPlaybackBackend(context, MethodChannel(engine.dartExecutor.binaryMessenger, BACKEND_CHANNEL))

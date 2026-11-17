@@ -881,22 +881,6 @@
   "@setupSkipForNow": {
     "description": "Skip button text"
   },
-  "setupNearbyEnable": "Allow Nearby Devices",
-  "@setupNearbyEnable": {
-    "description": "Setup step title and button for the Android Nearby devices permission; Nearby devices is the Android permission name"
-  },
-  "setupNearbyDescription": "Network storage needs it to reach a server at home.",
-  "@setupNearbyDescription": {
-    "description": "Setup step explaining why Android's Nearby devices permission is needed"
-  },
-  "setupNearbyGranted": "Nearby Devices Allowed!",
-  "@setupNearbyGranted": {
-    "description": "Setup message after the Nearby devices permission is granted"
-  },
-  "permissionNearbyDevices": "Nearby devices",
-  "@permissionNearbyDevices": {
-    "description": "Nearby devices permission type label; use Android's name for this permission"
-  },
   "setupNext": "Next",
   "@setupNext": {
     "description": "Next button text"
@@ -6945,21 +6929,6 @@
   "playlistImportFailed": "Could not read this playlist file",
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
-  },
-  "audioOutputSystem": "This device and Bluetooth",
-  "audioOutputCast": "Cast to TV",
-  "audioOutputCastDescription": "Google Cast devices on the same Wi-Fi network",
-  "audioOutputStopCasting": "Stop casting",
-  "audioOutputCastUnavailable": "Unable to open Google Cast. Check Google Play services and local network access.",
-  "audioOutputCastSearching": "Looking for Google Cast devices…",
-  "audioOutputCastConnectFailed": "Could not connect to {device}",
-  "@audioOutputCastConnectFailed": {
-    "description": "Snackbar after connecting to a Google Cast receiver failed; device is the name the owner gave it",
-    "placeholders": {
-      "device": {
-        "type": "String"
-      }
-    }
   },
   "sectionExistingDownloads": "Existing Files",
   "@sectionExistingDownloads": {

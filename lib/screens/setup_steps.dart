@@ -240,32 +240,6 @@ extension _SetupScreenSteps on _SetupScreenState {
     );
   }
 
-  Widget _buildNearbyStep(ColorScheme colorScheme) {
-    return _StepLayout(
-      title: context.l10n.setupNearbyEnable,
-      description: context.l10n.setupNearbyDescription,
-      icon: Icons.devices,
-      // No Skip: Android 17 blocks network storage without it.
-      // A refusal still enables Next, so nobody is stuck here.
-      child: _nearbyGranted
-          ? _SuccessCard(
-              text: context.l10n.setupNearbyGranted,
-              colorScheme: colorScheme,
-            )
-          : FilledButton.tonalIcon(
-              onPressed: _requestNearbyDevices,
-              icon: const Icon(Icons.wifi_find),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-              ),
-              label: Text(context.l10n.setupNearbyEnable),
-            ),
-    );
-  }
-
   Widget _buildDirectoryStep(ColorScheme colorScheme) {
     return _StepLayout(
       title: context.l10n.setupFolderChoose,

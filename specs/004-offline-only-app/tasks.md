@@ -106,7 +106,7 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
     `ffmpeg_conversion_output_test`, `conversion_library_service_test`,
     `audio_conversion_utils_test`, `library_track_conversion_test`; edit menu tests.
 
-- [ ] M004-T005 Remove Cast and the local-network permission
+- [x] M004-T005 Remove Cast and the local-network permission
   - Acceptance: FR-005, FR-011 (partial), FR-012.
   - Dart: `cast_output.dart`, `cast_playback_deck.dart`, `music_player_cast.dart`,
     `widgets/cast_device_picker.dart`; cast hooks in `music_player_service.dart`,

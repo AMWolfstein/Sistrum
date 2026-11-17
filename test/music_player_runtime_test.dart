@@ -18,7 +18,6 @@ import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sistrum/services/autoplay_taste.dart';
 import 'package:sistrum/services/background_favorites.dart';
 import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/services/cast_output.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -550,7 +549,6 @@ MusicPlayerRuntime _runtime({
   initialize,
   List<_Deck>? decks,
   PlaybackDeck Function(String)? createDeck,
-  PlaybackDeck Function(CastOutput, MediaItem? Function())? createCastDeck,
   Stream<double> volumeChanges = const Stream.empty(),
   SourceDeletionEvents? sourceDeletionEvents,
   SourceMetadataEvents? sourceMetadataEvents,
@@ -600,7 +598,6 @@ MusicPlayerRuntime _runtime({
             decks?.add(deck);
             return deck;
           },
-      createCastDeck: createCastDeck ?? (_, _) => _Deck(),
       audioSession: () async => audioSession,
       initializeHandler: initialize ?? (builder) async => builder(),
       synchronizePlaybackState: synchronizePlaybackState ?? () async {},
@@ -650,35 +647,6 @@ const _track = PlayableMedia(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  test('a paused song stays paused when moved to the TV', () async {
-    const channel = MethodChannel('paused-cast-test');
-    final messenger =
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-    messenger.setMockMethodCallHandler(
-      channel,
-      (call) async => call.method == 'state' ? {'connected': false} : null,
-    );
-    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-    final events = StreamController<Object?>.broadcast(sync: true);
-    final output = CastOutput(channel: channel, events: events.stream);
-    final tv = _Deck();
-    final runtime = _runtime(createCastDeck: (_, _) => tv);
-    final handler = MusicPlayerHandler(runtime: runtime, castOutput: output);
-    await output.initialize();
-    await handler.setQueueAndPlay([_track]);
-    await handler.pause();
-    events.add({'connected': true, 'deviceId': 'tv', 'host': '192.0.2.10'});
-    for (var i = 0; i < 20; i++) {
-      await _settle();
-    }
-    expect(tv.sources, [_track.source]);
-    expect(tv.state, isNot(PlaybackDeckState.playing));
-    expect(handler.playbackState.value.playing, isFalse);
-    await runtime.dispose();
-    output.dispose();
-    await events.close();
-  });
 
   test(
     'playback instances survive pause and seek but change for repeated songs',

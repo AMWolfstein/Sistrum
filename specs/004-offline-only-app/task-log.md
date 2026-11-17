@@ -73,3 +73,18 @@ Deferred, with the reason (these are download-side, removed with T007):
 - `trackConvertBitrate`, `trackConvertOriginal`, the dither and resampler strings and the quality label strings: used by the remaining conversion helpers, removed with T007.
 
 Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3621 passed, 10 skipped, 0 failed.
+
+## M004-T005 Remove Cast and the local-network permission
+
+Map refresh first: 31840 symbols, 1604 sources, 0 partial, 0 unindexed.
+
+Removed: the Cast output (`cast_output.dart`, `cast_playback_deck.dart`, `music_player_cast.dart`, `cast_device_picker.dart`, the integration test for the Cast picker, and the Cast playback test); the playback engine's Cast branches (the `castOutput` constructor argument, the `_MusicCast` field and every `_cast.active` condition, which is always false now; the audio-session interruption and noisy handlers keep their behaviour); `createCastDeck` in the runtime; the Android Cast plugin and its dialogs and options provider, its registration, the Cast manifest entry and `play-services-cast-framework`; the audio output button now opens the system picker directly (its sheet with the Cast choice is gone); the setup wizard's Nearby devices step (its state, request, validation and draft fields); 11 ARB keys (`audioOutputCast*`, `audioOutputStopCasting`, `audioOutputSystem`, `setupNearby*`, `permissionNearbyDevices`) in all ARB files; the Cast playback and the picker tests, and the output button test is rewritten for the system picker only; the paused-song-on-TV test.
+
+The remote-volume callbacks of the audio handler (`androidSetRemoteVolume`, `androidAdjustRemoteVolume`) are kept as no-ops: they are inherited from the audio service and only ever controlled a Cast receiver. The phone's volume keys keep working through the system.
+
+Deferred, with the reason:
+- `LocalNetworkAccess` (Dart), `LocalNetworkPlugin.kt` and the `ACCESS_LOCAL_NETWORK` permission: still used by network storage and the download settings page; removed with T006 and T007.
+- The Rust `cast` crate and the `CastBridge` export: removed with T010.
+- `AudioRouteInfo.kt` labels the remote-submix route as "cast": a route classification, not the Cast feature; not changed.
+
+Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3612 passed, 10 skipped, 0 failed after setup_screen_recovery_test moved to 5 steps (3/5, 4/5) on Android 17.
