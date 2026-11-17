@@ -4,10 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
@@ -25,6 +23,7 @@ import 'package:sistrum/widgets/lazy_tab_view.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
 import 'performance_probe.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _tracks = List.generate(
   2000,
@@ -93,7 +92,6 @@ void main() {
           downloadHistoryBatchExistsProvider.overrideWith(
             (ref, request) async => <String>{},
           ),
-          downloadQueueProvider.overrideWith(_Queue.new),
           userProfileProvider.overrideWith(_Profile.new),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(null),
@@ -371,21 +369,6 @@ class _History extends DownloadHistoryNotifier {
 
   @override
   Future<void> reloadFromStorage() async {}
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => const DownloadQueueState().copyWith(
-    items: [
-      for (final track in _tracks)
-        DownloadItem(
-          id: track.id,
-          track: track,
-          service: 'example',
-          createdAt: DateTime(2026),
-        ),
-    ],
-  );
 }
 
 class _Profile extends UserProfileNotifier {

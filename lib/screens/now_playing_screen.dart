@@ -41,7 +41,6 @@ import 'package:sistrum/widgets/mornye_artwork_contrast.dart';
 import 'package:sistrum/widgets/mornye_player_actions_sheet.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:sistrum/widgets/mornye_player_artwork.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 
 export 'package:sistrum/routes/now_playing_route.dart';
 
@@ -69,9 +68,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       widget.metadataControllerFactory?.call() ?? PlayerMetadataController();
   late int _currentPage = widget.initialPage;
   bool _landscape = false;
-  String? _measuredMotionSource;
-  double? _motionAspectRatio;
-  String? _failedMotionSource;
   bool _lyricsControlsHidden = false;
   bool _lyricsOptionsOpen = false;
   bool _audioOutputOpen = false;
@@ -85,7 +81,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   final _artworkVolumeKey = GlobalKey();
   final _expandedArtworkKey = GlobalKey();
   final _compactArtworkKey = GlobalKey();
-  final _motionArtworkKey = GlobalKey();
+  final _fullBleedArtworkKey = GlobalKey();
   final _artworkForeground = ValueNotifier<Map<String, Color>>({});
   final _seekPreview = PlaybackSeekPreview();
   NowPlayingRoute? _artworkRoute;
@@ -217,63 +213,19 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         body: Center(child: Text(context.l10n.nowPlayingNothingPlaying)),
       );
     }
-    final motionState =
-        ref.watch(settingsProvider.select((s) => s.motionArtworkEnabled)) &&
-            !MediaQuery.disableAnimationsOf(context)
-        ? ref.watch(
-            playerMotionArtworkProvider((
-              album: mediaItem.album ?? '',
-              artist: mediaItem.artist ?? '',
-            )),
-          )
-        : null;
-    final resolvedMotion = motionState?.value;
-    final motionArtwork = resolvedMotion?.source == _failedMotionSource
-        ? null
-        : resolvedMotion;
-    final motionRatio =
-        motionArtwork?.aspectRatio ??
-        (_measuredMotionSource == motionArtwork?.source
-            ? _motionAspectRatio
-            : null);
-    final squareArtwork =
-        motionArtwork == null || (motionRatio != null && motionRatio >= 0.95);
-    // Motion artwork is always full-bleed in Mornye; still covers follow the
-    // cover style setting through the same layout, as a square video would.
-    final fullBleed = (motionArtwork != null || fullScreenCover);
+    // Still covers follow the cover style setting; they are cropped at the
+    // sides to reach down to the title, as in the full-screen style.
+    final fullBleed = fullScreenCover;
     final screen = MediaQuery.sizeOf(context);
-    // A still cover is cropped at the sides to reach down to the title, as
-    // in the full-screen style; landscape keeps the square card.
-    final stillFullBleed = fullBleed && motionArtwork == null;
-    final artworkRatio = stillFullBleed
+    final artworkRatio = fullBleed
         ? _landscape || screen.height <= 0
               ? 1.0
               : (screen.width / (screen.height * 0.56)).clamp(0.5, 1.0)
-        : motionRatio;
+        : null;
     if (!fullBleed && _artworkForeground.value.isNotEmpty) {
       _artworkForeground.value = {};
     }
-    Widget artwork() => MornyePlayerArtwork(
-      mediaItem: mediaItem,
-      videoUrl: motionArtwork?.source,
-      resolvingVideo: motionState?.isLoading == true,
-      onAspectRatioChanged: (ratio) {
-        if (!mounted ||
-            (_measuredMotionSource == motionArtwork?.source &&
-                _motionAspectRatio == ratio)) {
-          return;
-        }
-        setState(() {
-          _measuredMotionSource = motionArtwork?.source;
-          _motionAspectRatio = ratio;
-        });
-      },
-      onError: () {
-        if (mounted) {
-          setState(() => _failedMotionSource = motionArtwork?.source);
-        }
-      },
-    );
+    Widget artwork() => MornyePlayerArtwork(mediaItem: mediaItem);
     // The Mornye route moves the entire player together. A second,
     // delayed content fade would make dismissal appear to pause partway down.
     final route = ModalRoute.of(context);
@@ -289,7 +241,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
             : _currentPage != 0
             ? _compactArtworkKey
             : fullBleed
-            ? _motionArtworkKey
+            ? _fullBleedArtworkKey
             : _expandedArtworkKey;
         final box = key.currentContext?.findRenderObject();
         if (box is! RenderBox || !box.attached || !box.hasSize) return null;
@@ -299,7 +251,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
             box.getTransformTo(overlay),
             Offset.zero & box.size,
           ),
-          fullBleed: key == _motionArtworkKey,
+          fullBleed: key == _fullBleedArtworkKey,
           child: Theme(
             data: MornyeTheme.fromContext(context, brightness: Brightness.dark),
             child: key == _compactArtworkKey
@@ -353,7 +305,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                   seekPreview: _seekPreview,
                   colorScheme: colorScheme,
                   page: _currentPage,
-                  motionArtwork: artwork(),
+                  artwork: artwork(),
                   artworkAspectRatio: artworkRatio,
                   insetArtwork: !fullBleed,
                   artworkTopInset: MediaQuery.paddingOf(context).top + 36,
@@ -457,7 +409,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
           children: [
             MornyeArtworkContrast(
               enabled: fullBleed && !_landscape && _currentPage == 0,
-              continuous: motionArtwork != null,
+              continuous: false,
               targets: {
                 'header': _artworkHeaderKey,
                 'controls': _artworkControlsKey,
@@ -469,12 +421,12 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
               },
               child: MornyePlayerBackground(
                 artUri: mediaItem.artUri,
-                squareArtwork: squareArtwork,
+                squareArtwork: true,
                 artworkAspectRatio: artworkRatio,
-                fadeStart: stillFullBleed ? 0.72 : 0.58,
+                fadeStart: fullBleed ? 0.72 : 0.58,
                 artwork: fullBleed && !_landscape && _currentPage == 0
                     ? PlayerTransitionArtwork(
-                        artworkKey: _motionArtworkKey,
+                        artworkKey: _fullBleedArtworkKey,
                         child: Hero(
                           tag: kNowPlayingArtworkHeroTag,
                           child: artwork(),

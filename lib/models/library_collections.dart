@@ -3,8 +3,8 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:sistrum/models/track.dart';
 
-/// The saved-track lists with a stored order: wishlist and Loved songs.
-enum LibraryTracksFolderMode { wishlist, loved }
+/// The saved-track lists with a stored order: Loved songs.
+enum LibraryTracksFolderMode { loved }
 
 /// Shared identity for catalog, downloaded, and local playlist entries.
 String libraryTrackCollectionKey({
@@ -266,31 +266,25 @@ class PlaylistPickerSummaryRequest {
 }
 
 class LibraryCollectionsState {
-  final List<CollectionTrackEntry> wishlist;
   final List<CollectionTrackEntry> loved;
   final List<UserPlaylistCollection> playlists;
   final List<CollectionArtistEntry> favoriteArtists;
   final bool isLoaded;
-  final Set<String> _wishlistKeys;
   final Set<String> _lovedKeys;
   final Set<String> _favoriteArtistKeys;
   final Map<String, UserPlaylistCollection> _playlistsById;
   final Set<String> _allPlaylistTrackKeys;
 
   LibraryCollectionsState({
-    this.wishlist = const [],
     this.loved = const [],
     this.playlists = const [],
     this.favoriteArtists = const [],
     this.isLoaded = false,
-    Set<String>? wishlistKeys,
     Set<String>? lovedKeys,
     Set<String>? favoriteArtistKeys,
     Map<String, UserPlaylistCollection>? playlistsById,
     Set<String>? allPlaylistTrackKeys,
-  }) : _wishlistKeys =
-           wishlistKeys ?? wishlist.map((entry) => entry.key).toSet(),
-       _lovedKeys = lovedKeys ?? loved.map((entry) => entry.key).toSet(),
+  }) : _lovedKeys = lovedKeys ?? loved.map((entry) => entry.key).toSet(),
        _favoriteArtistKeys =
            favoriteArtistKeys ??
            favoriteArtists.map((entry) => entry.key).toSet(),
@@ -302,7 +296,6 @@ class LibraryCollectionsState {
        _allPlaylistTrackKeys =
            allPlaylistTrackKeys ?? _buildPlaylistTrackKeys(playlists);
 
-  int get wishlistCount => wishlist.length;
   int get lovedCount => loved.length;
   int get playlistCount => playlists.length;
   int get favoriteArtistCount => favoriteArtists.length;
@@ -310,10 +303,6 @@ class LibraryCollectionsState {
   bool isLoved(Track track) {
     final key = trackCollectionKey(track);
     return _lovedKeys.contains(key);
-  }
-
-  bool containsWishlistKey(String trackKey) {
-    return _wishlistKeys.contains(trackKey);
   }
 
   bool containsLovedKey(String trackKey) {
@@ -339,17 +328,14 @@ class LibraryCollectionsState {
   bool get hasPlaylistTracks => _allPlaylistTrackKeys.isNotEmpty;
 
   LibraryCollectionsState copyWith({
-    List<CollectionTrackEntry>? wishlist,
     List<CollectionTrackEntry>? loved,
     List<UserPlaylistCollection>? playlists,
     List<CollectionArtistEntry>? favoriteArtists,
     bool? isLoaded,
   }) {
-    final nextWishlist = wishlist ?? this.wishlist;
     final nextLoved = loved ?? this.loved;
     final nextPlaylists = playlists ?? this.playlists;
     final nextFavoriteArtists = favoriteArtists ?? this.favoriteArtists;
-    final keepWishlistIndex = identical(nextWishlist, this.wishlist);
     final keepLovedIndex = identical(nextLoved, this.loved);
     final keepPlaylistIndex = identical(nextPlaylists, this.playlists);
     final keepFavoriteArtistIndex = identical(
@@ -358,12 +344,10 @@ class LibraryCollectionsState {
     );
 
     return LibraryCollectionsState(
-      wishlist: nextWishlist,
       loved: nextLoved,
       playlists: nextPlaylists,
       favoriteArtists: nextFavoriteArtists,
       isLoaded: isLoaded ?? this.isLoaded,
-      wishlistKeys: keepWishlistIndex ? _wishlistKeys : null,
       lovedKeys: keepLovedIndex ? _lovedKeys : null,
       favoriteArtistKeys: keepFavoriteArtistIndex ? _favoriteArtistKeys : null,
       playlistsById: keepPlaylistIndex ? _playlistsById : null,
@@ -392,7 +376,6 @@ class LibraryCollectionsState {
   }
 
   Map<String, dynamic> toJson() => {
-    'wishlist': wishlist.map((e) => e.toJson()).toList(),
     'loved': loved.map((e) => e.toJson()).toList(),
     'playlists': playlists.map((e) => e.toJson()).toList(),
     'favoriteArtists': favoriteArtists.map((e) => e.toJson()).toList(),

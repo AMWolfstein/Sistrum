@@ -5,7 +5,6 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -18,6 +17,7 @@ import 'package:sistrum/widgets/mornye_mix_banner.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/fixed_settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _items = [
   for (var i = 0; i < 24; i++)

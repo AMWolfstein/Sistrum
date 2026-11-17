@@ -30,7 +30,7 @@ void main() {
       );
       addTearDown(() => temporary.delete(recursive: true));
       final path = '${temporary.path}/commands.ndjson';
-      expect(await writeCollectionRestoreCommands(path, input, now), 9);
+      expect(await writeCollectionRestoreCommands(path, input, now), 8);
       expect(
         (await File(path).readAsLines()).map(jsonDecode).toList(),
         fixture['commands'],
@@ -42,7 +42,6 @@ void main() {
     expect(await prepareCollectionRestoreCommands({}, 'now'), isEmpty);
     expect(
       await prepareCollectionRestoreCommands({
-        'wishlist': false,
         'loved': <String, dynamic>{},
         'playlists': [
           null,
@@ -60,11 +59,6 @@ void main() {
     'invalid typed fields still reject the restore before publication',
     () async {
       for (final input in <Map<String, dynamic>>[
-        {
-          'wishlist': [
-            {'key': 7, 'track': <String, dynamic>{}},
-          ],
-        },
         {
           'playlists': [
             {'id': 'p', 'coverImagePath': false},

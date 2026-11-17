@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/saf_migration_prompt_store.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_tag_credits_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -31,7 +30,6 @@ import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/notification_service.dart';
 import 'package:sistrum/services/update_checker.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/download_queue_feedback.dart';
 import 'package:sistrum/widgets/update_dialog.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/nav_destination_icons.dart';
@@ -51,12 +49,8 @@ part 'main_shell_startup_prompts.dart';
 
 final _log = AppLogger('MainShell');
 
-/// The badge counts on Library (queued downloads) and Store (extension
-/// updates). Only the navigation chrome watches them, so a finished
-/// download or an update check does not rebuild every tab.
-int _watchQueuedCount(WidgetRef ref) =>
-    ref.watch(downloadQueueProvider.select((s) => s.queuedCount));
-
+/// The Store badge counts extension updates. Only the navigation chrome
+/// watches it, so an update check does not rebuild every tab.
 int _watchRepoUpdatesCount(WidgetRef ref) =>
     ref.watch(repoProvider.select((s) => s.updatesAvailableCount));
 
@@ -488,7 +482,6 @@ class _MainShellState extends ConsumerState<MainShell>
             ref,
             pageView: pageView!,
             destinations: _navigationDestinations(
-              queuedCount: _watchQueuedCount(ref),
               repoUpdatesCount: _watchRepoUpdatesCount(ref),
               showStore: showStore,
             ),
@@ -498,12 +491,11 @@ class _MainShellState extends ConsumerState<MainShell>
         ),
       ),
     );
-    return DownloadQueueFeedback(child: shell);
+    return shell;
   }
 
-  /// Phone and tablet destinations, with the download count on Library.
+  /// Phone and tablet destinations, with the update count on Store.
   List<NavigationDestination> _navigationDestinations({
-    required int queuedCount,
     required int repoUpdatesCount,
     required bool showStore,
   }) {
@@ -515,20 +507,8 @@ class _MainShellState extends ConsumerState<MainShell>
         label: l10n.navHome,
       ),
       NavigationDestination(
-        icon: MornyeNavigationIcon(
-          icon: CupertinoIcons.square_stack_fill,
-          badgeCount: queuedCount,
-        ),
-        selectedIcon: SlidingIcon(
-          child: AnimatedBadge(
-            count: queuedCount,
-            child: Badge(
-              isLabelVisible: queuedCount > 0,
-              label: Text('$queuedCount'),
-              child: const AppIcon(Icons.library_music),
-            ),
-          ),
-        ),
+        icon: AppIcon(CupertinoIcons.square_stack_fill),
+        selectedIcon: SlidingIcon(child: const AppIcon(Icons.library_music)),
         label: l10n.navLibrary,
       ),
       if (showStore)

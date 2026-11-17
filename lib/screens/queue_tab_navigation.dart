@@ -88,51 +88,6 @@ extension _QueueTabNavigation on _QueueTabState {
     await _playLibraryItems(songs, shuffle: shuffle);
   }
 
-  Future<void> _navigateToMetadataScreen(DownloadItem item) async {
-    final historyItem = ref
-        .read(downloadHistoryProvider)
-        .items
-        .firstWhere(
-          (h) => h.filePath == item.filePath,
-          orElse: () => DownloadHistoryItem(
-            id: item.id,
-            trackName: item.track.name,
-            artistName: item.track.artistName,
-            albumName: item.track.albumName,
-            coverUrl: item.track.coverUrl,
-            filePath: item.filePath ?? '',
-            downloadedAt: DateTime.now(),
-            service: item.service,
-          ),
-        );
-    final navigator = Navigator.of(context);
-    if (!mounted) return;
-    final backdropReady = Future<void>.value();
-    _searchFocusNode.unfocus();
-    final beforeModTime = await _readFileModTimeMillis(historyItem.filePath);
-    await backdropReady;
-    if (!mounted) return;
-    final route = slidePageRoute<bool>(
-      page: TrackMetadataScreen(item: historyItem),
-    );
-    final result = await navigator.push(route);
-    if (route is TransitionRoute<bool>) await route.completed;
-    if (!mounted) return;
-    _searchFocusNode.unfocus();
-    if (result == true) {
-      await _scheduleDownloadedEmbeddedCoverRefreshForPath(
-        historyItem.filePath,
-        beforeModTime: beforeModTime,
-        force: true,
-      );
-      return;
-    }
-    await _scheduleDownloadedEmbeddedCoverRefreshForPath(
-      historyItem.filePath,
-      beforeModTime: beforeModTime,
-    );
-  }
-
   Future<void> _navigateToHistoryMetadataScreen(
     DownloadHistoryItem item, {
     List<DownloadHistoryItem>? navigationItems,
@@ -262,12 +217,6 @@ extension _QueueTabNavigation on _QueueTabState {
       );
     }
     return rows.map(LocalLibraryItem.fromJson).toList(growable: false);
-  }
-
-  void _openWishlistFolder() {
-    _navigateWithUnfocus(
-      MaterialPageRoute(builder: (_) => const LibraryTracksFolderScreen()),
-    );
   }
 
   void _openLovedFolder() {

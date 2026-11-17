@@ -28,8 +28,6 @@ abstract class BackendChannel {
   void setMethodCallHandler(BackendCallHandler? handler);
 
   /// Download progress events, in the payload format of the mobile
-  /// `download_progress_stream` EventChannel.
-  Stream<dynamic> downloadProgressEvents();
 
   /// Library scan progress events, in the payload format of the mobile
   /// `library_scan_progress_stream` EventChannel.

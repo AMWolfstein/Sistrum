@@ -7,7 +7,6 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/services/backend/backend_channel.dart';
-import 'package:sistrum/services/download_request_payload.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/hash_utils.dart';
@@ -646,114 +645,19 @@ class PlatformBridge {
     return _metadataCache.length;
   }
 
-  static Future<Map<String, dynamic>> _invokeDownloadMethod(
-    String method,
-    DownloadRequestPayload payload,
-  ) {
-    return _invokeMap(method, jsonEncode(payload.toJson()));
-  }
-
-  static Future<Map<String, dynamic>> downloadByStrategy({
-    required DownloadRequestPayload payload,
-    bool? useExtensions,
-    bool? useFallback,
-  }) async {
-    final routedPayload = payload.withStrategy(
-      useExtensions: useExtensions,
-      useFallback: useFallback,
-    );
-    final response = await _invokeDownloadMethod(
-      'downloadByStrategy',
-      routedPayload,
-    );
-    if (response['success'] != true) {
-      final error = response['error'] ?? 'Unknown error';
-      final errorType = response['error_type'] ?? '';
-      _log.e('Download failed: $error (type: $errorType)');
-    }
-    return response;
-  }
-
-  static Future<Map<String, dynamic>> getAllDownloadProgress() async =>
-      _decodeProgressMapAsync(
-        await _channel.invokeMethod('getAllDownloadProgress'),
-      );
-
-  static Stream<Map<String, dynamic>> downloadProgressStream() {
-    return _channel.downloadProgressEvents().asyncMap(_decodeProgressMapAsync);
-  }
-
   static Future<void> exitApp() => _invokeVoid('exitApp');
 
   static Future<void> clearItemProgress(String itemId) =>
       _invokeVoid('clearItemProgress', {'item_id': itemId});
 
-  static Future<void> cancelDownload(String itemId) =>
-      _invokeVoid('cancelDownload', {'item_id': itemId});
-
   /// Cancels the selected attempts and clears their native progress. Failures
   /// are best effort, as for individual queue cancellation; later chunks still
   /// run, without issuing thousands of concurrent channel requests.
-  static Future<void> cancelDownloads(Iterable<String> itemIds) async {
-    final ids = itemIds.toSet().toList(growable: false);
-    for (var start = 0; start < ids.length; start += 256) {
-      final end = start + 256 < ids.length ? start + 256 : ids.length;
-      try {
-        await _channel.invokeMethod('cancelDownloads', {
-          'item_ids': ids.sublist(start, end),
-        });
-      } catch (error) {
-        _log.w('Failed to cancel ${end - start} downloads: $error');
-      }
-    }
-  }
-
   /// Drops a stale pre-registered cancel flag for an item with no active
   /// download, so a user-initiated retry does not abort instantly.
-  static Future<void> resetDownloadCancel(String itemId) =>
-      _invokeVoid('resetDownloadCancel', {'item_id': itemId});
-
   /// Returns only IDs whose native reset succeeded. Bound each request so a
   /// large retry selection does not flood the channel or hold the native lock.
-  static Future<Set<String>> resetDownloadCancels(
-    Iterable<String> itemIds,
-  ) async {
-    final ids = itemIds.toSet().toList(growable: false);
-    final reset = <String>{};
-    for (var start = 0; start < ids.length; start += 256) {
-      final end = start + 256 < ids.length ? start + 256 : ids.length;
-      final chunk = ids.sublist(start, end);
-      try {
-        await _channel.invokeMethod('resetDownloadCancels', {
-          'item_ids': chunk,
-        });
-        reset.addAll(chunk);
-      } catch (error) {
-        _log.w(
-          'Failed to reset cancel flags for ${chunk.length} downloads: $error',
-        );
-      }
-    }
-    return reset;
-  }
-
-  static Future<void> setDownloadDirectory(String path) =>
-      _invokeVoid('setDownloadDirectory', {'path': path});
-
   /// Holds backend access through download and finalization, including folder changes.
-  static Future<String> acquireDownloadDirectory(String path) async {
-    if (!supportsCoreBackend) return '';
-    return await _channel.invokeMethod<String>('acquireDownloadDirectory', {
-          'path': path,
-        }) ??
-        '';
-  }
-
-  static Future<void> releaseDownloadDirectory(String token) async {
-    if (!supportsCoreBackend || token.isEmpty) return;
-    await _invokeVoid('releaseDownloadDirectory', {'token': token});
-  }
-
   static Future<void> setNetworkCompatibilityOptions({
     required bool allowHttp,
     required bool insecureTls,
@@ -1089,20 +993,6 @@ class PlatformBridge {
 
   static Future<void> cleanupConnections() => _invokeVoid('cleanupConnections');
 
-  static Future<Map<String, dynamic>> downloadCoverToFile(
-    String coverUrl,
-    String outputPath, {
-    int maxDimension = 0,
-  }) {
-    return _withMediaFileAccess([outputPath], () {
-      return _invokeMap('downloadCoverToFile', {
-        'cover_url': coverUrl,
-        'output_path': outputPath,
-        'max_dimension': maxDimension,
-      });
-    });
-  }
-
   static Future<Map<String, dynamic>> extractCoverToFile(
     String audioPath,
     String outputPath,
@@ -1190,6 +1080,19 @@ class PlatformBridge {
         'metadata_json': jsonEncode(metadata),
       });
     });
+  }
+
+  static Future<String> acquireDownloadDirectory(String path) async {
+    if (!supportsCoreBackend) return '';
+    return await _channel.invokeMethod<String>('acquireDownloadDirectory', {
+          'path': path,
+        }) ??
+        '';
+  }
+
+  static Future<void> releaseDownloadDirectory(String token) async {
+    if (!supportsCoreBackend || token.isEmpty) return;
+    await _invokeVoid('releaseDownloadDirectory', {'token': token});
   }
 
   static Future<T> _withMediaFileAccess<T>(
@@ -1301,19 +1204,6 @@ class PlatformBridge {
     return map['success'] == true;
   }
 
-  static Future<void> startDownloadService({
-    String trackName = '',
-    String artistName = '',
-    int queueCount = 0,
-  }) => _invokeVoid('startDownloadService', {
-    'track_name': trackName,
-    'artist_name': artistName,
-    'queue_count': queueCount,
-  });
-
-  static Future<void> stopDownloadService() =>
-      _invokeVoid('stopDownloadService');
-
   /// Keeps user-started work of [kind] alive with the screen off: an Android
   /// whether the platform accepted it.
   static Future<bool> startBackgroundWork(
@@ -1346,134 +1236,10 @@ class PlatformBridge {
   static Future<void> stopBackgroundWork(String kind) =>
       _invokeVoid('stopBackgroundWork', {'kind': kind});
 
-  static Future<void> updateDownloadServiceProgress({
-    required String trackName,
-    required String artistName,
-    required int progress,
-    required int total,
-    required int queueCount,
-    String status = 'downloading',
-  }) => _invokeVoid('updateDownloadServiceProgress', {
-    'track_name': trackName,
-    'artist_name': artistName,
-    'progress': progress,
-    'total': total,
-    'queue_count': queueCount,
-    'status': status,
-  });
-
-  static Future<bool> isDownloadServiceRunning() =>
-      _invokeAs('isDownloadServiceRunning');
-
-  static Future<void> startNativeDownloadWorker({
-    required List<Map<String, dynamic>> requests,
-    Map<String, dynamic> settings = const {},
-  }) async {
-    final requestsJson = jsonEncode(requests);
-    final settingsJson = jsonEncode(settings);
-    final payloadDir = await _nativeWorkerPayloadDir();
-    await _cleanupNativeWorkerPayloads(payloadDir);
-    final stamp = DateTime.now().microsecondsSinceEpoch;
-    final requestPath = '${payloadDir.path}/requests_$stamp.json';
-    final settingsPath = '${payloadDir.path}/settings_$stamp.json';
-    await File(requestPath).writeAsString(requestsJson, flush: true);
-    await File(settingsPath).writeAsString(settingsJson, flush: true);
-    try {
-      await _channel.invokeMethod('startNativeDownloadWorker', {
-        'requests_path': requestPath,
-        'settings_path': settingsPath,
-      });
-    } catch (_) {
-      unawaited(_deleteFileIfExists(requestPath));
-      unawaited(_deleteFileIfExists(settingsPath));
-      rethrow;
-    }
-  }
-
-  static Future<void> appendNativeDownloadWorkerRequests({
-    required String runId,
-    required List<Map<String, dynamic>> requests,
-  }) async {
-    if (requests.isEmpty) return;
-    final payloadDir = await _nativeWorkerPayloadDir();
-    final stamp = DateTime.now().microsecondsSinceEpoch;
-    final requestPath = '${payloadDir.path}/append_$stamp.json';
-    await File(requestPath).writeAsString(jsonEncode(requests), flush: true);
-    try {
-      await _channel.invokeMethod('appendNativeDownloadWorkerRequests', {
-        'run_id': runId,
-        'requests_path': requestPath,
-      });
-    } catch (_) {
-      unawaited(_deleteFileIfExists(requestPath));
-      rethrow;
-    }
-  }
-
-  static Future<void> finishNativeDownloadWorkerPreparation({
-    required String runId,
-  }) => _invokeVoid('finishNativeDownloadWorkerPreparation', {'run_id': runId});
-
-  static Future<void> acknowledgeNativeDownloadWorkerItems({
-    required String runId,
-    required List<String> itemIds,
-  }) async {
-    if (runId.isEmpty || itemIds.isEmpty) return;
-    await _invokeVoid('acknowledgeNativeDownloadWorkerItems', {
-      'run_id': runId,
-      'item_ids_json': jsonEncode(itemIds),
-    });
-  }
-
-  static Future<void> _deleteFileIfExists(String path) async {
-    await deleteFileQuietly(File(path));
-  }
-
-  static Future<Directory> _nativeWorkerPayloadDir() async {
-    final tempDir = await getTemporaryDirectory();
-    final payloadDir = Directory('${tempDir.path}/native_worker_payloads');
-    if (!await payloadDir.exists()) {
-      await payloadDir.create(recursive: true);
-    }
-    return payloadDir;
-  }
-
-  static Future<void> _cleanupNativeWorkerPayloads(Directory payloadDir) async {
-    final cutoff = DateTime.now().subtract(const Duration(days: 1));
-    try {
-      await for (final entity in payloadDir.list(followLinks: false)) {
-        if (entity is! File || !entity.path.endsWith('.json')) continue;
-        final stat = await entity.stat();
-        if (stat.modified.isBefore(cutoff)) {
-          try {
-            await entity.delete();
-          } catch (_) {}
-        }
-      }
-    } catch (_) {}
-  }
-
-  static Future<void> pauseNativeDownloadWorker() =>
-      _invokeVoid('pauseNativeDownloadWorker');
-
-  static Future<void> resumeNativeDownloadWorker() =>
-      _invokeVoid('resumeNativeDownloadWorker');
-
-  static Future<void> cancelNativeDownloadWorker() =>
-      _invokeVoid('cancelNativeDownloadWorker');
-
   /// [sinceStateSerial]: pass the `state_serial` of the last fully-processed
   /// snapshot; when the native state hasn't advanced past it, the heavy
   /// per-item payload (which grows with every completed item) is omitted and
   /// only compact progress fields are returned.
-  static Future<Map<String, dynamic>> getNativeDownloadWorkerSnapshot({
-    int sinceStateSerial = 0,
-  }) async => _decodeProgressMapAsync(
-    await _channel.invokeMethod('getNativeDownloadWorkerSnapshot', {
-      'since_state_serial': sinceStateSerial,
-    }),
-  );
-
   static Future<int> getTrackCacheSize() async {
     await _ensurePersistentLookupCachesLoaded();
     return await _invokeAs<int>('getTrackCacheSize') + _lookupCacheSize();
@@ -2210,16 +1976,6 @@ class PlatformBridge {
     return const <String, dynamic>{};
   }
 
-  static Future<Map<String, dynamic>> _decodeProgressMapAsync(
-    dynamic result,
-  ) async {
-    if (result is! String || result.isEmpty) return _decodeMapResult(result);
-    final decoded = await _decodeJsonStringAsync(result);
-    return decoded is Map
-        ? decoded.cast<String, dynamic>()
-        : const <String, dynamic>{};
-  }
-
   static Future<Map<String, dynamic>?> readAudioMetadata(
     String filePath,
   ) async {
@@ -2232,39 +1988,6 @@ class PlatformBridge {
       _log.w('Failed to read audio metadata: $e');
       return null;
     }
-  }
-
-  static Future<Map<String, dynamic>> runPostProcessingV2(
-    String filePath, {
-    Map<String, dynamic>? metadata,
-    String? itemId,
-  }) async {
-    final input = <String, dynamic>{};
-    if (itemId != null && itemId.isNotEmpty) input['item_id'] = itemId;
-    if (isContentUri(filePath)) {
-      input['uri'] = filePath;
-    } else {
-      input['path'] = filePath;
-    }
-    final result = await _invokeMap('runPostProcessingV2', {
-      'input': jsonEncode(input),
-      'metadata': metadata != null ? jsonEncode(metadata) : '',
-    });
-    if (result['success'] != true) return result;
-
-    // The native result uses new_file_path; the queue consumes file_path.
-    // SAF publishes back to its document URI after processing a temporary file.
-    final uri = result['new_file_uri'];
-    final path = result['new_file_path'];
-    final legacyPath = result['file_path'];
-    if (isContentUri(filePath) && uri is String && uri.isNotEmpty) {
-      result['file_path'] = uri;
-    } else if (path is String && path.isNotEmpty) {
-      result['file_path'] = path;
-    } else if (legacyPath is! String || legacyPath.isEmpty) {
-      result['file_path'] = filePath;
-    }
-    return result;
   }
 
   static Future<void> initExtensionRepo(String cacheDir) async {

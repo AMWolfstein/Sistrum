@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/extension.dart';
-import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/extension_storage_service.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -36,20 +35,12 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
   bool _cleanupInFlight = false;
   Completer<void>? _initializationCompleter;
   Future<void>? _ensureInitializationFuture;
-  Future<void> _downloadDirectorySync = Future<void>.value();
   final Map<String, DateTime> _healthExpiresAt = {};
   final Map<String, Future<ExtensionHealthStatus?>> _healthInFlight = {};
   final Map<String, int> _healthRequestSerial = {};
 
   @override
   ExtensionState build() {
-    ref.listen<AppSettings>(settingsProvider, (previous, next) {
-      if (state.isInitialized &&
-          (previous?.downloadDirectory != next.downloadDirectory ||
-              previous?.storageMode != next.storageMode)) {
-        unawaited(_syncDownloadDirectory(next));
-      }
-    });
     _appLifecycleListener ??= AppLifecycleListener(
       onDetach: _scheduleLifecycleCleanup,
     );
@@ -61,31 +52,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       _healthRequestSerial.clear();
     });
     return const ExtensionState();
-  }
-
-  Future<void> _syncDownloadDirectory(AppSettings settings) {
-    _downloadDirectorySync = _downloadDirectorySync
-        .then((_) async {
-          if (!PlatformBridge.supportsCoreBackend) return;
-          final candidate = settings.downloadDirectory.trim();
-          final path =
-              settings.storageMode == 'app' &&
-                  candidate.startsWith('/') &&
-                  await Directory(candidate).exists()
-              ? candidate
-              : '';
-          try {
-            await PlatformBridge.setDownloadDirectory(path);
-          } catch (_) {
-            // An invalid new selection must not leave the old permanent grant.
-            await PlatformBridge.setDownloadDirectory('');
-            rethrow;
-          }
-        })
-        .catchError((Object error) {
-          _log.w('Failed to sync output directory access: $error');
-        });
-    return _downloadDirectorySync;
   }
 
   void _scheduleLifecycleCleanup() {
@@ -208,7 +174,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
         isLoading: false,
         error: loadError,
       );
-      await _syncDownloadDirectory(ref.read(settingsProvider));
       _log.i('Extension system initialized');
     } catch (e) {
       _log.e('Failed to initialize extension system: $e');
@@ -277,7 +242,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       final extensions = list.map((e) => Extension.fromJson(e)).toList();
       state = state.copyWith(extensions: extensions);
       await _reconcileDownloadProviderPriority();
-      await _reconcileDefaultDownloadService();
       await _reconcileMetadataProviderPriority();
       _reconcileSearchProvider();
       _scheduleExtensionHealthRefresh(extensions);
@@ -547,7 +511,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
 
       state = state.copyWith(extensions: extensions);
       await _reconcileDownloadProviderPriority();
-      await _reconcileDefaultDownloadService();
       await _reconcileMetadataProviderPriority();
       _reconcileSearchProvider();
 
@@ -565,19 +528,6 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
           ref.read(settingsProvider.notifier).setSearchProvider(null);
           _log.d(
             'Cleared search provider because extension $extensionId was disabled',
-          );
-        }
-
-        if (ext.hasDownloadProvider && settings.defaultService == extensionId) {
-          final fallbackService =
-              _firstEnabledExtensionDownloadProviderId() ?? '';
-          ref
-              .read(settingsProvider.notifier)
-              .setDefaultService(fallbackService);
-          _log.d(
-            fallbackService.isEmpty
-                ? 'Cleared default service because extension $extensionId was disabled'
-                : 'Reset default service to $fallbackService because extension $extensionId was disabled',
           );
         }
       }

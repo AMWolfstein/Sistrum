@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -20,6 +19,7 @@ import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 import 'support/fixed_settings.dart';
 import 'support/re_enrich_settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _tracks = [
   for (var i = 0; i < 4; i++)
@@ -114,12 +114,6 @@ void main() {
                     addedAt: DateTime(2026),
                   ),
               ],
-            ),
-            downloadQueueLookupProvider.overrideWithValue(
-              const DownloadQueueLookup.empty(),
-            ),
-            downloadHistoryVisibleBatchExistsProvider.overrideWith(
-              (ref, request) => const <String>{},
             ),
             currentMediaItemProvider.overrideWithBuild(
               (ref, notifier) => Stream.value(null),

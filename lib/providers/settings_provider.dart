@@ -7,14 +7,9 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/tag_credit_settings.dart';
 import 'package:sistrum/models/automix_options.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/services/folder_path_template.dart';
-import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/secure_storage_options.dart';
 import 'package:sistrum/utils/artist_utils.dart';
-import 'package:sistrum/utils/audio_format_utils.dart';
-import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
-import 'package:sistrum/services/retired_explore_cache.dart';
 import 'package:sistrum/utils/logger.dart';
 
 const _settingsKey = 'app_settings';
@@ -64,8 +59,7 @@ AppSettings loadBootstrapSettings(SharedPreferences prefs) {
 AppSettings resetInstallationBoundSettings(AppSettings settings) {
   return settings.copyWith(
     downloadDirectory: '',
-    networkDownloadFolder: '',
-    networkDownloadLabel: '',
+
     storageMode: 'app',
     downloadTreeUri: '',
     isFirstLaunch: true,
@@ -105,21 +99,12 @@ class SettingsNotifier extends Notifier<AppSettings> {
     'external_first',
     'in_app_first',
   };
-  static const Set<int> _embeddedCoverMaxDimensionValues = {
-    0,
-    500,
-    1000,
-    1500,
-    2000,
-  };
-
   final Future<SharedPreferences> Function() _loadPreferences;
   Future<SharedPreferences> get _prefs => _loadPreferences();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     aOptions: secureStorageAndroidOptions,
   );
   Future<void>? _saveSettingsFuture;
-  final _previousDownloadDirectories = <String>{};
   bool _saveQueued = false;
   String? _pendingSettingsJson;
   Future<void>? _loadSettingsFuture;
@@ -174,11 +159,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     }
 
     await _cleanupRetiredSpotifySettings();
-    try {
-      await clearRetiredExploreCache(prefs);
-    } catch (e) {
-      _log.w('Could not clear the retired explore cache: $e');
-    }
 
     LogBuffer.loggingEnabled = state.enableLogging;
 
@@ -277,10 +257,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   }
 
   Future<void> _commit(AppSettings next) {
-    if (state.downloadDirectory.startsWith('/') &&
-        state.downloadDirectory != next.downloadDirectory) {
-      _previousDownloadDirectories.add(state.downloadDirectory);
-    }
     state = next;
     return _saveSettings();
   }
@@ -306,16 +282,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       do {
         final jsonToWrite = _pendingSettingsJson;
         _saveQueued = false;
-        if (_previousDownloadDirectories.isNotEmpty) {
-          final roots = _previousDownloadDirectories.toList();
-          _previousDownloadDirectories.clear();
-          try {
-            await DownloadFileRecovery.rememberDirectories(prefs, roots);
-          } catch (error) {
-            _previousDownloadDirectories.addAll(roots);
-            _log.w('Could not save previous download folders: $error');
-          }
-        }
         if (jsonToWrite != null) {
           await prefs.setString(_settingsKey, jsonToWrite);
         }
@@ -347,8 +313,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
       // Preserve this device's storage location; the backup's values point at
       // the original device and would not resolve here.
       downloadDirectory: current.downloadDirectory,
-      networkDownloadFolder: current.networkDownloadFolder,
-      networkDownloadLabel: current.networkDownloadLabel,
+
       storageMode: current.storageMode,
       downloadTreeUri: current.downloadTreeUri,
     );
@@ -376,19 +341,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
       libraryQualityLabelMode: normalizeLibraryQualityLabelMode(
         decoded.libraryQualityLabelMode,
       ),
-      autoConvertFormat: normalizeAutoConvertFormat(decoded.autoConvertFormat),
-      autoConvertBitrate: normalizeAutoConvertBitrate(
-        decoded.autoConvertBitrate,
-      ),
-      autoConvertMaxBitDepth: normalizeAutoConvertBitDepth(
-        decoded.autoConvertMaxBitDepth,
-      ),
-      autoConvertMaxSampleRate: normalizeAutoConvertSampleRate(
-        decoded.autoConvertMaxSampleRate,
-      ),
-      embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-        decoded.embeddedCoverMaxDimension,
-      ),
+
       songLinkRegion: _normalizeSongLinkRegion(decoded.songLinkRegion),
       extensionVerificationBrowserMode:
           _normalizeExtensionVerificationBrowserMode(
@@ -409,10 +362,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       return normalized;
     }
     return 'in_app_first';
-  }
-
-  int _normalizeEmbeddedCoverMaxDimension(int value) {
-    return _embeddedCoverMaxDimensionValues.contains(value) ? value : 0;
   }
 
   String? _sanitizeRetiredBuiltInProviderId(String? providerId) {
@@ -453,28 +402,13 @@ class SettingsNotifier extends Notifier<AppSettings> {
     }
   }
 
-  void setDefaultService(String service) => _commit(
-    state.copyWith(
-      defaultService: _sanitizeRetiredBuiltInProviderId(service) ?? '',
-    ),
-  );
-
-  void setAudioQuality(String quality) =>
-      _commit(state.copyWith(audioQuality: quality));
-
-  void setFilenameFormat(String format) =>
-      _commit(state.copyWith(filenameFormat: format));
+  void setDefaultService(String service) => _commit(state.copyWith());
 
   void setSingleFilenameFormat(String format) =>
       _commit(state.copyWith(singleFilenameFormat: format));
 
-  void setDownloadDirectory(String directory) => _commit(
-    state.copyWith(
-      networkDownloadFolder: '',
-      networkDownloadLabel: '',
-      downloadDirectory: directory,
-    ),
-  );
+  void setDownloadDirectory(String directory) =>
+      _commit(state.copyWith(downloadDirectory: directory));
 
   void setStorageMode(String mode) =>
       _commit(state.copyWith(storageMode: mode == 'saf' ? 'saf' : 'app'));
@@ -496,8 +430,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setDownloadTreeUri(String uri, {String? displayName}) => _commit(
     state.copyWith(
-      networkDownloadFolder: '',
-      networkDownloadLabel: '',
       downloadTreeUri: uri,
       storageMode: uri.isNotEmpty ? 'saf' : state.storageMode,
       downloadDirectory: displayName ?? state.downloadDirectory,
@@ -506,12 +438,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setAutoFallback(bool enabled) =>
       _commit(state.copyWith(autoFallback: enabled));
-
-  void setEmbedLyrics(bool enabled) =>
-      _commit(state.copyWith(embedLyrics: enabled));
-
-  void setEmbedReplayGain(bool enabled) =>
-      _commit(state.copyWith(embedReplayGain: enabled));
 
   void setPlaybackNormalization(bool enabled) =>
       _commit(state.copyWith(playbackNormalization: enabled));
@@ -610,16 +536,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state.copyWith(dapExclusive: enabled, usbDirect: enabled ? false : null),
   );
 
-  void setEmbedMetadata(bool enabled) =>
-      _commit(state.copyWith(embedMetadata: enabled));
-
-  void setEmbeddedCoverMaxDimension(int maxDimension) => _commit(
-    state.copyWith(
-      embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-        maxDimension,
-      ),
-    ),
-  );
+  void setEmbeddedCoverMaxDimension(int maxDimension) =>
+      _commit(state.copyWith());
 
   void setArtistTagMode(String mode) {
     if (artistTagModes.contains(mode)) {
@@ -744,9 +662,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setKeepScreenOnLyrics(bool enabled) =>
       _commit(state.copyWith(keepScreenOnLyrics: enabled));
 
-  void setMotionArtworkEnabled(bool enabled) =>
-      _commit(state.copyWith(motionArtworkEnabled: enabled));
-
   void setListeningStatisticsEnabled(bool enabled) =>
       _commit(state.copyWith(listeningStatisticsEnabled: enabled));
 
@@ -791,20 +706,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setUpdateChannel(String channel) =>
       _commit(state.copyWith(updateChannel: channel));
 
-  void setFolderOrganization(String organization) =>
-      _commit(state.copyWith(folderOrganization: organization));
-
-  void setFolderPathTemplate(String template) {
-    if (!FolderPathTemplate.isValid(template)) return;
-    _commit(
-      state.copyWith(
-        folderPathTemplate: template.trim(),
-        folderOrganization: 'custom',
-        separateSingles: false,
-      ),
-    );
-  }
-
   void setCreatePlaylistFolder(bool enabled) =>
       _commit(state.copyWith(createPlaylistFolder: enabled));
 
@@ -819,9 +720,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setHistorySortMode(String mode) =>
       _commit(state.copyWith(historySortMode: librarySortModeFromJson(mode)));
-
-  void setAskQualityBeforeDownload(bool enabled) =>
-      _commit(state.copyWith(askQualityBeforeDownload: enabled));
 
   void setSearchProvider(String? provider) {
     final sanitized = _sanitizeRetiredBuiltInProviderId(provider);
@@ -883,41 +781,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setLocale(String locale) => _commit(state.copyWith(locale: locale));
 
-  void setAutoConvertDownloads(bool enabled) =>
-      _commit(state.copyWith(autoConvertDownloads: enabled));
-
-  void setRedownloadFakeHiRes(bool enabled) =>
-      _commit(state.copyWith(redownloadFakeHiRes: enabled));
-
-  void setAutoConvertFormat(String format) => _commit(
-    state.copyWith(autoConvertFormat: normalizeAutoConvertFormat(format)),
-  );
-
-  void setAutoConvertBitrate(String bitrate) => _commit(
-    state.copyWith(autoConvertBitrate: normalizeAutoConvertBitrate(bitrate)),
-  );
-
-  void setAutoConvertMaxBitDepth(int depth) => _commit(
-    state.copyWith(autoConvertMaxBitDepth: normalizeAutoConvertBitDepth(depth)),
-  );
-
-  void setAutoConvertMaxSampleRate(int rate) => _commit(
-    state.copyWith(
-      autoConvertMaxSampleRate: normalizeAutoConvertSampleRate(rate),
-    ),
-  );
-
   void setUseAllFilesAccess(bool enabled) =>
       _commit(state.copyWith(useAllFilesAccess: enabled));
-
-  void setAutoExportFailedDownloads(bool enabled) =>
-      _commit(state.copyWith(autoExportFailedDownloads: enabled));
-
-  void setDownloadNetworkMode(String mode) =>
-      _commit(state.copyWith(downloadNetworkMode: mode));
-
-  void setConcurrentDownloads(int count) =>
-      _commit(state.copyWith(concurrentDownloads: count.clamp(1, 3)));
 
   void setNetworkCompatibilityMode(bool enabled) {
     _commit(state.copyWith(networkCompatibilityMode: enabled));
@@ -931,9 +796,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setSongLinkRegion(String region) =>
       _commit(state.copyWith(songLinkRegion: _normalizeSongLinkRegion(region)));
-
-  void setNativeDownloadWorkerEnabled(bool enabled) =>
-      _commit(state.copyWith(nativeDownloadWorkerEnabled: enabled));
 
   void setLocalLibraryEnabled(bool enabled) =>
       _commit(state.copyWith(localLibraryEnabled: enabled));
@@ -949,15 +811,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setTutorialComplete() =>
       _commit(state.copyWith(hasCompletedTutorial: true));
-
-  void setDeduplicateDownloads(bool enabled) =>
-      _commit(state.copyWith(deduplicateDownloads: enabled));
-
-  void setAllowQualityVariants(bool enabled) =>
-      _commit(state.copyWith(allowQualityVariants: enabled));
-
-  void setSaveDownloadHistory(bool enabled) =>
-      _commit(state.copyWith(saveDownloadHistory: enabled));
 
   void setPlayerMode(String mode) => _commit(
     state.copyWith(playerMode: mode == 'internal' ? 'internal' : 'external'),

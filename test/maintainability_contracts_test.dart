@@ -2,9 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/models/download_item.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_state.dart';
 import 'package:sistrum/services/audio_metadata_mapper.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/models/tag_credit_settings.dart';
@@ -13,25 +10,6 @@ import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
-  Track track({
-    required String id,
-    required String name,
-    String artist = 'Artist',
-    int duration = 180,
-    String? releaseDate,
-    String? itemType,
-  }) {
-    return Track(
-      id: id,
-      name: name,
-      artistName: artist,
-      albumName: 'Album',
-      duration: duration,
-      releaseDate: releaseDate,
-      itemType: itemType,
-    );
-  }
-
   group('FFmpeg value models', () {
     test('normalizes structured and legacy decryption descriptors', () {
       final structured = DownloadDecryptionDescriptor.fromDownloadResult({
@@ -233,28 +211,6 @@ void main() {
     });
   });
 
-  test('queue state owns lookup rebuilding independently of notifier', () {
-    final queued = DownloadItem(
-      id: 'one',
-      track: track(id: 'track-one', name: 'One'),
-      service: 'extension.test',
-      createdAt: DateTime.utc(2026),
-    );
-    final completed = queued.copyWith(status: DownloadStatus.completed);
-
-    final initial = const DownloadQueueState().copyWith(items: [queued]);
-    final next = initial.copyWith(
-      items: [completed],
-      currentDownload: completed,
-    );
-    final cleared = next.copyWith(currentDownload: null);
-
-    expect(initial.queuedCount, 1);
-    expect(next.completedCount, 1);
-    expect(next.lookup.byItemId['one']?.status, DownloadStatus.completed);
-    expect(next.currentDownload, completed);
-    expect(cleared.currentDownload, isNull);
-  });
 }
 
 int _sequenceCount(Uint8List bytes, List<int> sequence) {

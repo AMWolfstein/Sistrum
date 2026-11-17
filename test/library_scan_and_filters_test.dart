@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
+import 'package:sistrum/models/download_history.dart';
 
 void main() {
   group('local library incremental scan', () {

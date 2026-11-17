@@ -36,7 +36,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     required BuildContext context,
     required ColorScheme colorScheme,
     required String filterMode,
-    required bool hasQueueItems,
     required _FilterContentData filterData,
     required LibraryCollectionsState collectionState,
     required bool hasMoreLibrary,
@@ -53,154 +52,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     final totalAlbumCount = filterData.totalAlbumCount;
     // Controls and grids share the centered column of the track list.
     final edge = 16 + wideListInset(context);
-    final activeDownloadIds = !hasQueueItems || filterMode == 'albums'
-        ? const <String>[]
-        : ref
-              .watch(
-                downloadQueueLookupProvider.select(
-                  (lookup) => lookup.notCompletedItemIds,
-                ),
-              )
-              .reversed
-              .toList(growable: false);
-    final bridgeHistoryById = <String, DownloadHistoryItem?>{
-      for (final entry in _completionBridge.entries)
-        entry.key: _historyItemForCompletionBridge(
-          entry.value,
-          inMemoryHistoryItems,
-        ),
-    };
-    List<String> bridgeIds = const [];
-    if (hasQueueItems &&
-        filterMode != 'albums' &&
-        _completionBridge.isNotEmpty) {
-      final libIdSet = _loadedSongs(filterMode, allFilteredUnifiedItems).ids;
-      final now = DateTime.now();
-      final stale = <String>[];
-      final pending = <String>[];
-      final hasActiveDownloads = activeDownloadIds.isNotEmpty;
-      final queueItems = ref.read(downloadQueueLookupProvider).byItemId;
-      _completionBridge.forEach((id, _) {
-        final historyItem = bridgeHistoryById[id];
-        final historyId = historyItem?.id ?? id;
-        final landed = libIdSet.contains('dl_$historyId');
-        final addedAt = _completionBridgeAt[id];
-        final expired =
-            addedAt == null || now.difference(addedAt).inSeconds >= 6;
-        if (shouldRetainCompletionBridge(
-          queueItemExists: queueItems.containsKey(id),
-          isRequeued: activeDownloadIds.contains(id),
-          hasActiveDownloads: hasActiveDownloads,
-          libraryRowLanded: landed,
-          hasHistoryItem: historyItem != null,
-          expired: expired,
-        )) {
-          // Keep completed tracks pinned while their batch is active or their
-          // persisted History row is still waiting for the paged Library.
-          pending.add(id);
-        } else {
-          // Re-queued items are represented by the live row; landed items by
-          // the normal Library row; unpersisted bridges retain a short grace.
-          stale.add(id);
-        }
-      });
-      bridgeIds = pending;
-      if (stale.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          var changed = false;
-          for (final id in stale) {
-            if (_completionBridge.remove(id) != null) changed = true;
-            _completionBridgeAt.remove(id);
-            _bridgePrecacheStarted.remove(id);
-          }
-          if (changed) _setState(() {});
-        });
-      }
-      final toPrecache = pending
-          .where((id) => !_bridgePrecacheStarted.contains(id))
-          .toList(growable: false);
-      if (toPrecache.isNotEmpty) {
-        for (final id in toPrecache) {
-          final historyItem = bridgeHistoryById[id];
-          if (historyItem == null) continue;
-          _bridgePrecacheStarted.add(id);
-          final coverUrl = historyItem.coverUrl;
-          final embeddedPath = _resolveDownloadedEmbeddedCoverPath(
-            historyItem.filePath,
-          );
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            try {
-              // Decode at the same 200px extent the grid cell renders with
-              // (queue_tab_item_widgets cacheSize) so the precache shares the
-              // cell's cache entry; embedded covers can be 3000x3000 and a
-              // full-res decode evicts the whole low-RAM image cache.
-              const targetSize = 200;
-              if (embeddedPath != null) {
-                precacheCoverImage(
-                  context,
-                  embeddedPath,
-                  cacheWidth: targetSize,
-                  cacheHeight: targetSize,
-                );
-              }
-              if (coverUrl != null && coverUrl.isNotEmpty) {
-                precacheImage(
-                  ResizeImage(
-                    cachedCoverImageProvider(coverUrl),
-                    width: targetSize,
-                    height: targetSize,
-                  ),
-                  context,
-                );
-              }
-            } catch (_) {}
-          });
-        }
-      }
-    }
-    // Tracks pinned as completion-bridge cells render in the lead zone;
-    // hide their history rows so they don't appear twice.
-    List<UnifiedLibraryItem> filteredUnifiedItems = allFilteredUnifiedItems;
-    if (bridgeIds.isNotEmpty) {
-      final pinnedHistoryIds = <String>{
-        for (final id in bridgeIds) 'dl_${bridgeHistoryById[id]?.id ?? id}',
-      };
-      final loaded = _loadedSongs(filterMode, allFilteredUnifiedItems);
-      final unpinned = loaded.unpinned;
-      if (unpinned != null && setEquals(unpinned.$1, pinnedHistoryIds)) {
-        filteredUnifiedItems = unpinned.$2;
-      } else {
-        filteredUnifiedItems = allFilteredUnifiedItems
-            .where((item) => !pinnedHistoryIds.contains(item.id))
-            .toList(growable: false);
-        loaded.unpinned = (pinnedHistoryIds, filteredUnifiedItems);
-      }
-    }
-    // Completion-bridge tracks are hidden from filteredUnifiedItems, so weave
-    // them into the front of the swipe-navigation list (matching their pinned
-    // lead-zone position); otherwise a just-downloaded track opens with no
-    // swipe navigation at all until its row lands in the library query.
-    final bridgeNavigationIndexById = <String, int>{};
-    final bridgeHistoryItems = <DownloadHistoryItem>[];
-    for (final id in bridgeIds) {
-      final historyItem = bridgeHistoryById[id];
-      if (historyItem == null) continue;
-      bridgeNavigationIndexById[id] = bridgeHistoryItems.length;
-      bridgeHistoryItems.add(historyItem);
-    }
-    final (
-      downloaded: downloadedNavigationItems,
-      downloadedIndexById: downloadedNavigationIndexByUnifiedId,
-      local: localNavigationItems,
-      localIndexById: localNavigationIndexByUnifiedId,
-    ) = _libraryNavigation(
-      filterMode,
-      filteredUnifiedItems,
-      bridgeHistoryItems,
-    );
-    final leadCount = activeDownloadIds.length + bridgeIds.length;
     // Section pages opened from Mornye keep collections inline with Songs.
     final collectionEntries = filterMode == 'all'
         ? _getVisibleCollectionEntries(collectionState)
@@ -233,32 +84,13 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       });
     }
 
-    Widget leadListCell(int index) {
-      if (index < activeDownloadIds.length) {
-        final id = activeDownloadIds[index];
-        return KeyedSubtree(
-          key: ValueKey('dllist_$id'),
-          child: _QueueItemSliverRow(
-            itemId: id,
-            colorScheme: colorScheme,
-            itemBuilder: _buildQueueItem,
-          ),
-        );
-      }
-      final bridgeId = bridgeIds[index - activeDownloadIds.length];
-      return KeyedSubtree(
-        key: ValueKey('dllist_bridge_$bridgeId'),
-        child: _buildBridgeItem(
-          context,
-          _completionBridge[bridgeId]!,
-          colorScheme,
-          bridgeHistoryById[bridgeId],
-          grid: false,
-          navigationItems: downloadedNavigationItems,
-          navigationIndex: bridgeNavigationIndexById[bridgeId],
-        ),
-      );
-    }
+    final filteredUnifiedItems = allFilteredUnifiedItems;
+    final (
+      downloaded: downloadedNavigationItems,
+      downloadedIndexById: downloadedNavigationIndexByUnifiedId,
+      local: localNavigationItems,
+      localIndexById: localNavigationIndexByUnifiedId,
+    ) = _libraryNavigation(filterMode, filteredUnifiedItems);
 
     Widget trackTile(UnifiedLibraryItem item, {required bool grid}) =>
         (grid ? _buildUnifiedGridItem : _buildUnifiedLibraryItem)(
@@ -379,9 +211,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
             ),
           ),
 
-        if (filterMode == 'all' && hasQueueItems)
-          _buildQueueHeaderSliver(context, colorScheme),
-
         if (filterMode == 'albums' &&
             (filteredGroupedAlbums.isNotEmpty ||
                 filteredGroupedLocalAlbums.isNotEmpty))
@@ -473,13 +302,12 @@ extension _QueueTabFilterWidgets on _QueueTabState {
 
         if (filterMode == 'singles') ...[
           trackCountHeader(),
-          _buildQueueHeaderSliver(context, colorScheme),
         ],
 
         // Songs list collections first; singles hide an empty track list.
         if (filterMode == 'all' ||
             (filterMode == 'singles' &&
-                (filteredUnifiedItems.isNotEmpty || leadCount > 0)))
+                filteredUnifiedItems.isNotEmpty))
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
             sliver: SliverList(
@@ -493,11 +321,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
                       collectionState: collectionState,
                     );
                   }
-                  final afterCollections = index - collectionCount;
-                  if (afterCollections < leadCount) {
-                    return leadListCell(afterCollections);
-                  }
-                  final trackIndex = afterCollections - leadCount;
+                  final trackIndex = index - collectionCount;
                   if (trackIndex < filteredUnifiedItems.length) {
                     final item = filteredUnifiedItems[trackIndex];
                     return KeyedSubtree(
@@ -507,14 +331,12 @@ extension _QueueTabFilterWidgets on _QueueTabState {
                   }
                   return const SizedBox.shrink();
                 },
-                childCount:
-                    leadCount + collectionCount + filteredUnifiedItems.length,
+                childCount: collectionCount + filteredUnifiedItems.length,
               ),
             ),
           ),
 
-        if (!hasQueueItems &&
-            totalTrackCount == 0 &&
+        if (totalTrackCount == 0 &&
             (filterMode != 'albums' ||
                 (filteredGroupedAlbums.isEmpty &&
                     filteredGroupedLocalAlbums.isEmpty)) &&
@@ -539,8 +361,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
             ),
           ),
 
-        if (hasQueueItems ||
-            totalTrackCount > 0 ||
+        if (totalTrackCount > 0 ||
             (filterMode == 'albums' &&
                 (filteredGroupedAlbums.isNotEmpty ||
                     filteredGroupedLocalAlbums.isNotEmpty)) ||
@@ -578,10 +399,9 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         );
       }
       if (filterMode != 'all' && filterMode != 'singles') return null;
-      final rows = collectionCount + leadCount + filteredUnifiedItems.length;
+      final rows = collectionCount + filteredUnifiedItems.length;
       if (rows == 0) return null;
-      final itemIndex =
-          (fraction * (rows - 1)).round() - collectionCount - leadCount;
+      final itemIndex = (fraction * (rows - 1)).round() - collectionCount;
       if (itemIndex < 0 || itemIndex >= filteredUnifiedItems.length) {
         return null;
       }
@@ -603,37 +423,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       ),
     );
     return scrollAwareContent;
-  }
-
-  Future<void> _showClearAllDialog(
-    BuildContext context,
-    WidgetRef ref,
-    ColorScheme colorScheme,
-  ) async {
-    final confirmed = await showAppDialog<bool>(
-      context: context,
-      builder: (ctx) => AppAlertDialog(
-        title: Text(context.l10n.queueClearAll),
-        content: Text(context.l10n.queueClearAllMessage),
-        actions: [
-          AppDialogAction(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(context.l10n.dialogCancel),
-          ),
-          AppDialogAction(
-            filled: true,
-            isDestructive: true,
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
-            child: Text(context.l10n.dialogClear),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && context.mounted) {
-      ref.read(downloadQueueProvider.notifier).clearAll();
-    }
   }
 
   Widget _buildEmptyState(
@@ -882,26 +671,17 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     );
   }
 
-  _LoadedSongs _loadedSongs(String filterMode, List<UnifiedLibraryItem> items) {
-    final cached = _loadedSongsByMode[filterMode];
-    if (cached != null && identical(cached.items, items)) return cached;
-    return _loadedSongsByMode[filterMode] = _LoadedSongs(items);
-  }
-
-  /// The swipe-navigation lists over [items], [bridgeHistoryItems] first,
-  /// kept while the songs and the pinned downloads stay the same.
+  /// The swipe-navigation lists over [items], kept while the songs stay the
+  /// same.
   _LibraryNavigation _libraryNavigation(
     String filterMode,
     List<UnifiedLibraryItem> items,
-    List<DownloadHistoryItem> bridgeHistoryItems,
   ) {
     final cached = _navigationByMode[filterMode];
-    if (cached != null &&
-        identical(cached.$1, items) &&
-        listEquals(cached.$2, bridgeHistoryItems)) {
-      return cached.$3;
+    if (cached != null && identical(cached.$1, items)) {
+      return cached.$2;
     }
-    final downloaded = <DownloadHistoryItem>[...bridgeHistoryItems];
+    final downloaded = <DownloadHistoryItem>[];
     final downloadedIndexById = <String, int>{};
     final local = <LocalLibraryItem>[];
     final localIndexById = <String, int>{};
@@ -924,7 +704,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       local: local,
       localIndexById: localIndexById,
     );
-    _navigationByMode[filterMode] = (items, bridgeHistoryItems, navigation);
+    _navigationByMode[filterMode] = (items, navigation);
     return navigation;
   }
 
@@ -940,16 +720,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
 }
 
 /// What a Library page derives from one list of loaded songs.
-class _LoadedSongs {
-  _LoadedSongs(this.items);
-
-  final List<UnifiedLibraryItem> items;
-  late final Set<String> ids = {for (final item in items) item.id};
-
-  /// The songs without the pinned download rows, by the pinned row ids.
-  (Set<String>, List<UnifiedLibraryItem>)? unpinned;
-}
-
 /// Swipe-navigation lists over a Library page's songs, with each song's
 /// position in them.
 typedef _LibraryNavigation = ({

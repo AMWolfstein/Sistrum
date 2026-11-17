@@ -50,28 +50,13 @@ class LyricsSettingsPage extends ConsumerWidget {
                       .read(settingsProvider.notifier)
                       .setPlayerShowLyricSnippet(value),
                 ),
-                SettingsSwitchItem(
-                  title: context.l10n.optionsEmbedLyrics,
-                  subtitle: settings.embedMetadata
-                      ? context.l10n.optionsEmbedLyricsSubtitle
-                      : context.l10n.downloadEmbedLyricsDisabled,
-                  value: settings.embedLyrics,
-                  enabled: settings.embedMetadata,
-                  onChanged: (value) =>
-                      ref.read(settingsProvider.notifier).setEmbedLyrics(value),
-                  showDivider: settings.embedMetadata && settings.embedLyrics,
+                SettingsItem(
+                  title: context.l10n.lyricsMode,
+                  subtitle: _getLyricsModeLabel(context, settings.lyricsMode),
+                  onTap: () =>
+                      _showLyricsModePicker(context, ref, settings.lyricsMode),
+                  showDivider: false,
                 ),
-                if (settings.embedMetadata && settings.embedLyrics)
-                  SettingsItem(
-                    title: context.l10n.lyricsMode,
-                    subtitle: _getLyricsModeLabel(context, settings.lyricsMode),
-                    onTap: () => _showLyricsModePicker(
-                      context,
-                      ref,
-                      settings.lyricsMode,
-                    ),
-                    showDivider: false,
-                  ),
               ],
             ),
 

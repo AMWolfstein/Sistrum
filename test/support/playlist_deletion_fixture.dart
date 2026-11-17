@@ -29,7 +29,6 @@ class PlaylistDeletionCollections extends LibraryCollectionsNotifier {
 const playlistDeletionTables = [
   'playlists',
   'playlist_tracks',
-  'wishlist_tracks',
   'loved_tracks',
 ];
 
@@ -52,7 +51,7 @@ Future<void> createPlaylistDeletionSchema(Database db) async {
   await db.execute(
     'CREATE INDEX idx_playlist_tracks_playlist_id ON playlist_tracks(playlist_id)',
   );
-  for (final table in ['wishlist_tracks', 'loved_tracks']) {
+  for (final table in ['loved_tracks']) {
     await db.execute('''CREATE TABLE $table(track_key TEXT PRIMARY KEY,
       track_json TEXT NOT NULL, added_at TEXT NOT NULL)''');
     await db.execute(
@@ -121,7 +120,7 @@ Future<LibraryCollectionsState> seedPlaylistDeletion(
         });
       }
     }
-    for (final table in ['wishlist_tracks', 'loved_tracks']) {
+    for (final table in ['loved_tracks']) {
       for (final entry in entries) {
         batch.insert(table, {
           'track_key': entry.key,
@@ -135,7 +134,6 @@ Future<LibraryCollectionsState> seedPlaylistDeletion(
   return LibraryCollectionsState(
     isLoaded: true,
     playlists: playlists,
-    wishlist: entries,
     loved: entries,
   );
 }

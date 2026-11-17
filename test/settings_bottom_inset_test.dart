@@ -53,24 +53,8 @@ void main() {
     final scroll = tester.state<ScrollableState>(find.byType(Scrollable).first);
     scroll.position.jumpTo(scroll.position.maxScrollExtent);
     await tester.pumpAndSettle();
-    final filters = find.byWidgetPredicate(
-      (widget) =>
-          widget is SettingsItem && widget.title == 'Artist Name Filters',
-    );
-    expect(tester.getBottomRight(filters).dy, lessThanOrEqualTo(700 - inset));
-    await tester.tap(filters);
-    await tester.pumpAndSettle();
-    scroll.position.jumpTo(scroll.position.maxScrollExtent);
-    await tester.pumpAndSettle();
-    final contributing = find.byWidgetPredicate(
-      (widget) =>
-          widget is SettingsSwitchItem &&
-          widget.title == 'Filter Contributing Artists',
-    );
-    expect(
-      tester.getBottomRight(contributing).dy,
-      lessThanOrEqualTo(700 - inset),
-    );
+    final last = find.byType(SettingsItem).last;
+    expect(tester.getBottomRight(last).dy, lessThanOrEqualTo(700 - inset));
     expect(tester.takeException(), isNull);
   });
 }

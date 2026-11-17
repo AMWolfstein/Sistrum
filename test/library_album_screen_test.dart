@@ -92,7 +92,7 @@ void main() {
       expect(find.text(l10n.actionShuffle), findsOneWidget);
       expect(find.byTooltip(l10n.tooltipLoveAll), findsOneWidget);
       expect(find.byTooltip(l10n.tooltipAddToPlaylist), findsOneWidget);
-      expect(find.text(l10n.dialogDownload), findsNothing);
+      expect(find.text('Download'), findsNothing);
       expect(find.text('Album'), findsWidgets);
       expect(find.text('Artist'), findsWidgets);
       expect(tester.takeException(), isNull);
@@ -126,7 +126,7 @@ void main() {
       );
       expect(find.text(l10n.trackMetadataPlay), findsNWidgets(2));
       expect(find.text(l10n.collectionAddToPlaylist), findsOneWidget);
-      expect(find.text(l10n.dialogDownload), findsNothing);
+      expect(find.text('Download'), findsNothing);
       final delete = find.text(l10n.selectionDeleteTracksCount(1));
       expect(delete, findsOneWidget);
       final style = tester.widget<Text>(delete).style;
@@ -167,7 +167,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: bar, matching: find.text(l10n.dialogDownload)),
+      find.descendant(of: bar, matching: find.text('Download')),
       findsNothing,
     );
     expect(tester.takeException(), isNull);

@@ -20,6 +20,7 @@ import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
+import 'package:sistrum/models/download_history.dart';
 
 Widget _app(
   Widget child, {

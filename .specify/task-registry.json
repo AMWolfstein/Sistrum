@@ -25,7 +25,7 @@
       "title": "Offline-only app: remove online features, network storage and conversion"
     }
   },
-  "next_completion": 54,
+  "next_completion": 55,
   "next_mission": 5,
   "next_tor": 18,
   "tasks": {
@@ -734,13 +734,19 @@
       "title": "Remove network storage (SMB, WebDAV, Subsonic)"
     },
     "M004-T007": {
-      "completion": null,
+      "completion": 54,
+      "evidence": {
+        "checks": "Independent reviewer PASS on round 3 (rounds 1-2 NEEDS_FIXES, fixed); flutter analyze no issues; full flutter test 3080 run, 4 skipped, 0 failed; gen-l10n run; Kotlin not compiled here, unverified",
+        "result": "PASS",
+        "reviewer": "a93c80c6eef7e4b5b",
+        "round": 3
+      },
       "final": false,
       "kind": "T",
       "mission": "M004",
       "nonce": "869e71d772894550807b31757b837142",
       "record": "specs/004-offline-only-app/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove the download engine, Wishlist, CSV import and reorganize"
     },
     "M004-T008": {

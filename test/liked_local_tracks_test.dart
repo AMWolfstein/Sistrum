@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -20,6 +19,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/fixed_settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class _Database extends Fake implements LibraryCollectionsDatabase {
   final loved = <String, Map<String, dynamic>>{};
@@ -43,7 +43,6 @@ class _Database extends Fake implements LibraryCollectionsDatabase {
   @override
   Future<LibraryCollectionsSnapshot> loadSnapshot() async =>
       LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: loved.values.toList(),
         favoriteArtistRows: const [],
         playlistRows: const [],
@@ -116,9 +115,6 @@ void main() {
         settingsProvider.overrideWith(FixedSettingsNotifier.new),
         localLibraryProvider.overrideWith(_Library.new),
         downloadHistoryProvider.overrideWith(_History.new),
-        downloadHistoryVisibleBatchExistsProvider.overrideWith(
-          (ref, request) => const {},
-        ),
         localLibraryCoverProvider.overrideWith((ref, request) async => null),
         currentMediaItemProvider.overrideWithBuild(
           (ref, notifier) => Stream.value(null),

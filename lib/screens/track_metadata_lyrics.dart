@@ -701,16 +701,10 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
             if (result['error'] != null &&
                 coverUrl != null &&
                 coverUrl.isNotEmpty) {
-              result = await PlatformBridge.downloadCoverToFile(
-                coverUrl,
-                outputPath,
-              );
+              result = await downloadCoverImageToFile(coverUrl, outputPath);
             }
           } else if (coverUrl != null && coverUrl.isNotEmpty) {
-            result = await PlatformBridge.downloadCoverToFile(
-              coverUrl,
-              outputPath,
-            );
+            result = await downloadCoverImageToFile(coverUrl, outputPath);
           } else {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(

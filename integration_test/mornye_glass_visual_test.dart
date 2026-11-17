@@ -23,7 +23,7 @@ import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(motionArtworkEnabled: false);
+  AppSettings build() => const AppSettings();
 }
 
 void main() {

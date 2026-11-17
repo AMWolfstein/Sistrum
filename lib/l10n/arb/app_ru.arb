@@ -35,8 +35,6 @@
   "usbBitPerfectFallback": "Это устройство или аудиоформат не поддерживает вывод bit-perfect. Используется обычное воспроизведение.",
   "usbBitPerfectRouteChanged": "Маршрут USB-аудио изменился. Воспроизведение приостановлено; выберите трек для повторного подключения.",
   "upgradeIntroContinue": "Далее",
-  "cacheMotionArtwork": "Офлайн обложки с анимацией",
-  "cacheMotionArtworkDesc": "Видео из альбомов сохраняются вместе с загруженными файлами. При их удалении музыкальные файлы и статичные обложки остаются.",
   "nowPlayingVolume": "Громкость",
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
@@ -86,8 +84,6 @@
     "description": "Filter chip - show all items"
   },
   "libraryRecentlyAdded": "Недавно добавленные",
-  "libraryDownloads": "Загрузки",
-  "libraryNoActiveDownloads": "Нет активных загрузок",
   "librarySearchHint": "Поиск в вашей медиатеке",
   "libraryEmptyCollection": "Ваша музыка появится здесь",
   "libraryFolders": "Folders",
@@ -123,10 +119,6 @@
   "@settingsTitle": {
     "description": "Settings screen title"
   },
-  "settingsDownload": "Скачивание",
-  "@settingsDownload": {
-    "description": "Settings section - download options"
-  },
   "settingsAppearance": "Внешний вид",
   "@settingsAppearance": {
     "description": "Settings section - visual customization"
@@ -138,50 +130,6 @@
   "settingsAbout": "О программе",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadAskQualitySubtitle": "Показывать выбор качества для каждого скачивания",
-  "@downloadAskQualitySubtitle": {
-    "description": "Subtitle for ask quality toggle"
-  },
-  "downloadFilenameFormat": "Формат имени файла",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "Формат имени файла",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadSingleFilenameFormatDescription": "Формат имени файла для синглов и EP. Используются те же теги, что и для альбомов.",
-  "@downloadSingleFilenameFormatDescription": {
-    "description": "Subtitle description for single filename format setting"
-  },
-  "downloadFolderOrganization": "Организация папок",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Custom Folder Structure",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
-  "downloadFolderTemplateDescription": "Use naming tags and / for subfolders. Saving replaces the preset album and singles layout. Empty folder names use Unknown.",
-  "@downloadFolderTemplateDescription": {
-    "description": "Help for custom download folder templates"
-  },
-  "folderOrganizationCustom": "Свой шаблон",
-  "@folderOrganizationCustom": {
-    "description": "Folder organization mode using a user-defined template"
-  },
-  "folderTemplateInvalid": "Enter a relative folder path with supported tags. Empty folders, . and .. are not allowed.",
-  "@folderTemplateInvalid": {
-    "description": "Validation error for an invalid folder template"
-  },
-  "folderTemplatePreview": "Example folder path",
-  "@folderTemplatePreview": {
-    "description": "Label for a sample expanded folder template"
-  },
-  "folderTemplatePreviewFailed": "Предпросмотр недоступен",
-  "@folderTemplatePreviewFailed": {
-    "description": "Shown when the native folder preview could not be generated"
   },
   "appearanceTitle": "Внешний вид",
   "@appearanceTitle": {
@@ -207,50 +155,17 @@
   "@appearanceHistoryViewGrid": {
     "description": "Grid layout option"
   },
-  "optionsPrimaryProvider": "Основной провайдер",
-  "@optionsPrimaryProvider": {
-    "description": "Main search provider setting"
-  },
   "optionsPrimaryProviderSubtitle": "Сервис для поиска по названию трека или альбома",
   "@optionsPrimaryProviderSubtitle": {
     "description": "Subtitle for primary provider"
-  },
-  "optionsUsingExtension": "Используется расширение: {extensionName}",
-  "@optionsUsingExtension": {
-    "description": "Shows active extension name",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "optionsAutoFallback": "Автоматический переход",
-  "@optionsAutoFallback": {
-    "description": "Auto-retry with other services"
-  },
-  "optionsAutoFallbackSubtitle": "Попробовать другие сервисы при сбое загрузки",
-  "@optionsAutoFallbackSubtitle": {
-    "description": "Subtitle for auto fallback"
   },
   "optionsEmbedLyrics": "Вписать текст песни",
   "@optionsEmbedLyrics": {
     "description": "Embed lyrics in audio files"
   },
-  "optionsEmbedLyricsSubtitle": "Сохранять синхронизированный текст песни рядом с загруженным треком",
-  "@optionsEmbedLyricsSubtitle": {
-    "description": "Subtitle for embed lyrics"
-  },
   "optionsReplayGain": "ReplayGain",
   "@optionsReplayGain": {
     "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "Сканировать громкость и вставить теги ReplayGain (EBU R128)",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "Выключено: нет тегов нормализации громкости",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "Пересканировать ReplayGain",
   "@trackReplayGain": {
@@ -360,34 +275,6 @@
   "metadataSeparatorInvalid": "Используйте 1-16 символов без управляющих символов и разделителей строк.",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "Выберите, как несколько исполнителей записываются встроенные теги.",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "Объединять в одну строку",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "Записывать исполнителей через запятую для максимальной совместимости с плеерами.",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "Разделить теги для FLAC/Opus",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "Один тег на исполнителя для FLAC/Opus; Для MP3/M4A — один общий.",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "Primary artist only",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "Write only the first artist, like \"Artist A\", to Artist and Album Artist in every format, so players list one artist.",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
   },
   "optionsExtensionStore": "Репозиторий расширений",
   "@optionsExtensionStore": {
@@ -700,14 +587,6 @@
   "@dialogDone": {
     "description": "Dialog button - action completed"
   },
-  "dialogImport": "Импорт",
-  "@dialogImport": {
-    "description": "Dialog button - import data"
-  },
-  "dialogDownload": "Скачать",
-  "@dialogDownload": {
-    "description": "Confirm button in Download All dialog"
-  },
   "dialogDiscard": "Отменить",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -764,20 +643,6 @@
   "dialogDeleteSelectedMessage": "Удалить {count} {count, plural, one {трек} few {трека} many {треков} =1{трек} other{треков}} из истории?\n\nЭто также удалит файлы из хранилища.",
   "@dialogDeleteSelectedMessage": {
     "description": "Dialog message - delete selected tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dialogImportPlaylistTitle": "Импорт плейлиста",
-  "@dialogImportPlaylistTitle": {
-    "description": "Dialog title - import CSV playlist"
-  },
-  "dialogImportPlaylistMessage": "В файле плейлиста найдено {count, plural, one {{count} трек} few {{count} трека} many {{count} треков} other {{count} треков}}. Добавить их в очередь загрузки?",
-  "csvImportTracks": "{count} трек(-ов) из CSV",
-  "@csvImportTracks": {
-    "description": "Label shown in quality picker for CSV import",
     "placeholders": {
       "count": {
         "type": "int"
@@ -865,29 +730,12 @@
       }
     }
   },
-  "@dialogImportPlaylistMessage": {
-    "description": "Dialog message - import playlist confirmation",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "snackbarAddedToQueue": "\"{trackName}\" добавлен в очередь",
   "@snackbarAddedToQueue": {
     "description": "Snackbar - track added to download queue",
     "placeholders": {
       "trackName": {
         "type": "String"
-      }
-    }
-  },
-  "snackbarAddedTracksToQueue": "Добавлено {count} треков в очередь",
-  "@snackbarAddedTracksToQueue": {
-    "description": "Snackbar - multiple tracks added to queue",
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -1018,22 +866,6 @@
   "@selectionSelectToDelete": {
     "description": "Placeholder when nothing selected"
   },
-  "progressFetchingMetadata": "Получение метаданных... {current}/{total}",
-  "@progressFetchingMetadata": {
-    "description": "Progress indicator - loading track info",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "progressReadingCsv": "Чтение CSV...",
-  "@progressReadingCsv": {
-    "description": "Progress indicator - parsing CSV file"
-  },
   "searchSongs": "Песни",
   "libraryGenres": "Жанры",
   "@searchSongs": {
@@ -1082,62 +914,6 @@
   "tooltipPlay": "Воспроизвести",
   "@tooltipPlay": {
     "description": "Tooltip - play button"
-  },
-  "filenameFormat": "Формат имени файла",
-  "@filenameFormat": {
-    "description": "Setting title - filename pattern"
-  },
-  "filenameShowAdvancedTags": "Показать расширенные теги",
-  "@filenameShowAdvancedTags": {
-    "description": "Toggle label for showing advanced filename tags"
-  },
-  "filenameShowAdvancedTagsDescription": "Включить форматированные теги для отслеживания заполнения и шаблонов дат",
-  "@filenameShowAdvancedTagsDescription": {
-    "description": "Description for advanced filename tag toggle"
-  },
-  "folderOrganizationNone": "Без организации",
-  "@folderOrganizationNone": {
-    "description": "Folder option - flat structure"
-  },
-  "folderOrganizationByPlaylist": "По плейлисту",
-  "@folderOrganizationByPlaylist": {
-    "description": "Folder option - playlist folders"
-  },
-  "folderOrganizationByPlaylistSubtitle": "Отдельная папка для каждого плейлиста",
-  "@folderOrganizationByPlaylistSubtitle": {
-    "description": "Subtitle for playlist folder option"
-  },
-  "folderOrganizationByArtist": "По исполнителю",
-  "@folderOrganizationByArtist": {
-    "description": "Folder option - artist folders"
-  },
-  "folderOrganizationByAlbum": "По альбому",
-  "@folderOrganizationByAlbum": {
-    "description": "Folder option - album folders"
-  },
-  "folderOrganizationByArtistAlbum": "Исполнитель/Альбом",
-  "@folderOrganizationByArtistAlbum": {
-    "description": "Folder option - nested folders"
-  },
-  "folderOrganizationDescription": "Сортировать скачанные файлы по папкам",
-  "@folderOrganizationDescription": {
-    "description": "Folder organization sheet description"
-  },
-  "folderOrganizationNoneSubtitle": "Все файлы в папке загрузок",
-  "@folderOrganizationNoneSubtitle": {
-    "description": "Subtitle for no organization option"
-  },
-  "folderOrganizationByArtistSubtitle": "Отдельная папка для каждого исполнителя",
-  "@folderOrganizationByArtistSubtitle": {
-    "description": "Subtitle for artist folder option"
-  },
-  "folderOrganizationByAlbumSubtitle": "Отдельная папка для каждого альбома",
-  "@folderOrganizationByAlbumSubtitle": {
-    "description": "Subtitle for album folder option"
-  },
-  "folderOrganizationByArtistAlbumSubtitle": "Вложенные папки для исполнителей и альбомов",
-  "@folderOrganizationByArtistAlbumSubtitle": {
-    "description": "Subtitle for nested folder option"
   },
   "updateAvailable": "Доступно обновление",
   "@updateAvailable": {
@@ -1314,18 +1090,6 @@
   "@channelPreview": {
     "description": "Update channel - beta/preview releases"
   },
-  "sectionSearchSource": "Поиск источника",
-  "@sectionSearchSource": {
-    "description": "Settings section header"
-  },
-  "sectionDownload": "Скачивание",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionPerformance": "Производительность",
-  "@sectionPerformance": {
-    "description": "Settings section header"
-  },
   "sectionApp": "Приложение",
   "@sectionApp": {
     "description": "Settings section header"
@@ -1336,18 +1100,6 @@
   },
   "sectionDebug": "Отладка",
   "@sectionDebug": {
-    "description": "Settings section header"
-  },
-  "sectionService": "Сервис",
-  "@sectionService": {
-    "description": "Settings section header"
-  },
-  "sectionAudioQuality": "Качество аудио",
-  "@sectionAudioQuality": {
-    "description": "Settings section header"
-  },
-  "sectionFileSettings": "Настройки файла",
-  "@sectionFileSettings": {
     "description": "Settings section header"
   },
   "sectionLyrics": "Тексты песен",
@@ -1412,10 +1164,6 @@
   "@settingsAppearanceSubtitle": {
     "description": "Appearance settings description"
   },
-  "settingsDownloadSubtitle": "Сервис, качество, откат",
-  "@settingsDownloadSubtitle": {
-    "description": "Download settings description"
-  },
   "settingsExtensionsSubtitle": "Управление провайдерами скачивания",
   "@settingsExtensionsSubtitle": {
     "description": "Extensions settings description"
@@ -1427,15 +1175,6 @@
   "pressBackAgainToExit": "Нажмите «Назад» ещё раз, чтобы выйти",
   "@pressBackAgainToExit": {
     "description": "Exit confirmation message"
-  },
-  "downloadAllCount": "Скачать все ({count})",
-  "@downloadAllCount": {
-    "description": "Download all button with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "tracksCount": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} =1 {1 трек} other {{count} треков}}",
   "@tracksCount": {
@@ -1678,10 +1417,6 @@
   "@storeAddRepoTitle": {
     "description": "Store setup screen - heading when no repo is configured"
   },
-  "storeAddRepoDescription": "Введите URL-адрес репозитория GitHub, который содержит файл registry.json для просмотра и установки расширений.",
-  "@storeAddRepoDescription": {
-    "description": "Store setup screen - explanatory text"
-  },
   "storeRepoUrlLabel": "Ссылка на репозиторий",
   "@storeRepoUrlLabel": {
     "description": "Label for the repository URL input field"
@@ -1917,115 +1652,9 @@
   "@extensionsErrorLoading": {
     "description": "Error message when extension fails to load"
   },
-  "qualityFlacLossless": "FLAC Lossless",
-  "@qualityFlacLossless": {
-    "description": "Quality option - CD quality FLAC"
-  },
-  "qualityFlacLosslessSubtitle": "16-бит / 44.1 кГц",
-  "@qualityFlacLosslessSubtitle": {
-    "description": "Technical spec for lossless"
-  },
-  "qualityHiResFlac": "Hi-Res FLAC",
-  "@qualityHiResFlac": {
-    "description": "Quality option - high resolution FLAC"
-  },
-  "qualityHiResFlacSubtitle": "24-бит / до 96кГц",
-  "@qualityHiResFlacSubtitle": {
-    "description": "Technical spec for hi-res"
-  },
-  "qualityHiResFlacMax": "Hi-Res FLAC Макс.",
-  "@qualityHiResFlacMax": {
-    "description": "Quality option - maximum resolution FLAC"
-  },
-  "qualityHiResFlacMaxSubtitle": "24-бит / до 192кГц",
-  "@qualityHiResFlacMaxSubtitle": {
-    "description": "Technical spec for hi-res max"
-  },
-  "downloadLossyFormat": "Формат с потерями",
-  "@downloadLossyFormat": {
-    "description": "Setting title to pick output format for lossy downloads"
-  },
-  "downloadAutoConvert": "Автоконвертация после загрузки",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertAllFormatsSubtitle": "Convert completed downloads or limit FLAC bit depth and sample rate. The original is replaced only after conversion succeeds.",
-  "downloadAutoConvertOutputSubtitle": "Choose the output format for newly completed downloads.",
-  "downloadAutoConvertFlacSubtitle": "Lossless FLAC with quality limits. Lower bit depths and sample rates are preserved.",
-  "downloadAutoConvertMaxBitDepth": "Maximum bit depth",
-  "downloadAutoConvertMaxSampleRate": "Maximum sample rate",
-  "downloadAutoConvertFlacLimitsSubtitle": "These are upper limits. For example, a 44.1 kHz source stays at 44.1 kHz when 48 kHz is selected. Lossy sources are kept in their original format.",
-  "downloadAutoConvertSubtitle": "Конвертировать завершенные загрузки в меньший формат с потерями. Оригинал будет заменён только после успешной конвертации.",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
-  "downloadAutoConvertFormat": "Выходной формат",
-  "@downloadAutoConvertFormat": {
-    "description": "Automatic conversion output format setting"
-  },
-  "downloadAutoConvertBitrate": "Качество выхода",
-  "@downloadAutoConvertBitrate": {
-    "description": "Automatic conversion bitrate setting"
-  },
-  "downloadAutoConvertBitrateSubtitle": "Выше битрейт — больше деталей, но и размер файла будет выше.",
-  "@downloadAutoConvertBitrateSubtitle": {
-    "description": "Automatic conversion bitrate picker explanation"
-  },
-  "downloadAutoConvertMp3Subtitle": "Наилучшая совместимость между плеерами и устройствами",
-  "@downloadAutoConvertMp3Subtitle": {
-    "description": "MP3 automatic conversion option description"
-  },
-  "downloadAutoConvertM4aSubtitle": "Эффективность AAC аудио в M4A контейнере",
-  "@downloadAutoConvertM4aSubtitle": {
-    "description": "M4A AAC automatic conversion option description"
-  },
-  "downloadAutoConvertOpusSubtitle": "Лучшая эффективность для современных плееров",
-  "@downloadAutoConvertOpusSubtitle": {
-    "description": "Opus automatic conversion option description"
-  },
-  "downloadAskBeforeDownload": "Спрашивать перед скачиванием",
-  "@downloadAskBeforeDownload": {
-    "description": "Setting - show quality picker"
-  },
   "downloadDirectory": "Папка для скачивания",
   "@downloadDirectory": {
     "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "Отдельная папка для синглов",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "Структура папок альбома",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "albumFolderStructureDescription": "Выберите, как структурировать папки альбомов",
-  "@albumFolderStructureDescription": {
-    "description": "Album folder structure picker description"
-  },
-  "downloadUseAlbumArtistForFolders": "Использовать исполнителя альбома для папок",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "Основной исполнитель только для папок",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "downloadUsePrimaryArtistOnlyEnabled": "Список исполнителей, чьи работы были удалены из названия папки (например, Джастин Бибер, Quavo → Джастин Бибер)",
-  "@downloadUsePrimaryArtistOnlyEnabled": {
-    "description": "Subtitle when primary artist only is enabled"
-  },
-  "downloadUsePrimaryArtistOnlyDisabled": "Полная строка исполнителя, используемая для имени папки",
-  "@downloadUsePrimaryArtistOnlyDisabled": {
-    "description": "Subtitle when primary artist only is disabled"
-  },
-  "downloadSelectQuality": "Выбор качества",
-  "@downloadSelectQuality": {
-    "description": "Dialog title - choose audio quality"
-  },
-  "downloadFrom": "Скачивать из",
-  "@downloadFrom": {
-    "description": "Label - download source"
   },
   "appearanceHeroAnimations": "Hero-анимации",
   "@appearanceHeroAnimations": {
@@ -2042,107 +1671,6 @@
   "appearanceForceBlurSubtitle": "Включить размытие панели навигации даже на устройствах, где по умолчанию эта функция отключена. Может негативно повлиять на производительность.",
   "@appearanceForceBlurSubtitle": {
     "description": "Subtitle for the force-blur toggle"
-  },
-  "queueClearAll": "Очистить всё",
-  "@queueClearAll": {
-    "description": "Button - clear all queue items"
-  },
-  "queueClearAllMessage": "Вы уверены, что хотите очистить все загрузки?",
-  "@queueClearAllMessage": {
-    "description": "Clear queue confirmation"
-  },
-  "settingsAutoExportFailed": "Автоэкспорт неудачных загрузок",
-  "@settingsAutoExportFailed": {
-    "description": "Setting toggle for auto-export"
-  },
-  "settingsAutoExportFailedSubtitle": "Автоматическое сохранение неудачных загрузок в TXT файл",
-  "@settingsAutoExportFailedSubtitle": {
-    "description": "Subtitle for auto-export setting"
-  },
-  "settingsDownloadNetwork": "Сеть для скачивания",
-  "@settingsDownloadNetwork": {
-    "description": "Setting for network type preference"
-  },
-  "settingsDownloadNetworkAny": "WiFi и Мобильная сеть",
-  "@settingsDownloadNetworkAny": {
-    "description": "Network option - use any connection"
-  },
-  "settingsDownloadNetworkWifiOnly": "Только WiFi",
-  "@settingsDownloadNetworkWifiOnly": {
-    "description": "Network option - only use WiFi"
-  },
-  "settingsDownloadNetworkSubtitle": "Выберите, какую сеть использовать для скачивания. Когда установлено значение только WiFi — скачивания через мобильную сеть будут приостановлены.",
-  "@settingsDownloadNetworkSubtitle": {
-    "description": "Subtitle explaining network preference"
-  },
-  "settingsConcurrentDownloads": "Одновременные загрузки",
-  "@settingsConcurrentDownloads": {
-    "description": "Setting title - how many tracks download at the same time"
-  },
-  "settingsConcurrentDownloadsSubtitle": "Скачивание нескольких треков одновременно происходит быстрее, но некоторые провайдеры могут ограничивать скорость параллельных запросов.",
-  "@settingsConcurrentDownloadsSubtitle": {
-    "description": "Subtitle explaining the concurrent downloads picker"
-  },
-  "concurrentDownloadsOne": "1 трек за раз",
-  "@concurrentDownloadsOne": {
-    "description": "Concurrent downloads option - sequential"
-  },
-  "concurrentDownloadsCount": "До {count} {count, plural, one {трек} other{треков}} одновременно",
-  "@concurrentDownloadsCount": {
-    "description": "Concurrent downloads option - parallel",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "albumFolderArtistAlbum": "Исполнитель / Альбом",
-  "@albumFolderArtistAlbum": {
-    "description": "Album folder option"
-  },
-  "albumFolderArtistAlbumSubtitle": "Альбомы/Исполнитель/Название Альбома/",
-  "@albumFolderArtistAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistYearAlbum": "Исполнитель / [Год] Альбом",
-  "@albumFolderArtistYearAlbum": {
-    "description": "Album folder option with year"
-  },
-  "albumFolderArtistYearAlbumSubtitle": "Альбомы/Исполнитель/[2005] Название Альбома/",
-  "@albumFolderArtistYearAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderAlbumOnly": "Только альбом",
-  "@albumFolderAlbumOnly": {
-    "description": "Album folder option"
-  },
-  "albumFolderAlbumOnlySubtitle": "Альбомы/Название Альбома/",
-  "@albumFolderAlbumOnlySubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderYearAlbum": "[Год] Альбом",
-  "@albumFolderYearAlbum": {
-    "description": "Album folder option with year"
-  },
-  "albumFolderYearAlbumSubtitle": "Альбомы/[2005] Название Альбома /",
-  "@albumFolderYearAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistAlbumSingles": "Исполнитель / Альбом + Синглы",
-  "@albumFolderArtistAlbumSingles": {
-    "description": "Album folder option with singles inside artist"
-  },
-  "albumFolderArtistAlbumSinglesSubtitle": "Исполнитель/Альбом и Исполнитель/Сингл/",
-  "@albumFolderArtistAlbumSinglesSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistAlbumFlat": "Исполнитель / Альбом (синглы)",
-  "@albumFolderArtistAlbumFlat": {
-    "description": "Album folder option with singles directly in artist folder"
-  },
-  "albumFolderArtistAlbumFlatSubtitle": "Исполнитель/Альбом/ и Исполнитель/песня.flac",
-  "@albumFolderArtistAlbumFlatSubtitle": {
-    "description": "Folder structure example for flat singles"
   },
   "downloadedAlbumDeleteSelected": "Удалить выбранные",
   "@downloadedAlbumDeleteSelected": {
@@ -2196,18 +1724,6 @@
   "recentTypeAlbum": "Альбом",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "discographySkippedDownloaded": "{added} добавлено, {skipped} уже скачано",
-  "@discographySkippedDownloaded": {
-    "description": "Snackbar - with skipped tracks count",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
   },
   "sectionStorageAccess": "Доступ к хранилищу",
   "@sectionStorageAccess": {
@@ -3122,10 +2638,6 @@
   "@collectionFoldersTitle": {
     "description": "Library section title for custom folders"
   },
-  "collectionWishlist": "Список желаемого",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "Любимые",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -3197,14 +2709,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "Список желаний пуст",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "Нажмите + на треках, чтобы сохранить то, что вы хотите скачать позже",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "Папка Любимые пуста",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -3232,10 +2736,6 @@
   "collectionRemoveFromPlaylist": "Удалить из плейлиста",
   "@collectionRemoveFromPlaylist": {
     "description": "Tooltip for removing track from playlist"
-  },
-  "collectionRemoveFromFolder": "Убрать из папки",
-  "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
   },
   "collectionAddedToFavoriteArtists": "\"{artistName}\" добавлен в избранные исполнители",
   "@collectionAddedToFavoriteArtists": {
@@ -3278,14 +2778,6 @@
   "collectionPlaylistRemoveCover": "Удалить обложку",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Папка названная в честь тега Альбома Артиста",
-  "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
-    "description": "Subtitle when album artist is used for folder names"
-  },
-  "downloadUseAlbumArtistForFoldersTrackSubtitle": "Папка названная в честь тега Трека Артиста",
-  "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
-    "description": "Subtitle when track artist is used for folder names"
   },
   "safMigrationTitle": "Требуется обновление хранилища",
   "@safMigrationTitle": {
@@ -3405,15 +2897,6 @@
       }
     }
   },
-  "backupContentsWishlist": "{count} {count, plural, =1{трек из списка желаний} few{трека из списка желаний} other{треков из списка желаний}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "backupContentsPlaylists": "{count, plural, =1{1 плейлист} one{{count} плейлист} few{{count} плейлиста} other{{count} плейлистов}}",
   "@backupContentsPlaylists": {
     "description": "Backup contents row for playlist count",
@@ -3493,23 +2976,6 @@
       }
     }
   },
-  "dialogDownloadAllTitle": "Скачать всё",
-  "@dialogDownloadAllTitle": {
-    "description": "Dialog title for bulk download confirmation"
-  },
-  "dialogDownloadAllMessage": "Загрузить {count, plural, one {{count} трек} few {{count} трека} other {{count} треков}}?",
-  "@dialogDownloadAllMessage": {
-    "description": "Body of the Download All confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeSkipAlreadyDownloaded": "Пропустить уже загруженные треки",
-  "@homeSkipAlreadyDownloaded": {
-    "description": "Checkbox label in import dialog to skip already-downloaded songs"
-  },
   "homeGoToAlbum": "Перейти к альбому",
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
@@ -3571,102 +3037,9 @@
   "@downloadFolderReselect": {
     "description": "Button that reopens the folder picker to restore download folder access"
   },
-  "downloadErrorSafPermissionLost": "Разрешения SAF недействительны или аннулированы. Пожалуйста, измените расположение загрузки в настройках.",
-  "@downloadErrorSafPermissionLost": {
-    "description": "Error shown on downloads that failed because the persisted Android SAF folder grant is no longer valid"
-  },
-  "downloadErrorFolderAccessLost": "Доступ к папке потерян. Пожалуйста, выберите папку для скачивания заново в Настройках.",
-  "downloadFilenameDescription": "Использовать {artist}, {title}, {album}, {track}, {year}, {date}, {disc} в качестве заполнителей.",
-  "@downloadFilenameDescription": {
-    "description": "Description shown in filename format editor"
-  },
-  "downloadFilenameInsertTag": "Нажмите для вставки тега:",
-  "@downloadFilenameInsertTag": {
-    "description": "Label above filename tag chips"
-  },
-  "downloadSeparateSinglesEnabled": "Синглы и EP будут в отдельной папке",
-  "@downloadSeparateSinglesEnabled": {
-    "description": "Subtitle when separate singles folder is on"
-  },
-  "downloadSeparateSinglesDisabled": "Синглы и альбомы будут в одной папке",
-  "@downloadSeparateSinglesDisabled": {
-    "description": "Subtitle when separate singles folder is off"
-  },
-  "downloadArtistNameFilters": "Фильтры по имени исполнителя",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "Папка-источник плейлиста",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
-  "downloadCreatePlaylistSourceFolderEnabled": "Для каждого плейлиста создается подпапка",
-  "@downloadCreatePlaylistSourceFolderEnabled": {
-    "description": "Subtitle when playlist folder is enabled"
-  },
-  "downloadCreatePlaylistSourceFolderDisabled": "Все треки будут сохранены непосредственно в папку для загрузки",
-  "@downloadCreatePlaylistSourceFolderDisabled": {
-    "description": "Subtitle when playlist folder is disabled"
-  },
-  "downloadCreatePlaylistSourceFolderRedundant": "Обрабатывается настройками организации папок",
-  "@downloadCreatePlaylistSourceFolderRedundant": {
-    "description": "Subtitle when folder organization is already set to playlist"
-  },
-  "downloadSongLinkRegion": "Регион SongLink",
-  "@downloadSongLinkRegion": {
-    "description": "Setting for SongLink region used during fallback resolution"
-  },
-  "downloadNetworkCompatibilityMode": "Режим сетевой совместимости",
-  "@downloadNetworkCompatibilityMode": {
-    "description": "Setting for legacy TLS/network handling"
-  },
-  "downloadNetworkCompatibilityModeEnabled": "Разрешить устаревшие HTTP-адреса; проверка TLS по-прежнему включена",
-  "@downloadNetworkCompatibilityModeEnabled": {
-    "description": "Subtitle when network compatibility mode is on"
-  },
-  "downloadNetworkCompatibilityModeDisabled": "Использование стандартных параметров сети",
-  "@downloadNetworkCompatibilityModeDisabled": {
-    "description": "Subtitle when network compatibility mode is off"
-  },
-  "downloadAllowLocalNetwork": "Разрешить доступ к локальной сети",
-  "@downloadAllowLocalNetwork": {
-    "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadSelectServiceToEnable": "Выберите провайдера с параметрами качества, чтобы включить эту функцию",
-  "@downloadSelectServiceToEnable": {
-    "description": "Subtitle when quality picker is disabled due to extension service"
-  },
-  "downloadEmbedLyricsDisabled": "Сначала включите встраивание метаданных",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
-  },
-  "downloadFilterContributing": "Фильтр приглашённых исполнителей",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
-  },
-  "downloadFilterContributingEnabled": "Приглашённые исполнители исключаются из названия папки исполнителя альбома",
-  "@downloadFilterContributingEnabled": {
-    "description": "Subtitle when contributing artist filter is on"
-  },
-  "downloadFilterContributingDisabled": "Используется полное имя исполнителя альбома",
-  "@downloadFilterContributingDisabled": {
-    "description": "Subtitle when contributing artist filter is off"
-  },
   "downloadProvidersNoneEnabled": "Нет включенных провайдеров",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadNetworkAnySubtitle": "Использовать Wi-Fi или мобильные данные",
-  "@downloadNetworkAnySubtitle": {
-    "description": "Subtitle for any-network option in picker"
-  },
-  "downloadNetworkWifiOnlySubtitle": "Пауза загрузки на мобильных данных",
-  "@downloadNetworkWifiOnlySubtitle": {
-    "description": "Subtitle for WiFi-only option in picker"
-  },
-  "downloadSongLinkRegionDesc": "Регион, используемый при разрешении ссылок на треки через SongLink. Выберите страну, в которой доступны ваши стриминговые сервисы.",
-  "@downloadSongLinkRegionDesc": {
-    "description": "Description in SongLink region picker"
   },
   "snackbarUnsupportedAudioFormat": "Неподдерживаемый аудио формат",
   "@snackbarUnsupportedAudioFormat": {
@@ -3675,44 +3048,6 @@
   "cacheRefresh": "Обновить",
   "@cacheRefresh": {
     "description": "Tooltip for refresh button on cache management page"
-  },
-  "dialogDownloadPlaylistsMessage": "Скачать {trackCount} {trackCount, plural, =1{трек} few{трека} other{треков}} из {playlistCount} {playlistCount, plural, =1{плейлиста} few{плейлистов} other{плейлистов}}?",
-  "@dialogDownloadPlaylistsMessage": {
-    "description": "Dialog message for bulk playlist download confirmation",
-    "placeholders": {
-      "trackCount": {
-        "type": "int"
-      },
-      "playlistCount": {
-        "type": "int"
-      }
-    }
-  },
-  "bulkDownloadPlaylistsButton": "Скачать {count} {count, plural, =1{плейлист} few{плейлиста} other{плейлистов}}",
-  "@bulkDownloadPlaylistsButton": {
-    "description": "Button label for bulk downloading selected playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bulkDownloadSelectPlaylists": "Выберите плейлисты для загрузки",
-  "@bulkDownloadSelectPlaylists": {
-    "description": "Button label when no playlists are selected for download"
-  },
-  "snackbarSelectedPlaylistsEmpty": "У выбранных плейлистов нет треков",
-  "@snackbarSelectedPlaylistsEmpty": {
-    "description": "Snackbar when selected playlists contain no tracks"
-  },
-  "playlistsCount": "{count, plural, =1{1 плейлист} one{{count} плейлист} few{{count} плейлиста} other{{count} плейлистов}}",
-  "@playlistsCount": {
-    "description": "Playlist count display",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "lyricsPickerTitle": "Выберите текст",
   "@lyricsPickerTitle": {
@@ -3806,15 +3141,6 @@
   "editMetadataSelectEmpty": "Только пустые",
   "@editMetadataSelectEmpty": {
     "description": "Button to select only fields that are currently empty"
-  },
-  "queueDownloadingCount": "Скачивание ({count})",
-  "@queueDownloadingCount": {
-    "description": "Header for active downloads section with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "queueFilteringIndicator": "Фильтрация...",
   "@queueFilteringIndicator": {
@@ -3996,14 +3322,6 @@
       }
     }
   },
-  "downloadRedownloadFakeHiRes": "Перекачать поддельный Hi-Res",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "По умолчанию отключено. Установите флажок «Загрузки в высоком разрешении» и заменяйте файлы только в том случае, если сохранены все аудиосэмплы. Сохраняйте исходный файл, если проверка или обработка завершились неудачно",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
   "hiResCheckVerdictFakeCertain": "Фейковый Hi-Res",
   "@hiResCheckVerdictFakeCertain": {
     "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
@@ -4128,31 +3446,6 @@
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
   },
-  "cancelDownloadTitle": "Отменить скачивание?",
-  "@cancelDownloadTitle": {
-    "description": "Dialog title when confirming cancellation of an active download"
-  },
-  "cancelDownloadContent": "Это отменит активную загрузку для \"{trackName}\".",
-  "@cancelDownloadContent": {
-    "description": "Dialog body when confirming cancellation of an active download",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "cancelDownloadKeep": "Удерживать",
-  "@cancelDownloadKeep": {
-    "description": "Dialog button - keep the active download (do not cancel)"
-  },
-  "queueCancelledTitle": "Загрузка отменена",
-  "@queueCancelledTitle": {
-    "description": "Dialog title when opening a cancelled queue item"
-  },
-  "queueCancelledMessage": "Загрузка была отменена. Повторите попытку или удалите её из очереди.",
-  "@queueCancelledMessage": {
-    "description": "Dialog body when opening a cancelled queue item"
-  },
   "metadataSaveFailedFfmpeg": "Не удалось сохранить метаданные через FFmpeg",
   "@metadataSaveFailedFfmpeg": {
     "description": "Snackbar error when FFmpeg fails to write metadata"
@@ -4170,109 +3463,9 @@
       }
     }
   },
-  "notifDownloadingTrack": "Загрузка {trackName}",
-  "@notifDownloadingTrack": {
-    "description": "Notification title while downloading a track",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "notifFinalizingTrack": "Завершение работы с {trackName}",
-  "@notifFinalizingTrack": {
-    "description": "Notification title while finalizing (embedding metadata) a track",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "notifEmbeddingMetadata": "Встраивание метаданных...",
   "@notifEmbeddingMetadata": {
     "description": "Notification body while embedding metadata into a downloaded track"
-  },
-  "notifAlreadyInLibraryCount": "{completed} Уже в библиотеке ({completed}/{total})",
-  "@notifAlreadyInLibraryCount": {
-    "description": "Notification title when track is already in library, with count",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "notifAlreadyInLibrary": "Уже в медиатеке",
-  "@notifAlreadyInLibrary": {
-    "description": "Notification title when track is already in library"
-  },
-  "notifDownloadCompleteCount": "Загрузка завершена ({completed}/{total})",
-  "@notifDownloadCompleteCount": {
-    "description": "Notification title when download is complete, with count",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadComplete": "Скачивание завершено",
-  "@notifDownloadComplete": {
-    "description": "Notification title when a single download is complete"
-  },
-  "notifDownloadsFinished": "Загрузка завершена ({completed} завершено, {failed} не удалось)",
-  "@notifDownloadsFinished": {
-    "description": "Notification title when queue finishes with some failures",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "notifAllDownloadsComplete": "Все загрузки завершены",
-  "@notifAllDownloadsComplete": {
-    "description": "Notification title when all downloads finish successfully"
-  },
-  "notifTracksDownloadedSuccess": "{count, plural, =1{1 трек успешно скачан} one{{count} трек успешно скачан} few{{count} трека успешно скачано} other{{count} треков успешно скачано}}",
-  "@notifTracksDownloadedSuccess": {
-    "description": "Notification body for queue complete - how many tracks were downloaded",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadsFinishedBody": "{completed, plural, =1{1 трек скачан} one{{completed} трек скачан} few{{completed} трека скачано} other{{completed} треков скачано}}, {failed, plural, =1{1 с ошибкой} one{{failed} с ошибкой} few{{failed} с ошибками} other{{failed} с ошибками}}",
-  "@notifDownloadsFinishedBody": {
-    "description": "Notification body when queue finishes with failures",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadsCanceledTitle": "Загрузка отменена",
-  "@notifDownloadsCanceledTitle": {
-    "description": "Notification title when downloads are canceled by the user"
-  },
-  "notifDownloadsCanceledBody": "{count, plural, =1{1 загрузка отменена пользователем} one{{count} загрузка отменена пользователем} few{{count} загрузки отменены пользователем} other{{count} загрузок отменены пользователем}}",
-  "@notifDownloadsCanceledBody": {
-    "description": "Notification body when downloads are canceled by the user",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "notifScanningLibrary": "Сканирование локальной медиатеки",
   "@notifScanningLibrary": {
@@ -4407,10 +3600,6 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "homeImportCsvTooltip": "Импорт плейлистов (CSV, M3U)",
-  "@homeImportCsvTooltip": {
-    "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
   "actionPaste": "Вставить",
   "@actionPaste": {
     "description": "Generic action - paste from clipboard"
@@ -4434,14 +3623,6 @@
   "optionsEmbedMetadata": "Встроить метаданные",
   "@optionsEmbedMetadata": {
     "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "Записывать метаданные, обложки и тексты песен в файлы",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "Отключено (расширенный режим): пропустить запись всех метаданных",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
   },
   "trackCoverNoEmbeddedArt": "Не найдено встроенных обложек альбома",
   "@trackCoverNoEmbeddedArt": {
@@ -4483,18 +3664,6 @@
   "@trackCoverResizeFailed": {
     "description": "Error shown when resizing cover art before saving metadata fails"
   },
-  "actionStop": "Стоп",
-  "@actionStop": {
-    "description": "Generic action - stop"
-  },
-  "queueFinalizingDownload": "Завершение загрузки",
-  "@queueFinalizingDownload": {
-    "description": "Accessibility label for a queue item that is finalizing"
-  },
-  "queueDownloadNext": "Загрузить следующим",
-  "@queueDownloadNext": {
-    "description": "Tooltip on a queued download row; moves the item to the front of the queue so the next free slot downloads it"
-  },
   "queueMoveUp": "Переместить вверх",
   "@queueMoveUp": {
     "description": "Queue item menu action - move the queued item one position earlier"
@@ -4515,34 +3684,9 @@
   "@nowPlayingRepeatOne": {
     "description": "Repeat toggle tooltip when the current track repeats"
   },
-  "queueNetworkFailedOffline": "{count, plural, one {{count} трек} few {{count} трека} other {{count} треков}} из истории загрузок (исключено из списка)",
-  "@queueNetworkFailedOffline": {
-    "description": "Snackbar shown when connectivity returns and network-failed downloads can be retried",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "queueDownloadedFileMissing": "Загруженный файл отсутствует",
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
-  },
-  "queueCheckingDownloadedFile": "Проверка загруженного файла...",
-  "@queueCheckingDownloadedFile": {
-    "description": "Accessibility label while the app checks whether a just-completed download has appeared at its final path yet. Not about authentication or a download session."
-  },
-  "queueDownloadCompleted": "Загрузка завершена",
-  "@queueDownloadCompleted": {
-    "description": "Accessibility label for completed download state in queue"
-  },
-  "queueRateLimitTitle": "Уровень обслуживания ограничен",
-  "@queueRateLimitTitle": {
-    "description": "Title shown on a failed queue item when the download service rate limits requests"
-  },
-  "queueRateLimitMessage": "Этот трек все еще может быть доступен. Подождите несколько минут, уменьшите параллельные загрузки, а затем повторите попытку.",
-  "@queueRateLimitMessage": {
-    "description": "Explanation shown on a failed queue item when the download service rate limits requests"
   },
   "logAutoScrollOn": "Автопрокрутка ВКЛ",
   "@logAutoScrollOn": {
@@ -4729,10 +3873,6 @@
   "@sectionMetadataProviders": {
     "description": "Settings section header for metadata providers"
   },
-  "sectionDuplicates": "Дубликаты",
-  "@sectionDuplicates": {
-    "description": "Settings section header for deduplication"
-  },
   "metadataProvidersTitle": "Приоритет провайдера метаданных",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -4740,38 +3880,6 @@
   "metadataProvidersSubtitle": "Перетащите для задания порядка поиска и источника метаданных",
   "@metadataProvidersSubtitle": {
     "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "Пропустить дублирование загрузок",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadDeduplicationEnabled": "Уже загруженные треки будут пропущены",
-  "@downloadDeduplicationEnabled": {
-    "description": "Subtitle when deduplication is on"
-  },
-  "downloadDeduplicationWithQualityVariants": "Существующие файлы в выбранном качестве будут пропущены",
-  "@downloadDeduplicationWithQualityVariants": {
-    "description": "Deduplication subtitle when separate quality versions are allowed"
-  },
-  "downloadDeduplicationDisabled": "Все треки будут загружены независимо от истории",
-  "@downloadDeduplicationDisabled": {
-    "description": "Subtitle when deduplication is off"
-  },
-  "downloadQualityVariants": "Разрешить скачивание версий в другом качестве",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "Сохранять все версии качества; добавлять показатель качества к имени файла только тогда, когда имя уже занято",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
-  },
-  "downloadFallbackExtensions": "Резервные расширения",
-  "@downloadFallbackExtensions": {
-    "description": "Settings item for configuring fallback extension providers"
-  },
-  "downloadFallbackExtensionsSubtitle": "Выберите, какие расширения будут использоваться как резервные",
-  "@downloadFallbackExtensionsSubtitle": {
-    "description": "Subtitle for fallback extensions item"
   },
   "editMetadataFieldDateHint": "ГГГГ-ММ-ДД либо ГГГГ",
   "@editMetadataFieldDateHint": {
@@ -4885,27 +3993,6 @@
       }
     }
   },
-  "queueDownloadSpeedStatus": "Загрузка - {speed} МБ/с",
-  "@queueDownloadSpeedStatus": {
-    "description": "Queue status while downloading with speed",
-    "placeholders": {
-      "speed": {
-        "type": "String"
-      }
-    }
-  },
-  "queueDownloadStarting": "Запуск...",
-  "queueCheckingDownloadSession": "Проверка сеанса загрузки...",
-  "queueResolvingDownloadMetadata": "Определение метаданных трека...",
-  "queueResolvingDownloadStream": "Подготовка аудиопотока...",
-  "queueWaitingForVerification": "Ожидание верификации...",
-  "queueResumingAfterVerification": "Продолжение после верификации...",
-  "@queueDownloadStarting": {
-    "description": "Queue status before download progress is available"
-  },
-  "@queueCheckingDownloadSession": {
-    "description": "Queue status while the download provider's session is being checked during preparation (preparationStage 'checking_session'). This is about the provider session, not about locating a finished file."
-  },
   "a11ySelectTrack": "Выбрать трек",
   "@a11ySelectTrack": {
     "description": "Accessibility label for selecting a track"
@@ -4982,14 +4069,6 @@
         "type": "int"
       }
     }
-  },
-  "downloadNativeWorker": "Нативный загрузчик",
-  "@downloadNativeWorker": {
-    "description": "Setting title for Android native download worker"
-  },
-  "downloadNativeWorkerSubtitle": "Фоновая служба Android для загрузки расширений",
-  "@downloadNativeWorkerSubtitle": {
-    "description": "Setting subtitle for Android native download worker"
   },
   "extensionServiceStatus": "Состояние сервисов",
   "@extensionServiceStatus": {
@@ -5079,18 +4158,6 @@
   "@extensionEnterValue": {
     "description": "Hint for editing an extension setting value"
   },
-  "extensionHealthServiceOnline": "Сервис онлайн",
-  "@extensionHealthServiceOnline": {
-    "description": "Tooltip for online extension service"
-  },
-  "extensionHealthServiceDegraded": "Сервис деградировал",
-  "@extensionHealthServiceDegraded": {
-    "description": "Tooltip for degraded extension service"
-  },
-  "extensionHealthServiceOffline": "Служба оффлайн",
-  "@extensionHealthServiceOffline": {
-    "description": "Tooltip for offline extension service"
-  },
   "extensionHealthServiceUnknown": "Состояние сервиса неизвестно",
   "@extensionHealthServiceUnknown": {
     "description": "Tooltip for unknown extension service health"
@@ -5154,35 +4221,6 @@
   "editMetadataSelectNone": "Ничего",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
-  },
-  "queueRetryAllFailed": "Попытка {count} неудачна",
-  "@queueRetryAllFailed": {
-    "description": "Button to retry every failed download in the queue",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsSaveDownloadHistory": "Сохранить историю загрузок",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "Сохранять завершённые загрузки в истории и медиатеке",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
-  "dialogDisableHistoryTitle": "Отключить историю загрузок?",
-  "@dialogDisableHistoryTitle": {
-    "description": "Confirmation dialog title shown before disabling download history"
-  },
-  "dialogDisableHistoryMessage": "Существующая история будет очищена. Загруженные файлы не будут удалены.",
-  "@dialogDisableHistoryMessage": {
-    "description": "Confirmation dialog message shown before disabling download history"
-  },
-  "dialogDisableAndClear": "Выключить и очистить",
-  "@dialogDisableAndClear": {
-    "description": "Confirmation action to disable download history and clear existing entries"
   },
   "libraryPlayback": "Воспроизведение",
   "@libraryPlayback": {
@@ -5398,22 +4436,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "downloadPrimaryArtistOnlyOn": "Только основной: вкл",
-  "@downloadPrimaryArtistOnlyOn": {
-    "description": "Status label when primary-artist-only folder naming is enabled"
-  },
-  "downloadPrimaryArtistOnlyOff": "Только основной: выкл",
-  "@downloadPrimaryArtistOnlyOff": {
-    "description": "Status label when primary-artist-only folder naming is disabled"
-  },
-  "downloadAlbumArtistMetadataPrimaryOnly": "Метаданные исполнителя альбома: только основные",
-  "@downloadAlbumArtistMetadataPrimaryOnly": {
-    "description": "Status label when album-artist folder filtering uses primary artist only"
-  },
-  "downloadAlbumArtistMetadataFull": "Метаданные исполнителя альбома: Полные",
-  "@downloadAlbumArtistMetadataFull": {
-    "description": "Status label when album-artist folder filtering uses full metadata"
-  },
   "trackConvertOriginal": "Оригинал",
   "@trackConvertOriginal": {
     "description": "Label for keeping original bit depth or sample rate during conversion"
@@ -5512,58 +4534,6 @@
   "trackCoverOnline": "Обложка из сети",
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
-  },
-  "regionCountryUS": "США",
-  "@regionCountryUS": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryGB": "Великобритания",
-  "@regionCountryGB": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryFR": "Франция",
-  "@regionCountryFR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryDE": "Германия",
-  "@regionCountryDE": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryJP": "Япония",
-  "@regionCountryJP": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryKR": "Южная Корея",
-  "@regionCountryKR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIN": "Индия",
-  "@regionCountryIN": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryID": "Индонезия",
-  "@regionCountryID": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryBR": "Бразилия",
-  "@regionCountryBR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryMX": "Мексика",
-  "@regionCountryMX": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryAU": "Австралия",
-  "@regionCountryAU": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryCA": "Канада",
-  "@regionCountryCA": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryXK": "Косово",
-  "@regionCountryXK": {
-    "description": "Country name for SongLink region picker"
   },
   "extensionVerificationBrowserTitle": "Браузер для верификаций",
   "@extensionVerificationBrowserTitle": {
@@ -5980,7 +4950,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "motionArtwork": "Анимированная обложка",
   "listeningStats": "Статистика прослушивания",
   "listeningStatsRecord": "Record listening",
   "listeningStatsDescription": "Stored only on this device, starting now. Records the built-in player only; pauses, buffering and seeking add no listening time. A play counts after 30 seconds.",
@@ -6233,7 +5202,6 @@
     }
   },
   "listeningRewindYearOutroBody": "Here's to another year of great music.",
-  "motionArtworkDescription": "Loop video covers supplied by metadata providers. Turn off to use still artwork and reduce battery use.",
   "libraryLoading": "Loading Library…",
   "libraryLoadFailed": "Library could not be loaded. Retry to load the saved folders and track index.",
   "autoMixSettingsTitle": "Mix transitions",
@@ -6509,10 +5477,6 @@
   "appCrashDismiss": "Отклонить",
   "appCrashCopyFailed": "Could not copy the crash report. Please try again.",
   "appCrashDismissFailed": "Could not dismiss the crash report. Please try again.",
-  "optionsEmbeddedCoverSizeOriginal": "Оригинальное разрешение",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "menuOpen": "Open",
   "@menuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
@@ -6601,161 +5565,6 @@
   "playlistImportFailed": "Could not read this playlist file",
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
-  },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
-  },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
-  },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
-  },
-  "reorganizeLibraryScanning": "Checking your files…",
-  "@reorganizeLibraryScanning": {
-    "description": "Shown while Sistrum works out which downloaded files need to move"
-  },
-  "reorganizeLibraryBusy": "Wait for active downloads to finish before reorganizing files",
-  "@reorganizeLibraryBusy": {
-    "description": "Snackbar when the user tries to reorganize files while downloads are running"
-  },
-  "reorganizeLibraryNothingTitle": "Already Organized",
-  "@reorganizeLibraryNothingTitle": {
-    "description": "Dialog title when every downloaded file already follows the rules"
-  },
-  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Sistrum did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
-  "@reorganizeLibraryNothingMessage": {
-    "description": "Dialog message when there is nothing to move",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryConfirmTitle": "Reorganize {count} {count, plural, =1{file} other{files}}?",
-  "@reorganizeLibraryConfirmTitle": {
-    "description": "Confirmation dialog title before moving files",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryConfirmMessage": "These tracks will be moved or renamed to match your current Files settings, using their tags. Lyrics (.lrc) files next to them move too, and folders left empty are removed.",
-  "@reorganizeLibraryConfirmMessage": {
-    "description": "Confirmation dialog body before moving files"
-  },
-  "reorganizeLibraryExamples": "For example:",
-  "@reorganizeLibraryExamples": {
-    "description": "Label above a few sample moves in the reorganize confirmation dialog"
-  },
-  "reorganizeLibraryMoreChanges": "…and {count} more",
-  "@reorganizeLibraryMoreChanges": {
-    "description": "Shown under the sample moves when more files will be moved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryAlreadyOrganized": "{count} {count, plural, =1{track already matches} other{tracks already match}} and will stay where {count, plural, =1{it is} other{they are}}.",
-  "@reorganizeLibraryAlreadyOrganized": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryOutsideFolder": "{count} {count, plural, =1{track is} other{tracks are}} stored outside the current download folder and will be left alone.",
-  "@reorganizeLibraryOutsideFolder": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryMissing": "{count} {count, plural, =1{file} other{files}} could not be found and will be skipped.",
-  "@reorganizeLibraryMissing": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryUntagged": "{count} {count, plural, =1{file has} other{files have}} no artist tag and will be left alone.",
-  "@reorganizeLibraryUntagged": {
-    "description": "Note in the reorganize confirmation dialog about scanned files without tags",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryScanHint": "Files Sistrum did not download are only included after their folder is added and scanned in Local Library.",
-  "@reorganizeLibraryScanHint": {
-    "description": "Hint in the reorganize confirmation dialog about which files are covered"
-  },
-  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Sistrum doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
-  "@reorganizeLibraryKeepsPlaylistFolders": {
-    "description": "Warning in the reorganize confirmation dialog when the folder rule depends on the playlist"
-  },
-  "reorganizeLibraryDropsPlaylistFolders": "Sistrum doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
-  "@reorganizeLibraryDropsPlaylistFolders": {
-    "description": "Warning in the reorganize confirmation dialog when playlist folders are enabled"
-  },
-  "reorganizeLibrarySafNote": "Your download folder was picked through Android's folder picker, so each file is copied to its new place and then removed. This can take a while for a large library.",
-  "@reorganizeLibrarySafNote": {
-    "description": "Note in the reorganize confirmation dialog in Android SAF storage mode"
-  },
-  "reorganizeLibraryConfirmAction": "Move Files",
-  "@reorganizeLibraryConfirmAction": {
-    "description": "Confirm button of the reorganize dialog"
-  },
-  "reorganizeLibraryMoving": "Moving files",
-  "@reorganizeLibraryMoving": {
-    "description": "Title of the progress dialog while files are moved"
-  },
-  "reorganizeLibraryDone": "Moved {moved} of {total} {total, plural, =1{file} other{files}}",
-  "@reorganizeLibraryDone": {
-    "description": "Snackbar after reorganizing files",
-    "placeholders": {
-      "moved": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryDoneWithFailures": "Moved {moved} of {total} {total, plural, =1{file} other{files}} · {failed} failed",
-  "@reorganizeLibraryDoneWithFailures": {
-    "description": "Snackbar after reorganizing files when some moves failed",
-    "placeholders": {
-      "moved": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryFailed": "Couldn't reorganize your files: {error}",
-  "@reorganizeLibraryFailed": {
-    "description": "Snackbar when planning or applying the reorganization fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "autoMixOn": "Автомикс вкл",
   "autoMixOff": "Автомикс выкл"

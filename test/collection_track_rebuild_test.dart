@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
@@ -17,6 +16,7 @@ import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/track_detail_actions.dart';
 
 import 'support/fixed_settings.dart';
+import 'package:sistrum/models/download_history.dart';
 
 // The library's own track, so the Loved keys match the album page's rows.
 final _item = UnifiedLibraryItem.fromDownloadHistory(
@@ -45,7 +45,7 @@ class _Collections extends LibraryCollectionsNotifier {
     addedAt: DateTime.utc(2026),
   );
 
-  void publishWishlist() => state = state.copyWith(wishlist: [_entry]);
+  void publishUnrelated() => state = state.copyWith(playlists: const []);
   void publishLoved() => state = state.copyWith(loved: [_entry]);
 
   @override
@@ -133,12 +133,6 @@ void main() {
         ),
         playbackPlayingProvider.overrideWith((ref) => false),
         playbackLoadingProvider.overrideWith((ref) => false),
-        downloadQueueLookupProvider.overrideWithValue(
-          const DownloadQueueLookup.empty(),
-        ),
-        downloadHistoryVisibleBatchExistsProvider.overrideWith(
-          (ref, request) => const <String>{},
-        ),
       ],
     );
     addTearDown(container.dispose);
@@ -158,7 +152,7 @@ void main() {
       if (element.widget is HeaderCircleButton) actionBuilds++;
     };
     addTearDown(() => debugOnRebuildDirtyWidget = previous);
-    collections.publishWishlist();
+    collections.publishUnrelated();
     await tester.pumpAndSettle();
     expect(pageBuilds, 0);
     expect(actionBuilds, 0);

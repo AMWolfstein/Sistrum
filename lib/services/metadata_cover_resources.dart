@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/ffmpeg_probe.dart';
+import 'package:sistrum/services/cover_image_fetch.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/logger.dart';
 
@@ -117,7 +118,7 @@ class MetadataCoverResources {
   Future<MetadataCoverPreview?> download(String url) async {
     try {
       return await _create('metadata_cover_', 'cover.jpg', (path) async {
-        final result = await PlatformBridge.downloadCoverToFile(url, path);
+        final result = await downloadCoverImageToFile(url, path);
         if (result['error'] != null || result['success'] == false) {
           throw StateError(
             result['error']?.toString() ?? 'Cover download failed',

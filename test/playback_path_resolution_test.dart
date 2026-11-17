@@ -5,14 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/track_file_resolver.dart';
 
 import 'support/fixed_settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class _Library extends Fake implements LibraryDatabase {
   /// Scanned files by track name.
@@ -104,50 +103,6 @@ void main() {
         duration: 180,
       ),
   ];
-
-  test(
-    'a moved download is resolved before it can be removed as an orphan',
-    () async {
-      final database = _HistoryDatabase()..paths['0'] = 'content://old/song';
-      messenger.setMockMethodCallHandler(
-        channel,
-        (_) async => jsonEncode({'content://old/song': 'missing'}),
-      );
-      final result = await resolveTrackFiles(
-        tracks(1),
-        library: _Library(),
-        history: database,
-        includeLocal: false,
-        recoverDownload: (source, id) async {
-          expect(source, 'content://old/song');
-          expect(id, '0');
-          return 'content://new/song';
-        },
-      );
-      expect(result.paths, ['content://new/song']);
-      expect(result.missingHistoryIds, isEmpty);
-    },
-  );
-
-  test(
-    'recovery access errors retain the download for a later retry',
-    () async {
-      final database = _HistoryDatabase()..paths['0'] = 'content://old/song';
-      messenger.setMockMethodCallHandler(
-        channel,
-        (_) async => jsonEncode({'content://old/song': 'missing'}),
-      );
-      final result = await resolveTrackFiles(
-        tracks(1),
-        library: _Library(),
-        history: database,
-        includeLocal: false,
-        recoverDownload: (_, _) => throw StateError('Folder access denied'),
-      );
-      expect(result.paths, [null]);
-      expect(result.missingHistoryIds, isEmpty);
-    },
-  );
 
   ProviderContainer containerFor(
     _HistoryDatabase history, {

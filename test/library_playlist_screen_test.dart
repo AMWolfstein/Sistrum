@@ -7,12 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
@@ -162,9 +160,6 @@ Future<ProviderContainer> _pump(
       ),
       localLibraryProvider.overrideWith(_Library.new),
       downloadHistoryProvider.overrideWith(_History.new),
-      downloadHistoryVisibleBatchExistsProvider.overrideWith(
-        (ref, request) => const {},
-      ),
       localLibraryCoverProvider.overrideWith((ref, request) async => null),
       localLibraryFirstCoverProvider.overrideWith((ref, request) async => null),
     ],
@@ -480,22 +475,6 @@ void main() {
     });
   }
 
-  testWidgets('the Wishlist stays a download list with its own actions', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      LibraryCollectionsState(isLoaded: true, wishlist: _entries),
-      const LibraryTracksFolderScreen(),
-    );
-    expect(find.byType(LibraryTracksFolderScreen), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('collection-download-all')),
-      findsOneWidget,
-    );
-    expect(find.text('Alpha'), findsOneWidget);
-    expect(find.byType(PlaylistScreen), findsNothing);
-  });
   testWidgets('back during Edit order with a changed order asks to discard '
       'it and stays on the page', (tester) async {
     final container = await _pump(

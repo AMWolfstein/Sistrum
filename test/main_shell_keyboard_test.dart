@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -19,6 +18,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

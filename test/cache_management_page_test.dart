@@ -40,7 +40,6 @@ void main() {
     await _write('${root.path}/cache/nested/b.bin', 500);
     await _write('${root.path}/tmp/c.bin', 2048);
     await _write('${root.path}/support/audio_analysis_cache/d.bin', 300);
-    await _write('${root.path}/support/motion_artwork/e.mp4', 4096);
   });
 
   tearDown(() async {
@@ -106,11 +105,6 @@ void main() {
         (
           l10n.cacheAudioAnalysis,
           '${l10n.cacheAudioAnalysisDesc}\n${sized(300, 1)}',
-          true,
-        ),
-        (
-          l10n.cacheMotionArtwork,
-          '${l10n.cacheMotionArtworkDesc}\n${formatBytes(4096)}',
           true,
         ),
         (

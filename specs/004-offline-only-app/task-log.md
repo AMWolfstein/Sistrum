@@ -105,3 +105,30 @@ Deferred, with the reason:
 - Kotlin unit test `CoverProviderFilesTest` updated for the two remaining folders. It could not run in this container (Gradle plugins not cached offline, no Android SDK), so it is unverified here and must run in CI.
 
 Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; `flutter pub get --offline` ok; full `flutter test` 3183 passed, 0 failed (JSON count excluding hidden and `loading` entries).
+
+## M004-T007 Remove the download engine, Wishlist, CSV import and reorganize
+
+Map refresh first: 26148 symbols, 1330 sources, 0 partial, 0 unindexed.
+
+Removed (Dart): the download queue, download scheduler, finalizers and their providers, the download settings page, the queue download tabs and dialogs, the Wishlist (model, database, hydration, restore, backup and UI), CSV import, library reorganize, the motion artwork feature and `video_player`, and the `connectivity_plus` dependency. The settings fields for downloads, embedding, folder templates, auto-convert and motion artwork are gone, and `settings.g.dart` is regenerated. Orphaned ARB keys (227 across all locales) are removed and `flutter gen-l10n` was run.
+
+Removed (Android): the download service, the native finalizers and worker policies, the download progress stream, the download channel routes, the `DownloadService` manifest entry, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`, the `ffmpeg-kit-audio` compile-only dependency, and the matching ProGuard rule. `SafDownloadHandler` is renamed to `SafDocumentWriter` and keeps only the SAF writers that the library uses.
+
+Replaced: the cover fetch used for metadata editing (`downloadCoverToFile`) now runs in Dart (`lib/services/cover_image_fetch.dart`, `http`), because the user chose to remove the native route and rewrite its callers.
+
+Kept for later tasks: the download history readers and `download_history_provider` write paths (T008), the in-app updater's download notifications and `apk_downloader.dart`, `hires_check_service` (the Hi-Res check on the track page), `openDownloadDirectory` (library cover folder scope), `createTemporaryMediaFile`, the Rust `download`/`cancel` natives and the Rust library backend (T010), `invokeApplication`, and the extension default service (T009).
+
+Deferred, with the reason:
+- `android/README.md` still documents the removed download channels and the download progress stream: docs cleanup in T011.
+- `NativeMediaWorkspace.kt` and `SafMetadataReadPolicy.kt` have no callers, but they are not download-specific and are outside this removal list: T010/T011.
+- The Android instrumented tests `ResolvedCueAudioTest` and `LibraryScanStressTest` were deleted because they generated their audio with the removed FFmpeg helper. Their coverage of cue scanning and large-artwork scans is lost until a fixture-based replacement exists.
+- `test/artist_tag_mode_settings_test.dart` was deleted because it only tested the removed artist-tag picker.
+
+Unverified: the Kotlin and Gradle changes. This container has no Android SDK and Gradle plugins are not cached offline, so no Kotlin compile or Kotlin unit test ran here. Reviewers and CI must build the Android module and run its unit tests before merge.
+
+Checks: `flutter gen-l10n` ok; `flutter analyze` no issues; `build_runner` regenerated `settings.g.dart`; `flutter pub get --offline` ok; full `flutter test` 3080 run, 4 skipped, 0 failed; Kotlin brace/paren balance checked on edited files (HEAD already flagged four of them under the rough checker, and the counts only drop by the removed calls); no Kotlin compile or Kotlin tests run.
+
+Review round 1 (independent read-only reviewer): NEEDS_FIXES. Blockers and fixes:
+- `SafDocumentWriter.kt` called SAF staging helpers that the trim had removed (`buildStagedSafFileName`, `buildLegacyStagedSafFileName`, `deleteStaleStagedFiles`, `syncOutputStream`, `replaceFinalDocument`, `buildReplacedSafFileName`). These are the shared library SAF writers, not download code, so they were restored from HEAD. This also fixes `SafPublicationMimeTest`, which calls `buildStagedSafFileName`.
+- Settings search still listed removed download and reorganize settings. Those 15 catalog entries are removed, and 30 localization keys orphaned by the removals are removed from every ARB file, with `flutter gen-l10n` rerun.
+- Not changed, as the reviewer noted: `test/library_track_menu_offline_test.dart` keeps the negative 'Add to Wishlist' check, and `cover_image_fetch.dart` has no unit test and no temp-file-then-rename step.

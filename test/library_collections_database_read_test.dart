@@ -57,7 +57,6 @@ Future<_ReadDatabase> _fixture(String path, int count) async {
 import json,sqlite3,sys
 db=sqlite3.connect(sys.argv[1]); count=int(sys.argv[2])
 db.executescript('''PRAGMA user_version=2;
-CREATE TABLE wishlist_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL);
 CREATE TABLE loved_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL);
 CREATE TABLE favorite_artists(artist_key TEXT PRIMARY KEY,artist_json TEXT NOT NULL,added_at TEXT NOT NULL);
 CREATE TABLE playlists(id TEXT PRIMARY KEY,name TEXT NOT NULL,cover_image_path TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
@@ -67,7 +66,6 @@ for p in range(4):
 for i in range(count):
  track=json.dumps(dict(id=str(i),name='Track '+str(i),artistName='Artist',albumName='Album',duration=180,coverUrl='cover-'+str(i)),ensure_ascii=False)
  date='2026-10-0'+str(i%3+1)
- db.execute('INSERT INTO wishlist_tracks VALUES(?,?,?)',('example:'+str(i),track,date))
  db.execute('INSERT INTO playlist_tracks VALUES(?,?,?,?)',(str(i%4),'example:'+str(i),track,date))
 db.execute('INSERT INTO loved_tracks VALUES(?,?,?)',('corrupt','{','2026-10-01'))
 db.execute('INSERT INTO favorite_artists VALUES(?,?,?)',('example:artist',json.dumps(dict(artistId='artist',providerId='example',name='İstanbul')),'2026-10-01'))
@@ -85,9 +83,6 @@ db.commit()
 Future<LibraryCollectionsSnapshot> _legacy(
   _ReadDatabase db,
 ) async => LibraryCollectionsSnapshot(
-  wishlistRows: await db.rawQuery(
-    'SELECT * FROM wishlist_tracks ORDER BY added_at DESC,rowid DESC',
-  ),
   lovedRows: await db.rawQuery(
     'SELECT * FROM loved_tracks ORDER BY added_at DESC,rowid DESC',
   ),
@@ -121,7 +116,6 @@ void main() {
       );
       expect(db.pageSizes.every((size) => size <= 256), isTrue);
       final expected = await _legacy(db);
-      expect(actual.wishlistRows, expected.wishlistRows);
       expect(actual.lovedRows, expected.lovedRows);
       expect(actual.favoriteArtistRows, expected.favoriteArtistRows);
       expect(actual.playlistRows, expected.playlistRows);
@@ -154,7 +148,7 @@ void main() {
         nativeJobRunner: (_) async => throw StateError('must not run'),
       );
       expect(snapshot.nativeRowsPath, isNull);
-      expect(snapshot.wishlistRows.length, 3);
+      expect(snapshot.playlistTrackRows.length, 3);
       expect(db.pageSizes.every((size) => size <= 64), isTrue);
     },
   );
@@ -186,7 +180,6 @@ void main() {
           late LibraryCollectionsSnapshot projected;
           try {
             projected = await _legacy(projectedDb);
-            expect(projected.wishlistRows, expected.wishlistRows);
             expect(projected.lovedRows, expected.lovedRows);
             expect(projected.playlistRows, expected.playlistRows);
             expect(projected.playlistTrackRows, expected.playlistTrackRows);
@@ -198,8 +191,6 @@ void main() {
           // already captured projection or its hydrated membership snapshot.
           await db.execute("DELETE FROM playlist_tracks WHERE playlist_id='0'");
           final rows = [
-            for (final row in projected.wishlistRows)
-              {'kind': 'wishlist', 'row': row},
             for (final row in projected.lovedRows)
               {'kind': 'loved', 'row': row},
             for (final row in projected.playlistRows)
@@ -221,7 +212,6 @@ void main() {
       );
       expect(calls, 1);
       expect(db.pageSizes, [64]);
-      expect(snapshot.wishlistRows, isEmpty);
       final stagedDirectory = snapshot.nativeRowsDirectory!;
       final actual = await hydrateLibraryCollectionsSnapshot(snapshot);
       expect(
@@ -257,7 +247,6 @@ void main() {
               );
               try {
                 for (final table in [
-                  'wishlist_tracks',
                   'loved_tracks',
                   'favorite_artists',
                 ]) {
@@ -333,7 +322,7 @@ void main() {
         db,
         forceLegacy: true,
       );
-      expect(rows.wishlistRows, hasLength(80));
+      expect(rows.playlistTrackRows, hasLength(80));
     },
   );
 

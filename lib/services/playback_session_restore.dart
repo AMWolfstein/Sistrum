@@ -23,19 +23,7 @@ Future<PlaybackResumePreview?> loadPlaybackResumePreview(
       Map<String, dynamic>.from(preview['media'] as Map),
     );
     if (saved == null) return null;
-    if (!await files.fileExists(saved.source)) {
-      if (!runtime.dependencies.isAndroid) return null;
-      final replacement = await runtime.dependencies.recoverMovedDownload(
-        saved.source,
-        saved.id,
-        runtime.settings,
-      );
-      if (replacement == null) return null;
-      saved = PlayableMedia.fromJson({
-        ...saved.toJson(),
-        'source': replacement,
-      })!;
-    }
+    if (!await files.fileExists(saved.source)) return null;
     // As on restore, a loopback URL or a temporary cover file of earlier
     // versions does not show.
     final artwork = durableCoverReference(saved.artUri);
@@ -69,7 +57,6 @@ prepareRestoredPlaybackMedia(
   List<Object?> rawMedia, {
   required Future<String?> Function(PlayableMedia) loadLibraryCoverPath,
   Future<bool> Function(String)? fileExists,
-  Future<String?> Function(PlayableMedia)? recoverSource,
 }) async {
   const batchSize = 8;
   final checks = <String, Future<bool>>{};
@@ -87,25 +74,7 @@ prepareRestoredPlaybackMedia(
     var media = PlayableMedia.fromJson(Map<String, dynamic>.from(entry));
     if (media == null) return null;
     var sourceRelocated = false;
-    if (!media.isContentUri && !await exists(media.source)) {
-      String? replacement;
-      try {
-        replacement = await recoverSource?.call(media);
-      } catch (error) {
-        // Keep an inconclusive entry for retry instead of failing the whole
-        // restore or silently removing a song on an unavailable volume.
-        _log.w(
-          'Keeping a saved download while its folder is unavailable: $error',
-        );
-        return (media, index, false, false);
-      }
-      if (replacement == null) return null;
-      media = PlayableMedia.fromJson({
-        ...media.toJson(),
-        'source': replacement,
-      })!;
-      sourceRelocated = true;
-    }
+    if (!media.isContentUri && !await exists(media.source)) return null;
     // Sessions of earlier versions can hold a loopback URL or a temporary
     // cover file, which the next save then leaves out.
     final recoveredMedia = media;
@@ -179,13 +148,6 @@ Future<bool> restorePlaybackSession(
 
     final prepared = await prepareRestoredPlaybackMedia(
       rawMedia,
-      recoverSource: runtime.dependencies.isAndroid
-          ? (media) => runtime.dependencies.recoverMovedDownload(
-              media.source,
-              media.id,
-              runtime.settings,
-            )
-          : null,
       loadLibraryCoverPath: (media) async {
         final database = runtime.dependencies.libraryDatabase;
         final row = await database.getById(media.id);

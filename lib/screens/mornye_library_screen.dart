@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/album_screen.dart';
@@ -246,26 +245,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
         icon: const Icon(Icons.search),
         onPressed: () => setState(() => _showSearch = !_showSearch),
       ),
-      if (_overview)
-        Consumer(
-          builder: (context, ref, _) {
-            final count = ref.watch(
-              downloadQueueLookupProvider.select(
-                (s) => s.notCompletedItemIds.length,
-              ),
-            );
-            return TextButton.icon(
-              onPressed: () => widget.onOpenSection('downloads'),
-              icon: Badge(
-                isLabelVisible: count > 0,
-                label: Text('$count'),
-                child: const Icon(Icons.downloading_outlined),
-              ),
-              label: Text(context.l10n.libraryDownloads),
-            );
-          },
-        )
-      else if (!_artists) ...[
+      if (!_overview && !_artists) ...[
         Builder(
           builder: (buttonContext) => IconButton(
             tooltip: context.l10n.searchSortTitle,

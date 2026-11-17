@@ -24,12 +24,10 @@ Future<Database> _database(String path) => openDatabase(
   onCreate: (db, _) async {
     final batch = db.batch();
     for (final sql in [
-      'CREATE TABLE wishlist_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL)',
       'CREATE TABLE loved_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL)',
       'CREATE TABLE favorite_artists(artist_key TEXT PRIMARY KEY,artist_json TEXT NOT NULL,added_at TEXT NOT NULL)',
       'CREATE TABLE playlists(id TEXT PRIMARY KEY,name TEXT NOT NULL,cover_image_path TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL)',
       'CREATE TABLE playlist_tracks(playlist_id TEXT NOT NULL,track_key TEXT NOT NULL,track_json TEXT NOT NULL,added_at TEXT NOT NULL,PRIMARY KEY(playlist_id,track_key),FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE)',
-      'CREATE INDEX idx_wishlist_tracks_added_at ON wishlist_tracks(added_at DESC)',
       'CREATE INDEX idx_loved_tracks_added_at ON loved_tracks(added_at DESC)',
       'CREATE INDEX idx_favorite_artists_added_at ON favorite_artists(added_at DESC)',
       'CREATE INDEX idx_playlists_created_at ON playlists(created_at DESC)',
@@ -59,7 +57,6 @@ Future<Map<String, dynamic>> _databaseFixture(int count) => Isolate.run(() {
       },
   ];
   return {
-    'wishlist': tracks,
     'loved': tracks.take(32).toList(),
     'favoriteArtists': [
       {
@@ -86,9 +83,6 @@ Future<Map<String, dynamic>> _databaseFixture(int count) => Isolate.run(() {
 
 Future<LibraryCollectionsState> _legacyRead(Database db) async {
   final snapshot = LibraryCollectionsSnapshot(
-    wishlistRows: await db.rawQuery(
-      'SELECT * FROM wishlist_tracks ORDER BY added_at DESC,rowid DESC',
-    ),
     lovedRows: await db.rawQuery(
       'SELECT * FROM loved_tracks ORDER BY added_at DESC,rowid DESC',
     ),

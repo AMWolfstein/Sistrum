@@ -38,10 +38,10 @@ class SafPublicationMimeTest {
                     val parent = reset()
                     val name = "EjAj - Lej Mi Pół.$extension"
                     val uri = requireNotNull(when (mode) {
-                        0 -> SafDownloadHandler.writeFileToSaf(context, treeUri.toString(), "", name, mime, source.path)
-                        1 -> SafDownloadHandler.writeFileToSafUnique(context, treeUri.toString(), "", name, mime, source.path)?.uri
-                        2 -> SafDownloadHandler.writeFileToSafCollisionAware(context, treeUri.toString(), "", name, "Variant.$extension", mime, source.path)?.uri
-                        else -> SafDownloadHandler.writeFileToSafIfAbsent(context, treeUri.toString(), "", name, mime, source.path)?.uri
+                        0 -> SafDocumentWriter.writeFileToSaf(context, treeUri.toString(), "", name, mime, source.path)
+                        1 -> SafDocumentWriter.writeFileToSafUnique(context, treeUri.toString(), "", name, mime, source.path)?.uri
+                        2 -> SafDocumentWriter.writeFileToSafCollisionAware(context, treeUri.toString(), "", name, "Variant.$extension", mime, source.path)?.uri
+                        else -> SafDocumentWriter.writeFileToSafIfAbsent(context, treeUri.toString(), "", name, mime, source.path)?.uri
                     })
                     val published = Uri.parse(uri)
                     assertEquals("$extension/$mode", mime, context.contentResolver.getType(published))
@@ -49,7 +49,7 @@ class SafPublicationMimeTest {
                     assertArrayEquals(bytes, context.contentResolver.openInputStream(published)?.use { it.readBytes() })
                     assertNull(findSafChild(context, parent, "$name.partial"))
                     assertNull(findSafChild(context, parent, name.removeSuffix(".$extension") + ".partial.$extension"))
-                    assertNull(findSafChild(context, parent, SafDownloadHandler.buildStagedSafFileName(name)))
+                    assertNull(findSafChild(context, parent, SafDocumentWriter.buildStagedSafFileName(name)))
                     val stats = requireNotNull(context.contentResolver.call(
                         Uri.parse("content://$authority.control"), "lookup.stats", null, null,
                     ))
@@ -76,7 +76,7 @@ class SafPublicationMimeTest {
         val source = File(context.cacheDir, "publish-replacement-${System.nanoTime()}.tmp")
             .apply { writeBytes(bytes) }
         try {
-            val uri = requireNotNull(SafDownloadHandler.writeFileToSaf(
+            val uri = requireNotNull(SafDocumentWriter.writeFileToSaf(
                 context, treeUri.toString(), "", "Song.flac", "audio/flac", source.path,
             ))
             assertArrayEquals(bytes, context.contentResolver.openInputStream(Uri.parse(uri))?.use { it.readBytes() })

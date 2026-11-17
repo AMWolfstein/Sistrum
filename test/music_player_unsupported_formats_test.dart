@@ -79,7 +79,6 @@ class _Player {
           synchronizePlaybackState: () async {},
           fileAccess: fileAccess,
           sessionDatabase: session,
-          recoverMovedDownload: (_, _, _) async => null,
         ),
       ) {
     handler = MusicPlayerHandler(

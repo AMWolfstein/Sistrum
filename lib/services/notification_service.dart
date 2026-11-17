@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
@@ -102,7 +101,6 @@ class NotificationService {
     }
   }
 
-  static const int downloadProgressId = 1;
   static const int updateDownloadId = 2;
   static const int libraryScanId = 3;
   static const String channelId = 'download_progress';
@@ -117,8 +115,6 @@ class NotificationService {
   static const String libraryChannelDescription =
       'Shows local library scan progress';
 
-
-
   Future<void> initialize() {
     if (_isInitialized) return Future.value();
     return _initialization ??= _initialize().whenComplete(() {
@@ -132,9 +128,7 @@ class NotificationService {
       '@drawable/ic_stat_sistrum',
     );
 
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-    );
+    const initSettings = InitializationSettings(android: androidSettings);
 
     await _notifications.initialize(
       settings: initSettings,
@@ -247,127 +241,6 @@ class NotificationService {
         icon: '@drawable/ic_stat_sistrum',
       ),
     );
-  }
-
-  Future<void> showDownloadProgress({
-    required String trackName,
-    required String artistName,
-    required int progress,
-    required int total,
-  }) async {
-    if (!_isInitialized) await initialize();
-
-    final percentage = total > 0 ? (progress * 100 ~/ total) : 0;
-
-    await _showSafely(
-      id: downloadProgressId,
-      title:
-          _l10n?.notifDownloadingTrack(trackName) ?? 'Downloading $trackName',
-      body: '$artistName • $percentage%',
-      details: _details(progress: percentage),
-    );
-  }
-
-  Future<void> showDownloadFinalizing({
-    required String trackName,
-    required String artistName,
-  }) async {
-    if (!_isInitialized) await initialize();
-
-    await _showSafely(
-      id: downloadProgressId,
-      title: _l10n?.notifFinalizingTrack(trackName) ?? 'Finalizing $trackName',
-      body:
-          '$artistName • ${_l10n?.notifEmbeddingMetadata ?? 'Embedding metadata...'}',
-      details: _details(progress: 100),
-    );
-  }
-
-  Future<void> showDownloadComplete({
-    required String trackName,
-    required String artistName,
-    int? completedCount,
-    int? totalCount,
-    bool alreadyInLibrary = false,
-  }) async {
-    if (!_isInitialized) await initialize();
-    unawaited(HapticFeedback.mediumImpact());
-
-    String title;
-    if (alreadyInLibrary) {
-      title = completedCount != null && totalCount != null
-          ? (_l10n?.notifAlreadyInLibraryCount(completedCount, totalCount) ??
-                'Already in Library ($completedCount/$totalCount)')
-          : (_l10n?.notifAlreadyInLibrary ?? 'Already in Library');
-    } else {
-      title = completedCount != null && totalCount != null
-          ? (_l10n?.notifDownloadCompleteCount(completedCount, totalCount) ??
-                'Download Complete ($completedCount/$totalCount)')
-          : (_l10n?.notifDownloadComplete ?? 'Download Complete');
-    }
-
-    await _showSafely(
-      id: downloadProgressId,
-      title: title,
-      body: '$trackName - $artistName',
-      details: _details(presentBadge: true),
-    );
-  }
-
-  Future<void> showQueueComplete({
-    required int completedCount,
-    required int failedCount,
-  }) async {
-    if (!_isInitialized) await initialize();
-    if (completedCount <= 0 && failedCount <= 0) return;
-    unawaited(
-      failedCount > 0
-          ? HapticFeedback.heavyImpact()
-          : HapticFeedback.mediumImpact(),
-    );
-
-    final title = failedCount > 0
-        ? (_l10n?.notifDownloadsFinished(completedCount, failedCount) ??
-              'Downloads Finished ($completedCount done, $failedCount failed)')
-        : (_l10n?.notifAllDownloadsComplete ?? 'All Downloads Complete');
-    final body = failedCount > 0
-        ? (_l10n?.notifDownloadsFinishedBody(completedCount, failedCount) ??
-              '$completedCount downloaded, $failedCount failed')
-        : (_l10n?.notifTracksDownloadedSuccess(completedCount) ??
-              '$completedCount tracks downloaded successfully');
-
-    await _showSafely(
-      id: downloadProgressId,
-      title: title,
-      body: body,
-      details: _details(
-        playSound: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
-  }
-
-  Future<void> showQueueCanceled({required int canceledCount}) async {
-    if (!_isInitialized) await initialize();
-    if (canceledCount <= 0) return;
-    unawaited(HapticFeedback.lightImpact());
-
-    final title = _l10n?.notifDownloadsCanceledTitle ?? 'Downloads canceled';
-    final body =
-        _l10n?.notifDownloadsCanceledBody(canceledCount) ??
-        '$canceledCount downloads canceled by user';
-
-    await _showSafely(
-      id: downloadProgressId,
-      title: title,
-      body: body,
-      details: _details(presentBadge: true),
-    );
-  }
-
-  Future<void> cancelDownloadNotification() async {
-    await _notifications.cancel(id: downloadProgressId);
   }
 
   Future<void> showLibraryScanProgress({

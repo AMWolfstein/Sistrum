@@ -383,20 +383,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
               ),
             ],
           ),
-          ...settingsSectionSlivers(
-            title: context.l10n.motionArtwork,
-            children: [
-              SettingsSwitchItem(
-                title: context.l10n.motionArtwork,
-                subtitle: context.l10n.motionArtworkDescription,
-                value: settings.motionArtworkEnabled,
-                onChanged: (value) => ref
-                    .read(settingsProvider.notifier)
-                    .setMotionArtworkEnabled(value),
-                showDivider: false,
-              ),
-            ],
-          ),
           if (Platform.isAndroid)
             ...settingsSectionSlivers(
               title: context.l10n.sectionAudioOutput,

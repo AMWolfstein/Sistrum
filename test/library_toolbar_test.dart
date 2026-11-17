@@ -3,10 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -17,6 +14,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class _Settings extends SettingsNotifier {
   _Settings(this.initial);
@@ -68,11 +66,6 @@ class _Collections extends LibraryCollectionsNotifier {
   @override
   LibraryCollectionsState build() =>
       LibraryCollectionsState(isLoaded: true, playlists: playlists);
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => DownloadQueueState();
 }
 
 void main() {
@@ -131,22 +124,6 @@ void main() {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final queue = DownloadQueueLookup.fromItems([
-      if (withQueueItem)
-        DownloadItem(
-          id: 'completed',
-          track: const Track(
-            id: 'song',
-            name: 'Song',
-            artistName: 'Artist',
-            albumName: 'Album',
-            duration: 1000,
-          ),
-          service: 'example-provider',
-          status: DownloadStatus.completed,
-          createdAt: DateTime(2026),
-        ),
-    ]);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -164,8 +141,6 @@ void main() {
           libraryCollectionsProvider.overrideWith(
             () => _Collections(playlists),
           ),
-          downloadQueueProvider.overrideWith(_Queue.new),
-          downloadQueueLookupProvider.overrideWithValue(queue),
         ],
         child: MaterialApp(
           theme: MornyeTheme.build(Brightness.light),

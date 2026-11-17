@@ -12,6 +12,7 @@ import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sistrum/models/download_history.dart';
 
 Future<void> _settleFileIo(WidgetTester tester) async {
   await tester.runAsync(() async {

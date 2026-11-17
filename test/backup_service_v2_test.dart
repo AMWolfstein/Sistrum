@@ -71,7 +71,6 @@ void main() {
         },
         collections: const {
           'loved': <dynamic>[],
-          'wishlist': <dynamic>[],
           'playlists': <dynamic>[],
         },
         playlistCoverFiles: {

@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/services/csv_import_service.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/m3u_playlist_service.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -146,20 +145,16 @@ Future<List<Track>> libraryFolderTracks(
   return [for (final item in items) _localTrack(item)];
 }
 
-/// Parses an M3U, M3U8 or CSV playlist file named [fileName].
+/// Parses an M3U or M3U8 playlist file named [fileName].
 Future<List<PlaylistImportEntry>> parsePlaylistImportFile(
   Uint8List bytes,
   String fileName,
 ) async {
   final extension = p.extension(fileName).toLowerCase();
-  if (extension == '.m3u' || extension == '.m3u8') {
-    return compute(_parseM3uImport, bytes);
+  if (extension != '.m3u' && extension != '.m3u8') {
+    throw const FormatException('Only M3U and M3U8 playlists can be imported');
   }
-  final tracks = await CsvImportService.parsePlaylistInBackground(
-    bytes,
-    format: 'csv',
-  );
-  return [for (final track in tracks) PlaylistImportEntry(track)];
+  return compute(_parseM3uImport, bytes);
 }
 
 List<PlaylistImportEntry> _parseM3uImport(Uint8List bytes) {

@@ -12,7 +12,6 @@ import 'package:sistrum/screens/settings/app_settings_page.dart';
 import 'package:sistrum/screens/settings/appearance_settings_page.dart';
 import 'package:sistrum/screens/settings/backup_restore_page.dart';
 import 'package:sistrum/screens/settings/cache_management_page.dart';
-import 'package:sistrum/screens/settings/download_settings_page.dart';
 import 'package:sistrum/screens/settings/extensions_page.dart';
 import 'package:sistrum/screens/settings/files_settings_page.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
@@ -169,23 +168,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       ),
       _Group(
         destinations: [
-          _Destination(
-            icon: Icons.download_outlined,
-            iconColor: Colors.green,
-            title: l10n.settingsDownload,
-            subtitle: l10n.settingsDownloadSubtitle,
-            keywords: const [
-              'quality',
-              'flac',
-              'concurrent',
-              'network',
-              'wifi',
-              'service',
-              'region',
-            ],
-            searchEntries: searchCatalog.download,
-            pageBuilder: () => const DownloadSettingsPage(),
-          ),
           _Destination(
             icon: Icons.extension_outlined,
             iconColor: Colors.teal,

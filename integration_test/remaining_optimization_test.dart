@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'download_queue_workers_test.dart' as queue;
 import 'library_collections_workers_test.dart' as collections;
 import 'native_backup_archive_test.dart' as archive;
 import 'native_cache_maintenance_test.dart' as cache;
@@ -16,6 +15,5 @@ void main() {
   group('library staging', library_staging.main);
   group('cache maintenance', cache.main);
   group('collection workers', collections.main);
-  group('queue workers', queue.main);
   group('backup archive', archive.main);
 }

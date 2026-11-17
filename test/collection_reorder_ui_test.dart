@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -16,6 +15,7 @@ import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _entries = [
   for (final id in ['a', 'b', 'c'])
@@ -40,7 +40,6 @@ class _Collections extends LibraryCollectionsNotifier {
   LibraryCollectionsState build() => LibraryCollectionsState(
     isLoaded: true,
     loved: _entries,
-    wishlist: _entries,
     playlists: [
       UserPlaylistCollection(
         id: 'mix',
@@ -80,7 +79,7 @@ class _Collections extends LibraryCollectionsNotifier {
     final entries = [for (final key in keys) byKey[key]!];
     state = mode == LibraryTracksFolderMode.loved
         ? state.copyWith(loved: entries)
-        : state.copyWith(wishlist: entries);
+        : state.copyWith(loved: entries);
     return true;
   }
 }
@@ -114,9 +113,6 @@ void main() {
           ),
           localLibraryProvider.overrideWith(_Library.new),
           downloadHistoryProvider.overrideWith(_History.new),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => const {},
-          ),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
           localLibraryFirstCoverProvider.overrideWith(
             (ref, request) async => null,

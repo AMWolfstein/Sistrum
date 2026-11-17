@@ -7,13 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/services/audio_analysis_cache.dart';
 import 'package:sistrum/services/cache_maintenance_service.dart';
 import 'package:sistrum/services/cover_cache_manager.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
-import 'package:sistrum/services/motion_artwork_store.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_cleanup.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -23,6 +20,7 @@ import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class CacheManagementPage extends ConsumerStatefulWidget {
   const CacheManagementPage({super.key});
@@ -72,9 +70,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
     final tempDirFuture = getTemporaryDirectory();
     final appSupportDirFuture = getApplicationSupportDirectory();
     final coverStatsFuture = CoverCacheManager.getStats();
-    final motionStatsFuture = MotionArtworkStore.defaultDirectory().then(
-      CacheMaintenanceService.scanDirectory,
-    );
     final trackCacheEntriesFuture = _getTrackCacheSizeSafe();
 
     final appCacheDir = await appCacheDirFuture;
@@ -110,7 +105,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
       tempStats: tempStats,
       tempIsSameAsAppCache: tempIsSameAsAppCache,
       coverStats: coverStats,
-      motionStats: await motionStatsFuture,
       libraryCoverStats: libraryCoverStats,
       audioAnalysisStats: audioAnalysisStats,
       trackCacheEntries: trackCacheEntries,
@@ -138,11 +132,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
 
   Future<void> _clearCoverCache() async {
     await CoverCacheManager.clearCache();
-  }
-
-  Future<void> _clearMotionArtwork() async {
-    await ref.read(motionArtworkStoreProvider).clear();
-    if (mounted) ref.invalidate(playerMotionArtworkProvider);
   }
 
   Future<void> _clearLibraryCoverCache() async {
@@ -474,16 +463,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
                   _clearAudioAnalysisCache,
                 ),
                 _clearRow(
-                  Icons.video_library_outlined,
-                  context.l10n.cacheMotionArtwork,
-                  context.l10n.cacheMotionArtworkDesc,
-                  overview.motionStats.totalSizeBytes > 0
-                      ? formatBytes(overview.motionStats.totalSizeBytes)
-                      : context.l10n.cacheNoData,
-                  'clear_motion_artwork',
-                  _clearMotionArtwork,
-                ),
-                _clearRow(
                   Icons.memory_outlined,
                   context.l10n.cacheTrackLookup,
                   context.l10n.cacheTrackLookupDesc,
@@ -526,7 +505,6 @@ class _CacheOverview {
   final DirectoryStats? tempStats;
   final bool tempIsSameAsAppCache;
   final CacheStats coverStats;
-  final DirectoryStats motionStats;
   final DirectoryStats libraryCoverStats;
   final DirectoryStats audioAnalysisStats;
   final int trackCacheEntries;
@@ -536,7 +514,6 @@ class _CacheOverview {
     this.tempStats,
     required this.tempIsSameAsAppCache,
     required this.coverStats,
-    required this.motionStats,
     required this.libraryCoverStats,
     required this.audioAnalysisStats,
     required this.trackCacheEntries,

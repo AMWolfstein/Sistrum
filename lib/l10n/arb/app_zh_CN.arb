@@ -35,8 +35,6 @@
   "usbBitPerfectFallback": "此设备或音频格式不支持比特完美输出。使用普通播放。",
   "usbBitPerfectRouteChanged": "USB音频路由已更改。播放已暂停；选择曲目以重新连接。",
   "upgradeIntroContinue": "继续",
-  "cacheMotionArtwork": "离线动态封面",
-  "cacheMotionArtworkDesc": "随下载保存的专辑视频。删除它们会保留音乐文件和统计数据。",
   "nowPlayingVolume": "音量",
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
@@ -86,8 +84,6 @@
     "description": "Filter chip - show all items"
   },
   "libraryRecentlyAdded": "最近添加",
-  "libraryDownloads": "下载",
-  "libraryNoActiveDownloads": "没有正在进行的下载",
   "librarySearchHint": "搜索你的乐库",
   "libraryEmptyCollection": "你的音乐将显示在这里",
   "libraryFolders": "Folders",
@@ -123,10 +119,6 @@
   "@settingsTitle": {
     "description": "Settings screen title"
   },
-  "settingsDownload": "下载",
-  "@settingsDownload": {
-    "description": "Settings section - download options"
-  },
   "settingsAppearance": "外观",
   "@settingsAppearance": {
     "description": "Settings section - visual customization"
@@ -138,50 +130,6 @@
   "settingsAbout": "关于",
   "@settingsAbout": {
     "description": "Settings section - app info"
-  },
-  "downloadAskQualitySubtitle": "为每次下载显示质量选择器",
-  "@downloadAskQualitySubtitle": {
-    "description": "Subtitle for ask quality toggle"
-  },
-  "downloadFilenameFormat": "文件名格式",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "单曲文件名格式",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadSingleFilenameFormatDescription": "单曲和EP的文件名格式。使用与专辑格式相同的标签。",
-  "@downloadSingleFilenameFormatDescription": {
-    "description": "Subtitle description for single filename format setting"
-  },
-  "downloadFolderOrganization": "文件夹结构",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Custom Folder Structure",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
-  "downloadFolderTemplateDescription": "Use naming tags and / for subfolders. Saving replaces the preset album and singles layout. Empty folder names use Unknown.",
-  "@downloadFolderTemplateDescription": {
-    "description": "Help for custom download folder templates"
-  },
-  "folderOrganizationCustom": "Custom template",
-  "@folderOrganizationCustom": {
-    "description": "Folder organization mode using a user-defined template"
-  },
-  "folderTemplateInvalid": "Enter a relative folder path with supported tags. Empty folders, . and .. are not allowed.",
-  "@folderTemplateInvalid": {
-    "description": "Validation error for an invalid folder template"
-  },
-  "folderTemplatePreview": "Example folder path",
-  "@folderTemplatePreview": {
-    "description": "Label for a sample expanded folder template"
-  },
-  "folderTemplatePreviewFailed": "预览不可用",
-  "@folderTemplatePreviewFailed": {
-    "description": "Shown when the native folder preview could not be generated"
   },
   "appearanceTitle": "外观",
   "@appearanceTitle": {
@@ -207,50 +155,17 @@
   "@appearanceHistoryViewGrid": {
     "description": "Grid layout option"
   },
-  "optionsPrimaryProvider": "主要提供者",
-  "@optionsPrimaryProvider": {
-    "description": "Main search provider setting"
-  },
   "optionsPrimaryProviderSubtitle": "用于按曲目或专辑名称搜索的服务",
   "@optionsPrimaryProviderSubtitle": {
     "description": "Subtitle for primary provider"
-  },
-  "optionsUsingExtension": "使用扩展：{extensionName}",
-  "@optionsUsingExtension": {
-    "description": "Shows active extension name",
-    "placeholders": {
-      "extensionName": {
-        "type": "String"
-      }
-    }
-  },
-  "optionsAutoFallback": "自动回退",
-  "@optionsAutoFallback": {
-    "description": "Auto-retry with other services"
-  },
-  "optionsAutoFallbackSubtitle": "如果下载失败，请尝试其他服务",
-  "@optionsAutoFallbackSubtitle": {
-    "description": "Subtitle for auto fallback"
   },
   "optionsEmbedLyrics": "内嵌歌词",
   "@optionsEmbedLyrics": {
     "description": "Embed lyrics in audio files"
   },
-  "optionsEmbedLyricsSubtitle": "将同步的歌词与你下载的音轨一起保存",
-  "@optionsEmbedLyricsSubtitle": {
-    "description": "Subtitle for embed lyrics"
-  },
   "optionsReplayGain": "回放增益",
   "@optionsReplayGain": {
     "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "扫描响度并嵌入 ReplayGain 标签（EBU R128）",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "已禁用：不添加响度标准化标签",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "重新扫描ReplayGain ",
   "@trackReplayGain": {
@@ -360,34 +275,6 @@
   "metadataSeparatorInvalid": "使用1–16个字符，不含换行或控制字符。",
   "@optionsArtistTagMode": {
     "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "选择将多位艺人写入嵌入标签的方式",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "合并为单个值",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "写一个ARTIST 值，如“艺术家A，艺人B”，以实现最大兼容性。",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "用于 FLAC/Opus 的拆分标签",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "为 FLAC 和 Opus 的每位艺人各写入一个艺人标签；MP3 和 M4A 保持合并",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "仅主要艺术家",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "仅将第一位艺术家写入所有下载的艺术家和专辑艺术家字段，例如「艺术家A」。",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
   },
   "optionsExtensionStore": "扩展仓库",
   "@optionsExtensionStore": {
@@ -700,14 +587,6 @@
   "@dialogDone": {
     "description": "Dialog button - action completed"
   },
-  "dialogImport": "导入",
-  "@dialogImport": {
-    "description": "Dialog button - import data"
-  },
-  "dialogDownload": "下载",
-  "@dialogDownload": {
-    "description": "Confirm button in Download All dialog"
-  },
   "dialogDiscard": "放弃",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
@@ -764,20 +643,6 @@
   "dialogDeleteSelectedMessage": "确定要从历史记录中删除 {count} {count, plural, =1{首歌曲} other{首歌曲}}吗？\n\n这也会从存储中删除文件。",
   "@dialogDeleteSelectedMessage": {
     "description": "Dialog message - delete selected tracks",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dialogImportPlaylistTitle": "导入播放列表",
-  "@dialogImportPlaylistTitle": {
-    "description": "Dialog title - import CSV playlist"
-  },
-  "dialogImportPlaylistMessage": "在播放列表文件中找到 {count} 首曲目。添加到下载队列？",
-  "csvImportTracks": "CSV 中的 {count} 首歌曲",
-  "@csvImportTracks": {
-    "description": "Label shown in quality picker for CSV import",
     "placeholders": {
       "count": {
         "type": "int"
@@ -865,29 +730,12 @@
       }
     }
   },
-  "@dialogImportPlaylistMessage": {
-    "description": "Dialog message - import playlist confirmation",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "snackbarAddedToQueue": "已将“{trackName}”加入队列",
   "@snackbarAddedToQueue": {
     "description": "Snackbar - track added to download queue",
     "placeholders": {
       "trackName": {
         "type": "String"
-      }
-    }
-  },
-  "snackbarAddedTracksToQueue": "已将 {count} 首歌曲加入队列",
-  "@snackbarAddedTracksToQueue": {
-    "description": "Snackbar - multiple tracks added to queue",
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -1018,22 +866,6 @@
   "@selectionSelectToDelete": {
     "description": "Placeholder when nothing selected"
   },
-  "progressFetchingMetadata": "正在获取元数据… {current}/{total}",
-  "@progressFetchingMetadata": {
-    "description": "Progress indicator - loading track info",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "progressReadingCsv": "正在读取CSV…",
-  "@progressReadingCsv": {
-    "description": "Progress indicator - parsing CSV file"
-  },
   "searchSongs": "歌曲",
   "libraryGenres": "流派",
   "@searchSongs": {
@@ -1082,62 +914,6 @@
   "tooltipPlay": "播放",
   "@tooltipPlay": {
     "description": "Tooltip - play button"
-  },
-  "filenameFormat": "文件名格式",
-  "@filenameFormat": {
-    "description": "Setting title - filename pattern"
-  },
-  "filenameShowAdvancedTags": "显示高级标签",
-  "@filenameShowAdvancedTags": {
-    "description": "Toggle label for showing advanced filename tags"
-  },
-  "filenameShowAdvancedTagsDescription": "启用曲目填充和日期模式的格式化标签",
-  "@filenameShowAdvancedTagsDescription": {
-    "description": "Description for advanced filename tag toggle"
-  },
-  "folderOrganizationNone": "不组织",
-  "@folderOrganizationNone": {
-    "description": "Folder option - flat structure"
-  },
-  "folderOrganizationByPlaylist": "按播放列表",
-  "@folderOrganizationByPlaylist": {
-    "description": "Folder option - playlist folders"
-  },
-  "folderOrganizationByPlaylistSubtitle": "每个播放列表单独文件夹",
-  "@folderOrganizationByPlaylistSubtitle": {
-    "description": "Subtitle for playlist folder option"
-  },
-  "folderOrganizationByArtist": "按艺术家",
-  "@folderOrganizationByArtist": {
-    "description": "Folder option - artist folders"
-  },
-  "folderOrganizationByAlbum": "按专辑",
-  "@folderOrganizationByAlbum": {
-    "description": "Folder option - album folders"
-  },
-  "folderOrganizationByArtistAlbum": "艺术家/专辑",
-  "@folderOrganizationByArtistAlbum": {
-    "description": "Folder option - nested folders"
-  },
-  "folderOrganizationDescription": "将下载文件组织到文件夹中",
-  "@folderOrganizationDescription": {
-    "description": "Folder organization sheet description"
-  },
-  "folderOrganizationNoneSubtitle": "所有文件在下载文件夹中",
-  "@folderOrganizationNoneSubtitle": {
-    "description": "Subtitle for no organization option"
-  },
-  "folderOrganizationByArtistSubtitle": "每个艺术家单独文件夹",
-  "@folderOrganizationByArtistSubtitle": {
-    "description": "Subtitle for artist folder option"
-  },
-  "folderOrganizationByAlbumSubtitle": "每个专辑单独文件夹",
-  "@folderOrganizationByAlbumSubtitle": {
-    "description": "Subtitle for album folder option"
-  },
-  "folderOrganizationByArtistAlbumSubtitle": "艺术家和专辑嵌套文件夹",
-  "@folderOrganizationByArtistAlbumSubtitle": {
-    "description": "Subtitle for nested folder option"
   },
   "updateAvailable": "有可用更新",
   "@updateAvailable": {
@@ -1314,18 +1090,6 @@
   "@channelPreview": {
     "description": "Update channel - beta/preview releases"
   },
-  "sectionSearchSource": "搜索源",
-  "@sectionSearchSource": {
-    "description": "Settings section header"
-  },
-  "sectionDownload": "下载",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionPerformance": "性能",
-  "@sectionPerformance": {
-    "description": "Settings section header"
-  },
   "sectionApp": "应用",
   "@sectionApp": {
     "description": "Settings section header"
@@ -1336,18 +1100,6 @@
   },
   "sectionDebug": "调试",
   "@sectionDebug": {
-    "description": "Settings section header"
-  },
-  "sectionService": "服务",
-  "@sectionService": {
-    "description": "Settings section header"
-  },
-  "sectionAudioQuality": "音频质量",
-  "@sectionAudioQuality": {
-    "description": "Settings section header"
-  },
-  "sectionFileSettings": "文件设置",
-  "@sectionFileSettings": {
     "description": "Settings section header"
   },
   "sectionLyrics": "歌词",
@@ -1412,10 +1164,6 @@
   "@settingsAppearanceSubtitle": {
     "description": "Appearance settings description"
   },
-  "settingsDownloadSubtitle": "服务、质量、回退",
-  "@settingsDownloadSubtitle": {
-    "description": "Download settings description"
-  },
   "settingsExtensionsSubtitle": "管理下载提供商",
   "@settingsExtensionsSubtitle": {
     "description": "Extensions settings description"
@@ -1427,15 +1175,6 @@
   "pressBackAgainToExit": "再按一次返回以退出",
   "@pressBackAgainToExit": {
     "description": "Exit confirmation message"
-  },
-  "downloadAllCount": "全部下载（{count}）",
-  "@downloadAllCount": {
-    "description": "Download all button with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "tracksCount": "{count, plural, =1{1首曲目} other{{count} 首曲目}}",
   "@tracksCount": {
@@ -1678,10 +1417,6 @@
   "@storeAddRepoTitle": {
     "description": "Store setup screen - heading when no repo is configured"
   },
-  "storeAddRepoDescription": "输入包含registry.json文件的GitHub仓库URL以浏览和安装扩展。",
-  "@storeAddRepoDescription": {
-    "description": "Store setup screen - explanatory text"
-  },
   "storeRepoUrlLabel": "仓库URL",
   "@storeRepoUrlLabel": {
     "description": "Label for the repository URL input field"
@@ -1917,115 +1652,9 @@
   "@extensionsErrorLoading": {
     "description": "Error message when extension fails to load"
   },
-  "qualityFlacLossless": "FLAC无损",
-  "@qualityFlacLossless": {
-    "description": "Quality option - CD quality FLAC"
-  },
-  "qualityFlacLosslessSubtitle": "16位 / 44.1kHz",
-  "@qualityFlacLosslessSubtitle": {
-    "description": "Technical spec for lossless"
-  },
-  "qualityHiResFlac": "高解析FLAC",
-  "@qualityHiResFlac": {
-    "description": "Quality option - high resolution FLAC"
-  },
-  "qualityHiResFlacSubtitle": "24位 / 最高96kHz",
-  "@qualityHiResFlacSubtitle": {
-    "description": "Technical spec for hi-res"
-  },
-  "qualityHiResFlacMax": "高解析FLAC最高",
-  "@qualityHiResFlacMax": {
-    "description": "Quality option - maximum resolution FLAC"
-  },
-  "qualityHiResFlacMaxSubtitle": "24位 / 最高192kHz",
-  "@qualityHiResFlacMaxSubtitle": {
-    "description": "Technical spec for hi-res max"
-  },
-  "downloadLossyFormat": "有损格式",
-  "@downloadLossyFormat": {
-    "description": "Setting title to pick output format for lossy downloads"
-  },
-  "downloadAutoConvert": "下载后自动转换",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertAllFormatsSubtitle": "Convert completed downloads or limit FLAC bit depth and sample rate. The original is replaced only after conversion succeeds.",
-  "downloadAutoConvertOutputSubtitle": "Choose the output format for newly completed downloads.",
-  "downloadAutoConvertFlacSubtitle": "Lossless FLAC with quality limits. Lower bit depths and sample rates are preserved.",
-  "downloadAutoConvertMaxBitDepth": "Maximum bit depth",
-  "downloadAutoConvertMaxSampleRate": "Maximum sample rate",
-  "downloadAutoConvertFlacLimitsSubtitle": "These are upper limits. For example, a 44.1 kHz source stays at 44.1 kHz when 48 kHz is selected. Lossy sources are kept in their original format.",
-  "downloadAutoConvertSubtitle": "将完成的下载转换为更小的有损格式。仅在转换成功后替换原文件。",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
-  "downloadAutoConvertFormat": "输出格式",
-  "@downloadAutoConvertFormat": {
-    "description": "Automatic conversion output format setting"
-  },
-  "downloadAutoConvertBitrate": "输出质量",
-  "@downloadAutoConvertBitrate": {
-    "description": "Automatic conversion bitrate setting"
-  },
-  "downloadAutoConvertBitrateSubtitle": "更高比特率保留更多细节，但文件更大。",
-  "@downloadAutoConvertBitrateSubtitle": {
-    "description": "Automatic conversion bitrate picker explanation"
-  },
-  "downloadAutoConvertMp3Subtitle": "在播放器和设备间兼容性最佳",
-  "@downloadAutoConvertMp3Subtitle": {
-    "description": "MP3 automatic conversion option description"
-  },
-  "downloadAutoConvertM4aSubtitle": "M4A容器中的高效AAC音频",
-  "@downloadAutoConvertM4aSubtitle": {
-    "description": "M4A AAC automatic conversion option description"
-  },
-  "downloadAutoConvertOpusSubtitle": "现代播放器效率最高",
-  "@downloadAutoConvertOpusSubtitle": {
-    "description": "Opus automatic conversion option description"
-  },
-  "downloadAskBeforeDownload": "下载前询问",
-  "@downloadAskBeforeDownload": {
-    "description": "Setting - show quality picker"
-  },
   "downloadDirectory": "下载目录",
   "@downloadDirectory": {
     "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "单独单曲文件夹",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "专辑文件夹结构",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "albumFolderStructureDescription": "选择专辑文件夹的结构方式",
-  "@albumFolderStructureDescription": {
-    "description": "Album folder structure picker description"
-  },
-  "downloadUseAlbumArtistForFolders": "文件夹使用专辑艺术家",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "文件夹仅使用主要艺术家",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "downloadUsePrimaryArtistOnlyEnabled": "从文件夹名称中移除特色艺术家（如Justin Bieber, Quavo → Justin Bieber）",
-  "@downloadUsePrimaryArtistOnlyEnabled": {
-    "description": "Subtitle when primary artist only is enabled"
-  },
-  "downloadUsePrimaryArtistOnlyDisabled": "文件夹名称使用完整艺术家字符串",
-  "@downloadUsePrimaryArtistOnlyDisabled": {
-    "description": "Subtitle when primary artist only is disabled"
-  },
-  "downloadSelectQuality": "选择质量",
-  "@downloadSelectQuality": {
-    "description": "Dialog title - choose audio quality"
-  },
-  "downloadFrom": "下载自",
-  "@downloadFrom": {
-    "description": "Label - download source"
   },
   "appearanceHeroAnimations": "Hero动画",
   "@appearanceHeroAnimations": {
@@ -2042,107 +1671,6 @@
   "appearanceForceBlurSubtitle": "设备不支持也强行开模糊。好看，但可能会卡，量力而行。",
   "@appearanceForceBlurSubtitle": {
     "description": "Subtitle for the force-blur toggle"
-  },
-  "queueClearAll": "全部清除",
-  "@queueClearAll": {
-    "description": "Button - clear all queue items"
-  },
-  "queueClearAllMessage": "确定要清除所有下载吗？",
-  "@queueClearAllMessage": {
-    "description": "Clear queue confirmation"
-  },
-  "settingsAutoExportFailed": "自动导出失败下载",
-  "@settingsAutoExportFailed": {
-    "description": "Setting toggle for auto-export"
-  },
-  "settingsAutoExportFailedSubtitle": "自动将失败下载保存到TXT文件",
-  "@settingsAutoExportFailedSubtitle": {
-    "description": "Subtitle for auto-export setting"
-  },
-  "settingsDownloadNetwork": "下载网络",
-  "@settingsDownloadNetwork": {
-    "description": "Setting for network type preference"
-  },
-  "settingsDownloadNetworkAny": "WiFi + 移动数据",
-  "@settingsDownloadNetworkAny": {
-    "description": "Network option - use any connection"
-  },
-  "settingsDownloadNetworkWifiOnly": "仅WiFi",
-  "@settingsDownloadNetworkWifiOnly": {
-    "description": "Network option - only use WiFi"
-  },
-  "settingsDownloadNetworkSubtitle": "选择用于下载的网络。设置为仅WiFi时，移动数据下下载将暂停。",
-  "@settingsDownloadNetworkSubtitle": {
-    "description": "Subtitle explaining network preference"
-  },
-  "settingsConcurrentDownloads": "并发下载",
-  "@settingsConcurrentDownloads": {
-    "description": "Setting title - how many tracks download at the same time"
-  },
-  "settingsConcurrentDownloadsSubtitle": "同时下载多首曲目更快，但某些提供商可能会限制并行请求。",
-  "@settingsConcurrentDownloadsSubtitle": {
-    "description": "Subtitle explaining the concurrent downloads picker"
-  },
-  "concurrentDownloadsOne": "一次下载1首曲目",
-  "@concurrentDownloadsOne": {
-    "description": "Concurrent downloads option - sequential"
-  },
-  "concurrentDownloadsCount": "最多同时下载 {count} 首曲目",
-  "@concurrentDownloadsCount": {
-    "description": "Concurrent downloads option - parallel",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "albumFolderArtistAlbum": "艺术家 / 专辑",
-  "@albumFolderArtistAlbum": {
-    "description": "Album folder option"
-  },
-  "albumFolderArtistAlbumSubtitle": "专辑/艺术家名称/专辑名称/",
-  "@albumFolderArtistAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistYearAlbum": "艺术家 / [年份] 专辑",
-  "@albumFolderArtistYearAlbum": {
-    "description": "Album folder option with year"
-  },
-  "albumFolderArtistYearAlbumSubtitle": "专辑/艺术家名称/[2005] 专辑名称/",
-  "@albumFolderArtistYearAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderAlbumOnly": "仅专辑",
-  "@albumFolderAlbumOnly": {
-    "description": "Album folder option"
-  },
-  "albumFolderAlbumOnlySubtitle": "专辑/专辑名称/",
-  "@albumFolderAlbumOnlySubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderYearAlbum": "[年份] 专辑",
-  "@albumFolderYearAlbum": {
-    "description": "Album folder option with year"
-  },
-  "albumFolderYearAlbumSubtitle": "专辑/[2005] 专辑名称/",
-  "@albumFolderYearAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistAlbumSingles": "艺术家 / 专辑 + 单曲",
-  "@albumFolderArtistAlbumSingles": {
-    "description": "Album folder option with singles inside artist"
-  },
-  "albumFolderArtistAlbumSinglesSubtitle": "艺术家/专辑/ 和 艺术家/单曲/",
-  "@albumFolderArtistAlbumSinglesSubtitle": {
-    "description": "Folder structure example"
-  },
-  "albumFolderArtistAlbumFlat": "艺术家 / 专辑（单曲平铺）",
-  "@albumFolderArtistAlbumFlat": {
-    "description": "Album folder option with singles directly in artist folder"
-  },
-  "albumFolderArtistAlbumFlatSubtitle": "艺术家/专辑/ 和 艺术家/歌曲.flac",
-  "@albumFolderArtistAlbumFlatSubtitle": {
-    "description": "Folder structure example for flat singles"
   },
   "downloadedAlbumDeleteSelected": "删除所选",
   "@downloadedAlbumDeleteSelected": {
@@ -2196,18 +1724,6 @@
   "recentTypeAlbum": "专辑",
   "@recentTypeAlbum": {
     "description": "Recent access item type - album"
-  },
-  "discographySkippedDownloaded": "已添加 {added} 首，跳过 {skipped} 首已下载",
-  "@discographySkippedDownloaded": {
-    "description": "Snackbar - with skipped tracks count",
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
   },
   "sectionStorageAccess": "存储访问",
   "@sectionStorageAccess": {
@@ -3122,10 +2638,6 @@
   "@collectionFoldersTitle": {
     "description": "Library section title for custom folders"
   },
-  "collectionWishlist": "心愿单",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "收藏",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -3197,14 +2709,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "心愿单为空",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "在曲目上点击 + 以保存稍后想下载的内容",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "收藏文件夹为空",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -3232,10 +2736,6 @@
   "collectionRemoveFromPlaylist": "从播放列表移除",
   "@collectionRemoveFromPlaylist": {
     "description": "Tooltip for removing track from playlist"
-  },
-  "collectionRemoveFromFolder": "从文件夹移除",
-  "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
   },
   "collectionAddedToFavoriteArtists": "「{artistName}」已添加到收藏艺术家",
   "@collectionAddedToFavoriteArtists": {
@@ -3278,14 +2778,6 @@
   "collectionPlaylistRemoveCover": "删除封面图片",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "downloadUseAlbumArtistForFoldersAlbumSubtitle": "文件夹以专辑艺术家标签命名",
-  "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
-    "description": "Subtitle when album artist is used for folder names"
-  },
-  "downloadUseAlbumArtistForFoldersTrackSubtitle": "文件夹以曲目艺术家标签命名",
-  "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
-    "description": "Subtitle when track artist is used for folder names"
   },
   "safMigrationTitle": "需要存储更新",
   "@safMigrationTitle": {
@@ -3405,15 +2897,6 @@
       }
     }
   },
-  "backupContentsWishlist": "{count} 首心愿单 {count, plural, =1{曲目} other{曲目}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "backupContentsPlaylists": "{count, plural, =1{1个播放列表} other{{count} 个播放列表}}",
   "@backupContentsPlaylists": {
     "description": "Backup contents row for playlist count",
@@ -3493,23 +2976,6 @@
       }
     }
   },
-  "dialogDownloadAllTitle": "全部下载",
-  "@dialogDownloadAllTitle": {
-    "description": "Dialog title for bulk download confirmation"
-  },
-  "dialogDownloadAllMessage": "下载 {count} 首曲目？",
-  "@dialogDownloadAllMessage": {
-    "description": "Body of the Download All confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeSkipAlreadyDownloaded": "跳过已下载的歌曲",
-  "@homeSkipAlreadyDownloaded": {
-    "description": "Checkbox label in import dialog to skip already-downloaded songs"
-  },
   "homeGoToAlbum": "前往专辑",
   "@homeGoToAlbum": {
     "description": "Context menu item to navigate to the album page"
@@ -3571,102 +3037,9 @@
   "@downloadFolderReselect": {
     "description": "Button that reopens the folder picker to restore download folder access"
   },
-  "downloadErrorSafPermissionLost": "SAF权限无效或已撤销。请在设置中重新配置下载位置。",
-  "@downloadErrorSafPermissionLost": {
-    "description": "Error shown on downloads that failed because the persisted Android SAF folder grant is no longer valid"
-  },
-  "downloadErrorFolderAccessLost": "下载文件夹访问丢失。请在设置中重新选择下载文件夹。",
-  "downloadFilenameDescription": "使用 {artist}、{title}、{album}、{track}、{year}、{date}、{disc} 作为占位符。",
-  "@downloadFilenameDescription": {
-    "description": "Description shown in filename format editor"
-  },
-  "downloadFilenameInsertTag": "点击插入标签：",
-  "@downloadFilenameInsertTag": {
-    "description": "Label above filename tag chips"
-  },
-  "downloadSeparateSinglesEnabled": "单曲和EP保存在单独文件夹",
-  "@downloadSeparateSinglesEnabled": {
-    "description": "Subtitle when separate singles folder is on"
-  },
-  "downloadSeparateSinglesDisabled": "单曲和专辑保存在同一文件夹",
-  "@downloadSeparateSinglesDisabled": {
-    "description": "Subtitle when separate singles folder is off"
-  },
-  "downloadArtistNameFilters": "艺术家名称过滤器",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "播放列表源文件夹",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
-  "downloadCreatePlaylistSourceFolderEnabled": "为每个播放列表创建子文件夹",
-  "@downloadCreatePlaylistSourceFolderEnabled": {
-    "description": "Subtitle when playlist folder is enabled"
-  },
-  "downloadCreatePlaylistSourceFolderDisabled": "所有曲目直接保存到下载文件夹",
-  "@downloadCreatePlaylistSourceFolderDisabled": {
-    "description": "Subtitle when playlist folder is disabled"
-  },
-  "downloadCreatePlaylistSourceFolderRedundant": "由文件夹组织设置处理",
-  "@downloadCreatePlaylistSourceFolderRedundant": {
-    "description": "Subtitle when folder organization is already set to playlist"
-  },
-  "downloadSongLinkRegion": "SongLink地区",
-  "@downloadSongLinkRegion": {
-    "description": "Setting for SongLink region used during fallback resolution"
-  },
-  "downloadNetworkCompatibilityMode": "网络兼容模式",
-  "@downloadNetworkCompatibilityMode": {
-    "description": "Setting for legacy TLS/network handling"
-  },
-  "downloadNetworkCompatibilityModeEnabled": "允许旧版HTTP端点；TLS验证保持启用",
-  "@downloadNetworkCompatibilityModeEnabled": {
-    "description": "Subtitle when network compatibility mode is on"
-  },
-  "downloadNetworkCompatibilityModeDisabled": "使用标准网络设置",
-  "@downloadNetworkCompatibilityModeDisabled": {
-    "description": "Subtitle when network compatibility mode is off"
-  },
-  "downloadAllowLocalNetwork": "允许本地网络访问",
-  "@downloadAllowLocalNetwork": {
-    "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadSelectServiceToEnable": "选择具有质量选项的提供商以启用此选项",
-  "@downloadSelectServiceToEnable": {
-    "description": "Subtitle when quality picker is disabled due to extension service"
-  },
-  "downloadEmbedLyricsDisabled": "请先启用元数据嵌入",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
-  },
-  "downloadFilterContributing": "过滤参与艺术家",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
-  },
-  "downloadFilterContributingEnabled": "从专辑艺术家文件夹名称中移除参与艺术家",
-  "@downloadFilterContributingEnabled": {
-    "description": "Subtitle when contributing artist filter is on"
-  },
-  "downloadFilterContributingDisabled": "使用完整专辑艺术家字符串",
-  "@downloadFilterContributingDisabled": {
-    "description": "Subtitle when contributing artist filter is off"
-  },
   "downloadProvidersNoneEnabled": "未启用任何提供商",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadNetworkAnySubtitle": "使用WiFi或移动数据",
-  "@downloadNetworkAnySubtitle": {
-    "description": "Subtitle for any-network option in picker"
-  },
-  "downloadNetworkWifiOnlySubtitle": "使用移动数据时下载暂停",
-  "@downloadNetworkWifiOnlySubtitle": {
-    "description": "Subtitle for WiFi-only option in picker"
-  },
-  "downloadSongLinkRegionDesc": "通过SongLink解析曲目链接时使用的地区。选择你的流媒体服务所在的国家。",
-  "@downloadSongLinkRegionDesc": {
-    "description": "Description in SongLink region picker"
   },
   "snackbarUnsupportedAudioFormat": "不支持的音频格式",
   "@snackbarUnsupportedAudioFormat": {
@@ -3675,44 +3048,6 @@
   "cacheRefresh": "刷新",
   "@cacheRefresh": {
     "description": "Tooltip for refresh button on cache management page"
-  },
-  "dialogDownloadPlaylistsMessage": "从 {playlistCount} {playlistCount, plural, =1{个播放列表} other{个播放列表}} 下载 {trackCount} {trackCount, plural, =1{首曲目} other{首曲目}}？",
-  "@dialogDownloadPlaylistsMessage": {
-    "description": "Dialog message for bulk playlist download confirmation",
-    "placeholders": {
-      "trackCount": {
-        "type": "int"
-      },
-      "playlistCount": {
-        "type": "int"
-      }
-    }
-  },
-  "bulkDownloadPlaylistsButton": "下载 {count} {count, plural, =1{个播放列表} other{个播放列表}}",
-  "@bulkDownloadPlaylistsButton": {
-    "description": "Button label for bulk downloading selected playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bulkDownloadSelectPlaylists": "选择要下载的播放列表",
-  "@bulkDownloadSelectPlaylists": {
-    "description": "Button label when no playlists are selected for download"
-  },
-  "snackbarSelectedPlaylistsEmpty": "所选播放列表没有曲目",
-  "@snackbarSelectedPlaylistsEmpty": {
-    "description": "Snackbar when selected playlists contain no tracks"
-  },
-  "playlistsCount": "{count, plural, =1{1个播放列表} other{{count} 个播放列表}}",
-  "@playlistsCount": {
-    "description": "Playlist count display",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "lyricsPickerTitle": "Choose lyrics",
   "@lyricsPickerTitle": {
@@ -3806,15 +3141,6 @@
   "editMetadataSelectEmpty": "仅空值",
   "@editMetadataSelectEmpty": {
     "description": "Button to select only fields that are currently empty"
-  },
-  "queueDownloadingCount": "正在下载（{count}）",
-  "@queueDownloadingCount": {
-    "description": "Header for active downloads section with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "queueFilteringIndicator": "正在过滤…",
   "@queueFilteringIndicator": {
@@ -3996,14 +3322,6 @@
       }
     }
   },
-  "downloadRedownloadFakeHiRes": "重新下载假高解析",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "默认关闭。检查高解析下载，仅当每个音频样本都匹配时才替换。",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
   "hiResCheckVerdictFakeCertain": "假高解析",
   "@hiResCheckVerdictFakeCertain": {
     "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
@@ -4128,31 +3446,6 @@
   "@extensionsHomeFeedAuto": {
     "description": "Label for auto-selected search provider"
   },
-  "cancelDownloadTitle": "取消下载？",
-  "@cancelDownloadTitle": {
-    "description": "Dialog title when confirming cancellation of an active download"
-  },
-  "cancelDownloadContent": "这将取消「{trackName}」的正在进行下载。",
-  "@cancelDownloadContent": {
-    "description": "Dialog body when confirming cancellation of an active download",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "cancelDownloadKeep": "保留",
-  "@cancelDownloadKeep": {
-    "description": "Dialog button - keep the active download (do not cancel)"
-  },
-  "queueCancelledTitle": "下载已取消",
-  "@queueCancelledTitle": {
-    "description": "Dialog title when opening a cancelled queue item"
-  },
-  "queueCancelledMessage": "此下载已取消。重试或从队列中移除。",
-  "@queueCancelledMessage": {
-    "description": "Dialog body when opening a cancelled queue item"
-  },
   "metadataSaveFailedFfmpeg": "通过FFmpeg保存元数据失败",
   "@metadataSaveFailedFfmpeg": {
     "description": "Snackbar error when FFmpeg fails to write metadata"
@@ -4170,109 +3463,9 @@
       }
     }
   },
-  "notifDownloadingTrack": "正在下载 {trackName}",
-  "@notifDownloadingTrack": {
-    "description": "Notification title while downloading a track",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "notifFinalizingTrack": "正在完成 {trackName}",
-  "@notifFinalizingTrack": {
-    "description": "Notification title while finalizing (embedding metadata) a track",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
   "notifEmbeddingMetadata": "正在嵌入元数据…",
   "@notifEmbeddingMetadata": {
     "description": "Notification body while embedding metadata into a downloaded track"
-  },
-  "notifAlreadyInLibraryCount": "已在乐库中（{completed}/{total}）",
-  "@notifAlreadyInLibraryCount": {
-    "description": "Notification title when track is already in library, with count",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "notifAlreadyInLibrary": "已在乐库中",
-  "@notifAlreadyInLibrary": {
-    "description": "Notification title when track is already in library"
-  },
-  "notifDownloadCompleteCount": "下载完成（{completed}/{total}）",
-  "@notifDownloadCompleteCount": {
-    "description": "Notification title when download is complete, with count",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadComplete": "下载完成",
-  "@notifDownloadComplete": {
-    "description": "Notification title when a single download is complete"
-  },
-  "notifDownloadsFinished": "下载完成（完成 {completed}，失败 {failed}）",
-  "@notifDownloadsFinished": {
-    "description": "Notification title when queue finishes with some failures",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "notifAllDownloadsComplete": "所有下载完成",
-  "@notifAllDownloadsComplete": {
-    "description": "Notification title when all downloads finish successfully"
-  },
-  "notifTracksDownloadedSuccess": "{count, plural, =1{1首曲目下载成功} other{{count} 首曲目下载成功}}",
-  "@notifTracksDownloadedSuccess": {
-    "description": "Notification body for queue complete - how many tracks were downloaded",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadsFinishedBody": "{completed, plural, =1{1首曲目已下载} other{{completed} 首曲目已下载}}，{failed, plural, =1{1首失败} other{{failed} 首失败}}",
-  "@notifDownloadsFinishedBody": {
-    "description": "Notification body when queue finishes with failures",
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "notifDownloadsCanceledTitle": "下载已取消",
-  "@notifDownloadsCanceledTitle": {
-    "description": "Notification title when downloads are canceled by the user"
-  },
-  "notifDownloadsCanceledBody": "{count, plural, =1{1个下载被用户取消} other{{count} 个下载被用户取消}}",
-  "@notifDownloadsCanceledBody": {
-    "description": "Notification body when downloads are canceled by the user",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "notifScanningLibrary": "正在扫描本地乐库",
   "@notifScanningLibrary": {
@@ -4407,10 +3600,6 @@
   "@notifUpdateFailedBody": {
     "description": "Notification body when app update download fails"
   },
-  "homeImportCsvTooltip": "导入播放列表（CSV、M3U）",
-  "@homeImportCsvTooltip": {
-    "description": "Tooltip for importing a CSV or M3U playlist file into Home search"
-  },
   "actionPaste": "粘贴",
   "@actionPaste": {
     "description": "Generic action - paste from clipboard"
@@ -4434,14 +3623,6 @@
   "optionsEmbedMetadata": "嵌入元数据",
   "@optionsEmbedMetadata": {
     "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "将元数据、封面和嵌入歌词写入文件",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "已禁用（高级）：跳过所有元数据嵌入",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
   },
   "trackCoverNoEmbeddedArt": "未找到嵌入的专辑封面",
   "@trackCoverNoEmbeddedArt": {
@@ -4483,18 +3664,6 @@
   "@trackCoverResizeFailed": {
     "description": "Error shown when resizing cover art before saving metadata fails"
   },
-  "actionStop": "停止",
-  "@actionStop": {
-    "description": "Generic action - stop"
-  },
-  "queueFinalizingDownload": "正在完成下载",
-  "@queueFinalizingDownload": {
-    "description": "Accessibility label for a queue item that is finalizing"
-  },
-  "queueDownloadNext": "下载下一个",
-  "@queueDownloadNext": {
-    "description": "Tooltip on a queued download row; moves the item to the front of the queue so the next free slot downloads it"
-  },
   "queueMoveUp": "上移",
   "@queueMoveUp": {
     "description": "Queue item menu action - move the queued item one position earlier"
@@ -4515,34 +3684,9 @@
   "@nowPlayingRepeatOne": {
     "description": "Repeat toggle tooltip when the current track repeats"
   },
-  "queueNetworkFailedOffline": "{count} 个下载在离线时失败",
-  "@queueNetworkFailedOffline": {
-    "description": "Snackbar shown when connectivity returns and network-failed downloads can be retried",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "queueDownloadedFileMissing": "已下载文件缺失",
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
-  },
-  "queueCheckingDownloadedFile": "正在检查已下载文件…",
-  "@queueCheckingDownloadedFile": {
-    "description": "Accessibility label while the app checks whether a just-completed download has appeared at its final path yet. Not about authentication or a download session."
-  },
-  "queueDownloadCompleted": "下载完成",
-  "@queueDownloadCompleted": {
-    "description": "Accessibility label for completed download state in queue"
-  },
-  "queueRateLimitTitle": "服务限流",
-  "@queueRateLimitTitle": {
-    "description": "Title shown on a failed queue item when the download service rate limits requests"
-  },
-  "queueRateLimitMessage": "此曲目可能仍然可用。等待几分钟，减少并行下载，然后重试。",
-  "@queueRateLimitMessage": {
-    "description": "Explanation shown on a failed queue item when the download service rate limits requests"
   },
   "logAutoScrollOn": "自动滚动 开",
   "@logAutoScrollOn": {
@@ -4729,10 +3873,6 @@
   "@sectionMetadataProviders": {
     "description": "Settings section header for metadata providers"
   },
-  "sectionDuplicates": "重复项",
-  "@sectionDuplicates": {
-    "description": "Settings section header for deduplication"
-  },
   "metadataProvidersTitle": "元数据提供商优先级",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -4740,38 +3880,6 @@
   "metadataProvidersSubtitle": "拖动设置搜索和元数据源顺序",
   "@metadataProvidersSubtitle": {
     "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "跳过重复下载",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadDeduplicationEnabled": "已下载的曲目将被跳过",
-  "@downloadDeduplicationEnabled": {
-    "description": "Subtitle when deduplication is on"
-  },
-  "downloadDeduplicationWithQualityVariants": "将跳过所选质量的现有文件",
-  "@downloadDeduplicationWithQualityVariants": {
-    "description": "Deduplication subtitle when separate quality versions are allowed"
-  },
-  "downloadDeduplicationDisabled": "无论历史如何，所有曲目都将下载",
-  "@downloadDeduplicationDisabled": {
-    "description": "Subtitle when deduplication is off"
-  },
-  "downloadQualityVariants": "允许不同质量版本",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "保留每个质量版本；仅当名称已被使用时，将其测量质量添加到文件名",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
-  },
-  "downloadFallbackExtensions": "回退扩展",
-  "@downloadFallbackExtensions": {
-    "description": "Settings item for configuring fallback extension providers"
-  },
-  "downloadFallbackExtensionsSubtitle": "选择哪些扩展可用作回退",
-  "@downloadFallbackExtensionsSubtitle": {
-    "description": "Subtitle for fallback extensions item"
   },
   "editMetadataFieldDateHint": "YYYY-MM-DD 或 YYYY",
   "@editMetadataFieldDateHint": {
@@ -4885,27 +3993,6 @@
       }
     }
   },
-  "queueDownloadSpeedStatus": "正在下载 - {speed} MB/s",
-  "@queueDownloadSpeedStatus": {
-    "description": "Queue status while downloading with speed",
-    "placeholders": {
-      "speed": {
-        "type": "String"
-      }
-    }
-  },
-  "queueDownloadStarting": "正在启动…",
-  "queueCheckingDownloadSession": "正在检查下载会话…",
-  "queueResolvingDownloadMetadata": "正在解析曲目元数据…",
-  "queueResolvingDownloadStream": "正在准备音频流…",
-  "queueWaitingForVerification": "等待验证…",
-  "queueResumingAfterVerification": "验证后正在恢复…",
-  "@queueDownloadStarting": {
-    "description": "Queue status before download progress is available"
-  },
-  "@queueCheckingDownloadSession": {
-    "description": "Queue status while the download provider's session is being checked during preparation (preparationStage 'checking_session'). This is about the provider session, not about locating a finished file."
-  },
   "a11ySelectTrack": "选择曲目",
   "@a11ySelectTrack": {
     "description": "Accessibility label for selecting a track"
@@ -4982,14 +4069,6 @@
         "type": "int"
       }
     }
-  },
-  "downloadNativeWorker": "原生下载工作器",
-  "@downloadNativeWorker": {
-    "description": "Setting title for Android native download worker"
-  },
-  "downloadNativeWorkerSubtitle": "用于扩展下载的Android后台服务",
-  "@downloadNativeWorkerSubtitle": {
-    "description": "Setting subtitle for Android native download worker"
   },
   "extensionServiceStatus": "服务状态",
   "@extensionServiceStatus": {
@@ -5079,18 +4158,6 @@
   "@extensionEnterValue": {
     "description": "Hint for editing an extension setting value"
   },
-  "extensionHealthServiceOnline": "服务在线",
-  "@extensionHealthServiceOnline": {
-    "description": "Tooltip for online extension service"
-  },
-  "extensionHealthServiceDegraded": "服务降级",
-  "@extensionHealthServiceDegraded": {
-    "description": "Tooltip for degraded extension service"
-  },
-  "extensionHealthServiceOffline": "服务离线",
-  "@extensionHealthServiceOffline": {
-    "description": "Tooltip for offline extension service"
-  },
   "extensionHealthServiceUnknown": "服务状态未知",
   "@extensionHealthServiceUnknown": {
     "description": "Tooltip for unknown extension service health"
@@ -5154,35 +4221,6 @@
   "editMetadataSelectNone": "无",
   "@editMetadataSelectNone": {
     "description": "Button to clear selected fields for auto-fill"
-  },
-  "queueRetryAllFailed": "重试 {count} 个失败",
-  "@queueRetryAllFailed": {
-    "description": "Button to retry every failed download in the queue",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsSaveDownloadHistory": "保存下载历史",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "在历史和乐库视图中保留已完成的下载",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
-  "dialogDisableHistoryTitle": "关闭下载历史？",
-  "@dialogDisableHistoryTitle": {
-    "description": "Confirmation dialog title shown before disabling download history"
-  },
-  "dialogDisableHistoryMessage": "现有历史将被清除。已下载的文件不会被删除。",
-  "@dialogDisableHistoryMessage": {
-    "description": "Confirmation dialog message shown before disabling download history"
-  },
-  "dialogDisableAndClear": "关闭并清除",
-  "@dialogDisableAndClear": {
-    "description": "Confirmation action to disable download history and clear existing entries"
   },
   "libraryPlayback": "播放",
   "@libraryPlayback": {
@@ -5398,22 +4436,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "downloadPrimaryArtistOnlyOn": "仅主要：开",
-  "@downloadPrimaryArtistOnlyOn": {
-    "description": "Status label when primary-artist-only folder naming is enabled"
-  },
-  "downloadPrimaryArtistOnlyOff": "仅主要：关",
-  "@downloadPrimaryArtistOnlyOff": {
-    "description": "Status label when primary-artist-only folder naming is disabled"
-  },
-  "downloadAlbumArtistMetadataPrimaryOnly": "专辑艺术家元数据：仅主要",
-  "@downloadAlbumArtistMetadataPrimaryOnly": {
-    "description": "Status label when album-artist folder filtering uses primary artist only"
-  },
-  "downloadAlbumArtistMetadataFull": "专辑艺术家元数据：完整",
-  "@downloadAlbumArtistMetadataFull": {
-    "description": "Status label when album-artist folder filtering uses full metadata"
-  },
   "trackConvertOriginal": "原始",
   "@trackConvertOriginal": {
     "description": "Label for keeping original bit depth or sample rate during conversion"
@@ -5512,58 +4534,6 @@
   "trackCoverOnline": "在线封面",
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
-  },
-  "regionCountryUS": "美国",
-  "@regionCountryUS": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryGB": "英国",
-  "@regionCountryGB": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryFR": "法国",
-  "@regionCountryFR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryDE": "德国",
-  "@regionCountryDE": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryJP": "日本",
-  "@regionCountryJP": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryKR": "韩国",
-  "@regionCountryKR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryIN": "印度",
-  "@regionCountryIN": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryID": "印度尼西亚",
-  "@regionCountryID": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryBR": "巴西",
-  "@regionCountryBR": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryMX": "墨西哥",
-  "@regionCountryMX": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryAU": "澳大利亚",
-  "@regionCountryAU": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryCA": "加拿大",
-  "@regionCountryCA": {
-    "description": "Country name for SongLink region picker"
-  },
-  "regionCountryXK": "科索沃",
-  "@regionCountryXK": {
-    "description": "Country name for SongLink region picker"
   },
   "extensionVerificationBrowserTitle": "验证浏览器",
   "@extensionVerificationBrowserTitle": {
@@ -5980,7 +4950,6 @@
   "@homeMixSaveAsPlaylist": {
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
-  "motionArtwork": "动态封面",
   "listeningStats": "收听统计",
   "listeningStatsRecord": "记录收听",
   "listeningStatsDescription": "仅存储在此设备上，从现在开始。仅记录内置播放器；暂停和跳过不计入。",
@@ -6233,7 +5202,6 @@
     }
   },
   "listeningRewindYearOutroBody": "为又一年的好音乐干杯。",
-  "motionArtworkDescription": "循环播放元数据提供商提供的视频封面。关闭以使用静态封面并节省电量。",
   "libraryLoading": "正在加载乐库…",
   "libraryLoadFailed": "无法加载乐库。重试以加载保存的文件夹和曲目索引。",
   "autoMixSettingsTitle": "混合过渡",
@@ -6509,10 +5477,6 @@
   "appCrashDismiss": "忽略",
   "appCrashCopyFailed": "无法复制崩溃报告，请重试。",
   "appCrashDismissFailed": "无法关闭崩溃报告，请重试。",
-  "optionsEmbeddedCoverSizeOriginal": "原始分辨率",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "menuOpen": "Open",
   "@menuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
@@ -6601,161 +5565,6 @@
   "playlistImportFailed": "Could not read this playlist file",
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
-  },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
-  },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
-  },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
-  },
-  "reorganizeLibraryScanning": "Checking your files…",
-  "@reorganizeLibraryScanning": {
-    "description": "Shown while Sistrum works out which downloaded files need to move"
-  },
-  "reorganizeLibraryBusy": "Wait for active downloads to finish before reorganizing files",
-  "@reorganizeLibraryBusy": {
-    "description": "Snackbar when the user tries to reorganize files while downloads are running"
-  },
-  "reorganizeLibraryNothingTitle": "Already Organized",
-  "@reorganizeLibraryNothingTitle": {
-    "description": "Dialog title when every downloaded file already follows the rules"
-  },
-  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Sistrum did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
-  "@reorganizeLibraryNothingMessage": {
-    "description": "Dialog message when there is nothing to move",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryConfirmTitle": "Reorganize {count} {count, plural, =1{file} other{files}}?",
-  "@reorganizeLibraryConfirmTitle": {
-    "description": "Confirmation dialog title before moving files",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryConfirmMessage": "These tracks will be moved or renamed to match your current Files settings, using their tags. Lyrics (.lrc) files next to them move too, and folders left empty are removed.",
-  "@reorganizeLibraryConfirmMessage": {
-    "description": "Confirmation dialog body before moving files"
-  },
-  "reorganizeLibraryExamples": "For example:",
-  "@reorganizeLibraryExamples": {
-    "description": "Label above a few sample moves in the reorganize confirmation dialog"
-  },
-  "reorganizeLibraryMoreChanges": "…and {count} more",
-  "@reorganizeLibraryMoreChanges": {
-    "description": "Shown under the sample moves when more files will be moved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryAlreadyOrganized": "{count} {count, plural, =1{track already matches} other{tracks already match}} and will stay where {count, plural, =1{it is} other{they are}}.",
-  "@reorganizeLibraryAlreadyOrganized": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryOutsideFolder": "{count} {count, plural, =1{track is} other{tracks are}} stored outside the current download folder and will be left alone.",
-  "@reorganizeLibraryOutsideFolder": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryMissing": "{count} {count, plural, =1{file} other{files}} could not be found and will be skipped.",
-  "@reorganizeLibraryMissing": {
-    "description": "Note in the reorganize confirmation dialog",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryUntagged": "{count} {count, plural, =1{file has} other{files have}} no artist tag and will be left alone.",
-  "@reorganizeLibraryUntagged": {
-    "description": "Note in the reorganize confirmation dialog about scanned files without tags",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryScanHint": "Files Sistrum did not download are only included after their folder is added and scanned in Local Library.",
-  "@reorganizeLibraryScanHint": {
-    "description": "Hint in the reorganize confirmation dialog about which files are covered"
-  },
-  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Sistrum doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
-  "@reorganizeLibraryKeepsPlaylistFolders": {
-    "description": "Warning in the reorganize confirmation dialog when the folder rule depends on the playlist"
-  },
-  "reorganizeLibraryDropsPlaylistFolders": "Sistrum doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
-  "@reorganizeLibraryDropsPlaylistFolders": {
-    "description": "Warning in the reorganize confirmation dialog when playlist folders are enabled"
-  },
-  "reorganizeLibrarySafNote": "Your download folder was picked through Android's folder picker, so each file is copied to its new place and then removed. This can take a while for a large library.",
-  "@reorganizeLibrarySafNote": {
-    "description": "Note in the reorganize confirmation dialog in Android SAF storage mode"
-  },
-  "reorganizeLibraryConfirmAction": "Move Files",
-  "@reorganizeLibraryConfirmAction": {
-    "description": "Confirm button of the reorganize dialog"
-  },
-  "reorganizeLibraryMoving": "Moving files",
-  "@reorganizeLibraryMoving": {
-    "description": "Title of the progress dialog while files are moved"
-  },
-  "reorganizeLibraryDone": "Moved {moved} of {total} {total, plural, =1{file} other{files}}",
-  "@reorganizeLibraryDone": {
-    "description": "Snackbar after reorganizing files",
-    "placeholders": {
-      "moved": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryDoneWithFailures": "Moved {moved} of {total} {total, plural, =1{file} other{files}} · {failed} failed",
-  "@reorganizeLibraryDoneWithFailures": {
-    "description": "Snackbar after reorganizing files when some moves failed",
-    "placeholders": {
-      "moved": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
-  "reorganizeLibraryFailed": "Couldn't reorganize your files: {error}",
-  "@reorganizeLibraryFailed": {
-    "description": "Snackbar when planning or applying the reorganization fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
   },
   "autoMixOn": "AutoMix 开",
   "autoMixOff": "AutoMix 关"

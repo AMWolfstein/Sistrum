@@ -6,7 +6,6 @@ import 'package:sistrum/widgets/library_song_artwork.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
@@ -18,6 +17,7 @@ import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -94,9 +94,6 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       _app(Scaffold(body: MornyeLibraryScreen(onOpenSection: (_) {})), [
-        downloadQueueLookupProvider.overrideWithValue(
-          DownloadQueueLookup.fromItems(const []),
-        ),
         settingsProvider.overrideWith(_Settings.new),
         downloadHistoryProvider.overrideWith(_History.new),
         libraryGenresProvider.overrideWith((ref) async => _genres),

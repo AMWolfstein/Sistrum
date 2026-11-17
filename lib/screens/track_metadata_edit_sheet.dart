@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/controllers/metadata_editor_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
@@ -57,7 +56,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   String? _selectedCoverPath;
   String? _selectedCoverTempDir;
   String? _selectedCoverName;
-  String? _selectedMotionArtworkUrl;
   String? _currentCoverPath;
   String? _currentCoverTempDir;
   bool _loadingCurrentCover = false;
@@ -201,9 +199,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   Future<void> _save() async {
     if (_saving) return;
     final container = ProviderScope.containerOf(context, listen: false);
-    final artworkUrl = _selectedMotionArtworkUrl;
-    final artworkAlbum = _form['album']!.text.trim();
-    final artworkArtist = _form['artist']!.text.trim();
     setState(() => _saving = true);
     try {
       final result = await _persistence.save(
@@ -220,12 +215,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
         ),
       );
       if (result.failure == null) {
-        await saveReEnrichedMotionArtwork(
-          container,
-          metadata: {'header_video': artworkUrl},
-          albumName: artworkAlbum,
-          artistName: artworkArtist,
-        );
         if (!mounted) return;
         Navigator.pop(context, true);
         return;

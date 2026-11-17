@@ -8,9 +8,6 @@ class MethodChannelBackend extends BackendChannel {
   static const shared = MethodChannelBackend(
     MethodChannel('com.amwolfstein.sistrum/backend'),
   );
-  static const _downloadProgressChannel = EventChannel(
-    'com.amwolfstein.sistrum/download_progress_stream',
-  );
   static const _libraryScanProgressChannel = EventChannel(
     'com.amwolfstein.sistrum/library_scan_progress_stream',
   );
@@ -33,9 +30,6 @@ class MethodChannelBackend extends BackendChannel {
       channel.setMethodCallHandler(handler);
 
   @override
-  Stream<dynamic> downloadProgressEvents() =>
-      _downloadProgressChannel.receiveBroadcastStream();
-
   @override
   Stream<dynamic> libraryScanProgressEvents() =>
       _libraryScanProgressChannel.receiveBroadcastStream();

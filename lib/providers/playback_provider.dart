@@ -1,18 +1,16 @@
-import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/track_file_resolver.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
 
 final _log = AppLogger('PlaybackProvider');
 
@@ -78,13 +76,7 @@ class PlaybackController extends Notifier<PlaybackState> {
     }
 
     _log.d('Opening external player for "$title" by $artist: $path');
-    final recovered = Platform.isAndroid
-        ? await DownloadFileRecovery.instance.recover(
-            path,
-            settings: ref.read(settingsProvider),
-          )
-        : null;
-    await openFile(recovered ?? path);
+    await openFile(path);
   }
 
   /// Plays a local-library album/list starting at [startItem], queuing the rest
@@ -157,13 +149,7 @@ class PlaybackController extends Notifier<PlaybackState> {
           .read(musicPlayerControllerProvider)
           .playAll(items, initialIndex: i);
     } else {
-      final recovered = Platform.isAndroid
-          ? await DownloadFileRecovery.instance.recover(
-              externalPath,
-              settings: ref.read(settingsProvider),
-            )
-          : null;
-      await openFile(recovered ?? externalPath);
+      await openFile(externalPath);
     }
   }
 
@@ -264,18 +250,11 @@ class PlaybackController extends Notifier<PlaybackState> {
 
   Future<List<String?>> _resolveTrackPaths(List<Track> tracks) async {
     if (tracks.isEmpty) return const [];
-    final recovery = DownloadFileRecovery(history: _history);
     final (:paths, :missingHistoryIds) = await resolveTrackFiles(
       tracks,
       library: _library,
       history: _history,
       includeLocal: ref.read(settingsProvider).localLibraryEnabled,
-      recoverDownload: (source, id) => recovery.recover(
-        source,
-        historyId: id,
-        settings: ref.read(settingsProvider),
-        knownMissing: true,
-      ),
     );
     final historyNotifier = ref.read(downloadHistoryProvider.notifier);
     await historyNotifier.removeManyFromHistory(missingHistoryIds);
