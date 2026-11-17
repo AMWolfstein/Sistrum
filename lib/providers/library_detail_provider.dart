@@ -45,8 +45,8 @@ final libraryArtistFeaturedTracksProvider = FutureProvider.autoDispose
     );
 
 /// The library artist's Popular songs: most played, filled up at random.
-final libraryArtistPopularTracksProvider = FutureProvider.autoDispose
-    .family<List<Track>, String>((ref, artist) {
+final libraryArtistPopularItemsProvider = FutureProvider.autoDispose
+    .family<List<UnifiedLibraryItem>, String>((ref, artist) {
       final settings = ref.watch(
         settingsProvider.select(
           (s) => (
@@ -55,13 +55,24 @@ final libraryArtistPopularTracksProvider = FutureProvider.autoDispose
           ),
         ),
       );
-      return loadLibraryArtistPopularTracks(
+      return loadLibraryArtistPopularItems(
         artist,
         credits: ref.watch(tagCreditScopeProvider),
         includeLocal: settings.includeLocal,
         useStatistics: settings.useStatistics,
       );
     });
+
+/// [libraryArtistPopularItemsProvider] as tracks, for the page's rows.
+final libraryArtistPopularTracksProvider = FutureProvider.autoDispose
+    .family<List<Track>, String>(
+      (ref, artist) async => [
+        for (final item in await ref.watch(
+          libraryArtistPopularItemsProvider(artist).future,
+        ))
+          item.toTrack(),
+      ],
+    );
 
 /// Every genre of the library, sorted by name. The credits version covers the
 /// index changes that the songs of each genre depend on.

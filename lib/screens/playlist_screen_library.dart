@@ -355,6 +355,7 @@ extension _PlaylistLibrarySections on _PlaylistScreenState {
             size: context.tokens.coverList,
           ),
           trackName: entry.track.name,
+          explicit: entry.track.isExplicit,
           subtitle: Text(
             entry.track.artistName,
             maxLines: 1,

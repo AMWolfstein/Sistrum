@@ -64,13 +64,13 @@ class LibraryLyricsSearchStore {
   String _songs(bool includeLocal) =>
       '''
     SELECT 'downloaded' AS source, h.id, h.file_path, h.track_name AS title,
-      h.artist_name AS artist, h.cover_url AS cover,
+      h.artist_name AS artist, h.cover_url AS cover, h.explicit AS explicit,
       COALESCE(h.downloaded_at, '') || '|' || COALESCE(h.has_lyrics, 0)
         AS version
     FROM history_db.history h WHERE COALESCE(h.file_path, '') != ''
     ${includeLocal ? '''UNION ALL
     SELECT 'local' AS source, l.id, l.file_path, l.track_name AS title,
-      l.artist_name AS artist, l.cover_path AS cover,
+      l.artist_name AS artist, l.cover_path AS cover, l.explicit AS explicit,
       COALESCE(l.file_mod_time, 0) || '|' || l.scanned_at || '|' ||
         COALESCE(l.network_file_version, '') || '|' || l.has_lyrics AS version
     FROM library_visible l WHERE ${libraryNotShadowedSql('l')}
@@ -202,7 +202,7 @@ class LibraryLyricsSearchStore {
     final rows = await db.rawQuery(
       '''
       SELECT song.source, song.id, song.title, song.artist, song.cover,
-        song.file_path AS sample_path, 1 AS track_count
+        song.explicit, song.file_path AS sample_path, 1 AS track_count
       FROM (${_songs(includeLocal)}) song JOIN $_table c
         ON c.source = song.source AND c.id = song.id
           AND c.file_path = song.file_path AND c.version = song.version

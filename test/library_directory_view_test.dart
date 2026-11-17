@@ -230,7 +230,7 @@ void main() {
           .widgetList<Text>(
             find.descendant(of: row, matching: find.byType(Text)),
           )
-          .map((text) => text.data),
+          .map((text) => (text.data ?? text.textSpan!.toPlainText())),
       ['Song loose', 'Artist'],
     );
   });

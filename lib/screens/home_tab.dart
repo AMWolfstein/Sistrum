@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
@@ -192,7 +193,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
             if (_showsSearch && searchText.isNotEmpty)
               LibrarySearchResults(
                 query: searchText,
-                shelves: true,
                 onOpenArtist: (artist) => openLibraryArtist(context, artist),
               ),
             if (_showsHome)

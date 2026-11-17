@@ -53,6 +53,7 @@ class MetadataSettingsPage extends ConsumerWidget {
                   ),
                   SettingsItem(
                     title: context.l10n.tagSeparators,
+                    subtitle: context.l10n.tagSeparatorsDescription,
                     onTap: () => pushPage<void>(
                       context,
                       (_) => const TagSeparatorSettingsPage(),

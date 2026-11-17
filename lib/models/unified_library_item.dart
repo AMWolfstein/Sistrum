@@ -135,6 +135,9 @@ class UnifiedLibraryItem {
     return libraryTrackCollectionKey(id: id);
   }
 
+  /// Whether the song is tagged explicit.
+  bool get explicit => historyItem?.explicit ?? localItem?.explicit ?? false;
+
   Track toTrack() {
     if (historyItem != null) {
       final h = historyItem!;
@@ -151,6 +154,7 @@ class UnifiedLibraryItem {
         discNumber: h.discNumber,
         releaseDate: h.releaseDate,
         source: h.collectionTrackSource,
+        explicit: h.explicit,
       );
     }
     if (localItem != null) {
@@ -168,6 +172,7 @@ class UnifiedLibraryItem {
         discNumber: l.discNumber,
         releaseDate: l.releaseDate,
         source: 'local',
+        explicit: l.explicit,
       );
     }
     return Track(

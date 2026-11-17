@@ -3,6 +3,7 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
 
 /// How a [TrackCard] paints its container.
 enum TrackCardStyle {
@@ -34,6 +35,7 @@ class TrackCard extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.margin,
+    this.explicit = false,
   });
 
   /// Track number, cover art, or anything else that identifies the row.
@@ -42,6 +44,9 @@ class TrackCard extends StatelessWidget {
   final Widget leading;
 
   final String title;
+
+  /// The track is explicit: the E badge follows the title.
+  final bool explicit;
 
   /// Secondary line. A widget rather than a string because callers mix in
   /// clickable artist names, quality badges and status text. `Text` without
@@ -134,8 +139,9 @@ class TrackCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        title,
+                      ExplicitTrackTitle(
+                        title: title,
+                        explicit: explicit,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyLarge?.copyWith(
@@ -193,6 +199,7 @@ class TrackGridCard extends StatelessWidget {
     this.onLongPress,
     this.isSelected = false,
     this.semanticLabel,
+    this.explicit = false,
   });
 
   /// Artwork, already sized to fill the square. Clipping is handled here.
@@ -212,6 +219,9 @@ class TrackGridCard extends StatelessWidget {
 
   final bool isSelected;
   final String? semanticLabel;
+
+  /// The track is explicit: the E badge follows the title.
+  final bool explicit;
 
   @override
   Widget build(BuildContext context) {
@@ -262,8 +272,9 @@ class TrackGridCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: tokens.gapXs + 2),
-            Text(
-              title,
+            ExplicitTrackTitle(
+              title: title,
+              explicit: explicit,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(

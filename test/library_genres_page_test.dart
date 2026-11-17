@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/widgets/library_song_artwork.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
@@ -161,11 +162,13 @@ void main() {
     expect(find.text('3 tracks'), findsOneWidget);
     expect(find.byType(AlbumPlayActions), findsOneWidget);
     expect(find.text('Play'), findsOneWidget);
-    expect(find.byTooltip('Shuffle'), findsOneWidget);
+    expect(find.text('Shuffle'), findsOneWidget);
     expect(find.text('Song 0'), findsOneWidget);
     expect(find.text('Song 2'), findsOneWidget);
+    // Rows read a file cover or an embedded one, not only a network cover.
+    expect(find.byType(LibrarySongArtwork), findsNWidgets(3));
 
-    await tester.tap(find.byTooltip('Shuffle'));
+    await tester.tap(find.text('Shuffle'));
     await tester.pumpAndSettle();
     expect(player.shuffles, [true]);
     expect(playback.played.single.titles, ['Song 0', 'Song 1', 'Song 2']);

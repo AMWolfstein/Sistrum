@@ -120,6 +120,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
                   )
                 : _buildCoverArt(item, colorScheme),
             title: item.track.name,
+            explicit: item.track.isExplicit,
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -889,6 +890,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
           : () => _enterSelectionMode(item.id),
       leading: leading,
       title: item.trackName,
+      explicit: item.explicit,
       subtitle: subtitle,
       trailing: trailing,
     );
@@ -1027,6 +1029,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
           ),
       ],
       title: item.trackName,
+      explicit: item.explicit,
       // Not the history service: see the list row above.
       subtitle: ClickableArtistName(
         artistName: item.artistName,

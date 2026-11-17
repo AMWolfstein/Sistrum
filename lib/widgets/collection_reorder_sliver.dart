@@ -96,6 +96,7 @@ class _CollectionReorderSliverState extends State<CollectionReorderSliver> {
                       : TrackCoverPlaceholder(size: size),
                 ),
                 title: track.name,
+                explicit: track.isExplicit,
                 subtitle: Text(
                   track.artistName,
                   maxLines: 1,

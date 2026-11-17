@@ -297,5 +297,5 @@ List<String?> _rowTexts(WidgetTester tester, Finder row) => [
   for (final text in tester.widgetList<Text>(
     find.descendant(of: row, matching: find.byType(Text)),
   ))
-    text.data,
+    (text.data ?? text.textSpan!.toPlainText()),
 ];

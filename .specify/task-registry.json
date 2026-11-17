@@ -19,9 +19,9 @@
       "title": "Offline library detail screens"
     }
   },
-  "next_completion": 47,
+  "next_completion": 48,
   "next_mission": 4,
-  "next_tor": 17,
+  "next_tor": 18,
   "tasks": {
     "M001-T001": {
       "completion": 22,
@@ -758,6 +758,22 @@
       "record": ".specify/quick-tasks/TOR013.md",
       "status": "complete",
       "title": "Audit the M001 Material theme removal"
+    },
+    "TOR017": {
+      "completion": 47,
+      "evidence": {
+        "checks": "analyze clean; full suite 3911 passed, 10 skipped, 0 failed; extra review PASS",
+        "result": "PASS",
+        "reviewer": "independent-sonnet-reviewer (owner-authorized extra round after round 3 FAIL)",
+        "round": 3
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "c55ba61c4eaa49ddb35fa8708b098588",
+      "record": ".specify/quick-tasks/TOR017.md",
+      "status": "complete",
+      "title": "Artist popular layout, compilations padding, album row/shuffle styling, red delete"
     }
   },
   "version": 1

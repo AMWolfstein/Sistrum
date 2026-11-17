@@ -16,6 +16,7 @@ import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/widgets/track_card.dart';
@@ -199,10 +200,63 @@ void main() {
       600,
       scrollable: find.byType(Scrollable).first,
     );
+    // The list's extent is estimated until its rows are laid out: scroll on.
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+    await tester.pumpAndSettle();
     await tester.tap(findAppIcon(Icons.expand_more));
     await tester.pumpAndSettle();
     expect(requests.last.offset, 40);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('results read as the online search did: icon chips, Artists '
+      'first, grouped rows with the Artist label, explicit songs badged', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          librarySearchProvider.overrideWith(
+            (ref, request) async => [
+              LibrarySearchHit(
+                kind: request.kind,
+                id: '1',
+                title: 'Found ${request.kind.name}',
+                artist: 'Someone',
+                explicit: request.kind == LibrarySearchKind.songs,
+              ),
+            ],
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                LibrarySearchResults(query: 'Found', onOpenArtist: (_) {}),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Chips carry their kind's icon.
+    expect(find.byIcon(mornyeIconFor(Icons.music_note)), findsWidgets);
+    expect(find.byIcon(mornyeIconFor(Icons.person)), findsWidgets);
+    // Artists come before Albums, then Playlists, then Songs.
+    double top(String text) => tester
+        .getTopLeft(find.textContaining(text, findRichText: true).last)
+        .dy;
+    expect(top('Found artists') < top('Found albums'), isTrue);
+    expect(top('Found albums') < top('Found songs'), isTrue);
+    // An artist row carries the Artist label, not a track count.
+    final l10n = AppLocalizations.of(tester.element(find.byType(Scaffold)));
+    expect(find.text(l10n.trackArtist), findsOneWidget);
+    // Only the explicit song carries the E badge.
+    expect(find.text('E'), findsOneWidget);
   });
 
   testWidgets('an older query cannot replace newer results', (tester) async {

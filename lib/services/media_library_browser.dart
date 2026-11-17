@@ -554,6 +554,7 @@ class MediaLibraryBrowser {
         query: text,
         kind: LibrarySearchKind.artists,
         includeLocal: includeLocal(),
+        credits: tagCredits(),
         limit: 20,
       ),
       _searchPlaylists(text),
@@ -638,6 +639,7 @@ class MediaLibraryBrowser {
         query: text,
         kind: LibrarySearchKind.artists,
         includeLocal: includeLocal(),
+        credits: tagCredits(),
         limit: 1,
       );
       return hits.isEmpty ? const [] : _artistSongs(hits.first.title);

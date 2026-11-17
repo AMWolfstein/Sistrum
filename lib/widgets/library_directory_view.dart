@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:sistrum/screens/track_metadata_screen.dart';
-import 'package:sistrum/widgets/local_library_artwork_builder.dart';
+import 'package:sistrum/widgets/library_song_artwork.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -469,8 +469,9 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           mediaItemPlaybackUiProvider(_playbackKey(item)),
         );
         return AlbumTrackTile(
-          cover: _SongArtwork(item: item, size: context.tokens.coverList),
+          cover: LibrarySongArtwork(item: item, size: context.tokens.coverList),
           trackName: item.trackName,
+          explicit: item.explicit,
           subtitle: Text(
             item.artistName,
             maxLines: 1,
@@ -553,52 +554,6 @@ class _FolderArtwork extends StatelessWidget {
                 localCacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
                     .round(),
                 placeholder: glyph,
-              ),
-      ),
-    );
-  }
-}
-
-/// A song's artwork: the download's cover, or the scanned file's thumbnail
-/// with its embedded artwork recovered when the thumbnail is gone.
-class _SongArtwork extends StatelessWidget {
-  const _SongArtwork({required this.item, required this.size});
-
-  final UnifiedLibraryItem item;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    Widget placeholder(BuildContext context) => ColoredBox(
-      color: colorScheme.surfaceContainerHighest,
-      child: Center(
-        child: AppIcon.adaptive(
-          Icons.music_note,
-          size: size * 0.45,
-          color: colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-    Widget image(String? cover) => cover == null || cover.isEmpty
-        ? placeholder(context)
-        : LocalOrNetworkCoverImage(
-            url: cover,
-            localCacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
-                .round(),
-            placeholder: placeholder,
-          );
-    final local = item.localItem;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(size > 40 ? 8 : 4),
-      child: SizedBox.square(
-        dimension: size,
-        child: local == null
-            ? image(item.coverUrl)
-            : LocalLibraryArtworkBuilder(
-                coverPath: local.coverPath,
-                filePath: local.filePath,
-                builder: (context, cover) => image(cover),
               ),
       ),
     );

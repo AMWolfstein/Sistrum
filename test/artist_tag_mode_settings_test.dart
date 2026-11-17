@@ -47,6 +47,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Single joined value'), findsOneWidget);
+      // Tag separators carries its description under the title, like the rest.
+      expect(
+        find.text(
+          AppLocalizations.of(
+            tester.element(find.byType(MetadataSettingsPage)),
+          ).tagSeparatorsDescription,
+        ),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Artist Tag Mode'));
       await tester.pumpAndSettle();
       Finder inSheet(String text) => find.descendant(

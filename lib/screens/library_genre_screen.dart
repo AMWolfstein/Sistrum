@@ -14,7 +14,7 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/library_song_artwork.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 /// The songs of one library genre: Play and Shuffle over them, then the
@@ -101,17 +101,9 @@ class LibraryGenreScreen extends ConsumerWidget {
                   final item = items[index];
                   return TrackCard(
                     style: TrackCardStyle.flat,
-                    leading: SizedBox.square(
-                      dimension: 48,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: _SongCover(
-                          cover: item.localCoverPath ?? item.coverUrl,
-                          colors: colors,
-                        ),
-                      ),
-                    ),
+                    leading: LibrarySongArtwork(item: item, size: 48),
                     title: item.trackName,
+                    explicit: item.explicit,
                     subtitle: Text(
                       item.artistName,
                       maxLines: 1,
@@ -162,29 +154,5 @@ class LibraryGenreScreen extends ConsumerWidget {
     } catch (error) {
       if (context.mounted) showCannotOpenFileSnackBar(context, error);
     }
-  }
-}
-
-/// A library cover is a file path or a URL; a song without one shows a note.
-class _SongCover extends StatelessWidget {
-  const _SongCover({required this.cover, required this.colors});
-
-  final String? cover;
-  final ColorScheme colors;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget fallback() => ColoredBox(
-      color: colors.surfaceContainerHighest,
-      child: Center(
-        child: Icon(Icons.music_note, color: colors.onSurfaceVariant),
-      ),
-    );
-    if (cover == null || cover!.isEmpty) return fallback();
-    return CachedCoverImage(
-      imageUrl: cover!,
-      fit: BoxFit.cover,
-      errorWidget: (context, url, error) => fallback(),
-    );
   }
 }

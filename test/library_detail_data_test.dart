@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_detail_provider.dart';
@@ -477,6 +478,41 @@ void main() {
     });
   });
 
+  group('artist search', () {
+    test(
+      'finds the names after the tag separators, not the whole tag',
+      () async {
+        final hits = await LibraryDatabase.instance.searchLibrary(
+          query: 'creator',
+          kind: LibrarySearchKind.artists,
+          includeLocal: true,
+          credits: _scope,
+        );
+        expect(hits.map((hit) => hit.title), ['The Creator']);
+        expect(hits.single.trackCount, greaterThan(0));
+        final whole = await LibraryDatabase.instance.searchLibrary(
+          query: 'creator',
+          kind: LibrarySearchKind.artists,
+          includeLocal: true,
+        );
+        expect(whole.map((hit) => hit.title), ['Tyler, The Creator']);
+      },
+    );
+
+    test('a Keep together name is found whole', () async {
+      const kept = TagCreditScope(
+        rules: TagCreditRules(keepTogether: ['Tyler, The Creator']),
+      );
+      final hits = await LibraryDatabase.instance.searchLibrary(
+        query: 'tyler',
+        kind: LibrarySearchKind.artists,
+        includeLocal: true,
+        credits: kept,
+      );
+      expect(hits.map((hit) => hit.title), ['Tyler, The Creator']);
+    });
+  });
+
   group('featured tracks', () {
     test('a track whose album artist is the artist is not featured, and '
         'a missing album artist falls back to the track artist', () async {
@@ -510,13 +546,17 @@ void main() {
   });
 
   group('popular', () {
+    test('lists two pages of songs', () {
+      expect(libraryPopularTrackCount, 2 * libraryPopularPageSize);
+    });
+
     setUp(() async {
       await _play('/music/pop/3.flac', 9);
       await _play('/music/pop/6.flac', 4);
     });
 
     test('with statistics on, the most played come first and random songs '
-        'fill up to five', () async {
+        'fill up to the songs there are', () async {
       for (var seed = 1; seed <= 20; seed++) {
         final popular = await loadLibraryArtistPopularTracks(
           'Pop Act',
@@ -525,10 +565,11 @@ void main() {
           useStatistics: true,
           random: Random(seed),
         );
-        expect(popular, hasLength(libraryPopularTrackCount));
+        // The fixture has seven songs of this artist, fewer than the limit.
+        expect(popular, hasLength(7));
         expect(_names(popular.take(2)), ['Pop 3', 'Pop 6']);
         final rest = _names(popular.skip(2));
-        expect(rest.toSet(), hasLength(3), reason: 'no song twice');
+        expect(rest.toSet(), hasLength(5), reason: 'no song twice');
         expect(
           rest.every((name) => name != 'Pop 3' && name != 'Pop 6'),
           isTrue,
@@ -546,7 +587,8 @@ void main() {
           useStatistics: false,
           random: Random(seed),
         );
-        expect(popular, hasLength(libraryPopularTrackCount));
+        // The fixture has seven songs of this artist, fewer than the limit.
+        expect(popular, hasLength(7));
         if (popular.first.name != 'Pop 3') firstIsMostPlayed = false;
       }
       expect(firstIsMostPlayed, isFalse);
@@ -771,7 +813,8 @@ void main() {
     final popular = await container.read(
       libraryArtistPopularTracksProvider('Pop Act').future,
     );
-    expect(popular, hasLength(libraryPopularTrackCount));
+    // The fixture has seven songs of this artist, fewer than the limit.
+    expect(popular, hasLength(7));
     final album = await container.read(
       libraryAlbumTracksProvider(
         LibraryDatabase.albumKeyFor('Mixtape', null, 'Dana Vale'),

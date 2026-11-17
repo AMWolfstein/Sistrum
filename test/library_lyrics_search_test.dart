@@ -20,7 +20,8 @@ void main() {
         await createNativeLibraryFixture(db);
         await db.execute('''CREATE TABLE history_db.history (
           origin_file_path TEXT, id TEXT PRIMARY KEY, file_path TEXT, track_name TEXT,
-          artist_name TEXT, cover_url TEXT, downloaded_at TEXT, has_lyrics INTEGER
+          artist_name TEXT, cover_url TEXT, downloaded_at TEXT, has_lyrics INTEGER,
+          explicit INTEGER DEFAULT 0
         )''');
         await db.insert('history_db.history', {
           'id': 'download',
@@ -29,6 +30,7 @@ void main() {
           'artist_name': 'Artist',
           'downloaded_at': '2026-11-01',
           'has_lyrics': 1,
+          'explicit': 1,
         });
         await addNativeLibraryDownload(db, '/music/download.flac');
         await db.update('history_db.history_path_keys', {
@@ -82,6 +84,18 @@ void main() {
         ))
           hit.id,
       ];
+
+      test('an explicit song keeps its explicit flag in the hit', () async {
+        await index();
+        final hits = await store.search(
+          query: 'moonlight',
+          includeLocal: true,
+          limit: 10,
+          offset: 0,
+        );
+        expect(hits.single.id, 'download');
+        expect(hits.single.explicit, isTrue);
+      });
 
       test(
         'searches saved lyrics, strips LRC tags, hides disabled and duplicate files',

@@ -18,7 +18,6 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'support/app_icon_finder.dart';
 import 'support/re_enrich_settings.dart';
 
 class _History extends DownloadHistoryNotifier {
@@ -113,7 +112,7 @@ void main() {
     expect(
       find.descendant(
         of: row('Second'),
-        matching: findAppIcon(CupertinoIcons.pause_fill),
+        matching: find.byIcon(CupertinoIcons.pause_circle),
       ),
       findsOneWidget,
     );

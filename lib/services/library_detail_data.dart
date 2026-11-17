@@ -13,10 +13,14 @@ import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/utils/artist_utils.dart' show splitArtistTagValues;
 import 'package:sistrum/utils/release_type_utils.dart';
 
-/// Songs the library artist page lists under Popular, in one page.
+/// Songs the library artist page lists under Popular, in pages of
+/// [libraryPopularPageSize].
 /// shortcut: only this many library songs are listed, upgrade if the library
 /// page should list more.
-const libraryPopularTrackCount = 5;
+const libraryPopularTrackCount = 10;
+
+/// Songs on one page of the Popular carousel.
+const libraryPopularPageSize = 5;
 
 const _pageSize = 500;
 
@@ -159,6 +163,25 @@ Future<List<Track>> loadLibraryArtistPopularTracks(
   required bool includeLocal,
   required bool useStatistics,
   Random? random,
+}) async => [
+  for (final song in await loadLibraryArtistPopularItems(
+    artist,
+    credits: credits,
+    includeLocal: includeLocal,
+    useStatistics: useStatistics,
+    random: random,
+  ))
+    song.toTrack(),
+];
+
+/// The songs of [loadLibraryArtistPopularTracks], as library items, which the
+/// row menu acts on.
+Future<List<UnifiedLibraryItem>> loadLibraryArtistPopularItems(
+  String artist, {
+  required TagCreditScope credits,
+  required bool includeLocal,
+  required bool useStatistics,
+  Random? random,
 }) async {
   final songs = await _creditedSongs(
     artist,
@@ -186,7 +209,7 @@ Future<List<Track>> loadLibraryArtistPopularTracks(
     ]..shuffle(random ?? Random());
     picked.addAll(others.take(fill));
   }
-  return [for (final song in picked) song.toTrack()];
+  return picked;
 }
 
 /// A genre of the library: its name, its song count and a cover from one of

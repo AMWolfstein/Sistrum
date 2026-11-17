@@ -134,6 +134,7 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
                 'remove',
                 context.l10n.trackRemoveFromDevice,
                 CupertinoIcons.trash,
+                destructive: true,
               ),
           ],
           [
@@ -179,11 +180,13 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
     IconData icon, {
     String? subtitle,
     bool selected = false,
+    bool destructive = false,
   }) => MornyeMenuAction(
     icon: icon,
     label: label,
     subtitle: subtitle,
     selected: selected,
+    destructive: destructive,
     onPressed: () => Navigator.of(context).pop(value),
   );
 }

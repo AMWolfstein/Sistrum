@@ -13,6 +13,7 @@ import 'package:sistrum/models/artist_album.dart';
 import 'package:sistrum/screens/artist_screen.dart';
 import 'package:sistrum/services/library_detail_data.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/artist_popular_carousel.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 const _dana = 'Dana Vale';
@@ -212,6 +213,57 @@ void main() {
     await settle(tester);
     expect(playback.played.single.ids, ['song-1', 'song-2']);
     expect(playback.played.single.start, 0);
+  });
+
+  testWidgets('Popular lists the album under each song, with three dots and '
+      'a dot for each page of five', (tester) async {
+    final many = [
+      for (var i = 1; i <= 7; i++)
+        Track(
+          id: 'pop-$i',
+          name: 'Pop $i',
+          artistName: _dana,
+          albumName: 'Album $i',
+          duration: 100,
+        ),
+    ];
+    await _pumpLibraryArtist(tester, popular: many);
+    expect(find.text('Album 1'), findsOneWidget);
+    expect(find.text('Pop 5'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('artist-popular')),
+        matching: find.byIcon(CupertinoIcons.ellipsis),
+      ),
+      findsNWidgets(5),
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('artist-popular')),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is Container &&
+              w.decoration is BoxDecoration &&
+              (w.decoration! as BoxDecoration).shape == BoxShape.circle,
+        ),
+      ),
+      findsNWidgets(2),
+    );
+    await tester.drag(find.text('Pop 1'), const Offset(-500, 0));
+    await settle(tester);
+    expect(find.text('Pop 6'), findsOneWidget);
+    expect(find.text('Pop 7'), findsOneWidget);
+  });
+
+  testWidgets('a short Popular list reserves only its own rows', (
+    tester,
+  ) async {
+    await _pumpLibraryArtist(tester, popular: _songs);
+    final carousel = find.byType(ArtistPopularCarousel);
+    final one = tester.getSize(carousel).height;
+    expect(find.text('Song Two'), findsOneWidget);
+    // Two rows and no dots: well under a full page of five.
+    expect(one, lessThan(5 * 60));
   });
 
   testWidgets('Latest Release plays its album', (tester) async {

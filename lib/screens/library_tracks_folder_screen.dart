@@ -542,6 +542,7 @@ class _CollectionTrackTile extends ConsumerWidget {
         ),
       ),
       title: track.name,
+      explicit: track.isExplicit,
       subtitle: Row(
         children: [
           Flexible(

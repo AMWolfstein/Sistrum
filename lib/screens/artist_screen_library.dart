@@ -133,25 +133,54 @@ extension _ArtistLibrarySections on _ArtistScreenState {
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
-        for (final (index, track) in tracks.indexed)
-          TrackCard(
-            style: TrackCardStyle.flat,
-            leading: SizedBox.square(
-              dimension: 48,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: _libraryCover(track.coverUrl, colorScheme),
-              ),
-            ),
-            title: track.name,
-            subtitle: Text(
-              track.artistName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            onTap: () => _playLibraryTracks(tracks, startIndex: index),
-          ),
+        ArtistPopularCarousel(
+          tracks: tracks,
+          pageSize: libraryPopularPageSize,
+          coverBuilder: (track) => _libraryCover(track.coverUrl, colorScheme),
+          onPlay: (index) => _playLibraryTracks(tracks, startIndex: index),
+          onMenu: (buttonContext, index) =>
+              _showPopularMenu(buttonContext, tracks, index),
+        ),
       ],
+    );
+  }
+
+  /// The three dots of a Popular row: the offline song actions.
+  Future<void> _showPopularMenu(
+    BuildContext buttonContext,
+    List<Track> tracks,
+    int index,
+  ) async {
+    final origin = contextMenuOriginOf(buttonContext);
+    if (origin == null) return;
+    final items = await ref.read(
+      libraryArtistPopularItemsProvider(widget.artistName).future,
+    );
+    if (!mounted || items.length != tracks.length) return;
+    final item = items[index];
+    void refresh() =>
+        ref.invalidate(libraryArtistPopularItemsProvider(widget.artistName));
+    await showContextMenu(
+      context,
+      position: origin,
+      groups: libraryTrackMenuGroups(
+        context,
+        ref,
+        items: [item],
+        onPlay: () => _playLibraryTracks(tracks, startIndex: index),
+        onConvert: () => showBatchConvertSheet(context, ref, [
+          item,
+        ], onExitSelectionMode: refresh),
+        onDelete: item.filePath.startsWith('network://')
+            ? null
+            : () => deleteLibraryTracks(
+                context,
+                ref,
+                [item],
+                isActive: () => mounted,
+                onComplete: refresh,
+              ),
+      ),
     );
   }
 
@@ -160,6 +189,8 @@ extension _ArtistLibrarySections on _ArtistScreenState {
     ColorScheme colorScheme,
     List<Track> tracks,
   ) {
+    final tileSize = artistAlbumTileSize(context);
+    final sectionHeight = artistAlbumSectionHeight(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -173,18 +204,21 @@ extension _ArtistLibrarySections on _ArtistScreenState {
           ),
         ),
         SizedBox(
-          height: 220,
+          height: sectionHeight,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             itemCount: tracks.length,
             itemBuilder: (context, index) {
               final track = tracks[index];
-              return SizedBox(
-                width: 150,
+              // The same tile width and gaps as the album rows above.
+              return Container(
+                width: tileSize,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
                 child: TrackGridCard(
                   cover: _libraryCover(track.coverUrl, colorScheme),
                   title: track.name,
+                  explicit: track.isExplicit,
                   subtitle: Text(
                     track.albumArtist ?? track.artistName,
                     maxLines: 1,

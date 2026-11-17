@@ -157,9 +157,13 @@ class LibraryDatabase {
     required bool includeLocal,
     int limit = 40,
     int offset = 0,
+    TagCreditScope? credits,
   }) async {
     final db = await database;
     await _ensureHistoryAttached(db);
+    if (credits != null && kind == LibrarySearchKind.artists) {
+      await tagCreditsCacheFor(db).ensure(db, credits);
+    }
     // The row check runs only on the matching rows, so a search after a
     // write keeps it rather than wait for a snapshot build.
     return _shadowRead(
@@ -171,6 +175,7 @@ class LibraryDatabase {
             historyFts: HistoryDatabase.instance.searchFtsAvailable,
             localFts: searchFtsAvailable,
             shadowSnapshot: snapshot,
+            splitArtistCredits: credits != null,
           ).search(
             query: query,
             kind: kind,

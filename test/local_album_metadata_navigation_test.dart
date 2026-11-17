@@ -153,7 +153,7 @@ void main() {
       (widget) => widget is AlbumTrackTile && widget.trackName == 'Song 2',
     );
     await tester.tap(
-      find.descendant(of: row, matching: find.byType(IconButton)),
+      find.descendant(of: row, matching: find.byType(IconButton)).first,
     );
     await tester.pumpAndSettle();
     expect(playback.played, ['2']);

@@ -141,6 +141,7 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
         onTap: onTap,
         leading: Hero(tag: heroTag, child: cover),
         title: trackName,
+        explicit: unifiedItem?.explicit ?? track.isExplicit,
         subtitle: Text(
           artistName,
           maxLines: 1,
@@ -184,6 +185,7 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
           PositionedDirectional(end: 4, bottom: 4, child: playback),
       ],
       title: trackName,
+      explicit: unifiedItem?.explicit ?? track.isExplicit,
       subtitle: Text(artistName),
     );
   }

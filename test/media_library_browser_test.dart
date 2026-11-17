@@ -114,6 +114,7 @@ class _Library implements LibraryDatabase {
     required bool includeLocal,
     int limit = 40,
     int offset = 0,
+    TagCreditScope? credits,
   }) async => (hits[kind] ?? const []).take(limit).toList();
 
   @override

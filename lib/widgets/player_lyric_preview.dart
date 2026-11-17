@@ -183,7 +183,9 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
         if (widget.metadata.loading ||
             widget.metadata.lyrics.isEmpty ||
             !widget.metadata.lyrics.synced) {
-          return const SizedBox.shrink();
+          // The bar stays while the switch is on, so the page does not jump
+          // between songs with and without synced lyrics.
+          return _placeholderBar(context);
         }
 
         final showTranslation = ref.watch(
@@ -194,7 +196,7 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
         final effectiveLyrics = translation.display(widget.metadata.lyrics);
 
         _syncLines(effectiveLyrics);
-        if (_lines.isEmpty) return const SizedBox.shrink();
+        if (_lines.isEmpty) return _placeholderBar(context);
 
         final Duration position = _displayPosition;
         final index = LyricsParser.activeIndex(_lines, position);
@@ -280,51 +282,101 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
           );
         }
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 6, bottom: 2),
-          child: Semantics(
-            button: widget.onTap != null,
-            label: context.l10n.lyricPreviewLabel(currentText),
-            child: InkWell(
-              onTap: widget.onTap == null
-                  ? null
-                  : () {
-                      HapticFeedback.selectionClick();
-                      widget.onTap!();
-                    },
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // A right-to-left line sits at the trailing edge, beside the chevron.
-                    rtl
-                        ? Expanded(
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: _switcher(lyricWidget, rtl, reduceMotion),
-                            ),
-                          )
-                        : Flexible(
-                            child: _switcher(lyricWidget, rtl, reduceMotion),
-                          ),
-                    const SizedBox(width: 4),
-                    // Points forward: left under a right-to-left layout.
-                    Icon(
-                      ambient == TextDirection.rtl
-                          ? CupertinoIcons.chevron_left
-                          : CupertinoIcons.chevron_right,
-                      size: 14,
-                      color: iconColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+        return _shell(
+          context,
+          lyricWidget,
+          label: currentText,
+          rtl: rtl,
+          ambient: ambient,
+          reduceMotion: reduceMotion,
+          iconColor: iconColor,
         );
       },
+    );
+  }
+
+  /// The bar without a line to show: a note that the file has no lyrics, or
+  /// dots while they load or are not timed.
+  Widget _placeholderBar(BuildContext context) {
+    final lyrics = widget.metadata.lyrics;
+    final none = !widget.metadata.loading && lyrics.isEmpty;
+    final text = none ? context.l10n.nowPlayingNoLyrics : '•••';
+    final color = widget.colorScheme.onSurface.withValues(alpha: 0.55);
+    return _shell(
+      context,
+      Text(
+        text,
+        key: ValueKey('placeholder-$text'),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w500,
+          color: color,
+          letterSpacing: none ? -0.2 : 2.0,
+        ),
+      ),
+      label: text,
+      rtl: false,
+      ambient: Directionality.of(context),
+      reduceMotion: MediaQuery.disableAnimationsOf(context),
+      iconColor: color,
+    );
+  }
+
+  /// The bar: [lyricWidget] beside the forward chevron, opening the lyrics.
+  Widget _shell(
+    BuildContext context,
+    Widget lyricWidget, {
+    required String label,
+    required bool rtl,
+    required TextDirection ambient,
+    required bool reduceMotion,
+    required Color iconColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, bottom: 2),
+      child: Semantics(
+        button: widget.onTap != null,
+        label: context.l10n.lyricPreviewLabel(label),
+        child: InkWell(
+          onTap: widget.onTap == null
+              ? null
+              : () {
+                  HapticFeedback.selectionClick();
+                  widget.onTap!();
+                },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // A right-to-left line sits at the trailing edge, beside the chevron.
+                rtl
+                    ? Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: _switcher(lyricWidget, rtl, reduceMotion),
+                        ),
+                      )
+                    : Flexible(
+                        child: _switcher(lyricWidget, rtl, reduceMotion),
+                      ),
+                const SizedBox(width: 4),
+                // Points forward: left under a right-to-left layout.
+                Icon(
+                  ambient == TextDirection.rtl
+                      ? CupertinoIcons.chevron_left
+                      : CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: iconColor,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

@@ -146,6 +146,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                   ),
                 ),
                 title: item.trackName,
+                explicit: item.explicit,
                 subtitle: Text(
                   item.artistName,
                   maxLines: 1,

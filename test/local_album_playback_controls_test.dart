@@ -141,10 +141,13 @@ void main() {
       (widget) =>
           widget is AlbumTrackTile && widget.trackName == 'Song $number',
     );
-    Finder rowButton(int number) =>
-        find.descendant(of: row(number), matching: find.byType(IconButton));
+    Finder rowButton(int number) => find
+        .descendant(of: row(number), matching: find.byType(IconButton))
+        .first;
     final pauseIcon = CupertinoIcons.pause_fill;
-    final playIcon = CupertinoIcons.play_fill;
+    // Rows end with an outlined circle.
+    final rowPauseIcon = CupertinoIcons.pause_circle;
+    final rowPlayIcon = CupertinoIcons.play_circle;
 
     await tester.tap(find.descendant(of: header, matching: find.text('Play')));
     await _settle(tester);
@@ -158,11 +161,11 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: row(1), matching: findAppIcon(pauseIcon)),
+      find.descendant(of: row(1), matching: find.byIcon(rowPauseIcon)),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: row(2), matching: findAppIcon(playIcon)),
+      find.descendant(of: row(2), matching: find.byIcon(rowPlayIcon)),
       findsOneWidget,
     );
 
@@ -193,11 +196,11 @@ void main() {
     await _settle(tester);
     expect(playback._started, ['1', '2']);
     expect(
-      find.descendant(of: row(1), matching: findAppIcon(playIcon)),
+      find.descendant(of: row(1), matching: find.byIcon(rowPlayIcon)),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: row(2), matching: findAppIcon(pauseIcon)),
+      find.descendant(of: row(2), matching: find.byIcon(rowPauseIcon)),
       findsOneWidget,
     );
     await tester.tap(rowButton(2));
@@ -210,7 +213,7 @@ void main() {
     emitPlaying(true);
     await _settle(tester);
     expect(
-      find.descendant(of: row(1), matching: findAppIcon(pauseIcon)),
+      find.descendant(of: row(1), matching: find.byIcon(rowPauseIcon)),
       findsOneWidget,
     );
     await tester.tap(rowButton(1));

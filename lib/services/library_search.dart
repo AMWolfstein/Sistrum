@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/services/library_shadow_sql.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 
 enum LibrarySearchKind { songs, albums, artists, playlists }
 
@@ -80,6 +81,7 @@ class LibrarySearchHit {
     this.cover,
     this.samplePath = '',
     this.trackCount = 0,
+    this.explicit = false,
   });
 
   final LibrarySearchKind kind;
@@ -90,6 +92,9 @@ class LibrarySearchHit {
   final String? cover;
   final String samplePath;
   final int trackCount;
+
+  /// A song tagged explicit.
+  final bool explicit;
 
   factory LibrarySearchHit.fromRow(
     LibrarySearchKind kind,
@@ -103,6 +108,7 @@ class LibrarySearchHit {
     cover: row['cover'] as String?,
     samplePath: row['sample_path'] as String? ?? '',
     trackCount: (row['track_count'] as num?)?.toInt() ?? 0,
+    explicit: (row['explicit'] as num?)?.toInt() == 1,
   );
 }
 
@@ -114,6 +120,7 @@ class LibrarySearchStore {
     required this.historyFts,
     required this.localFts,
     this.shadowSnapshot = false,
+    this.splitArtistCredits = false,
   });
 
   final DatabaseExecutor db;
@@ -122,6 +129,11 @@ class LibrarySearchStore {
 
   /// Whether the connection holds a current [libraryShadowTable].
   final bool shadowSnapshot;
+
+  /// An artist search reads the credits after the tag separators, one name per
+  /// credit, from the TEMP credits table the caller has built. Off, it reads
+  /// the whole artist tag.
+  final bool splitArtistCredits;
 
   Future<List<LibrarySearchHit>> search({
     required String query,
@@ -134,6 +146,7 @@ class LibrarySearchStore {
     if (search.terms.isEmpty || kind == LibrarySearchKind.playlists) return [];
     final args = <Object?>[];
     final parts = <String>[];
+    final split = splitArtistCredits && kind == LibrarySearchKind.artists;
     for (final local in [false, if (includeLocal) true]) {
       final alias = local ? 'l' : 'h';
       final source = local ? 'local' : 'downloaded';
@@ -147,7 +160,7 @@ class LibrarySearchStore {
       final column = switch (kind) {
         LibrarySearchKind.songs => '$alias.search_text',
         LibrarySearchKind.albums => "$alias.$album || ' ' || $alias.$artist",
-        LibrarySearchKind.artists => '$alias.$artist',
+        LibrarySearchKind.artists => split ? 'c.name_key' : '$alias.$artist',
         LibrarySearchKind.playlists => throw StateError('Not a track index'),
       };
       where.add(
@@ -167,12 +180,15 @@ class LibrarySearchStore {
       parts.add('''
         SELECT '$source' AS source, $alias.id, $alias.track_name AS title,
           $alias.artist_name AS artist, $alias.album_name AS album,
-          COALESCE(NULLIF($alias.album_artist, ''), $alias.artist_name) AS album_artist,
+          ${split ? 'c.name' : "COALESCE(NULLIF($alias.album_artist, ''), $alias.artist_name)"} AS album_artist,
           $alias.album_key, $alias.$title AS title_key,
-          $alias.$album AS album_sort, $alias.$artist AS artist_key,
+          $alias.$album AS album_sort,
+          ${split ? 'c.name_key' : '$alias.$artist'} AS artist_key,
           ${local ? '$alias.cover_path' : '$alias.cover_url'} AS cover,
-          $alias.file_path AS sample_path
-        FROM $table $alias WHERE ${where.join(' AND ')}
+          $alias.file_path AS sample_path, $alias.explicit AS explicit
+        FROM $table $alias
+        ${split ? "JOIN ${LibraryTagCreditsCache.tempTable} c ON c.source = '${local ? 'l' : 'h'}' AND c.row_id = $alias.id AND c.field IN ('artist', 'album_artist')" : ''}
+        WHERE ${where.join(' AND ')}
       ''');
     }
     final rows = '(${parts.join(' UNION ALL ')})';
@@ -192,7 +208,8 @@ class LibrarySearchStore {
         '''
         SELECT '' AS source, artist_key AS id, MIN(album_artist) AS title,
           MIN(album_artist) AS artist, MAX(NULLIF(cover, '')) AS cover,
-          MAX(sample_path) AS sample_path, COUNT(*) AS track_count,
+          MAX(sample_path) AS sample_path,
+          COUNT(DISTINCT source || id) AS track_count,
           artist_key AS title_key
         FROM $rows WHERE artist_key != '' GROUP BY artist_key''',
       LibrarySearchKind.playlists => throw StateError('Not a track index'),

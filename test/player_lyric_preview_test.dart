@@ -194,6 +194,24 @@ void main() {
       expect(_chevron(), findsNothing);
     });
 
+    testWidgets('the bar stays, with a note, when the song has no lyrics', (
+      tester,
+    ) async {
+      await _pumpPreview(tester, parsed: ParsedLyrics.empty);
+      await tester.pumpAndSettle();
+      expect(find.text('No lyrics in this file'), findsOneWidget);
+      expect(_chevron(), findsOneWidget);
+    });
+
+    testWidgets('the bar stays as dots when the lyrics are not timed', (
+      tester,
+    ) async {
+      await _pumpPreview(tester, lrc: 'just a plain line\nanother plain line');
+      await tester.pumpAndSettle();
+      expect(find.text('•••'), findsOneWidget);
+      expect(_chevron(), findsOneWidget);
+    });
+
     testWidgets('renders WordTimedLyricLine for word-by-word synced lyrics', (
       tester,
     ) async {

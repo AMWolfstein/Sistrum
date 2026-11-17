@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +18,11 @@ import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/track_lists/context_menu.dart';
@@ -338,6 +343,47 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     }
   }
 
+  /// A filter chip: All (kind null), a kind, or the lyrics search.
+  Widget _filterChip(LibrarySearchKind? kind, {bool lyrics = false}) {
+    final selected = lyrics ? _lyricsSearch : !_lyricsSearch && _kind == kind;
+    final icon = lyrics
+        ? Icons.lyrics_outlined
+        : switch (kind) {
+            null => null,
+            LibrarySearchKind.songs => Icons.music_note,
+            LibrarySearchKind.albums => Icons.album,
+            LibrarySearchKind.artists => Icons.person,
+            LibrarySearchKind.playlists => Icons.playlist_play,
+          };
+    return MornyeGlassPanel.overlay(
+      radius: 24,
+      child: MornyeFilterChip(
+        label: lyrics
+            ? context.l10n.trackLyrics
+            : kind == null
+            ? context.l10n.historyFilterAll
+            : _label(kind),
+        selected: selected,
+        icon: icon == null ? null : mornyeIconFor(icon),
+        onTap: lyrics ? _selectLyrics : () => _select(kind),
+      ),
+    );
+  }
+
+  /// A result row in the section's grouped glass card; [first] and [last]
+  /// round the card's ends.
+  Widget _groupedRow(LibrarySearchHit hit, {required bool first, bool? last}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: MornyeGlassPanel.overlay(
+          blurEnabled: false,
+          radius: 24,
+          firstInGroup: first,
+          lastInGroup: last ?? false,
+          child: _row(hit),
+        ),
+      );
+
   Widget _row(LibrarySearchHit hit) {
     final icon = switch (hit.kind) {
       LibrarySearchKind.songs => Icons.music_note_outlined,
@@ -345,12 +391,13 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       LibrarySearchKind.artists => Icons.person_outline,
       LibrarySearchKind.playlists => Icons.queue_music,
     };
-    final subtitle = hit.kind == LibrarySearchKind.songs
-        ? hit.artist
-        : [
-            if (hit.kind == LibrarySearchKind.albums) hit.artist,
-            context.l10n.queueTrackCount(hit.trackCount),
-          ].join(' · ');
+    final subtitle = switch (hit.kind) {
+      LibrarySearchKind.songs || LibrarySearchKind.albums => hit.artist,
+      LibrarySearchKind.artists => context.l10n.trackArtist,
+      LibrarySearchKind.playlists => context.l10n.queueTrackCount(
+        hit.trackCount,
+      ),
+    };
     Widget fallback(BuildContext context) => ColoredBox(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Center(child: Icon(icon)),
@@ -362,10 +409,10 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       style: TrackCardStyle.flat,
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(
-          hit.kind == LibrarySearchKind.artists ? 28 : 8,
+          hit.kind == LibrarySearchKind.artists ? 28 : 10,
         ),
         child: SizedBox.square(
-          dimension: 52,
+          dimension: 56,
           child: hit.kind == LibrarySearchKind.artists
               ? _ArtistHitCover(artist: hit.title, fallback: fallback)
               : hit.cover?.isNotEmpty == true
@@ -374,14 +421,15 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         ),
       ),
       title: hit.title,
-      subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
+      explicit: hit.explicit,
+      subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: song
           ? IconButton(
               tooltip: context.l10n.tooltipPlay,
               icon: const Icon(Icons.play_arrow_rounded),
               onPressed: () => _open(hit, play: true),
             )
-          : const Icon(Icons.chevron_right),
+          : null,
       // Long-press selects songs for the Library batch actions; while
       // selecting, song taps toggle and other results stay inert.
       isSelectionMode: song && _selecting,
@@ -410,6 +458,59 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       onPressed: () => ref
           .read(settingsProvider.notifier)
           .setSearchViewMode(cover ? 'list' : 'grid'),
+    );
+  }
+
+  /// A section title over grouped rows. In the overview it opens the kind's
+  /// complete results, as the chip does.
+  Widget _rowsHeader(LibrarySearchKind kind, {Widget? trailing}) {
+    final scheme = Theme.of(context).colorScheme;
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
+      children: [
+        Flexible(
+          child: Text(
+            _label(kind),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
+            ),
+          ),
+        ),
+        if (_kind == null)
+          Icon(
+            CupertinoIcons.chevron_forward,
+            size: 14,
+            color: scheme.onSurfaceVariant,
+          ),
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 12, 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Semantics(
+                header: true,
+                child: _kind == null
+                    ? GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _select(kind),
+                        child: title,
+                      )
+                    : title,
+              ),
+            ),
+          ),
+          ?trailing,
+        ],
+      ),
     );
   }
 
@@ -561,8 +662,9 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                hit.title,
+              ExplicitTrackTitle(
+                title: hit.title,
+                explicit: hit.explicit,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: artist ? TextAlign.center : TextAlign.start,
@@ -681,22 +783,9 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           child: Row(
             spacing: 8,
             children: [
-              if (!widget.shelves || _kind != null)
-                for (final kind in [null, ...LibrarySearchKind.values])
-                  AppChoiceChip(
-                    label: Text(
-                      kind == null
-                          ? context.l10n.historyFilterAll
-                          : _label(kind),
-                    ),
-                    selected: !_lyricsSearch && _kind == kind,
-                    onSelected: (_) => _select(kind),
-                  ),
-              AppChoiceChip(
-                label: Text(context.l10n.trackLyrics),
-                selected: _lyricsSearch,
-                onSelected: (_) => _selectLyrics(),
-              ),
+              for (final kind in [null, ...LibrarySearchKind.values])
+                _filterChip(kind),
+              _filterChip(null, lyrics: true),
             ],
           ),
         ),
@@ -758,7 +847,12 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
             LibrarySearchKind.songs,
             LibrarySearchKind.playlists,
           ]
-        : LibrarySearchKind.values;
+        : const [
+            LibrarySearchKind.artists,
+            LibrarySearchKind.albums,
+            LibrarySearchKind.playlists,
+            LibrarySearchKind.songs,
+          ];
     for (final kind in kinds) {
       // In the cover layout songs take a shelf too, as every other kind.
       final shelf = shelves && (cover || kind != LibrarySearchKind.songs);
@@ -803,22 +897,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
             final viewToggle = takeToggle();
             slivers.add(
               SliverToBoxAdapter(
-                child: ListTile(
-                  title: Text(
-                    _label(kind),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  trailing: viewToggle == null && _kind != null
-                      ? null
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ?viewToggle,
-                            if (_kind == null) const Icon(Icons.chevron_right),
-                          ],
-                        ),
-                  onTap: _kind == null ? () => _select(kind) : null,
-                ),
+                child: _rowsHeader(kind, trailing: viewToggle),
               ),
             );
           }
@@ -832,7 +911,15 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                     )
                   : SliverList.builder(
                       itemCount: hits.length.clamp(0, pageSize),
-                      itemBuilder: (context, index) => _row(hits[index]),
+                      itemBuilder: (context, index) => _groupedRow(
+                        hits[index],
+                        // The pages of one kind are one card: only the first
+                        // page rounds the top and the last the bottom.
+                        first: page == 0 && index == 0,
+                        last:
+                            page == (_kind == null ? 1 : _pages) - 1 &&
+                            index == hits.length.clamp(0, pageSize) - 1,
+                      ),
                     ),
             );
           }
@@ -876,11 +963,13 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     }
     if (loading) {
       slivers.add(
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Center(child: AppLoadingIndicator()),
-          ),
+        SliverToBoxAdapter(
+          child: hasResults || _lyricsSearch
+              ? const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: AppLoadingIndicator()),
+                )
+              : const _SearchSkeleton(),
         ),
       );
     } else if (!hasResults && !failed) {
@@ -925,5 +1014,80 @@ class _ArtistHitCover extends ConsumerWidget {
     return cover?.isNotEmpty == true
         ? LocalOrNetworkCoverImage(url: cover!, placeholder: fallback)
         : fallback(context);
+  }
+}
+
+/// Placeholder sections while the first results load: an Artists section of
+/// round avatars, then an Albums section of covers.
+class _SearchSkeleton extends StatelessWidget {
+  const _SearchSkeleton();
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _section(context, 70, 2, round: true),
+      const SizedBox(height: 8),
+      _section(context, 65, 4, round: false),
+    ],
+  );
+
+  Widget _section(
+    BuildContext context,
+    double headerWidth,
+    int itemCount, {
+    required bool round,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    final groupColor = scheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final row = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: context.tokens.trackRowPaddingV,
+      ),
+      child: Row(
+        children: [
+          SkeletonBox(width: 56, height: 56, borderRadius: round ? 28 : 10),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(width: 120, height: 14, borderRadius: 4),
+                SizedBox(height: 6),
+                SkeletonBox(width: 70, height: 12, borderRadius: 4),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 12, 10),
+          child: ShimmerLoading(
+            child: SkeletonBox(width: headerWidth, height: 16, borderRadius: 4),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: groupColor,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            children: [
+              for (var index = 0; index < itemCount; index++) ...[
+                if (index > 0)
+                  const Divider(height: 1, indent: 80, endIndent: 12),
+                ShimmerLoading(surface: groupColor, child: row),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -396,7 +396,7 @@ class _RenderAlbumOverlayToolbar extends RenderProxySliver {
   }
 }
 
-/// Primary "play" pill + shuffle circle used by album-style headers and lists.
+/// Primary "play" pill + translucent shuffle pill used by album-style headers and lists.
 /// Colours follow the [HeaderPalette].
 class AlbumPlayActions extends StatelessWidget {
   const AlbumPlayActions({
@@ -415,8 +415,8 @@ class AlbumPlayActions extends StatelessWidget {
   final VoidCallback onShuffle;
   final bool isPlaying;
 
-  /// Play pill sized to its label and a round shuffle, for a row of header
-  /// actions beside other buttons.
+  /// Play and shuffle pills sized to their labels, the shuffle translucent, for
+  /// a row of header actions beside other buttons.
   final bool compact;
 
   @override
@@ -438,11 +438,11 @@ class AlbumPlayActions extends StatelessWidget {
               compact: true,
             ),
             const SizedBox(width: 8),
-            HeaderCircleButton(
+            _MornyeHeaderButton(
               icon: CupertinoIcons.shuffle,
-              tooltip: shuffleTooltip,
+              label: shuffleTooltip,
               onPressed: onShuffle,
-              tonal: true,
+              compact: true,
             ),
           ],
         ),

@@ -693,7 +693,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Shuffle'));
+    await tester.tap(find.text('Shuffle'));
     await tester.pumpAndSettle();
 
     expect(player.shuffle, isTrue);
@@ -752,7 +752,7 @@ void main() {
     );
     expect(find.byKey(const ValueKey('collection-download-all')), findsNothing);
     final play = tester.getCenter(find.text(l10n.tooltipPlay));
-    final shuffle = tester.getCenter(find.byTooltip(l10n.actionShuffle));
+    final shuffle = tester.getCenter(find.text(l10n.actionShuffle));
     expect(play.dx, greaterThan(shuffle.dx));
     expect(tester.takeException(), isNull);
   });

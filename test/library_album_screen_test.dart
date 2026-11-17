@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,13 +113,49 @@ void main() {
         findsOneWidget,
       );
       expect(find.text(l10n.tooltipPlay), findsOneWidget);
-      expect(find.byTooltip(l10n.actionShuffle), findsOneWidget);
+      expect(find.text(l10n.actionShuffle), findsOneWidget);
       expect(find.byTooltip(l10n.tooltipLoveAll), findsOneWidget);
       expect(find.byTooltip(l10n.tooltipAddToPlaylist), findsOneWidget);
       expect(find.text(l10n.dialogDownload), findsNothing);
       expect(find.text('Album'), findsWidgets);
       expect(find.text('Artist'), findsWidgets);
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'a row ends with the outlined play circle and three dots, and the '
+    'dots open only offline actions with Delete in red',
+    (tester) async {
+      await _pump(tester, _items());
+      final row = find.byWidgetPredicate(
+        (w) => w is AlbumTrackTile && w.trackName == 'First',
+      );
+      expect(
+        find.descendant(
+          of: row,
+          matching: find.byIcon(CupertinoIcons.play_circle),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(
+        find.descendant(
+          of: row,
+          matching: find.byIcon(CupertinoIcons.ellipsis),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(AlbumScreen)),
+      );
+      expect(find.text(l10n.trackMetadataPlay), findsNWidgets(2));
+      expect(find.text(l10n.collectionAddToPlaylist), findsOneWidget);
+      expect(find.text(l10n.dialogDownload), findsNothing);
+      final delete = find.text(l10n.selectionDeleteTracksCount(1));
+      expect(delete, findsOneWidget);
+      final style = tester.widget<Text>(delete).style;
+      final scheme = Theme.of(tester.element(delete)).colorScheme;
+      expect(style?.color, scheme.error);
     },
   );
 

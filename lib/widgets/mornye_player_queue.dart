@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/widgets/player_queue_artwork.dart';
 import 'package:sistrum/widgets/player_queue_dismissible.dart';
 
@@ -189,8 +191,10 @@ class MornyePlayerQueue extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    title: Text(
-                      item.title,
+                    title: ExplicitTrackTitle(
+                      title: item.title,
+                      explicit:
+                          parseExplicitFlag(item.extras?['explicit']) ?? false,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: type.bodyLarge?.copyWith(color: Colors.white),

@@ -46,3 +46,4 @@
 - M003-T010 — Port the Now Playing lyric preview (Mornye #847)
 - M003-TOR016 — Full source audit and fixes before the M003 final review
 - M003-T011 — Cumulative review
+- TOR017 — Artist popular layout, compilations padding, album row/shuffle styling, red delete

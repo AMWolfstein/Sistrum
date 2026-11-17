@@ -336,6 +336,7 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         trackNumber:
             item.historyItem?.trackNumber ?? item.localItem?.trackNumber,
         trackName: item.trackName,
+        explicit: item.explicit,
         subtitle: subtitle,
         isSelectionMode: isSelectionMode,
         isSelected: selectedIds.contains(item.id),
@@ -346,6 +347,41 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         onPlay: playback.isCurrent
             ? toggle
             : () => _playLibraryRow(item, items),
+        onMenu: (buttonContext) =>
+            _showLibraryRowMenu(buttonContext, item, items),
+      ),
+    );
+  }
+
+  /// The three dots of a row: the offline song actions.
+  Future<void> _showLibraryRowMenu(
+    BuildContext buttonContext,
+    UnifiedLibraryItem item,
+    List<UnifiedLibraryItem> items,
+  ) async {
+    final origin = contextMenuOriginOf(buttonContext);
+    if (origin == null) return;
+    await showContextMenu(
+      context,
+      position: origin,
+      groups: libraryTrackMenuGroups(
+        context,
+        ref,
+        items: [item],
+        onPlay: () => _playLibraryRow(item, items),
+        onOpenDetails: () => _openLibraryMetadata(item, items),
+        onConvert: () => showBatchConvertSheet(context, ref, [
+          item,
+        ], onExitSelectionMode: () {}),
+        onDelete: item.filePath.startsWith('network://')
+            ? null
+            : () => deleteLibraryTracks(
+                context,
+                ref,
+                [item],
+                isActive: () => mounted,
+                onComplete: () {},
+              ),
       ),
     );
   }

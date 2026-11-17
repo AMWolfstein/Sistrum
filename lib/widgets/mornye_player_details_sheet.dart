@@ -2,6 +2,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -91,8 +93,13 @@ class MornyePlayerDetailsSheet extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      item.title,
+                                    ExplicitTrackTitle(
+                                      title: item.title,
+                                      explicit:
+                                          parseExplicitFlag(
+                                            item.extras?['explicit'],
+                                          ) ??
+                                          false,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: theme.textTheme.titleLarge,

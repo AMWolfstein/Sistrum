@@ -7,6 +7,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/services/library_tag_credits.dart';
 import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
@@ -483,6 +484,7 @@ class _BrowsedLibrary implements LibraryDatabase {
     required bool includeLocal,
     int limit = 40,
     int offset = 0,
+    TagCreditScope? credits,
   }) async => kind == LibrarySearchKind.songs && query == 'song b'
       ? const [
           LibrarySearchHit(

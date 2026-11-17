@@ -677,7 +677,9 @@ class MornyeContextMenu extends StatelessWidget {
   }) {
     final color = action.onPressed == null
         ? theme.colorScheme.onSurfaceVariant
-        : action.destructive || action.selected
+        : action.destructive
+        ? theme.colorScheme.error
+        : action.selected
         ? theme.colorScheme.primary
         : theme.colorScheme.onSurface;
     final icon = action.icon == null

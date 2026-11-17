@@ -232,7 +232,7 @@ void main() {
 
     expect(find.text('My mix'), findsWidgets);
     expect(find.text(l10n.tooltipPlay), findsOneWidget);
-    expect(find.byTooltip(l10n.actionShuffle), findsOneWidget);
+    expect(find.text(l10n.actionShuffle), findsOneWidget);
     expect(find.byKey(const ValueKey('collection-download-all')), findsNothing);
     expect(find.byIcon(Icons.download_rounded), findsNothing);
     expect(_rowTitles(tester), ['Alpha', 'Beta', 'Gamma']);
@@ -262,7 +262,7 @@ void main() {
           .widgetList<Text>(
             find.descendant(of: row, matching: find.byType(Text)),
           )
-          .map((text) => text.data),
+          .map((text) => (text.data ?? text.textSpan!.toPlainText())),
       ['Alpha', 'Artist'],
     );
   });
@@ -281,7 +281,7 @@ void main() {
     expect(find.byTooltip(l10n.collectionRenamePlaylist), findsNothing);
     expect(find.byTooltip(l10n.collectionPlaylistChangeCover), findsNothing);
     expect(find.byTooltip(l10n.collectionExportM3u), findsOneWidget);
-    expect(find.byTooltip(l10n.actionShuffle), findsOneWidget);
+    expect(find.text(l10n.actionShuffle), findsOneWidget);
   });
 
   testWidgets('a Loved song whose file is gone says so and does not download', (

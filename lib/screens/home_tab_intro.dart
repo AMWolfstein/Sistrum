@@ -835,10 +835,14 @@ class _HomeShelfTile extends StatelessWidget {
     required this.semanticLabel,
     required this.onTap,
     this.size,
+    this.explicit = false,
   });
 
   final Widget cover;
   final String title;
+
+  /// The E badge follows the title.
+  final bool explicit;
   final String subtitle;
   final String semanticLabel;
   final VoidCallback onTap;
@@ -869,8 +873,9 @@ class _HomeShelfTile extends StatelessWidget {
                 child: SizedBox.square(dimension: size, child: cover),
               ),
               const SizedBox(height: 8),
-              Text(
-                title,
+              ExplicitTrackTitle(
+                title: title,
+                explicit: explicit,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: textTheme.labelLarge?.copyWith(
@@ -923,6 +928,7 @@ class _HomeRecentlyAddedShelf extends ConsumerWidget {
             return _HomeShelfTile(
               size: coverSize,
               title: item.trackName,
+              explicit: item.explicit,
               subtitle: item.artistName,
               semanticLabel: context.l10n.a11yOpenTrackByArtist(
                 item.trackName,
@@ -1083,6 +1089,7 @@ class _HomeOnRepeatShelf extends ConsumerWidget {
             return _HomeShelfTile(
               size: coverSize,
               title: track.title,
+              explicit: item?.explicit ?? false,
               subtitle: track.artist,
               semanticLabel: context.l10n.a11yOpenTrackByArtist(
                 track.title,
