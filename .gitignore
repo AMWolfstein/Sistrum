@@ -3,19 +3,6 @@
 Thumbs.db
 Desktop.ini
 
-# Editors and local assistants
-.idea/
-.vscode/
-*.iml
-.cursorignore
-.cursorrules
-.kiro/
-.playwright-mcp/
-.rtk/
-.claude/settings.local.json
-CLAUDE.md
-AGENTS.md
-
 # Local release notes, screenshots and promo assets
 /output/
 

@@ -1,8 +1,8 @@
 {
   "missions": {},
-  "next_completion": 2,
+  "next_completion": 3,
   "next_mission": 1,
-  "next_tor": 2,
+  "next_tor": 3,
   "tasks": {
     "TOR001": {
       "completion": 1,
@@ -19,6 +19,22 @@
       "record": ".specify/quick-tasks/TOR001.md",
       "status": "complete",
       "title": "Import Mornye v5.4.0 source"
+    },
+    "TOR002": {
+      "completion": 2,
+      "evidence": {
+        "checks": "Owner waived tests and additional review; no tests run",
+        "result": "PASS",
+        "reviewer": "owner-waived",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "f41139590f5c4ec0b8841a7a9df0075e",
+      "record": ".specify/quick-tasks/TOR002.md",
+      "status": "complete",
+      "title": "Remove editor and assistant ignore rules"
     }
   },
   "version": 1
