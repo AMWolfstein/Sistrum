@@ -1772,10 +1772,6 @@
   "@trackLyricsNotInFile": {
     "description": "Message when no embedded lyrics in audio file"
   },
-  "trackFetchOnlineLyrics": "İnternetten Getir",
-  "@trackFetchOnlineLyrics": {
-    "description": "Action - fetch lyrics from online providers"
-  },
   "trackLyricsTimeout": "İstek zaman aşımına uğradı. Daha sonra tekrar deneyin.",
   "@trackLyricsTimeout": {
     "description": "Message when lyrics request times out"
@@ -3800,84 +3796,6 @@
   "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
     "description": "Subtitle when track artist is used for folder names"
   },
-  "lyricsProvidersTitle": "Şarkı sözü sağlayıcı önceliği",
-  "@lyricsProvidersTitle": {
-    "description": "Settings item title for lyrics provider order"
-  },
-  "lyricsProvidersDescription": "Şarkı sözü kaynaklarını etkinleştirin, devre dışı bırakın ve sıralayın. Şarkı sözleri bulunana kadar sağlayıcılar yukarıdan aşağıya denenir.",
-  "@lyricsProvidersDescription": {
-    "description": "Description on the lyrics provider priority page"
-  },
-  "lyricsProvidersInfoText": "Eklenti şarkı sözü sağlayıcıları, yerleşik şarkı sözü sağlayıcılarından önce çalışır. En az bir sağlayıcı etkin kalmalıdır.",
-  "@lyricsProvidersInfoText": {
-    "description": "Info tip on lyrics provider priority page"
-  },
-  "lyricsProvidersEnabledSection": "Etkin ({count})",
-  "@lyricsProvidersEnabledSection": {
-    "description": "Section header for enabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersDisabledSection": "Devre dışı ({count})",
-  "@lyricsProvidersDisabledSection": {
-    "description": "Section header for disabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersAtLeastOne": "En az bir sağlayıcı etkin kalmalıdır",
-  "@lyricsProvidersAtLeastOne": {
-    "description": "Snackbar when user tries to disable the last enabled provider"
-  },
-  "lyricsProvidersSaved": "Şarkı sözü sağlayıcı önceliği kaydedildi",
-  "@lyricsProvidersSaved": {
-    "description": "Snackbar after saving lyrics provider priority"
-  },
-  "lyricsProvidersDiscardContent": "Kaydedilmemiş değişiklikleriniz var ve kaybolacak.",
-  "@lyricsProvidersDiscardContent": {
-    "description": "Body text of the discard-changes dialog on lyrics provider page"
-  },
-  "lyricsProviderLrclibDesc": "Açık kaynaklı senkronize şarkı sözü veritabanı",
-  "@lyricsProviderLrclibDesc": {
-    "description": "Description for LRCLIB provider"
-  },
-  "lyricsProviderNeteaseDesc": "NetEase Cloud Music (Asya şarkıları için iyi)",
-  "@lyricsProviderNeteaseDesc": {
-    "description": "Description for Netease provider"
-  },
-  "lyricsProviderMusixmatchDesc": "En büyük şarkı sözü veritabanı (çok dilli)",
-  "@lyricsProviderMusixmatchDesc": {
-    "description": "Description for Musixmatch provider"
-  },
-  "lyricsProviderAppleMusicDesc": "Kelime kelime senkronize şarkı sözleri (proxy üzerinden)",
-  "@lyricsProviderAppleMusicDesc": {
-    "description": "Description for Apple Music provider"
-  },
-  "lyricsProviderQqMusicDesc": "QQ Music (Çince şarkılar için iyi, doğrudan API)",
-  "@lyricsProviderQqMusicDesc": {
-    "description": "Description for QQ Music provider"
-  },
-  "lyricsProviderLyricsPlusDesc": "Kelime kelime karaoke şarkı sözleri (Apple/Musixmatch/Spotify/QQ, proxy üzerinden)",
-  "@lyricsProviderLyricsPlusDesc": {
-    "description": "Description for LyricsPlus provider"
-  },
-  "lyricsProviderLrcRedDesc": "Kayda göre eşleştirilen kelime kelime Apple Music şarkı sözleri",
-  "@lyricsProviderLrcRedDesc": {
-    "description": "Description for lrc.red provider"
-  },
-  "lyricsProviderBetterLyricsDesc": "Popüler şarkılar için kelime kelime Apple Music şarkı sözleri",
-  "@lyricsProviderBetterLyricsDesc": {
-    "description": "Description for BetterLyrics provider, which only answers songs it has already cached"
-  },
-  "lyricsProviderExtensionDesc": "Eklenti sağlayıcısı",
-  "@lyricsProviderExtensionDesc": {
-    "description": "Generic description for extension-based lyrics providers"
-  },
   "safMigrationTitle": "Depolama güncellemesi gerekli",
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
@@ -4239,62 +4157,6 @@
   "@downloadEmbedLyricsDisabled": {
     "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
-  "downloadNeteaseIncludeTranslation": "Netease: Çeviriyi dahil et",
-  "@downloadNeteaseIncludeTranslation": {
-    "description": "Setting to include translated lyrics from Netease"
-  },
-  "downloadNeteaseIncludeTranslationEnabled": "Çince çeviri satırları dahil edilir",
-  "@downloadNeteaseIncludeTranslationEnabled": {
-    "description": "Subtitle when Netease translation is on"
-  },
-  "downloadNeteaseIncludeTranslationDisabled": "Yalnızca orijinal şarkı sözleri",
-  "@downloadNeteaseIncludeTranslationDisabled": {
-    "description": "Subtitle when Netease translation is off"
-  },
-  "downloadNeteaseIncludeRomanization": "Netease: Romanizasyonu dahil et",
-  "@downloadNeteaseIncludeRomanization": {
-    "description": "Setting to include romanized lyrics from Netease"
-  },
-  "downloadNeteaseIncludeRomanizationEnabled": "Romanizasyon satırları dahil edilir",
-  "@downloadNeteaseIncludeRomanizationEnabled": {
-    "description": "Subtitle when Netease romanization is on"
-  },
-  "downloadNeteaseIncludeRomanizationDisabled": "Romanizasyon yok",
-  "@downloadNeteaseIncludeRomanizationDisabled": {
-    "description": "Subtitle when Netease romanization is off"
-  },
-  "downloadAppleQqMultiPerson": "Apple / QQ: Çok kişili şarkı sözleri",
-  "@downloadAppleQqMultiPerson": {
-    "description": "Setting for word-by-word multi-person lyrics from Apple Music and QQ Music"
-  },
-  "downloadAppleQqMultiPersonEnabled": "Düetler ve grup parçaları için konuşmacı etiketleri dahil edilir",
-  "@downloadAppleQqMultiPersonEnabled": {
-    "description": "Subtitle when multi-person lyrics is on"
-  },
-  "downloadAppleQqMultiPersonDisabled": "Konuşmacı etiketi olmayan standart şarkı sözleri",
-  "@downloadAppleQqMultiPersonDisabled": {
-    "description": "Subtitle when multi-person lyrics is off"
-  },
-  "downloadAppleElrcWordSync": "Apple Music eLRC kelime senkronu",
-  "@downloadAppleElrcWordSync": {
-    "description": "Setting for preserving Apple Music word-by-word eLRC timestamps"
-  },
-  "downloadAppleElrcWordSyncEnabled": "Ham kelime kelime zaman damgaları korunur",
-  "@downloadAppleElrcWordSyncEnabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is enabled"
-  },
-  "downloadAppleElrcWordSyncDisabled": "Daha güvenli satır satır Apple Music şarkı sözleri",
-  "@downloadAppleElrcWordSyncDisabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is disabled"
-  },
-  "downloadMusixmatchLanguage": "Musixmatch dili",
-  "@downloadMusixmatchLanguage": {
-    "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadMusixmatchLanguageAuto": "Otomatik (orijinal dil)",
-  "@downloadMusixmatchLanguageAuto": {
-    "description": "Subtitle when no language is set"
-  },
   "downloadFilterContributing": "Katkıda bulunan sanatçıları filtrele",
   "@downloadFilterContributing": {
     "description": "Setting to strip contributing artists from Album Artist folder name"
@@ -4310,22 +4172,6 @@
   "downloadProvidersNoneEnabled": "Etkin sağlayıcı yok",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadMusixmatchLanguageCode": "Dil kodu",
-  "@downloadMusixmatchLanguageCode": {
-    "description": "Label for Musixmatch language input field"
-  },
-  "downloadMusixmatchLanguageHint": "örn. en, de, ja",
-  "@downloadMusixmatchLanguageHint": {
-    "description": "Placeholder for Musixmatch language input"
-  },
-  "downloadMusixmatchLanguageDesc": "Musixmatch'ten çevrilmiş şarkı sözleri istemek için bir BCP-47 dil kodu girin (örn. en, de, ja).",
-  "@downloadMusixmatchLanguageDesc": {
-    "description": "Description in Musixmatch language picker"
-  },
-  "downloadMusixmatchAuto": "Otomatik",
-  "@downloadMusixmatchAuto": {
-    "description": "Button to clear Musixmatch language (use auto)"
   },
   "downloadNetworkAnySubtitle": "WiFi veya mobil veri kullan",
   "@downloadNetworkAnySubtitle": {
@@ -4446,17 +4292,9 @@
   "@editMetadataAutoFillNoneSelected": {
     "description": "Snackbar when user taps Fetch without selecting any fields"
   },
-  "editMetadataLyricsSearch": "Çevrimiçi şarkı sözü bul",
-  "@editMetadataLyricsSearch": {
-    "description": "Button in the edit metadata lyrics section that searches every lyrics provider"
-  },
   "lyricsPickerTitle": "Şarkı sözlerini seç",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
-  },
-  "lyricsPickerNeedsTitle": "Önce bir başlık ve sanatçı girin",
-  "@lyricsPickerNeedsTitle": {
-    "description": "Snackbar when searching lyrics without a title or artist"
   },
   "lyricsPickerNoProviders": "Etkin şarkı sözü sağlayıcısı yok. Ayarlar > Şarkı sözleri bölümünden bazılarını açın.",
   "@lyricsPickerNoProviders": {
@@ -5489,10 +5327,6 @@
   "@sectionDuplicates": {
     "description": "Settings section header for deduplication"
   },
-  "sectionLyricsProviderOptions": "Sağlayıcı seçenekleri",
-  "@sectionLyricsProviderOptions": {
-    "description": "Settings section header for per-provider lyrics options"
-  },
   "metadataProvidersTitle": "Meta veri sağlayıcı önceliği",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -6104,283 +5938,6 @@
   "nowPlayingShowTranslation": "Çeviriyi göster",
   "@nowPlayingNoLyrics": {
     "description": "Empty state when the playing file has no embedded lyrics"
-  },
-  "nowPlayingSearchLyricsOnline": "Çevrimiçi ara",
-  "@nowPlayingSearchLyricsOnline": {
-    "description": "Button in the player's empty lyrics state that looks up lyrics from the enabled lyrics providers"
-  },
-  "nowPlayingNoLyricsOnline": "Çevrimiçi şarkı sözü bulunamadı",
-  "@nowPlayingNoLyricsOnline": {
-    "description": "Empty state after an online lyrics search for the playing track found nothing"
-  },
-  "nowPlayingCancelTranslation": "Çeviriyi iptal et",
-  "@nowPlayingCancelTranslation": {
-    "description": "Player lyrics menu action that stops an AI lyrics translation in progress"
-  },
-  "nowPlayingTranslatingLyrics": "Şarkı sözleri çevriliyor, %{percent}",
-  "@nowPlayingTranslatingLyrics": {
-    "description": "Tooltip and screen reader label of the lyrics menu button while an AI translation runs",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsTranslateSheetTitle": "Şu dile çevir",
-  "@lyricsTranslateSheetTitle": {
-    "description": "Title of the sheet that picks the language to translate the current lyrics into"
-  },
-  "lyricsTranslateSheetSubtitle": "Şarkı sözleri {provider} sağlayıcısına gönderilir.",
-  "@lyricsTranslateSheetSubtitle": {
-    "description": "Notice under the translate sheet title naming the AI provider that receives the lyrics",
-    "placeholders": {
-      "provider": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsTranslatePartial": "{count, plural, =1{1 satır} other{{count} satır}} çevrilemedi",
-  "@lyricsTranslatePartial": {
-    "description": "Snackbar after an AI translation that left some lines untranslated",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsTranslateAlreadyIn": "Bu şarkı sözleri zaten {language} dilinde",
-  "@lyricsTranslateAlreadyIn": {
-    "description": "Snackbar after an AI translation returned every line unchanged; language is the target language's own name",
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiTranslation": "AI çevirisi",
-  "@lyricsAiTranslation": {
-    "description": "Lyrics settings row and page title for translating lyrics with the user's own AI provider"
-  },
-  "lyricsAiTranslationOff": "Ayarlanmadı",
-  "@lyricsAiTranslationOff": {
-    "description": "Subtitle of the AI Translation settings row before a provider is configured"
-  },
-  "lyricsAiTranslationNotice": "Çevirdiğiniz şarkı sözleri, kendi API anahtarınızla seçtiğiniz sağlayıcıya gönderilir. Sağlayıcının koşulları ve fiyatlandırması geçerlidir. Çeviriler bu cihazda kaydedilir ve şarkı sözü dosyalarınızı asla değiştirmez.",
-  "@lyricsAiTranslationNotice": {
-    "description": "Privacy notice at the top of the AI translation settings page"
-  },
-  "lyricsAiSectionProvider": "Sağlayıcı",
-  "@lyricsAiSectionProvider": {
-    "description": "AI translation settings section for the provider, key and model"
-  },
-  "lyricsAiSectionTranslation": "Çeviri",
-  "@lyricsAiSectionTranslation": {
-    "description": "AI translation settings section for the target language and behavior"
-  },
-  "lyricsAiProvider": "Sağlayıcı",
-  "@lyricsAiProvider": {
-    "description": "AI translation setting that picks the AI service"
-  },
-  "lyricsAiProviderCustom": "Özel Sunucu",
-  "@lyricsAiProviderCustom": {
-    "description": "AI provider choice for a self-hosted or other OpenAI-compatible server"
-  },
-  "lyricsAiProviderCustomSubtitle": "Ollama veya LM Studio gibi OpenAI uyumlu herhangi bir sunucu",
-  "@lyricsAiProviderCustomSubtitle": {
-    "description": "Subtitle of the custom AI provider choice"
-  },
-  "lyricsAiBaseUrl": "Sunucu URL'si",
-  "@lyricsAiBaseUrl": {
-    "description": "AI translation setting for the address of a custom OpenAI-compatible server"
-  },
-  "lyricsAiBaseUrlInvalid": "http:// veya https:// ile başlayan bir URL girin",
-  "@lyricsAiBaseUrlInvalid": {
-    "description": "Validation error for the custom AI server URL"
-  },
-  "lyricsAiNotSet": "Ayarlanmadı",
-  "@lyricsAiNotSet": {
-    "description": "Subtitle of an AI translation setting that has no value yet"
-  },
-  "lyricsAiApiKey": "API anahtarı",
-  "@lyricsAiApiKey": {
-    "description": "AI translation setting for the user's API key"
-  },
-  "lyricsAiApiKeyOptional": "Yerel sunucular için isteğe bağlı",
-  "@lyricsAiApiKeyOptional": {
-    "description": "Subtitle of the API key setting for a custom server without a key"
-  },
-  "lyricsAiApiKeySaved": "Kaydedildi, sonu {suffix}",
-  "@lyricsAiApiKeySaved": {
-    "description": "Subtitle of the API key setting showing only its last characters",
-    "placeholders": {
-      "suffix": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiApiKeyDescription": "Bu cihazın güvenli depolamasında tutulur ve yalnızca {provider} sağlayıcısına gönderilir.",
-  "@lyricsAiApiKeyDescription": {
-    "description": "Explanation in the API key sheet",
-    "placeholders": {
-      "provider": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiModel": "Model",
-  "@lyricsAiModel": {
-    "description": "AI translation setting for the model id"
-  },
-  "lyricsAiModelDefault": "Varsayılan ({model})",
-  "@lyricsAiModelDefault": {
-    "description": "Subtitle of the model setting when the provider's default model is used",
-    "placeholders": {
-      "model": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiModelHint": "Model kimliği",
-  "@lyricsAiModelHint": {
-    "description": "Hint of the model id text field"
-  },
-  "lyricsAiModelUseDefault": "Varsayılanı kullan",
-  "@lyricsAiModelUseDefault": {
-    "description": "Action in the model sheet that returns to the provider's default model"
-  },
-  "lyricsAiModelLoad": "Modelleri yükle",
-  "@lyricsAiModelLoad": {
-    "description": "Button in the model sheet that lists the models the provider offers"
-  },
-  "lyricsAiModelsEmpty": "Sağlayıcı hiç model listelemedi",
-  "@lyricsAiModelsEmpty": {
-    "description": "Shown in the model sheet when the provider's model list is empty"
-  },
-  "lyricsAiTestConnection": "Bağlantıyı test et",
-  "@lyricsAiTestConnection": {
-    "description": "AI translation settings action that translates one line to check the key and model"
-  },
-  "lyricsAiTestConnectionSubtitle": "Anahtarı ve modeli denetlemek için bir satırı çevirir",
-  "@lyricsAiTestConnectionSubtitle": {
-    "description": "Subtitle of the test connection action"
-  },
-  "lyricsAiTestSuccess": "Bağlantı çalışıyor",
-  "@lyricsAiTestSuccess": {
-    "description": "Snackbar after a successful AI translation connection test"
-  },
-  "lyricsAiTargetLanguage": "Şu dile çevir",
-  "@lyricsAiTargetLanguage": {
-    "description": "AI translation setting for the target language"
-  },
-  "lyricsAiTargetLanguageApp": "Uygulama dili ({language})",
-  "@lyricsAiTargetLanguageApp": {
-    "description": "Target language choice that follows the app language",
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiInstruction": "Ek talimat",
-  "@lyricsAiInstruction": {
-    "description": "AI translation setting for optional guidance added to the translation request"
-  },
-  "lyricsAiInstructionNone": "Yok",
-  "@lyricsAiInstructionNone": {
-    "description": "Subtitle of the extra instruction setting when it is empty"
-  },
-  "lyricsAiInstructionHint": "Örneğin: kafiyeleri mümkün olduğunca koru",
-  "@lyricsAiInstructionHint": {
-    "description": "Hint of the extra instruction text field"
-  },
-  "lyricsAiAutoTranslate": "Otomatik çevir",
-  "@lyricsAiAutoTranslate": {
-    "description": "AI translation switch that translates lyrics as they open"
-  },
-  "lyricsAiAutoTranslateSubtitle": "Açtığınızda çevirisi olmayan senkronlu şarkı sözlerini sağlayıcınızın kotasını kullanarak çevirir",
-  "@lyricsAiAutoTranslateSubtitle": {
-    "description": "Subtitle of the automatic AI translation switch"
-  },
-  "lyricsAiRomanize": "Romanizasyon ekle",
-  "@lyricsAiRomanize": {
-    "description": "AI translation switch that also asks for romanized lyrics"
-  },
-  "lyricsAiRomanizeSubtitle": "Japonca için romaji veya Çince için pinyin gibi diğer alfabelerdeki şarkı sözlerinin nasıl söylendiğini gösterir",
-  "@lyricsAiRomanizeSubtitle": {
-    "description": "Subtitle of the AI romanization switch"
-  },
-  "lyricsAiClearCache": "Kaydedilen çevirileri temizle",
-  "@lyricsAiClearCache": {
-    "description": "AI translation settings action that deletes saved translations"
-  },
-  "lyricsAiClearCacheSubtitle": "{count, plural, =0{Kaydedilmiş çeviri yok} =1{1 şarkı} other{{count} şarkı}}",
-  "@lyricsAiClearCacheSubtitle": {
-    "description": "Subtitle of the clear saved translations action",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsAiClearCacheConfirm": "Kaydedilen çeviriler temizlensin mi?",
-  "@lyricsAiClearCacheConfirm": {
-    "description": "Title of the confirmation before deleting saved AI translations"
-  },
-  "lyricsAiClearCacheMessage": "Şarkıların yeniden çevrilmesi gerekecek; bu, sağlayıcınızın kotasını kullanır.",
-  "@lyricsAiClearCacheMessage": {
-    "description": "Message of the confirmation before deleting saved AI translations"
-  },
-  "lyricsAiClearCacheDone": "Kaydedilen çeviriler temizlendi",
-  "@lyricsAiClearCacheDone": {
-    "description": "Snackbar after deleting saved AI translations"
-  },
-  "lyricsAiErrorNotConfigured": "Önce Şarkı sözleri ayarlarından AI çevirisini ayarlayın",
-  "@lyricsAiErrorNotConfigured": {
-    "description": "AI translation error when no provider, key or model is set"
-  },
-  "lyricsAiErrorInvalidKey": "Sağlayıcı API anahtarını kabul etmedi",
-  "@lyricsAiErrorInvalidKey": {
-    "description": "AI translation error for a rejected API key"
-  },
-  "lyricsAiErrorRateLimited": "Sağlayıcı istekleri sınırlıyor. Biraz sonra tekrar deneyin",
-  "@lyricsAiErrorRateLimited": {
-    "description": "AI translation error when the provider rate limits the requests"
-  },
-  "lyricsAiErrorQuota": "Sağlayıcı hesabınızın kredisi veya kotası tükendi",
-  "@lyricsAiErrorQuota": {
-    "description": "AI translation error for an exhausted quota or billing problem"
-  },
-  "lyricsAiErrorNetwork": "Sağlayıcıya ulaşılamadı. Bağlantınızı kontrol edin",
-  "@lyricsAiErrorNetwork": {
-    "description": "AI translation error when the provider cannot be reached"
-  },
-  "lyricsAiErrorTimeout": "Sağlayıcı yanıt vermek için çok uzun süre bekledi",
-  "@lyricsAiErrorTimeout": {
-    "description": "AI translation error when a request times out"
-  },
-  "lyricsAiErrorModelNotFound": "Sağlayıcı bu modeli sunmuyor",
-  "@lyricsAiErrorModelNotFound": {
-    "description": "AI translation error for an unknown model id"
-  },
-  "lyricsAiErrorRefused": "Model bu şarkı sözlerini çevirmeyi reddetti",
-  "@lyricsAiErrorRefused": {
-    "description": "AI translation error when the model refuses the request"
-  },
-  "lyricsAiErrorTruncated": "Modelin yanıtı kesildi. Başka bir model deneyin",
-  "@lyricsAiErrorTruncated": {
-    "description": "AI translation error when the reply hit the output limit"
-  },
-  "lyricsAiErrorBadResponse": "Modelin yanıtı okunamadı. Başka bir model deneyin",
-  "@lyricsAiErrorBadResponse": {
-    "description": "AI translation error when the reply is not the expected JSON"
-  },
-  "lyricsAiErrorService": "Sağlayıcıda bir sorun oluştu. Daha sonra tekrar deneyin",
-  "@lyricsAiErrorService": {
-    "description": "AI translation error for other provider failures"
-  },
-  "lyricsAiErrorNoLyrics": "Bu şarkı sözlerinde çevrilecek bir şey yok",
-  "@lyricsAiErrorNoLyrics": {
-    "description": "AI translation error when the lyrics have no translatable lines"
   },
   "nowPlayingShuffleOn": "Karıştırma açık",
   "@nowPlayingShuffleOn": {

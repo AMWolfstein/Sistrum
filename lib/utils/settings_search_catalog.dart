@@ -436,19 +436,6 @@ class SettingsSearchCatalog {
           keywords: const ['lyric preview', 'snippet', 'now playing'],
         ),
         SettingsSearchEntry(
-          icon: Icons.auto_awesome_outlined,
-          title: l10n.lyricsAiTranslation,
-          keywords: const [
-            'translate lyrics',
-            'api key',
-            'openai',
-            'gemini',
-            'claude',
-            'openrouter',
-            'ollama',
-          ],
-        ),
-        SettingsSearchEntry(
           icon: Icons.subtitles_outlined,
           title: l10n.optionsEmbedLyrics,
           keywords: const ['write lyrics', 'lrc'],
@@ -457,36 +444,6 @@ class SettingsSearchCatalog {
           icon: Icons.lyrics_outlined,
           title: l10n.lyricsMode,
           keywords: const ['synced', 'plain', 'lyrics type'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.source_outlined,
-          title: l10n.lyricsProvidersTitle,
-          keywords: const ['lyrics priority', 'lyrics source'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.translate_outlined,
-          title: l10n.downloadNeteaseIncludeTranslation,
-          keywords: const ['translated lyrics'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.text_fields_outlined,
-          title: l10n.downloadNeteaseIncludeRomanization,
-          keywords: const ['romanized lyrics', 'latin'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.record_voice_over_outlined,
-          title: l10n.downloadAppleQqMultiPerson,
-          keywords: const ['duet', 'multi singer'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.graphic_eq_outlined,
-          title: l10n.downloadAppleElrcWordSync,
-          keywords: const ['word synced', 'elrc'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.language_outlined,
-          title: l10n.downloadMusixmatchLanguage,
-          keywords: const ['lyrics locale'],
         ),
       ],
       download = [

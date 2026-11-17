@@ -3,13 +3,11 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
 import 'package:sistrum/widgets/lyrics_text_scale.dart';
@@ -44,29 +42,10 @@ class PlayerLyricsSection extends ConsumerWidget {
             (settings.playerShowPronunciation, settings.playerShowTranslation),
       ),
     );
-    // The AI translation is keyed by these; a change picks another one.
-    ref.watch(
-      settingsProvider.select(
-        (settings) => (
-          settings.lyricsAiProvider,
-          settings.lyricsAiModel,
-          settings.lyricsAiBaseUrl,
-          settings.lyricsTranslationLanguage,
-          settings.locale,
-          settings.lyricsAutoTranslate,
-          settings.lyricsAiWordSync,
-        ),
-      ),
-    );
-    ref.watch(lyricsTranslationProvider.select((state) => state.results));
-    final translation = ref.read(lyricsTranslationProvider.notifier);
     return ListenableBuilder(
       listenable: metadata,
-      builder: (context, _) => _buildLyricsSection(
-        context,
-        visibility,
-        translation.display(metadata.lyrics),
-      ),
+      builder: (context, _) =>
+          _buildLyricsSection(context, visibility, metadata.lyrics),
     );
   }
 
@@ -77,7 +56,7 @@ class PlayerLyricsSection extends ConsumerWidget {
   ) {
     // Center in the part the player's controls leave visible. Only these
     // states depend on it, so a lyric list does not rebuild as they fade.
-    if (metadata.loading || metadata.searchingOnline) {
+    if (metadata.loading) {
       return Builder(
         builder: (context) => Padding(
           padding: EdgeInsets.only(bottom: LyricsCoveredBottom.of(context)),
@@ -87,7 +66,7 @@ class PlayerLyricsSection extends ConsumerWidget {
     }
     if (metadata.lyrics.isEmpty) {
       // Scrolls when a short screen leaves too little room above the
-      // controls, so the search button stays reachable.
+      // controls, so the edit button stays reachable.
       return LayoutBuilder(
         builder: (_, constraints) {
           final covered = LyricsCoveredBottom.of(context);
@@ -124,29 +103,11 @@ class PlayerLyricsSection extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          metadata.onlineSearchMissed
-              ? context.l10n.nowPlayingNoLyricsOnline
-              : context.l10n.nowPlayingNoLyrics,
+          context.l10n.nowPlayingNoLyrics,
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
-        if (metadata.canSearchOnline) ...[
-          const SizedBox(height: 16),
-          FilledButton.tonalIcon(
-            onPressed: () async {
-              await metadata.searchOnline();
-              if (context.mounted && metadata.onlineLyricsSaveFailed) {
-                showAppSnackBar(
-                  context,
-                  content: Text(context.l10n.snackbarFailedToEmbedLyrics),
-                );
-              }
-            },
-            icon: const Icon(Icons.manage_search),
-            label: Text(context.l10n.nowPlayingSearchLyricsOnline),
-          ),
-        ],
         if (canEditPlayerLyrics(metadata)) ...[
           const SizedBox(height: 8),
           TextButton.icon(

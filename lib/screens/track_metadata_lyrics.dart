@@ -71,7 +71,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                       ),
                     ),
                     TextButton(
-                      onPressed: _fetchLyrics,
+                      onPressed: _loadLyrics,
                       child: Text(context.l10n.dialogRetry),
                     ),
                   ],
@@ -170,20 +170,12 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: FilledButton.tonalIcon(
-                      onPressed: _fetchLyrics,
-                      icon: const Icon(Icons.cloud_download_outlined),
-                      label: Text(context.l10n.trackFetchOnlineLyrics),
-                    ),
-                  ),
                 ],
               )
             else
               Center(
                 child: FilledButton.tonalIcon(
-                  onPressed: () => _fetchLyrics(checkEmbedded: true),
+                  onPressed: _loadLyrics,
                   icon: const Icon(Icons.download),
                   label: Text(context.l10n.trackLoadLyrics),
                 ),
@@ -283,10 +275,8 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
     }
   }
 
-  /// Fetches lyrics from online providers. Only called by user action.
-  /// With [checkEmbedded], lyrics embedded in an existing file win; the
-  /// "Load Lyrics" button uses that.
-  Future<void> _fetchLyrics({bool checkEmbedded = false}) async {
+  /// Reads the lyrics embedded in the file. Offline only: nothing is fetched.
+  Future<void> _loadLyrics() async {
     if (_lyricsLoading) return;
 
     _setState(() {
@@ -297,82 +287,38 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
     });
 
     try {
-      final durationMs = (duration ?? 0) * 1000;
-
-      if (checkEmbedded && _fileExists) {
-        final embeddedResult = await _readLocalLyrics(cleanFilePath);
-
-        final embeddedLyrics = embeddedResult['lyrics']?.toString() ?? '';
-        final embeddedSource = embeddedResult['source']?.toString() ?? '';
-
-        final embeddedInstrumental = isInstrumentalLyricsMarker(embeddedLyrics);
-        final cleanEmbeddedLyrics = cleanLyricsForDisplay(embeddedLyrics);
-        if (embeddedInstrumental || cleanEmbeddedLyrics.isNotEmpty) {
-          if (mounted) {
-            _setState(() {
-              _lyrics = embeddedInstrumental ? null : cleanEmbeddedLyrics;
-              _rawLyrics = embeddedInstrumental ? null : embeddedLyrics;
-              _lyricsSource = embeddedSource.isNotEmpty
-                  ? embeddedSource
-                  : context.l10n.trackLyricsEmbeddedSource;
-              _lyricsEmbedded = true;
-              _isInstrumental = embeddedInstrumental;
-              _lyricsLoading = false;
-              _embeddedLyricsChecked = true;
-            });
-          }
-          return;
-        }
+      if (!_fileExists) {
+        _setState(() {
+          _lyrics = null;
+          _rawLyrics = null;
+          _lyricsEmbedded = false;
+          _lyricsError = context.l10n.trackLyricsNotAvailable;
+          _lyricsLoading = false;
+        });
+        return;
       }
-
-      final result = await PlatformBridge.getLyricsLRCWithSource(
-        _spotifyId ?? '',
-        trackName,
-        artistName,
-        filePath: null,
-        durationMs: durationMs,
-      ).timeout(const Duration(seconds: 20));
-
-      final lrcText = result['lyrics']?.toString() ?? '';
-      final source = result['source']?.toString() ?? '';
-      final instrumental =
-          (result['instrumental'] as bool? ?? false) ||
-          isInstrumentalLyricsMarker(lrcText);
-      final cleanLyrics = cleanLyricsForDisplay(lrcText);
-
-      if (mounted) {
-        if (instrumental) {
-          _setState(() {
-            _lyrics = null;
-            _rawLyrics = null;
-            _isInstrumental = true;
-            _lyricsSource = source.isNotEmpty ? source : null;
-            _lyricsEmbedded = false;
-            _lyricsLoading = false;
-          });
-        } else if (cleanLyrics.isEmpty) {
-          _setState(() {
-            _lyrics = null;
-            _rawLyrics = null;
-            _lyricsSource = null;
-            _lyricsEmbedded = false;
-            _lyricsError = context.l10n.trackLyricsNotAvailable;
-            _lyricsLoading = false;
-          });
-        } else {
-          _setState(() {
-            _lyrics = cleanLyrics;
-            _rawLyrics = lrcText;
-            _lyricsSource = source.isNotEmpty ? source : null;
-            _lyricsEmbedded = false;
-            _lyricsLoading = false;
-          });
-        }
-      }
-    } on TimeoutException {
+      final embeddedResult = await _readLocalLyrics(cleanFilePath);
+      final embeddedLyrics = embeddedResult['lyrics']?.toString() ?? '';
+      final embeddedSource = embeddedResult['source']?.toString() ?? '';
+      final embeddedInstrumental = isInstrumentalLyricsMarker(embeddedLyrics);
+      final cleanEmbeddedLyrics = cleanLyricsForDisplay(embeddedLyrics);
       if (mounted) {
         _setState(() {
-          _lyricsError = context.l10n.trackLyricsTimeout;
+          _embeddedLyricsChecked = true;
+          if (embeddedInstrumental || cleanEmbeddedLyrics.isNotEmpty) {
+            _lyrics = embeddedInstrumental ? null : cleanEmbeddedLyrics;
+            _rawLyrics = embeddedInstrumental ? null : embeddedLyrics;
+            _lyricsSource = embeddedSource.isNotEmpty
+                ? embeddedSource
+                : context.l10n.trackLyricsEmbeddedSource;
+            _lyricsEmbedded = true;
+            _isInstrumental = embeddedInstrumental;
+          } else {
+            _lyrics = null;
+            _rawLyrics = null;
+            _lyricsEmbedded = false;
+            _lyricsError = context.l10n.trackLyricsNotAvailable;
+          }
           _lyricsLoading = false;
         });
       }
@@ -382,6 +328,48 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
           _lyricsError = context.l10n.trackLyricsLoadFailed;
           _lyricsLoading = false;
         });
+      }
+    }
+  }
+
+  /// Saves the lyrics shown here as a sidecar .lrc next to the audio file.
+  Future<void> _saveLyrics() async {
+    final raw = _rawLyrics;
+    if (raw == null || raw.trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(context.l10n.trackLyricsNotAvailable)),
+          );
+      }
+      return;
+    }
+    try {
+      final baseName = _buildSaveBaseName();
+      await _publishSidecarFile(
+        baseName: baseName,
+        tempDirPrefix: 'lyrics_',
+        extension: 'lrc',
+        mimeType: 'application/octet-stream',
+        successMessage: () => context.l10n.trackLyricsSaved(baseName),
+        hideCurrentSnackBar: true,
+        writeTo: (outputPath) async {
+          await File(outputPath).writeAsString(raw);
+          return <String, dynamic>{};
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                context.l10n.trackSaveFailed(context.friendlyError(e)),
+              ),
+            ),
+          );
       }
     }
   }
@@ -827,49 +815,6 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
             ),
           ),
         );
-      }
-    }
-  }
-
-  Future<void> _saveLyrics() async {
-    try {
-      final baseName = _buildSaveBaseName();
-      final durationMs = (duration ?? 0) * 1000;
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(content: Text(context.l10n.trackSaveLyricsProgress)),
-          );
-      }
-
-      await _publishSidecarFile(
-        baseName: baseName,
-        tempDirPrefix: 'lyrics_',
-        extension: 'lrc',
-        mimeType: 'application/octet-stream',
-        successMessage: () => context.l10n.trackLyricsSaved(baseName),
-        hideCurrentSnackBar: true,
-        writeTo: (outputPath) => PlatformBridge.fetchAndSaveLyrics(
-          trackName: trackName,
-          artistName: artistName,
-          spotifyId: _spotifyId ?? '',
-          durationMs: durationMs,
-          outputPath: outputPath,
-          audioFilePath: _fileExists ? cleanFilePath : '',
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(
-                context.l10n.trackSaveFailed(context.friendlyError(e)),
-              ),
-            ),
-          );
       }
     }
   }

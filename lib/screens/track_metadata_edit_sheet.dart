@@ -25,7 +25,6 @@ import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/lyrics_provider_picker.dart';
 import 'package:sistrum/widgets/metadata_candidate_tile.dart';
 import 'package:sistrum/widgets/metadata_editor_fields.dart';
 import 'package:sistrum/widgets/metadata_text_field.dart';
@@ -202,33 +201,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
 
   /// Lets the user compare every enabled lyrics provider's result and puts
   /// the chosen lyrics in the field (saved with the other edits).
-  Future<void> _findLyricsOnline() async {
-    final title = _form['title']!.text.trim();
-    final artist = primaryArtistName(
-      _form['artist']!.text.trim(),
-      albumArtist: _form['album_artist']!.text.trim(),
-    );
-    if (title.isEmpty || artist.isEmpty) {
-      _showSheetSnackBar(context.l10n.lyricsPickerNeedsTitle);
-      return;
-    }
-    // The backend's provider list follows the lyrics settings.
-    await ProviderScope.containerOf(
-      context,
-      listen: false,
-    ).read(settingsProvider.notifier).syncLyricsSettingsToBackend();
-    if (!mounted) return;
-    final lyrics = await showLyricsProviderPicker(
-      context,
-      title: title,
-      artist: artist,
-      spotifyId: widget.sourceTrackId ?? '',
-      durationMs: widget.durationMs,
-    );
-    if (!mounted || lyrics == null) return;
-    setState(() => _form['lyrics']!.text = lyrics);
-  }
-
   bool _hasValue(String? value) => value != null && value.trim().isNotEmpty;
 
   String _fieldLabel(String key) {
@@ -497,31 +469,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                             _form['lyrics']!,
                             maxLines: 8,
                             keyboard: TextInputType.multiline,
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: AppActionButton(
-                              key: const ValueKey('find-lyrics-online'),
-                              outlined: true,
-                              glass: false,
-                              tonal: true,
-                              onPressed: _fetching || _saving
-                                  ? null
-                                  : _findLyricsOnline,
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: cs.surfaceContainerHigh,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              icon: const Icon(Icons.manage_search),
-                              label: Text(
-                                context.l10n.editMetadataLyricsSearch,
-                              ),
-                            ),
                           ),
                         ],
                       ),

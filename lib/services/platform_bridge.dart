@@ -1139,13 +1139,6 @@ class PlatformBridge {
         'providers_json': jsonEncode(providers),
       });
 
-  /// Sets advanced lyrics fetch options used by provider-specific integrations.
-  static Future<void> setLyricsFetchOptions(
-    Map<String, dynamic> options,
-  ) async => _invokeVoid('setLyricsFetchOptions', {
-    'options_json': jsonEncode(options),
-  });
-
   static Future<Map<String, dynamic>> reEnrichFile(
     Map<String, dynamic> request,
   ) {

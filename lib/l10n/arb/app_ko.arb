@@ -1772,10 +1772,6 @@
   "@trackLyricsNotInFile": {
     "description": "Message when no embedded lyrics in audio file"
   },
-  "trackFetchOnlineLyrics": "온라인에서 가져오기",
-  "@trackFetchOnlineLyrics": {
-    "description": "Action - fetch lyrics from online providers"
-  },
   "trackLyricsTimeout": "요청 시간이 초과되었습니다. 나중에 다시 시도하세요",
   "@trackLyricsTimeout": {
     "description": "Message when lyrics request times out"
@@ -3800,84 +3796,6 @@
   "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
     "description": "Subtitle when track artist is used for folder names"
   },
-  "lyricsProvidersTitle": "가사 제공자 우선순위",
-  "@lyricsProvidersTitle": {
-    "description": "Settings item title for lyrics provider order"
-  },
-  "lyricsProvidersDescription": "가사 출처를 활성화, 비활성화 및 재정렬할 수 있습니다. 가사를 찾을 때까지 위에서 아래 순서대로 제공자 사용 가능 여부를 확인합니다",
-  "@lyricsProvidersDescription": {
-    "description": "Description on the lyrics provider priority page"
-  },
-  "lyricsProvidersInfoText": "확장 기능의 가사 제공자는 내부 가사 제공자보다 먼저 실행됩니다. 하나 이상의 제공자가 활성화되어 있어야 합니다",
-  "@lyricsProvidersInfoText": {
-    "description": "Info tip on lyrics provider priority page"
-  },
-  "lyricsProvidersEnabledSection": "활성화됨 ({count})",
-  "@lyricsProvidersEnabledSection": {
-    "description": "Section header for enabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersDisabledSection": "비활성화됨 ({count})",
-  "@lyricsProvidersDisabledSection": {
-    "description": "Section header for disabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersAtLeastOne": "최소 한 개의 제공자가 활성화된 상태로 유지되어야 합니다",
-  "@lyricsProvidersAtLeastOne": {
-    "description": "Snackbar when user tries to disable the last enabled provider"
-  },
-  "lyricsProvidersSaved": "가사 제공자 우선순위가 저장됨",
-  "@lyricsProvidersSaved": {
-    "description": "Snackbar after saving lyrics provider priority"
-  },
-  "lyricsProvidersDiscardContent": "저장되지 않은 변경 사항은 손실됩니다",
-  "@lyricsProvidersDiscardContent": {
-    "description": "Body text of the discard-changes dialog on lyrics provider page"
-  },
-  "lyricsProviderLrclibDesc": "오픈 소스 동기화 가사 데이터베이스",
-  "@lyricsProviderLrclibDesc": {
-    "description": "Description for LRCLIB provider"
-  },
-  "lyricsProviderNeteaseDesc": "NetEase Cloud Music (아시아 노래에 적합)",
-  "@lyricsProviderNeteaseDesc": {
-    "description": "Description for Netease provider"
-  },
-  "lyricsProviderMusixmatchDesc": "최대 규모의 가사 데이터베이스 (다국어 지원)",
-  "@lyricsProviderMusixmatchDesc": {
-    "description": "Description for Musixmatch provider"
-  },
-  "lyricsProviderAppleMusicDesc": "단어별 동기화 가사 (프록시 경유)",
-  "@lyricsProviderAppleMusicDesc": {
-    "description": "Description for Apple Music provider"
-  },
-  "lyricsProviderQqMusicDesc": "QQ Music (중국 노래에 적합, 직접 API)",
-  "@lyricsProviderQqMusicDesc": {
-    "description": "Description for QQ Music provider"
-  },
-  "lyricsProviderLyricsPlusDesc": "단어별 노래방 가사 (Apple/Musixmatch/Spotify/QQ, 프록시 이용)",
-  "@lyricsProviderLyricsPlusDesc": {
-    "description": "Description for LyricsPlus provider"
-  },
-  "lyricsProviderLrcRedDesc": "녹음과 일치하는 Apple Music 가사 (단어별)",
-  "@lyricsProviderLrcRedDesc": {
-    "description": "Description for lrc.red provider"
-  },
-  "lyricsProviderBetterLyricsDesc": "인기곡 Apple Music 가사 (단어별)",
-  "@lyricsProviderBetterLyricsDesc": {
-    "description": "Description for BetterLyrics provider, which only answers songs it has already cached"
-  },
-  "lyricsProviderExtensionDesc": "확장 기능 제공자",
-  "@lyricsProviderExtensionDesc": {
-    "description": "Generic description for extension-based lyrics providers"
-  },
   "safMigrationTitle": "저장소 업데이트 필요",
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
@@ -4239,62 +4157,6 @@
   "@downloadEmbedLyricsDisabled": {
     "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
-  "downloadNeteaseIncludeTranslation": "Netease: 번역 포함",
-  "@downloadNeteaseIncludeTranslation": {
-    "description": "Setting to include translated lyrics from Netease"
-  },
-  "downloadNeteaseIncludeTranslationEnabled": "중국어 번역 포함",
-  "@downloadNeteaseIncludeTranslationEnabled": {
-    "description": "Subtitle when Netease translation is on"
-  },
-  "downloadNeteaseIncludeTranslationDisabled": "원본 가사만",
-  "@downloadNeteaseIncludeTranslationDisabled": {
-    "description": "Subtitle when Netease translation is off"
-  },
-  "downloadNeteaseIncludeRomanization": "Netease: 로마자 표기 포함",
-  "@downloadNeteaseIncludeRomanization": {
-    "description": "Setting to include romanized lyrics from Netease"
-  },
-  "downloadNeteaseIncludeRomanizationEnabled": "로마자 표기 포함",
-  "@downloadNeteaseIncludeRomanizationEnabled": {
-    "description": "Subtitle when Netease romanization is on"
-  },
-  "downloadNeteaseIncludeRomanizationDisabled": "로마자 표기 없음",
-  "@downloadNeteaseIncludeRomanizationDisabled": {
-    "description": "Subtitle when Netease romanization is off"
-  },
-  "downloadAppleQqMultiPerson": "Apple / QQ: 다인용 가사",
-  "@downloadAppleQqMultiPerson": {
-    "description": "Setting for word-by-word multi-person lyrics from Apple Music and QQ Music"
-  },
-  "downloadAppleQqMultiPersonEnabled": "듀엣 및 그룹 트랙이 포함된 스피커 레이블",
-  "@downloadAppleQqMultiPersonEnabled": {
-    "description": "Subtitle when multi-person lyrics is on"
-  },
-  "downloadAppleQqMultiPersonDisabled": "스피커 레이블이 없는 표준 가사",
-  "@downloadAppleQqMultiPersonDisabled": {
-    "description": "Subtitle when multi-person lyrics is off"
-  },
-  "downloadAppleElrcWordSync": "Apple Music eLRC 단어 동기화",
-  "@downloadAppleElrcWordSync": {
-    "description": "Setting for preserving Apple Music word-by-word eLRC timestamps"
-  },
-  "downloadAppleElrcWordSyncEnabled": "단어별 타임스탬프 원본 유지",
-  "@downloadAppleElrcWordSyncEnabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is enabled"
-  },
-  "downloadAppleElrcWordSyncDisabled": "더 안전한 Apple Music 가사 (줄 단위)",
-  "@downloadAppleElrcWordSyncDisabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is disabled"
-  },
-  "downloadMusixmatchLanguage": "Musixmatch 언어",
-  "@downloadMusixmatchLanguage": {
-    "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadMusixmatchLanguageAuto": "자동 (원본 언어)",
-  "@downloadMusixmatchLanguageAuto": {
-    "description": "Subtitle when no language is set"
-  },
   "downloadFilterContributing": "참여 아티스트 필터",
   "@downloadFilterContributing": {
     "description": "Setting to strip contributing artists from Album Artist folder name"
@@ -4310,22 +4172,6 @@
   "downloadProvidersNoneEnabled": "활성화된 제공자가 없음",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadMusixmatchLanguageCode": "언어 코드",
-  "@downloadMusixmatchLanguageCode": {
-    "description": "Label for Musixmatch language input field"
-  },
-  "downloadMusixmatchLanguageHint": "예시: en, de, ja",
-  "@downloadMusixmatchLanguageHint": {
-    "description": "Placeholder for Musixmatch language input"
-  },
-  "downloadMusixmatchLanguageDesc": "Musixmatch에서 번역된 가사를 요청하려면 BCP-47 언어 코드를 입력하세요 (예시: ko, en, ja)",
-  "@downloadMusixmatchLanguageDesc": {
-    "description": "Description in Musixmatch language picker"
-  },
-  "downloadMusixmatchAuto": "자동",
-  "@downloadMusixmatchAuto": {
-    "description": "Button to clear Musixmatch language (use auto)"
   },
   "downloadNetworkAnySubtitle": "Wi-Fi 또는 모바일 네트워크 사용",
   "@downloadNetworkAnySubtitle": {
@@ -4446,17 +4292,9 @@
   "@editMetadataAutoFillNoneSelected": {
     "description": "Snackbar when user taps Fetch without selecting any fields"
   },
-  "editMetadataLyricsSearch": "온라인에서 가사 찾기",
-  "@editMetadataLyricsSearch": {
-    "description": "Button in the edit metadata lyrics section that searches every lyrics provider"
-  },
   "lyricsPickerTitle": "가사 선택",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
-  },
-  "lyricsPickerNeedsTitle": "제목 및 아티스트를 먼저 입력하세요",
-  "@lyricsPickerNeedsTitle": {
-    "description": "Snackbar when searching lyrics without a title or artist"
   },
   "lyricsPickerNoProviders": "가사 제공자가 활성화되어 있지 않습니다. '설정 > 가사'에서 활성화하세요",
   "@lyricsPickerNoProviders": {
@@ -5489,10 +5327,6 @@
   "@sectionDuplicates": {
     "description": "Settings section header for deduplication"
   },
-  "sectionLyricsProviderOptions": "제공자 옵션",
-  "@sectionLyricsProviderOptions": {
-    "description": "Settings section header for per-provider lyrics options"
-  },
   "metadataProvidersTitle": "메타데이터 제공자 우선순위",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -6104,283 +5938,6 @@
   "nowPlayingShowTranslation": "번역 보기",
   "@nowPlayingNoLyrics": {
     "description": "Empty state when the playing file has no embedded lyrics"
-  },
-  "nowPlayingSearchLyricsOnline": "온라인 검색",
-  "@nowPlayingSearchLyricsOnline": {
-    "description": "Button in the player's empty lyrics state that looks up lyrics from the enabled lyrics providers"
-  },
-  "nowPlayingNoLyricsOnline": "온라인에서 가사를 찾을 수 없습니다",
-  "@nowPlayingNoLyricsOnline": {
-    "description": "Empty state after an online lyrics search for the playing track found nothing"
-  },
-  "nowPlayingCancelTranslation": "번역 취소",
-  "@nowPlayingCancelTranslation": {
-    "description": "Player lyrics menu action that stops an AI lyrics translation in progress"
-  },
-  "nowPlayingTranslatingLyrics": "가사를 번역하는 중, {percent}%",
-  "@nowPlayingTranslatingLyrics": {
-    "description": "Tooltip and screen reader label of the lyrics menu button while an AI translation runs",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsTranslateSheetTitle": "번역 대상",
-  "@lyricsTranslateSheetTitle": {
-    "description": "Title of the sheet that picks the language to translate the current lyrics into"
-  },
-  "lyricsTranslateSheetSubtitle": "The lyrics are sent to {provider}.",
-  "@lyricsTranslateSheetSubtitle": {
-    "description": "Notice under the translate sheet title naming the AI provider that receives the lyrics",
-    "placeholders": {
-      "provider": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsTranslatePartial": "{count, plural, =1{1 line} other{{count} lines}} could not be translated",
-  "@lyricsTranslatePartial": {
-    "description": "Snackbar after an AI translation that left some lines untranslated",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsTranslateAlreadyIn": "이 가사는 이미 {language}로 번역되어 있습니다",
-  "@lyricsTranslateAlreadyIn": {
-    "description": "Snackbar after an AI translation returned every line unchanged; language is the target language's own name",
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiTranslation": "AI 번역",
-  "@lyricsAiTranslation": {
-    "description": "Lyrics settings row and page title for translating lyrics with the user's own AI provider"
-  },
-  "lyricsAiTranslationOff": "Not set up",
-  "@lyricsAiTranslationOff": {
-    "description": "Subtitle of the AI Translation settings row before a provider is configured"
-  },
-  "lyricsAiTranslationNotice": "Lyrics you translate are sent to the provider you choose, using your own API key. The provider's terms and pricing apply. Translations are saved on this device and never change your lyric files.",
-  "@lyricsAiTranslationNotice": {
-    "description": "Privacy notice at the top of the AI translation settings page"
-  },
-  "lyricsAiSectionProvider": "제공자",
-  "@lyricsAiSectionProvider": {
-    "description": "AI translation settings section for the provider, key and model"
-  },
-  "lyricsAiSectionTranslation": "번역",
-  "@lyricsAiSectionTranslation": {
-    "description": "AI translation settings section for the target language and behavior"
-  },
-  "lyricsAiProvider": "제공자",
-  "@lyricsAiProvider": {
-    "description": "AI translation setting that picks the AI service"
-  },
-  "lyricsAiProviderCustom": "사용자 정의 서버",
-  "@lyricsAiProviderCustom": {
-    "description": "AI provider choice for a self-hosted or other OpenAI-compatible server"
-  },
-  "lyricsAiProviderCustomSubtitle": "Any OpenAI-compatible server, such as Ollama or LM Studio",
-  "@lyricsAiProviderCustomSubtitle": {
-    "description": "Subtitle of the custom AI provider choice"
-  },
-  "lyricsAiBaseUrl": "Server URL",
-  "@lyricsAiBaseUrl": {
-    "description": "AI translation setting for the address of a custom OpenAI-compatible server"
-  },
-  "lyricsAiBaseUrlInvalid": "Enter a URL that starts with http:// or https://",
-  "@lyricsAiBaseUrlInvalid": {
-    "description": "Validation error for the custom AI server URL"
-  },
-  "lyricsAiNotSet": "Not set",
-  "@lyricsAiNotSet": {
-    "description": "Subtitle of an AI translation setting that has no value yet"
-  },
-  "lyricsAiApiKey": "API 키",
-  "@lyricsAiApiKey": {
-    "description": "AI translation setting for the user's API key"
-  },
-  "lyricsAiApiKeyOptional": "로컬 서버용 선택 사항",
-  "@lyricsAiApiKeyOptional": {
-    "description": "Subtitle of the API key setting for a custom server without a key"
-  },
-  "lyricsAiApiKeySaved": "저장됨, '{suffix}'로 끝남",
-  "@lyricsAiApiKeySaved": {
-    "description": "Subtitle of the API key setting showing only its last characters",
-    "placeholders": {
-      "suffix": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiApiKeyDescription": "Kept in this device's secure storage and only sent to {provider}.",
-  "@lyricsAiApiKeyDescription": {
-    "description": "Explanation in the API key sheet",
-    "placeholders": {
-      "provider": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiModel": "모델",
-  "@lyricsAiModel": {
-    "description": "AI translation setting for the model id"
-  },
-  "lyricsAiModelDefault": "기본값 ({model})",
-  "@lyricsAiModelDefault": {
-    "description": "Subtitle of the model setting when the provider's default model is used",
-    "placeholders": {
-      "model": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiModelHint": "모델 ID",
-  "@lyricsAiModelHint": {
-    "description": "Hint of the model id text field"
-  },
-  "lyricsAiModelUseDefault": "기본값 사용",
-  "@lyricsAiModelUseDefault": {
-    "description": "Action in the model sheet that returns to the provider's default model"
-  },
-  "lyricsAiModelLoad": "모델 불러오기",
-  "@lyricsAiModelLoad": {
-    "description": "Button in the model sheet that lists the models the provider offers"
-  },
-  "lyricsAiModelsEmpty": "제공자에 모델이 없습니다",
-  "@lyricsAiModelsEmpty": {
-    "description": "Shown in the model sheet when the provider's model list is empty"
-  },
-  "lyricsAiTestConnection": "연결 테스트",
-  "@lyricsAiTestConnection": {
-    "description": "AI translation settings action that translates one line to check the key and model"
-  },
-  "lyricsAiTestConnectionSubtitle": "키와 모델을 확인하기 위해 한 줄을 번역합니다",
-  "@lyricsAiTestConnectionSubtitle": {
-    "description": "Subtitle of the test connection action"
-  },
-  "lyricsAiTestSuccess": "The connection works",
-  "@lyricsAiTestSuccess": {
-    "description": "Snackbar after a successful AI translation connection test"
-  },
-  "lyricsAiTargetLanguage": "Translate Into",
-  "@lyricsAiTargetLanguage": {
-    "description": "AI translation setting for the target language"
-  },
-  "lyricsAiTargetLanguageApp": "App language ({language})",
-  "@lyricsAiTargetLanguageApp": {
-    "description": "Target language choice that follows the app language",
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiInstruction": "Extra Instruction",
-  "@lyricsAiInstruction": {
-    "description": "AI translation setting for optional guidance added to the translation request"
-  },
-  "lyricsAiInstructionNone": "None",
-  "@lyricsAiInstructionNone": {
-    "description": "Subtitle of the extra instruction setting when it is empty"
-  },
-  "lyricsAiInstructionHint": "For example: keep the rhymes where you can",
-  "@lyricsAiInstructionHint": {
-    "description": "Hint of the extra instruction text field"
-  },
-  "lyricsAiAutoTranslate": "Translate Automatically",
-  "@lyricsAiAutoTranslate": {
-    "description": "AI translation switch that translates lyrics as they open"
-  },
-  "lyricsAiAutoTranslateSubtitle": "Translates synced lyrics that have no translation when you open them, using your provider's quota",
-  "@lyricsAiAutoTranslateSubtitle": {
-    "description": "Subtitle of the automatic AI translation switch"
-  },
-  "lyricsAiRomanize": "Add Romanization",
-  "@lyricsAiRomanize": {
-    "description": "AI translation switch that also asks for romanized lyrics"
-  },
-  "lyricsAiRomanizeSubtitle": "Shows how lyrics in other alphabets are sung, such as romaji for Japanese or pinyin for Chinese",
-  "@lyricsAiRomanizeSubtitle": {
-    "description": "Subtitle of the AI romanization switch"
-  },
-  "lyricsAiClearCache": "Clear Saved Translations",
-  "@lyricsAiClearCache": {
-    "description": "AI translation settings action that deletes saved translations"
-  },
-  "lyricsAiClearCacheSubtitle": "{count, plural, =0{No saved translations} =1{1 song} other{{count} songs}}",
-  "@lyricsAiClearCacheSubtitle": {
-    "description": "Subtitle of the clear saved translations action",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsAiClearCacheConfirm": "Clear saved translations?",
-  "@lyricsAiClearCacheConfirm": {
-    "description": "Title of the confirmation before deleting saved AI translations"
-  },
-  "lyricsAiClearCacheMessage": "Songs will need to be translated again, which uses your provider's quota.",
-  "@lyricsAiClearCacheMessage": {
-    "description": "Message of the confirmation before deleting saved AI translations"
-  },
-  "lyricsAiClearCacheDone": "Saved translations cleared",
-  "@lyricsAiClearCacheDone": {
-    "description": "Snackbar after deleting saved AI translations"
-  },
-  "lyricsAiErrorNotConfigured": "Set up AI translation in Lyrics settings first",
-  "@lyricsAiErrorNotConfigured": {
-    "description": "AI translation error when no provider, key or model is set"
-  },
-  "lyricsAiErrorInvalidKey": "The provider did not accept the API key",
-  "@lyricsAiErrorInvalidKey": {
-    "description": "AI translation error for a rejected API key"
-  },
-  "lyricsAiErrorRateLimited": "The provider is limiting requests. Try again in a moment",
-  "@lyricsAiErrorRateLimited": {
-    "description": "AI translation error when the provider rate limits the requests"
-  },
-  "lyricsAiErrorQuota": "Your provider account is out of credit or quota",
-  "@lyricsAiErrorQuota": {
-    "description": "AI translation error for an exhausted quota or billing problem"
-  },
-  "lyricsAiErrorNetwork": "Could not reach the provider. Check your connection",
-  "@lyricsAiErrorNetwork": {
-    "description": "AI translation error when the provider cannot be reached"
-  },
-  "lyricsAiErrorTimeout": "The provider took too long to answer",
-  "@lyricsAiErrorTimeout": {
-    "description": "AI translation error when a request times out"
-  },
-  "lyricsAiErrorModelNotFound": "The provider does not offer this model",
-  "@lyricsAiErrorModelNotFound": {
-    "description": "AI translation error for an unknown model id"
-  },
-  "lyricsAiErrorRefused": "The model declined to translate these lyrics",
-  "@lyricsAiErrorRefused": {
-    "description": "AI translation error when the model refuses the request"
-  },
-  "lyricsAiErrorTruncated": "The model's answer was cut off. Try another model",
-  "@lyricsAiErrorTruncated": {
-    "description": "AI translation error when the reply hit the output limit"
-  },
-  "lyricsAiErrorBadResponse": "The model's answer could not be read. Try another model",
-  "@lyricsAiErrorBadResponse": {
-    "description": "AI translation error when the reply is not the expected JSON"
-  },
-  "lyricsAiErrorService": "The provider had a problem. Try again later",
-  "@lyricsAiErrorService": {
-    "description": "AI translation error for other provider failures"
-  },
-  "lyricsAiErrorNoLyrics": "These lyrics have nothing to translate",
-  "@lyricsAiErrorNoLyrics": {
-    "description": "AI translation error when the lyrics have no translatable lines"
   },
   "nowPlayingShuffleOn": "셔플 켜기",
   "@nowPlayingShuffleOn": {

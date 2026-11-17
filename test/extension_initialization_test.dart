@@ -592,14 +592,7 @@ void main() {
         'extension:example.provider.primary',
         'extension:example.provider.fallback',
       ];
-      const persisted = AppSettings(
-        lyricsProviders: providers,
-        lyricsIncludeTranslationNetease: true,
-        lyricsIncludeRomanizationNetease: true,
-        lyricsMultiPersonWordByWord: true,
-        lyricsAppleElrcWordSync: true,
-        musixmatchLanguage: 'id',
-      );
+      const persisted = AppSettings(lyricsProviders: providers);
       SharedPreferences.setMockInitialValues({
         'app_settings': jsonEncode(persisted.toJson()),
       });
@@ -614,18 +607,6 @@ void main() {
       await first;
       final loaded = container.read(settingsProvider);
       expect(loaded.lyricsProviders, providers);
-      expect(loaded.lyricsIncludeTranslationNetease, isTrue);
-      expect(loaded.lyricsIncludeRomanizationNetease, isTrue);
-      expect(loaded.lyricsMultiPersonWordByWord, isTrue);
-      expect(loaded.lyricsAppleElrcWordSync, isTrue);
-      expect(loaded.musixmatchLanguage, 'id');
-      expect(loaded.lyricsFetchOptions, {
-        'include_translation_netease': true,
-        'include_romanization_netease': true,
-        'multi_person_word_by_word': true,
-        'apple_elrc_word_sync': true,
-        'musixmatch_language': 'id',
-      });
     },
   );
 

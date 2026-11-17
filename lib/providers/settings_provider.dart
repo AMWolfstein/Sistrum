@@ -200,12 +200,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     } catch (e) {
       _log.w('Failed to sync lyrics providers to backend: $e');
     }
-
-    try {
-      await PlatformBridge.setLyricsFetchOptions(snapshot.lyricsFetchOptions);
-    } catch (e) {
-      _log.w('Failed to sync lyrics fetch options to backend: $e');
-    }
   }
 
   Future<void> _syncNetworkCompatibilitySettingsToBackend() async {
@@ -770,65 +764,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       _commit(state.copyWith(lyricsMode: mode));
     }
   }
-
-  void setLyricsProviders(List<String> providers) {
-    _commit(state.copyWith(lyricsProviders: providers));
-    _syncLyricsSettingsToBackend();
-  }
-
-  void setLyricsIncludeTranslationNetease(bool enabled) {
-    _commit(state.copyWith(lyricsIncludeTranslationNetease: enabled));
-    _syncLyricsSettingsToBackend();
-  }
-
-  void setLyricsIncludeRomanizationNetease(bool enabled) {
-    _commit(state.copyWith(lyricsIncludeRomanizationNetease: enabled));
-    _syncLyricsSettingsToBackend();
-  }
-
-  void setLyricsMultiPersonWordByWord(bool enabled) {
-    _commit(state.copyWith(lyricsMultiPersonWordByWord: enabled));
-    _syncLyricsSettingsToBackend();
-  }
-
-  void setLyricsAppleElrcWordSync(bool enabled) {
-    _commit(state.copyWith(lyricsAppleElrcWordSync: enabled));
-    _syncLyricsSettingsToBackend();
-  }
-
-  void setMusixmatchLanguage(String languageCode) {
-    _commit(
-      state.copyWith(musixmatchLanguage: languageCode.trim().toLowerCase()),
-    );
-    _syncLyricsSettingsToBackend();
-  }
-
-  /// Switching provider resets the model to the new provider's default.
-  void setLyricsAiProvider(String provider) {
-    if (provider == state.lyricsAiProvider) return;
-    _commit(state.copyWith(lyricsAiProvider: provider, lyricsAiModel: ''));
-  }
-
-  void setLyricsAiBaseUrl(String url) =>
-      _commit(state.copyWith(lyricsAiBaseUrl: url.trim()));
-
-  void setLyricsAiModel(String model) =>
-      _commit(state.copyWith(lyricsAiModel: model.trim()));
-
-  void setLyricsTranslationLanguage(String code) =>
-      _commit(state.copyWith(lyricsTranslationLanguage: code.trim()));
-
-  void setLyricsAiInstruction(String instruction) =>
-      _commit(state.copyWith(lyricsAiInstruction: instruction.trim()));
-
-  void setLyricsAutoTranslate(bool enabled) =>
-      _commit(state.copyWith(lyricsAutoTranslate: enabled));
-
-  void setLyricsAiRomanize(bool enabled) =>
-      _commit(state.copyWith(lyricsAiRomanize: enabled));
-
-  void setLyricsAiWordSync(bool enabled) =>
-      _commit(state.copyWith(lyricsAiWordSync: enabled));
 
   Future<void> setFirstLaunchComplete() async {
     // The router leaves setup as soon as this flag changes. Persist the final

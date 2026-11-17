@@ -5,17 +5,6 @@ import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
-  test('AI translation defaults to Fast and remembers either mode', () {
-    expect(const AppSettings().lyricsAiWordSync, isFalse);
-    expect(AppSettings.fromJson({}).lyricsAiWordSync, isFalse);
-    for (final wordSync in [false, true]) {
-      final settings = const AppSettings().copyWith(lyricsAiWordSync: wordSync);
-      final restored = AppSettings.fromJson(settings.toJson());
-      expect(restored.lyricsAiWordSync, wordSync);
-      expect(restored.copyWith(locale: 'id').lyricsAiWordSync, wordSync);
-    }
-  });
-
   test('Library sort restores every choice and tolerates old settings', () {
     expect(AppSettings.fromJson({}).historySortMode, 'latest');
     for (final invalid in [null, '', 'unsupported', 42]) {
@@ -115,8 +104,6 @@ void main() {
         'lrclib',
       ]);
       expect(settings.playerMode, 'internal');
-      expect(settings.lyricsMultiPersonWordByWord, isTrue);
-      expect(settings.lyricsAppleElrcWordSync, isTrue);
       expect(settings.deduplicateDownloads, isTrue);
       expect(settings.allowQualityVariants, isFalse);
       expect(settings.nativeDownloadWorkerEnabled, isFalse);
@@ -142,7 +129,6 @@ void main() {
         embedReplayGain: true,
         embeddedCoverMaxDimension: 1000,
         lyricsProviders: ['apple_music'],
-        lyricsAppleElrcWordSync: true,
         deduplicateDownloads: false,
         allowQualityVariants: true,
         libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
@@ -154,7 +140,6 @@ void main() {
       expect(updated.embedReplayGain, isTrue);
       expect(updated.embeddedCoverMaxDimension, 1000);
       expect(updated.lyricsProviders, ['apple_music']);
-      expect(updated.lyricsAppleElrcWordSync, isTrue);
       expect(updated.deduplicateDownloads, isFalse);
       expect(updated.allowQualityVariants, isTrue);
       expect(
@@ -179,8 +164,6 @@ void main() {
         localLibraryEnabled: true,
         localLibraryPath: '/music',
         hasCompletedTutorial: true,
-        musixmatchLanguage: 'id',
-        lyricsAppleElrcWordSync: true,
         deduplicateDownloads: false,
         allowQualityVariants: true,
         nativeDownloadWorkerEnabled: true,
@@ -206,8 +189,6 @@ void main() {
       expect(decoded.localLibraryEnabled, isTrue);
       expect(decoded.localLibraryPath, '/music');
       expect(decoded.hasCompletedTutorial, isTrue);
-      expect(decoded.musixmatchLanguage, 'id');
-      expect(decoded.lyricsAppleElrcWordSync, isTrue);
       expect(
         decoded.libraryQualityLabelMode,
         AppSettings.libraryQualityLabelBitDepthOnly,

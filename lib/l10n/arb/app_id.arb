@@ -1747,10 +1747,6 @@
   "@trackLyricsNotInFile": {
     "description": "Message when no embedded lyrics in audio file"
   },
-  "trackFetchOnlineLyrics": "Ambil dari Internet",
-  "@trackFetchOnlineLyrics": {
-    "description": "Action - fetch lyrics from online providers"
-  },
   "trackLyricsTimeout": "Waktu permintaan habis. Coba lagi nanti.",
   "@trackLyricsTimeout": {
     "description": "Message when lyrics request times out"
@@ -3768,84 +3764,6 @@
   "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
     "description": "Subtitle when track artist is used for folder names"
   },
-  "lyricsProvidersTitle": "Prioritas Provider Lirik",
-  "@lyricsProvidersTitle": {
-    "description": "Settings item title for lyrics provider order"
-  },
-  "lyricsProvidersDescription": "Hidupkan, matikan, dan atur sumber lirik. Provider akan diperiksa dari atas ke bawah hingga lirik ditemukan.",
-  "@lyricsProvidersDescription": {
-    "description": "Description on the lyrics provider priority page"
-  },
-  "lyricsProvidersInfoText": "Provider lirik ekstensi berjalan sebelum provider lirik bawaan. Setidaknya ada satu provider yang hidup.",
-  "@lyricsProvidersInfoText": {
-    "description": "Info tip on lyrics provider priority page"
-  },
-  "lyricsProvidersEnabledSection": "Dihidupkan ({count})",
-  "@lyricsProvidersEnabledSection": {
-    "description": "Section header for enabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersDisabledSection": "Dimatikan ({count})",
-  "@lyricsProvidersDisabledSection": {
-    "description": "Section header for disabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersAtLeastOne": "Setidaknya ada satu provider yang hidup",
-  "@lyricsProvidersAtLeastOne": {
-    "description": "Snackbar when user tries to disable the last enabled provider"
-  },
-  "lyricsProvidersSaved": "Prioritas provider lirik disimpan",
-  "@lyricsProvidersSaved": {
-    "description": "Snackbar after saving lyrics provider priority"
-  },
-  "lyricsProvidersDiscardContent": "Ada perubahan yang belum disimpan yang akan hilang.",
-  "@lyricsProvidersDiscardContent": {
-    "description": "Body text of the discard-changes dialog on lyrics provider page"
-  },
-  "lyricsProviderLrclibDesc": "Database lirik berjalan open-source",
-  "@lyricsProviderLrclibDesc": {
-    "description": "Description for LRCLIB provider"
-  },
-  "lyricsProviderNeteaseDesc": "NetEase Cloud Music (bagus untuk lagu Asia)",
-  "@lyricsProviderNeteaseDesc": {
-    "description": "Description for Netease provider"
-  },
-  "lyricsProviderMusixmatchDesc": "Database lirik terbesar (banyak bahasa)",
-  "@lyricsProviderMusixmatchDesc": {
-    "description": "Description for Musixmatch provider"
-  },
-  "lyricsProviderAppleMusicDesc": "Lirik berjalan per kata (lewat proxy)",
-  "@lyricsProviderAppleMusicDesc": {
-    "description": "Description for Apple Music provider"
-  },
-  "lyricsProviderQqMusicDesc": "QQ Music (bagus untuk lagu Cina, API langsung)",
-  "@lyricsProviderQqMusicDesc": {
-    "description": "Description for QQ Music provider"
-  },
-  "lyricsProviderLyricsPlusDesc": "Lirik karaoke per kata (Apple/Musixmatch/Spotify/QQ, lewat proxy)",
-  "@lyricsProviderLyricsPlusDesc": {
-    "description": "Description for LyricsPlus provider"
-  },
-  "lyricsProviderLrcRedDesc": "Lirik Apple Music per kata, dicocokkan per rekaman",
-  "@lyricsProviderLrcRedDesc": {
-    "description": "Description for lrc.red provider"
-  },
-  "lyricsProviderBetterLyricsDesc": "Lirik Apple Music per kata untuk lagu populer",
-  "@lyricsProviderBetterLyricsDesc": {
-    "description": "Description for BetterLyrics provider, which only answers songs it has already cached"
-  },
-  "lyricsProviderExtensionDesc": "Provider ekstensi",
-  "@lyricsProviderExtensionDesc": {
-    "description": "Generic description for extension-based lyrics providers"
-  },
   "safMigrationTitle": "Butuh Update Penyimpanan",
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
@@ -4207,62 +4125,6 @@
   "@downloadEmbedLyricsDisabled": {
     "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
-  "downloadNeteaseIncludeTranslation": "NetEase: Termasuk Terjemahan",
-  "@downloadNeteaseIncludeTranslation": {
-    "description": "Setting to include translated lyrics from Netease"
-  },
-  "downloadNeteaseIncludeTranslationEnabled": "Lirik terjemahan Tionghoa dimasukkan",
-  "@downloadNeteaseIncludeTranslationEnabled": {
-    "description": "Subtitle when Netease translation is on"
-  },
-  "downloadNeteaseIncludeTranslationDisabled": "Lirik asli saja",
-  "@downloadNeteaseIncludeTranslationDisabled": {
-    "description": "Subtitle when Netease translation is off"
-  },
-  "downloadNeteaseIncludeRomanization": "NetEase: Termasuk Romanisasi",
-  "@downloadNeteaseIncludeRomanization": {
-    "description": "Setting to include romanized lyrics from Netease"
-  },
-  "downloadNeteaseIncludeRomanizationEnabled": "Lirik romanisasi dimasukkan",
-  "@downloadNeteaseIncludeRomanizationEnabled": {
-    "description": "Subtitle when Netease romanization is on"
-  },
-  "downloadNeteaseIncludeRomanizationDisabled": "Tidak ada romanisasi",
-  "@downloadNeteaseIncludeRomanizationDisabled": {
-    "description": "Subtitle when Netease romanization is off"
-  },
-  "downloadAppleQqMultiPerson": "Apple/QQ: Lirik Per-Orang",
-  "@downloadAppleQqMultiPerson": {
-    "description": "Setting for word-by-word multi-person lyrics from Apple Music and QQ Music"
-  },
-  "downloadAppleQqMultiPersonEnabled": "Label penyanyi untuk lagu duet dan grup dimasukkan",
-  "@downloadAppleQqMultiPersonEnabled": {
-    "description": "Subtitle when multi-person lyrics is on"
-  },
-  "downloadAppleQqMultiPersonDisabled": "Lirik standar tanpa label penyanyi",
-  "@downloadAppleQqMultiPersonDisabled": {
-    "description": "Subtitle when multi-person lyrics is off"
-  },
-  "downloadAppleElrcWordSync": "eLRC Apple Music Per Kata",
-  "@downloadAppleElrcWordSync": {
-    "description": "Setting for preserving Apple Music word-by-word eLRC timestamps"
-  },
-  "downloadAppleElrcWordSyncEnabled": "Timestamp per kata mentah dimasukkan",
-  "@downloadAppleElrcWordSyncEnabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is enabled"
-  },
-  "downloadAppleElrcWordSyncDisabled": "Lirik per kata Apple Music yang lebih aman",
-  "@downloadAppleElrcWordSyncDisabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is disabled"
-  },
-  "downloadMusixmatchLanguage": "Bahasa Musixmatch",
-  "@downloadMusixmatchLanguage": {
-    "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadMusixmatchLanguageAuto": "Otomatis (bahasa asli)",
-  "@downloadMusixmatchLanguageAuto": {
-    "description": "Subtitle when no language is set"
-  },
   "downloadFilterContributing": "Filter Artis Kontributor",
   "@downloadFilterContributing": {
     "description": "Setting to strip contributing artists from Album Artist folder name"
@@ -4278,22 +4140,6 @@
   "downloadProvidersNoneEnabled": "Tidak ada provider dihidupkan",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadMusixmatchLanguageCode": "Kode bahasa",
-  "@downloadMusixmatchLanguageCode": {
-    "description": "Label for Musixmatch language input field"
-  },
-  "downloadMusixmatchLanguageHint": "cont. en, de, ja",
-  "@downloadMusixmatchLanguageHint": {
-    "description": "Placeholder for Musixmatch language input"
-  },
-  "downloadMusixmatchLanguageDesc": "Masukkan kode bahasa BCP-47 (cont. en, de, ja) untuk meminta lirik terjemahan dari Musixmatch.",
-  "@downloadMusixmatchLanguageDesc": {
-    "description": "Description in Musixmatch language picker"
-  },
-  "downloadMusixmatchAuto": "Otomatis",
-  "@downloadMusixmatchAuto": {
-    "description": "Button to clear Musixmatch language (use auto)"
   },
   "downloadNetworkAnySubtitle": "Gunakan WiFi atau data seluler",
   "@downloadNetworkAnySubtitle": {
@@ -4414,17 +4260,9 @@
   "@editMetadataAutoFillNoneSelected": {
     "description": "Snackbar when user taps Fetch without selecting any fields"
   },
-  "editMetadataLyricsSearch": "Telusuri lirik di internet",
-  "@editMetadataLyricsSearch": {
-    "description": "Button in the edit metadata lyrics section that searches every lyrics provider"
-  },
   "lyricsPickerTitle": "Pilih lirik",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
-  },
-  "lyricsPickerNeedsTitle": "Masukkan judul dan artis dulu",
-  "@lyricsPickerNeedsTitle": {
-    "description": "Snackbar when searching lyrics without a title or artist"
   },
   "lyricsPickerNoProviders": "Tak ada provider lirik yang hidup. Hidupkan beberapa di Setelan > Lirik.",
   "@lyricsPickerNoProviders": {
@@ -5457,10 +5295,6 @@
   "@sectionDuplicates": {
     "description": "Settings section header for deduplication"
   },
-  "sectionLyricsProviderOptions": "Opsi Provider",
-  "@sectionLyricsProviderOptions": {
-    "description": "Settings section header for per-provider lyrics options"
-  },
   "metadataProvidersTitle": "Prioritas Provider Metadata",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -6066,14 +5900,6 @@
   "nowPlayingShowTranslation": "Tampilkan Terjemahan",
   "@nowPlayingNoLyrics": {
     "description": "Empty state when the playing file has no embedded lyrics"
-  },
-  "nowPlayingSearchLyricsOnline": "Cari online",
-  "@nowPlayingSearchLyricsOnline": {
-    "description": "Button in the player's empty lyrics state that looks up lyrics from the enabled lyrics providers"
-  },
-  "nowPlayingNoLyricsOnline": "Lirik tidak ditemukan online",
-  "@nowPlayingNoLyricsOnline": {
-    "description": "Empty state after an online lyrics search for the playing track found nothing"
   },
   "nowPlayingShuffleOn": "Acak hidup",
   "@nowPlayingShuffleOn": {
@@ -7097,11 +6923,6 @@
   "audioOutputCastDescription": "Perangkat Google Cast di jaringan Wi-Fi yang sama",
   "audioOutputStopCasting": "Hentikan casting",
   "audioOutputCastUnavailable": "Google Cast tidak dapat dibuka. Periksa Google Play services dan akses jaringan lokal.",
-  "lyricsAiMode": "Mode Terjemahan",
-  "lyricsAiModeFast": "Cepat",
-  "lyricsAiModeFastDescription": "Menerjemahkan per baris tanpa timing kata. Lebih cepat dengan keluaran lebih sedikit.",
-  "lyricsAiModeSynced": "Sinkron",
-  "lyricsAiModeSyncedDescription": "Menyelaraskan terjemahan dan romanisasi dengan kata serta frasa yang dinyanyikan. Lebih lama dan memerlukan lirik dengan timing kata.",
   "offlineSave": "Simpan offline",
   "offlineOnDevice": "Di perangkat ini",
   "offlineOnPhone": "Di ponsel",

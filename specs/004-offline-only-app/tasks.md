@@ -46,7 +46,7 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
     dependency `video_player`. The download queue calls the motion artwork services, so they
     go with the download engine.
 
-- [ ] M004-T002 Remove online lyrics providers and AI lyrics translation
+- [x] M004-T002 Remove online lyrics providers and AI lyrics translation
   - Acceptance: FR-002, FR-012. Embedded and sidecar lyrics, the editor, lyrics
     search, lyric display/preview, pronunciation and lyrics sharing stay.
   - Remove: `lyrics_ai_client.dart`, `lyrics_translation*.dart`,

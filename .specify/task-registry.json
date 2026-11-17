@@ -25,7 +25,7 @@
       "title": "Offline-only app: remove online features, network storage and conversion"
     }
   },
-  "next_completion": 49,
+  "next_completion": 50,
   "next_mission": 5,
   "next_tor": 18,
   "tasks": {
@@ -654,13 +654,19 @@
       "title": "Remove Last.fm, song recognition, motion artwork and weekly releases"
     },
     "M004-T002": {
-      "completion": null,
+      "completion": 49,
+      "evidence": {
+        "checks": "analyze clean; gen-l10n ok; full flutter test 3707 passed, 10 skipped, 0 failed; reviewer PASS (no confirmed defects)",
+        "result": "PASS",
+        "reviewer": "independent-sonnet-reviewer",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M004",
       "nonce": "359cc7ff1da443f194136cbd8fbdf65e",
       "record": "specs/004-offline-only-app/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove online lyrics providers and AI lyrics translation"
     },
     "M004-T003": {

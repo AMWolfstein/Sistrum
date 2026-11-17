@@ -48,3 +48,4 @@
 - M003-T011 — Cumulative review
 - TOR017 — Artist popular layout, compilations padding, album row/shuffle styling, red delete
 - M004-T001 — Remove Last.fm, song recognition, motion artwork and weekly releases
+- M004-T002 — Remove online lyrics providers and AI lyrics translation

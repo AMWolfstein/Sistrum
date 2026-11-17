@@ -7,7 +7,6 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
@@ -191,9 +190,7 @@ class _PlayerLyricPreviewState extends ConsumerState<PlayerLyricPreview> {
         final showTranslation = ref.watch(
           settingsProvider.select((s) => s.playerShowTranslation),
         );
-        ref.watch(lyricsTranslationProvider.select((s) => s.results));
-        final translation = ref.read(lyricsTranslationProvider.notifier);
-        final effectiveLyrics = translation.display(widget.metadata.lyrics);
+        final effectiveLyrics = widget.metadata.lyrics;
 
         _syncLines(effectiveLyrics);
         if (_lines.isEmpty) return _placeholderBar(context);

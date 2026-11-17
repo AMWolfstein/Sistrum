@@ -188,7 +188,7 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
         dataDir,
         masterKey: masterKey,
         lyricsProviders: snapshot.lyricsProviders,
-        lyricsFetchOptions: snapshot.lyricsFetchOptions,
+        lyricsFetchOptions: const <String, dynamic>{},
         allowedDirectories: allowedDirectories,
       );
       final loaded = await loadExtensions(extensionsDir);

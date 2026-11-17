@@ -1772,10 +1772,6 @@
   "@trackLyricsNotInFile": {
     "description": "Message when no embedded lyrics in audio file"
   },
-  "trackFetchOnlineLyrics": "Tải dữ liệu trực tuyến",
-  "@trackFetchOnlineLyrics": {
-    "description": "Action - fetch lyrics from online providers"
-  },
   "trackLyricsTimeout": "Yêu cầu đã quá thời gian phản hồi. Vui lòng thử lại sau.",
   "@trackLyricsTimeout": {
     "description": "Message when lyrics request times out"
@@ -3800,84 +3796,6 @@
   "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
     "description": "Subtitle when track artist is used for folder names"
   },
-  "lyricsProvidersTitle": "Thứ tự ưu tiên nguồn lời bài hát",
-  "@lyricsProvidersTitle": {
-    "description": "Settings item title for lyrics provider order"
-  },
-  "lyricsProvidersDescription": "Bật, tắt và sắp xếp thứ tự nguồn lời bài hát. Ứng dụng sẽ tìm lần lượt từ trên xuống dưới cho đến khi có lời.",
-  "@lyricsProvidersDescription": {
-    "description": "Description on the lyrics provider priority page"
-  },
-  "lyricsProvidersInfoText": "Nguồn lời bài hát từ tiện ích mở rộng sẽ được ưu tiên chạy trước các nguồn tích hợp sẵn. Phải bật ít nhất một nguồn.",
-  "@lyricsProvidersInfoText": {
-    "description": "Info tip on lyrics provider priority page"
-  },
-  "lyricsProvidersEnabledSection": "Đã bật ({count})",
-  "@lyricsProvidersEnabledSection": {
-    "description": "Section header for enabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersDisabledSection": "Đã tắt ({count})",
-  "@lyricsProvidersDisabledSection": {
-    "description": "Section header for disabled providers",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsProvidersAtLeastOne": "Phải bật ít nhất một nguồn cung cấp",
-  "@lyricsProvidersAtLeastOne": {
-    "description": "Snackbar when user tries to disable the last enabled provider"
-  },
-  "lyricsProvidersSaved": "Đã lưu thứ tự ưu tiên nguồn lời bài hát",
-  "@lyricsProvidersSaved": {
-    "description": "Snackbar after saving lyrics provider priority"
-  },
-  "lyricsProvidersDiscardContent": "Bạn có thay đổi chưa lưu, nếu thoát sẽ bị mất.",
-  "@lyricsProvidersDiscardContent": {
-    "description": "Body text of the discard-changes dialog on lyrics provider page"
-  },
-  "lyricsProviderLrclibDesc": "Cơ sở dữ liệu lời bài hát đồng bộ mã nguồn mở",
-  "@lyricsProviderLrclibDesc": {
-    "description": "Description for LRCLIB provider"
-  },
-  "lyricsProviderNeteaseDesc": "NetEase Cloud Music (tốt cho nhạc châu Á)",
-  "@lyricsProviderNeteaseDesc": {
-    "description": "Description for Netease provider"
-  },
-  "lyricsProviderMusixmatchDesc": "Cơ sở dữ liệu lời bài hát lớn nhất (hỗ trợ đa ngôn ngữ)",
-  "@lyricsProviderMusixmatchDesc": {
-    "description": "Description for Musixmatch provider"
-  },
-  "lyricsProviderAppleMusicDesc": "Lời bài hát đồng bộ từng chữ (qua proxy)",
-  "@lyricsProviderAppleMusicDesc": {
-    "description": "Description for Apple Music provider"
-  },
-  "lyricsProviderQqMusicDesc": "QQ Music (tốt cho nhạc Hoa, API trực tiếp)",
-  "@lyricsProviderQqMusicDesc": {
-    "description": "Description for QQ Music provider"
-  },
-  "lyricsProviderLyricsPlusDesc": "Lời bài hát karaoke theo từng chữ (Apple/Musixmatch/Spotify/QQ, qua proxy)",
-  "@lyricsProviderLyricsPlusDesc": {
-    "description": "Description for LyricsPlus provider"
-  },
-  "lyricsProviderLrcRedDesc": "Lời bài hát theo từng chữ từ Apple Music, khớp theo bản thu âm",
-  "@lyricsProviderLrcRedDesc": {
-    "description": "Description for lrc.red provider"
-  },
-  "lyricsProviderBetterLyricsDesc": "Lời bài hát từng chữ từ Apple Music cho các ca khúc phổ biến",
-  "@lyricsProviderBetterLyricsDesc": {
-    "description": "Description for BetterLyrics provider, which only answers songs it has already cached"
-  },
-  "lyricsProviderExtensionDesc": "Nguồn từ tiện ích mở rộng",
-  "@lyricsProviderExtensionDesc": {
-    "description": "Generic description for extension-based lyrics providers"
-  },
   "safMigrationTitle": "Cần cập nhật quyền truy cập bộ nhớ",
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
@@ -4239,62 +4157,6 @@
   "@downloadEmbedLyricsDisabled": {
     "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
-  "downloadNeteaseIncludeTranslation": "NetEase: Kèm bản dịch",
-  "@downloadNeteaseIncludeTranslation": {
-    "description": "Setting to include translated lyrics from Netease"
-  },
-  "downloadNeteaseIncludeTranslationEnabled": "Bao gồm dòng dịch tiếng Trung",
-  "@downloadNeteaseIncludeTranslationEnabled": {
-    "description": "Subtitle when Netease translation is on"
-  },
-  "downloadNeteaseIncludeTranslationDisabled": "Chỉ hiện lời bài hát gốc",
-  "@downloadNeteaseIncludeTranslationDisabled": {
-    "description": "Subtitle when Netease translation is off"
-  },
-  "downloadNeteaseIncludeRomanization": "NetEase: Kèm phiên âm Latinh",
-  "@downloadNeteaseIncludeRomanization": {
-    "description": "Setting to include romanized lyrics from Netease"
-  },
-  "downloadNeteaseIncludeRomanizationEnabled": "Bao gồm dòng phiên âm Latinh",
-  "@downloadNeteaseIncludeRomanizationEnabled": {
-    "description": "Subtitle when Netease romanization is on"
-  },
-  "downloadNeteaseIncludeRomanizationDisabled": "Không có phiên âm Latinh",
-  "@downloadNeteaseIncludeRomanizationDisabled": {
-    "description": "Subtitle when Netease romanization is off"
-  },
-  "downloadAppleQqMultiPerson": "Apple / QQ: Lời bài hát nhiều người hát",
-  "@downloadAppleQqMultiPerson": {
-    "description": "Setting for word-by-word multi-person lyrics from Apple Music and QQ Music"
-  },
-  "downloadAppleQqMultiPersonEnabled": "Hiển thị tên người hát cho các bài song ca và nhạc nhóm",
-  "@downloadAppleQqMultiPersonEnabled": {
-    "description": "Subtitle when multi-person lyrics is on"
-  },
-  "downloadAppleQqMultiPersonDisabled": "Chỉ có nội dung lời bài hát, không kèm tên người hát hay chú thích",
-  "@downloadAppleQqMultiPersonDisabled": {
-    "description": "Subtitle when multi-person lyrics is off"
-  },
-  "downloadAppleElrcWordSync": "Đồng bộ từng chữ eLRC của Apple Music",
-  "@downloadAppleElrcWordSync": {
-    "description": "Setting for preserving Apple Music word-by-word eLRC timestamps"
-  },
-  "downloadAppleElrcWordSyncEnabled": "Giữ nguyên mốc thời gian từng chữ gốc",
-  "@downloadAppleElrcWordSyncEnabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is enabled"
-  },
-  "downloadAppleElrcWordSyncDisabled": "Lời bài hát theo từng dòng từ Apple Music",
-  "@downloadAppleElrcWordSyncDisabled": {
-    "description": "Subtitle when Apple Music eLRC word sync is disabled"
-  },
-  "downloadMusixmatchLanguage": "Ngôn ngữ dịch Musixmatch",
-  "@downloadMusixmatchLanguage": {
-    "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadMusixmatchLanguageAuto": "Tự động (ngôn ngữ gốc)",
-  "@downloadMusixmatchLanguageAuto": {
-    "description": "Subtitle when no language is set"
-  },
   "downloadFilterContributing": "Lọc nghệ sĩ góp giọng",
   "@downloadFilterContributing": {
     "description": "Setting to strip contributing artists from Album Artist folder name"
@@ -4310,22 +4172,6 @@
   "downloadProvidersNoneEnabled": "Chưa bật nguồn cung cấp nào",
   "@downloadProvidersNoneEnabled": {
     "description": "Shown when no lyrics providers are active"
-  },
-  "downloadMusixmatchLanguageCode": "Mã ngôn ngữ",
-  "@downloadMusixmatchLanguageCode": {
-    "description": "Label for Musixmatch language input field"
-  },
-  "downloadMusixmatchLanguageHint": "ví dụ: vi, en, ja",
-  "@downloadMusixmatchLanguageHint": {
-    "description": "Placeholder for Musixmatch language input"
-  },
-  "downloadMusixmatchLanguageDesc": "Nhập mã ngôn ngữ chuẩn BCP-47 (ví dụ: vi, en, ja) để yêu cầu bản dịch lời bài hát từ Musixmatch.",
-  "@downloadMusixmatchLanguageDesc": {
-    "description": "Description in Musixmatch language picker"
-  },
-  "downloadMusixmatchAuto": "Tự động",
-  "@downloadMusixmatchAuto": {
-    "description": "Button to clear Musixmatch language (use auto)"
   },
   "downloadNetworkAnySubtitle": "Sử dụng Wi-Fi hoặc dữ liệu di động",
   "@downloadNetworkAnySubtitle": {
@@ -4446,17 +4292,9 @@
   "@editMetadataAutoFillNoneSelected": {
     "description": "Snackbar when user taps Fetch without selecting any fields"
   },
-  "editMetadataLyricsSearch": "Tìm lời bài hát trực tuyến",
-  "@editMetadataLyricsSearch": {
-    "description": "Button in the edit metadata lyrics section that searches every lyrics provider"
-  },
   "lyricsPickerTitle": "Chọn lời bài hát",
   "@lyricsPickerTitle": {
     "description": "Title of the sheet listing each lyrics provider's result"
-  },
-  "lyricsPickerNeedsTitle": "Vui lòng nhập tên bài hát và nghệ sĩ trước",
-  "@lyricsPickerNeedsTitle": {
-    "description": "Snackbar when searching lyrics without a title or artist"
   },
   "lyricsPickerNoProviders": "Chưa bật nguồn cung cấp lời bài hát nào. Hãy bật trong Cài đặt > Lời bài hát.",
   "@lyricsPickerNoProviders": {
@@ -5489,10 +5327,6 @@
   "@sectionDuplicates": {
     "description": "Settings section header for deduplication"
   },
-  "sectionLyricsProviderOptions": "Tùy chọn nguồn",
-  "@sectionLyricsProviderOptions": {
-    "description": "Settings section header for per-provider lyrics options"
-  },
   "metadataProvidersTitle": "Thứ tự ưu tiên nguồn Metadata",
   "@metadataProvidersTitle": {
     "description": "Settings item title for metadata provider order"
@@ -6104,283 +5938,6 @@
   "nowPlayingShowTranslation": "Hiện bản dịch",
   "@nowPlayingNoLyrics": {
     "description": "Empty state when the playing file has no embedded lyrics"
-  },
-  "nowPlayingSearchLyricsOnline": "Tìm kiếm trực tuyến",
-  "@nowPlayingSearchLyricsOnline": {
-    "description": "Button in the player's empty lyrics state that looks up lyrics from the enabled lyrics providers"
-  },
-  "nowPlayingNoLyricsOnline": "Không tìm thấy lời bài hát trực tuyến",
-  "@nowPlayingNoLyricsOnline": {
-    "description": "Empty state after an online lyrics search for the playing track found nothing"
-  },
-  "nowPlayingCancelTranslation": "Huỷ dịch",
-  "@nowPlayingCancelTranslation": {
-    "description": "Player lyrics menu action that stops an AI lyrics translation in progress"
-  },
-  "nowPlayingTranslatingLyrics": "Đang dịch lời bài hát, {percent}%",
-  "@nowPlayingTranslatingLyrics": {
-    "description": "Tooltip and screen reader label of the lyrics menu button while an AI translation runs",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsTranslateSheetTitle": "Dịch sang",
-  "@lyricsTranslateSheetTitle": {
-    "description": "Title of the sheet that picks the language to translate the current lyrics into"
-  },
-  "lyricsTranslateSheetSubtitle": "Lời bài hát được gửi đến {provider}.",
-  "@lyricsTranslateSheetSubtitle": {
-    "description": "Notice under the translate sheet title naming the AI provider that receives the lyrics",
-    "placeholders": {
-      "provider": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsTranslatePartial": "{count, plural, =1{1 dòng} other{{count} dòng}} không thể dịch",
-  "@lyricsTranslatePartial": {
-    "description": "Snackbar after an AI translation that left some lines untranslated",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsTranslateAlreadyIn": "Lời bài hát này đã là ngôn ngữ {language}",
-  "@lyricsTranslateAlreadyIn": {
-    "description": "Snackbar after an AI translation returned every line unchanged; language is the target language's own name",
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiTranslation": "Dịch bằng AI",
-  "@lyricsAiTranslation": {
-    "description": "Lyrics settings row and page title for translating lyrics with the user's own AI provider"
-  },
-  "lyricsAiTranslationOff": "Chưa được thiết lập",
-  "@lyricsAiTranslationOff": {
-    "description": "Subtitle of the AI Translation settings row before a provider is configured"
-  },
-  "lyricsAiTranslationNotice": "Lời bài hát bạn dịch được gửi đến nhà cung cấp mà bạn chọn, sử dụng khóa API của riêng bạn. Các điều khoản và giá cả của nhà cung cấp sẽ được áp dụng. Các bản dịch được lưu trên thiết bị này và không bao giờ làm thay đổi tệp lời bài hát của bạn.",
-  "@lyricsAiTranslationNotice": {
-    "description": "Privacy notice at the top of the AI translation settings page"
-  },
-  "lyricsAiSectionProvider": "Nhà cung cấp",
-  "@lyricsAiSectionProvider": {
-    "description": "AI translation settings section for the provider, key and model"
-  },
-  "lyricsAiSectionTranslation": "Bản dịch",
-  "@lyricsAiSectionTranslation": {
-    "description": "AI translation settings section for the target language and behavior"
-  },
-  "lyricsAiProvider": "Nhà cung cấp",
-  "@lyricsAiProvider": {
-    "description": "AI translation setting that picks the AI service"
-  },
-  "lyricsAiProviderCustom": "Máy chủ tùy chỉnh",
-  "@lyricsAiProviderCustom": {
-    "description": "AI provider choice for a self-hosted or other OpenAI-compatible server"
-  },
-  "lyricsAiProviderCustomSubtitle": "Bất kỳ máy chủ tương thích nào với OpenAI, như Ollama hoặc LM Studio",
-  "@lyricsAiProviderCustomSubtitle": {
-    "description": "Subtitle of the custom AI provider choice"
-  },
-  "lyricsAiBaseUrl": "URL máy chủ",
-  "@lyricsAiBaseUrl": {
-    "description": "AI translation setting for the address of a custom OpenAI-compatible server"
-  },
-  "lyricsAiBaseUrlInvalid": "Nhập URL bắt đầu bằng http:// hoặc https://",
-  "@lyricsAiBaseUrlInvalid": {
-    "description": "Validation error for the custom AI server URL"
-  },
-  "lyricsAiNotSet": "Chưa thiết lập",
-  "@lyricsAiNotSet": {
-    "description": "Subtitle of an AI translation setting that has no value yet"
-  },
-  "lyricsAiApiKey": "Khoá API",
-  "@lyricsAiApiKey": {
-    "description": "AI translation setting for the user's API key"
-  },
-  "lyricsAiApiKeyOptional": "Tùy chọn cho máy chủ cục bộ",
-  "@lyricsAiApiKeyOptional": {
-    "description": "Subtitle of the API key setting for a custom server without a key"
-  },
-  "lyricsAiApiKeySaved": "Đã lưu, kết thúc bằng {suffix}",
-  "@lyricsAiApiKeySaved": {
-    "description": "Subtitle of the API key setting showing only its last characters",
-    "placeholders": {
-      "suffix": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiApiKeyDescription": "Được lưu trữ trong bộ nhớ bảo mật của thiết bị này và chỉ gửi đến {provider}.",
-  "@lyricsAiApiKeyDescription": {
-    "description": "Explanation in the API key sheet",
-    "placeholders": {
-      "provider": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiModel": "Model",
-  "@lyricsAiModel": {
-    "description": "AI translation setting for the model id"
-  },
-  "lyricsAiModelDefault": "Mặc định ({model})",
-  "@lyricsAiModelDefault": {
-    "description": "Subtitle of the model setting when the provider's default model is used",
-    "placeholders": {
-      "model": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiModelHint": "ID Model",
-  "@lyricsAiModelHint": {
-    "description": "Hint of the model id text field"
-  },
-  "lyricsAiModelUseDefault": "Sử dụng mặc định",
-  "@lyricsAiModelUseDefault": {
-    "description": "Action in the model sheet that returns to the provider's default model"
-  },
-  "lyricsAiModelLoad": "Tải model",
-  "@lyricsAiModelLoad": {
-    "description": "Button in the model sheet that lists the models the provider offers"
-  },
-  "lyricsAiModelsEmpty": "Nhà cung cấp không liệt kê mô hình nào",
-  "@lyricsAiModelsEmpty": {
-    "description": "Shown in the model sheet when the provider's model list is empty"
-  },
-  "lyricsAiTestConnection": "Kiểm tra kết nối",
-  "@lyricsAiTestConnection": {
-    "description": "AI translation settings action that translates one line to check the key and model"
-  },
-  "lyricsAiTestConnectionSubtitle": "Dịch một dòng để kiểm tra khóa và mô hình",
-  "@lyricsAiTestConnectionSubtitle": {
-    "description": "Subtitle of the test connection action"
-  },
-  "lyricsAiTestSuccess": "Kết nối hoạt động",
-  "@lyricsAiTestSuccess": {
-    "description": "Snackbar after a successful AI translation connection test"
-  },
-  "lyricsAiTargetLanguage": "Dịch sang",
-  "@lyricsAiTargetLanguage": {
-    "description": "AI translation setting for the target language"
-  },
-  "lyricsAiTargetLanguageApp": "Ngôn ngữ ứng dụng ({language})",
-  "@lyricsAiTargetLanguageApp": {
-    "description": "Target language choice that follows the app language",
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "lyricsAiInstruction": "Hướng dẫn bổ sung",
-  "@lyricsAiInstruction": {
-    "description": "AI translation setting for optional guidance added to the translation request"
-  },
-  "lyricsAiInstructionNone": "Không",
-  "@lyricsAiInstructionNone": {
-    "description": "Subtitle of the extra instruction setting when it is empty"
-  },
-  "lyricsAiInstructionHint": "Ví dụ: giữ các vần ở nơi bạn có thể",
-  "@lyricsAiInstructionHint": {
-    "description": "Hint of the extra instruction text field"
-  },
-  "lyricsAiAutoTranslate": "Dịch tự động",
-  "@lyricsAiAutoTranslate": {
-    "description": "AI translation switch that translates lyrics as they open"
-  },
-  "lyricsAiAutoTranslateSubtitle": "Dịch lời bài hát đã đồng bộ chưa có bản dịch khi bạn mở chúng, sử dụng hạn ngạch từ nhà cung cấp của bạn",
-  "@lyricsAiAutoTranslateSubtitle": {
-    "description": "Subtitle of the automatic AI translation switch"
-  },
-  "lyricsAiRomanize": "Thêm phiên âm Rōmaji",
-  "@lyricsAiRomanize": {
-    "description": "AI translation switch that also asks for romanized lyrics"
-  },
-  "lyricsAiRomanizeSubtitle": "Hiển thị cách hát lời bài hát ở các chữ cái khác, chẳng hạn như romaji cho tiếng Nhật hoặc pinyin cho tiếng Trung",
-  "@lyricsAiRomanizeSubtitle": {
-    "description": "Subtitle of the AI romanization switch"
-  },
-  "lyricsAiClearCache": "Xóa các bản dịch đã lưu",
-  "@lyricsAiClearCache": {
-    "description": "AI translation settings action that deletes saved translations"
-  },
-  "lyricsAiClearCacheSubtitle": "{count, plural, =0{Không có bản dịch nào được lưu} =1{1 bài hát} other{{count} bài hát}}",
-  "@lyricsAiClearCacheSubtitle": {
-    "description": "Subtitle of the clear saved translations action",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "lyricsAiClearCacheConfirm": "Xóa các bản dịch đã lưu?",
-  "@lyricsAiClearCacheConfirm": {
-    "description": "Title of the confirmation before deleting saved AI translations"
-  },
-  "lyricsAiClearCacheMessage": "Các bài hát sẽ cần phải được dịch lại, việc này sẽ sử dụng hạn ngạch từ nhà cung cấp của bạn",
-  "@lyricsAiClearCacheMessage": {
-    "description": "Message of the confirmation before deleting saved AI translations"
-  },
-  "lyricsAiClearCacheDone": "Các bản dịch đã xóa",
-  "@lyricsAiClearCacheDone": {
-    "description": "Snackbar after deleting saved AI translations"
-  },
-  "lyricsAiErrorNotConfigured": "Thiết lập dịch AI trong cài đặt Lời bài hát trước",
-  "@lyricsAiErrorNotConfigured": {
-    "description": "AI translation error when no provider, key or model is set"
-  },
-  "lyricsAiErrorInvalidKey": " Nhà cung cấp không chấp nhận khóa API",
-  "@lyricsAiErrorInvalidKey": {
-    "description": "AI translation error for a rejected API key"
-  },
-  "lyricsAiErrorRateLimited": "Nhà cung cấp đang giới hạn số lượng yêu cầu. Thử lại sau giây lát",
-  "@lyricsAiErrorRateLimited": {
-    "description": "AI translation error when the provider rate limits the requests"
-  },
-  "lyricsAiErrorQuota": "Tài khoản nhà cung cấp của bạn đã hết số dư hoặc hạn mức",
-  "@lyricsAiErrorQuota": {
-    "description": "AI translation error for an exhausted quota or billing problem"
-  },
-  "lyricsAiErrorNetwork": "Không kết nối với nhà cung cấp. Kiểm tra kết nối của bạn",
-  "@lyricsAiErrorNetwork": {
-    "description": "AI translation error when the provider cannot be reached"
-  },
-  "lyricsAiErrorTimeout": "Nhà cung cấp mất quá nhiều thời gian để phản hồi",
-  "@lyricsAiErrorTimeout": {
-    "description": "AI translation error when a request times out"
-  },
-  "lyricsAiErrorModelNotFound": "Nhà cung cấp không cung cấp mô hình này",
-  "@lyricsAiErrorModelNotFound": {
-    "description": "AI translation error for an unknown model id"
-  },
-  "lyricsAiErrorRefused": "Mô hình đã từ chối dịch lời bài hát này",
-  "@lyricsAiErrorRefused": {
-    "description": "AI translation error when the model refuses the request"
-  },
-  "lyricsAiErrorTruncated": "Mô hình đã bị cắt ngang câu trả lời. Hãy thử một mô hình khác",
-  "@lyricsAiErrorTruncated": {
-    "description": "AI translation error when the reply hit the output limit"
-  },
-  "lyricsAiErrorBadResponse": "Không thể đọc được câu trả lời. Hãy thử mô hình khác",
-  "@lyricsAiErrorBadResponse": {
-    "description": "AI translation error when the reply is not the expected JSON"
-  },
-  "lyricsAiErrorService": "Nhà cung cấp đã gặp sự cố. Vui lòng thử lại sau",
-  "@lyricsAiErrorService": {
-    "description": "AI translation error for other provider failures"
-  },
-  "lyricsAiErrorNoLyrics": "Bài này không có gì để dịch",
-  "@lyricsAiErrorNoLyrics": {
-    "description": "AI translation error when the lyrics have no translatable lines"
   },
   "nowPlayingShuffleOn": "Phát trộn bài: Bật",
   "@nowPlayingShuffleOn": {

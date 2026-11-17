@@ -201,42 +201,6 @@ class AppSettings {
   final bool hasCompletedTutorial;
 
   final List<String> lyricsProviders;
-  final bool
-  lyricsIncludeTranslationNetease; // Append translated lyrics (Netease)
-  final bool
-  lyricsIncludeRomanizationNetease; // Append romanized lyrics (Netease)
-  final bool
-  lyricsMultiPersonWordByWord; // Enable v1/v2 + [bg:] tags for Apple/QQ syllable lyrics
-  final bool
-  lyricsAppleElrcWordSync; // Preserve Apple Music inline word timestamps for eLRC-capable players
-  final String
-  musixmatchLanguage; // Optional ISO language code for Musixmatch localized lyrics
-
-  /// AI lyrics translation. The API key lives in secure storage, never here.
-  final String lyricsAiProvider;
-
-  /// API root of a custom OpenAI-compatible server.
-  final String lyricsAiBaseUrl;
-
-  /// Empty uses the provider's default model.
-  final String lyricsAiModel;
-
-  /// BCP-47 target language; empty follows the app language.
-  final String lyricsTranslationLanguage;
-
-  /// Optional guidance added to the translation prompt.
-  final String lyricsAiInstruction;
-
-  /// Translate lyrics without a translation as they open.
-  final bool lyricsAutoTranslate;
-
-  /// Ask the translation for a romanization of lines written outside the
-  /// Latin alphabet.
-  final bool lyricsAiRomanize;
-
-  /// Align AI translations and readings to sung words instead of whole lines.
-  final bool lyricsAiWordSync;
-
   final bool deduplicateDownloads;
   final bool allowQualityVariants;
   final bool saveDownloadHistory;
@@ -348,19 +312,6 @@ class AppSettings {
       'lyricsplus',
       'lrclib',
     ],
-    this.lyricsIncludeTranslationNetease = false,
-    this.lyricsIncludeRomanizationNetease = false,
-    this.lyricsMultiPersonWordByWord = true,
-    this.lyricsAppleElrcWordSync = true,
-    this.musixmatchLanguage = '',
-    this.lyricsAiProvider = 'openai',
-    this.lyricsAiBaseUrl = '',
-    this.lyricsAiModel = '',
-    this.lyricsTranslationLanguage = '',
-    this.lyricsAiInstruction = '',
-    this.lyricsAutoTranslate = false,
-    this.lyricsAiRomanize = true,
-    this.lyricsAiWordSync = false,
     this.deduplicateDownloads = true,
     this.allowQualityVariants = false,
     this.saveDownloadHistory = true,
@@ -370,15 +321,6 @@ class AppSettings {
     this.playerShowVolume = true,
     this.playerShowLyricSnippet = true,
   });
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  Map<String, dynamic> get lyricsFetchOptions => {
-    'include_translation_netease': lyricsIncludeTranslationNetease,
-    'include_romanization_netease': lyricsIncludeRomanizationNetease,
-    'multi_person_word_by_word': lyricsMultiPersonWordByWord,
-    'apple_elrc_word_sync': lyricsAppleElrcWordSync,
-    'musixmatch_language': musixmatchLanguage,
-  };
 
   /// The cover art style the player shows: the one chosen, else the card.
   String playerCoverStyleFor() =>
@@ -478,19 +420,6 @@ class AppSettings {
     String? localLibraryAutoScan,
     bool? hasCompletedTutorial,
     List<String>? lyricsProviders,
-    bool? lyricsIncludeTranslationNetease,
-    bool? lyricsIncludeRomanizationNetease,
-    bool? lyricsMultiPersonWordByWord,
-    bool? lyricsAppleElrcWordSync,
-    String? musixmatchLanguage,
-    String? lyricsAiProvider,
-    String? lyricsAiBaseUrl,
-    String? lyricsAiModel,
-    String? lyricsTranslationLanguage,
-    String? lyricsAiInstruction,
-    bool? lyricsAutoTranslate,
-    bool? lyricsAiRomanize,
-    bool? lyricsAiWordSync,
     bool? deduplicateDownloads,
     bool? allowQualityVariants,
     bool? saveDownloadHistory,
@@ -622,26 +551,6 @@ class AppSettings {
       localLibraryAutoScan: localLibraryAutoScan ?? this.localLibraryAutoScan,
       hasCompletedTutorial: hasCompletedTutorial ?? this.hasCompletedTutorial,
       lyricsProviders: lyricsProviders ?? this.lyricsProviders,
-      lyricsIncludeTranslationNetease:
-          lyricsIncludeTranslationNetease ??
-          this.lyricsIncludeTranslationNetease,
-      lyricsIncludeRomanizationNetease:
-          lyricsIncludeRomanizationNetease ??
-          this.lyricsIncludeRomanizationNetease,
-      lyricsMultiPersonWordByWord:
-          lyricsMultiPersonWordByWord ?? this.lyricsMultiPersonWordByWord,
-      lyricsAppleElrcWordSync:
-          lyricsAppleElrcWordSync ?? this.lyricsAppleElrcWordSync,
-      musixmatchLanguage: musixmatchLanguage ?? this.musixmatchLanguage,
-      lyricsAiProvider: lyricsAiProvider ?? this.lyricsAiProvider,
-      lyricsAiBaseUrl: lyricsAiBaseUrl ?? this.lyricsAiBaseUrl,
-      lyricsAiModel: lyricsAiModel ?? this.lyricsAiModel,
-      lyricsTranslationLanguage:
-          lyricsTranslationLanguage ?? this.lyricsTranslationLanguage,
-      lyricsAiInstruction: lyricsAiInstruction ?? this.lyricsAiInstruction,
-      lyricsAutoTranslate: lyricsAutoTranslate ?? this.lyricsAutoTranslate,
-      lyricsAiRomanize: lyricsAiRomanize ?? this.lyricsAiRomanize,
-      lyricsAiWordSync: lyricsAiWordSync ?? this.lyricsAiWordSync,
       deduplicateDownloads: deduplicateDownloads ?? this.deduplicateDownloads,
       allowQualityVariants: allowQualityVariants ?? this.allowQualityVariants,
       saveDownloadHistory: saveDownloadHistory ?? this.saveDownloadHistory,

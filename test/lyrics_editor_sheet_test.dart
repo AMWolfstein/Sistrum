@@ -64,7 +64,7 @@ void main() {
     final metadata = PlayerMetadataController(
       readMetadata: (_) async => {'lyrics': lyrics},
       parseLyrics: (raw) async => LyricsParser.parse(raw),
-      saveOnlineLyrics: (_, raw) async => saved.add(raw),
+      saveLyrics: (_, raw) async => saved.add(raw),
       metadataEvents: events,
     );
     addTearDown(metadata.dispose);
