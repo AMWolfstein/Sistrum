@@ -1,45 +1,6 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabBatchActions on _QueueTabState {
-  Future<void> _showBatchConvertSheet(
-    BuildContext context,
-    List<UnifiedLibraryItem> allItems,
-  ) {
-    return showBatchConvertSheet(
-      context,
-      ref,
-      _selectedItemsFromAll(allItems),
-      onExitSelectionMode: _exitSelectionMode,
-      onSheetOpen: () {
-        _suppressSelectionOverlay = true;
-        _hideSelectionOverlay();
-        _hidePlaylistSelectionOverlay();
-      },
-      onSheetClosed: (didStartConversion) async {
-        // Wait out the sheet's exit animation before restoring the toolbar so
-        // it doesn't pop in front of the still-closing sheet.
-        await Future<void>.delayed(const Duration(milliseconds: 260));
-        if (!mounted) {
-          _suppressSelectionOverlay = false;
-          return;
-        }
-        _suppressSelectionOverlay = false;
-        if (didStartConversion) return;
-        if (_isSelectionMode) {
-          _syncSelectionOverlay(
-            items: allItems,
-            bottomPadding: MediaQuery.of(this.context).padding.bottom,
-          );
-        } else if (_isPlaylistSelectionMode) {
-          _syncPlaylistSelectionOverlay(
-            playlists: ref.read(libraryCollectionsProvider).playlists,
-            bottomPadding: MediaQuery.of(this.context).padding.bottom,
-          );
-        }
-      },
-    );
-  }
-
   Future<void> _runBatchReplayGain(
     List<UnifiedLibraryItem> allItems, {
     bool remove = false,

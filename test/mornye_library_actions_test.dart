@@ -16,8 +16,6 @@ import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/batch_convert_sheet.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
@@ -121,46 +119,6 @@ void main() {
     expect((selectedAll, converted, deleted, closed), (true, true, true, true));
     expect(tester.takeException(), isNull);
   });
-
-  for (final brightness in Brightness.values) {
-    testWidgets('Sistrum conversion preserves selected options ($brightness)', (
-      tester,
-    ) async {
-      await tester.binding.setSurfaceSize(const Size(390, 844));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      (String, String, bool)? result;
-      await tester.pumpWidget(
-        _app(
-          BatchConvertSheet(
-            formats: const [
-              'ALAC',
-              'FLAC',
-              'WAV',
-              'AIFF',
-              'AAC',
-              'MP3',
-              'Opus',
-            ],
-            title: 'Batch Convert',
-            confirmLabel: 'Convert tracks',
-            sourceBitDepth: 24,
-            sourceSampleRate: 48000,
-            onConvert: (format, bitrate, quality, processing, keepOriginal) {
-              result = (format, bitrate, keepOriginal);
-            },
-          ),
-          brightness: brightness,
-        ),
-      );
-      await tester.pumpAndSettle();
-      await _tapVisible(tester, find.text('Opus'));
-      await _tapVisible(tester, find.text('160k'));
-      await _tapVisible(tester, find.byType(AppSwitch));
-      await _tapVisible(tester, find.text('Convert tracks'));
-      expect(result, ('Opus', '160k', true));
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   testWidgets(
     'Sistrum ReplayGain cancellation restores selection without analysis',

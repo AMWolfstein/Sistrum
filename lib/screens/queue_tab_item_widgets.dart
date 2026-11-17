@@ -27,7 +27,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
         }
       },
       bottomPadding: bottomPadding,
-      onConvert: () => _showBatchConvertSheet(context, unifiedItems),
       onReplayGain: ({required remove}) =>
           _runBatchReplayGain(unifiedItems, remove: remove),
       onDelete: () => _deleteSelected(unifiedItems),

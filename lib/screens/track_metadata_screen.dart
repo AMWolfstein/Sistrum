@@ -45,7 +45,6 @@ import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
-import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/cover_art_utils.dart';
@@ -69,14 +68,11 @@ import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/audio_analysis_widget.dart';
 import 'package:sistrum/widgets/hires_check_card.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
-import 'package:sistrum/widgets/batch_convert_sheet.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/metadata_barcode.dart';
 import 'package:sistrum/widgets/scroll_edge_fade.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/constants/music_services.dart';
-import 'package:sistrum/controllers/batch_track_actions.dart'
-    show convertLibraryTrack;
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/screens/track_metadata_edit_sheet.dart';
@@ -88,8 +84,8 @@ part 'track_metadata_mornye.dart';
 
 part 'track_metadata_cards.dart';
 part 'track_metadata_lyrics.dart';
-part 'track_metadata_convert.dart';
 part 'track_metadata_actions.dart';
+part 'track_metadata_cue_replaygain.dart';
 
 final _log = AppLogger('TrackMetadata');
 

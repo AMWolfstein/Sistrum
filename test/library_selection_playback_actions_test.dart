@@ -89,7 +89,6 @@ void main() {
                   onClose: () => closed = true,
                   onToggleSelectAll: () {},
                   bottomPadding: 0,
-                  onConvert: () {},
                   onReplayGain: ({required remove}) {},
                   onDelete: () {},
                   playbackActions: LibrarySelectionPlaybackActions(

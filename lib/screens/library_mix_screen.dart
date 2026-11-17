@@ -203,7 +203,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         items: items,
         onClose: exitSelectionMode,
       ),
-      onConvert: () => _convertSelected(context),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
         items,
@@ -213,13 +212,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       onDelete: _deleteSelected,
     );
   }
-
-  Future<void> _convertSelected(BuildContext context) => showBatchConvertSheet(
-    context,
-    ref,
-    _selectedItems,
-    onExitSelectionMode: exitSelectionMode,
-  );
 
   /// Deletes the selected songs' files, and drops those gone from the mix.
   Future<void> _deleteSelected() async {

@@ -3215,93 +3215,9 @@
       }
     }
   },
-  "trackConvertFormat": "Format dönüştür",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Sesi dönüştür",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Hedef format",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Bitrate",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Orijinal dosyayı sakla",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Dönüştürülen dosyayı ayrı bir kitaplık öğesi olarak ekle",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Dönüştürmeyi Onayla",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "{sourceFormat} formatından {targetFormat} formatına {bitrate} hızında dönüştürülsün mü?\n\nDönüştürme işleminden sonra orijinal dosya silinecektir.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "{sourceFormat} formatından {targetFormat} formatına dönüştürmek ister misiniz? (Kayıpsız — kalite kaybı yok)\n\nDönüştürme işleminden sonra orijinal dosya silinecektir.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "{sourceFormat} biçiminden {targetFormat} biçimine dönüştürülsün mü?\n\nOrijinal dosya saklanır ve dönüştürülen dosya ayrı bir kitaplık öğesi olarak eklenir.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Kayıpsız dönüştürme — kalite kaybı yok",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Ses dönüştürülüyor...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "{format} formatına başarıyla dönüştürüldü",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Dönüştürme başarısız oldu",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Bölünmüş CUE Sayfası",
   "@cueSplitTitle": {
@@ -3547,77 +3463,6 @@
   "collectionPlaylistRemoveCover": "Kapak resmini kaldır",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "{count} {count, plural, =1{parçayı} other{parçayı}} dönüştür",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Dönüştürülebilir parça seçilmedi",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Toplu dönüştürme",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "{count} {count, plural, =1{parça} other{parça}} {format} biçimine {bitrate} bit hızında dönüştürülsün mü?\n\nDönüştürme sonrasında orijinal dosyalar silinecek.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "{count} {count, plural, =1{parça} other{parça}} {format} biçimine dönüştürülsün mü? (Kayıpsız — kalite kaybı yok)\n\nDönüştürme sonrasında orijinal dosyalar silinecek.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "{count} {count, plural, =1{parça} other{parça}} {format} biçimine dönüştürülsün mü?\n\nOrijinal dosyalar saklanır ve dönüştürülen dosyalar ayrı kitaplık öğeleri olarak eklenir.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "{total} parçanın {success} tanesi {format} formatına dönüştürüldü",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Klasör, Albüm Sanatçısı etiketine göre adlandırılır",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
@@ -5691,45 +5536,6 @@
   },
   "linkSaveToPhoneCancelled": "Kaydetme durduruldu",
   "announcementUnableToOpenLink": "Bağlantı açılamadı. Lütfen tekrar deneyin.",
-  "trackConvertLosslessOutputWithCap": "{quality} sınırıyla kayıpsız çıktı",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "{sourceFormat} biçiminden {targetFormat} ({quality}) biçimine dönüştürülsün mü?\n\nÇıktı kayıpsız bir kodekte kalır ancak bit derinliği/örnekleme hızı sınırlandırılır. Dönüştürme sonrasında orijinal dosya silinir.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "{count} {count, plural, =1{parça} other{parça}} {format} ({quality}) biçimine dönüştürülsün mü?\n\nÇıktı kayıpsız bir kodekte kalır ancak bit derinliği/örnekleme hızı sınırlandırılır. Dönüştürme sonrasında orijinal dosyalar silinir.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
   "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
   "@trackConvertActionLabelLossless": {
     "description": "Convert button label for lossless conversion with quality cap",
@@ -5812,14 +5618,6 @@
   "trackConvertLosslessSuffix": "Kayıpsız",
   "@trackConvertLosslessSuffix": {
     "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Dithering",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Resampler",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
   },
   "trackConvertDitherNone": "Hiçbiri",
   "@trackConvertDitherNone": {

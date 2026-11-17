@@ -3215,93 +3215,9 @@
       }
     }
   },
-  "trackConvertFormat": "Convertir le format",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Convertir un fichier audio",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Format cible",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Débit binaire",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Conserver le fichier d'origine",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Ajoutez le fichier converti en tant qu'entrée distincte dans la bibliothèque",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Confirmer la conversion",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Convertir du format {sourceFormat} au format {targetFormat} avec un débit binaire de {bitrate} ?\n\nLe fichier d'origine sera supprimé après la conversion.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Convertir de {sourceFormat} vers {targetFormat} ? (Sans perte — aucune perte de qualité)\n\nLe fichier d'origine sera supprimé après la conversion.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Convertir du format {sourceFormat} au format {targetFormat} ?\n\nLe fichier d'origine sera conservé et le fichier converti sera ajouté en tant qu'entrée distincte dans la bibliothèque.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Conversion sans perte — aucune perte de qualité",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Conversion audio en cours...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Conversion vers {format} réussie",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Échec de la conversion",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Fiche CUE fractionnée",
   "@cueSplitTitle": {
@@ -3547,77 +3463,6 @@
   "collectionPlaylistRemoveCover": "Supprimer l'image de couverture",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Convertir {count} {count, plural, =1{titre} other{titres}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Aucune piste convertible sélectionnée",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Conversion par lots",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Convertir {count} {count, plural, =1{titre} other{titres}} au format {format} avec un débit binaire de {bitrate} ?\n\nLes fichiers d'origine seront supprimés après la conversion.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Convertir {count} {count, plural, =1{titre} other{titres}} au format {format} ? (Sans perte — aucune perte de qualité)\n\nLes fichiers d'origine seront supprimés après la conversion.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Convertir {count} {count, plural, =1{titre} other{titres}} au format {format} ?\n\nLes fichiers d'origine seront conservés et les fichiers convertis seront ajoutés sous forme d'entrées distinctes dans la bibliothèque.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "{success} pistes sur {total} ont été converties au format {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Dossier nommé d'après la balise « Artiste de l'album »",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
@@ -5691,45 +5536,6 @@
   },
   "linkSaveToPhoneCancelled": "Saving stopped",
   "announcementUnableToOpenLink": "Impossible d'ouvrir le lien. Veuillez réessayer.",
-  "trackConvertLosslessOutputWithCap": "Sortie sans perte avec une limite de {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Convertir du format {sourceFormat} au format {targetFormat} ({quality}) ?\n\nLe fichier de sortie conservera un codec sans perte, mais la profondeur de bits et la fréquence d'échantillonnage seront limitées. Le fichier d'origine sera supprimé après la conversion.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Convertir {count} {count, plural, =1{titre} other{titres}} en {format} ({quality}) ?\n\nLe fichier de sortie conservera un codec sans perte, mais la profondeur de bits et la fréquence d'échantillonnage seront limitées. Les fichiers d'origine seront supprimés après la conversion.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
   "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
   "@trackConvertActionLabelLossless": {
     "description": "Convert button label for lossless conversion with quality cap",
@@ -5812,14 +5618,6 @@
   "trackConvertLosslessSuffix": "Sans perte",
   "@trackConvertLosslessSuffix": {
     "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Hésitation",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Rééchantillonneur",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
   },
   "trackConvertDitherNone": "Aucun",
   "@trackConvertDitherNone": {

@@ -64,7 +64,6 @@ void main() {
 
   testWidgets('selection bar keeps only offline actions', (tester) async {
     for (final selectedCount in [0, 1]) {
-      var converted = false;
       await tester.pumpWidget(
         _app(
           LibraryTrackSelectionBar(
@@ -73,7 +72,6 @@ void main() {
             onClose: () {},
             onToggleSelectAll: () {},
             bottomPadding: 0,
-            onConvert: () => converted = true,
             onReplayGain: ({required remove}) {},
             onDelete: () {},
           ),
@@ -88,15 +86,7 @@ void main() {
       ]) {
         expect(find.byIcon(icon), findsNothing);
       }
-      expect(find.byType(SelectionActionButton), findsNWidgets(3));
-      await tester.tap(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is SelectionActionButton &&
-              widget.icon == Icons.swap_horiz,
-        ),
-      );
-      expect(converted, selectedCount > 0);
+      expect(find.byType(SelectionActionButton), findsNWidgets(2));
       expect(tester.takeException(), isNull);
     }
   });

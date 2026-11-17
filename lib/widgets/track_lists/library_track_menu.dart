@@ -22,7 +22,6 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
   VoidCallback? onPlay,
   VoidCallback? onOpenDetails,
   VoidCallback? onDone,
-  VoidCallback? onConvert,
   VoidCallback? onDelete,
 }) {
   if (items.isEmpty) return const [];
@@ -100,12 +99,6 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
             onDone?.call();
             onOpenDetails();
           },
-        ),
-      if (onConvert != null)
-        ContextMenuAction(
-          icon: Icons.swap_horiz,
-          label: l10n.selectionConvertCount(count),
-          onSelected: onConvert,
         ),
     ],
     [

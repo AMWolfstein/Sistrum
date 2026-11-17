@@ -50,3 +50,4 @@
 - M004-T001 — Remove Last.fm, song recognition, motion artwork and weekly releases
 - M004-T002 — Remove online lyrics providers and AI lyrics translation
 - M004-T003 — Remove online metadata: autofill, re-enrich, provider lookups and open-on-platform
+- M004-T004 — Remove audio format conversion

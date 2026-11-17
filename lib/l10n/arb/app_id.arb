@@ -3190,93 +3190,9 @@
       }
     }
   },
-  "trackConvertFormat": "Ubah Format",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Ubah Audio",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Format Pilihan",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Bitrate",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Simpan file asli",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Tambah format baru ke koleksi yang terpisah",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Konfirmasi Perubahan",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Ubah format {sourceFormat} ke {targetFormat} dengan bitrate {bitrate}?\n\nFile asli akan dihapus setelah ini.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Ubah format {sourceFormat} ke {targetFormat} dengan kualitas loseless?\n\nFile asli akan dihapus setelah ini.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Ubah format {sourceFormat} ke {targetFormat}?\n\nFile asli akan tetap disimpan dan file format baru akan ditambahkan ke koleksi terpisah.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Kualitas loseless — kualitas tidak diturunkan",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Mengubah format...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Berhasil mengubah format ke {format}",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Perubahan format gagal",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Pisahkan Lembar CUE",
   "@cueSplitTitle": {
@@ -3531,77 +3447,6 @@
   "collectionPlaylistRemoveCover": "Hapus foto cover",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Ubah format {count} {count, plural, =1{lagu} other{lagu}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Tidak ada lagu yang dapat diubah",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Ubah Format Massal",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format} dengan {bitrate}?\n\nFile asli akan dihapus setelah perubahan.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format}? (Lossless — kualitas dipertahankan)\n\nFile asli akan dihapus setelah perubahan.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format}?\n\nFile asli akan disimpan dan file format baru akan ditambah ke koleksi baru.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "Berhasil mengubah format {success} dari {total} lagu ke {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Beri nama folder setelah tag Artis Album",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
@@ -5669,45 +5514,6 @@
   },
   "linkSaveToPhoneCancelled": "Penyimpanan dihentikan",
   "announcementUnableToOpenLink": "Tidak dapat membuka link. Coba lagi.",
-  "trackConvertLosslessOutputWithCap": "Output loseless dengan batas {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Ubah format {sourceFormat} ke {targetFormat} ({quality})?\n\nOutput tetap menggunakan codec loseless, tapi bit depth/laju sampel akan dibatasi. File asli akan dihapus setelah diubah.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format} ({quality})?\n\nOutput tetap menggunakan codec loseless, tapi bit depth/laju sampel akan dibatasi. File asli akan dihapus setelah diubah.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
   "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
   "@trackConvertActionLabelLossless": {
     "description": "Convert button label for lossless conversion with quality cap",
@@ -5790,14 +5596,6 @@
   "trackConvertLosslessSuffix": "Loseless",
   "@trackConvertLosslessSuffix": {
     "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Dithering",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Resampler",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
   },
   "trackConvertDitherNone": "Tidak Ada",
   "@trackConvertDitherNone": {

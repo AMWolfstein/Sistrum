@@ -94,12 +94,6 @@ extension _TrackMetadataMenu on _TrackMetadataScreenState {
           label: l10n.trackSaveLyrics,
           onTap: _saveLyrics,
         ),
-      if (canEditFile && _isConvertibleFormat)
-        _MetadataOption(
-          icon: Icons.swap_horiz,
-          label: l10n.trackConvertFormat,
-          onTap: () => _showConvertSheet(screenContext),
-        ),
       if (canEditFile && !_isCueFile)
         _MetadataOption(
           icon: Icons.graphic_eq,

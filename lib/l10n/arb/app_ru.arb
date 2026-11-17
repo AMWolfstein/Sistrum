@@ -3215,93 +3215,9 @@
       }
     }
   },
-  "trackConvertFormat": "Переконвертировать формат",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Конвертировать аудио",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Целевой формат",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Битрейт",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Оставить исходный файл",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Добавить сконвертированный файл как отдельный трек в медиатеку",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Подтвердить конвертацию",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Конвертировать из {sourceFormat} в {targetFormat} {bitrate}?\n\nОригинальный файл будет удален после конвертации.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Конвертировать {sourceFormat}  в {targetFormat}? (Lossless — Без потери качества)\n\nОригинальные файлы будут удалены после конвертации.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Конвертировать из {sourceFormat} в {targetFormat}?\n\nОригинальный файл сохранится, а сконвертированный добавится в медиатеку как отдельный трек.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Конвертация без потери качества",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Конвертация аудио...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Успешно конвертировано в {format}",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Ошибка конвертации",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Разделить CUE Sheet",
   "@cueSplitTitle": {
@@ -3547,77 +3463,6 @@
   "collectionPlaylistRemoveCover": "Удалить обложку",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Конвертировать {count} {count, plural, one {трек} few {трека} many {треков} =1{трек} other{треков}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Не выбраны конвертируемые треки",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Пакетная конвертация",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Преобразовать {count} {count, plural, =1{track} other{tracks}} в {format} с {bitrate}?",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Конвертировать {count} {count, plural, =1{track} other{tracks}} в {format}? (Без потери качества)\n\nОригинальные файлы будут удалены после конвертации.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Конвертировать {count} {count, plural, one {трек} few {трека} many {треков} =1{трек} other{треков}} в {format}?\n\nОригинальные файлы будут храниться и преобразовываться как отдельные элементы медиатеки.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "Конвертировано {success} треков {total} в {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Папка названная в честь тега Альбома Артиста",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
@@ -5691,45 +5536,6 @@
   },
   "linkSaveToPhoneCancelled": "Saving stopped",
   "announcementUnableToOpenLink": "Не удалось открыть ссылку. Пожалуйста, попробуйте еще раз.",
-  "trackConvertLosslessOutputWithCap": "Lossless-вывод с ограничением {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Конвертировать из {sourceFormat} в {targetFormat} ({quality})?\n\nАудио останется в lossless-формате, но битрейт/разрядность и частота дискретизации будут ограничены. Оригинал будет удален после завершения конвертации.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Конвертировать {count} {count, plural, =1{трек} few{трека} other{треков}} в {format} ({quality})?\n\nРезультат останется в кодеке lossless, но разрядность и частота дискретизации будут ограничены. Исходные файлы будут удалены после конвертации.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
   "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
   "@trackConvertActionLabelLossless": {
     "description": "Convert button label for lossless conversion with quality cap",
@@ -5812,14 +5618,6 @@
   "trackConvertLosslessSuffix": "Lossless",
   "@trackConvertLosslessSuffix": {
     "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Дизеринг",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Ресемплер",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
   },
   "trackConvertDitherNone": "Нет",
   "@trackConvertDitherNone": {

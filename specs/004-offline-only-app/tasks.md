@@ -91,7 +91,7 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
   - Kotlin/Rust handlers for these calls stay until T009/T010 if Dart no longer calls
     them; note them in the log.
 
-- [ ] M004-T004 Remove audio format conversion
+- [x] M004-T004 Remove audio format conversion
   - Acceptance: FR-004, FR-012. FFmpeg stays (research R3).
   - Remove: `ffmpeg_conversion.dart`, `conversion_library_service.dart`,
     `utils/audio_conversion_utils.dart` (move any helper still needed by tag writing),

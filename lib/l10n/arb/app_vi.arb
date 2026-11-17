@@ -3215,93 +3215,9 @@
       }
     }
   },
-  "trackConvertFormat": "Chuyển đổi định dạng",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Chuyển đổi âm thanh",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Định dạng đích",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Tốc độ bit",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Giữ lại tệp gốc",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Thêm tệp sau khi chuyển đổi thành một mục riêng trong thư viện",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Xác nhận chuyển đổi",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Chuyển đổi từ {sourceFormat} to {targetFormat} at {bitrate}?\n\nTệp gốc sẽ bị xóa sau khi chuyển đổi.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Chuyển đổi từ {sourceFormat} to {targetFormat}? (Lossless — không suy giảm chất lượng)\n\nTệp gốc sẽ bị xóa sau khi chuyển đổi.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Chuyển đổi từ {sourceFormat} to {targetFormat}?\n\nTệp gốc sẽ được giữ nguyên và tệp sau khi chuyển đổi sẽ được thêm thành mục riêng trong thư viện.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Chuyển đổi Lossless — giữ nguyên 100% chất lượng",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Đang chuyển đổi định dạng âm thanh...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Đã chuyển đổi sang {format} thành công",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Chuyển đổi định dạng thất bại",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Tách tệp CUE Sheet",
   "@cueSplitTitle": {
@@ -3547,77 +3463,6 @@
   "collectionPlaylistRemoveCover": "Xóa ảnh bìa",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Chuyển đổi {count} {count, plural, =1{track} other{tracks}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Chưa chọn bài hát nào có thể chuyển đổi",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Chuyển đổi hàng loạt",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Chuyển đổi {count} {count, plural, =1{track} other{tracks}} to {format} at {bitrate}?\n\nCác tệp gốc sẽ bị xóa sau khi chuyển đổi.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Chuyển đổi {count} {count, plural, =1{track} other{tracks}} to {format}? (Lossless — không suy giảm chất lượng)\n\nCác tệp gốc sẽ bị xóa sau khi chuyển đổi.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Chuyển đổi {count} {count, plural, =1{track} other{tracks}} to {format}?\n\nCác tệp gốc sẽ được giữ nguyên và tệp sau khi chuyển đổi sẽ được thêm thành mục riêng trong thư viện.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "Đã chuyển đổi {success} of {total} bài hát sang {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Đặt tên thư mục theo tag Nghệ sĩ album",
   "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
@@ -5691,45 +5536,6 @@
   },
   "linkSaveToPhoneCancelled": "Saving stopped",
   "announcementUnableToOpenLink": "Không thể mở liên kết. Vui lòng thử lại.",
-  "trackConvertLosslessOutputWithCap": "Đầu ra Lossless giới hạn ở {quality} tối đa",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Chuyển đổi từ {sourceFormat} to {targetFormat} ({quality})?\n\nTệp đầu ra vẫn giữ định dạng Lossless, nhưng Bit depth / Sample rate sẽ được giới hạn lại. Tệp gốc sẽ bị xóa sau khi chuyển đổi.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Chuyển đổi {count} {count, plural, =1{track} other{tracks}} to {format} ({quality})?\n\nTệp đầu ra vẫn giữ định dạng Lossless, nhưng Bit depth / Sample rate sẽ được giới hạn lại. Các tệp gốc sẽ bị xóa sau khi chuyển đổi.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
   "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
   "@trackConvertActionLabelLossless": {
     "description": "Convert button label for lossless conversion with quality cap",
@@ -5812,14 +5618,6 @@
   "trackConvertLosslessSuffix": "Lossless",
   "@trackConvertLosslessSuffix": {
     "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Giảm méo lượng tử hóa",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Bộ chuyển đổi tần số lấy mẫu",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
   },
   "trackConvertDitherNone": "Không có",
   "@trackConvertDitherNone": {

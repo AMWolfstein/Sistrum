@@ -121,15 +121,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           ? exitSelectionMode
           : () => selectAll(_items.map((item) => item.id)),
       bottomPadding: MediaQuery.paddingOf(context).bottom,
-      onConvert: () => showBatchConvertSheet(
-        context,
-        ref,
-        items,
-        onExitSelectionMode: _finishSelectionAction,
-        onSheetOpen: _hideSelectionBar,
-        onSheetClosed: (_) =>
-            _restoreSelectionBar(delay: const Duration(milliseconds: 260)),
-      ),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
         items,

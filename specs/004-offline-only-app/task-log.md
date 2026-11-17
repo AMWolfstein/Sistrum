@@ -59,3 +59,17 @@ Deferred, with the reason:
 - `re_enrich_motion_artwork_test` and the motion-artwork save helper: T007 (motion artwork).
 
 Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3630 passed, 10 skipped, 0 failed.
+
+## M004-T004 Remove audio format conversion
+
+Map refresh first: 31941 symbols, 1609 sources, 0 partial, 0 unindexed.
+
+Removed (library and track pages): the batch conversion sheet and its runner (`BatchConvertSheet`, `showBatchConvertSheet`, `convertLibraryTrack`, `ConversionLibraryService`), the single-track convert sheet (`track_metadata_convert.dart`; its ReplayGain and CUE-split code is kept in `track_metadata_cue_replaygain.dart`), the Convert entries in the track page menu, the library track menu and the selection bars (`onConvert` on `LibraryTrackSelectionBar`, `LibraryTrackMenu` and every caller), the queue's batch convert method and the mix screen's convert method; 25 ARB keys (`trackConvert*` and `selectionConvert*`/`selectionBatchConvert*` that no code uses) in all ARB files; tests `conversion_library_service_test`, `library_track_conversion_test`, `batch_track_actions_test` (conversion only); the convert cases in `mornye_library_actions_test`, and the convert arguments and checks in the selection and menu tests.
+
+Deferred, with the reason (these are download-side, removed with T007):
+- `ffmpeg_conversion.dart` and `audio_conversion_utils.dart`: used by the download finalizer and download settings.
+- `NativeFlacConversion.kt` (and its unit test): used by the native finalizer of downloads.
+- The `autoConvert*` settings, the `downloadAutoConvert*` and `downloadLossyFormat` strings, and the download settings rows: T007.
+- `trackConvertBitrate`, `trackConvertOriginal`, the dither and resampler strings and the quality label strings: used by the remaining conversion helpers, removed with T007.
+
+Checks: `flutter gen-l10n` exit 0; `flutter analyze` no issues; full `flutter test` 3621 passed, 10 skipped, 0 failed.

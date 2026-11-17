@@ -374,7 +374,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1 selected'), findsOneWidget);
     expect(find.text('Re-enrich (1)'), findsNothing);
-    expect(find.text('Convert 1 track'), findsOneWidget);
     expect(find.text('Delete 1 track'), findsOneWidget);
     // Selecting hides row actions and keeps taps on the selection.
     expect(find.byTooltip('Play'), findsNothing);

@@ -28,7 +28,6 @@ import 'package:sistrum/widgets/track_lists/context_menu.dart';
 import 'package:sistrum/widgets/track_lists/library_track_menu.dart';
 import 'package:sistrum/widgets/artist_popular_carousel.dart';
 import 'package:sistrum/services/library_detail_data.dart';
-import 'package:sistrum/controllers/batch_track_actions.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 
 part 'artist_screen_widgets.dart';

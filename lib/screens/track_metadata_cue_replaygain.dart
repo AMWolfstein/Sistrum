@@ -1,19 +1,6 @@
 part of 'track_metadata_screen.dart';
 
-extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
-  bool get _isConvertibleFormat {
-    final lower = cleanFilePath.toLowerCase();
-    return lower.endsWith('.flac') ||
-        lower.endsWith('.m4a') ||
-        lower.endsWith('.aac') ||
-        lower.endsWith('.wav') ||
-        lower.endsWith('.aiff') ||
-        lower.endsWith('.aif') ||
-        lower.endsWith('.mp3') ||
-        lower.endsWith('.opus') ||
-        lower.endsWith('.ogg');
-  }
-
+extension _TrackMetadataCueSplitAndReplayGain on _TrackMetadataScreenState {
   /// Whether the current file is a CUE sheet (or CUE-referenced)
   bool get _isCueFile {
     if (isCueVirtualPath(rawFilePath)) return true;
@@ -24,93 +11,6 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
       if (format.startsWith('cue+')) return true;
     }
     return false;
-  }
-
-  String get _currentFileFormat {
-    // For CUE tracks, use the format from the library item (e.g. "cue+flac")
-    if (_isCueFile && _isLocalItem && _localLibraryItem != null) {
-      final format = _localLibraryItem!.format ?? '';
-      if (format.startsWith('cue+')) {
-        final audioFmt = format.substring(4).toUpperCase();
-        return 'CUE+$audioFmt';
-      }
-    }
-    if (_isLocalItem && _localLibraryItem != null) {
-      final format = normalizeOptionalString(
-        _localLibraryItem!.format,
-      )?.toLowerCase().replaceAll('-', '_');
-      switch (format) {
-        case 'flac':
-          return 'FLAC';
-        case 'alac':
-          return 'ALAC';
-        case 'm4a':
-          return 'M4A';
-        case 'aac':
-        case 'mp4a':
-          return 'AAC';
-        case 'mp3':
-          return 'MP3';
-        case 'opus':
-        case 'ogg':
-          return 'Opus';
-        case 'wav':
-        case 'wave':
-          return 'WAV';
-        case 'aiff':
-        case 'aif':
-        case 'aifc':
-          return 'AIFF';
-      }
-    }
-    final lower = cleanFilePath.toLowerCase();
-    if (lower.endsWith('.flac')) return 'FLAC';
-    if (lower.endsWith('.m4a')) return 'M4A';
-    if (lower.endsWith('.aac')) return 'AAC';
-    if (lower.endsWith('.wav')) return 'WAV';
-    if (lower.endsWith('.aiff') || lower.endsWith('.aif')) return 'AIFF';
-    if (lower.endsWith('.mp3')) return 'MP3';
-    if (lower.endsWith('.opus') || lower.endsWith('.ogg')) return 'Opus';
-    if (lower.endsWith('.cue')) return 'CUE';
-    return 'Unknown';
-  }
-
-  Map<String, String> _buildFallbackMetadata() {
-    String formatIndexTag(int number, int? total) {
-      if (total != null && total > 0) {
-        return '$number/$total';
-      }
-      return number.toString();
-    }
-
-    return {
-      'TITLE': trackName,
-      'ARTIST': artistName,
-      'ALBUM': albumName,
-      if (albumArtist != null && albumArtist!.isNotEmpty)
-        'ALBUMARTIST': albumArtist!,
-      if (trackNumber != null)
-        'TRACKNUMBER': formatIndexTag(trackNumber!, totalTracks),
-      if (discNumber != null)
-        'DISCNUMBER': formatIndexTag(discNumber!, totalDiscs),
-      if (releaseDate != null && releaseDate!.isNotEmpty) 'DATE': releaseDate!,
-      if (isrc != null && isrc!.isNotEmpty) 'ISRC': isrc!,
-      if (genre != null && genre!.isNotEmpty) 'GENRE': genre!,
-      if (label != null && label!.isNotEmpty) 'LABEL': label!,
-      if (copyright != null && copyright!.isNotEmpty) 'COPYRIGHT': copyright!,
-      if (composer != null && composer!.isNotEmpty) 'COMPOSER': composer!,
-      if (isExplicit) 'ITUNESADVISORY': '1',
-    };
-  }
-
-  String? _extractLossyBitrateLabel(String? quality) {
-    if (quality == null || quality.isEmpty) return null;
-    final match = RegExp(
-      r'(\d+)\s*k(?:bps)?',
-      caseSensitive: false,
-    ).firstMatch(quality);
-    if (match == null) return null;
-    return '${match.group(1)}kbps';
   }
 
   String _extractFileNameFromPathOrUri(String pathOrUri) {
@@ -195,75 +95,6 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
                     ? context.l10n.trackReplayGainSuccess
                     : context.l10n.trackReplayGainFailed),
         ),
-      ),
-    );
-  }
-
-  void _showConvertSheet(BuildContext context) {
-    final currentFormat = _currentFileFormat;
-    final isLosslessSource = isLosslessConversionSource(currentFormat);
-
-    final formats = audioConversionTargetFormats
-        .where(
-          (target) => canConvertAudioFormat(
-            sourceFormat: currentFormat,
-            targetFormat: target,
-          ),
-        )
-        .toList(growable: false);
-
-    final labels = context.l10n.losslessConversionLabels;
-
-    showAppModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      // The sheet draws its own glass.
-      mornyeGlass: false,
-      builder: (sheetContext) => BatchConvertSheet(
-        formats: formats,
-        title: context.l10n.trackConvertTitle,
-        subtitle: currentFormat,
-        sourceIsLossless: isLosslessSource,
-        sourceBitDepth: bitDepth,
-        sourceSampleRate: sampleRate,
-        confirmLabelBuilder:
-            (format, bitrate, isLosslessTarget, losslessQuality) {
-              return isLosslessTarget
-                  ? context.l10n.trackConvertActionLabelLossless(
-                      currentFormat,
-                      format,
-                      losslessQualityLabel(
-                        losslessQuality,
-                        originalLabel: labels.original,
-                        originalQualityLabel: labels.originalQuality,
-                      ),
-                    )
-                  : context.l10n.trackConvertActionLabelLossy(
-                      currentFormat,
-                      format,
-                      bitrate,
-                    );
-            },
-        onConvert:
-            (
-              format,
-              bitrate,
-              losslessQuality,
-              losslessProcessing,
-              keepOriginal,
-            ) {
-              Navigator.pop(sheetContext);
-              _confirmAndConvert(
-                context: this.context,
-                sourceFormat: currentFormat,
-                targetFormat: format,
-                bitrate: bitrate,
-                losslessQuality: losslessQuality,
-                losslessProcessing: losslessProcessing,
-                keepOriginal: keepOriginal,
-              );
-            },
       ),
     );
   }
@@ -733,166 +564,41 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
     }
   }
 
-  void _confirmAndConvert({
-    required BuildContext context,
-    required String sourceFormat,
-    required String targetFormat,
-    required String bitrate,
-    LosslessConversionQuality losslessQuality =
-        const LosslessConversionQuality(),
-    LosslessConversionProcessing losslessProcessing =
-        const LosslessConversionProcessing(),
-    bool keepOriginal = false,
-  }) {
-    final isLossless = isLosslessConversionTarget(targetFormat);
-    showAppDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AppAlertDialog(
-          title: Text(dialogContext.l10n.trackConvertConfirmTitle),
-          content: Text(
-            keepOriginal
-                ? dialogContext.l10n.trackConvertConfirmKeepOriginal(
-                    sourceFormat,
-                    targetFormat,
-                  )
-                : isLossless && losslessQuality.hasCaps
-                ? dialogContext.l10n.trackConvertConfirmMessageLosslessCapped(
-                    sourceFormat,
-                    targetFormat,
-                    losslessQualityLabel(
-                      losslessQuality,
-                      originalLabel:
-                          dialogContext.l10n.losslessConversionLabels.original,
-                      originalQualityLabel: dialogContext
-                          .l10n
-                          .losslessConversionLabels
-                          .originalQuality,
-                    ),
-                  )
-                : isLossless
-                ? dialogContext.l10n.trackConvertConfirmMessageLossless(
-                    sourceFormat,
-                    targetFormat,
-                  )
-                : dialogContext.l10n.trackConvertConfirmMessage(
-                    sourceFormat,
-                    targetFormat,
-                    bitrate,
-                  ),
-          ),
-          actions: [
-            AppDialogAction(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(dialogContext.l10n.dialogCancel),
-            ),
-            AppDialogAction(
-              filled: true,
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                _performConversion(
-                  targetFormat: targetFormat,
-                  bitrate: bitrate,
-                  losslessQuality: losslessQuality,
-                  losslessProcessing: losslessProcessing,
-                  keepOriginal: keepOriginal,
-                );
-              },
-              child: Text(dialogContext.l10n.trackConvertFormat),
-            ),
-          ],
-        );
-      },
-    );
+  Map<String, String> _buildFallbackMetadata() {
+    String formatIndexTag(int number, int? total) {
+      if (total != null && total > 0) {
+        return '$number/$total';
+      }
+      return number.toString();
+    }
+
+    return {
+      'TITLE': trackName,
+      'ARTIST': artistName,
+      'ALBUM': albumName,
+      if (albumArtist != null && albumArtist!.isNotEmpty)
+        'ALBUMARTIST': albumArtist!,
+      if (trackNumber != null)
+        'TRACKNUMBER': formatIndexTag(trackNumber!, totalTracks),
+      if (discNumber != null)
+        'DISCNUMBER': formatIndexTag(discNumber!, totalDiscs),
+      if (releaseDate != null && releaseDate!.isNotEmpty) 'DATE': releaseDate!,
+      if (isrc != null && isrc!.isNotEmpty) 'ISRC': isrc!,
+      if (genre != null && genre!.isNotEmpty) 'GENRE': genre!,
+      if (label != null && label!.isNotEmpty) 'LABEL': label!,
+      if (copyright != null && copyright!.isNotEmpty) 'COPYRIGHT': copyright!,
+      if (composer != null && composer!.isNotEmpty) 'COMPOSER': composer!,
+      if (isExplicit) 'ITUNESADVISORY': '1',
+    };
   }
 
-  Future<void> _performConversion({
-    required String targetFormat,
-    required String bitrate,
-    LosslessConversionQuality losslessQuality =
-        const LosslessConversionQuality(),
-    LosslessConversionProcessing losslessProcessing =
-        const LosslessConversionProcessing(),
-    bool keepOriginal = false,
-  }) async {
-    if (_isConverting) return;
-    _setState(() => _isConverting = true);
-    final losslessLabels = context.l10n.losslessConversionLabels;
-
-    try {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.trackConvertConverting)),
-      );
-
-      final settings = ref.read(settingsProvider);
-      final shouldEmbedLyrics =
-          settings.embedLyrics && settings.lyricsMode != 'external';
-      final metadata = _buildFallbackMetadata();
-      final localItem = _localLibraryItem;
-      final result = await convertLibraryTrack(
-        filePath: cleanFilePath,
-        metadata: metadata,
-        trackName: trackName,
-        artistName: artistName,
-        spotifyId: _spotifyId ?? '',
-        durationMs: (duration ?? 0) * 1000,
-        sourceBitDepth: bitDepth,
-        sourceSampleRate: sampleRate,
-        historyItem: localItem == null ? _downloadItem : null,
-        localItem: localItem,
-        targetFormat: targetFormat,
-        bitrate: bitrate,
-        losslessQuality: losslessQuality,
-        losslessProcessing: losslessProcessing,
-        keepOriginal: keepOriginal,
-        shouldEmbedLyrics: shouldEmbedLyrics,
-        readArtistTagMode: () => ref.read(settingsProvider).artistTagMode,
-        readTagRules: () =>
-            TagCreditRules.fromSettings(ref.read(settingsProvider).tagCredits),
-        losslessLabels: losslessLabels,
-        coverTempPrefix: 'convert_cover_',
-        treatEmptySafTempPathAsFailure: false,
-        historySafFileNameFallback: _extractFileNameFromPathOrUri(
-          cleanFilePath,
-        ),
-        eagerTempCleanup: true,
-        onPersisted: () => localItem == null
-            ? ref.read(downloadHistoryProvider.notifier).reloadFromStorage()
-            : ref.read(localLibraryProvider.notifier).reloadFromStorage(),
-        diagnosticsLog: _log,
-        onCleanupFailed: (path, error) =>
-            _log.w('Failed to clean conversion temp file $path: $error'),
-      );
-
-      if (!result.succeeded && !result.isPipelineFailure) {
-        Error.throwWithStackTrace(result.error!, result.stackTrace!);
-      }
-      if (mounted) {
-        _setState(() => _isConverting = false);
-        if (!result.succeeded) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.trackConvertFailed)),
-          );
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.trackConvertSuccess(targetFormat)),
-          ),
-        );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        _setState(() => _isConverting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.l10n.trackSaveFailed(context.friendlyError(e)),
-            ),
-          ),
-        );
-      }
-    }
+  String? _extractLossyBitrateLabel(String? quality) {
+    if (quality == null || quality.isEmpty) return null;
+    final match = RegExp(
+      r'(\d+)\s*k(?:bps)?',
+      caseSensitive: false,
+    ).firstMatch(quality);
+    if (match == null) return null;
+    return '${match.group(1)}kbps';
   }
 }

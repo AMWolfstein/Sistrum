@@ -370,9 +370,6 @@ extension _AlbumLibrarySections on _AlbumScreenState {
         items: [item],
         onPlay: () => _playLibraryRow(item, items),
         onOpenDetails: () => _openLibraryMetadata(item, items),
-        onConvert: () => showBatchConvertSheet(context, ref, [
-          item,
-        ], onExitSelectionMode: () {}),
         onDelete: item.filePath.startsWith('network://')
             ? null
             : () => deleteLibraryTracks(
@@ -519,12 +516,6 @@ extension _AlbumLibrarySections on _AlbumScreenState {
       playbackActions: LibrarySelectionPlaybackActions(
         items: selected,
         onClose: exitSelectionMode,
-      ),
-      onConvert: () => showBatchConvertSheet(
-        context,
-        ref,
-        selected,
-        onExitSelectionMode: exitSelectionMode,
       ),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,

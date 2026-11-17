@@ -168,9 +168,6 @@ extension _ArtistLibrarySections on _ArtistScreenState {
         ref,
         items: [item],
         onPlay: () => _playLibraryTracks(tracks, startIndex: index),
-        onConvert: () => showBatchConvertSheet(context, ref, [
-          item,
-        ], onExitSelectionMode: refresh),
         onDelete: item.filePath.startsWith('network://')
             ? null
             : () => deleteLibraryTracks(

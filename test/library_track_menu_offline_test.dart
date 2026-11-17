@@ -38,7 +38,6 @@ Widget _app(List<UnifiedLibraryItem> items) => ProviderScope(
                 items: items,
                 onPlay: () {},
                 onOpenDetails: () {},
-                onConvert: () {},
                 onDelete: () {},
               ),
             ),
@@ -67,7 +66,6 @@ void main() {
       'Go to Album',
       'Go to Artist',
       'Show details',
-      'Convert 1 track',
       'Delete 1 track',
     ]) {
       expect(find.text(offline), findsOneWidget, reason: offline);
