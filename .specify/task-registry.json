@@ -1,8 +1,25 @@
 {
-  "version": 1,
-  "next_mission": 1,
-  "next_tor": 1,
-  "next_completion": 1,
   "missions": {},
-  "tasks": {}
+  "next_completion": 2,
+  "next_mission": 1,
+  "next_tor": 2,
+  "tasks": {
+    "TOR001": {
+      "completion": 1,
+      "evidence": {
+        "checks": "3,699 upstream blobs and modes match; root .gitignore combines both rule sets; 47 workflow and 113 CodeGraph tests pass; commit subject passes",
+        "result": "PASS",
+        "reviewer": "codex-independent-review",
+        "round": 1
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "f548fce80ea9438d833ca0040c08cc18",
+      "record": ".specify/quick-tasks/TOR001.md",
+      "status": "complete",
+      "title": "Import Mornye v5.4.0 source"
+    }
+  },
+  "version": 1
 }
