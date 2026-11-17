@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/github/spec-kit",
+  "release": "v1.4.0",
+  "commit": "0019fa14d12f45edabc2cc3176c9168a68bd0f97",
+  "integration": "codex",
+  "script": "sh",
+  "init_command": "specify init --here --integration codex --integration-options=--skills --script sh --ignore-agent-tools --non-interactive",
+  "local_adaptations": [
+    "Policy notice in all nine generated speckit skills",
+    "Task generation uses repository override and one planning commit",
+    "Implementation skill implements the bounded sequential task loop",
+    "Project constitution and policy; task reviewer instructions",
+    "Optional bundled workflow omits intermediate approval gates; direct Codex skills are the supported entrypoint",
+    "Portable read-the-skill entrypoint for any agent; original renderer metadata remains provenance"
+  ],
+  "notes": [
+    "Source/license and generated upstream integration manifests retained",
+    "Upstream manifest hashes identify original generated assets, not runtime source-freshness gates",
+    "No extensions or global agent configuration installed"
+  ]
+}
