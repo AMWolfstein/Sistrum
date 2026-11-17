@@ -10,7 +10,6 @@ import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/widgets/mornye_mix_banner.dart';
-import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +33,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/listening_statistics_screen.dart';
-import 'package:sistrum/screens/music_recognition_screen.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/listening_statistics.dart';
@@ -257,26 +255,10 @@ class _HomeTabState extends ConsumerState<HomeTab>
               onPressed: _pasteFromClipboard,
               tooltip: context.l10n.actionPaste,
             ),
-            IconButton(
-              icon: const AppIcon.adaptive(Icons.mic),
-              onPressed: _openMusicRecognition,
-              tooltip: context.l10n.recognizeSearchTooltip,
-            ),
           ],
         ],
       ),
       onSubmitted: (_) => _searchFocusNode.unfocus(),
     );
-  }
-
-  /// Identifies a song nearby and searches the library for it.
-  Future<void> _openMusicRecognition() async {
-    _searchFocusNode.unfocus();
-    final query = await pushPage<String>(
-      context,
-      (_) => const MusicRecognitionScreen(),
-    );
-    if (!mounted || query == null || query.trim().isEmpty) return;
-    _searchController.text = query.trim();
   }
 }

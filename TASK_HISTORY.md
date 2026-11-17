@@ -47,3 +47,4 @@
 - M003-TOR016 — Full source audit and fixes before the M003 final review
 - M003-T011 — Cumulative review
 - TOR017 — Artist popular layout, compilations padding, album row/shuffle styling, red delete
+- M004-T001 — Remove Last.fm, song recognition, motion artwork and weekly releases

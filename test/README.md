@@ -40,7 +40,6 @@ Test files sit directly in `test/`; only shared code has subfolders.
 | `*_benchmark.dart`, `*_baseline.dart` in `test/support/` | Frozen pre-optimization implementations, compared against production code in unit and device tests |
 | `test/support/album_replaygain_benchmark.dart` | Frozen album ReplayGain selection, for the benchmark comparison |
 | `test/support/download_scheduler_baseline.dart` | Original download scheduler, kept for paired device timing |
-| `test/support/lastfm_fakes.dart` | Fake Last.fm API and store, with session and queued-scrobble fixtures |
 | `test/support/library_collections_benchmark.dart` | Collection hydration and playlist search before optimization, for the collections benchmark |
 | `test/support/lyrics_usability_benchmark.dart` | Frozen lyrics display normalization; the oracle for differential tests |
 | `test/support/network_edit_fixture.dart` | The two writable NAS transports, sharing an in-memory filesystem |

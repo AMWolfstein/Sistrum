@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/screens/weekly_releases_screen.dart';
 import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
@@ -27,17 +26,6 @@ class FavoriteArtistsScreen extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           AppSliverHeader.page(title: context.l10n.collectionFavoriteArtists),
-          SliverToBoxAdapter(
-            child: ListTile(
-              leading: const Icon(Icons.new_releases_outlined),
-              title: Text(context.l10n.weeklyReleases),
-              subtitle: Text(context.l10n.weeklyReleasesDescription),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(
-                context,
-              ).push(slidePageRoute<void>(page: const WeeklyReleasesScreen())),
-            ),
-          ),
           if (artists.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,

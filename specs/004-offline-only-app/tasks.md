@@ -24,29 +24,27 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
 
 ## Implementation
 
-- [ ] M004-T001 Remove Last.fm, song recognition, motion artwork and weekly releases
-  - Acceptance: FR-001, FR-012.
+- [x] M004-T001 Remove Last.fm, song recognition, motion artwork and weekly releases
+  - Acceptance: FR-001 (motion artwork is NOT done here: moved to T007, see task-log.md), FR-012.
   - Last.fm (dead code): `lib/services/lastfm/*`, `lib/widgets/lastfm_settings.dart`,
-    `lastfm*` strings, tests `lastfm_*_test`, `test/support/lastfm_fakes.dart`.
+    `lastfm*` strings (en, id), tests `lastfm_*_test`, `test/support/lastfm_fakes.dart`.
   - Recognition: `lib/services/music_recognition*.dart`, `lib/models/recognized_song.dart`,
     `lib/providers/music_recognition_provider.dart`, `lib/screens/music_recognition_screen.dart`,
     the mic button and `_openMusicRecognition` in `home_tab.dart`, `recognize*` strings,
-    `music_recognition_test`, dependency `record`; Android `RECORD_AUDIO`; Kotlin/Rust
-    recognition callers stay until T010 (`native_recognition.rs`) unless trivially
-    unreachable from Dart.
-  - Motion artwork: `motion_artwork_{store,proxy,download}.dart`,
-    `player_motion_artwork_provider.dart`, `player_artwork_video_provider.dart`,
-    `motion_header_banner.dart`, uses in `now_playing_screen.dart`, `mini_player.dart`,
-    `mornye_player_artwork.dart`, `album_screen*.dart`, `track_metadata_edit_sheet.dart`,
-    `playback_settings_page.dart`, `cache_management_page.dart`; setting
-    `motionArtworkEnabled`; `motionArtwork*` strings; tests `motion_*`; dependency
-    `video_player` (+ dev `video_player_platform_interface`).
-  - Weekly releases: `weekly_releases*.dart` (service, provider, screen), the link in
-    `favorite_artists_screen.dart` (keep the local list only if it has another use;
-    otherwise remove it and its Queue/Library entry), Home shelf if it reads weekly
-    releases (`home_tab_intro.dart` `_HomeNewReleasesShelf`: verify its source),
-    `weeklyReleases*` strings and tests.
-  - Search: `grep -rni "lastfm\|recogni\|motion.?artwork\|weekly.?release\|video_player\|record:" lib test integration_test pubspec.yaml`.
+    `test/music_recognition_test.dart`, dependency `record`, Android `RECORD_AUDIO`.
+    Rust recognition (`providers/recognition.rs`, `mobile/data_jobs.rs`) stays until T010.
+  - Weekly releases: `services/weekly_releases.dart`, `providers/weekly_releases_provider.dart`,
+    `screens/weekly_releases_screen.dart`, the tile in `favorite_artists_screen.dart`,
+    `weeklyReleases*` strings, tests `weekly_releases*_test`; the recap test file
+    `listening_and_releases_screen_test.dart` is renamed `listening_recap_screen_test.dart`
+    and keeps only its recap tests.
+  - Search: `grep -rni "lastfm\|recogni\|weeklyRelease\|package:record" lib test integration_test pubspec.yaml`.
+  - Moved to T007 (owner-visible change recorded in task-log.md): motion artwork
+    (`motion_artwork_*`, `download_motion_artwork_source`, `player_motion_artwork_provider`,
+    `player_artwork_video_provider`, `motion_header_banner`, the video cover in the player and
+    album pages, `motionArtworkEnabled`, `motionArtwork*` strings, tests `motion_*`) and
+    dependency `video_player`. The download queue calls the motion artwork services, so they
+    go with the download engine.
 
 - [ ] M004-T002 Remove online lyrics providers and AI lyrics translation
   - Acceptance: FR-002, FR-012. Embedded and sidecar lyrics, the editor, lyrics
@@ -156,6 +154,14 @@ workarounds never committed). Rust changes: `scripts/check_rust_backend.sh`.
 
 - [ ] M004-T007 Remove the download engine, Wishlist, CSV import and reorganize
   - Acceptance: FR-007, FR-012. Download history reading stays until T008.
+  - Motion artwork (moved from T001): `motion_artwork_{store,proxy,download}.dart`,
+    `download_motion_artwork_source.dart`, `player_motion_artwork_provider.dart`,
+    `player_artwork_video_provider.dart`, `motion_header_banner.dart`, its uses in
+    `now_playing_screen.dart`, `mini_player.dart`, `mornye_player_artwork.dart`,
+    `album_screen*.dart`, `track_metadata_edit_sheet.dart`, `playback_settings_page.dart`,
+    `cache_management_page.dart`, `motionArtwork*` strings, `motionArtworkEnabled`,
+    tests `motion_*`, `download_motion_artwork_source_test`, `re_enrich_motion_artwork_test`,
+    dependency `video_player` (+ dev `video_player_platform_interface`).
   - Dart: `providers/download_queue_*`, `download_queue_state.dart`,
     `download_queue_policy.dart`, `download_progress.dart`, `models/download_item*.dart`,
     `download_result.dart`, `services/download_*` except history-related readers kept

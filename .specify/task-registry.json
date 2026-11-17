@@ -25,7 +25,7 @@
       "title": "Offline-only app: remove online features, network storage and conversion"
     }
   },
-  "next_completion": 48,
+  "next_completion": 49,
   "next_mission": 5,
   "next_tor": 18,
   "tasks": {
@@ -638,13 +638,19 @@
       "title": "Full source audit and fixes before the M003 final review"
     },
     "M004-T001": {
-      "completion": null,
+      "completion": 48,
+      "evidence": {
+        "checks": "analyze clean; gen-l10n ok; full flutter test 3662 passed, 8 skipped, 0 failed; scope grep clean; reviewer PASS",
+        "result": "PASS",
+        "reviewer": "independent-sonnet-reviewer",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M004",
       "nonce": "b4d6851ac8044bb6bcadd34735499c0e",
       "record": "specs/004-offline-only-app/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove Last.fm, song recognition, motion artwork and weekly releases"
     },
     "M004-T002": {
