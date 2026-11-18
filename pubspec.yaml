@@ -172,13 +172,13 @@ flutter_launcher_icons:
   ios: true
   image_path: "icon.png"
   image_path_android: "icon_android.png"
-  adaptive_icon_background: "#1E4E4F"
+  adaptive_icon_background: "#12100E"
   adaptive_icon_foreground: "icon_foreground_android.png"
   adaptive_icon_foreground_inset: 0
   adaptive_icon_monochrome: "icon_monochrome_android.png"
   ios_content_mode: scaleAspectFill
   remove_alpha_ios: true
-  background_color_ios: "#1E4E4F"
+  background_color_ios: "#12100E"
   # The macOS source places the badge on Apple's 824 pt icon grid.
   macos:
     generate: true
@@ -200,7 +200,7 @@ flutter:
     - COPYING
     - NOTICE
     - assets/images/
-    - assets/brand/logo/png/mornye-lockup-horizontal-white@1x.png
+    - assets/images/sistrum-horizontal-white.png
     - assets/fonts/Inter-LICENSE.txt
     - assets/fonts/GoogleSansFlex-LICENSE.txt
     - assets/licenses/usb.txt

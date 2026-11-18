@@ -3,8 +3,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
-const mornyeLockupAsset =
-    'assets/brand/logo/png/mornye-lockup-horizontal-white@1x.png';
+const mornyeLockupAsset = 'assets/images/sistrum-horizontal-white.png';
 
 /// The colors of one banner: the wash, and the two blooms that move across it.
 class _BannerPalette {

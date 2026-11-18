@@ -1,9 +1,9 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/logo/svg/mornye-lockup-horizontal-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/brand/logo/svg/mornye-lockup-horizontal-light.svg">
-  <img alt="Sistrum" src="assets/brand/logo/svg/mornye-lockup-horizontal-light.svg" width="650" height="auto">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/images/sistrum-horizontal-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="assets/images/sistrum-horizontal-light.png">
+  <img alt="Sistrum" src="assets/images/sistrum-horizontal-light.png" width="650" height="auto">
 </picture>
 
 <p align="center">

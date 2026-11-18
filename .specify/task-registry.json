@@ -7,7 +7,7 @@
       "title": "Rebrand to Sistrum and ship Android ARM64 offline"
     }
   },
-  "next_completion": 4,
+  "next_completion": 5,
   "next_mission": 2,
   "next_tor": 3,
   "tasks": {
@@ -28,13 +28,19 @@
       "title": "Apply Sistrum identity across app and native contracts"
     },
     "M001-T002": {
-      "completion": null,
+      "completion": 4,
+      "evidence": {
+        "checks": "blob hashes match ba0e973 (26 files); IHDR sizes unchanged (5 legacy mipmaps RGB->RGBA by design); no dangling refs for 58 deleted files; flutter analyze == baseline 1 info; 8 targeted test files 271 pass; full flutter test 57/58 failing names identical to HEAD; validate PASS; no device rendering",
+        "result": "PASS",
+        "reviewer": "independent-reviewer (a7de344)",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "79575d229d3145a8a6bb3ed037fca586",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Match Sistrum artwork to original asset layouts"
     },
     "M001-T003": {
